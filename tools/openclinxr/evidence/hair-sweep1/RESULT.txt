@@ -1,0 +1,42 @@
+RESULT::hair-sweep-1
+FIXED::cap=tools/openclinxr/evidence/hair-cap8/cap-v8.npz | flow=tools/openclinxr/evidence/hair-cap8/flow-b-v10.npz | seed=16 | children=50315/cell | cameras/landmarks front=55,595,512 profile=90,570,200 back=100,650,512
+BASELINE::b0 cap8/flow10 kept=478/600 (79.7%), 8/9 gates PASS (G2 MISS), front/profile/back=0.4946/0.7051/0.7542 versus G16 v7f9 cap7/flow9 kept=490/600 (81.7%), 8/9 gates PASS (G2 MISS), front/profile/back=0.4587/0.6523/0.7607; fixed inputs improve front +0.0359 and profile +0.0528, back -0.0065.
+CELL::b0 | <none> | kept 79.7% | inside 0 | front IoU 0.4946 | profile IoU 0.7051 | back IoU 0.7542 | face gap 1.16/1.23 | ear cover 0.910/0.912
+CELL::s1 | liftoff_depth_gain 0.6->0.3 | kept 83.0% | inside 0 | front IoU 0.4691 | profile IoU 0.7110 | back IoU 0.7493 | face gap 1.17/1.24 | ear cover 0.910/0.912
+CELL::s2 | liftoff_depth_gain 0.6->0.0 | kept 80.0% | inside 0 | front IoU 0.4150 | profile IoU 0.6765 | back IoU 0.7368 | face gap 1.18/1.25 | ear cover 0.541/0.542
+CELL::s3 | side_hang taut->vertical_then_taut | kept 54.3% | inside 0 | front IoU 0.3591 | profile IoU 0.6766 | back IoU 0.7273 | face gap 1.13/1.20 | ear cover 0.000/0.000
+CELL::s4 | side_hang taut->vertical_then_taut + liftoff_depth_gain 0.6->0.3 | kept 56.0% | inside 0 | front IoU 0.3474 | profile IoU 0.6641 | back IoU 0.7248 | face gap 1.13/1.20 | ear cover 0.000/0.000
+CELL::s5 | repair_intersections false->true | kept 93.0% | inside 0 | front IoU 0.5247 | profile IoU 0.7117 | back IoU 0.7517 | face gap 1.16/1.23 | ear cover 0.992/0.992
+CELL::s6 | liftoff_depth_gain 0.6->0.3 + repair_intersections false->true | kept 97.3% | inside 0 | front IoU 0.5071 | profile IoU 0.7175 | back IoU 0.7478 | face gap 1.16/1.24 | ear cover 0.992/0.991
+GATES::b0 G1,G3-G9 PASS; G2 MISS | s1 G1,G3-G9 PASS; G2 MISS | s2 G1,G3-G7,G9 PASS; G2,G8 MISS | s3/s4 G1,G4-G7,G9 PASS; G2,G3,G8 MISS | s5 G1,G3-G9 PASS; G2 MISS | s6 G1-G9 PASS
+STYLE_DIFFS::cells/*/style.json differs from b0 only by the CELL keys above; check-sweep.mjs verifies fixed cap, flow, seed, judge landmarks, and s6=s1+repair.
+M3::region table b0: region | roots | kept | rejected face/inside/horizontal | median lift-off y,z m | median hang angle deg
+M3::b0 front_band | 70 | 22 | 0/48/0 | -0.0743,1.6116 | 29.95
+M3::b0 temple | 36 | 24 | 0/6/6 | -0.0412,1.5967 | 25.26
+M3::b0 top | 42 | 30 | 0/6/6 | -0.0412,1.6119 | 23.91
+M3::b0 side_above_ear | 216 | 174 | 0/42/0 | -0.0360,1.5707 | 26.53
+M3::b0 back | 256 | 228 | 12/4/12 | 0.0122,1.5704 | 15.22
+M3::region table best=s5: region | roots | kept | rejected face/inside/horizontal | median lift-off y,z m | median hang angle deg
+M3::s5 front_band | 70 | 46 | 0/24/0 | -0.0625,1.6072 | 29.54
+M3::s5 temple | 36 | 30 | 0/0/6 | -0.0412,1.5841 | 25.98
+M3::s5 top | 42 | 36 | 0/0/6 | -0.0425,1.6103 | 24.30
+M3::s5 side_above_ear | 216 | 214 | 0/2/0 | -0.0385,1.5704 | 28.26
+M3::s5 back | 256 | 232 | 12/0/12 | 0.0122,1.5684 | 15.22
+M3::front edge table (registered head-H; rows 0.154/0.308/0.462/0.617/0.771/0.925/1.079): b0 outer L=-0.241/-0.364/-0.366/-0.410/-0.391/-0.376/-0.360, target=-0.277/-0.347/-0.385/-0.410/-0.426/-0.445/-0.476; b0 inner L=-0.185/-0.254/-0.285/-0.310/-0.254/-0.187/-0.301, target=-0.021/-0.193/-0.231/-0.254/-0.247/-0.189/-0.254. Best s5 outer L=-0.235/-0.362/-0.372/-0.424/-0.397/-0.387/-0.372; inner L=-0.177/-0.254/-0.285/-0.304/-0.254/-0.187/-0.301. Right edges and all eight rows are in analysis.json.
+M3::profile front-edge table (registered head-H; rows 0.164/0.325/0.489/0.650/0.814/0.976/1.139): b0=0.135/0.142/0.241/0.325/0.473/0.615/0.759, target=0.064/0.128/0.162/0.217/0.279/0.383/0.637; best s5=0.135/0.142/0.226/0.316/0.465/0.606/0.757. Full table is in analysis.json.
+CAUSE(D1)::candidate (a) is a partial contributor (cap8/flow10 adds +0.0359 front IoU) and candidate (d) is supported most strongly: closed-form repair raises kept 478->558, front-band kept 22->46, side-above-ear kept 174->214, and front IoU 0.4946->0.5247. Candidates (b) and (c) are refuted as fixes: lowering depth gain drops front IoU to 0.4691/0.4150; vertical-then-taut drops it to 0.3591 and loses G3/G8. Candidate (e) remains UNKNOWN and is the leading residual because at 0.154H the repaired children inner edge is +/-0.177H versus target +/-0.019-0.021H.
+CAUSE(D2)::candidate (a) is supported as the primary measured contributor: fixed cap/flow raises profile IoU 0.6523->0.7051. Candidate (d) is secondary (+0.0066 from b0 to s5). Candidate (b) does not improve the front edge and candidate (c)'s proposed vertical hang is refuted (profile 0.6766 plus G3/G8 failure). Residual profile-front displacement remains 0.071H at 0.164H and 0.223H at 0.976H, so the remaining cause is UNKNOWN rather than attributed to the rejected hang implementation.
+BEST::s5 because it has the highest front IoU 0.5247 (primary D1 objective), while retaining profile 0.7117, back 0.7517, inside=0, ear=0.992/0.992, and ID show-through 0.0204. s6 is the required s1+s5 combination and uniquely passes G1-G9, but its front IoU is lower at 0.5071.
+M6::best true tip z range=1.28945..1.30135m, median=1.29615m; judge back hem ours row=893, 0.66533H versus target row=822, 0.51037H. Back registration is scale=0.93818, tx=32.6509px, ty=36.1818px with H_front=458.1669px and chin-equivalent row=588.1669. Holding camera/registration fixed, judged equality requires median z_hem=1.32880m, or 0.57153 head-heights below the chin (not applied).
+M7::z relative menton +0.02/+0.00/-0.02/-0.04/-0.06m | ours nape depth 0.3438/0.3104/0.2354/0.1729/0.1354H | target 0.5951/0.4956/0.4049/0.2367/0.1394H. Depth is the dominant contiguous hair run from its neck-side edge to outer silhouette on the registered profile ID/target-derived mask.
+SAW::b0/front: at native 1024px beside TS, the forehead is fully exposed and the inner hairline begins far outside the brows; scalloped temple clumps sit above the ears, then two straight side panels begin at ear level; face and chest stay clear.
+SAW::b0/profile: at native 1024px beside TS, the front edge leaves from the high temple and forms a steep slicked-back diagonal; the upper sheet is faceted and the lower sheet narrows to a pointed, too-low blade behind the shoulder.
+SAW::b0/back: at native 1024px beside TS, the children form two rectangular lobes with a centre seam, angular root shoulders and scalp show-through; the blunt hem is visibly lower than TS.
+SAW::s5/front: at native 1024px beside TS, repaired density thickens the temple/ear sides but does not move the inner hairline over the temples; the broad bare forehead and scalloped side clumps remain.
+SAW::s5/profile: at native 1024px beside TS, the repaired sheet remains much steeper than TS and shows large folded/scalloped root patches; it clears the face but reads as a taut rear sheet rather than near-vertical face framing.
+SAW::s5/back: at native 1024px beside TS, the centre seam/two-lobe read persists, with exposed/faceted crown transitions and a hem substantially lower and squarer than TS.
+NEXT::add one children-station front-hairline root-fill band (candidate e), targeting the 0.154H registered row where best inner edges are +/-0.177H but TS is +/-0.019-0.021H (about 0.157H missing per side); keep s5 guide geometry fixed.
+COMMIT::7bf6fa0c795a9338fb60f546781f4dd262e5130b
+STILL::best front IoU 0.5247 remains below healthy 0.70-0.78; forehead/temple framing is absent, back seam remains, judged hem is 0.1550H too low, upper profile nape depth is 0.2514H shallow at menton+0.02m, and best s5 still misses G2 at 93.0% kept. s6 passes all guide gates but does not win front silhouette.
+BRIEF_MISSING::the M7 neck-back pixel classifier was not specified and the neck boundary is occluded by hair in the target; measurement uses the dominant contiguous target hair run's inner edge as the reproducible neck-side boundary. Overall-best selection was not specified beyond s6's front-IoU rule, so BEST uses the same primary front-IoU objective.
+HARM::none; writes are confined to tools/openclinxr/evidence/hair-sweep1; no G16, hair-cap8, judge, target-set, protected file, external system, or *.blend was edited.

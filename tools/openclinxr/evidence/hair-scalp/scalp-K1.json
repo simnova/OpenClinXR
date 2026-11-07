@@ -1,0 +1,98 @@
+{
+  "cell": "K1",
+  "partClosure": true,
+  "partFill": true,
+  "undertone": true,
+  "hair": {
+    "melanin": 0.8513293862342834,
+    "redness": 0.840287983417511,
+    "roughness": 0.14088048040866852,
+    "radial": 0.20000000298023224,
+    "coat": 0.0
+  },
+  "hairRequested": {},
+  "undertoneRec": {
+    "attr": "OCLX_scalp_mask",
+    "mix": 0.65,
+    "rough": 0.9,
+    "rootColour": [
+      0.01751299947500229,
+      0.005762999877333641,
+      0.002059000078588724
+    ],
+    "skinMaterial": "mpfb_skin_peds_anxious_parent",
+    "footFaces": 984,
+    "footAreaCm2": 617.5540267363372,
+    "maskMean": 0.040806271459956626
+  },
+  "key": null,
+  "keyRequested": {},
+  "requested": 50000,
+  "evaluatedCurveCount": 50570,
+  "pointsPerCurve": 32,
+  "nanCount": 0,
+  "sha256": "ba151b15262cf983058c8a89b63c672eb0daab25708bfd00711f75c7abdd4a3b",
+  "sha256_twice_equal": true,
+  "sha256_is_pt_c3": true,
+  "crossings": 0,
+  "nearSlitPoints": 13,
+  "judge": {
+    "partPx": 27,
+    "iou": 0.6183327436518521,
+    "widthRms": 0.22190882595504768,
+    "judgeShow": 0.0009458749343142406
+  },
+  "idShow": 0.02869084875343933,
+  "idShowRegion": 47611,
+  "photo": {
+    "p10": 0.0674643137254902,
+    "p50": 0.14644627450980394,
+    "p90": 0.3116823529411764,
+    "RB": 1.4589352121799446,
+    "redness": 0.06786209207520968,
+    "partBand": 0.49877870458447304,
+    "partBandRatio": 3.4058818242664275,
+    "faceTopRow": 264,
+    "faceSkin": 0.6454218992858762,
+    "bgMean": 0.48464971595435047,
+    "forehead": 0.7932863247713392,
+    "hairPx": 155416
+  },
+  "renders": {
+    "front": {
+      "png": "tools/openclinxr/evidence/hair-scalp/cellK1/front.png",
+      "id_png": "tools/openclinxr/evidence/hair-scalp/cellK1/front-id.png"
+    },
+    "three_quarter": {
+      "png": "tools/openclinxr/evidence/hair-scalp/cellK1/three_quarter.png",
+      "id_png": "tools/openclinxr/evidence/hair-scalp/cellK1/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "tools/openclinxr/evidence/hair-scalp/cellK1/profile_90.png",
+      "id_png": "tools/openclinxr/evidence/hair-scalp/cellK1/profile_90-id.png"
+    },
+    "crown_top": {
+      "png": "tools/openclinxr/evidence/hair-scalp/cellK1/crown_top.png",
+      "id_png": "tools/openclinxr/evidence/hair-scalp/cellK1/crown_top-id.png"
+    }
+  },
+  "visible": [
+    "Human",
+    "OCLX_Aisha_head",
+    "OCLX_blend_scalpK1",
+    "OCLX_cam",
+    "OCLX_fill",
+    "OCLX_key",
+    "OCLX_rim",
+    "makeclothes_library_female_tight_jeans_pants",
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+    "makeclothes_library_toigo_t_shirt",
+    "mpfb_parent_tara_johnson_v1_body_mesh",
+    "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+    "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+    "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+  ],
+  "wallSeconds": 152.89017025000066
+}

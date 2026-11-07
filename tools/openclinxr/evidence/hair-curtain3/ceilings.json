@@ -1,0 +1,30 @@
+{
+  "areas": {
+    "band": 74651,
+    "body_clip": 95347,
+    "skull_clip": 76234,
+    "target": 102503
+  },
+  "binding": "head_exterior_band_0_25mm",
+  "brow_row": 333,
+  "ceilings": {
+    "head_exterior_band_0_25mm": 0.3621991541714725,
+    "target_outside_bare_skull": 0.7437245739149098,
+    "target_within_30mm_body": 0.9301874091490006
+  },
+  "hem_row": 675,
+  "registration": {
+    "px_per_mm": 2.1749205503455684,
+    "render": {
+      "chin_row": 583,
+      "crown_top_row": 103,
+      "face_centre_col": 512
+    },
+    "target_skull": {
+      "chin_row": 608,
+      "crown_top_row": 149.83309357452197,
+      "face_centre_col": 513
+    }
+  },
+  "schemaVersion": 1
+}

@@ -1,0 +1,14 @@
+strands asset store: /Volumes/files/openclinxr-assets/store/hair-groom16/ (see SHA256SUMS there)
+9f3d7dafe534ab4f3a5d4529d0d3f288dcd5349a33e15b15b01bc3915e6eb4cc  strands-8a.npz
+e3e5ab3c0b7de44703b9cf345d2cda52a1704f2a57f76624b8327ec73261518a  guides-cleared.npz
+
+array-hash (points+radii, gates16.json): 78899d4c172bc33deb9b6b10ba4199b0b201b5f073c0004e96929bb568becebb
+build: blender_children.py --guides guides-8a.npz --density 3900000 --seed 7 \
+       --scalp-roots hair-scalp1/roots.npz --part-by-islands 1 --clump-factor 0.2 \
+       --sideburn-tuck 1 --skip-drape 1 \
+       --clear-guides 1 --clearance-mm 2.0 --clear-thresh-mm 2.0 --clear-gate-mm 1.5 \
+       --outside-pass 1 --outside-target-mm 0.5 --outside-thresh-mm 0.5 \
+       --smooth-steps 2 --smooth-amount 0.15 --smooth-iters 1 --depth-classes 3 \
+       --interp-guides 3 --skip-shrink 1 --colliders ""
+RESULT: GATES_PASS = no; FALSIFIER fired (19.06% of child samples inside before the
+outside pass). See E/RESULT.txt sections 3 and 6.

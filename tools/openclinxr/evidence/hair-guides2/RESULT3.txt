@@ -1,0 +1,27 @@
+RESULT::hair-guides-3
+G1::596 | [350,600] PASS
+G2::inside=813 min=0.60mm (tshirt 787, body 26; phase0 284, phase1 515, phase2 14) | 0 ∧ >=2mm MISS
+G3::bad=119/6980 (phase1 81, phase0 38) | >=99.5% in [2,6]mm MISS
+G5::p95=25.3mm max=48.3mm | p95<=35 ∧ max<=65 PASS
+G6::0 | 0 PASS
+G7::p95=40.26 max=90000000000.00 short=442 | p95<=8 ∧ max<=25 ∧ 0 short MISS
+G8::hemdz=0.00mm cend=6.9% stray=1.68% | hem<=5mm ∧ cend<=10% ∧ stray<3% PASS
+G9::max=9.54mm (worst vert [-18.6,-1.7,1485.8] slitd=174.01mm, cap tail) | <=9mm MISS
+G10::|meanx|=2.31mm | <=5mm PASS
+G11::gap=119.6mm req=113.7mm outer-ear=86.3mm (target 86.3, report) | gap>=req PASS
+SAW::front: face fully clear between the curtains; curtains hang beside the cheeks from the temples; tubes read ORANGE; crown a dense mass with the part line and a thin scalp peek at the midline; front tips rest on the shoulder tops with mild outward splay at the very tips.
+SAW::three_quarter: tubes pass in front of the ear and hang beside the cheek, target-like; smooth shoulder contact with a slight kink where tubes meet the shoulder.
+SAW::profile: front hair lies close on the forehead, no 10-15mm hover; single curtain beside the cheek; back mass straight to mid-back; hem below the collar at the back, at the shoulder top in front.
+SAW::back: full even drape both sides of the midline to mid-back; lower tips flare outward tent-like; a few outward strays at the lower sides.
+SAW::top: part line visible with scalp peeking along the midline, narrower than v2; tubes radiate laterally then fall; side masses extend over the shoulders.
+SAW::mask: black head occludes the back hair; white curtains stand both sides of a clear black face opening at the eye row; gap 119.6mm.
+CAUSE::G2 REGRESSION vs v2 (37 -> 813): the 1.6x face-zone lateral floor (kept for G6/G11) drives walks across the shoulder dome where the t-shirt solid hugs the body; surface points at body+3mm sit inside the shirt solid. The conditional clamp refuses infeasible pulls; the unified drop pass is blocked by the G9 guard. Needs shirt-aware lift or per-strand routing around the shirt solid.
+CAUSE::G3 119 bad (need <=35): residual hover at walk rim zones (temple/ear rim-normal ends where the nearest-point snap jumps) plus ear-fold convolutions where pull-to-3mm re-queries a different nearest surface; feasible pulls applied, residuals undroppable under the G9 guard.
+CAUSE::G7 shorts 442 + p95 40.26 concentrate in shirt-pinch guides where best-of clearance snaps collapse adjacent points, plus slide-branch transitions on the shoulder dome (smoothed-branch signal helped; full persistence stalled falls in attempt 3 and was reverted). Drops blocked by the G9 guard.
+CAUSE::G9 9.54: worst verts sit in the cap tail ~174mm from the slit where traces fail (no usable flow/exit there), so wave-2 patches cannot cover; 600-root cap reached. Needs a cap/flow fix, out of scope (R2 forbids rebuilding cap and field).
+CAUSE::D4 forehead hover FIXED: profile shows contact; cause was the v2 post-hoc smoother displacing surface points without re-lift (same family as the v2 G3 self-infliction); U1 pipeline removes it.
+NOTE::v2/a1 G7 "shorts" (101/284) measured np.diff axis=0 (inter-guide gaps), not segments; all segment shorts in this file use axis=1.
+COMMIT::pending-code-commit-sha (filled at commit time)
+STILL::passing groom for the children/interpolation card needs G2/G3/G7/G9: shirt-aware routing around the shirt solid, cap-tail flow fix for G9 holes, and G9 margin so the drop pass can remove pinch strands.
+BRIEF_MISSING::M8 floor-gain zone schedule (1.6x inside the face zone, 0.8x outside) implemented to meet G6/G11, confirm as standing method; np.diff axis=1 convention for G7 segment counts, confirm (restates v2 short counts); guides.npz canonical left at v1, v3 kept versioned (guides3.npz + guides-v3-final.npz), confirm; G11 profile method (box-21 smooth, 0.3max threshold, body-black occluder), confirm; wave-2 patch + unified G9-guarded drop pass, confirm as standing method.
+HARM::none (F and HS untouched; no push)

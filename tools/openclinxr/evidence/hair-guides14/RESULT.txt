@@ -1,0 +1,44 @@
+RESULT hair-guides-14 (M1 ear-band side clearance, M2 front-edge slide, M4 back/side depth, cap v7) — gate MISS, stopped per STOP rule (G7 MISS x3 attempts, G1 MISS x3)
+RUN: Blender --background --python tools/openclinxr/evidence/hair-guides14/guides14.py -- --out tools/openclinxr/evidence/hair-guides14 --cell B --mirror-test --stem guides14 (cap-v7.npz + flow-b-v7.npz inputs; G12 heightfields reused read-only)
+LIFT-OFF histogram (444 kept guides; M2 slide runs front exits back along the hairline to the ear line; scalp lift-off breaks suppressed in front of the ear for non-sideburn strands):
+  above_ear edge n=2 y=[-36.3,-36.3] z=[1543.3,1543.4]; normal n=101 y=[-48.6,-29.1] z=[1533.1,1567.8]
+  behind_ear normal n=134 y=[-28.6,42.9] z=[1521.0,1582.6]; widest n=0
+  forehead_temple edge n=99 y=[-69.1,-59.7] z=[1547.4,1560.2]; normal n=91 y=[-92.0,-49.1] z=[1523.0,1565.0]; widest n=4 y=[-113.0,-108.8] z=[1595.4,1612.7]
+  nape edge n=0; normal n=13 y=[-81.5,19.7] z=[1502.5,1517.9]
+  stops: normal=339 edge=101 widest=4. tracefail=8 dropshort=148 (behind_ear 101, nape 43, forehead_temple 4). P2 full-trace reference: nape 272 / above_ear 130 / forehead_temple 179 / behind_ear 11.
+GATES (row-guides14.json, check-guides14.mjs FAILs exactly the MISS set {G1,G2,G7}; self-test catches all 22 plantings):
+  G1 MISS p95=0.0013mm max=27.8358mm (444 mirror pairs; one pair)
+  G2 MISS n=444/600 (74.0%) 32pts 0NaN short=0 zero=0 (of kept; 148 drop-short + 8 tracefail excluded)
+  G3 PASS behind-viol=0 front-of-shoulder=0 (tot 3996 below-top checks)
+  G4 PASS inside=1 (0.52mm scalp graze, above_ear string at (69.0,-40.9,1552.1)) min-clear 0.43mm deep 0.52mm
+  G5 PASS medz=1562.4mm nape-edge=0 (0.00%) frontlo=0 (M3 count)
+  G6 PASS backfill L=0.920 C=0.981 R=0.940 ratio=1.055 (need >=0.90); travel viol=0 max=0.00mm; hull-inside=16 report-only
+  G7 MISS horiz=164/444 guides carry a >12mm segment with |dz|<2mm
+  G8 PASS coverL=0.991 coverR=0.991 gapL=0.3421 gapR=0.3388 (>=0.85xTS 0.1926/0.1785) face=0
+  G9 PASS hembad=0/444 tipstd=3.42mm (tip z within 8mm of z_hem+jitter, 100%)
+X1::angle ours=32.7 vs TS=21.4 deg | depth ours=69.4mm (0.330hh) vs TS~0.42hh
+X2::ratio ours=1.367 vs TS=1.26 (head_hw=83.0mm sheet_hw=113.4mm at z=1.38)
+X3::outer-ear ours=0.577hh | eye-row interp gapL/R=0.0000/0.0097 vs TS 0.2266/0.2100 (thin center scalp traces) | mask gapL/R=0.3421/0.3388 (visible curtain mass starts wide)
+X4::turn p95=49.44 max=257.38 deg/cm; zig=390/444 (87.8%) report-only
+X5::forehead=35 report-only (z 1589-1603; ph0=31 hairline-to-brow scalp walk, ph1=4)
+ATTEMPTS (3 honest full runs + 1 aborted):
+  A1: NameError at M3 report (ear_front_y scope); aborted post-build. Mirror max 3.12, frontlo 60.
+  A2 (M1 band envelope + M2 slide + M4 split, first full): G1 MISS(3.12) G2 PASS(580) G4 MISS(16/3.86) G5 MISS(frontlo 60) G6 PASS G7 MISS(188) G8/G9 PASS.
+  A3 (+F1 front lift-off suppression per M2 text, M4 clip test, span/mirror diagnostics): G1 MISS(6.54) G2 PASS(578) G4 MISS(15/5.10) G5 PASS(0) G6 PASS(1.088) G7 MISS(172). F1 cleared frontlo 60->0. Clip deepened G4 (reverted).
+  A4 (+M1 side margin 5->10mm, M4 clip reverted to 8+22t, resample touch-up cap 6->12mm below menton, M2 slide tie-break): G1 MISS(27.84) G2 MISS(444) G4 PASS(1/0.52) G5 PASS G6 PASS(1.055) G7 MISS(164).
+SAW (attempt-4 renders beside TS at native size, guides14-debug.png + target-vs-guides14.png):
+  front: face fully clear, nothing over the eyes; two side sheets fall OUTSIDE the shoulders; small rectangular brackets at the temples; cyan crown cap; mirror-exact. Curtain mass sits wider than TS (gap 0.34H vs 0.22H), no center mass (guides-only).
+  three_quarter: side sheet hangs beside the head over a covered ear; rectangular corner spans visible at the ear (first-span cliffs + drape junctions); face clear.
+  profile: back sheet falls cleanly crown-to-mid-back; nested rectangular frames persist around the ear at z~1540-1560 (the G7 mechanism, visible); long diagonals from temple to back on drape strands.
+  back: ONE FILLED SHEET. Center filled between lift-off band and hem, vertical strands, no horizontal line, no empty middle, no bare neck gap, straight blunt hem, mirror-exact. D1 FIXED in the back view (fill ratio 1.055).
+  top: cyan cap + magenta fringe, yellow lift-off ring at the ear line, mirror-exact.
+  hem: TRUE tip-z exact by construction (G9 100%), tipstd 3.4mm.
+  mirror: p95 0.0013mm; one divergent pair (see CAUSE).
+CAUSE per MISS:
+  G1-27.8: one mirror pair from high-front-right root (-34.2,-117.2,1625.6mm) diverges 27.8mm at z~1530. bkd.find boundary ties return non-mirrored verts for the pair, slide tangents diverge, strings take different supports. p95 stays 0.0013 (444 pairs). Attempt-4 tie-break (root-side at |t.y|<0.05) did not address the KDTree-tie source; margin+10 moved x0 and amplified this pair (6.5->27.8).
+  G2-74%: touch-up cap 6->12mm below menton plus margin+10 collapsed neighbor segments: 148 drop-short (behind_ear 101, nape 43, forehead_temple 4) + 8 tracefail. Attempt-3 state passed G2 (578/600, 96.3%). The shoulder-corner chord-cut lever fights G2 through the 32-pt resample: moves big enough to clear 10mm cuts collapse 10mm spans.
+  G7-164: structural in frozen machinery (per-strand span echoes DG-HORIZ in build log). Two sources: (i) first-span cliffs: ear-line L starts ~100mm in front of the Yb-back wall at x0, farthest-visible support search jumps dy 26-67mm over dz 2mm; (ii) drape-end to back-hull handoff jumps dy 44-85mm over dz ~2mm at slab gaps. Margin+10 cleared Yb-window graze phantoms (window bottom now >= local silhouette) but not the true-surface wall facing front-starting side strands. Fixing needs span-selection/handoff redesign outside M1-M5 and R2 (farthest-visible search, drape gap logic, +-12mm obstacle windows are guides-13 inheritance).
+COMMIT: tools/openclinxr/evidence/hair-guides14 staged+committed as evidence guides v14 (this envelope included). Committed state = attempt-4 outputs (G4/G5/G6/G8/G9 PASS) with G1/G2/G7 MISS recorded here.
+STILL: G1 max (1 pair, KDTree-tie); G2 74% (touch-up/G2 fight); G7 164 horizontal runs (structural, see CAUSE); X1 angle 32.7 vs 21.4; X3 gap overshoot 0.34 vs 0.22 (sheets outside shoulders); X5 forehead 35 (hairline-to-brow scalp walk, same structural source as G13); depth 0.33 vs 0.42.
+BRIEF_MISSING: (1) M2 slides L to the ear line but the string machinery (farthest-visible supports, drape gap handoff) was built for front-edge L and cliffs from ear-line starts; no named lever covers the first span. (2) M1's band envelope sets x0 from the LOCAL silhouette while the Yb +-12mm window reaches 12mm past it; clearing needs margin >= 12-c (found +10) which trades sheet width/cover. (3) M4 "[4,20] keep" vs "8+22t" ambiguous; unclipped reading (b) bridges hollows better and restores depth (0.285->0.330). (4) G1 max<=2 needs tie-symmetric boundary queries; mirror-averaging covers flow/projection but not bkd.find index ties. (5) touch-up cap 6mm cannot clear >=10mm shoulder-corner chord cuts, but raising it breaks G2: the two gates fight through the resample.
+HARM: none. Write-root only E/. No push. G12/G13/C7/TS untouched (read-only). Blender crashed zero times.

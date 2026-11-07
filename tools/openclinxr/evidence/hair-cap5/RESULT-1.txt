@@ -1,0 +1,27 @@
+RESULT::hair-cap-5
+P1::cx=513 crown=127 skull=150 chin=608 H=458 rows(dx:L/R)=0:208/208 20:211/211 40:212/213 60:224/219 80:245/238 100:303/284
+P2::v4-centre-h=0.624H (hairline AT brow brow_z=1.5717) | v5 follows P1
+P3::profile hair-front cols rows220-300=390,395,400,403,406; eye-outer=347; offsets=0.095,0.106,0.117,0.124,0.131H behind eye; ear covered
+P4::brow id=227 z=1.57165 nasion id=1026 z=1.54823 (old 1.5303 was nose)
+HAIRLINE::0.00000 C target 0.8734 | ours-v4 0.6239 | ours-v5 0.8850
+HAIRLINE::0.04367 L target 0.8668 | ours-v4 0.6300 | ours-v5 0.8830
+HAIRLINE::0.04367 R target 0.8668 | ours-v4 0.6300 | ours-v5 0.8830
+HAIRLINE::0.08734 L target 0.8646 | ours-v4 0.6579 | ours-v5 0.8752
+HAIRLINE::0.08734 R target 0.8624 | ours-v4 0.6579 | ours-v5 0.8752
+HAIRLINE::0.13100 L target 0.8384 | ours-v4 0.6671 | ours-v5 0.8561
+HAIRLINE::0.13100 R target 0.8493 | ours-v4 0.6671 | ours-v5 0.8561
+HAIRLINE::0.17467 L target 0.7926 | ours-v4 0.6671 | ours-v5 0.7957
+HAIRLINE::0.17467 R target 0.8079 | ours-v4 0.6671 | ours-v5 0.7957
+HAIRLINE::0.21834 L target 0.6659 | ours-v4 0.6671 | ours-v5 0.6966
+HAIRLINE::0.21834 R target 0.7074 | ours-v4 0.6671 | ours-v5 0.6966
+G1::area=629.7 [520,700] removed=3.1 ncomp=1 step=11.10mm<=3 MISS
+G2::maxerr=0.0306H<=0.02 mirror=0.00mm<=1 MISS
+G3::g13=1.00>=0.90 g7=1.00>=0.95 g15=13.00<=25 cross=0 sinks=1 MISS
+G4::hausdorff=16.4761mm<=1 MISS
+HIST-B::forehead=6 temple-to-ear=115 behind-ear=108 nape=70 never-left=1
+SAW::pending-visual
+CAUSE::MISS G1,G2,G3,G4 see row-cap5.json
+COMMIT::committed (this commit)
+STILL::guides/children/hair renders (later cards)
+BRIEF_MISSING::none
+HARM::none

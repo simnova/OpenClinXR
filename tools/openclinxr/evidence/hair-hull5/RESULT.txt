@@ -1,0 +1,121 @@
+hair-hull5: symmetric six-view hull promoted, sensitivity gate redefined — RESULT
+==============================================================================
+WRITE ROOTS: E = tools/openclinxr/evidence/hair-hull5 (new; hull4 WS read-only,
+never written), S6 = tools/openclinxr/hair-groom/hull (gate-definition block
+in hull3.py only: HEM_BAND_PX + SENSITIVITY_REDEFINED + hem_start_row();
+hull/hull0c/hull1/hull2 method code untouched). No *.blend anywhere under
+either root (background renders only).
+
+WHY hull/ changed (gate definition only, orchestrator decision recorded as a
+gate change not a waiver): the old "sensitivity-no-fragile" bar (any contour
+delta > 5 px under the undilated re-carve) was written for 3-4 views to catch
+FRAGILE TOPOLOGY. Redefined undilated branch: (i) scalp-connected single
+component + no region lost (keepLabel != 0, undilated splat non-empty every
+view, below-shoulder sideL/sideR/back all > 0); (ii) regional contour metrics
+within 5 px for every 40 px row-band region EXCEPT the hem band (lowest 40 px
+of each view's mask; full-frame EDT missP95/missP50/excessP95 deltas vs
+baseline); (iii) hem-band miss reported, not gated. 1 mm branch unchanged.
+
+STEP 1 — promotion (E/hull.npz, hull3 15-key schema exactly)
+  Source: hair-hull4 WS/baseline_kept.npz (6-view L/R-symmetric carve,
+  MIRROR_PROFILE + MIRROR_3Q). Verified bit-identical: occupancy == final
+  (393153 vox), states_packed == (uint16, max 728), xs/ys/zs identical.
+  Views: [front, three_quarter, three_quarter_mirror, profile_90, back,
+  profile_90_mirror]. spacing 2.0, crop [-260,260,-260,160,1255,1720],
+  shoulder 1405, sdf_clear 2, dil 2, registration_p95 0.0. No re-carve.
+
+STEP 2 — re-score (WS/rescore.json; WS4 diag/sens/stats/ear/poke read-only;
+undilated 6-view re-carve re-run with store=True for splats, same calls as
+the sensitivity undilated branch; reproduces hull4 sens.json exactly)
+  (a) Excess p95 vs UNDILATED masks (gate <= 4 px): front 2.0, three_quarter
+      2.0, three_quarter_mirror 2.0, profile_90 2.0, back 2.0,
+      profile_90_mirror 3.0. PASS all six.
+  (b) Roots (14155): p50 2.83 / p95 6.0 / max 18.87; 95.29% within 6 mm
+      (gate >= 95% PASS). Crown band 95.95%, mid 92.12%.
+  (c) Single component: nComponents 1, largestFrac 1.0; droppedTouch 291 vox
+      (109 pieces, max piece 25) = 0.074% <= 0.1%. PASS.
+  (d) Mismatch tuck form: hairlike-beyond-3px front 0 / three_quarter 5 /
+      profile_90 6 / back 0 (max 6 <= 15); dome covered (roots 95.29% +
+      crown p50 10.0); no shell. PASS. Raw poke fires on approved exposed
+      skin by construction (unchanged from hull3 lineage).
+  (e) 1 mm re-carve (unchanged branch): maxContourDelta 1.64, fragile [].
+      PASS.
+  (f) REDEFINED undilated branch:
+      (i) keepLabel 96 (!= 0); undilated splats non-empty all six views
+      (front 37208 / 3q 50402 / 3qm 50228 / profile 72617 / back 167926 /
+      promirror 72355 px); below-shoulder sideL 824 / sideR 846 / back
+      109462 (all > 0; front sector 0 in baseline too, by anatomy);
+      retention 368926/393153 = 93.8%; largest lost projected component
+      59 px (edge-wisp scale). PASS: single scalp-connected component, no
+      region lost.
+      (ii) 40 px row-band deltas (undilated vs baseline): hem band0 deltas
+      <= 2.9 px in ALL six views (PASS); every other band <= 4.1 px EXCEPT
+      the crown-top bands — front bands 12/13/14 (rows 57-216): missP50 d
+      9.2/5.5/30.4, missP95 d 42.3/51.8/48.2; three_quarter bands 13/14/15
+      (rows 86-205): missP50 d 7.2/5.5/9.8, missP95 d 8.7/5.8/19.1;
+      three_quarter_mirror bands 13/14/15: missP50 d 6.9/6.5/9.6, missP95 d
+      8.8/4.7/18.4. profile_90/back/profile_90_mirror: ALL bands pass
+      (max missP95 d 2.9). Regional excess deltas pass everywhere (<= 2.9).
+      FAIL as specified: the zero-slack effect is NOT hem-localized (the
+      hem band itself is green); it sits in the crown-top bands where the
+      thin dome apex (hull zmax 1.664 vs head top 1.660 = 4 mm = 2 vox)
+      shaves multiplicatively. Global old-bar numbers reproduced: front
+      missP95 13.04 -> 56.59, 3q 17.05 -> 30.4, 3qm 18.03 -> 30.02,
+      maxDelta 43.55. Read of the front target crown crop (smooth dome, no
+      flyaway fray; mask top row 81) confirms the far pixels (rows 81-176)
+      sit on the smooth apex outline, and the baseline is already
+      fray/apex-marginal there (band14 base miss p50 11.2/p95 19.2).
+      (iii) Hem-band miss (report only): front N 105->124, p50 10.1->12.3,
+      p95 13.6->15.0; 3q 6->14, p95 1.0->1.4; 3qm 3->13, p95 1.0->1.4;
+      profile 59->62, p95 11.0->13.6; back 343->360, p95 8.1->8.2;
+      promirror 62->73, p95 13.0->15.9.
+  (g) Back symmetry: hd L/R 156067/155669 = 1.0026 PASS (gate 0.9-1.1; raw
+      splat 1.0016).
+  (h) Side symmetry (hull4 fix gate): sideL 1166 / sideR 1183 = 0.9856 PASS
+      (0.8-1.25); undilated probe 824/846 = 0.974 PASS. Volumetric mirror
+      IoU 0.9848 (z-thirds low 0.9852 / mid 0.9863 / high 0.9774).
+  (i) Ears: visible coverage front 2.13%/0.0%, 3q near 1.02%, profile near
+      1.00% (max 2.13% <= 20% PASS); clearance min 2.17 (xpos) / 2.81 (xneg)
+      mm = SDF floor; far-ear n/a correctly occluded.
+  (j) Mass: vol 3,145,224 mm3; crown (z1600, 59 rays) p50 10.0 / p95 14.0 /
+      max 17.0; occiput depth 17.0 vs target 15.6; SDF cross-check 263/396.
+  OVERALL: 8/9 PASS. FAIL = redefined-(ii) only, as literally specified.
+
+STEP 3 — figure (READ before ship; renders re-read, not just produced)
+  E/hull.png + per-view PNGs: OPAQUE light-grey hull (key+fill suns) on
+  Aisha + 4 aisha-v3 target tiles. Read confirms: dome cap over the crown,
+  symmetric side curtains framing the face (ears exposed = tuck), full
+  symmetric back sheet past the shoulders — matching the targets.
+  RENDER ARTEFACT CAUGHT AND FIXED: the first render showed a bald crown
+  with a slab floating behind the head. Root cause (measured, Blender
+  scene bounds): render_hull2's OBJ import (forward_axis NEGATIVE_Y)
+  negates file-y (file y[-0.137,0.093] -> scene y[-0.093,0.137] vs body
+  y[-0.325,0.091]), mirror-flipping the hull front-to-back and burying the
+  4 mm dome apex inside the skull. Fix is E-side only, no method change:
+  WS/hull_surface_fig.obj (y pre-negated + winding swapped so the import
+  lands in the carve frame); canonical WS/hull_surface.obj untouched
+  (225634 tris, world metres, zmax 1.664). The same artefact is present in
+  hull3's hull.png (identical script + flags + convention); hull3's
+  analytic gates are unaffected (they never read the render).
+
+VERDICT: GATES_FAIL (redefined-(ii) only). The prescribed hem-band
+exception does not isolate the zero-slack effect: hem band0 passes
+everywhere (d <= 2.9 px) while crown-top bands exceed 5 px by up to ~50 px
+on missP95. Shipped-hull topology holds ((i) pass, 1 mm pass, all six
+hull3 gates + side symmetry + 0.985 mirror IoU pass). RECOMMENDATION
+(orchestrator call, no re-carve needed — all artefacts saved): extend the
+report-only exception to the crown-apex bands (front rows 57-216, 3q/3qm
+rows 86-205), where the BASELINE miss is already apex/fray-dominated
+(p50 up to 12.4 px), or restate (ii) on regional EXCESS (all regional
+excess deltas <= 2.9 px = PASS) with miss reported per band (saved in
+WS/rescore.json + band table in this file's STEP 2(f)).
+
+SAW: S6/hull3.py (gate block only), E/hull.npz, E/hull.png (+4 view PNGs),
+  E/RESULT.txt, E/GATES_FAIL, E/DONE.txt, E/inputs-opened.txt,
+  E/blender-opened.txt, WS/{rescore,rescore.json inputs (copies),
+  splat_undil_*.npy,undilated_recarve.json,hull_surface.obj,
+  hull_surface_fig.obj}, WS4 (read-only source for all numbers).
+NOT TESTED: guide routing on the 6-view hull (route3's lane); whether the
+  undilated apex-edge gap matters to routing (hem tips + apex edge move,
+  roots/dome mass do not); worn-headset or Quest review; clinical
+  validity/licensure/scoring claims; strands, materials, lighting.

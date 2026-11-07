@@ -1,0 +1,100 @@
+{
+  "tag": "i0",
+  "resolution": 1024,
+  "samples": 64,
+  "geometrySource": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-geo6/cells/f1/strands.npz",
+  "materialSource": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look4/cells/best/metrics.json",
+  "views": {
+    "front": {
+      "p50": 0.07779294117647058,
+      "p90": 0.15812313725490196,
+      "highlight": {
+        "hueDeg": 17.378444258603714,
+        "saturation": 0.4117647058823529,
+        "pixels": 8397
+      },
+      "maskPx": 83932,
+      "partSide": 2.18007157330569,
+      "faceP50": 0.7333976470588235
+    },
+    "three_quarter": {
+      "p50": 0.11198588235294117,
+      "p90": 0.1545364705882353,
+      "highlight": {
+        "hueDeg": 12.233231126999678,
+        "saturation": 0.25490196078431376,
+        "pixels": 11435
+      },
+      "maskPx": 113865
+    },
+    "profile_90": {
+      "p50": 0.13468156862745098,
+      "p90": 0.16241568627450978,
+      "highlight": {
+        "hueDeg": 10.285828875461686,
+        "saturation": 0.2244897959183674,
+        "pixels": 16547
+      },
+      "maskPx": 164338
+    },
+    "back": {
+      "p50": 0.11535686274509803,
+      "p90": 0.1578556862745098,
+      "highlight": {
+        "hueDeg": 7.939761593399176,
+        "saturation": 0.23529411764705882,
+        "pixels": 24334
+      },
+      "maskPx": 243262
+    }
+  },
+  "targets": {
+    "front": {
+      "p50": 0.0660643137254902,
+      "p90": 0.17471529411764705,
+      "highlight": {
+        "hueDeg": 14.000403285023562,
+        "saturation": 0.19277108433734938,
+        "pixels": 10275
+      },
+      "maskPx": 102503,
+      "partSide": 1.4228061986337004,
+      "faceP50": 0.5280156862745098
+    },
+    "three_quarter": {
+      "p50": 0.06687764705882353,
+      "p90": 0.14758352941176472,
+      "highlight": {
+        "hueDeg": 21.266061323378928,
+        "saturation": 0.19298245614035092,
+        "pixels": 8483
+      },
+      "maskPx": 82894
+    },
+    "profile_90": {
+      "p50": 0.09601647058823529,
+      "p90": 0.1601819607843137,
+      "highlight": {
+        "hueDeg": 23.433920630079907,
+        "saturation": 0.16666666666666666,
+        "pixels": 16480
+      },
+      "maskPx": 159523
+    },
+    "back": {
+      "p50": 0.11228941176470587,
+      "p90": 0.1766862745098039,
+      "highlight": {
+        "hueDeg": 20.51565726511302,
+        "saturation": 0.23214285714285707,
+        "pixels": 23702
+      },
+      "maskPx": 235860
+    }
+  },
+  "judge": {
+    "front": 0.6792815265285314,
+    "profile": 0.6818688417875707,
+    "back": 0.7857687093323985
+  }
+}

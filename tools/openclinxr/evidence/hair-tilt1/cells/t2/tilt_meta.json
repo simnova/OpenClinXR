@@ -1,0 +1,25 @@
+{
+ "tag": "t2",
+ "op": "per-child constant tilt in local sheet plane + optional wave, then strict end clamp",
+ "params": {
+  "sigma_deg": 2,
+  "seed": 2026101601,
+  "partProtectMm": 3.0,
+  "rampMm": 15.0
+ },
+ "thetaDeg": {
+  "mean": -0.01244033537906353,
+  "std": 1.8616423620778964,
+  "maxAbs": 8.60502331370597
+ },
+ "maxDispMm": {
+  "p50": 6.210192530134905,
+  "p95": 22.081497622637052,
+  "max": 57.058948373310265
+ },
+ "endAngleDeg": {
+  "p50": 0.0,
+  "p95": 3.505796782151259,
+  "max": 69.32327789162646
+ }
+}

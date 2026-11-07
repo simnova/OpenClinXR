@@ -1,0 +1,90 @@
+{
+ "crossing3D": {
+  "guides-30": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom30/build-30/guides-30.npz",
+   "sha256": "3bfe3f599c04c1246da207acb0346e9307b1fcd63b899e0cc8e5afc964ae6431",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 8279,
+   "cross3D_le3mm": 935,
+   "frac3Dof2D": 0.1129,
+   "d3mm_at_2Dcross": {
+    "n": 8279,
+    "p10": 2.601,
+    "p25": 7.313,
+    "p50": 141.225,
+    "p75": 153.475,
+    "p90": 162.186,
+    "p99": 182.962,
+    "min": 0.01,
+    "max": 191.786
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 301
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 315
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 319
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 607
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 960
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 624
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 703
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4450
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 8279,
+    "p10": 0.928,
+    "p25": 2.522,
+    "p50": 5.756,
+    "p75": 10.805,
+    "p90": 21.888,
+    "p99": 34.929,
+    "min": 0.0,
+    "max": 43.185
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 8279,
+    "p10": 0.245,
+    "p25": 0.676,
+    "p50": 1.438,
+    "p75": 2.345,
+    "p90": 3.252,
+    "p99": 5.551,
+    "min": 0.0,
+    "max": 8.772
+   }
+  }
+ },
+ "note": "groom33 children ride guides-30 unchanged; crossing count is guides-level by construction"
+}

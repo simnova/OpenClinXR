@@ -1,0 +1,1 @@
+DONE hair-groom6: temple tuck clean, hem edges + part improved, D PASS (front IoU 0.6196); sheet.png + crops.png + RESULT.txt + honest GATES_PASS.txt (B/lobe/A-tips/ C-straightness in REMAINING for next card); renders/score/gates/baseline/temple-diag on disk; strands.npz N=306001 in the asset store.

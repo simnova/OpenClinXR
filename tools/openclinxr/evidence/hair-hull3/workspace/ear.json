@@ -1,0 +1,194 @@
+{
+ "boxes": {
+  "front": {
+   "ear7": {
+    "cx": 646.2,
+    "cy": 390.2,
+    "presence": 0.9423,
+    "box": [
+     601,
+     335,
+     691,
+     445
+    ]
+   },
+   "ear8": {
+    "cx": 401.6,
+    "cy": 395.4,
+    "presence": 0.9635,
+    "box": [
+     356,
+     340,
+     446,
+     450
+    ]
+   }
+  },
+  "three_quarter": {
+   "ear7": {
+    "cx": 474.9,
+    "cy": 397.1,
+    "presence": 0.9883,
+    "box": [
+     429,
+     342,
+     519,
+     452
+    ]
+   },
+   "ear8": {
+    "cx": 311.8,
+    "cy": 397.8,
+    "presence": 0.9918,
+    "box": [
+     266,
+     342,
+     356,
+     452
+    ]
+   }
+  },
+  "profile_90": {
+   "ear7": {
+    "cx": 362.8,
+    "cy": 384.4,
+    "presence": 0.9843,
+    "box": [
+     317,
+     329,
+     407,
+     439
+    ]
+   },
+   "ear8": {
+    "cx": 354.8,
+    "cy": 378.5,
+    "presence": 0.9914,
+    "box": [
+     309,
+     323,
+     399,
+     433
+    ]
+   }
+  }
+ },
+ "boxEarMapping": {
+  "front": {
+   "ear7": {
+    "n": 332,
+    "ear": "earXpos"
+   },
+   "ear8": {
+    "n": 183,
+    "ear": "earXneg"
+   }
+  },
+  "three_quarter": {
+   "ear7": {
+    "n": 48,
+    "ear": "earXpos"
+   },
+   "ear8": {
+    "n": 243,
+    "ear": "earXpos"
+   }
+  },
+  "profile_90": {
+   "ear7": {
+    "n": 251,
+    "ear": "earXpos"
+   },
+   "ear8": {
+    "n": 203,
+    "ear": "earXpos"
+   }
+  }
+ },
+ "clearanceMm": {
+  "overall_min_mm": 2.17,
+  "overall_p50_mm": 108.84,
+  "earXpos": {
+   "nVert": 168,
+   "centroidMm": [
+    71.5,
+    -59.5,
+    1532.2
+   ],
+   "minMm": 2.17,
+   "p50Mm": 152.23,
+   "p95Mm": 282.31
+  },
+  "earXneg": {
+   "nVert": 96,
+   "centroidMm": [
+    -66.0,
+    -76.7,
+    1528.0
+   ],
+   "minMm": 2.4,
+   "p50Mm": 143.76,
+   "p95Mm": 270.31
+  }
+ },
+ "coverage": {
+  "front": {
+   "earXpos": {
+    "visible": true,
+    "nProj": 168,
+    "visFrac": 1.0,
+    "areaPx": 2536,
+    "coveredPx": 54,
+    "coverageFrac": 0.0213,
+    "pass_le20": true,
+    "rawHdOverlapFrac": 0.0643
+   },
+   "earXneg": {
+    "visible": true,
+    "nProj": 96,
+    "visFrac": 1.0,
+    "areaPx": 1996,
+    "coveredPx": 7,
+    "coverageFrac": 0.0035,
+    "pass_le20": true,
+    "rawHdOverlapFrac": 0.017
+   }
+  },
+  "three_quarter": {
+   "earXpos": {
+    "visible": true,
+    "nProj": 168,
+    "visFrac": 0.994,
+    "areaPx": 9706,
+    "coveredPx": 99,
+    "coverageFrac": 0.0102,
+    "pass_le20": true,
+    "rawHdOverlapFrac": 0.0386
+   },
+   "earXneg": {
+    "visible": false,
+    "reason": "occluded-by-head",
+    "nProj": 96,
+    "visFrac": 0.0
+   }
+  },
+  "profile_90": {
+   "earXpos": {
+    "visible": true,
+    "nProj": 168,
+    "visFrac": 1.0,
+    "areaPx": 8994,
+    "coveredPx": 90,
+    "coverageFrac": 0.01,
+    "pass_le20": true,
+    "rawHdOverlapFrac": 0.0358
+   },
+   "earXneg": {
+    "visible": false,
+    "reason": "occluded-by-head",
+    "nProj": 96,
+    "visFrac": 0.0
+   }
+  }
+ }
+}

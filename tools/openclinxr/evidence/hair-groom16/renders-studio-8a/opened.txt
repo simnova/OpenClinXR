@@ -1,0 +1,13 @@
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom16/build/strands-8a.npz
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom16/renders-studio-8a/back-id.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom16/renders-studio-8a/back.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom16/renders-studio-8a/front-id.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom16/renders-studio-8a/front.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom16/renders-studio-8a/profile_90-id.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom16/renders-studio-8a/profile_90.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom16/renders-studio-8a/three_quarter-id.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom16/renders-studio-8a/three_quarter.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom7/params-c08.json
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/hair-groom/strands/render_studio.py

@@ -1,0 +1,43 @@
+RESULT::hair-guides-16
+RUN::v7f9 cap=tools/openclinxr/evidence/hair-cap7/cap-v7.npz flow=tools/openclinxr/evidence/hair-flow9/flow-b-v9.npz
+G1::p95=0.0000048mm max=0.0000064mm | p95<=0.5mm max<=2mm PASS
+G2::kept=490/600 (81.7%) points=32 NaN=0 short=0 | kept>=95%, 32 points, 0 NaN, 0 segments<2.5mm MISS
+G3::shoulder-front=0 torso-front=0 | both 0 PASS
+G4::inside=0 deepest=0mm | inside<=5 and none deeper than 1mm PASS
+G5::nape-edge=0.82% front-edge=1.22% back-band=92.35mm | <=10%, <=2%, >=25mm PASS
+G6::centre/outer=1.173 travel-viol=0 max=0.0069mm | >=0.90, <=15mm PASS
+G7::horizontal=0/490 | <=1% PASS
+G8::ear L=0.9794 R=0.9794 face=0 | each >=0.90, face=0 PASS
+G9::hem-bad=0/490 | every tip within 8mm PASS
+X1::front-edge=48.07deg, nape-depth=unmeasurable at exact menton row | TS 21.4deg, ~0.42 head-heights
+X2::back half-width ratio=1.2866 | TS 1.26
+X3::front IoU=0.4587 eroded=0.3681 width_rms_head=0.1487 gaps eye L/R=1.152/1.320 cheek L/R=1.017/1.071 eye_box=0 profile IoU=0.6523 back IoU=0.7607 back hem ours=0.6675 target=0.5344 IDshow=0.0122 standing=false | report only
+SAW::v7f9/front: face, eyes and chest clear; centre part visible; ears covered by the side mass.
+SAW::v7f9/three_quarter: all hair passes behind the shoulder; no rectangle; temple mass is thinner than TS.
+SAW::v7f9/profileL: ear covered and neck clear; wedge is clean but substantially steeper than TS.
+SAW::v7f9/profileR: mirror-exact clean wedge; nothing crosses the face.
+SAW::v7f9/back: one filled sheet with no horizontal line or rectangle; lift-off is a soft band; blunt mid-blade hem.
+SAW::v7f9/top: symmetric centre part and comb-back flow; no crossing or post-lift horizontal run.
+RUN::final cap=tools/openclinxr/evidence/hair-cap7/cap-v7.npz flow=tools/openclinxr/evidence/hair-flow9/flow-b-v9.npz fallback=true
+G1::same geometry as v7f9 | p95<=0.5mm max<=2mm PASS
+G2::kept=490/600 (81.7%) | kept>=95% MISS
+G3::shoulder-front=0 torso-front=0 | both 0 PASS
+G4::inside=0 deepest=0mm | inside<=5 and none deeper than 1mm PASS
+G5::nape-edge=0.82% front-edge=1.22% back-band=92.35mm | <=10%, <=2%, >=25mm PASS
+G6::centre/outer=1.173 travel-viol=0 | >=0.90, <=15mm PASS
+G7::horizontal=0/490 | <=1% PASS
+G8::ear L=0.9794 R=0.9794 face=0 | each >=0.90, face=0 PASS
+G9::hem-bad=0/490 | every tip within 8mm PASS
+X1::front-edge=48.07deg | TS 21.4deg
+X2::back half-width ratio=1.2866 | TS 1.26
+X3::front=0.4587 profile=0.6523 back=0.7607 | TS self=1.0; healthy expectation 0.70-0.78/0.70-0.80/>=0.75
+SAW::final/front: children leave eyes and chest clear but expose too much temple/forehead; no front curtain.
+SAW::final/three_quarter: continuous mass behind shoulder, ear front exposed, no chest bundle.
+SAW::final/profile: one clean neck-clear wedge with mid-back hem; steeper and more faceted than TS.
+SAW::final/back: filled two-lobed sheet with a centre seam, no horizontal bar, blunt hem.
+CAUSE::G2 MISS after attempt 3: 770 mirror-paired cap candidates produced 602 paths; honest rejection removed 80 collider-intersecting, 26 horizontal-run and 6 face-crossing paths, leaving 490. Restoring them would fail G4/G7/G8; no gate was weakened.
+CAUSE::X1/X3 profile/front mismatch: v9 sends front/side roots to high temple lift-off, so the closed-form side string forms a 48deg wedge and the children station exposes the temple; cap8/flow10 could not be promoted because its producer reported G4-flow-forward and G5 gate misses.
+COMMIT::441c1b97c48ab8f5cdc400cb8f77ed81d0b771d6
+STILL::G2 kept-count MISS after 3 honest attempts; judge fault signature front<0.50 and profile<0.70; final uses the required safe v7/f9 fallback because cap8/flow10 did not pass its producing card.
+BRIEF_MISSING::nape-depth X1 is unmeasurable with the specified exact menton-row intersection because the torso heightfield has no finite centre sample at that row; reported UNKNOWN rather than interpolating a different row.
+HARM::none; writes confined to hair-guides16, no protected inputs edited, no push.

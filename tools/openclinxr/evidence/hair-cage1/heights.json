@@ -1,0 +1,51 @@
+{
+  "back": {
+    "endUMm": -130.0,
+    "endVsChinMm": -101.0,
+    "endVsShoulderMm": -56.7,
+    "endZmm": 1348.3,
+    "shoulderUMm": -112.4,
+    "shoulderXmm": 0.0
+  },
+  "chinZmm": 1449.3,
+  "crownZmm": 1659.9,
+  "erosionNoisePx": {
+    "back": {
+      "n": 2003,
+      "p50": 1.0,
+      "p95": 1.0
+    },
+    "front": {
+      "n": 2615,
+      "p50": 1.0,
+      "p95": 1.0
+    },
+    "profile_90": {
+      "n": 1992,
+      "p50": 1.0,
+      "p95": 1.0
+    }
+  },
+  "landmarkConfidencePx": {
+    "centre": 2,
+    "chin": 3,
+    "crown": 2
+  },
+  "shoulderPlaneZmm": 1405.0,
+  "temple_L": {
+    "endUMm": -34.8,
+    "endVsChinMm": 19.8,
+    "endVsShoulderMm": 64.0,
+    "endZmm": 1469.0,
+    "shoulderUMm": -40.0,
+    "shoulderXmm": -82.2
+  },
+  "temple_R": {
+    "endUMm": -34.8,
+    "endVsChinMm": 19.8,
+    "endVsShoulderMm": 64.0,
+    "endZmm": 1469.0,
+    "shoulderUMm": -40.0,
+    "shoulderXmm": 82.2
+  }
+}

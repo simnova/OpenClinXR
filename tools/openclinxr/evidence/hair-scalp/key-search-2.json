@@ -1,0 +1,159 @@
+{
+  "e0": 150.0,
+  "k0face": 0.6457419620101096,
+  "mix": 0.7,
+  "hair": {
+    "melanin": 0.93,
+    "redness": 0.85,
+    "roughness": 0.3,
+    "radial": 0.35,
+    "coat": 0.0
+  },
+  "evals": [
+    {
+      "elev": 30.0,
+      "efac": 0.6,
+      "energy": 90.0,
+      "p50": 0.16016156862745098,
+      "p90": 0.2511913725490196,
+      "faceSkin": 0.6039049836098708,
+      "obj": 1.1767851697926381,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e30-f0.6-front.png"
+    },
+    {
+      "elev": 30.0,
+      "efac": 0.7,
+      "energy": 105.0,
+      "p50": 0.1657866666666667,
+      "p90": 0.26270901960784315,
+      "faceSkin": 0.6259807857676796,
+      "obj": 1.256135822736638,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e30-f0.7-front.png"
+    },
+    {
+      "elev": 30.0,
+      "efac": 0.8,
+      "energy": 120.0,
+      "p50": 0.1719262745098039,
+      "p90": 0.27447372549019605,
+      "faceSkin": 0.6464694546604317,
+      "obj": 1.3363082581059578,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e30-f0.8-front.png"
+    },
+    {
+      "elev": 35.0,
+      "efac": 0.6,
+      "energy": 90.0,
+      "p50": 0.15457254901960782,
+      "p90": 0.24389882352941178,
+      "faceSkin": 0.579020089845887,
+      "obj": 1.1118040117881431,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f0.6-front.png"
+    },
+    {
+      "elev": 35.0,
+      "efac": 0.7,
+      "energy": 105.0,
+      "p50": 0.16074823529411764,
+      "p90": 0.2537286274509804,
+      "faceSkin": 0.5993872246501585,
+      "obj": 1.190491656209591,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f0.7-front.png"
+    },
+    {
+      "elev": 35.0,
+      "efac": 0.8,
+      "energy": 120.0,
+      "p50": 0.16550352941176472,
+      "p90": 0.2635427450980392,
+      "faceSkin": 0.6181839108341802,
+      "obj": 1.2575950667417621,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f0.8-front.png"
+    },
+    {
+      "elev": 40.0,
+      "efac": 0.6,
+      "energy": 90.0,
+      "p50": 0.1498172549019608,
+      "p90": 0.2372086274509804,
+      "faceSkin": 0.552029440170487,
+      "obj": 1.0527432603164488,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.6-front.png",
+      "allFeasible": true
+    },
+    {
+      "elev": 40.0,
+      "efac": 0.7,
+      "energy": 105.0,
+      "p50": 0.15457254901960782,
+      "p90": 0.24560235294117644,
+      "faceSkin": 0.5705659597446552,
+      "obj": 1.1187643067620283,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.7-front.png"
+    },
+    {
+      "elev": 40.0,
+      "efac": 0.8,
+      "energy": 120.0,
+      "p50": 0.16074823529411764,
+      "p90": 0.255076862745098,
+      "faceSkin": 0.587609422617538,
+      "obj": 1.1957912784646134,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.8-front.png"
+    },
+    {
+      "elev": 45.0,
+      "efac": 0.6,
+      "energy": 90.0,
+      "p50": 0.14392470588235295,
+      "p90": 0.2332870588235294,
+      "faceSkin": 0.5243253308140091,
+      "obj": 0.9959469654816395,
+      "feasible": false,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f0.6-front.png"
+    },
+    {
+      "elev": 45.0,
+      "efac": 0.7,
+      "energy": 105.0,
+      "p50": 0.1489835294117647,
+      "p90": 0.23992313725490194,
+      "faceSkin": 0.5401622705727895,
+      "obj": 1.0585413406743414,
+      "feasible": false,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f0.7-front.png"
+    },
+    {
+      "elev": 45.0,
+      "efac": 0.8,
+      "energy": 120.0,
+      "p50": 0.1534149019607843,
+      "p90": 0.2470227450980392,
+      "faceSkin": 0.554605015544123,
+      "obj": 1.1170134175746966,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f0.8-front.png"
+    }
+  ],
+  "best": {
+    "elev": 40.0,
+    "efac": 0.6,
+    "energy": 90.0,
+    "p50": 0.1498172549019608,
+    "p90": 0.2372086274509804,
+    "faceSkin": 0.552029440170487,
+    "obj": 1.0527432603164488,
+    "feasible": true,
+    "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.6-front.png",
+    "allFeasible": true
+  }
+}

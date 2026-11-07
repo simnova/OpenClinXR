@@ -1,0 +1,100 @@
+HAIR CROWN 3 — HAIRLINE LINER FADE + PART (front hard edge + part line)
+Base = crown2 best (scores/spread_s50: spread strands 73228 + s50 liner);
+scorer score.py v3 via score_crown3.py, 1024/64 + crown_top. All renders
+seeded deterministic (Cycles seed 0); ID hides liner+strip so IoU identical
+for liner-only changes.
+
+STEP 1 EDGE RULER (E/edge_ruler.py; overlay E/edge-ruler.png — READ before
+use; stats E/edge_base.json; all views re-measured per cell E/measure_all.json)
+(a) transition width: 10-90% hair-to-skin luminance distance along >=20
+    edge normals (ALL edge points, <=200; 24-point subsamples flip on ID
+    thread-noise so full sampling is required). FRONT edge = capmask bottom
+    (anatomical hairline, FIXED pixels across cells); TQ edge = leftmost
+    hair per row, rows 130-250. Plus medianMaxGrad (steepest lum/px).
+(b) dark-band area: lum<hairP50 & ID alpha<30 in rows [hl-10,hl+60] over
+    hairline cols (hl+60 stops above brows: brow rows ~300+ are dark,
+    non-hair, NOT liner — first version counted 259 brow px, fixed).
+(c) part line (front): rows hb-100..hb-30 (hb = hair-bottom edge, so rows
+    sit IN HAIR) and above hl-15; bg from side strips; width = run over
+    bg+0.35*(peak-bg) around centre; lum = mean in run.
+BASE (crown2-best): front tw 4.37px/maxgrad 0.331/dark 100px/part 5.75px/
+  0.522 lum; TQ tw 1.86px. Ruler (crown2): front lum/orange 0.1393/0.0000,
+  back 0.1339/0.0000.
+TARGET: front tw 17.84/maxgrad 0.072/dark 0/part 8.75px/0.2446 lum;
+  TQ tw 14.18.
+GATES (brief): dark <= 10% of base (<=10px); front tw within 2x of target
+  [8.92,35.68]; part width+lum within 30% of target (w [6.125,11.375], lum
+  [0.171,0.319]); TQ tw within 2x [7.09,28.36]; crown2 orange <=0.05 both
+  views; dIoU not down >0.01; dOri not worse >1deg; back comps >=493;
+  eye within 1pp (base 0.6024); inside 0.
+
+STEP 2 CELLS (one change each; liner = cap copy +20um, vertex-color fade
+  mix s50->skin over outer 8mm of boundary by mesh-edge Dijkstra;
+  distance stated = mesh-edge Dijkstra, NOT full geodesic; seam |x|<3mm
+  always excluded. Verified: the y<5mm front-only prefilter is VACUOUS —
+  back-boundary-adjacent verts are all seam (|x|<3mm), so front-only ==
+  everywhere; temples were faded in every fade render.)
+  fade_skin : spread + 8mm LINEAR fade to forehead-skin tone. Front tw
+    10.27->10.1/dark 0 (both final-code re-render); TQ 2.85; part
+    unchanged; dIoU 0; dOri -0.01; orange 0.0/0.0. PASS what it attempts.
+    (Convex sqrt/cbrt tried: BRIGHTER ramp NARROWS tw 8.07->6.94->6.23 —
+    90% crossing happens earlier on bright ramps. Linear kept.)
+  front_roots: gap y -0.147..-0.124 (|x|<=w(y)), 4000 roots.
+    v1 donor-copy shapes -> FRINGE on forehead, IoU f -0.039 / p -0.111:
+    REVERTED. v2 lie-flat-back (32mm, up-bias 0.25): ori +5.27: superseded.
+    v3/v4 up-flow (40mm, bias (0,0.35,1)): tw 12.31-14.19 / TQ 14.62-14.97
+    / dark 76 / part lum 0.31 covered (detectFrac 0.25) / IoU within 0.01
+    BUT ori front +3.77: REVERTED standalone (short dashes disagree with
+    target Gabor flow; up-flow halves but does not clear the penalty).
+  part: flank strands (|x|<=2.5mm, y -0.11..0.02, n=7717) nudged outward
+    0.75mm + centre-seam ribbon strip. Strip v0 at +10um: BURIED (skin
+    surface sits ~15-25um above cap; liner +20um visible, strip invisible)
+    -> v2 +30um. Strip tone int1-full rendered 0.32 (too bright/wide 19.6px)
+    -> v3 3mm wide s50x1.3 (0.0143,0.00585,0.00325): part 8.0px/0.298 lum:
+    PASS both; dIoU -0.003/-0.001/-0.001; dOri +0.25; orange 0.0.
+  temple (v4-up sides-only 1529): TQ 18.48 BUT ori +1.21: REVERTED
+    standalone; concept evolved into v7 drape strands (below).
+  combo: spread + part-nudge + v7 (1397 temple strands: lower-gap roots,
+    NEIGHBOUR DRAPE flow (sx*0.45,0.15,-0.85) on tangent, 16mm, 0.3+1mm
+    lift — hug scalp, soft shadows, TQ-edge crossing) + fade8lin + strip v3.
+
+STEP 3 KEEP (combo = E/best/, copy of E/scores/combo/):
+  dark 0 (<=10) | front tw 9.04 ([8.92,35.68]; maxgrad 0.071 vs tgt 0.072)
+  | part 8.0px ([6.125,11.375]) / 0.2977 lum ([0.171,0.319])
+  | TQ tw 15.77 ([7.09,28.36]) | orange front 0.0073 / back 0.0000 (<=0.05)
+  | dIoU f +0.0116 / p -0.0040 / b -0.0006 (not down >0.01)
+  | dOri f +0.28 / tq -0.02 / p +0.11 / b -0.01 (<=1deg)
+  | back comps 556 (>=493) | eye 0.6024 (0pp) | inside 0 (repair verified)
+  | crownTop bare 0-10/10-20/20-30/30-50: .024/.043/.029/.005 (base
+  .034/.050/.031/.005 — cover UP everywhere)
+  KEPT: combo. PASS-but-superseded: fade_skin, part-v3 (both folded into
+  combo). REVERTED standalone: front_roots v1/v4 (IoU / ori), temple
+  (ori +1.21), strip v1/v2 tone-width, fade sqrt/cbrt, fade 10mm.
+  Best strands: tools/openclinxr/evidence/hair-crown3/cells/combo.npz
+    (74625: spread 73228 + 7717 nudged in place + 1397 v7 temple)
+  Best liner: fade_skin 8mm LINEAR via score_crown3.py (skin linear
+    (0.879,0.537,0.348) from forehead sRGB; seam excluded).
+  Best strip: s50x1.3, |x|<=1.5mm, cap+30um, OCLX_body_mesh_part_strip.
+  Sheets: E/crops-best.png (native front+TQ crown crops, base|best|target,
+    orchestrator grades — NO visual pass claimed here), E/look-sheet.png
+    (rows TS|crown2-best|best; cols front, three_quarter, front/back crops).
+
+SAW: The front hard edge is TWO edges: liner-to-skin at the anatomical
+  hairline (fixed by fade tone) AND dense-hair-edge strand shadows on dark
+  liner just above it (fixed by low hugging cover, NOT by tall strands —
+  40mm up-strands cast the very shadows that read as dark band). TQ edge is
+  strand-tip-defined: tone does nothing (fade alone 2.85), crossing strands
+  do everything. Part line: the seam shows LIT skin (0.28-0.55); target
+  shows DIM scalp (0.17-0.25, wider 8.75px) — fix = dim undertone ribbon +
+  slightly WIDER gap, not narrower. Brighter fade ramps NARROW the measured
+  transition (established across 4 renders: 10.1/8.07/6.94/6.23). Liner
+  burial: skin sits ~15-25um above cap (strip +10um invisible, +30um
+  visible; liner +20um visible). The y<5mm fade prefilter is vacuous
+  (proven in numpy: back-boundary verts are all seam).
+
+NOT TESTED: fade widths other than 8mm in the kept combo (10mm tried with
+  earlier strand sets only); strip tones other than int1-full/s50x1.3;
+  v7 counts other than 1397/1117 (1117 trimmed set: tw 6.94, superseded);
+  temple-length/orientation variants beyond v4-up/v7-drape; VLM
+  perceptual grading; Quest/WebXR appearance; back-crown hair darkening
+  (out of scope, crown2).

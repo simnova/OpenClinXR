@@ -1,0 +1,35 @@
+{
+  "tag": "LR",
+  "op": "per-fibre lean-return: theta~N(0,4deg) first 60% arc, smooth return over last 40% (tip displacement 0)",
+  "params": {
+    "sigmaDeg": 4.0,
+    "seed": 2026101831,
+    "splitFrac": 0.6,
+    "partProtectMm": 3.0,
+    "fadeInMm": 15.0,
+    "source": "hair-real1 a1"
+  },
+  "wave": {
+    "sigmaDeg": 4.0,
+    "thetaStd": 3.718501482494055,
+    "thetaMaxAbs": 19.893809966379052,
+    "tangentDevDeg": {
+      "rms": 6.838207844416583,
+      "p95": 12.151876027731431,
+      "max": 174.7530350292859
+    },
+    "maxDispMm": {
+      "p50": 6.994512275220199,
+      "p95": 26.524037235365494,
+      "max": 101.96568991916783
+    },
+    "protectedFibres": 8949,
+    "seed": 2026101831
+  },
+  "endAngleDegPreRepair": {
+    "p50": 3.960779228097135,
+    "p95": 11.995124505650834,
+    "max": 39.871088028997605
+  },
+  "partGapMm": 1.0999999940395355
+}

@@ -1,0 +1,48 @@
+{
+ "nStrands": 281414,
+ "nSamples": 9005248,
+ "insideBody": 95836,
+ "insideShirt_total": 858584,
+ "nCandidates": 1055908,
+ "shirtMesh": {
+  "watertight": false,
+  "note": "open at neck/sleeves/hem; sign via embree ray votes"
+ },
+ "regions": {
+  "shoulders": {
+   "nSamples": 184821,
+   "insideShirt": 8717,
+   "insideBody": 0,
+   "nStrandsTouch": 25394,
+   "nStrandsInsideShirt": 5034
+  },
+  "back_mid": {
+   "nSamples": 868019,
+   "insideShirt": 49514,
+   "insideBody": 0,
+   "nStrandsTouch": 71304,
+   "nStrandsInsideShirt": 13647
+  },
+  "back_hem_L": {
+   "nSamples": 1819,
+   "insideShirt": 50,
+   "insideBody": 0,
+   "nStrandsTouch": 1819,
+   "nStrandsInsideShirt": 50
+  },
+  "back_hem_R": {
+   "nSamples": 749,
+   "insideShirt": 0,
+   "insideBody": 0,
+   "nStrandsTouch": 720,
+   "nStrandsInsideShirt": 0
+  },
+  "nape": {
+   "nSamples": 1414574,
+   "insideShirt": 281031,
+   "insideBody": 8802,
+   "nStrandsTouch": 130351,
+   "nStrandsInsideShirt": 52361
+  }
+ }
+}

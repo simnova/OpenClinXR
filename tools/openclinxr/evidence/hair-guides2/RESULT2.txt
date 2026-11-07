@@ -1,0 +1,27 @@
+RESULT::hair-guides-2
+G1::440 | [350,450] PASS
+G2::inside=37 min=0.03mm (tshirt 26, body 11; phase2 34, phase1 3) | 0 ∧ >=2mm MISS
+G3::bad=741/5485 | >=99.5% in [2,6]mm MISS
+G5::p95=26.1mm max=54.5mm | p95<=35 ∧ max<=65 PASS
+G6::4 (phase2 fall pts at (±61,-120,~1520)) | 0 MISS
+G7::p95=719.93 max=1329.25 short=101 | p95<=8 ∧ max<=25 ∧ 0 short MISS
+G8::hemdz=0.00mm cend=8.0% stray=2.50% | hem<=5mm ∧ cend<=10% ∧ stray<3% PASS
+G9::max=10.13mm (worst vert [21.4,0.5,1501.5] nape rim) | <=9mm MISS
+G10::|meanx|=1.44mm | <=5mm PASS
+G11::gap=1.5mm (band proxy) occ-gap=107.5mm req=136.7mm outer-ear=93.3mm (target 86.3, report) | gap>=req MISS
+SAW::front: face fully clear between the curtains; curtains hang beside the cheeks from the temples at ~60mm; tubes lie on the shoulder tops with tips splaying outward; crown a dense white mass with the part line and tiny orange cap-dots at the midline; tubes read white, not orange.
+SAW::three_quarter: tubes pass in front of the ear and hang beside the cheek, target-like; slight stand-off gap at the temple side; shoulder contact smooth with mild kinking where tubes meet the shoulder.
+SAW::profile: front hairline tubes hover ~10-15mm off the forehead; single curtain beside the cheek; back mass straight to mid-back; hem below the collar at the back, at the shoulder top in front.
+SAW::back: full even drape both sides of the midline to mid-back; lower tips flare outward tent-like; a few outward strays at the lower sides.
+SAW::top: part line visible with scalp peeking along the midline; tubes radiate laterally then fall; side masses extend outward over the shoulders.
+CAUSE::G2 resample chords cut inside shoulder/neck concavities and body/garment traps oscillate project_out (was 1487, now 37 via slide-off-all-colliders + project_out-6). Fixable via merge-collapsed-plus-re-resample.
+CAUSE::G3 SELF-INFLICTED this attempt: SEGFIX moved surface-phase points off their 3mm lift without re-lift (741 bad vs 8 in attempt 2). Reverting segfix restores ~8.
+CAUSE::G6 4 fall points from zfloor-ended walks (rim-stall at frontal y≈-120) falling at |x|≈61 vs 0.80*xw(1.52)=63.1; xw includes pinnae (80.4 at eye) and M8 gives no +Y drive to the ear plane. Needs M8 amendment.
+CAUSE::G7 SELF-INFLICTED: segfix-projection ping-pong built accordion zigzag (p95 27→720) plus projection-collapse zero-segments (101). Fixable via merge-collapsed-plus-re-resample (uniform L/31 spacing, smooth interp).
+CAUSE::G9 sweep overshoot exhausted the 60-patch budget at 448 roots under the G1 450 ceiling (was 11.83, now 10.13). Fixable with gentler sweep and bigger patch budget.
+CAUSE::G11 genuine: occlusion-aware frontal gap 107.5 vs 136.7; corridor falls at inner edges -51/+56 vs needed ±68; same xw-pinnae plus rim-stall root cause as G6. Needs M8 amendment.
+CAUSE::D4 tubes read white in all views although the orange material slot is verified bound (MAT slot=OCLX_guide_orange2); the 150W key clips emission-1.0 plus Principled to white on lit faces while unlit cap ends read orange (dots along the part). M10 as written cannot yield orange under this rig; needs exposure/rig ruling.
+COMMIT::3d67146b06438028fb6b22101e1f6c14bb2a412e
+STILL::passing groom for the children/interpolation card; needs M8 amendment (rim behavior, +Y drive, xw pinnae) plus a fix round (revert segfix, merge-re-resample, patch budget) and a tube-exposure ruling.
+BRIEF_MISSING::M8 rim behavior when the surface ends at the silhouette (stall vs ballistic vs end-phase); whether walks should be driven +Y toward the ear plane; whether xw should exclude pinnae; M10 exposure under the 150W key (emission 1.0 clips); G11 ruler (mask render vs band proxy and occlusion handling); whether segment enforcement belongs pre- or post-resample.
+HARM::none (F and HS untouched; no push)

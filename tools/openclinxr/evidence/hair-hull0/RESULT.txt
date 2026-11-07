@@ -1,0 +1,142 @@
+hair-hull0: multi-view hair-volume carve with visibility states — RESULT
+===============================================================================
+Card: carve the hair volume from the masks as the FEASIBLE SPACE (CARVE ONLY,
+no guides). Guides go through it in hull1.
+WRITE ROOTS: S6 = tools/openclinxr/hair-groom/hull (hull.py, render_hull.py),
+E = tools/openclinxr/evidence/hair-hull0. hair-groom/cards/ and scalp/
+untouched (git status scope in DONE.txt). No *.blend anywhere.
+
+METHOD (S6/hull.py; reuse by import, no copies)
+- Station projector: envelope.project_to_render with the pinned
+  cameras-scorer-v3.json (matrixWorld + lens + sensor verbatim).
+- Registration: register.similarity_from_triples via instruments
+  (render -> target frame). Registration p95 = 0.0 px: the station
+  similarity is an exact 3-point fit, residuals da=db=dc=0.0 on all three
+  views (/tmp/station0b-run/registration.json). Masks dilated by
+  (0.0 + 2) = 2 px (binary_dilation, cross structuring, 2 iterations).
+  Projector verification worst 0.469 px and landmark confidence 2-5 px are
+  printed, never folded into the dilation.
+- Occlusion: occl0 method — hair-cage1/body-depth.npz render-frame
+  cover+depth (station0b bare body + garment, library topper excluded);
+  per-voxel visibility against the +/-2 px patch median with the occl0
+  5 mm margin (visible iff voxel depth < patch median - 5 mm, else
+  BODY_OCCLUDED). Occlusion takes precedence over the mask test.
+- Body removal: hair-cage1/body-exact-sdf.npz (Blender BVH exact field);
+  voxels with SDF <= 2.0 mm removed.
+- Scalp contact: scalp1 scalp mesh (scalp.npz verts+tris, 778 tris);
+  voxels within 4.0 mm of a scalp triangle (per-triangle bbox +
+  point-triangle distance) count as touching. scalp1 roots used for the
+  proximity diagnostic only.
+- Carve rule, incl. closing-added voxels: reject on any VISIBLE_OUTSIDE.
+
+STEP 1 — carve (2 mm grid over stated crop)
+  Crop (world mm): x[-260,260] y[-260,160] z[1255,1720]; z floor = 150 mm
+  below the shoulder plane z = 1.405 m (1255); z ceiling 1720 (60 mm above
+  crown 1659.9); x/y match the exact-SDF footprint. 261x211x233 =
+  12,831,543 voxels at 2 mm. Masks: mask-front-v2 / mask-profile-v2 /
+  mask-back-v3 (sha below), dilated 2 px.
+  Kept pre-close 400,888 (3.207M mm^3). Closing (6-connected, 1 iteration)
+  added 1,599 voxels; every added voxel was scored with the carve rules
+  and ALL failed (146 SDF <= 2 mm, 1,453 VISIBLE_OUTSIDE), so all were
+  pruned: post-prune = 400,888 (closing joined 29 component pairs; the
+  prune split all 29 back — the raw carve has no 1-voxel discretization
+  splits; every split is body- or mask-forced).
+  Components: 1,459 before close, 1,430 raw-closed (29 joined), 1,459
+  after prune. Scalp-touching labels: 77 (1 giant + 76 specks of 1-25
+  voxels, 129 voxels total, dropped). Kept: the giant component, label
+  14, 358,625 voxels = 2,869,000 mm^3 (2.87 L), 89.5% of the closed set.
+  Dropped 42,263 voxels: 41,961 (99.3%) viscount-0 fully-occluded
+  phantoms + 302 viscount>=1 speck voxels (the 76 touching minors).
+  Largest dropped masses: 31,190-voxel posterior nape panel (x[-36,36]
+  y[-144,-54] z[1457,1529]) and 6,899-voxel low posterior-lateral mass —
+  both viscount 0 (no view constrains them). Gap analysis: 99.2% of
+  voxels within 12 mm of the nape panel are body (SDF <= 2 mm) — the
+  panel is split from the main mass by the neck it wraps, an artifact of
+  the 2 mm standoff (true on-skin hair bridges read as body), not a mask
+  disagreement. Dropping it loses no observable volume (0 views see it).
+  Out-of-frame audit (diagnostic): voxels projecting outside the render
+  frame — front 2,452,421 / profile 1,546,534 / back 963,756 (crop
+  corners outside the photos; all rejected); outside the target frame —
+  front 18,186 / profile 455,130 / back 334,069 (rejected).
+  Mask sha256: front deb150fb57e20aab87654767fdfa0341a112c0b7d8565d936d273ce77200b604,
+  profile 78718ed580c630d0fa68c34080de0b42e699dc6d880377b25a8da4f2629bf07e,
+  back 6d182281e771247a3b3489ab4b7a5a52ce52e16ef85b4bb5ef354e3512fb9cbd.
+
+STEP 2 — diagnostics
+  (a) Volume by visible-view count (final hull, 8 mm^3/voxel):
+      0 views (occluded everywhere): 12,457 voxels, 99,656 mm^3 (3.5%)
+      1 view: 83,642 voxels, 669,136 mm^3 (23.3%)
+      2 views: 203,198 voxels, 1,625,584 mm^3 (56.7%)
+      3 views: 59,328 voxels, 474,624 mm^3 (16.5%)
+      Slices: E/slices.png row 1 (axial z=1496 / coronal y=-21 /
+      sagittal x=-37 mm through the kept centroid, 0-3 colormap).
+      The 1-view bin concentrates in the posterior-lateral corners
+      (x -100..-50, y -150..-50, z 1450..1600; left/far-from-profile
+      side dominates) at 9.3/31.4 mm p50/p95 off the body — the
+      diagonal phantom wedge the 3-view geometry cannot rule out.
+  (b) Reprojected VISIBLE hull vs the UNDILATED mask (point splat of
+      state-0 voxels only; hidden hair never covers a photo pixel):
+      front:       excessN 2069, p50 1.0, p95 2.0, max 2.0 px (GATE PASS);
+                   missN 1018, p50 12.2, p95 48.1, max 63.9 (report);
+                   IoU 0.7319 (printed); hull 82,222 px vs target 102,503.
+      profile_90:  excessN 1852, p50 1.0, p95 2.0, max 2.0 px (GATE PASS);
+                   missN 502, p50 1.4, p95 59.6, max 72.8 (report);
+                   IoU 0.6224; hull 105,543 px vs target 159,523.
+      back:        excessN 2386, p50 1.0, p95 2.0, max 2.0 px (GATE PASS);
+                   missN 284, p50 1.0, p95 52.4, max 59.7 (report);
+                   IoU 0.7220; hull 178,185 px vs target 235,860.
+      Excess sits exactly at the 2 px dilation radius: no BUG to explain.
+      Miss (report only) concentrates at the crown cap (rows 100-300, all
+      views) and the hems (rows 500-800): the 2 mm standoff deletes
+      on-scalp hair and the point splat under-renders thin sheets by
+      ~1 voxel — the hull is conservative where hair hugs skin.
+      Occlusion cross-check (exact-SDF ray-march): 197/198
+      buffer-covered rays hit body (1 far-graze miss at the silhouette).
+  (c) Thickness (mm, surface normal; hair-mass depth = last minus FIRST
+      occupied; standoff gap reported separately, never mixed in):
+      cheek    z=1515 (n=62/72): mass p50 29.0 p95 50.0 max 60.0 mean 29.0;
+               gap p50 3.0 p95 81.9 (face-opening rays cross air to the
+               far curtain — the gap tail, not hair).
+      ear      z=1532 (n=63/72): mass p50 20.0 p95 38.9 max 52.0 mean 20.6;
+               gap p50 2.0 p95 3.0 (curtains ride the skin here).
+      occiput  z=1560 (n=59/72): mass p50 14.0 p95 28.0 max 37.0 mean 13.7;
+               gap p50 2.0 p95 28.0.
+      shoulder z=1405 (n=22/72): mass p50 31.0 p95 42.8 max 48.0 mean 29.3;
+               gap p50 3.0 p95 13.5 (most rays exit torso into empty air).
+      Histograms: E/slices.png row 2.
+      Hull depth behind the occiput (x=0,z=1560; surface y=+36.0 mm =
+      89 mm posterior of crown): hull 0.0 mm vs profile-target -0.3 mm —
+      both agree the midline occiput carries no depth at this height.
+      Posterior wall profile (|x|<20 mm, mm behind surface): z1460: 14,
+      1470: 12, 1480: 10, 1490: 10, 1500: 8, 1510: 8, 1520: 6, 1530: 4,
+      1540: 4, 1550: 2, 1560: 0, 1570: 2, 1580: 2, 1590: 2, 1600: none —
+      the nape curtain stands 8-14 mm proud low and settles onto the
+      skull (2-4 mm) above z~1530.
+      Root proximity (14,155 scalp1 roots to hull surface): all p50 2.8
+      p95 23.4 max 38.0 mm, 74.9% within 6 mm; crown (z>=1560, n=11,730)
+      69.7% within 6 mm (hairline roots face the open face — correctly
+      no hull in front of the forehead); mid (1500-1560, n=2,425) 99.9%
+      within 6 mm; nape (z<1500) n=0 (scalp1 boundary ends at 1490).
+  (d) Sensitivity (WS/sens.json; topology rule: dominant scalp component
+      keeps ~90% share; contour rule: |d p95| <= 5 px vs baseline):
+      A (1 mm re-carve, same 2 px dilation, 102,212,906 voxels): kept
+      2,876,792 voxels = 2,876,792 mm^3 (+0.3% vs baseline 2,869,000 —
+      volume agrees to 8k mm^3); comps 3,905 pre/post (close+prune net
+      zero again: 5,520 added, 229 SDF + 5,291 outside pruned);
+      scalp-share 89.7%; excess p95 2.0/2.0/2.0; miss p95
+      51.1/58.0/55.5; max |d p95| 3.11 px (back miss). STABLE.
+      B (2 mm, undilated masks): kept 341,194 = 2,729,552 mm^3 (-4.9%);
+      comps 1,460 pre/post (1,855 added, 136 SDF + 1,719 outside
+      pruned); scalp-share 89.0%; excess p95 0.0 all views (carved
+      tight); miss p95 51.2/57.0/54.6; max |d p95| 3.11 px
+      (front miss). STABLE. No fragile region in either variant.
+
+STEP 3 — three-quarter DISPLAY ONLY (E/hull.png tile 5)
+  Translucent hull on Aisha from the pinned three_quarter camera beside
+  the target three_quarter mask image. No score, no carving. Read: the
+  45-degree corners look over-filled at the posterior-lateral wedge —
+  the diagonal between the profile-constrained back plane and the
+  back-constrained side plane carries the 1-view phantom volume
+  (posterior-lateral, far-from-profile side dominant), rendering as a
+  thick dark wedge past the target mask's compact corner. Fr
+...[truncated 3010 chars]

@@ -1,0 +1,174 @@
+{
+ "anchors": "station0b head-section table (cage-spec.json anchors, read at fit time; not duplicated here)",
+ "anchorsSource": "hair-cage1/cage-spec.json anchors (station0b head-section table)",
+ "collisionField": "hair-cage1/body-exact-sdf.npz (Blender BVHTree closest point + ray-parity sign, 2 mm grid; negative inside)",
+ "comment": "frozen before any fit; sha recorded in spec-sha-before-fit.txt and RESULT.txt; no edits after the sha",
+ "coverageRadius": "tube_r swept per guide, rasterized with body occlusion (depth-tested against hair-cage1/body-depth.npz)",
+ "crown": [
+  1.1403722410818773e-09,
+  -0.053241077810525894,
+  1.6599169969558716
+ ],
+ "fall": "gravity-straight fall from the release point to end_height(az); lateral spread + shoulder-planform U shaping + posterior drift; every fall sample projected to >= 3 mm exact-SDF clearance during generation",
+ "fallSamples": 29,
+ "frame": "head mm: X lateral, U anterior+ rel crown, D drop below crown; world(m) = (X/1000, crown_y - U/1000, crown_z - D/1000)",
+ "growth": "(a) shell ride from the shell point above the root along the departure direction on the offset crown sphere R=90mm+shell_h, to the release contour; (b) release; (c) fall; deterministic given (roots, params)",
+ "judgePlaneZm": 1.405,
+ "params": [
+  {
+   "hi": 60.0,
+   "init": 25.0,
+   "lo": 0.0,
+   "name": "part_angle",
+   "unit": "deg"
+  },
+  {
+   "hi": 8.0,
+   "init": 2.0,
+   "lo": 0.0,
+   "name": "lift",
+   "unit": "mm"
+  },
+  {
+   "hi": 10.0,
+   "init": 4.0,
+   "lo": 1.0,
+   "name": "sh_base",
+   "unit": "mm"
+  },
+  {
+   "hi": 5.0,
+   "init": 1.5,
+   "lo": -2.0,
+   "name": "sh_elev",
+   "unit": "mm-per-100mm"
+  },
+  {
+   "hi": 4.0,
+   "init": 0.0,
+   "lo": -4.0,
+   "name": "sh_cos",
+   "unit": "mm"
+  },
+  {
+   "hi": 4.0,
+   "init": 0.0,
+   "lo": -4.0,
+   "name": "sh_sin",
+   "unit": "mm"
+  },
+  {
+   "hi": 200.0,
+   "init": 120.0,
+   "lo": 60.0,
+   "name": "rel_c0",
+   "unit": "mm-drop"
+  },
+  {
+   "hi": 60.0,
+   "init": 20.0,
+   "lo": -60.0,
+   "name": "rel_c1",
+   "unit": "mm"
+  },
+  {
+   "hi": 40.0,
+   "init": 0.0,
+   "lo": -40.0,
+   "name": "rel_s1",
+   "unit": "mm"
+  },
+  {
+   "hi": 40.0,
+   "init": 12.0,
+   "lo": 0.0,
+   "name": "spread0",
+   "unit": "mm-per-100mm"
+  },
+  {
+   "hi": 1.0,
+   "init": 0.0,
+   "lo": -1.0,
+   "name": "spread1",
+   "unit": "fraction"
+  },
+  {
+   "hi": 80.0,
+   "init": -20.0,
+   "lo": -120.0,
+   "name": "sho_c0",
+   "unit": "mm-U"
+  },
+  {
+   "hi": 60.0,
+   "init": -30.0,
+   "lo": -120.0,
+   "name": "sho_c1",
+   "unit": "mm-U"
+  },
+  {
+   "hi": 60.0,
+   "init": 0.0,
+   "lo": -60.0,
+   "name": "sho_s1",
+   "unit": "mm-U"
+  },
+  {
+   "hi": 20.0,
+   "init": -5.0,
+   "lo": -30.0,
+   "name": "drift",
+   "unit": "mm-per-100mm"
+  },
+  {
+   "hi": 30.0,
+   "init": 0.0,
+   "lo": -30.0,
+   "name": "sway",
+   "unit": "mm"
+  },
+  {
+   "hi": 600.0,
+   "init": 280.0,
+   "lo": 180.0,
+   "name": "end_c0",
+   "unit": "mm-drop"
+  },
+  {
+   "hi": 60.0,
+   "init": -60.0,
+   "lo": -160.0,
+   "name": "end_c1",
+   "unit": "mm"
+  },
+  {
+   "hi": 80.0,
+   "init": 0.0,
+   "lo": -80.0,
+   "name": "end_s1",
+   "unit": "mm"
+  },
+  {
+   "hi": 120.0,
+   "init": 20.0,
+   "lo": -60.0,
+   "name": "end_c2",
+   "unit": "mm"
+  },
+  {
+   "hi": 8.0,
+   "init": 4.5,
+   "lo": 3.0,
+   "name": "tube_r",
+   "unit": "mm"
+  }
+ ],
+ "paramsNote": "21 field parameters (card allows 20-32), all smooth azimuth/elevation fields; mirrored guides share every parameter (side = sign of root X)",
+ "regularizers": "curvature (fall second differences), neighbour-smoothness (adjacent-azimuth release/end drops), soft mirror symmetry (end drops)",
+ "release": "release contour drop D_rel(az) = rel_c0 + rel_c1*cos(az) + rel_s1*sin(az); clamped >= root drop + 10 mm (immediate release below the contour)",
+ "roots": "E/roots-provisional.npz (positions + normals on the scalp, provisional station-owned sampling above the hairline rule stated in make_roots.py); scalp1 roots drop in by file swap, no code change",
+ "schemaVersion": "openclinxr.guide-spec.v1",
+ "shell": "offset shell of the scalp: station0b head-section ellipses (anchors table from cage-spec.json: rows [drop, xmax, ufront, uback]); section point ((a+d)*sin(th), cu+(b+d)*cos(th)) with a=xmax, b=(uf-ub)/2, cu=(uf+ub)/2, d = shell_h + lift; shell_h(h,az) = sh_base + sh_elev*(h/100) + sh_cos*cos(az) + sh_sin*sin(az), clamped >= 0.5 mm. Shell-ride blends section angle root-azimuth -> departure azimuth (root azimuth pushed laterally by part_angle). v1draft used a crown sphere R=90; replaced pre-fit (no optimizer run) because the forehead (ufront 84mm at drop 50) protrudes past the sphere and shell points read inside the exact field. Section columns are median-3 filtered at shell-read time (station-owned smoothing; raw table untouched): the raw table has single-row glitches (drop-30 uback 0.1 vs -53.4/-77.5 neighbours; 85-105 uback +/-15 oscillation) that swing unsmoothed shell points up to 25 mm inside the exact field; the card requires smooth fields.",
+ "shellModel": "section-ellipse-v1",
+ "shellSamples": 12
+}

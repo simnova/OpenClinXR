@@ -1,0 +1,181 @@
+{
+ "calibration": {
+  "iou": {
+   "front": {
+    "iou": 0.7446,
+    "missPx": 11274,
+    "excessPx": 11866
+   },
+   "three_quarter": {
+    "iou": 0.8261,
+    "missPx": 14783,
+    "excessPx": 3958
+   },
+   "profile_90": {
+    "iou": 0.8543,
+    "missPx": 8656,
+    "excessPx": 15299
+   },
+   "back": {
+    "iou": 0.8579,
+    "missPx": 30471,
+    "excessPx": 20070
+   }
+  },
+  "all_within_0.02": true,
+  "pass": true,
+  "hard": true
+ },
+ "coherence": {
+  "v": {
+   "n": 7667,
+   "min": 1.603,
+   "p50": 25.561,
+   "p90": 318.767,
+   "p99": 420.97,
+   "max": 451.995
+  },
+  "gate": "pairs roots<6mm full-path p90<=25 max<=60",
+  "pass": false,
+  "hard": true
+ },
+ "takeoff": {
+  "v": {
+   "verbatimSamples": 46123,
+   "byteIdentical": true,
+   "maxAbsDiffHeadMm": 0.0,
+   "pass": true
+  },
+  "gate": "every arc<40mm sample byte-identical",
+  "pass": true,
+  "hard": true
+ },
+ "knotHole": {
+  "v": 0,
+  "gate": "g10diag back box == 0",
+  "pass": true,
+  "hard": true
+ },
+ "rloopProfile": {
+  "v": 85140,
+  "gate": "< groom5 11587",
+  "pass": false,
+  "hard": true
+ },
+ "rloopBack": {
+  "v": 95615,
+  "gate": "< groom5 11587",
+  "pass": false,
+  "hard": true
+ },
+ "silhouette": {
+  "v": {
+   "front": {
+    "iou": 0.7913,
+    "expect": 0.7446,
+    "delta": 0.0467,
+    "pass": true
+   },
+   "three_quarter": {
+    "iou": 0.8406,
+    "expect": 0.8261,
+    "delta": 0.0145,
+    "pass": true
+   },
+   "profile_90": {
+    "iou": 0.8156,
+    "expect": 0.8543,
+    "delta": -0.0387,
+    "pass": false
+   },
+   "back": {
+    "iou": 0.7965,
+    "expect": 0.8579,
+    "delta": -0.0614,
+    "pass": false
+   }
+  },
+  "gate": "no view worse than groom8a by >0.02",
+  "pass": false,
+  "hard": true
+ },
+ "faceMask": {
+  "v": {
+   "front": {
+    "maskPx": 93895,
+    "targetHairPx": 1547,
+    "oursHairPx": 3033,
+    "allowPx": 3424.9,
+    "pass": true
+   },
+   "three_quarter": {
+    "maskPx": 91763,
+    "targetHairPx": 292,
+    "oursHairPx": 2732,
+    "allowPx": 2127.3,
+    "pass": false
+   }
+  },
+  "gate": "ours<=target+2%mask both views",
+  "pass": false,
+  "hard": true
+ },
+ "concha": {
+  "v": {
+   "front": 0,
+   "three_quarter": 0,
+   "profile_90": 0
+  },
+  "gate": "0 all views",
+  "pass": true,
+  "hard": true
+ },
+ "insideBody": {
+  "v": 0,
+  "gate": "== 0",
+  "pass": true,
+  "hard": true
+ },
+ "depth": {
+  "v": {
+   "parietal_p50": {
+    "child": 5.75,
+    "guide": 8.085,
+    "ratio": 0.711,
+    "pass": false
+   },
+   "parietal_p90": {
+    "child": 14.54,
+    "guide": 17.048,
+    "ratio": 0.853,
+    "pass": true
+   },
+   "temple_p50": {
+    "child": 2.61,
+    "guide": 5.573,
+    "ratio": 0.468,
+    "pass": false
+   },
+   "temple_p90": {
+    "child": 9.5,
+    "guide": 9.033,
+    "ratio": 1.052,
+    "pass": true
+   }
+  },
+  "gate": "child within +-20% of guides-8a",
+  "pass": false,
+  "hard": true
+ },
+ "determinismFairing": {
+  "pass": true,
+  "hard": true
+ },
+ "determinismChildren": {
+  "hashA": "c75e203fbc66a6551c02e4b408f061612407922591901ed4b198154c25be92ed",
+  "hashB": "c75e203fbc66a6551c02e4b408f061612407922591901ed4b198154c25be92ed",
+  "pass": true,
+  "hard": true
+ },
+ "pass": false
+}

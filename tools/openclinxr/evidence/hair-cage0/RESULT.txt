@@ -1,0 +1,141 @@
+guide cage0: cage model, strip raster and regional instruments — RESULT
+===============================================================================
+Card: build the GUIDE CAGE and its instruments with self-tests. NO FITTING
+(cage1 fits). WRITE ROOTS: S3 = tools/openclinxr/hair-groom/cage,
+E = tools/openclinxr/evidence/hair-cage0. hair-groom/scalp/ untouched
+(git status shows only S3 + E paths). No *.blend anywhere.
+
+STEP 1 — cage + instruments, spec frozen (E/cage-spec.json)
+  SPEC_SHA d5aa424b25dfcfc52ed7793c048211f5c67d3270cb6347daaf0fc03d99f92a09
+  (22 parameters, max 24; selftests.json records the same sha. Process note:
+  two earlier spec shas were superseded BEFORE any fitting or default render
+  left the S3/E roots' logic — v1 used a wrap frame that put curtain roots
+  inside the head and a projection-only face guard that counted the back
+  sheet over the face; v2 added the fixed width-axis frame and depth-aware
+  guard. No fitting exists anywhere in this card, so nothing was tuned to
+  chase a number; v3 is the first and only frozen spec.)
+  Model: 8 centrelines (part L/R, temple-curtain L/R, side L/R, back, nape),
+  each a 6-control-point clamped cubic B-spline (61 samples) rooted at a
+  station-owned attachment row (drop mm + signed azimuth deg from anterior,
+  resolved by surface search on the bare body verts):
+    part 10/-12deg (X 18.9, U 42.4) | temple 70/55deg (51.9, 64.7) |
+    side 90/85deg (70.8, -8.2) | back 60/180deg (-14.5, -86.5) |
+    nape 150/180deg (0.0, -65.4); elevations -12/-40/-52/-34/-66 deg.
+  Mirrors share every parameter; mirroring is exact (X -> -X). Each
+  centreline is swept into a closed ribbon solid (thickness 3 mm) with a
+  width profile at 3 arc stations (top/mid=mean/hem) along a FIXED
+  per-family horizontal axis — part X, temple face-corner diagonal
+  (0.8, 0.6), side U, back/nape X — projected perpendicular to the tangent
+  so sheets never twist (a cross(up, tangent) frame degenerates on vertical
+  centrelines and was rejected). Temple curtains pass IN FRONT of the
+  shoulder (U +46 at z=1.405 m), back/nape BEHIND (U -110/-115), sides drape
+  the max-width line and end AT the shoulder (drop 250; a mid-side sheet
+  below the shoulder would cross torso/arms, so length is carried by
+  curtain/back). Required controls all present: curtain_hem_drop,
+  back_hem_drop, curtain_front_sh, back_post_sh (U at the 1.405 m judge
+  plane), crown_lift, part_angle (lateral splay k = 0.5 + angle/45 on the
+  crown sphere R = 90 mm).
+  Instruments (S3/instruments.py; projector + SDF imported from hair-groom
+  envelope/register, nothing copied):
+  - strip raster: every ribbon quad contributes 2 individually filled
+    triangles OR-ed into the mask (never a polygon fill of the quad/union),
+    mapped with the station similarity transforms into the 1024 target frame.
+  - regional contour losses (regions.json + region-masks.npz published):
+    crown (rows above crown+0.15H), face opening (eye-chin band, empty in
+    back), side curtain (ear-to-hem flanks; profile uses the ear-side mass
+    box), hem (below hem-0.12H); row-disjoint by construction. Bidirectional
+    EDT contour distance, excess and miss reported separately (mean/max/n).
+  - face guard: DEPTH-AWARE (render-frame per-pixel min-depth scan vs brow/
+    menton reference depths, 5 mm margin). A projection-only guard counts
+    the back sheet over the face and is kept in code for reference only.
+  - collision: centreline + both edges resampled at <= 2 mm against the
+    station0b body SDF; max depth beyond -4 mm + violating count, with a
+    crown-ball (drop<60) vs below-ball breakdown (see finding F1).
+  - split-hem rays (profile_90): anterior band [menton_col-120,+40],
+    posterior band [posthead_col-40,+120] around projected station
+    landmarks; hem = median col of mask px in the lowest 5 band rows;
+    unprojected along pinned rays; reports pixel, ray, cage hem endpoint
+    (height z, offset U) and ray-to-end distance.
+
+STEP 2 — self-tests (E/selftests.json): ALL PASS (5/5)
+  (a) strip width: 60 mm ribbon at 1.0 m on-axis -> edge-column distance vs
+      analytic (focal/depth x similarity): front 81.00 vs 81.45 (d 0.45),
+      back 89.00 vs 88.77 (d 0.23), both <= 1 px. Fill convention verified:
+      PIL polygon covers floor(x0)..floor(x1), so run = width + 1 + phase.
+  (b) collision: probe 11 mm below the SDF's own zero-crossing reads 9.5 mm
+      (want 10 +/- 2).
+  (c) face guard: quad 20 mm in front of the brow flags 3087 px; the same
+      span 60 mm behind the brow (back-sheet analogue, still projecting over
+      the face) flags 0.
+  (d) regional: default cage vs its own raster = 0 in all 14 region/views;
+      hem-band content shifted 15 px: non-hem regions exactly 0, hem miss-max
+      15.0/15.0/15.0 px (excess-max 13.4/13.4/8.0 — solid-fill dilution on
+      the excess side, documented in the test).
+  (e) determinism: two full build+raster runs hash-identical.
+
+STEP 3 — hand-set default cage (spec inits; anatomy-documented, NOT tuned
+  to masks; E/default-cage.npz/png, E/default-overlay.png, regions +
+  E/default-metrics.json). One anatomical correction round from the depth
+  guard + overlay (curtain off the brow plane: ear_u 70->60, front_sh
+  55->46, w_top 50->44); no loss-driven iteration after that.
+  Default instrument numbers (the baseline cage1 must beat, not a gate):
+    areas px front 252096 (target 102503) / profile 157397 (159523) /
+    back 276720 (target 235860).
+    regional (excess mean / miss mean px): front crown 0.0/27.9, sides
+    ~8/8, hem 115.9/7.4; profile crown 0.0/21.0, face 78.5/0.0, ear-side
+    155.6/0.0, hem 145.5/32.4; back crown 4.0/20.1, sides ~18/6, hem
+    112.6/26.4. Cage overshoots the target hull nearly everywhere (crown
+    misses 20-28 px: default cap_span 60 reads narrow).
+    face guard covered px: front 0 / profile 220 / back 0 (total 220:
+    curtain grazes the profile eye/mouth boxes; clear in front/back).
+    collision: max 21.07 mm / 341 samples, ALL in the crown ball (part
+    roots); below-ball max 6.89 (back sheet graze; temple 0.0, nape 0.0,
+    side 4.6). See F1.
+    split-hem: curtain hem pixel (344, 414.5) vs cage end (z 1339.9, U 61,
+    ray err 227 mm) — the target profile has NO long anterior curtain (hair
+    rows 158-344 there; mass hangs posterior), while the default hangs a
+    320-drop curtain: honest baseline gap. Back hem (870, 792) vs cage end
+    (z 1279.9, U -130, ray err 33.5 mm) — close.
+  E/default-cage.png: Workbench, one colour per family (part yellow, temple
+  orange, side green, back blue, nape purple), bare Aisha (topper removed,
+  REMOVED_TOPPERS=[bob mesh] same as station0b), front/profile/back/
+  three_quarter.
+
+FINDINGS for cage1 (recorded, not gated here):
+  F1 SDF inflation at the crown ball: the reused station0b SDF (conservative
+  triangle-AABB +1 voxel on a 16k-vert body) reads ~10 mm deep at a true
+  13 mm scalp standoff (verified by vertical SDF scans vs mesh sections;
+  -4 mm level sits at drop ~0-2 at radial 30-50). Collision-0 is therefore
+  unachievable for scalp-riding roots with this field; cage1 must gate on
+  the below-ball bands + a root-standoff rule, or rebuild the field.
+  F2 target profile has a short front (hem row 344) and long back (row
+  ~870): the fit must shorten/lengthen curtain vs back independently (the
+  spec gives them separate hem drops).
+
+BAN-PROOF GREPS (pasted outputs; empty = pass):
+  $ grep -RInE 'hair-guides|children_station|hair-cap|hair-hem|hair-crown|hair-sweep|score\.py' tools/openclinxr/hair-groom
+  (no output; exit 1)
+  $ grep -nE '<same 7 + hair-scene|hair-curtain|hair-score|hair-look|children>' \
+      tools/openclinxr/evidence/hair-cage0/inputs-opened.txt
+  (no output; exit 1)
+
+INPUTS-OPENED (E/inputs-opened.txt, 17 runtime paths: 5 S3 sources, spec,
+  cameras file, body GLB, landmarks + 3 fit masks, body SDF + body verts,
+  station-frame.npz, default-cage.npz, blender-opened.txt): both scans
+above empty. Render-side inputs are logged in E/blender-opened.txt by the
+Blender script.
+
+SAW: cage families mirror-exact with face opening (front guard 0, no STOP-
+style topology block); strip raster verified sub-px against analytics;
+regional losses isolate hem shifts exactly (0 elsewhere); depth guard
+separates front-hair from behind-head hair (3087 vs 0); default clears the
+torso everywhere below the crown ball (temple/nape 0.0) with the two known
+and quantified exceptions above (crown-ball inflation, profile graze).
+  NOT TESTED: Quest/worn-headset rendering; IWSDK sidecar; cross-machine
+  Blender determinism (single Apple M1 Max host); MongoDB persistence (no
+  records written); any fitting (no optimiser ran — cage1's job); other
+  cage topologies (verdict covers exactly the frozen 22-param spec).
+
+GATES_PASS=yes — self-tests 5/5 pass, both ban scans empty, all STEP files
+exist (S3/cage.py, S3/instruments.py, E/cage-spec.json, E/selftests.json,
+E/default-cage.png, E/default-overlay.png, E/RESULT.txt).

@@ -1,0 +1,26 @@
+{
+ "tag": "d",
+ "renders": "tools/openclinxr/evidence/hair-part1/renders-d",
+ "iou": {
+  "front": {
+   "iou": 0.7806,
+   "missPx": 12092,
+   "excessPx": 6642
+  },
+  "three_quarter": {
+   "iou": 0.8493,
+   "missPx": 10219,
+   "excessPx": 6383
+  },
+  "profile_90": {
+   "iou": 0.8295,
+   "missPx": 6047,
+   "excessPx": 23365
+  },
+  "back": {
+   "iou": 0.8922,
+   "missPx": 24591,
+   "excessPx": 12990
+  }
+ }
+}

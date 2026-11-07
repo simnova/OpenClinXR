@@ -1,0 +1,6 @@
+DONE: hair target 2
+- 4 source renders of Aisha (topper excluded, pink shirt, scorer-v3 cameras, Cycles 1024).
+- 4 Imagine hair targets generated ON Aisha (driver muse-spark-1-go, refs.json errors: []).
+- Alignment: all 4 views ALIGNED (eyes p95 <= 3.7 px, face ECC <= 2.5 px, edge overlays coincide).
+- 4 hair masks + overlay (read); scalp coverage 0.75-0.99, faces bare, curtains in front of body.
+- Evidence: E/sheet.png, E/sources.png, E/RESULT.txt. T/ holds per-view files (gitignored).

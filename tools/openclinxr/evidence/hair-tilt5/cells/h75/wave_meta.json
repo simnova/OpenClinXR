@@ -1,0 +1,45 @@
+{
+  "tag": "h75",
+  "op": "rear-only independent lean-return (tilt5)",
+  "params": {
+    "sigma": 4.0,
+    "hold": 0.75,
+    "seed": 2026102002
+  },
+  "wave": {
+    "sigmaDeg": 4.0,
+    "coherent": false,
+    "hold": 0.75,
+    "thetaStdRear": 3.865424108963095,
+    "thetaMaxAbsRear": 17.05746731183985,
+    "rearFibres": 37647,
+    "tangentDevDeg": {
+      "rms": 7.069277781873068,
+      "p95": 11.309520617231154,
+      "max": 178.6017576498016
+    },
+    "tangentDevDegRear": {
+      "rms": 9.583039493179434,
+      "p95": 16.754822154516372
+    },
+    "maxDispMm": {
+      "p50": 0.21253554914560027,
+      "p95": 22.680022207010545,
+      "max": 69.15540733505433
+    },
+    "maxDispMmRear": {
+      "p50": 8.035040573875113,
+      "p95": 27.176212820800004,
+      "max": 69.15540733505433
+    },
+    "protectedFibres": 8949,
+    "seed": 2026102002
+  },
+  "curtainMaxAbsDiffMm": 0.0,
+  "endAngleDegPreRepair": {
+    "p50": 3.413921514268062,
+    "p95": 22.069382822055136,
+    "max": 49.19886006867326
+  },
+  "partGapMm": 1.0999999940395355
+}

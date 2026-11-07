@@ -1,0 +1,1339 @@
+{
+  "schemaVersion": 1,
+  "baseline": "children4 pass-A inputs as shipped (Follow off, IG 2, Poisson, mask attr OCLX_interp_scalp_mask, Distance 1.0, islands on, seed 0, radius 0.0004, Shrinkwrap body+shirt identical in all cells)",
+  "guides": "tools/openclinxr/evidence/hair-guides2/guides3.npz (596 x 32)",
+  "cells": {
+    "C0": {
+      "cell": "C0",
+      "change": "baseline (pass-A inputs as shipped)",
+      "specIntent": {
+        "follow": false,
+        "interp": 2,
+        "maskAttr": true,
+        "distribRaw": 1
+      },
+      "blenderVersion": "5.1.1",
+      "inputs": {
+        "followSurfaceNormal": false,
+        "interpolationGuides": 2,
+        "distributionMethod": "Poisson Disk",
+        "distributionRaw": 1,
+        "densityMask": "attr:OCLX_interp_scalp_mask",
+        "distanceToGuides": 1.0,
+        "partByMeshIslands": true,
+        "density": 38002.0,
+        "seed": 0
+      },
+      "overrideReadback": {},
+      "densityAttempts": [
+        {
+          "density": 38002,
+          "curves": 1941
+        }
+      ],
+      "density": 38002.0,
+      "radius": 0.0004,
+      "handUV": {
+        "curves": 596,
+        "nan": 0,
+        "uMin": 0.6456583142280579,
+        "uMax": 0.9033679366111755,
+        "vMin": 0.16011300683021545,
+        "vMax": 0.8120583295822144
+      },
+      "colliders": [
+        "OCLX_collision_basemesh",
+        "makeclothes_library_toigo_t_shirt"
+      ],
+      "profileReadback": {
+        "Input_3": {
+          "name": "Radius",
+          "identifier": "Input_3",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.009999999776482582,
+          "wrote": 0.0004,
+          "wroteRaw": 0.0004,
+          "readBack": 0.00039999998989515007
+        },
+        "Input_2": {
+          "name": "Shape",
+          "identifier": "Input_2",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.4999999403953552,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_6": {
+          "name": "Replace Radius",
+          "identifier": "Input_6",
+          "socketType": "NodeSocketBool",
+          "interfaceDefault": true,
+          "wrote": true,
+          "wroteRaw": true,
+          "readBack": true
+        },
+        "Socket_0": {
+          "name": "Density",
+          "identifier": "Socket_0",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Socket_1": {
+          "name": "Length",
+          "identifier": "Socket_1",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Input_4": {
+          "name": "Factor Min",
+          "identifier": "Input_4",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_5": {
+          "name": "Factor Max",
+          "identifier": "Input_5",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        }
+      },
+      "evaluatedCurveCount": 1938,
+      "evaluatedPointCount": 62016,
+      "pointsPerCurveHistogram": {
+        "32": 1938
+      },
+      "insideBodyCount": 13739,
+      "insideBodyFrac": 0.22153960268317854,
+      "insideShirtCount": 3659,
+      "insideShirtFrac": 0.05900090299277606,
+      "bodyDistanceMm": {
+        "p5": 1.0868366368313627,
+        "p50": 5.5682347662658325
+      },
+      "perGuideMax": 8,
+      "perGuideMedian": 3.0,
+      "partCrossingPointCount": 0,
+      "rootsCorrectIslandCount": 1938,
+      "rootsCorrectIslandFrac": 1.0,
+      "rootDensityCV": 0.8504106661495362,
+      "rootToGuideMm": {
+        "mean": 5.668314689398451,
+        "p50": 5.58835768037084,
+        "p95": 7.769800715252616,
+        "max": 9.560064782362968
+      },
+      "rootToCapMm": {
+        "mean": 0.015448481879643853,
+        "max": 3.0001818668097258
+      },
+      "offsetMeanMm": [
+        0.07704078503537776,
+        -0.5395306325242105,
+        -0.7582914061058594
+      ],
+      "offsetSdMm": [
+        3.3235365191392066,
+        3.294533785188811,
+        3.288989616800188
+      ],
+      "showThroughTop": 0.6904310111141231,
+      "gutterCount": 1,
+      "gutterSizes": [
+        19858
+      ],
+      "capPixels": 29512,
+      "hairPixelsTop": 9136,
+      "renders": {
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C0-crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C0-crown_top-id.png"
+        },
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C0-front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C0-front-id.png"
+        }
+      },
+      "capSilhouette": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C0-cap-silhouette.png",
+      "visibleSet": [
+        "OCLX_Aisha_head",
+        "OCLX_cam",
+        "OCLX_fill",
+        "OCLX_key",
+        "OCLX_lane_C0",
+        "OCLX_rim",
+        "makeclothes_library_female_tight_jeans_pants",
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+        "makeclothes_library_toigo_t_shirt",
+        "mpfb_parent_tara_johnson_v1_body_mesh"
+      ]
+    },
+    "C1": {
+      "cell": "C1",
+      "change": "Follow Surface Normal on",
+      "specIntent": {
+        "follow": true,
+        "interp": 2,
+        "maskAttr": true,
+        "distribRaw": 1
+      },
+      "blenderVersion": "5.1.1",
+      "inputs": {
+        "followSurfaceNormal": true,
+        "interpolationGuides": 2,
+        "distributionMethod": "Poisson Disk",
+        "distributionRaw": 1,
+        "densityMask": "attr:OCLX_interp_scalp_mask",
+        "distanceToGuides": 1.0,
+        "partByMeshIslands": true,
+        "density": 38002.0,
+        "seed": 0
+      },
+      "overrideReadback": {
+        "Input_24": {
+          "name": "Follow Surface Normal",
+          "identifier": "Input_24",
+          "socketType": "NodeSocketBool",
+          "interfaceDefault": false,
+          "wrote": true,
+          "wroteRaw": true,
+          "readBack": true
+        }
+      },
+      "densityAttempts": [
+        {
+          "density": 38002,
+          "curves": 1938
+        }
+      ],
+      "density": 38002.0,
+      "radius": 0.0004,
+      "handUV": {
+        "curves": 596,
+        "nan": 0,
+        "uMin": 0.6456583142280579,
+        "uMax": 0.9033679366111755,
+        "vMin": 0.16011300683021545,
+        "vMax": 0.8120583295822144
+      },
+      "colliders": [
+        "OCLX_collision_basemesh",
+        "makeclothes_library_toigo_t_shirt"
+      ],
+      "profileReadback": {
+        "Input_3": {
+          "name": "Radius",
+          "identifier": "Input_3",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.009999999776482582,
+          "wrote": 0.0004,
+          "wroteRaw": 0.0004,
+          "readBack": 0.00039999998989515007
+        },
+        "Input_2": {
+          "name": "Shape",
+          "identifier": "Input_2",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.4999999403953552,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_6": {
+          "name": "Replace Radius",
+          "identifier": "Input_6",
+          "socketType": "NodeSocketBool",
+          "interfaceDefault": true,
+          "wrote": true,
+          "wroteRaw": true,
+          "readBack": true
+        },
+        "Socket_0": {
+          "name": "Density",
+          "identifier": "Socket_0",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Socket_1": {
+          "name": "Length",
+          "identifier": "Socket_1",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Input_4": {
+          "name": "Factor Min",
+          "identifier": "Input_4",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_5": {
+          "name": "Factor Max",
+          "identifier": "Input_5",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        }
+      },
+      "evaluatedCurveCount": 1942,
+      "evaluatedPointCount": 62144,
+      "pointsPerCurveHistogram": {
+        "32": 1942
+      },
+      "insideBodyCount": 3936,
+      "insideBodyFrac": 0.06333676622039135,
+      "insideShirtCount": 4050,
+      "insideShirtFrac": 0.06517121524201853,
+      "bodyDistanceMm": {
+        "p5": 1.7752413842082986,
+        "p50": 42.19473251650101
+      },
+      "perGuideMax": 8,
+      "perGuideMedian": 3.0,
+      "partCrossingPointCount": 64,
+      "rootsCorrectIslandCount": 1903,
+      "rootsCorrectIslandFrac": 0.9799176107106076,
+      "rootDensityCV": 0.8506563213571328,
+      "rootToGuideMm": {
+        "mean": 5.656639524961855,
+        "p50": 5.586266703479797,
+        "p95": 7.768278258154455,
+        "max": 9.560064782362968
+      },
+      "rootToCapMm": {
+        "mean": 0.02181482868871795,
+        "max": 3.4420655574649572
+      },
+      "offsetMeanMm": [
+        0.07688210051142648,
+        -0.5384193424385172,
+        -0.7567295708726014
+      ],
+      "offsetSdMm": [
+        3.320113794459068,
+        3.291230008070798,
+        3.285780500648343
+      ],
+      "showThroughTop": 0.43453510436432635,
+      "gutterCount": 119,
+      "gutterSizes": [
+        1273,
+        968,
+        443,
+        356,
+        337,
+        313,
+        299,
+        285,
+        215,
+        187,
+        168,
+        166
+      ],
+      "capPixels": 29512,
+      "hairPixelsTop": 16688,
+      "renders": {
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C1-crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C1-crown_top-id.png"
+        },
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C1-front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C1-front-id.png"
+        }
+      },
+      "capSilhouette": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C1-cap-silhouette.png",
+      "visibleSet": [
+        "OCLX_Aisha_head",
+        "OCLX_cam",
+        "OCLX_fill",
+        "OCLX_key",
+        "OCLX_lane_C1",
+        "OCLX_rim",
+        "makeclothes_library_female_tight_jeans_pants",
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+        "makeclothes_library_toigo_t_shirt",
+        "mpfb_parent_tara_johnson_v1_body_mesh"
+      ]
+    },
+    "C2": {
+      "cell": "C2",
+      "change": "Interpolation Guides 4",
+      "specIntent": {
+        "follow": false,
+        "interp": 4,
+        "maskAttr": true,
+        "distribRaw": 1
+      },
+      "blenderVersion": "5.1.1",
+      "inputs": {
+        "followSurfaceNormal": false,
+        "interpolationGuides": 4,
+        "distributionMethod": "Poisson Disk",
+        "distributionRaw": 1,
+        "densityMask": "attr:OCLX_interp_scalp_mask",
+        "distanceToGuides": 1.0,
+        "partByMeshIslands": true,
+        "density": 38002.0,
+        "seed": 0
+      },
+      "overrideReadback": {
+        "Input_10": {
+          "name": "Interpolation Guides",
+          "identifier": "Input_10",
+          "socketType": "NodeSocketInt",
+          "interfaceDefault": 4,
+          "wrote": 4,
+          "wroteRaw": 4,
+          "readBack": 4
+        }
+      },
+      "densityAttempts": [
+        {
+          "density": 38002,
+          "curves": 1943
+        }
+      ],
+      "density": 38002.0,
+      "radius": 0.0004,
+      "handUV": {
+        "curves": 596,
+        "nan": 0,
+        "uMin": 0.6456583142280579,
+        "uMax": 0.9033679366111755,
+        "vMin": 0.16011300683021545,
+        "vMax": 0.8120583295822144
+      },
+      "colliders": [
+        "OCLX_collision_basemesh",
+        "makeclothes_library_toigo_t_shirt"
+      ],
+      "profileReadback": {
+        "Input_3": {
+          "name": "Radius",
+          "identifier": "Input_3",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.009999999776482582,
+          "wrote": 0.0004,
+          "wroteRaw": 0.0004,
+          "readBack": 0.00039999998989515007
+        },
+        "Input_2": {
+          "name": "Shape",
+          "identifier": "Input_2",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.4999999403953552,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_6": {
+          "name": "Replace Radius",
+          "identifier": "Input_6",
+          "socketType": "NodeSocketBool",
+          "interfaceDefault": true,
+          "wrote": true,
+          "wroteRaw": true,
+          "readBack": true
+        },
+        "Socket_0": {
+          "name": "Density",
+          "identifier": "Socket_0",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Socket_1": {
+          "name": "Length",
+          "identifier": "Socket_1",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Input_4": {
+          "name": "Factor Min",
+          "identifier": "Input_4",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_5": {
+          "name": "Factor Max",
+          "identifier": "Input_5",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        }
+      },
+      "evaluatedCurveCount": 1938,
+      "evaluatedPointCount": 62016,
+      "pointsPerCurveHistogram": {
+        "32": 1938
+      },
+      "insideBodyCount": 14278,
+      "insideBodyFrac": 0.23023090815273478,
+      "insideShirtCount": 3769,
+      "insideShirtFrac": 0.06077463880288958,
+      "bodyDistanceMm": {
+        "p5": 1.0369889668906287,
+        "p50": 5.45374061460413
+      },
+      "perGuideMax": 8,
+      "perGuideMedian": 3.0,
+      "partCrossingPointCount": 0,
+      "rootsCorrectIslandCount": 1938,
+      "rootsCorrectIslandFrac": 1.0,
+      "rootDensityCV": 0.8507800275083989,
+      "rootToGuideMm": {
+        "mean": 5.668314675185084,
+        "p50": 5.58835768037084,
+        "p95": 7.769800715252616,
+        "max": 9.560064782362968
+      },
+      "rootToCapMm": {
+        "mean": 0.015724726187586042,
+        "max": 3.4420655574649572
+      },
+      "offsetMeanMm": [
+        0.07704078620409636,
+        -0.5395306333776826,
+        -0.7582914410636145
+      ],
+      "offsetSdMm": [
+        3.323536519112112,
+        3.294533785049043,
+        3.2889896087403674
+      ],
+      "showThroughTop": 0.7185212794795337,
+      "gutterCount": 1,
+      "gutterSizes": [
+        20838
+      ],
+      "capPixels": 29512,
+      "hairPixelsTop": 8307,
+      "renders": {
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C2-crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C2-crown_top-id.png"
+        },
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C2-front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C2-front-id.png"
+        }
+      },
+      "capSilhouette": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C2-cap-silhouette.png",
+      "visibleSet": [
+        "OCLX_Aisha_head",
+        "OCLX_cam",
+        "OCLX_fill",
+        "OCLX_key",
+        "OCLX_lane_C2",
+        "OCLX_rim",
+        "makeclothes_library_female_tight_jeans_pants",
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+        "makeclothes_library_toigo_t_shirt",
+        "mpfb_parent_tara_johnson_v1_body_mesh"
+      ]
+    },
+    "C3": {
+      "cell": "C3",
+      "change": "Interpolation Guides 3",
+      "specIntent": {
+        "follow": false,
+        "interp": 3,
+        "maskAttr": true,
+        "distribRaw": 1
+      },
+      "blenderVersion": "5.1.1",
+      "inputs": {
+        "followSurfaceNormal": false,
+        "interpolationGuides": 3,
+        "distributionMethod": "Poisson Disk",
+        "distributionRaw": 1,
+        "densityMask": "attr:OCLX_interp_scalp_mask",
+        "distanceToGuides": 1.0,
+        "partByMeshIslands": true,
+        "density": 38002.0,
+        "seed": 0
+      },
+      "overrideReadback": {
+        "Input_10": {
+          "name": "Interpolation Guides",
+          "identifier": "Input_10",
+          "socketType": "NodeSocketInt",
+          "interfaceDefault": 4,
+          "wrote": 3,
+          "wroteRaw": 3,
+          "readBack": 3
+        }
+      },
+      "densityAttempts": [
+        {
+          "density": 38002,
+          "curves": 1941
+        }
+      ],
+      "density": 38002.0,
+      "radius": 0.0004,
+      "handUV": {
+        "curves": 596,
+        "nan": 0,
+        "uMin": 0.6456583142280579,
+        "uMax": 0.9033679366111755,
+        "vMin": 0.16011300683021545,
+        "vMax": 0.8120583295822144
+      },
+      "colliders": [
+        "OCLX_collision_basemesh",
+        "makeclothes_library_toigo_t_shirt"
+      ],
+      "profileReadback": {
+        "Input_3": {
+          "name": "Radius",
+          "identifier": "Input_3",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.009999999776482582,
+          "wrote": 0.0004,
+          "wroteRaw": 0.0004,
+          "readBack": 0.00039999998989515007
+        },
+        "Input_2": {
+          "name": "Shape",
+          "identifier": "Input_2",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.4999999403953552,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_6": {
+          "name": "Replace Radius",
+          "identifier": "Input_6",
+          "socketType": "NodeSocketBool",
+          "interfaceDefault": true,
+          "wrote": true,
+          "wroteRaw": true,
+          "readBack": true
+        },
+        "Socket_0": {
+          "name": "Density",
+          "identifier": "Socket_0",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Socket_1": {
+          "name": "Length",
+          "identifier": "Socket_1",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Input_4": {
+          "name": "Factor Min",
+          "identifier": "Input_4",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_5": {
+          "name": "Factor Max",
+          "identifier": "Input_5",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        }
+      },
+      "evaluatedCurveCount": 1939,
+      "evaluatedPointCount": 62048,
+      "pointsPerCurveHistogram": {
+        "32": 1939
+      },
+      "insideBodyCount": 14110,
+      "insideBodyFrac": 0.2274045899948427,
+      "insideShirtCount": 3748,
+      "insideShirtFrac": 0.06040484785972151,
+      "bodyDistanceMm": {
+        "p5": 1.048367331458513,
+        "p50": 5.497040653008772
+      },
+      "perGuideMax": 8,
+      "perGuideMedian": 3.0,
+      "partCrossingPointCount": 0,
+      "rootsCorrectIslandCount": 1939,
+      "rootsCorrectIslandFrac": 1.0,
+      "rootDensityCV": 0.8539717074019825,
+      "rootToGuideMm": {
+        "mean": 5.665391354199432,
+        "p50": 5.587662699386002,
+        "p95": 7.769344627902468,
+        "max": 9.560064782362968
+      },
+      "rootToCapMm": {
+        "mean": 0.017254600608806743,
+        "max": 3.4420655574649572
+      },
+      "offsetMeanMm": [
+        0.0770010562206724,
+        -0.5392523833115223,
+        -0.7579003352962768
+      ],
+      "offsetSdMm": [
+        3.322679845576765,
+        3.293706908684809,
+        3.2881864618449486
+      ],
+      "showThroughTop": 0.701341827053402,
+      "gutterCount": 2,
+      "gutterSizes": [
+        20309,
+        21
+      ],
+      "capPixels": 29512,
+      "hairPixelsTop": 8814,
+      "renders": {
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C3-crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C3-crown_top-id.png"
+        },
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C3-front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C3-front-id.png"
+        }
+      },
+      "capSilhouette": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C3-cap-silhouette.png",
+      "visibleSet": [
+        "OCLX_Aisha_head",
+        "OCLX_cam",
+        "OCLX_fill",
+        "OCLX_key",
+        "OCLX_lane_C3",
+        "OCLX_rim",
+        "makeclothes_library_female_tight_jeans_pants",
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+        "makeclothes_library_toigo_t_shirt",
+        "mpfb_parent_tara_johnson_v1_body_mesh"
+      ]
+    },
+    "C4": {
+      "cell": "C4",
+      "change": "Density Mask constant 1.0 (no attribute)",
+      "specIntent": {
+        "follow": false,
+        "interp": 2,
+        "maskAttr": false,
+        "distribRaw": 1
+      },
+      "blenderVersion": "5.1.1",
+      "inputs": {
+        "followSurfaceNormal": false,
+        "interpolationGuides": 2,
+        "distributionMethod": "Poisson Disk",
+        "distributionRaw": 1,
+        "densityMask": 1.0,
+        "distanceToGuides": 1.0,
+        "partByMeshIslands": true,
+        "density": 31355.0,
+        "seed": 0
+      },
+      "overrideReadback": {},
+      "densityAttempts": [
+        {
+          "density": 38002,
+          "curves": 2424
+        },
+        {
+          "density": 31355,
+          "curves": 1946
+        }
+      ],
+      "density": 31355.0,
+      "radius": 0.0004,
+      "handUV": {
+        "curves": 596,
+        "nan": 0,
+        "uMin": 0.6456583142280579,
+        "uMax": 0.9033679366111755,
+        "vMin": 0.16011300683021545,
+        "vMax": 0.8120583295822144
+      },
+      "colliders": [
+        "OCLX_collision_basemesh",
+        "makeclothes_library_toigo_t_shirt"
+      ],
+      "profileReadback": {
+        "Input_3": {
+          "name": "Radius",
+          "identifier": "Input_3",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.009999999776482582,
+          "wrote": 0.0004,
+          "wroteRaw": 0.0004,
+          "readBack": 0.00039999998989515007
+        },
+        "Input_2": {
+          "name": "Shape",
+          "identifier": "Input_2",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.4999999403953552,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_6": {
+          "name": "Replace Radius",
+          "identifier": "Input_6",
+          "socketType": "NodeSocketBool",
+          "interfaceDefault": true,
+          "wrote": true,
+          "wroteRaw": true,
+          "readBack": true
+        },
+        "Socket_0": {
+          "name": "Density",
+          "identifier": "Socket_0",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Socket_1": {
+          "name": "Length",
+          "identifier": "Socket_1",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Input_4": {
+          "name": "Factor Min",
+          "identifier": "Input_4",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_5": {
+          "name": "Factor Max",
+          "identifier": "Input_5",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        }
+      },
+      "evaluatedCurveCount": 1946,
+      "evaluatedPointCount": 62272,
+      "pointsPerCurveHistogram": {
+        "32": 1946
+      },
+      "insideBodyCount": 13666,
+      "insideBodyFrac": 0.21945657759506682,
+      "insideShirtCount": 3651,
+      "insideShirtFrac": 0.058629881808838644,
+      "bodyDistanceMm": {
+        "p5": 1.1398890716417893,
+        "p50": 5.718517452170937
+      },
+      "perGuideMax": 7,
+      "perGuideMedian": 3.0,
+      "partCrossingPointCount": 6,
+      "rootsCorrectIslandCount": 1943,
+      "rootsCorrectIslandFrac": 0.9984583761562179,
+      "rootDensityCV": 0.8424829733716863,
+      "rootToGuideMm": {
+        "mean": 4.4899012922535615,
+        "p50": 5.246283882095687,
+        "p95": 7.6481304286355645,
+        "max": 9.560064782362968
+      },
+      "rootToCapMm": {
+        "mean": 0.6807824536809535,
+        "max": 3.4420655574649572
+      },
+      "offsetMeanMm": [
+        0.07225113066717086,
+        -0.45608326876854915,
+        -0.5551690970764688
+      ],
+      "offsetSdMm": [
+        2.99364138753689,
+        2.9692469963727794,
+        2.9563527524927387
+      ],
+      "showThroughTop": 0.625304960693955,
+      "gutterCount": 6,
+      "gutterSizes": [
+        17698,
+        37,
+        36,
+        32,
+        25,
+        25
+      ],
+      "capPixels": 29512,
+      "hairPixelsTop": 11058,
+      "renders": {
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C4-crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C4-crown_top-id.png"
+        },
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C4-front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C4-front-id.png"
+        }
+      },
+      "capSilhouette": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C4-cap-silhouette.png",
+      "visibleSet": [
+        "OCLX_Aisha_head",
+        "OCLX_cam",
+        "OCLX_fill",
+        "OCLX_key",
+        "OCLX_lane_C4",
+        "OCLX_rim",
+        "makeclothes_library_female_tight_jeans_pants",
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+        "makeclothes_library_toigo_t_shirt",
+        "mpfb_parent_tara_johnson_v1_body_mesh"
+      ]
+    },
+    "C5": {
+      "cell": "C5",
+      "change": "Distribution Random",
+      "specIntent": {
+        "follow": false,
+        "interp": 2,
+        "maskAttr": true,
+        "distribRaw": 0
+      },
+      "blenderVersion": "5.1.1",
+      "inputs": {
+        "followSurfaceNormal": false,
+        "interpolationGuides": 2,
+        "distributionMethod": "Random",
+        "distributionRaw": 0,
+        "densityMask": "attr:OCLX_interp_scalp_mask",
+        "distanceToGuides": 1.0,
+        "partByMeshIslands": true,
+        "density": 42084.0,
+        "seed": 0
+      },
+      "overrideReadback": {
+        "Socket_2": {
+          "name": "Distribution Method",
+          "identifier": "Socket_2",
+          "wroteRaw": 0,
+          "readBack": 0
+        }
+      },
+      "densityAttempts": [
+        {
+          "density": 38002,
+          "curves": 1806
+        },
+        {
+          "density": 42084,
+          "curves": 2032
+        }
+      ],
+      "density": 42084.0,
+      "radius": 0.0004,
+      "handUV": {
+        "curves": 596,
+        "nan": 0,
+        "uMin": 0.6456583142280579,
+        "uMax": 0.9033679366111755,
+        "vMin": 0.16011300683021545,
+        "vMax": 0.8120583295822144
+      },
+      "colliders": [
+        "OCLX_collision_basemesh",
+        "makeclothes_library_toigo_t_shirt"
+      ],
+      "profileReadback": {
+        "Input_3": {
+          "name": "Radius",
+          "identifier": "Input_3",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.009999999776482582,
+          "wrote": 0.0004,
+          "wroteRaw": 0.0004,
+          "readBack": 0.00039999998989515007
+        },
+        "Input_2": {
+          "name": "Shape",
+          "identifier": "Input_2",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.4999999403953552,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_6": {
+          "name": "Replace Radius",
+          "identifier": "Input_6",
+          "socketType": "NodeSocketBool",
+          "interfaceDefault": true,
+          "wrote": true,
+          "wroteRaw": true,
+          "readBack": true
+        },
+        "Socket_0": {
+          "name": "Density",
+          "identifier": "Socket_0",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Socket_1": {
+          "name": "Length",
+          "identifier": "Socket_1",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Input_4": {
+          "name": "Factor Min",
+          "identifier": "Input_4",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_5": {
+          "name": "Factor Max",
+          "identifier": "Input_5",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        }
+      },
+      "evaluatedCurveCount": 2032,
+      "evaluatedPointCount": 65024,
+      "pointsPerCurveHistogram": {
+        "32": 2032
+      },
+      "insideBodyCount": 14553,
+      "insideBodyFrac": 0.22380967027559054,
+      "insideShirtCount": 3927,
+      "insideShirtFrac": 0.06039308562992126,
+      "bodyDistanceMm": {
+        "p5": 1.0964010320944495,
+        "p50": 5.54739336648622
+      },
+      "perGuideMax": 10,
+      "perGuideMedian": 3.0,
+      "partCrossingPointCount": 0,
+      "rootsCorrectIslandCount": 2032,
+      "rootsCorrectIslandFrac": 1.0,
+      "rootDensityCV": 0.8532456983081974,
+      "rootToGuideMm": {
+        "mean": 5.615592399677905,
+        "p50": 5.553372175857902,
+        "p95": 7.720755929317008,
+        "max": 9.596429094834983
+      },
+      "rootToCapMm": {
+        "mean": 0.012045386181113985,
+        "max": 3.4420655574649572
+      },
+      "offsetMeanMm": [
+        0.09403597591238758,
+        -0.5489926698395968,
+        -0.7360669752387636
+      ],
+      "offsetSdMm": [
+        3.2642453533031603,
+        3.298396738134878,
+        3.2731089492814993
+      ],
+      "showThroughTop": 0.6896855516400109,
+      "gutterCount": 2,
+      "gutterSizes": [
+        19897,
+        28
+      ],
+      "capPixels": 29512,
+      "hairPixelsTop": 9158,
+      "renders": {
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C5-crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C5-crown_top-id.png"
+        },
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C5-front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C5-front-id.png"
+        }
+      },
+      "capSilhouette": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C5-cap-silhouette.png",
+      "visibleSet": [
+        "OCLX_Aisha_head",
+        "OCLX_cam",
+        "OCLX_fill",
+        "OCLX_key",
+        "OCLX_lane_C5",
+        "OCLX_rim",
+        "makeclothes_library_female_tight_jeans_pants",
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+        "makeclothes_library_toigo_t_shirt",
+        "mpfb_parent_tara_johnson_v1_body_mesh"
+      ]
+    },
+    "C6": {
+      "cell": "C6",
+      "change": "Follow on + Interpolation Guides 4",
+      "specIntent": {
+        "follow": true,
+        "interp": 4,
+        "maskAttr": true,
+        "distribRaw": 1
+      },
+      "blenderVersion": "5.1.1",
+      "inputs": {
+        "followSurfaceNormal": true,
+        "interpolationGuides": 4,
+        "distributionMethod": "Poisson Disk",
+        "distributionRaw": 1,
+        "densityMask": "attr:OCLX_interp_scalp_mask",
+        "distanceToGuides": 1.0,
+        "partByMeshIslands": true,
+        "density": 38002.0,
+        "seed": 0
+      },
+      "overrideReadback": {
+        "Input_24": {
+          "name": "Follow Surface Normal",
+          "identifier": "Input_24",
+          "socketType": "NodeSocketBool",
+          "interfaceDefault": false,
+          "wrote": true,
+          "wroteRaw": true,
+          "readBack": true
+        },
+        "Input_10": {
+          "name": "Interpolation Guides",
+          "identifier": "Input_10",
+          "socketType": "NodeSocketInt",
+          "interfaceDefault": 4,
+          "wrote": 4,
+          "wroteRaw": 4,
+          "readBack": 4
+        }
+      },
+      "densityAttempts": [
+        {
+          "density": 38002,
+          "curves": 1938
+        }
+      ],
+      "density": 38002.0,
+      "radius": 0.0004,
+      "handUV": {
+        "curves": 596,
+        "nan": 0,
+        "uMin": 0.6456583142280579,
+        "uMax": 0.9033679366111755,
+        "vMin": 0.16011300683021545,
+        "vMax": 0.8120583295822144
+      },
+      "colliders": [
+        "OCLX_collision_basemesh",
+        "makeclothes_library_toigo_t_shirt"
+      ],
+      "profileReadback": {
+        "Input_3": {
+          "name": "Radius",
+          "identifier": "Input_3",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.009999999776482582,
+          "wrote": 0.0004,
+          "wroteRaw": 0.0004,
+          "readBack": 0.00039999998989515007
+        },
+        "Input_2": {
+          "name": "Shape",
+          "identifier": "Input_2",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.4999999403953552,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_6": {
+          "name": "Replace Radius",
+          "identifier": "Input_6",
+          "socketType": "NodeSocketBool",
+          "interfaceDefault": true,
+          "wrote": true,
+          "wroteRaw": true,
+          "readBack": true
+        },
+        "Socket_0": {
+          "name": "Density",
+          "identifier": "Socket_0",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Socket_1": {
+          "name": "Length",
+          "identifier": "Socket_1",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Input_4": {
+          "name": "Factor Min",
+          "identifier": "Input_4",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_5": {
+          "name": "Factor Max",
+          "identifier": "Input_5",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        }
+      },
+      "evaluatedCurveCount": 1937,
+      "evaluatedPointCount": 61984,
+      "pointsPerCurveHistogram": {
+        "32": 1937
+      },
+      "insideBodyCount": 4037,
+      "insideBodyFrac": 0.06512971089313371,
+      "insideShirtCount": 4524,
+      "insideShirtFrac": 0.07298657718120806,
+      "bodyDistanceMm": {
+        "p5": 1.7403783458347009,
+        "p50": 36.88915848772902
+      },
+      "perGuideMax": 8,
+      "perGuideMedian": 3.0,
+      "partCrossingPointCount": 52,
+      "rootsCorrectIslandCount": 1913,
+      "rootsCorrectIslandFrac": 0.9876097057305111,
+      "rootDensityCV": 0.8500146427736128,
+      "rootToGuideMm": {
+        "mean": 5.671241023331075,
+        "p50": 5.589052661355677,
+        "p95": 7.770256802602764,
+        "max": 9.560064782362968
+      },
+      "rootToCapMm": {
+        "mean": 0.01390783510677538,
+        "max": 3.0001818668097258
+      },
+      "offsetMeanMm": [
+        0.07708055902378606,
+        -0.5398091722247442,
+        -0.7586828804339271
+      ],
+      "offsetSdMm": [
+        3.324393855565357,
+        3.2953612836075012,
+        3.289793358152605
+      ],
+      "showThroughTop": 0.36815532664678774,
+      "gutterCount": 112,
+      "gutterSizes": [
+        368,
+        291,
+        290,
+        288,
+        287,
+        278,
+        266,
+        213,
+        186,
+        168,
+        168,
+        160
+      ],
+      "capPixels": 29512,
+      "hairPixelsTop": 18647,
+      "renders": {
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C6-crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C6-crown_top-id.png"
+        },
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C6-front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C6-front-id.png"
+        }
+      },
+      "capSilhouette": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C6-cap-silhouette.png",
+      "visibleSet": [
+        "OCLX_Aisha_head",
+        "OCLX_cam",
+        "OCLX_fill",
+        "OCLX_key",
+        "OCLX_lane_C6",
+        "OCLX_rim",
+        "makeclothes_library_female_tight_jeans_pants",
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+        "makeclothes_library_toigo_t_shirt",
+        "mpfb_parent_tara_johnson_v1_body_mesh"
+      ]
+    }
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "R2": {
+    "max": 2.050000441952732,
+    "n": 173,
+    "p50": 0.8490689292880927,
+    "p95": 1.599090116025406,
+    "pass": true
+  },
+  "gatesPass": true,
+  "meanSpacingMm": 1.718,
+  "nProposals": 4481400,
+  "nRejectDensity": 68335,
+  "part": {
+    "measFwhmMm": 7.0,
+    "nCrownBand": 1434,
+    "pass": true,
+    "targetValleyMm": 5.16,
+    "valleyDepth": 0.719
+  },
+  "partSigmaMm": 0.003,
+  "plantDrop10mm": {
+    "nDropped": 226,
+    "nKept": 13929,
+    "p50mm": 10.83923317042696,
+    "pass": true
+  },
+  "plantRestore": {
+    "p50mm": 0.8490689292880927,
+    "pass": true
+  },
+  "rootCount": 14155,
+  "seed": 7,
+  "spacingMm": 1.6,
+  "stopReason": "stale"
+}

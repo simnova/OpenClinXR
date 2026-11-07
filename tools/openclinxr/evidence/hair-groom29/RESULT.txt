@@ -1,0 +1,169 @@
+RESULT hair-groom29: re-drape the -x back curtain before fairing
+===============================================================================
+Card: re-drape the world -x back guides BEFORE fairing (groom28 cause:
+guides-19's -x back drape is a narrow central curtain; anchor-0.6
+fairing drags its inner half outward ~20 mm and scatters it, losing
+cover image-right). New stage s14_back_redrape.py (orient/) maps the -x
+hem-|x| distribution onto the mirrored +x distribution, then the
+groom26 recipe verbatim (s11 anchor 0.6 one pass --hem-keep-mm 200;
+children --region-weight --uv-cutoff 0.15 --pool-max-move-mm 60
+--pool-ref <hair-tgt2 guides-8a> --temple-taper 0.5 --lobe-drop-roots).
+
+VERDICT: GATES_PASS = no. Back recovers about half the fairing loss
+(0.7865 vs 0.7776 groom26 vs 0.7959 ctrl; miss +3241 vs +6574 px) but
+stays 0.0085 under the 0.795 gate; right-hem box gates fail exactly as
+in the whole lineage (incl. ctrl). Locks IMPROVE past groom26 (3D 760
+vs 885; gradAniso sigma4 0.5312). front/3q/profile stay in their +-0.01
+bands. No folds, no new body violations, determinism exact at all three
+stages.
+
+1. RE-DRAPE TABLE (E/build-29a/guides-29a-redrape.json; guides-19 ->
+   guides-29a; S = 140 world -x BACK long-arc non-tuck guides, total >
+   40 mm; T = 131 +x mirror guides, never modified; 253 short guides
+   verbatim by the 40 mm take-off rule)
+--------------------------------------------------------------------------------
+hem |x| (mm), all BACK non-tuck guides:
+  +x: before p50 24.08 p90 69.26 mean 30.34 -> after IDENTICAL (byte-exact)
+  -x: before p50 11.66 p90 31.87 mean 16.50 -> after p50 16.44 p90 65.03 mean 23.52
+hem |x| (mm), long-arc subset (the drape that covers mid/bottom back):
+  +x: before p50 46.93 p90 78.31 -> after IDENTICAL (byte-exact)
+  -x: before p50 7.32 p90 41.08 mean 15.63 -> after p50 14.63 p90 78.63 mean 29.22 max 111.79 (= +x max: exact landing)
+mid |x| at arc fraction 0.5, long subset (spread check):
+  +x: p50 63.58 (unchanged) ; -x: before p50 49.32 p90 79.17 -> after p50 66.43 p90 91.76 (mid matches +x)
+method: per-guide HEM quantile mapping (mid-quantile rank -> +x hem
+target) + signed additive shift x_out = x_in + phi*d (d = s*tgt-hem,
+s = take-off-exit sign) with a monotone C1 fraction ramp phi (0 at/below
+the 40 mm exit, smoothstep to 1 at hem), lateral-only (y/z verbatim).
+Full weight at total >= 120 mm, smoothstep dilution to 0 at 40 mm.
+Reverted variants: two earlier mapping designs were tried and REVERTED, both folded
+strands: (a) per-fraction surface quantile mapping (even smoothed:
+max kink 114-176 deg -- mapping AMPLIFIES input wiggles where S is
+concentrated); (b) mirrored |x| (cusps where strands cross the
+midline). The additive shift cannot cusp by construction.
+guide move (S max-sample, mm): p50 12.49 p90 48.43 max 143.33.
+kink (max turn deg, S): before p50 31.99 p90 45.77 max 62.84 ->
+after p50 34.26 p90 45.77 max 69.28 (no folds; worst guide unchanged).
+byte-identical: all non-S rows sha match (in d51f4ef1.../out exact);
+take-off samples (arc < 40 mm) of S rows bit-exact.
+body: ZERO new SDF < 1.5 mm samples on moved samples (5 guides scaled
+back, 0 reverted; totals unchanged 5479 < margin / 1647 inside, same
+as input advisories). hull: advisory -- hull5 does not contain the real
+drape (the +x reference itself is 28.8% outside on moved samples), so
+new hull-outside is allowed up to the +x rate: S 16.7% -> 30.4% vs
++x 28.8% (reported, not a hard gate; hull is not used to clip
+children -- depth servo only lofts outward).
+
+2. FAIRING + CHILDREN (groom26 recipe verbatim)
+--------------------------------------------------------------------------------
+s11 on guides-29a: anchor 0.6, kernel 20 mm, verbatim 40 mm, ONE pass,
+--hem-keep-mm 200. Input sha 3c517d0b... (= redrape out), output
+b2a99ffc... FRONT byte-identical, take-off byte-identical (fairing
+json E/build-29/guides-29-fairing.json).
+children (interp_children.py): 281800 (same as groom26 final),
+poolDrop 56 (vs 44: +12 guides > 60 mm from guides-8a -- expected, the
+spread moves them; ref = hair-tgt2 absolute path per card), uvCutoff
+0.15, regionWeight on, templeTaper 14520 strands, lobeDropRoots 65
+roots, radii root 0.05 / tip 0.015 mm. Store + SHA256SUMS, no .npz in git.
+
+3. EVERY GATE (provenance in parentheses)
+--------------------------------------------------------------------------------
+backIoU   0.7865 vs >= 0.795 ............ FAIL (-0.0085; groom26 0.7776, ctrl 0.7959) (score29-29)
+frontIoU  0.7976 vs 0.8044 +-0.01 ....... PASS (-0.0068) (score29-29; groom26 band)
+3qIoU     0.8416 vs 0.8411 +-0.01 ....... PASS (+0.0005)
+profile   0.8107 vs 0.8105 +-0.01 ....... PASS (+0.0002)
+3D cross  760 vs <= 900 ................. PASS (margin 140; groom26 885; guides-29a pre-fairing 1562) (metrics-cross29)
+gradAniso sigma4 0.5312 vs <= 0.7961 .... PASS (margin 0.265; midpoint (target 0.6046 + ctrl 0.9876)/2)
+gradAniso sigma2 0.6263 .................. REPORT (target 0.5302, ctrl 1.0162, groom19 1.0228, groom26 0.6253; radii root 0.05/tip 0.015 mm) (metrics-grad29)
+right hem alpha 0.9166 (<=0.10) / miss 0.8993 (<=0.15) .. FAIL both (lineage-wide: ctrl 0.9064/0.8829; groom26 identical px) (score29-29 B)
+concha    0 / 0 / 0 ...................... PASS
+insideBody 0 ............................ PASS
+faceMask  front 3213 <= 3424.9 .......... PASS
+knotHole  0 enclosed, bareFrac 0.0 ...... PASS (report-only lineage gate)
+determinism: redrape sha exact rerun .. PASS; fairing sha exact rerun b2a99ffc.. .. PASS; children file+array sha exact rebuild .. PASS (E/det-29.json)
+earlobe column (REPORT ONLY, not gated): 3D strands xpos 2368 / xneg 2598 (groom26 2372/2624); profile-xpos box 768 px (target 0; groom26 770); 3q-xpos 1183 px (target 823; groom26 1180) (E/earlobe29-gate.json)
+calibration: groom8a rescore exact 0.0 all views (E/groom29cal-calib.json, re-run first per card)
+GATES_PASS = no (back + right-hem fail).
+
+4. COVER GEOGRAPHY (measured on the miss masks, 29 vs 26)
+--------------------------------------------------------------------------------
+Back miss: ctrl 50700 -> groom26 57274 (+6574) -> groom29 53941 (+3241).
+Recovered 3694 px, ALL image-right (mid 1464, bot 2230, right-half
+only); residual still image-right (mid 3022R, bot 37941R). Excess +179
+vs ctrl (neutral). The extreme right-hem corner box is pixel-identical
+to groom26 (19813 hair px, same ratios): recovery lands mid/upper-bot,
+not the corner -- spreading thins (sheer stays 0.92) rather than fills.
+
+5. FILE MANIFEST
+--------------------------------------------------------------------------------
+E/sheet.png (target | groom19 | groom26 | groom29, 4 views)
+E/crops.png (back-knot NATIVE + 3q-ear + profile-ear + 3q-temple-
+hairline + crown/part, hem-L/R, nape, front band, lobe boxes)
+E/score29-29.json (full scorer output, REF ctrl / TEST 29)
+E/metrics-cross29.json (guides 19 / 26keep200 / 29a / 29)
+E/metrics-grad29.json (sigma 2 + 4; target/ctrl/groom19/groom26/29)
+E/earlobe29-gate.json (report-only counts)
+E/groom29cal-calib.json (calibration, exact)
+E/det-29.json (children rebuild determinism)
+E/build-29a/guides-29a-redrape.json ; E/build-29/{guides-29-fairing.json,build.json,inputs-opened.txt}
+E/{calibrate29,cross29,grad29,score29,earlobe29,make_sheet29,det_rebuild29}.py
+E/renders-29/ (studio 1024/64 beauty + IDs + opened.txt + render-times.json)
+STORE hair-groom29/: guides-29a.npz + guides-29.npz + strands-29.npz + SHA256SUMS
+Station diff vs hair-tgt2: orient/s14_back_redrape.py NEW (this card).
+s11_back_coherent.py + interp_children.py untouched.
+
+6. SCOPE
+--------------------------------------------------------------------------------
+Local Blender lane only (Cycles studio 1024/64spp/seed7, scorer-v3
+cameras, skull registration, aisha-v3 masks) in worktree hair-tgt2b;
+hair-tgt2 tree read-only (guides-19, guides-8a pool-ref, ear_pinna,
+station-frame). Guide re-drape + groom26-recipe fairing/children, no
+station changes besides the new s14 stage. No .npz in git.
+
+7. NOT TESTED
+--------------------------------------------------------------------------------
+Physical Quest 3 / worn-headset evidence; EEVEE/Quest material response;
+other bodies/seeds; animation/combing; relit/held-out rows; clinical
+validity, licensure, or scoring claims. guides-22 family. Stronger
+dilution (full weight below 120 mm) or length-adding variants. Whether
+sigma-4 gradAniso separates locks from fineness on labelled variants
+(groom28: sigma 2 reads fineness; here sigma 4 reported with radii).
+
+8. REMAINING (report-only)
+--------------------------------------------------------------------------------
+- Back silhouette: residual miss +3241 px image-right mid/bot; the
+extreme corner box is untouched (pixel-identical to groom26) and sheer
+(0.92): spreading thins rather than fills -- opaque corner cover needs
+density (regrowth/backfill into the corner), not wider spread of the
+same strands. Backfill was tried in groom26 (+6530 strands, no
+measurable gain) and not repeated here.
+- hem |x| p50 match is partial (long -x p50 14.6 vs +x 46.9; p90
+matches 78.6 vs 78.3): the 40-120 mm dilution anchors the median.
+Full-weight (>= 120 mm) guides land exactly. Mid-strand matches +x
+(p50 66.4 vs 63.6).
+- Right-hem box gates fail lineage-wide including ctrl (thin-curtain
+rendering, not a 29 regression).
+- R-LOOP profile/back 91.9k/102.4k (report-only, cf groom19 85k/96k).
+- Earlobe column persists ~groom26 levels (re-drape is back-only by
+design; earlobe is the sibling hair-tgt2 lane's card).
+
+GATES_PASS: no.
+
+VISUAL READ (E/crops.png, cols target | groom19 | groom26 | groom29)
+--------------------------------------------------------------------------------
+back-knot-NATIVE: 29 flows vertical/downward like 26 (no crisp lattice;
+locks stay fixed by both metrics; knot-hole 0 px).
+back-crown-part: part line present with a small slot, same as 26.
+back-hem-R: 29 marginally fuller than 26 in the mid lengths but still
+thin vs target (backdrop shows through; measured sheer 0.92, miss
+0.90) -- the scored residual.
+back-hem-L: full in all.
+nape: vertical flow, no change.
+3q-ear-NATIVE: ear + side drape read same as 26; no cheek slab.
+profile-ear-NATIVE: wedge of hair under the ear (measured 768 px box);
+ear itself clear.
+3q-temple-hairline-NATIVE: tapered edge same as 26.
+front-hairline-band: unchanged vs 26.
+lobe-3q-xpos / lobe-profile-xpos: curtain-edge hair (3q, shared with
+target) and the under-ear wedge (profile), same as 26.
+Sheet (E/sheet.png): 29 back outline fuller than 26 on image-right mid;
+other views match 26.

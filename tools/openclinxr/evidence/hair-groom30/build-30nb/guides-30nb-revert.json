@@ -1,0 +1,8 @@
+{
+ "reverted": [
+  445,
+  521,
+  533
+ ],
+ "reason": "CHECK: behind ear-canal plane (root y<-63.5mm, z>1.51), own path never enters ear column; restored to faired guides-30f rows; band flags kept"
+}

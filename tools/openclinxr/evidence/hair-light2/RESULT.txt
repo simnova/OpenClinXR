@@ -1,0 +1,22 @@
+RESULT::hair-light-2
+M1::diagnosis.json was written before probe rendering; actual d5 is radius 0.050 mm, 51,350 generated children, melanin/redness/roughness 0.8513/0.8403/0.1409, key 150 W at 36.20 deg, fill 60.48 W, rim 26.65 W. Region measurements show crown/part mean 0.2630 vs TS 0.1228 and part/side 2.519x vs TS 1.423x; cheek baseline p50 0.7490.
+CAUSE(D1)::a fibre radius/count REFUTED by r1: 0.030 mm and 87,296 strands kept mask area within -0.30% and slightly lowered global brightness, but part/side worsened to 2.780x.
+CAUSE(D1)::b longitudinal roughness/coat SUPPORTED for specular response, not roughness alone: r2 +0.1 roughness regressed; r3 lower IOR/specular response moved p50/p90 to 0.0534/0.1837 but broke R/B and part/side.
+CAUSE(D1)::c key/rim geometry SUPPORTED by r5 + SEARCH: elevation-only r5 was refused for -12.11% cheek drift; azimuth/elevation refinement reduced part/side 2.519x -> 1.637x with cheek drift -2.30%.
+CAUSE(D1)::d melanin/redness UNKNOWN after SEARCH evals 0-39 because they co-varied with lighting and did not independently reach the photometric gate.
+CAUSE(D1)::e root darkening REFUTED by r4: +30% melanin over the first 15 mm left p50/p90 high and worsened part/side to 2.681x.
+PROBE::r1 | radius x0.6, requested count x1.7 (87,296 actual) | 0.0845 | 0.2635 | 1.5465 | 2.7796 | 0.7488 | -0.30% | fixed d5 0.6613/0.6868/0.7406; density-only mask-area delta reported
+PROBE::r2 | longitudinal roughness +0.1 | 0.1007 | 0.2736 | 1.5117 | 2.6617 | 0.7490 | -0.10% | fixed d5 0.6613/0.6868/0.7406
+PROBE::r3 | coat 0, IOR 1.30 (hair shader has no specular-tint socket) | 0.0534 | 0.1837 | 1.8375 | 3.1309 | 0.7490 | -0.30% | fixed d5 0.6613/0.6868/0.7406
+PROBE::r4 | roots +30% melanin over first 15 mm | 0.0868 | 0.2626 | 1.4891 | 2.6814 | 0.7488 | -0.46% | fixed d5 0.6613/0.6868/0.7406
+PROBE::r5 | key elevation 46 deg and size 2.0 m | 0.0780 | 0.2450 | 1.5443 | 3.0197 | 0.6584 REFUSED (-12.11%) | -0.63% | fixed d5 0.6613/0.6868/0.7406
+PROBE::r6 | seeded per-strand melanin/roughness +/-10% | 0.0879 | 0.2676 | 1.5301 | 2.7778 | 0.7490 | -0.72% | fixed d5 0.6613/0.6868/0.7406
+SEARCH::40 evaluations at 512 (24 initial + 16 constrained key-lobe refinement); best params roughness=0.24954 melanin=0.82 redness=0.77423 keyElev=33.9756 keyAzimuthDelta=-34.0755 keyW=150.3145 keySize=1.7035 fillW=67.1378 fillElev=16.8678 rootDark=0.4 random=0.03995. Three 1024 seeds: p50 mean/sd 0.11187/0.00014, p90 0.27973/0.00063, R/B 1.52735/0.00121.
+GATE::G1 PASS. G2 PASS: best-minus-d5 IoU front/profile/back +0.0091/+0.0075/+0.0063, cheek -2.30%. G3 FAIL: p50 0.1117 and p90 0.2794 exceed target tolerance; R/B 1.5282 PASS; part/side 1.6373 misses <=1.6; ID show-through 1.43% PASS. G4 PASS self-test rejects planted face darkening, silhouette drift, and hardcoded landmark and accepts honest best integrity. G5 PASS: only E written; no blend files.
+BEST::refine-best/seed-0, copied to best/, selected because it makes the largest valid reduction in the dominant crown/part lobe while preserving face and silhouette; it is not represented as a G3 pass.
+SAW::d5 and best at native size beside TS in look-sheet.png: best shifts the front/crown highlight off the face-facing part and removes much of the hot forehead band, but the first remaining wrong read is still broad lacquered sheen. Individual fibres remain less visible than TS, roots remain warmer/brighter, and the back retains pronounced vertical clump stripes.
+NEXT::Use a spatially localized crown/part specular-control material (root-tangent/strand-position driven, not global face lighting) and re-run a bounded search; light geometry alone reached the face-preserving limit.
+COMMIT::required lane commit created with the brief-specified message; resolve with git log -1 after integration.
+STILL::G3 is honestly unmet; no Quest, production, clinical-validity, scoring, or worn-headset claim is made.
+BRIEF_MISSING::none.
+HARM::The selected light rotation improves the part band but brightens the overall hair relative to TS; r3 can match p90 only by producing an incorrect red/blue ratio and worse spatial sheen, and r5 demonstrates that elevation-only darkening would harm the face.

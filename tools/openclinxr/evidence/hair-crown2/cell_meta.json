@@ -1,0 +1,18 @@
+{
+  "spread": {
+    "change": "part-band |x|<=4mm y<=apex+60mm, +50pct duplicates, rigid outward 0.3->1.0mm ramp by root-y order",
+    "baseCount": 69181,
+    "newCount": 73228,
+    "addedCount": 4047,
+    "bandCount": 8094,
+    "offsetMm": {
+      "min": 0.3,
+      "max": 1.0
+    },
+    "endAngleDeg": {
+      "p50": 0.0,
+      "p95": 0.05110775687404627,
+      "max": 14.288915495912457
+    }
+  }
+}

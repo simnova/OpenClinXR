@@ -1,0 +1,11 @@
+{
+  "tag": "c_widen",
+  "base": "hair-hem1/base/strands.npz",
+  "deform": {
+    "cell": "widen",
+    "dupFibres": 8000,
+    "form": "short under-fibres (arc0..24->32, no fringe tips), edge band |x_mid| in [0.080,0.100), outward 0.5..1.5mm capped |x|<=0.0995",
+    "trim": "rails (|tip_x|>0.10) x to +-0.10 ramp idx22..31",
+    "totalFibres": 106549
+  }
+}

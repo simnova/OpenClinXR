@@ -1,0 +1,101 @@
+HAIR COVER 1 — PROFILE HOLE CLOSURE
+Base = prof1 combo strands (69181, sha 5f36e3fe) + look7 best-params COLOR +
+rig1 rig block + Transmission 0.5 via score_tt adapter (params tt05.json,
+sha b7fe92b3). Base render = count2/tt05 byte-identical inputs, reused with
+sha verification (strands + params shas match score.json inputs); judge dir
+copied for eye/jaw openings. Scorer hair-score/score.py v3 + score_tt.py
+(one-socket TT adapter, score.py unmodified) + holes.py definition
+(alpha>=230 enclosed bg, 8-way) recomputed per cell in summarize.py.
+Crown_top rendered for every cell (--crown-top).
+
+BASE:: IoU f/p/b = 0.7147/0.6952/0.7698;
+oriErr f/3q/p/b = 24.81/32.21/31.45/24.15 deg;
+holes profile 6.818% (1141 comp, 11630px of 170570, largest 7300px);
+bands back 580x28.1 (TS 849x16.4), ear 101x8.6 (TS 89x11.7);
+eye/jaw 0.6024/0.4365; front p50 0.0700 (TS 0.066);
+crown cover 0.604/0.506/0.529/0.795, crown partSide 1.283.
+
+STEP 1 (E/holes-overlay.png, E/attribution.json; frame read before claiming):
+Projection f=50mm/36mm sensor, bbox-validated (proj cols 215-753 vs mask
+216-747). Groups by root proxy (strands.npz carries no per-fibre labels):
+rear_sheet (roots y>apex, 37647), curtain_outer (|root_x|>55mm, 6864),
+curtain_inner (rest, 24670).
+- Holes are NOT empty of fibres: nearest projected fibre median 0.85px from
+  hole pixels; surround arc p50 = idx 14 (mid-shaft); surround roots y
+  p50 -66mm (anterior of apex -53mm).
+- Rear-sheet density collapses at holes (median 1 vs 21 at solid): holes sit
+  in the anterior curtain where the rear sheet does not reach, so one curtain
+  layer covers and its inter-fibre spacing exceeds the rendered footprint.
+- Nearest-fibre % of hole area: rear 20.2 / outer 42.6 / inner 37.2.
+- Largest hole 7300px at cols 352-466 rows 313-549: vertical streak in the
+  mid-curtain behind the ear (face/ear show-through confirmed on frame).
+- Rails: side-curtain tips |x|>0.10 z<1.42 (8829 fibres, all curtain) arc out
+  past the sheet and hang below the hem, both sides (E/rails-crop-base.png).
+Cause: single-layer curtain lace (spacing > footprint), not missing guides
+and not shifts (drape1 refuted uniform shift: +0.07 profile for -0.18 back).
+
+STEP 2 CELLS (all on base, repaired in Blender: inside 0, end p95 <<10,
+part <=1.1mm all PASS; scored all views + crown_top + holes):
+ c_den  dup hole-zone curtain fibres 1x (29368, mid-shaft in hole+12px) with
+        x/y micro-jitter, full length.
+        holes 2.070% (largest 274); dIoU +0.0187/+0.0157/-0.0320;
+        ori -0.37/+0.09/-0.56/+0.25; back 573; eye 0.5937 (-0.87pp).
+ c_rad  zone radii x1.7 arc 4..26, no new fibres.
+        holes 3.385% (largest 906); dIoU +0.0034/+0.0209/-0.0042;
+        ori -0.65/-0.55/-1.75/+0.29; back 568; eye/jaw identical.
+ c_spr  zone mid-shaft y-spread +-1.5mm alternating (redistribution, no count).
+        holes 5.636% (largest 6495); dIoU +0.0023/+0.0036/-0.0016; ori flat.
+ c_hem  rail trim: 8829 rail fibres tip-x to +-0.10 ramp idx22..31.
+        holes 6.802%; dIoU -0.0214/+0.0016/+0.0112 (front FAIL: rails ARE
+        front silhouette width); ori flat; back 576.
+ c_den2 zone duplicates as SHORT under-fibres (arc 0..24 resampled to 32,
+        y-jitter only, no fringe tips) — answers c_den's measured back-FP
+        mechanism (hem-fringe solidification, +11676 back px rows 618-780).
+        holes 1.636% (largest 76); dIoU +0.0203/+0.0332/-0.0062;
+        ori -0.76/+1.18/+1.33/+0.28 (3q/profile ori FAIL >1 deg).
+ best   c_den2 points + zone radii x1.7 (originals + dups).
+        holes 0.720%; dIoU +0.0227/+0.0369/-0.0106 (back FAIL by 0.0006);
+        ori -0.96/+0.93/-0.26/+0.28.
+ best2  c_den2 points + x1.7 on ORIGINAL zone fibres only (dups unboosted).
+        holes 1.041% (FAIL by 0.04pp); back -0.0096 PASS; ori 3q +0.99 PASS.
+ best3  best2 + dups x1.35.
+        holes 0.838% PASS; back -0.0102 (FAIL by 0.0002).
+ best4  best2 + dups x1.1 (interp on measured holes 1.041->0.838 /
+        back -0.0096->-0.0102 monotonic trend).
+        holes 0.970% (783 comp, largest 39px); dIoU +0.0218/+0.0356/-0.0098;
+        ori -0.72/+0.85/-0.08/+0.27; back 563x28.6 (97.1% of base);
+        eye/jaw 0.6024/0.4365 (0.00pp); inside 0; n=98549.
+        crown cover 0.893/0.863/0.915/0.993 (base 0.604/0.506/0.529/0.795);
+        crown partSide 2.137 (base 1.283, brighter part line, no gate);
+        front p50 0.0669 (base 0.0700, TS 0.066).
+
+STEP 3 KEEP (holes<=1.0; IoU not down >0.01; ori not worse >1 deg any view;
+back >=85% base (493); eye within 1pp; inside 0):
+ KEPT: c_rad (all pass except holes 3.385), c_den2-points + rad = best4
+   (ALL PASS: holes 0.970; back -0.0098; ori worst +0.85; back 97.1%;
+   eye 0.00pp; inside 0).
+ REVERTED: c_den (back -0.032 hem-fringe FP), c_spr (holes 5.6, no fill),
+   c_hem (front -0.021, rails are front width), c_den2 alone (ori +1.18/+1.33),
+   best v1 (back -0.0106), best2 (holes 1.041), best3 (back -0.0102).
+ BEST = best4: IoU f/p/b = 0.7365/0.7308/0.7600.
+ Strands: tools/openclinxr/evidence/hair-cover1/best/strands.npz
+   (sha256 da2f28b5bbb197ba25a155e6559dbfae52568252ee98b8aafa967eeefa0f9d2b;
+   copy of cells/best4/strands.npz; audit + score.json alongside).
+ Look-sheet: E/look-sheet.png rows TS | base | best; cols front, profile_90,
+ back, profile hole overlay, back crop (320,280,704,664).
+
+SAW: The curtain is present but lacy where the rear sheet does not reach:
+nearest fibre sits <1px from every hole pixel, so shifts cannot close holes
+(drape1 proved the trade 1:2.4) — only added mid-shaft footprint closes them.
+Full-length duplicates solidify the hem fringe into back-view FP (+11.7k px);
+short under-fibres (no tips) fill 9.4x of hole area at 1/3 the back cost.
+Radius compounds with count but both margins land sub-0.001: the zone sits
+exactly at the fill-vs-fringe break-even, so dup boost 1.0/1.1/1.35/1.7 walks
+holes 1.041/0.970/0.838/0.720 against back -0.0096/-0.0098/-0.0102/-0.0106.
+Rails unfixable by trim: the 8829 rail fibres carry front silhouette width
+(trim -0.021 front); they need guide-level hem shape, not tip clamps. Spread
+(+-1.5mm redistribution) does nothing: gaps need new footprint, not moved
+footprint. Side effects to watch: crown cover +30pp and brighter part lines
+(front partSide 1.01->1.30, crown 1.28->2.14) from under-fibre fill.
+NOT TESTED: Quest/worn-headset; clinical validity/scoring claims; TS-target
+hue work (front hue untouched by design); three_quarter IoU (no gate).

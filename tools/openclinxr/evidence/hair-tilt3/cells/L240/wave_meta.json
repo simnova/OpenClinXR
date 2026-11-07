@@ -1,0 +1,37 @@
+{
+  "tag": "L240",
+  "op": "single-sine long-wavelength lean, in-plane (no root rotation)",
+  "params": {
+    "targetDeg": 4.0,
+    "waveLenMm": 240.0,
+    "seed": 2026101801,
+    "phaseFieldMm": 5.0,
+    "partProtectMm": 3.0,
+    "fadeInMm": 15.0,
+    "fadeOutMm": 20.0,
+    "source": "hair-real1 a1"
+  },
+  "wave": {
+    "targetDeg": 4.0,
+    "amplitudeMm": 2.671007466112096,
+    "tangentDevDeg": {
+      "rms": 3.5365708751516065,
+      "p95": 6.50346825253212,
+      "max": 176.03490938286393
+    },
+    "maxDispMm": {
+      "p50": 2.668790102760387,
+      "p95": 2.6709921648228616,
+      "max": 2.6710074661120675
+    },
+    "protectedFibres": 8949,
+    "seed": 2026101801,
+    "waveLenMm": 240.0
+  },
+  "endAngleDegPreRepair": {
+    "p50": 2.8077825486690475,
+    "p95": 5.974067276611851,
+    "max": 8.79216278681769
+  },
+  "partGapMm": 1.0999999940395355
+}

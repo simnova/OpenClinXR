@@ -1,0 +1,9 @@
+{
+  "tag": "c_best",
+  "base": "hair-hem2/base/strands.npz",
+  "deform": {
+    "cell": "best-combo",
+    "lowerFibres": 65953,
+    "rule": "taper then curve then tips (same params as singles)"
+  }
+}

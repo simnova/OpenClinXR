@@ -1,0 +1,88 @@
+{
+  "method": "register ours->target by judge similarity (scale+translation from projected-landmark triples, NEAREST); lower40 = rows >= y_top+0.6*(y_bot-y_top) of TARGET hair rows; yBottomMAE over hem columns (target edge at/below lower40 top) where both valid; widthMAE = mean|w_ours-w_tgt| over lower40 rows",
+  "renderTriple": {
+    "back": [
+      155.0,
+      651.0,
+      512.0
+    ],
+    "front": [
+      103.0,
+      583.0,
+      512.0
+    ],
+    "profile_90": [
+      131.0,
+      561.0,
+      209.0
+    ]
+  },
+  "targetTriple": {
+    "back": [
+      130.0,
+      646.0,
+      513.0
+    ],
+    "front": [
+      127.0,
+      608.0,
+      513.0
+    ],
+    "profile_90": [
+      125.0,
+      577.0,
+      344.0
+    ]
+  },
+  "back": {
+    "yTopTgt": 132,
+    "yBotTgt": 823,
+    "lower40Lo": 547,
+    "nTgtHemCols": 441,
+    "nBothHemCols": 441,
+    "coverage": 1.0,
+    "yBottomMAEpx": 4.58,
+    "widthMAEpx": 38.37,
+    "widthMeanTgtPx": 226.8,
+    "widthMeanOursPx": 260.8,
+    "transform": {
+      "scale": 1.0403,
+      "tx": -19.6452,
+      "ty": -31.25
+    }
+  },
+  "front": {
+    "yTopTgt": 130,
+    "yBotTgt": 675,
+    "lower40Lo": 457,
+    "nTgtHemCols": 308,
+    "nBothHemCols": 293,
+    "coverage": 0.9512987012987013,
+    "yBottomMAEpx": 47.54,
+    "widthMAEpx": 13.65,
+    "widthMeanTgtPx": 84.2,
+    "widthMeanOursPx": 70.6,
+    "transform": {
+      "scale": 1.0021,
+      "tx": -0.0667,
+      "ty": 23.7854
+    }
+  },
+  "profile_90": {
+    "yTopTgt": 126,
+    "yBotTgt": 870,
+    "lower40Lo": 572,
+    "nTgtHemCols": 292,
+    "nBothHemCols": 292,
+    "coverage": 1.0,
+    "yBottomMAEpx": 32.12,
+    "widthMAEpx": 36.24,
+    "widthMeanTgtPx": 65.0,
+    "widthMeanOursPx": 84.5,
+    "transform": {
+      "scale": 1.0512,
+      "tx": 124.307,
+      "ty": -12.7023
+    }
+  }
+}

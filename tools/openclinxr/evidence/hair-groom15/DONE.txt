@@ -1,0 +1,1 @@
+DONE hair-groom15: collision-only shrinkwrap (Above Surface 0.0) + 3-class depth interpolation + chained head/body/garment colliders — GATES_PASS = no; insideBody/pinna hard gates FAIL and the depth-p50 vs insideBody gates are mutually exclusive with this node (proof in RESULT.txt sections 5-6).

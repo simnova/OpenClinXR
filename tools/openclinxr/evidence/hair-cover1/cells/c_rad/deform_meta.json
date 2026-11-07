@@ -1,0 +1,10 @@
+{
+  "tag": "c_rad",
+  "base": "hair-cover1/base/strands.npz",
+  "deform": {
+    "cell": "c_rad",
+    "zoneFibres": 29368,
+    "radiusScale": 1.7,
+    "arcIdx": "4..26"
+  }
+}

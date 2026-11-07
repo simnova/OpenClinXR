@@ -1,0 +1,4 @@
+DONE hair-groom9: final selective groom8a-based build rendered at 1024/64 x4
++ IDs, scored, hard-gated, sheet/crops/RESULT written, big npz stored and
+verified. GATES_PASS=no; all residual failures are listed under REMAINING in
+RESULT.txt, including the unchanged visible knot/loops/tuft.

@@ -1,0 +1,324 @@
+{
+  "count": 556,
+  "n_roots": 600,
+  "style": {
+    "seed": 16,
+    "roots": 600,
+    "points": 32,
+    "step": 0.002,
+    "scalp_clear": 0.003,
+    "slit_clear": 0.001,
+    "query_limit": 0.015,
+    "liftoff_nz": -0.05,
+    "liftoff_depth_gain": 0.6,
+    "liftoff_jitter": 0.1,
+    "edge_band": 0.0025,
+    "walk_steps": 220,
+    "c_side_min": 0.004,
+    "c_side_gain": 0.016,
+    "c_back_min": 0.008,
+    "c_back_gain": 0.022,
+    "clear_floor": 0.004,
+    "clear_taper_top": 0.1,
+    "back_class_slop": 0.008,
+    "z_neck_drop": 0.015,
+    "hem_head_fraction": 0.73,
+    "head_height": 0.2107,
+    "hem_jitter": 0.006,
+    "arc_min": 0.02,
+    "arc_gain": 0.04,
+    "arc_samples": 7,
+    "arc_shrinks": 7,
+    "arc_shrink": 0.7,
+    "arc_safe": 0.001,
+    "grid": 0.004,
+    "x_min": -0.3,
+    "x_max": 0.3,
+    "y_min": -0.2,
+    "y_max": 0.2,
+    "z_pad": 0.05,
+    "hull_step": 0.002,
+    "hull_eps": 0.0001,
+    "side_smooth": 5,
+    "smooth_dense": 14,
+    "curve_radius": 0.001,
+    "mask_radius": 0.003,
+    "dot_radius": 0.0025,
+    "render_size": 1024,
+    "samples": 16,
+    "camera_dist": 0.85,
+    "camera_target_lift": 0.06,
+    "front_camera_lift": 0.02,
+    "back_camera_lift": 0.08,
+    "three_quarter_lift": 0.14,
+    "three_quarter_xy": 0.68,
+    "top_camera_y": -0.1,
+    "part_pair_tol": 0.0005,
+    "short_segment": 0.0025,
+    "horizontal_len": 0.012,
+    "horizontal_dz": 0.002,
+    "face_band_slop": 0.0,
+    "side_hang": "taut",
+    "repair_intersections": true,
+    "repair_step": 0.004,
+    "repair_max": 0.024,
+    "root_lift_mm": 0.0,
+    "root_lift_fade_mm": 40.0,
+    "child_front_fill": false,
+    "part_same_side_ahead_only": false,
+    "front_comb_scale": 0.5,
+    "front_comb_ramp": false
+  },
+  "counts": {
+    "class": {
+      "back": 300,
+      "side": 256
+    },
+    "stop": {
+      "normal": 556
+    }
+  },
+  "g1": {
+    "p95_mm": 0.0,
+    "max_mm": 0.0
+  },
+  "g2": {
+    "pts32": true,
+    "nan": 0,
+    "short": 0,
+    "zero": 0
+  },
+  "g3": {
+    "behind_viol": 0,
+    "front": 0
+  },
+  "g4": {
+    "inside": 0,
+    "deep_mm": 0.0
+  },
+  "g5": {
+    "nape_edge_frac": 0.0,
+    "front_lo": 0,
+    "back_band_mm": 84.29229608930954
+  },
+  "g6": {
+    "backfill_ratio": 1.209925167731011,
+    "travel_viol": 0,
+    "travel_max_mm": 0.004590977376775496
+  },
+  "g7": {
+    "horiz": 0
+  },
+  "g8": {
+    "cover": {
+      "L": 0.9921230307576894,
+      "R": 0.9921230307576894
+    },
+    "face": 0
+  },
+  "g9": {
+    "hem_bad": 0
+  },
+  "gates": [
+    {
+      "gate": "G1",
+      "measured": "{\"max_mm\": 0.0, \"p95_mm\": 0.0}",
+      "bar": "p95<=0.5mm max<=2mm",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "G2",
+      "measured": "{\"nan\": 0, \"pts32\": true, \"short\": 0, \"zero\": 0}",
+      "bar": "kept>=95%; 32 points; 0 NaN/short",
+      "verdict": "MISS"
+    },
+    {
+      "gate": "G3",
+      "measured": "{\"behind_viol\": 0, \"front\": 0}",
+      "bar": "0 points in front of shoulder/torso",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "G4",
+      "measured": "{\"deep_mm\": 0.0, \"inside\": 0}",
+      "bar": "inside<=5; depth<=1mm",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "G5",
+      "measured": "{\"back_band_mm\": 84.29229608930954, \"front_lo\": 0, \"nape_edge_frac\": 0.0}",
+      "bar": "nape<=10%; front<=2%; back band>=25mm",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "G6",
+      "measured": "{\"backfill_ratio\": 1.209925167731011, \"travel_max_mm\": 0.004590977376775496, \"travel_viol\": 0}",
+      "bar": "centre/outer>=0.90; back travel<=15mm",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "G7",
+      "measured": "{\"horiz\": 0}",
+      "bar": "horizontal runs<=1%",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "G8",
+      "measured": "{\"cover\": {\"L\": 0.9921230307576894, \"R\": 0.9921230307576894}, \"face\": 0}",
+      "bar": "ear cover>=0.90; face points=0",
+      "verdict": "PASS"
+    },
+    {
+      "gate": "G9",
+      "measured": "{\"hem_bad\": 0}",
+      "bar": "every tip within 8mm of z_hem",
+      "verdict": "PASS"
+    }
+  ],
+  "X1": {
+    "angle_ours_deg": 50.10491005707723,
+    "angle_ts_deg": 21.4,
+    "nape_depth_hh": null,
+    "nape_depth_ts_hh": 0.42
+  },
+  "X2": {
+    "ratio_ours": 1.4758124544471913,
+    "ratio_ts": 1.26
+  },
+  "X3": {
+    "judge": null
+  },
+  "tag": "f1",
+  "style_diff": {
+    "repair_intersections": {
+      "from": false,
+      "to": true
+    },
+    "front_comb_scale": {
+      "from": 1.0,
+      "to": 0.5
+    }
+  },
+  "run": {
+    "cap": "tools/openclinxr/evidence/hair-cap8/cap-v8.npz",
+    "flow": "tools/openclinxr/evidence/hair-sweep2/flow-f1.npz",
+    "mirror_test": true,
+    "candidates": 780,
+    "raw": 620,
+    "assessed": 620,
+    "rejected": {
+      "face": 12,
+      "inside": 38,
+      "horizontal": 14
+    }
+  },
+  "diagnostics": {
+    "regions": [
+      {
+        "region": "front_band",
+        "n_roots": 70,
+        "n_kept": 38,
+        "rejected": {
+          "face": 0,
+          "inside": 32,
+          "horizontal": 0
+        },
+        "median_liftoff_y": -0.07645073516943414,
+        "median_liftoff_z": 1.5964754029769062,
+        "median_hang_angle_deg": 30.689019136637157
+      },
+      {
+        "region": "temple",
+        "n_roots": 36,
+        "n_kept": 34,
+        "rejected": {
+          "face": 0,
+          "inside": 0,
+          "horizontal": 2
+        },
+        "median_liftoff_y": -0.048554926154139866,
+        "median_liftoff_z": 1.5973361583567163,
+        "median_hang_angle_deg": 28.768018027982606
+      },
+      {
+        "region": "top",
+        "n_roots": 42,
+        "n_kept": 42,
+        "rejected": {
+          "face": 0,
+          "inside": 0,
+          "horizontal": 0
+        },
+        "median_liftoff_y": -0.050157497789364305,
+        "median_liftoff_z": 1.612067563996083,
+        "median_hang_angle_deg": 25.81830782207511
+      },
+      {
+        "region": "side_above_ear",
+        "n_roots": 216,
+        "n_kept": 212,
+        "rejected": {
+          "face": 0,
+          "inside": 4,
+          "horizontal": 0
+        },
+        "median_liftoff_y": -0.04113734675767228,
+        "median_liftoff_z": 1.569910166742639,
+        "median_hang_angle_deg": 28.814905945966835
+      },
+      {
+        "region": "back",
+        "n_roots": 256,
+        "n_kept": 230,
+        "rejected": {
+          "face": 12,
+          "inside": 2,
+          "horizontal": 12
+        },
+        "median_liftoff_y": 0.012429873232572932,
+        "median_liftoff_z": 1.566672380968597,
+        "median_hang_angle_deg": 15.125171722970952
+      }
+    ],
+    "repair_count": 106
+  },
+  "judge": {
+    "front_iou": 0.5665009978507829,
+    "eroded": 0.4523374472404766,
+    "width_rms_head": 0.12021373660674667,
+    "face_gap_eye_L": 1.1607142857142858,
+    "face_gap_eye_R": 1.2285714285714286,
+    "profile_iou": 0.7180316693376707,
+    "back_iou": 0.7340452898928589,
+    "back_hem_ours": 0.6653319768395446,
+    "back_hem_target": 0.5103666159540824,
+    "eye_box": 0,
+    "id_show_through": 0.01810477657935285,
+    "standing_hair": false,
+    "transform": {
+      "scale": 0.8484572341212556,
+      "tx": 78.58989612991712,
+      "ty": 103.1679456978529
+    },
+    "profile_transform": {
+      "scale": 0.9416666666666667,
+      "tx": 155.66666666666666,
+      "ty": 40.25
+    },
+    "back_transform": {
+      "scale": 0.9381818181818182,
+      "tx": 32.65090909090907,
+      "ty": 36.18181818181817
+    }
+  },
+  "sweep2": {
+    "front_exits": 7,
+    "hairline_row_centre_ours": null,
+    "hairline_row_centre_target": 187,
+    "crown_thickness_ours_px": -85.50105705941282,
+    "crown_thickness_target_px": 22.99870730383587,
+    "temple_thickness_ours_px": 5.0,
+    "temple_thickness_target_px": 2.0,
+    "back_seam_count": 4226
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "tag": "p5",
+  "params": {
+    "roughness": 0.12,
+    "melanin": 0.8877252726379737,
+    "redness": 0.8293402218429133,
+    "key_elev_deg": 40.161821774411294,
+    "key_azimuth_delta_deg": -31.689290105080133,
+    "key_energy": 105.0,
+    "key_size_m": 1.6326859138340684,
+    "fill_W": 80.0,
+    "fill_elev_deg": 15.0,
+    "root_dark": 0.3475482850614254
+  },
+  "radiusMm": 0.05,
+  "densityFactor": 1,
+  "lightMode": "front_key",
+  "curveShape": {
+    "requested": null,
+    "changes": [],
+    "before": {
+      "scene.cycles.debug_use_hair_bvh": true,
+      "scene.cycles.filter_width": 1.5,
+      "scene.cycles.max_subdivisions": 12,
+      "scene.render.hair_subdiv": 0,
+      "scene.render.hair_type": "STRAND",
+      "scene.render.simplify_subdivision": 6,
+      "scene.render.simplify_subdivision_render": 6
+    },
+    "after": {
+      "scene.cycles.debug_use_hair_bvh": true,
+      "scene.cycles.filter_width": 1.5,
+      "scene.cycles.max_subdivisions": 12,
+      "scene.render.hair_subdiv": 0,
+      "scene.render.hair_type": "STRAND",
+      "scene.render.simplify_subdivision": 6,
+      "scene.render.simplify_subdivision_render": 6
+    }
+  },
+  "renders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p5/front.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p5/front-id.png"
+    },
+    "three_quarter": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p5/three_quarter.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p5/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p5/profile_90.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p5/profile_90-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p5/back.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p5/back-id.png"
+    }
+  },
+  "views": {
+    "front": {
+      "p50": 0.09432862745098039,
+      "p90": 0.25421929411764715,
+      "highlight": {
+        "hueDeg": 10.48662667450832,
+        "saturation": 0.14864864864864868,
+        "pixels": 8128
+      },
+      "iou": 0.4707181613021975,
+      "maskPx": 81275,
+      "partSide": 1.4289219940970388,
+      "faceP50": 0.7093333333333333
+    },
+    "three_quarter": {
+      "p50": 0.14110431372549018,
+      "p90": 0.27555450980392154,
+      "highlight": {
+        "hueDeg": 9.228685499435231,
+        "saturation": 0.14457831325301204,
+        "pixels": 11173
+      },
+      "iou": 0.3296856826268591,
+      "maskPx": 110308
+    },
+    "profile_90": {
+      "p50": 0.1890329411764706,
+      "p90": 0.2604549019607843,
+      "highlight": {
+        "hueDeg": 9.154921175102125,
+        "saturation": 0.14102564102564105,
+        "pixels": 15702
+      },
+      "iou": 0.3553411316087808,
+      "maskPx": 156098
+    },
+    "back": {
+      "p50": 0.04563843137254902,
+      "p90": 0.2622423529411767,
+      "highlight": {
+        "hueDeg": 15.089266873872791,
+        "saturation": 0.40410958904109584,
+        "pixels": 23829
+      },
+      "iou": 0.8236199091541956,
+      "maskPx": 238283,
+      "backProfile": {
+        "bins": [
+          0.10018361863319979,
+          0.15080444932333792,
+          0.07931568233962766,
+          0.06033323333053772,
+          0.05141746199360801,
+          0.04553561798177421,
+          0.03983542169155022,
+          0.032589176114278307,
+          0.031531720653018916,
+          0.03264980418767824
+        ],
+        "topMinusHemOverMean": 1.0819325066914702,
+        "pixels": 135541
+      }
+    }
+  }
+}

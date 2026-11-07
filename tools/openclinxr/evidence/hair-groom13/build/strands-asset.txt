@@ -1,0 +1,2 @@
+strands asset store: /Volumes/files/openclinxr-assets/store/hair-groom13/ (see SHA256SUMS there)
+571da9956e3c4ca03d9c77a9823b0353bf88448d1d915237e4da10fb4a780ecd  strands-8a.npz

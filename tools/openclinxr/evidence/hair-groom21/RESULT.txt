@@ -1,0 +1,225 @@
+RESULT hair-groom21: back-only position coherence with boundary weight; region-limited child pools
+===============================================================================================
+Station: tools/openclinxr/hair-groom/orient/s11_back_coherent.py (NEW) +
+  strands/interp_children.py (new flags, all default OFF).
+Evidence: tools/openclinxr/evidence/hair-groom21/ (this dir).
+Date: 2026-10-18. Branch: hair-tgt2. Blender 5.1.1 (not run: see STOP).
+Guides: guides-19.npz (fairing source AND front source).
+
+VERDICT: GATES_PASS = no. STOP invoked: back crossings 7417 = 76.4% of
+groom19's 9715 (gate <= 30%, i.e. <= 2914). Per the card, no children,
+no render, no score were run; the next card re-traces back guides
+after smoothing the back orientation field. The prescription was
+implemented exactly as written (anchor 0.5, ONE pass, kernel 20 mm,
+verbatim 40 mm arc, cylindrical frame, tuck excluded, 25 mm boundary
+weight) and fails its own guide gates: coherence 204.3/408.5 (gate
+60/120), back displacement p90 86.4/max 229.5 mm (gate 20/60). Position
+fairing pulls crossing routes toward their local mean, but the local
+means themselves disagree by ~170 mm p90, so the mean is far from every
+route: displacement explodes while crossings persist. Anchor 0.3 single
+pass is worse on displacement (p90 117.0/max 292.4): the fall-vector
+swap is still present. The permuted control does not pass any gate, so
+the card is NOT void (the metric responds to graph structure, 7417 real
+vs 8279 permuted), it just does not reach the gate.
+What holds: calibration, FRONT byte-identity (2144 guides / 87,904
+samples), take-off verbatim (46,123 samples, byte-identical), w==0 rows
+identical (2183), guide determinism, interp_children default-OFF
+byte-identity (groom8b AND groom19 rebuilds hash-identical).
+
+0. WHAT WAS BUILT (commands, deterministic)
+----------------------------------------------
+Fairing main (pure numpy/scipy, deterministic, no RNG):
+  mise exec -- python3 tools/openclinxr/hair-groom/orient/s11_back_coherent.py \
+    --guides tools/openclinxr/evidence/hair-groom19/build/guides-19.npz \
+    --sdf tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz \
+    --hull tools/openclinxr/evidence/hair-hull5/hull.npz \
+    --outdir tools/openclinxr/evidence/hair-groom21/build --stem guides-21
+  -> build/guides-21.npz (2707 guides, 0 deleted) + build/guides-21-fairing.json.
+Permuted control (same, plus --permute-seed 11):
+  ... --outdir tools/openclinxr/evidence/hair-groom21 --stem guides-21perm --permute-seed 11
+  -> E/guides-21perm.npz + E/guides-21perm-fairing.json.
+Anchor-0.3 variant (same, plus --anchor 0.3, still ONE pass):
+  ... --outdir tools/openclinxr/evidence/hair-groom21 --stem guides-21a03 --anchor 0.3
+  -> E/guides-21a03.npz + E/guides-21a03-fairing.json.
+interp_children flags (all default OFF; proof runs, both exit 0):
+  mise exec -- python3 tools/openclinxr/hair-groom/strands/interp_children.py \
+    --outdir /tmp/det19 --guides .../hair-groom19/build/guides-19.npz \
+    --roots .../hair-scalp1/roots.npz --sdf .../hair-cage1/body-exact-sdf.npz \
+    --hull .../hair-hull5/hull.npz --ear-frame .../hair-groom4/tucked/earframe.json
+  (same with guides-8a.npz -> /tmp/det8b; all other flags defaults)
+  -> points+radii hashes identical to committed strands.npz (sect 6).
+Calibration (re-run first, per card):
+  mise exec -- python3 calibrate21.py --renders ../hair-groom8a/renders-studio --tag groom21cal
+  -> E/groom21cal-calib.json + E/calib.log.
+NOT RUN per STOP: children build with new flags, studio render, score21,
+gates21, sheet.png, crops.png, native back reads.
+
+1. SCORER CALIBRATION (re-run first, per card)
+----------------------------------------------
+calibrate21.py (copy of calibrate19 logic) against groom8a's own
+renders-studio reproduces groom8a exactly: front 0.7446 / 3q 0.8261 /
+profile 0.8543 / back 0.8579, all delta 0.0, all_within_0.02 = true
+(E/groom21cal-calib.json, E/calib.log). The scorer measures what
+groom8a published. No scorer changes were needed (no children scored).
+
+2. REGION SPLIT + BOUNDARY WEIGHT (guide roots, world metres)
+---------------------------------------------------------------
+Coronal plane through the ear canals: y = -0.0635 m, the mean of the
+left/right pinna-centroid y from hair-hull3/workspace/ear_pinna.npz
+(xpos median y -0.0589 m, n=168; xneg median y -0.0681 m, n=96;
+mean -0.0635 m; stated per card).
+Above the nape: root z > 1.51 m.
+BACK = (root_y < -0.0635) & (root_z > 1.51): 563 guides.
+FRONT/TEMPLE = the rest: 2144 guides (87,904 head-mm samples,
+byte-identical to guides-19, maxAbsDiff 0.0).
+Tuck (57 guides; 39 in BACK, 18 in FRONT): excluded from the graph
+entirely and not anchored (w = 0).
+Boundary weight: d = Y_EAR - root_y; t = clip(d/25mm, 0, 1);
+w = t*t*(3-2t); w[tuck] = 0; w[FRONT] = 0 exactly. w==1 rows: 313;
+partial (0<w<1): 212; w==0 rows: 2183 (2144 FRONT + 39 BACK-tuck),
+all 89,503 samples byte-identical to guides-19 (maxAbsDiff 0.0).
+Delta applied as delta*w: FRONT untouched (no seam: w -> 0
+continuously at the plane), deep BACK fully faired.
+Graph: BACK non-tuck roots only (524), 20 mm chord, Gaussian weights
+sigma = kernel/2 = 10 mm, row-normalised. No part side-keying (the
+card prescribes BACK roots only; the locks are same-side anyway).
+Take-off: per-guide own arc; every sample with arc < 40 mm copied
+from the input bits (46,123 samples, byte-identical, maxAbsDiff 0.0;
+same count as groom19's 40 mm verbatim). Short guides (total < 40 mm)
+keep all samples. Zero guides deleted.
+
+3. CROSSING METRIC (the lock gate; measured on groom19 FIRST)
+---------------------------------------------------------------
+Definition (s11_back_coherent.crossing_count, deterministic): back
+NON-TUCK guides, scalp-UV projection u = global azimuth x 100 mm,
+v = height; per guide the polyline of samples with own-arc in
+[40, 200] mm (guides with < 2 window samples excluded); a pair counts
+once if any segment pair crosses properly (non-degenerate orientation
+signs on all four tests). Tuck excluded (anchored class, not the lock
+region); documented, input and output counted identically.
+groom19 baseline (input to this card): 9715 crossing pairs over 266
+guides (35,245 pairs). Recorded in every fairing.json ("input").
+Main (anchor 0.5 x1): 7417 over 266 guides (41,616 pairs -- window
+membership shifts slightly under the faired arc). Ratio 0.7635.
+Gate: <= 30% of 9715 = <= 2914. FAIL (over by 4503 pairs).
+Why it cannot pass with this prescription: only 15.7% of the 9715
+crossing pairs have roots within 20 mm (1.9% within 6 mm, 5.9% within
+10 mm; root-distance p50/p90 of crossing pairs = 56.3/98.1 mm). A
+20 mm-kernel local mean cannot bind crossings between guides whose
+neighbourhoods never interact; it cut 2298 pairs (-23.6%) -- real
+structure response, not noise -- but 76.4% remain.
+
+4. EVERY GATE (calibrated scorer provenance where applicable; margins)
+-------------------------------------------------------------------------
+  calibration            all_within_0.02  PASS
+  crossingBACK           7417 vs <= 2914  FAIL (over by 4503; 76.4% of 9715)
+  coherenceBACK          p90 204.279/max 408.517 vs 60/120  FAIL
+                         (over by 144.3/288.5; input 284.653/441.125,
+                         n = 1014 BACK pairs roots < 6 mm, full-path max)
+  displacementBACK       p90 86.430/max 229.515 vs 20/60  FAIL
+                         (over by 66.4/169.5; BACK non-tuck n = 524,
+                         from guides-19; groom20 was 130.6/412)
+  takeoff                46,123 verbatim samples byte-identical  PASS
+  frontIdentical         2144 guides / 87,904 samples byte-identical  PASS
+  wZeroIdentical         2183 rows / 89,503 samples identical  PASS
+  childrenIoU-*          NOT RUN (STOP: no children, no render, no score)
+  concha / insideBody    NOT RUN (children gates; guide-level body:
+                         2843 samples inside 0 vs 1647 in guides-19 input;
+                         position means cut through the head -- reported,
+                         not gated at guide level)
+  determinismGuides      re-run hash-identical  PASS (2a65fff3253991aa)
+  determinismChildren    NOT RUN (no children built)
+  interpDefaultIdentity  groom19 rebuild c75e203f... IDENTICAL  PASS;
+                         groom8b rebuild 5318d195... IDENTICAL  PASS
+  falsifierPermuted      does NOT pass crossing gate (8279) -> NOT VOID,
+                         recorded (sect 5)  PASS (record only)
+  anchor0.3Report        p90 117.0 > 40 -> swap still present, recorded  PASS
+  GATES_PASS             no (STOP: crossing gate decides; coherence and
+                         displacement also fail)
+Context: move all guides p50/p90/max 0.0/19.123/229.515 mm (n=2707;
+  FRONT all 0.0 by construction); hull outside 38,546 (advisory only).
+
+5. FALSIFIERS (both run and reported)
+---------------------------------------
+Permuted control (--permute-seed 11; graph columns permuted, same
+kernel weights, still row-stochastic): crossings 8279 (85.2% of 9715)
+vs main 7417 -- did NOT improve (+862 vs main). Coherence p50 worse
+(19.2 -> 26.1), p90 204.3 -> 192.9 (marginally better, both ~3x over
+gate), max worse (408.5 -> 414.2). Displacement p90 worse (86.4 ->
+107.6). Verdict: the void condition (permuted passing the crossing
+gate) does NOT trigger -- 8279 >> 2914 -- so the card is not void;
+the metric responds to graph structure (real graph beats random by
+~10% on crossings) but the gate is out of reach either way.
+Anchor 0.3 single pass (beside 0.5): crossings 6389 (65.8%, better
+than 0.5 but still 2.2x over gate); coherence 169.4/393.5 (still
+fails 60/120); displacement p90 117.0/max 292.4 mm. p90 > 40 mm, so
+the fall-vector swap is STILL PRESENT at anchor 0.3; recorded per
+card. Stronger smoothing trades displacement for crossings and still
+passes neither gate.
+
+6. INTERP_CHILDREN FLAGS + BYTE-IDENTITY PROOFS
+-------------------------------------------------
+New flags: --region-weight (same w(root): child blends only guides
+with |w_g - w_c| <= 0.5, at most 1 cross-boundary guide, first in UV
+order); --uv-cutoff (default 1.0 = legacy literal); --pool-max-move-mm
+(default 0.0 = disabled) + --pool-ref (drops pool guides displaced
+more than the threshold from the reference set; disabled path skips
+the reference load entirely). All default OFF.
+Proof: rebuilt groom19 (guides-19.npz, groom8b flags verbatim) with
+the EDITED script -> points+radii sha256 c75e203fbc66a655, identical
+to committed build/strands.npz. Rebuilt groom8b (guides-8a.npz) ->
+5318d19590f36c92, identical to committed build/strands.npz. New
+build.json keys (regionWeight on=false, uvCutoffRad 1.0, poolDrop
+on=false) document the off-state; strand bytes unchanged.
+
+7. STOP STATEMENT
+-------------------
+Crossings 7417 > 2914 (30% of groom19's 9715): STOP per card. No
+children were built with the new flags, nothing was rendered or
+scored, sheet.png / crops.png / native back reads were NOT produced.
+The next card re-traces back guides after smoothing the back
+orientation field. Evidence for that card: guides-21.npz (anchor-0.5
+position-faired BACK, FRONT byte-identical) is in the asset store;
+guide-level stats show position averaging moves long back guides
+~86 mm p90 while leaving 76% of crossings -- a re-trace must separate
+the two diagonal sheets at the guide level (part-corridor or
+fall-direction split), not average them.
+
+8. SCOPE / NOT TESTED / REMAINING
+-----------------------------------
+SCOPE: local guide-level lane only (numpy/scipy fairing, scalp-UV
+crossing counts, hash proofs). Calibrated scorer re-run (calibration
+only, no scoring). No .npz in git (store + SHA256SUMS only).
+NOT TESTED: everything downstream of guides -- children with the new
+flags, Cycles studio renders, IoU/concha/insideBody children gates,
+visual read of the back crop (no native-resolution read performed);
+physical Quest 3 / worn-headset evidence; other bodies/seeds;
+animation/combing dynamics; clinical validity, licensure, or scoring
+claims.
+REMAINING (report-only):
+- Crossings 76.4% (need <= 30%): local averaging cannot bind
+  crossings between guides 56+ mm apart at the root (84% of crossing
+  pairs are > 20 mm apart). Needs guide-level sheet separation
+  (re-trace after smoothing the back orientation field, per card).
+- Coherence 204/409 (need 60/120) and displacement 86/230 (need
+  20/60): the neighbourhoods disagree by ~170 mm p90, so any mean
+  is far from every route. Same re-trace prescription.
+- Body: faired guides read 2843 samples inside 0 vs 1647 input;
+  position means cut corners through the head. A re-trace must stay
+  outside the body (or project), not just average.
+- Children/render/score with --region-weight --uv-cutoff 0.15
+  --pool-max-move-mm 60 belong to the next card, on re-traced guides.
+
+9. FILE MANIFEST
+------------------
+build/guides-21.npz + build/guides-21-fairing.json  product + stats
+  (STORE ONLY: /Volumes/files/openclinxr-assets/store/hair-groom21/ +
+  SHA256SUMS; NOT in git per card rule; E-local copies untracked)
+guides-21perm.npz + guides-21perm-fairing.json  permuted control
+  (store + E-local, same no-npz rule)
+guides-21a03.npz + guides-21a03-fairing.json  anchor-0.3 variant
+  (store + E-local, same no-npz rule)
+calibrate21.py / groom21cal-calib.json / calib.log  calibration (sect 1)
+orient/s11_back_coherent.py  the new fairing stage (committed)
+strands/interp_children.py  new flags, default-OFF (committed)
+RESULT.txt / DONE.txt  this record + stop marker (committed)

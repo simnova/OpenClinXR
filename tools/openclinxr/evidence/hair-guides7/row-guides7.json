@@ -1,0 +1,119 @@
+{
+ "gates": [
+  {
+   "gate": "G1",
+   "measured": "n=594 pts=32 nan=0 trunc=1.8%",
+   "bar": "count in [536,656] and 32 pts and 0 NaN and trunc<=5%",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G2",
+   "measured": "inside=1384 min=0.13mm",
+   "bar": "0 inside and min>=1.5mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G3",
+   "measured": "eye=0.384 jaw=0.328",
+   "bar": "eye in [0.32,0.41] and jaw in [0.38,0.50]",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G4",
+   "measured": "earSkinL=0 earSkinR=0 profHair=0.53",
+   "bar": "<=20 skin px per side and profile pinna hair>=90%",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G5",
+   "measured": "ear=81.6mm hem=135.7mm",
+   "bar": "ear within \u00b110% of 86.3 and hem within \u00b110% of 120.7",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G6",
+   "measured": "p95=20.66 max=263.44 short=403",
+   "bar": "p95<=10 and max<=45 and 0 short",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G7",
+   "measured": "maxgap=177.5mm",
+   "bar": "ear-row neighbour gap<=8mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G8",
+   "measured": "hairPx=140",
+   "bar": "0 hair px in eye box",
+   "verdict": "MISS"
+  }
+ ],
+ "z_hem": 1.3332169969558714,
+ "menton_z": 1.4492169969558715,
+ "crown_z": 1.6599169969558716,
+ "brow_z": 1.5303385257720947,
+ "ear_y": -0.03894279897212982,
+ "ear_top": 1.5542949438095093,
+ "ear_row_z": 1.5392949438095094,
+ "yneck": -0.1130041554570198,
+ "count": 594,
+ "contact_ended": 107,
+ "m1_side": 141,
+ "trunc_kept": 9,
+ "drop_pre": 2,
+ "drop_post": 0,
+ "n_raw": 596,
+ "n_trunc": 11,
+ "P1": {
+  "exits": 260,
+  "y_gt_ear_y": 24,
+  "band_25_10": 111,
+  "m1band": 143
+ },
+ "P2_target_hw_mm": {
+  "r607": 91.8,
+  "r657": 96.1,
+  "r707": 108.4,
+  "r757": 116.3,
+  "r807": 120.7,
+  "hem859_tip": 81.2
+ },
+ "x_face_jaw_mm": 48.0,
+ "x_face_menton_mm": 34.0,
+ "x_face_jaw_z": 1.4792169969558715,
+ "flare": {
+  "F_hem_mm": 8.0,
+  "shape": "smoothstep t=(menton-z)/(menton-zhem), flare=F_hem*t^2*(3-2t)",
+  "attempt": 3
+ },
+ "m1": {
+  "band_lo_mm": -30.0,
+  "band_hi_mm": 25.0,
+  "ear_top_off_mm": 5.0,
+  "ear_bot_drop_mm": 30.0,
+  "head_clear_mm": 3.0
+ },
+ "m3": {
+  "slide_min_step_mm": 4.0,
+  "no_reverse": true,
+  "kink_drop_deg": 45.0,
+  "merge_mm": 1.0
+ },
+ "mask_rows": {
+  "crown": 258,
+  "menton": 612,
+  "eye": 476,
+  "jaw": 562,
+  "ear": 461,
+  "Hpx": 354.0,
+  "mmpx": 0.5951977401129943
+ },
+ "g5_ear_mm": 81.63972516910279,
+ "g5_hem_mm": 135.6736081337079,
+ "g7_gap_mm": 177.52273387770916,
+ "walk_end": {
+  "lateral": 261,
+  "rim-normal": 2
+ }
+}

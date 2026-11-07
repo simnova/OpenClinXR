@@ -1,0 +1,10 @@
+{
+ "mode": "mirror-ref",
+ "primary": "tools/openclinxr/evidence/hair-groom30/build-30/guides-30.npz",
+ "primarySha": "3bfe3f599c04c124",
+ "refIn": "tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz",
+ "refSha": "3827eb863d3e6517",
+ "midMm": 2.0,
+ "nReplaced": 1315,
+ "note": "same slot map as mirror mode; crown is global (3,) and untouched"
+}

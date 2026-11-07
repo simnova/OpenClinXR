@@ -1,0 +1,14 @@
+{
+  "tag": "c_curve",
+  "base": "hair-hem2/base/strands.npz",
+  "deform": {
+    "cell": "curve",
+    "lowerFibres": 65953,
+    "capDownMm": 15.0,
+    "capUpMm": 20.0,
+    "meanAbsDeltaMm": 10.44,
+    "downFibres": 15280,
+    "upFibres": 50033,
+    "rule": "tip z toward target U sheet-edge (61-wide median y_bottom, v->zw mapped); raise capped 20mm, extend capped 15mm, smoothstep idx24..31 z-only"
+  }
+}

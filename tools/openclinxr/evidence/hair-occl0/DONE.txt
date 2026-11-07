@@ -1,0 +1,7 @@
+hair-occl0 DONE. 96 candidate points tested against the pinned front
+camera + station0b body depth buffer. Verdict: NOT_EXPLAINED — 89/90
+below-hem points occluded (all 6 profile/back positions buried 113-205 mm
+behind the shoulder; dy=0 edge rows coincide exactly with hem rows
+666/675); single visible exception sweepL_dy+40_z1.389 (40 mm behind
+curtain plane, over the shoulder slope, SDF-confirmed miss +2.2 mm).
+Files: run_occl0.py, occl.json, occl.png, RESULT.txt, DONE.txt. No *.blend.

@@ -1,0 +1,19 @@
+RESULT::hair-part-1
+G1::C0 part 47 px (|d|=0, bar +-3) ∧ IoU 0.6218 (|d|=0.0002, bar +-0.01) PASS
+G2::4 cells sha256 x2 equal ∧ n 50000/50000/50570/50570 within 2% ∧ 32 pts ∧ 0 NaN ∧ 0 crossings PASS
+G3::best C3 part 27 px (bar <=30) ∧ ID show-through 2.87% (bar <=3%) PASS
+G4::ridge frac<=6mm 1.000/1.000/1.000/1.000 (bar >=0.99 all cells) PASS
+G5::best C3 IoU 0.6183 (bar >=0.612) ∧ width_rms 0.2219 (bar <=0.231) ∧ eye gap 0.4331 vs C0 0.4374 (|d|=0.0044H, bar <=0.02) PASS
+G6::test_show_through.mjs 3/3 cases pass PASS
+C0::C0 off/off | part 47 px | band 11.547 mm | ID show 2.92% | IoU 0.6218 | width_rms 0.2211
+C1::C1 closure on | part 41 px | band 11.547 mm | ID show 3.23% | IoU 0.6213 | width_rms 0.2211
+C2::C2 fill on | part 46 px | band 10.430 mm | ID show 3.27% | IoU 0.6174 | width_rms 0.2219
+C3::C3 both on | part 27 px | band 10.430 mm | ID show 2.87% | IoU 0.6183 | width_rms 0.2219
+CAUSE(D1)::strands-near-the-part lean away immediately (M1 lateral medians, C0 kids: roots 0-2 mm sit 5.4/9.9/18.1/26.0 mm off-plane at arc 5/10/20/30 mm, ~45 deg+ from the slit plane from the first millimetres). Root density is uniform across the slit (bins 75.4-84.1/cm2 vs cap mean 79.0; 0-2 mm bin 81.8), so sparse-roots is rejected. Cell pairs confirm: closure alone 47->41 (pulls existing strands, limited by the 1999 front roots in reach), fill alone 47->46 (570 extra roots at 1.5x strip density, but their strands lean away too and cover nothing), both 47->27 (extra roots caught by the closure bump cover the wedge). Bright scalp under the opening contributes: judge skin-colour clause reads C0 0.14% beside the visible strip while the ID-mask clause reads 2.92%.
+SAW::C0: wide pale wedge from crown to forehead with a bright scalp strip along its full length; strands part cleanly left/right with hard bright edges, no flyover strands; crown top shows a bright scalp strip the full front-to-back length inside an otherwise dense canopy, no gutter lanes.
+SAW::C3: the part is a thin bright line; fine strands visibly lean across near the slit at the crown and the wedge glow shrinks to a narrow highlight; crown strip narrower and partly shadowed; no standing ridge, hair lies flat; face opening, hem and drape unchanged from C0.
+RECOMMEND::station defaults --part-closure on --part-fill on (PART_CLOSURE C_MAX 3mm, ROOT_RADIUS 10mm, bump 0@root/1@[10,30]/0@45mm, slit margin 0.3mm, rise cap 2mm; PART_FILL radius 6mm, factor 1.5x, seed+101); all other blend-1 parameters unchanged.
+COMMIT::<to fill after commit>
+STILL::target part 22 px vs C3 27 px (gate <=30 holds, 5 px over target); IoU/width_rms far from 0.80/0.10 bars, unchanged from baseline (drape set by guides, out of scope); standing_hair FLAG persists (mask crown 88 vs skull 103, as blend-1); centre-back seam + blunt hem inherited from guides6; crown max-gap 522 px outlier row (back-seam region; median 31 px reported).
+BRIEF_MISSING::(1) slit distance read as lateral |x|; closure/ridge subsets restricted to y<apex_y where the slit exists, density bins use |x| all-y. (2) bump = smoothstep(arc/10mm)*(1-smoothstep((arc-30)/15mm)). (3) fill keeps total n+extra (50570, +1.14% within G2). (4) ridge = rise above the lifted-root plane floored at 0. (5) crown band = median centre-gap over hair-containing rows; front band = median rows 80-220. (6) COMMIT placeholder per repo precedent.
+HARM::none (local Blender renders + numpy only; no external calls; no push; no clinical/Quest claims)

@@ -1,0 +1,36 @@
+RESULT hair-guides-12 S2 (taut-string over back heightfields) — gate MISS, stopped per STOP rule
+P2 scalp-exit histogram (600 roots, cap-v5 trace + sym projection):
+  nape n=372 y=[-41.3,6.7]mm z=[1470.5,1515.8]mm
+  above_ear n=62 y=[-40.3,-37.0]mm z=[1519.7,1552.7]mm
+  forehead_temple n=155 y=[-125.4,-52.2]mm z=[1554.1,1632.6]mm
+  behind_ear n=0; trace-fail n=11
+GATES (row-guides12.json, check-guides12.mjs verifies):
+  G1 PASS p95=0.0000mm max=0.0000mm (584 mirror pairs, jitter hash is |x|-symmetric)
+  G2 PASS n=584/600 (97.3%) 32pts 0NaN short=0 zero=0 (5 trace-fail + 10 drop-short excluded from 600; 11 P2 trace-fail overlap)
+  G3 PASS behind-viol=0 front-of-shoulder=0 (tot 6173 below-top checks)
+  G4 MISS inside=272 verified (raw 633; 388 rim-garbage exonerated by +-Y enclosure) min=0.01mm
+  G5 MISS coverL=0.413 coverR=0.467 (need 0.95); face=0 PASS; forehead=51 (raw 195)
+  G6 MISS turn p95=49.37 max=164.17 (need 8/30)
+  G7 MISS hem=1.133 (need 0.73+-0.04); tipstd=3.49mm (need <=8, PASS part)
+  G8 MISS angle ours=29.3 vs TS=21.4 (diff 7.9, PASS part); ratio ours=0.904 vs TS=1.26 (diff 28%, MISS)
+G8 numbers: TS angle 21.4deg measured on TS/target-profile.png (lum<80 hair mask: front edge col 385 at row 225 -> col 522 at row 575, atan(137/350)); TS ratio 1.26 on TS/target-back.png (shoulder row 600 half-width 200px / ear row 300 half-width 159px). Ours angle from min-y guides in temple band (ear_top+-5/15mm) vs shoulder band (zhem+-20/60mm); ours ratio = max|x-cx| at z=1.38 (75.0mm) / head half-width at ear row (83.0mm).
+SAW (guides12-debug.png + target-vs-guides12.png beside TS, native size):
+  front: TS wide sheet frames face over shoulders; ours thin magenta strips at jaw sides onto collarbones + visible cyan cap; ears bare; strips sit lateral (G3-clean) but read forward of shoulder line.
+  three_quarter: TS full sheet over shoulder; ours thin strip behind jaw; ear exposed.
+  profile: TS front edge temple-over-ear-to-behind-shoulder ~21deg, ear fully covered, full sheet to mid-back; ours edge steeper ~29deg starting behind ear, ear exposed, thin sheet to upper-mid back.
+  back: TS wide sheet (1.26) over blades to mid-back; ours narrow strip (0.90) lying on upper back, straight blunt hem, clear of neck hollow, symmetric.
+  top: cyan cap + magenta fringe at back of crown, mirror-exact.
+  hem: TRUE tip-z exact 0.73 (tip p50=1295.9mm=zhem+0.5mm), tipstd 3.5mm straight; mask reads 1.13 (parallax, see CAUSE).
+  mirror: L/R identical in every view.
+CAUSE per MISS:
+  G4-272: (a) ~250 string-phase temple/above-ear points in junction zone dragged forward into head side by blend + early dives through sideburn/trapezius slab; (b) ~22 scalp pinna-fold residuals; (c) enclosure-confirmed shirt fold-canyon grazes mid-back. Tried over 3 attempts: top-contour obstacle (Zt), dilation +-10mm, hybrid plain re-projection (killed all 210 scalp-inside of attempt 1), +-Y-enclosure verified counting (388 rim false-positives removed).
+  G5-cover: taut string takes shortest back path behind ear; no sideburn curtain forward of pinna -> bbox uncovered. Structural tension between M4 route and cover bar.
+  G5-forehead-51: string-phase sideburn fringe over forward-facing hairline skin; root exemption + facing filter cut 195->51.
+  G6: scalp pinna-flip zigzag (s0-hi 422) + temple junction angles 60-90deg (J-hi 390) + trapezius true corners (s1-hi 558). Tried: disagreement-trigger reprojection, O smoothing, +-10mm blend, drop-short.
+  G7-hem: back camera at +0.85m with downward tilt; back-lying hair ~95mm nearer camera projects ~0.4 head-heights low (same bias family as guides11 1.09). True hem exact by construction+jitter.
+  G8-ratio: xT=min(|xE|,W) caps sheet at scalp width; no outward spread to blade width.
+ATTEMPTS: 1) base strings (inside 1109/turn 25.8) 2) contour+dilation+hybrid (667/47.6) 3) disagreement+enclosure+dilate5+root-exempt (272 verified/49.4). No gate weakened; no push-out loops; closed form throughout.
+COMMIT: tools/openclinxr/evidence/hair-guides12 staged+committed as evidence guides v12 stage 2 (this envelope included).
+STILL: sideburn-curtain routing for ear cover; junction without blend-drag into head; sheet spread for G8 ratio; parallax-aware hem measure; corner-count reduction for G6. Needs new-brief decisions (tension between M4-taut and G5-cover; 8deg/cm vs true trapezius/temple corners).
+BRIEF_MISSING: side obstacle below menton-0.02 (trapezius top invisible to Yb back-rays); open-garment sign rule (rim garbage vs real); mask parallax for back-lying hair; ear-cover routing incompatible with shortest-path M4; 20mm blend vs sub-8deg/cm corner arithmetic.
+HARM: none. Write-root only E/. No push. G11/C5/TS untouched (read-only). R5 collider set used throughout.

@@ -1,0 +1,5 @@
+DONE: hair-reg3qb solved target three-quarter camera
+- STEP 1: S/register3q.py --camera -> orbit fits (all + head-only, fixed 50mm lens, free-focal check)
+- STEP 2: residuals in E/registration-3qb.json (all p95 93.77px, head-only p95 15.53px)
+- STEP 3: E/registration-3qb.json = REGISTRATION_INSUFFICIENT (no camera-target3q.json, no frame-3q.png by design)
+- STEP 4: E/RESULT.txt + E/DONE.txt; commit feat(hair-groom): solved target three-quarter camera

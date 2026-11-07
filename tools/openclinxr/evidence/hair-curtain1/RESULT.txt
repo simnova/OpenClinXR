@@ -1,0 +1,26 @@
+RESULT::hair-curtain-1
+M1::head half-width profile (no pinna) in 5 mm crown-to-ear steps: z 1.6549..1.5549 m, half-width 28.17,39.11,46.67,51.22,55.51,58.92,61.21,63.50,65.79,66.98,67.99,68.99,69.64,70.20,70.70,70.77,68.37,68.33,67.84,68.02,68.45 mm; y-at-max and with-ear widths are in diagnosis.json.
+M1::widest-contour z/radius by azimuth sector: front_corner 1.57089 m/110.02 mm; temple 1.55790/96.71; above_ear 1.58755/72.36; behind_ear 1.57388/75.58; occiput 1.58300/77.82.
+M1::TS eye-row inner edges are L/R 0.2204/0.2121 skull-H = 46.43/44.68 mm; registered head+ear half-width is 70.82 mm, so TS-minus-head is -24.39/-26.14 mm (mean -25.26 mm), outside the requested -5..+20 mm support band: REFUTED.
+M1::b3 direct lift-off test, n=418 lateral guides: median lift-off minus ridge -6.34 mm; 13.40% within 8 mm; 48.33% more than 8 mm below ridge; median/p90/max scalp path below ridge 0.00/13.97/65.32 mm.
+M1::sector n | median(lift-off-ridge) mm | median scalp path below ridge mm: front_corner 46|+30.93|0.00; temple 102|+28.34|0.00; above_ear 120|-21.17|0.00; behind_ear 136|-32.10|0.00; occiput 14|-8.32|0.00.
+M1::D2 origin probe regenerated 50,315 b3 children: front/temple-ahead/side-behind/back/top counts 4160/11560/17067/13630/3898; overlap-count versus baseline bright-band column density correlation 0.6485; region arrays are in diagnosis.json and origin-regions-back.png.
+CAUSE(D1)::REFUTED. A majority (51.67%) of measured lateral b3 guides already lift no more than 8 mm below the ridge, the median lift is only 6.34 mm below it, and median on-scalp travel below the ridge is 0.00 mm. The hypothesised general rule "lateral strands follow the recess down to the ear" is therefore not dominant; the brief mandates STOP after M1.
+CAUSE(D2)::SUPPORTED for origin-region overlap as a contributor: overlap/bright-band correlation is 0.6485. The whole-envelope FFT returns 1024 px rather than the accepted local 538 px, so this does not replace the accepted local-period measurement.
+M3::NOT RUN — mandatory G1 REFUTED stop. No curtain_hull code exists and no guide construction revision was run.
+CELL::none | G1 mandatory stop before construction | kept n/a | inside n/a | front IoU n/a | eroded n/a | profile IoU n/a | back IoU n/a | eye-row inner L/R n/a (TS 0.2204/0.2121) | ear cover n/a | front/over/behind n/a | stripe contrast n/a
+GATE::G1 PASS — diagnosis.json was written and inspected before any curtain construction code or run; direct-test verdict is REFUTED, activating STOP.
+GATE::G2 MISS — not run by the G1 REFUTED stop; no construction guide set exists.
+GATE::G3 MISS — not run by the G1 REFUTED stop; no k cell exists.
+GATE::G4 MISS — check-curtain.mjs was not authored because construction and cells are prohibited after the G1 stop.
+GATE::G5 PASS — git status confines writes to tools/openclinxr/evidence/hair-curtain1; S3, hair-cap8, judge, and target-set are unmodified.
+BEST::none; G1 REFUTED stops the card before k1-k4.
+SAW::b3/front at native size beside TS: forehead corners are bare and the eye-adjacent hair begins about 25 mm farther out than the registered TS inner edge; ear-side hair reads as blocky wings.
+SAW::b3/profile at native size beside TS: a flat triangular sheet crosses the temple/ear region and then angles backward, unlike the target's smooth free-hanging outer curtain.
+SAW::b3/back at native size beside TS: strong vertical bands, a visible centre opening, and a hard rectangular hem dominate the target's continuous sheet.
+SAW::best-k: none exists because the binding G1 REFUTED stop prohibits guide construction and 50k cells.
+NEXT::reframe D1 around azimuth-local populations: front-corner and temple guides already lift 28-31 mm above their ridges, while above-ear and behind-ear populations lift 21-32 mm below; a single ridge-trigger rule cannot explain or repair both populations. Test origin/interpolation routing and the registered face-opening mismatch before another construction.
+COMMIT::this commit (resolve with git log -1 --format=%H)
+STILL::D1 remains visually real but its proposed dominant cause is refuted; TS eye-row registration is also outside the support band, and D2 origin overlap is supported only as a contributor. No curtain construction, k cell, Quest, clinical, scoring, or readiness claim is made.
+BRIEF_MISSING::an exact self-referential commit SHA cannot be embedded in the commit that changes RESULT.txt; the line uses the established resolution form. G1 defines REFUTED as the terminal condition, so O1 fields requiring best-k evidence are recorded as not applicable rather than fabricated.
+HARM::none; copied S3 into the new evidence root, ran read-only measurements against S3/cap8/judge/TS, wrote no *.blend, and made no edit outside tools/openclinxr/evidence/hair-curtain1.

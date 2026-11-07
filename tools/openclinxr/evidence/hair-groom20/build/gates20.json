@@ -1,0 +1,167 @@
+{
+ "calibration": {
+  "iou": {
+   "front": {
+    "iou": 0.7446,
+    "missPx": 11274,
+    "excessPx": 11866
+   },
+   "three_quarter": {
+    "iou": 0.8261,
+    "missPx": 14783,
+    "excessPx": 3958
+   },
+   "profile_90": {
+    "iou": 0.8543,
+    "missPx": 8656,
+    "excessPx": 15299
+   },
+   "back": {
+    "iou": 0.8579,
+    "missPx": 30471,
+    "excessPx": 20070
+   }
+  },
+  "all_within_0.02": true,
+  "pass": true,
+  "hard": true
+ },
+ "coherenceBACK": {
+  "v": {
+   "n": 1014,
+   "min": 1.631,
+   "p50": 25.489,
+   "p90": 212.334,
+   "p99": 336.92,
+   "max": 409.98
+  },
+  "gate": "BACK pairs roots<6mm full-path p90<=25 max<=60",
+  "pass": false,
+  "hard": true
+ },
+ "takeoffBACK": {
+  "v": {
+   "verbatimSamples": 10422,
+   "byteIdentical": true,
+   "maxAbsDiffHeadMm": 0.0,
+   "pass": true
+  },
+  "gate": "every BACK arc<15mm sample byte-identical to guides-8a",
+  "pass": true,
+  "hard": true
+ },
+ "frontIdentical": {
+  "v": {
+   "samples": 87904,
+   "byteIdentical": true,
+   "maxAbsDiffHeadMm": 0.0,
+   "pass": true
+  },
+  "gate": "every FRONT guide byte-identical to guides-19",
+  "regionSplit": {
+   "BACK": 563,
+   "FRONT": 2144,
+   "total": 2707,
+   "yEarM": -0.0635,
+   "zNapeM": 1.51,
+   "partXM": 0.003308140447569022
+  },
+  "pass": true,
+  "hard": true
+ },
+ "knotHole": {
+  "v": 0,
+  "gate": "g10diag back box == 0",
+  "pass": true,
+  "hard": true
+ },
+ "rloopProfile": {
+  "v": 87085,
+  "gate": "< groom5 11587",
+  "pass": false,
+  "hard": true
+ },
+ "rloopBack": {
+  "v": 101495,
+  "gate": "< groom5 11587",
+  "pass": false,
+  "hard": true
+ },
+ "silhouette": {
+  "v": {
+   "front": {
+    "iou": 0.4881,
+    "gate": 0.77,
+    "delta": -0.2819,
+    "pass": false
+   },
+   "three_quarter": {
+    "iou": 0.4897,
+    "gate": 0.82,
+    "delta": -0.3303,
+    "pass": false
+   },
+   "profile_90": {
+    "iou": 0.6691,
+    "gate": 0.83,
+    "delta": -0.1609,
+    "pass": false
+   },
+   "back": {
+    "iou": 0.7122,
+    "gate": 0.84,
+    "delta": -0.1278,
+    "pass": false
+   }
+  },
+  "gate": "back>=0.84 profile>=0.83 front>=0.77 3q>=0.82",
+  "pass": false,
+  "hard": true
+ },
+ "faceMaskFront": {
+  "v": {
+   "maskPx": 93895,
+   "targetHairPx": 1547,
+   "oursHairPx": 11602,
+   "allowPx": 3424.9,
+   "pass": false
+  },
+  "gate": "front ours<=target+2%mask",
+  "pass": false,
+  "hard": true
+ },
+ "concha": {
+  "v": {
+   "front": 0,
+   "three_quarter": 0,
+   "profile_90": 0
+  },
+  "gate": "0 all views",
+  "pass": true,
+  "hard": true
+ },
+ "insideBody": {
+  "v": 0,
+  "gate": "== 0",
+  "pass": true,
+  "hard": true
+ },
+ "determinismFairing": {
+  "pass": true,
+  "hard": true
+ },
+ "determinismChildren": {
+  "hashA": "6da6df2c72e1b4c7c248f1737abebae7d9bd1baf33a9c9bb63575fa36b24a56a",
+  "hashB": "6da6df2c72e1b4c7c248f1737abebae7d9bd1baf33a9c9bb63575fa36b24a56a",
+  "pass": true,
+  "hard": true
+ },
+ "falsifier": {
+  "v": {
+   "coherenceBACKPass": false
+  },
+  "gate": "FIRES iff BACK coherence passes and crossing locks remain in the raw interpolation (render BACK guides in knot box coloured by id and stop)",
+  "pass": true
+ },
+ "pass": false
+}

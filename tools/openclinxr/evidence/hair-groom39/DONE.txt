@@ -1,0 +1,16 @@
+# groom39 DONE (premise-refuted card; no build)
+
+STEP 1 premise probe complete. VERDICT: PREMISE FALSE — stop, no build.
+
+Evidence: E/premise39.json (classes, planes, MIXED, OTHER reasons),
+E/breakdown39.json (shell-by-class-set, backbone classes, midline use),
+E/premise39.py, E/classify39.py, E/breakdown39.py (+ .log files),
+E/RESULT.txt (this card's record), E/STATE.md.
+
+Headline: MIXED shell strands 423/1136 (+x, 37.2%) and 421/1036
+(-x, 40.6%) — both below the half line. Single-FRONT blends alone are
+713/615 shell strands. BEHIND class empty (rearmost guide reach at ear
+height y=-81.1 mm vs back plane YB=-90.76 mm).
+
+No STEP 2, no renders, no gate battery. Nothing staged outside
+tools/openclinxr/hair-groom (untouched) + E/hair-groom39.

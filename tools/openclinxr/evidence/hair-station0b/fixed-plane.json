@@ -1,0 +1,25 @@
+{
+  "note": "descriptive only; not part of the verdict",
+  "spreadMedianHemZmm": 80.2,
+  "spreadMedianPosteriorYmm": 160.4,
+  "views": {
+    "back": {
+      "centralMinSdfMm": -76.6,
+      "medianHemZmm": 1321.0,
+      "medianPosteriorYmm": -50.5,
+      "nHemRays": 500
+    },
+    "front": {
+      "centralMinSdfMm": -51.9,
+      "medianHemZmm": 1401.2,
+      "medianPosteriorYmm": -1.5,
+      "nHemRays": 500
+    },
+    "profile_90": {
+      "centralMinSdfMm": 52.4,
+      "medianHemZmm": 1355.1,
+      "medianPosteriorYmm": 109.9,
+      "nHemRays": 500
+    }
+  }
+}

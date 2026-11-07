@@ -1,0 +1,87 @@
+{
+ "note": "skull - raw, per row. Front moves (target crown +22.83 px); profile/back share the raw triple in skull mode, delta 0.",
+ "subjects": {
+  "current": {
+   "transforms": {
+    "front": {
+     "scale": -0.047569,
+     "tx": 24.3553,
+     "ty": 27.732695
+    },
+    "profile_90": {
+     "scale": 0.0,
+     "tx": 0.0,
+     "ty": 0.0
+    },
+    "back": {
+     "scale": 0.0,
+     "tx": 0.0,
+     "ty": 0.0
+    }
+   },
+   "r1": {
+    "front.above.iou": 0.1252,
+    "front.above.absP95px": -5.76,
+    "front.below.iou": -0.0531,
+    "front.below.absP95px": 1.85,
+    "profile_90.above.iou": 0.0,
+    "profile_90.above.absP95px": 0.0,
+    "profile_90.below.iou": 0.0,
+    "profile_90.below.absP95px": 0.0,
+    "back.above.iou": 0.0,
+    "back.above.absP95px": 0.0,
+    "back.below.iou": 0.0,
+    "back.below.absP95px": 0.0
+   },
+   "r5": {
+    "front.yBottomMAEpx": -12.58,
+    "front.widthMAEpx": 4.96,
+    "profile_90.yBottomMAEpx": 0.0,
+    "profile_90.widthMAEpx": 0.0,
+    "back.yBottomMAEpx": 0.0,
+    "back.widthMAEpx": 0.0
+   }
+  },
+  "previous": {
+   "transforms": {
+    "front": {
+     "scale": -0.047569,
+     "tx": 24.3553,
+     "ty": 27.732695
+    },
+    "profile_90": {
+     "scale": 0.0,
+     "tx": 0.0,
+     "ty": 0.0
+    },
+    "back": {
+     "scale": 0.0,
+     "tx": 0.0,
+     "ty": 0.0
+    }
+   },
+   "r1": {
+    "front.above.iou": 0.1252,
+    "front.above.absP95px": -5.76,
+    "front.below.iou": -0.0548,
+    "front.below.absP95px": 1.68,
+    "profile_90.above.iou": 0.0,
+    "profile_90.above.absP95px": 0.0,
+    "profile_90.below.iou": 0.0,
+    "profile_90.below.absP95px": 0.0,
+    "back.above.iou": 0.0,
+    "back.above.absP95px": 0.0,
+    "back.below.iou": 0.0,
+    "back.below.absP95px": 0.0
+   },
+   "r5": {
+    "front.yBottomMAEpx": -12.35,
+    "front.widthMAEpx": 5.0,
+    "profile_90.yBottomMAEpx": 0.0,
+    "profile_90.widthMAEpx": 0.0,
+    "back.yBottomMAEpx": 0.0,
+    "back.widthMAEpx": 0.0
+   }
+  }
+ }
+}

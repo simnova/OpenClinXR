@@ -1,0 +1,8 @@
+{
+  "tag": "c_taper",
+  "base": "hair-ends1/base/strands.npz",
+  "deform": {
+    "cell": "taper",
+    "rule": "radii taper to 20% over last 15% arc (idx27..31) all fibres"
+  }
+}

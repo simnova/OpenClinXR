@@ -1,0 +1,162 @@
+hair-route0: minimum-cost guide routing through the hair hull — RESULT
+===============================================================================
+Card: route 359 guides through hull0c as discrete minimum-cost paths on a
+26-neighbour voxel graph over the eroded hull. NO gravity blend, NO
+streamline-then-project (those made the crown rings and rails in guides0/1).
+WRITE ROOTS: S7 = tools/openclinxr/hair-groom/route (common.py, route.py,
+gates.py, export.py, add_verdict.py; hull/ untouched),
+E = tools/openclinxr/evidence/hair-route0. No *.blend anywhere.
+
+INPUTS (runtime log E/inputs-opened.txt, 25 files; grep ^tools for repo
+inputs, ^/Users for judge masks, ^/tmp for station-frame):
+hull.npz (hull0c, commit bcbffd635: carve + mirrored profile + 6-10 mm
+scalp shell, occupancy + viscount 0-4; UNAVOIDABLE_HEAD_MISMATCH excess
+inside the step-1 poke per its RESULT.txt), scalp1 roots.npz (14155) +
+scalp.npz, cage1 body-exact-sdf.npz + body-depth.npz, station cameras /
+registration / targets / landmarks (cameras-scorer-v3.json,
+aisha_straight_long.json, judge landmarks.json + 3 masks),
+station-frame.npz (crown/menton/brow 3D), guides0 guides.npz (reference
+only), Aisha GLB (figure only, topper excluded at render).
+
+METHOD (cost weights frozen in E/route-spec.json):
+coverage radius 3.0 mm (stated, within 2-4 mm). Erosion = hull occupancy
+distance-transform >= 3.0 mm AND exact-SDF >= 3.0 mm: 296,009 -> 206,236
+voxels (SDF removed 0: the hull's own 2 mm rule plus one rind already
+clears 3 mm; min SDF on graph 3.98 mm). Routing graph = largest
+26-connected component: 206,214 nodes, 4,810,208 directed edges,
+mean degree 23.3 (22 sliver nodes dropped). 26-neighbour directed A*
+per root (turn angle between successive edges in the cost; weighted
+A* eps=3.0, calibration: unweighted exhausts the 150k cap crown->hem,
+eps=3 finds it in 3,639 expansions; costs still carry every term).
+Edge cost/len: 1.0*len + 8.0*up + 16.0*turn_rad + 6.0*bodyterm*len +
+4.0*bndterm*len + 1.0*min(usage,3)*len + 5.0*partterm*len, bodyterm =
+((clip(8-sdf,0,8))/8)^2, bndterm = ((clip(6-bnd,0,6))/6)^2,
+partterm = node x-sign opposes root sign (|root x|<3 exempt).
+Roots: greedy Poisson subset of scalp1 (crown-first), spacing 12 mm ->
+359 roots (in 300-500); side = sign(x) vs centre part; attached to
+nearest graph node (cKDTree). Ear plane y_ear = -76.9 mm (median y of
+scalp hairline-loop points with |x| >= p80: sideburn anchor,
+data-driven; stated sector rule: root y < y_ear -> curtain, else back).
+Endpoint bands: per (sector, side) CL/CR/BKL/BKR (back pools overlap
++-2 mm so bundles meet); pool = x-binned (10 mm) lowest 25 eroded
+voxels/bin within z <= sector_min_z + 20 mm (CL 79 / CR 89 / BKL 248 /
+BKR 194); quantile-matched assignment in lateral scalp order
+(member x-rank -> pool x-rank, bottom-6mm-biased), hard same-sign rule,
+global x-monotonicity (0 relaxations), distinct-voxel floor (no shared
+endpoint voxel: NN spacing >= 2.0 mm everywhere; preferred 4 mm,
+relax 2.5 mm 89x / distinct-only 211x — 6 mm is unsatisfiable: ~274
+back guides share a ~170 mm hem). Smooth: centripetal Catmull-Rom,
+2 mm resample; accept = routed arc (beyond first 8 mm) inside hull
+occupancy AND exact-SDF > 0, eroded-arc fraction >= 0.95; leader
+(first 8 mm) exempt from containment (roots live <= 4.5 mm off-hull by
+hull0c construction) but SDF > -1 mm. Fallback (decimated voxel
+polyline) never needed.
+Spec discipline: route-spec.json frozen BEFORE each routing run, sha
+in E/spec-sha-before-route.txt asserted by every later step. Final
+sha db7706df6109a5b3895828bcf84625cfed7ada0f1f424d395ba20d82bf04a9de.
+Superseded pre-routing shas (each frozen before its run, amended for
+the stated measured reason, all runs asserted their sha): f742e3e0
+(init), 88c59198 (weighted-A* eps after cap exhaustion probe),
+dd47480e (leader exemption: roots off-hull by construction),
+2bceb11d (saturating coherence + sliver drop: uncapped usage drove
+late-order roots past the cap though zero-usage paths existed and
+accepted), 3ca33259 (scaled-usage retry levels), d1be10ff (retry
+recovery), 1c986d8d (x-binned pools + same-sign + monotone + w_part
+after 98 part crossings from clustered pools), 0dc2ae50 (quantile
+matching + w_curve 6->16 after azimuthal 0.45 showed corner-cutting),
+536f27dd (distinct-voxel floor + windowed local search after rank bug).
+
+STEP 2 — route: 359/359 accepted SMOOTH (0 fallback, 0 unreachable;
+1 retry recovery at usage scale 0.25). Leaders p50 5.1 / p95 6.2 /
+max 18.7 mm (12 roots > 8 mm: a y~+30, z 1556-1579 patch where the
+eroded core sits deep to the scalp; spans check inside-hull/SDF>0).
+
+STEP 3 — gates (E/gates.json):
+- unreachable roots: 0.
+- endpoint coverage per band (3D nearest-neighbour): CL 43 / CR 42 /
+  BKL 136 / BKR 138; NN min 2.0 mm in all bands (distinct-voxel floor
+  holds: no shared channels), NN p50 2.0 mm (dense tiling, not 4 mm
+  spread — pool geometry admits no more).
+- boundary fraction (arc within 4 mm of hull boundary): 0.0663
+  (gate <= 0.5: PASS, no shell pile).
+- crown-band mean |horizontal tangent| [1570,1640]: 0.5966 vs gate
+  0.45: FAIL. Azimuthal component 0.4701. guides0 reference 0.6436
+  (azim 0.581). Fall-zone contrast [1520,1600): mine 0.3486
+  (azim ~0.24) vs guides0 0.5085 — mine falls, guides0 rings; the
+  [1600,1640] lay zone is dome geometry (surface near-horizontal at
+  the apex: any scalp-following flow reads ~0.7 there), not style.
+- part crossings (> 2 mm excursion rule; sub-voxel midline-node dust
+  reported separately): 0 (raw flips 17, max excursion 0.14 mm).
+- back-centre gap (|x| <= 80): max 6.0 mm (gate <= 20: PASS, 268 ends).
+- tube score (3.0 mm discs, depth-tested vs body-depth, warped by
+  instruments.occluded_union; p50/p95 excess+miss per region):
+  PASS: front/crown (exc 8.0/11.0, miss 4.0/12.3),
+    profile/side_curtain_L (2.0/3.1, 5.7/13.7), back/crown miss only,
+    back/side_curtain_L (2.0/18.4, 4.0/15.0),
+    back/side_curtain_R (2.0/18.8, 5.8/14.4),
+    back/hem (2.2/3.0, 4.2/12.5).
+  FAIL (12): front/side_curtain_L+R miss (15.2/34.1, 18.8/36.3),
+    front/hem miss (28.7/69.4), profile/crown excess (24.0/36.4),
+    profile/hem miss (28.6/34.5), back/crown excess (25.3/29.0).
+  Dense proxy (11 px dilation ~ interpolated coverage): back all PASS
+  (<= 12.8), profile curtain_L 11.4 PASS; front curtains/hem and
+  profile hem still 30+ -> genuine shortfall, not comb gaps
+  (interior blue streaks in the overlay ARE comb gaps: 359 discrete
+  3 mm tubes at 12 mm spacing vs a full-mask target).
+- face guards (depth-aware face_guard_depth): 0 px everywhere (front
+  0/5712, profile 0/3024): PASS.
+
+MECHANISMS (measured, not assumed):
+(a) Shoulder mismatch (front curtain/hem shortfall): the target
+curtains drape through Aisha's shoulder volume — exact-SDF inside
+fraction in |x| 60-95, y -80..0: 34% at z=1480 rising to 73% at
+z=1380. The carve (target minus Aisha) correctly holds almost no
+voxels there (400 front-low voxels total); guides end at the hull
+bottom (curtain zmin 1455-1483) ~35-70 px above the target hem in
+front projection. Same mismatch class as hull0c's crown finding,
+at the shoulders. Fix belongs to body/casting, not routing.
+(b) Crown overhang (profile/back excess 29-37 px): tubes trace the
+hull outline, and the hull outline IS the excess (hull0c union
+excess p95 34.7/24.7 vs tubes 36.4/29.0; poke-region split only
+covers 55 px — the rind overhang contiguous with the poke carries
+the rest, per hull0c shellOther: 87-98% connected to poke). Any
+hull-respecting crown coverage reproduces it.
+(c) Crown-tangent literal band: dome-lay geometry (above), plus
+residual corner-cutting (azim 0.47 vs guides0 0.58; w_curve 16
+moved fall-zone azim to 0.22-0.26 but the lay zone still circles).
+
+STEP 4 — export: E/guides.npz (359 curves_head 41-pt head-mm,
+tube_r 3.0, spec sha, verdict), E/guides.png (Workbench thin tubes
+on Aisha, topper excluded at render: REMOVED_TOPPERS
+[blunt_bob_with_bangs], front/profile_90/back/three_quarter),
+E/blender-opened.txt, this RESULT.txt, E/DONE.txt.
+
+SAW::guides.png front: centre part, curtains frame the face and fall
+past the shoulders, no crown rings (contrast guides0); profile:
+coherent diagonal flow lines with mild voxel staircase, curtain +
+back sheet read; back: full occiput sheet, no centre gap, ends
+mid-back; three_quarter: coherent lay over the dome into the fall.
+SAW::overlay (diagnostic /tmp/overlay.png, not shipped): green mass
+covers dome + back + inner curtains; blue = outer/front curtain +
+front hem (shortfall a) + interior comb streaks (sparsity);
+amber = crown cap overhang (b) + thin rind edge.
+
+NOT TESTED: physical Quest 3 / worn-headset evidence; clinical
+validity, licensure, or scoring claims; 3/4-camera scoring (no reg3qb
+target in this worktree); strands/material/lighting (guide tubes
+only); whether 359 guides at 12 mm suffice for interpolation (comb
+streaks in discrete-tube scoring); the mirrored body-depth
+approximation beyond ~mm asymmetry; profile posterior-rim grazing
+stretch beyond the rind.
+
+VERDICT: MODEL_INADEQUATE. Routing-quality gates all pass
+(0 unreachable, boundary 0.066, 0 part crossings, occiput gap 6 mm,
+face guards 0, fall-zone flow 0.35 vs guides0 0.51 with no rings);
+the guides do not reproduce the target silhouette within
+p95 <= 24 / p50 <= 12 in 5 region(s) (front curtains + hem,
+profile hem, profile/back crown) for the measured hull/body reasons
+(a)(b) above, and the literal crown-band tangent gate fails on
+dome-lay geometry (c). Next card owns: shoulder-mismatch casting
+(body/curve), crown-overhang disposition (hull it is), and
+interpolation-aware scoring (comb vs coverage).
+(End of file)

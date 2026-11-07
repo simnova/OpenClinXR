@@ -1,0 +1,79 @@
+HAIR GEO 7 — DIRECTION FIELD AND FRAME-TRANSPORT CHILDREN
+
+Material for all scores: hair-look7 best-params.json (roughness 0.395).
+Scorer: hair-score/score.py schema v2 (IoU + Gabor orientation err/EMD + bands).
+
+STEP 1 — WHERE (where.json; current groom = real1/a1 rendered with look7
+material; slant s>0 = strand top toward image +x; profile/3q image-left =
+face-front; back image-left = subject-left):
+- The dominant error is HIGH-FREQUENCY, not global bias: per-cell mean|diff|
+  21-55 deg while signed means are often <10 deg. Strand-level direction
+  differs; regional means mostly cancel.
+- Systematic regional biases on the current groom (conf-weighted signed):
+  profile rows 1-4 mid/back ours 11-28 deg too far FORWARD (toward face;
+  e.g. row4_back ours -33.9 vs target -19.6); three_quarter hem rows 4-5
+  ours 14-15 deg too front-leaning (row4_mid ours -36.7 vs tgt -7.7);
+  back rows 1-3 symmetric outward splay (left +6..+11, right -7..-13:
+  ours splays outward, target flows central/vertical). Front: small (<8).
+- Guide 3D tangents per height band (guides16): crown 55.6 deg from
+  vertical; mid bands 21-23 deg with 19-23 deg backward slant; hem band
+  16 deg near-vertical (slant-back 3 deg).
+
+STEP 2 — CHANGE A (children only, guides untouched; re-implementation of
+r2.txt Q6: parallel-transport loft per guide + inverse-distance blend of
+K same-side nearest guides, curtain children among curtain guides; per-
+strand length restore about the root; tip fade to pure guide average over
+u 0.6-1.0; existing strict end clamp; existing collider audit):
+- a_k3 gates: inside 0; end p95 0.14 deg; part gap 1.10 mm. PASS.
+- a_k5 gates: inside 0; end p95 0.09 deg; part gap 1.10 mm. PASS.
+- Note: guides themselves have splayed tips (end p95 31.7 deg); the raw
+  transport loft inherited that (p95 24 deg) until the existing strict end
+  clamp was applied. Post-repair ends are hyper-vertical (p95 ~0.1).
+
+STEP 3 — CHANGE B (guide-level; rule: rear guides with root y>=apex_y get
+sub-ear backward sweep dy=tan(8deg)*(earz-z), 20 mm smoothstep ramp below
+the ear-lobe line, 12 mm cap, roots fixed; guides_b1.npz stored in b1):
+- Target angle from STEP 1: profile row4_back residual +14 deg (target
+  -19.6 vs ours -33.9; k5 residual still +14.5); B applies half (+8) to
+  protect IoU. Children = better-of-A method (K=5).
+- b1 gates: inside 0; end p95 0.09 deg; part gap 1.10 mm. PASS.
+
+STEP 4 — SCORES (look7 material, all views, crown_top):
+
+cell    | IoU f / p / b              | orient err f / 3q / p / b      | hist EMD f / 3q / p / b
+current | 0.6883 / 0.6810 / 0.7819   | 27.08 / 33.65 / 31.97 / 24.55  | 3.96 / 7.36 / 29.22 / 9.48
+a_k3    | 0.7026 / 0.6825 / 0.7599   | 25.89 / 36.20 / 33.42 / 26.10  | 4.15 / 9.97 / 28.08 / 10.86
+a_k5    | 0.7014 / 0.6833 / 0.7538   | 26.51 / 35.79 / 33.45 / 23.84  | 4.60 / 10.13 / 28.22 / 8.59
+b1      | 0.7013 / 0.6628 / 0.7544   | 26.83 / 35.06 / 33.55 / 23.34  | 4.30 / 9.68 / 28.29 / 8.30
+
+bands back crop (ours vs TS 849 x 16.4 px): current 353x41.1; a_k3 353x41.7;
+a_k5 435x32.7; b1 543x27.4 (count/area move toward TS with K and with B).
+bands ear (ours vs TS 89 x 11.7 px): current 127x6.7; a_k3 85x12.9;
+a_k5 93x11.6; b1 94x11.4.
+
+KEPT/REVERTED (rule: lower orient err in >=2 views, no IoU drop > 0.01):
+- a_k3 REVERTED: only front improves (-1.19); 3q/profile/back worse
+  (+2.55/+1.45/+1.55); back IoU -0.0220.
+- a_k5 REVERTED: front (-0.57) and back (-0.71) improve, but back IoU
+  -0.0281 exceeds the bar; 3q/profile worse (+2.14/+1.48). Best cell for
+  the sheet (most views improved + closest bands).
+- b1 REVERTED: only back improves (-1.21); profile IoU -0.0182 and back
+  IoU -0.0275 fail the bar; the +8 deg rear sweep moved the profile
+  silhouette too far.
+- CURRENT KEPT by default (no change meets the keep rule).
+
+Post-A grid (where_k5.json): back-view bias largely gone (signed <=5 deg,
+abs down); but profile mid rows 3-4 (signed -30/-27) and 3q hem-mid
+(signed -31/-29, ours slant -46..-69 deg) lean harder forward than the
+current groom — transported mid-shaft offsets overshoot in side views.
+
+SAW::Against TS, the first wrong read is still the back curtain: thick
+smooth vertical bands (543 x 27 px at best vs TS 849 x 16 px) with sparse
+spikes below a blunt cut, vs TS fine dense fibre and a soft irregular hem;
+second is the side-view lower drape sweeping forward (profile mid/hem,
+3q hem-mid) while TS falls more vertically behind the ear. Frame transport
+fixed the back splay and tucked the side wings, but traded it for
+over-forward mid-shaft lean in side views and a narrower back silhouette.
+
+NOT TESTED::Physical Quest 3 / worn-headset evidence; clinical validity/
+scoring claims (out of scope per repo guardrails).

@@ -1,0 +1,80 @@
+{
+  "bins": {
+    "-120..-90": {
+      "endZmmMean": 1366.9,
+      "n": 29,
+      "vsChinMm": -82.4,
+      "vsShoulderMm": -38.1
+    },
+    "-150..-120": {
+      "endZmmMean": 1352.1,
+      "n": 52,
+      "vsChinMm": -97.2,
+      "vsShoulderMm": -52.9
+    },
+    "-180..-150": {
+      "endZmmMean": 1336.2,
+      "n": 48,
+      "vsChinMm": -113.1,
+      "vsShoulderMm": -68.8
+    },
+    "-30..0": {
+      "endZmmMean": 1377.9,
+      "n": 20,
+      "vsChinMm": -71.3,
+      "vsShoulderMm": -27.1
+    },
+    "-60..-30": {
+      "endZmmMean": 1378.2,
+      "n": 24,
+      "vsChinMm": -71.1,
+      "vsShoulderMm": -26.8
+    },
+    "-90..-60": {
+      "endZmmMean": 1375.8,
+      "n": 39,
+      "vsChinMm": -73.5,
+      "vsShoulderMm": -29.2
+    },
+    "0..30": {
+      "endZmmMean": 1377.6,
+      "n": 21,
+      "vsChinMm": -71.6,
+      "vsShoulderMm": -27.4
+    },
+    "120..150": {
+      "endZmmMean": 1351.2,
+      "n": 47,
+      "vsChinMm": -98.0,
+      "vsShoulderMm": -53.8
+    },
+    "150..180": {
+      "endZmmMean": 1336.2,
+      "n": 51,
+      "vsChinMm": -113.1,
+      "vsShoulderMm": -68.8
+    },
+    "30..60": {
+      "endZmmMean": 1377.3,
+      "n": 24,
+      "vsChinMm": -72.0,
+      "vsShoulderMm": -27.7
+    },
+    "60..90": {
+      "endZmmMean": 1375.1,
+      "n": 33,
+      "vsChinMm": -74.2,
+      "vsShoulderMm": -29.9
+    },
+    "90..120": {
+      "endZmmMean": 1366.1,
+      "n": 35,
+      "vsChinMm": -83.1,
+      "vsShoulderMm": -38.9
+    }
+  },
+  "chinZmm": 1449.3,
+  "crownZmm": 1659.9,
+  "endDropC0mm": 283.1,
+  "shoulderZm": 1405.0
+}

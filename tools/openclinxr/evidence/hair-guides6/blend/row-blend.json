@@ -1,0 +1,717 @@
+{
+  "schemaVersion": 1,
+  "slice": "hair-blend-1",
+  "guides": "tools/openclinxr/evidence/hair-guides2/guides3.npz",
+  "cap": "tools/openclinxr/evidence/hair-flow/cap-v4.npz",
+  "method": "M1 poisson-disk roots on cap; M2 per-side hand Delaunay (cylindrical chart attempts) + barycentric, same-side only everywhere (part rule holds front and back); M3 world-space blend + 30mm root-fade; M4 seeded jitter<=0.6mm + tip [0.97,1.00] resampled to 32; M5 one Curves object + real Set Hair Curve Profile, Shrinkwrap kept iff fewer inside without damage",
+  "prismDefinition": "G6 distance: pass if the projection falls inside same-index triangle_j, inside the previous triangle_{j-1}'s infinite prism (j>=1), or within 2 mm of triangle_j. The previous-prism reading keeps the M4-mandated tip position (up to 9 mm behind its cross-section along the strand, laterally inside the swept bundle) from counting against lateral containment (no lanes / no halo)",
+  "passes": {
+    "A": {
+      "tag": "A",
+      "requested": 2000,
+      "evaluatedCurveCount": 2000,
+      "pointsPerCurve": 32,
+      "nanCount": 0,
+      "sha256": "4fb94b18ecb2aac07b0afe97d958bcca9275be4ade5db942d48c765d97766035",
+      "sha256_twice_equal": true,
+      "crossings": 0,
+      "nearSlitPoints": 1,
+      "rootToCapMm": {
+        "mean": 2.991245033420537,
+        "max": 3.0001324574024553,
+        "sample": 2000
+      },
+      "rootDensityCV": 0.2834282868275793,
+      "cvInfo": {
+        "patches": 633,
+        "meanCount": 3.1595576619273302,
+        "minCount": 1,
+        "maxCount": 6,
+        "meanPatchCm2": 0.9996099765528689
+      },
+      "hullFrac": 0.991453125,
+      "hullSeconds": 0.019758000002184417,
+      "g5": {
+        "insideBodyFrac": 0.41996875,
+        "insideBodyGatedFrac": 0.157421875,
+        "insideShirtFrac": 0.107578125,
+        "insideHeadFrac": 0.03115625,
+        "guideInsideBodyFrac": 0.40184563758389263,
+        "guideInsideShirtFrac": 0.07482172818791946,
+        "guideInsideHeadFrac": 0.007340604026845637,
+        "excludedShare": 0.299015625
+      },
+      "wrap": {
+        "insideBodyFrac": 0.213953125,
+        "insideShirtFrac": 0.064140625,
+        "dispMm": {
+          "p50": 4.606558840839664e-05,
+          "p95": 22.954623998776682,
+          "max": 63.30789822828667
+        }
+      },
+      "kept": "raw",
+      "radiusMinMax": {
+        "min": 0.00039999998989515007,
+        "max": 0.00039999998989515007
+      },
+      "tipAttempts": [
+        {
+          "radius": 0.0004,
+          "shape": 0.0,
+          "factorMin": 0.0,
+          "minmax": {
+            "min": 0.00039999998989515007,
+            "max": 0.00039999998989515007
+          }
+        }
+      ],
+      "profileReadbackKeys": [
+        "Density",
+        "Factor Max",
+        "Factor Min",
+        "Length",
+        "Radius",
+        "Replace Radius",
+        "Shape"
+      ],
+      "evalDiffMax": 5.960450111253124e-08,
+      "generatorSeconds": 1.760684125001717,
+      "generatorMeta": {
+        "poisson": {
+          "method": "best-candidate",
+          "k": 32,
+          "r0mm": 6.044172245783751,
+          "capAreaCm2": 632.753115157966
+        },
+        "fallback_all": false,
+        "fallback_count": 125,
+        "attempts": {
+          "True": {
+            "kind": "pca",
+            "tris": 562,
+            "fails": [
+              "pca p95=25.3mm",
+              "cyl p95=116.5mm",
+              "yz p95=27.9mm",
+              "kept pca p95=25.3mm"
+            ]
+          },
+          "False": {
+            "kind": "pca",
+            "tris": 576,
+            "fails": [
+              "pca p95=24.1mm",
+              "cyl p95=106.7mm",
+              "yz p95=29.7mm",
+              "kept pca p95=24.1mm"
+            ]
+          }
+        },
+        "tipFactorMean": 0.9850504652422287,
+        "seconds_locate": 0.035547834006138146
+      },
+      "lanes": {
+        "showTotal": 0.4697160002791152,
+        "partBandShow": 0.050354127416090994,
+        "showRest": 0.41936187286302423,
+        "gutters": 7,
+        "pxPerM": 2642.88330078125,
+        "bandWidthPx": 32
+      },
+      "renders": {
+        "front": {
+          "png": "tools/openclinxr/evidence/hair-guides6/blend/passA/front.png",
+          "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA/front-id.png"
+        },
+        "three_quarter": {
+          "png": "tools/openclinxr/evidence/hair-guides6/blend/passA/three_quarter.png",
+          "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA/three_quarter-id.png"
+        },
+        "profile_90": {
+          "png": "tools/openclinxr/evidence/hair-guides6/blend/passA/profile_90.png",
+          "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA/profile_90-id.png"
+        },
+        "back": {
+          "png": "tools/openclinxr/evidence/hair-guides6/blend/passA/back.png",
+          "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA/back-id.png"
+        },
+        "crown_top": {
+          "png": "tools/openclinxr/evidence/hair-guides6/blend/passA/crown_top.png",
+          "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA/crown_top-id.png"
+        },
+        "altVariant": "shrinkwrap",
+        "alt": {
+          "front": {
+            "png": "tools/openclinxr/evidence/hair-guides6/blend/passA-alt/front.png",
+            "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA-alt/front-id.png"
+          },
+          "crown_top": {
+            "png": "tools/openclinxr/evidence/hair-guides6/blend/passA-alt/crown_top.png",
+            "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA-alt/crown_top-id.png"
+          }
+        }
+      },
+      "silhouette": "tools/openclinxr/evidence/hair-guides6/blend/cap-silhouette-A.png",
+      "visible": [
+        "Human",
+        "OCLX_Aisha_head",
+        "OCLX_blend_A",
+        "OCLX_cam",
+        "OCLX_fill",
+        "OCLX_key",
+        "OCLX_rim",
+        "makeclothes_library_female_tight_jeans_pants",
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+        "makeclothes_library_toigo_t_shirt",
+        "mpfb_parent_tara_johnson_v1_body_mesh",
+        "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+        "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+        "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+        "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+      ],
+      "capInfo": {
+        "apexY": -0.053241077810525894,
+        "stripVertexCount": 604,
+        "solidVertexCount": 31070,
+        "uvMissingCount": 0,
+        "uvRule": "nearest head face, barycentric (fan tri for quads)",
+        "splitIslands": true,
+        "islandCount": 2,
+        "islandSizes": [
+          15837,
+          15837
+        ]
+      },
+      "radius": 0.0004,
+      "crownZ": 1.6599169969558716,
+      "apexY": -0.053241077810525894,
+      "wallSeconds": 132.76015466699755
+    },
+    "B": {
+      "tag": "B",
+      "requested": 50000,
+      "evaluatedCurveCount": 50000,
+      "pointsPerCurve": 32,
+      "nanCount": 0,
+      "sha256": "7440cc58952d615ed57d26de0a58e1104cd0a83ef7eb270e85d2b185138ba92a",
+      "sha256_twice_equal": true,
+      "crossings": 0,
+      "nearSlitPoints": 5,
+      "rootToCapMm": {
+        "mean": 2.9884123080964904,
+        "max": 3.000137028355421,
+        "sample": 5000
+      },
+      "rootDensityCV": 0.05086852877732587,
+      "cvInfo": {
+        "patches": 633,
+        "meanCount": 78.98894154818325,
+        "minCount": 15,
+        "maxCount": 133,
+        "meanPatchCm2": 0.9996099765528689
+      },
+      "hullFrac": 0.99171875,
+      "hullSeconds": 0.5010940829961328,
+      "g5": {
+        "insideBodyFrac": 0.4195425,
+        "insideBodyGatedFrac": 0.1561125,
+        "insideShirtFrac": 0.106629375,
+        "insideHeadFrac": 0.031739375,
+        "guideInsideBodyFrac": 0.40184563758389263,
+        "guideInsideShirtFrac": 0.07482172818791946,
+        "guideInsideHeadFrac": 0.007340604026845637,
+        "excludedShare": 0.299040625
+      },
+      "wrap": {
+        "insideBodyFrac": 0.21315125,
+        "insideShirtFrac": 0.0638,
+        "dispMm": {
+          "p50": 4.605400936648339e-05,
+          "p95": 23.133472425248137,
+          "max": 80.29375337109427
+        }
+      },
+      "kept": "raw",
+      "radiusMinMax": {
+        "min": 4.999999873689376e-05,
+        "max": 4.999999873689376e-05
+      },
+      "tipAttempts": [
+        {
+          "radius": 5e-05,
+          "shape": 0.0,
+          "factorMin": 0.0,
+          "minmax": {
+            "min": 4.999999873689376e-05,
+            "max": 4.999999873689376e-05
+          }
+        }
+      ],
+      "profileReadbackKeys": [
+        "Density",
+        "Factor Max",
+        "Factor Min",
+        "Length",
+        "Radius",
+        "Replace Radius",
+        "Shape"
+      ],
+      "evalDiffMax": 5.960463633769564e-08,
+      "generatorSeconds": 22.298684125002183,
+      "generatorMeta": {
+        "poisson": {
+          "method": "best-candidate",
+          "k": 32,
+          "r0mm": 1.2088344491567504,
+          "capAreaCm2": 632.753115157966
+        },
+        "fallback_all": false,
+        "fallback_count": 2895,
+        "attempts": {
+          "True": {
+            "kind": "pca",
+            "tris": 562,
+            "fails": [
+              "pca p95=25.3mm",
+              "cyl p95=116.5mm",
+              "yz p95=27.9mm",
+              "kept pca p95=25.3mm"
+            ]
+          },
+          "False": {
+            "kind": "pca",
+            "tris": 576,
+            "fails": [
+              "pca p95=24.1mm",
+              "cyl p95=106.7mm",
+              "yz p95=29.7mm",
+              "kept pca p95=24.1mm"
+            ]
+          }
+        },
+        "tipFactorMean": 0.9849606219419482,
+        "seconds_locate": 0.7959751250018599
+      },
+      "lanes": {
+        "showTotal": 0.15264984997557743,
+        "partBandShow": 0.045504500732677415,
+        "showRest": 0.1071453492429,
+        "gutters": 3,
+        "pxPerM": 2642.88330078125,
+        "bandWidthPx": 32
+      },
+      "renders": {
+        "front": {
+          "png": "tools/openclinxr/evidence/hair-guides6/blend/passB/front.png",
+          "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passB/front-id.png"
+        },
+        "three_quarter": {
+          "png": "tools/openclinxr/evidence/hair-guides6/blend/passB/three_quarter.png",
+          "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passB/three_quarter-id.png"
+        },
+        "profile_90": {
+          "png": "tools/openclinxr/evidence/hair-guides6/blend/passB/profile_90.png",
+          "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passB/profile_90-id.png"
+        },
+        "back": {
+          "png": "tools/openclinxr/evidence/hair-guides6/blend/passB/back.png",
+          "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passB/back-id.png"
+        },
+        "crown_top": {
+          "png": "tools/openclinxr/evidence/hair-guides6/blend/passB/crown_top.png",
+          "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passB/crown_top-id.png"
+        },
+        "altVariant": "shrinkwrap",
+        "alt": {
+          "front": {
+            "png": "tools/openclinxr/evidence/hair-guides6/blend/passB-alt/front.png",
+            "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passB-alt/front-id.png"
+          },
+          "crown_top": {
+            "png": "tools/openclinxr/evidence/hair-guides6/blend/passB-alt/crown_top.png",
+            "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passB-alt/crown_top-id.png"
+          }
+        }
+      },
+      "silhouette": "tools/openclinxr/evidence/hair-guides6/blend/cap-silhouette-B.png",
+      "visible": [
+        "Human",
+        "OCLX_Aisha_head",
+        "OCLX_blend_B",
+        "OCLX_cam",
+        "OCLX_fill",
+        "OCLX_key",
+        "OCLX_rim",
+        "makeclothes_library_female_tight_jeans_pants",
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+        "makeclothes_library_toigo_t_shirt",
+        "mpfb_parent_tara_johnson_v1_body_mesh",
+        "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+        "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+        "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+        "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+      ],
+      "capInfo": {
+        "apexY": -0.053241077810525894,
+        "stripVertexCount": 604,
+        "solidVertexCount": 31070,
+        "uvMissingCount": 0,
+        "uvRule": "nearest head face, barycentric (fan tri for quads)",
+        "splitIslands": true,
+        "islandCount": 2,
+        "islandSizes": [
+          15837,
+          15837
+        ]
+      },
+      "radius": 5e-05,
+      "crownZ": 1.6599169969558716,
+      "apexY": -0.053241077810525894,
+      "wallSeconds": 282.9001322920012
+    }
+  },
+  "judge": {
+    "name": "blend-passB",
+    "mask_encoding": "alpha>=0.9",
+    "target_mask_encoding": "white",
+    "landmarks_mode": "skull",
+    "landmarks_render": {
+      "crown_top_row": 103.0,
+      "chin_row": 583.0,
+      "face_centre_col": 512.0
+    },
+    "landmarks_target": {
+      "crown_top_row": 149.78562352551046,
+      "chin_row": 607.0,
+      "face_centre_col": 514.0
+    },
+    "landmarks_target_hair": {
+      "crown_top_row": 127.0,
+      "chin_row": 607.0,
+      "face_centre_col": 514.0
+    },
+    "landmarks_derived": false,
+    "H_target": 457.21437647448954,
+    "stopbar_provenance": "orchestrator proposal 2026-10-12, tunable",
+    "score_formula": "(1-IoU) + width_rms + |below_chin_ours - below_chin_target| + |ln(p50_ours/p50_target)|/2 + |ln(RB_ours/RB_target)|/2",
+    "photometrics_render": {
+      "p10": 0.06829803921568627,
+      "p50": 0.1483450980392157,
+      "p90": 0.31615450980392157,
+      "meanR": 0.22039318844728475,
+      "meanB": 0.14904387586943235,
+      "RB": 1.4787134805884738,
+      "meanRminusB": 0.07134931257785239
+    },
+    "photometrics_target": {
+      "p10": 0.03942666666666666,
+      "p50": 0.08425176470588235,
+      "p90": 0.16820470588235292,
+      "meanR": 0.11843644653500748,
+      "meanB": 0.07728496023173957,
+      "RB": 1.5324643524415986,
+      "meanRminusB": 0.041151486303267905
+    },
+    "contaminated": false,
+    "landmarks_auto": {
+      "crown_top_row": 88.0,
+      "chin_row": 715.0,
+      "face_centre_col": 515.0
+    },
+    "target_hair_offset_mm": 10.0,
+    "target_hair_offset_px": 22.785623525510474,
+    "target_skull_assumption": "target skull height assumed = canonical 210.7 mm (measured chin_z-crown_z); target px/mm = 2.2786 from chin-crown 480 px; 10 mm -> 22.79 px; skull crown 149.79",
+    "registered": true,
+    "transform": {
+      "scale": 0.9525299509885199,
+      "tx": 26.304665093877816,
+      "ty": 51.675038573692916
+    },
+    "iou": 0.6218346830956758,
+    "width_profile": [
+      {
+        "frac": 0.2,
+        "row": 241,
+        "target_left": 88,
+        "target_right": 149,
+        "ours_left": 146,
+        "ours_right": 145,
+        "rel_err_left": 0.6590909090909091,
+        "rel_err_right": -0.026845637583892617
+      },
+      {
+        "frac": 0.4,
+        "row": 333,
+        "target_left": 134,
+        "target_right": 177,
+        "ours_left": 156,
+        "ours_right": 170,
+        "rel_err_left": 0.16417910447761194,
+        "rel_err_right": -0.03954802259887006
+      },
+      {
+        "frac": 0.6,
+        "row": 424,
+        "target_left": 188,
+        "target_right": 191,
+        "ours_left": 162,
+        "ours_right": 194,
+        "rel_err_left": -0.13829787234042554,
+        "rel_err_right": 0.015706806282722512
+      },
+      {
+        "frac": 0.8,
+        "row": 516,
+        "target_left": 190,
+        "target_right": 201,
+        "ours_left": 144,
+        "ours_right": 197,
+        "rel_err_left": -0.24210526315789474,
+        "rel_err_right": -0.01990049751243781
+      },
+      {
+        "frac": 1.0,
+        "row": 607,
+        "target_left": 194,
+        "target_right": 209,
+        "ours_left": 135,
+        "ours_right": 196,
+        "rel_err_left": -0.30412371134020616,
+        "rel_err_right": -0.06220095693779904
+      },
+      {
+        "frac": 1.2,
+        "row": 698,
+        "target_left": 236,
+        "target_right": 251,
+        "ours_left": 215,
+        "ours_right": 210,
+        "rel_err_left": -0.08898305084745763,
+        "rel_err_right": -0.16334661354581673
+      },
+      {
+        "frac": 1.4,
+        "row": 790,
+        "target_left": 244,
+        "target_right": 275,
+        "ours_left": 248,
+        "ours_right": 246,
+        "rel_err_left": 0.01639344262295082,
+        "rel_err_right": -0.10545454545454545
+      },
+      {
+        "frac": 1.6,
+        "row": 881,
+        "target_left": 0,
+        "target_right": 0,
+        "ours_left": 0,
+        "ours_right": 0,
+        "rel_err_left": 0.0,
+        "rel_err_right": 0.0
+      }
+    ],
+    "width_rms": 0.22109694530195653,
+    "openings": {
+      "eye": {
+        "row": 356,
+        "target_px": 226,
+        "ours_px": 200,
+        "target": 0.4942976678525544,
+        "ours": 0.4374315644712871,
+        "rel_err": -0.11504424778761062
+      },
+      "jaw": {
+        "row": 561,
+        "target_px": 160,
+        "ours_px": 177,
+        "target": 0.34994525157702966,
+        "ours": 0.3871269345570891,
+        "rel_err": 0.10625
+      }
+    },
+    "iou_eroded": 0.5365326770576976,
+    "width_rms_eroded": 0.14221219815576677,
+    "width_profile_eroded": [
+      {
+        "frac": 0.2,
+        "row": 241,
+        "target_left": 0,
+        "target_right": 144,
+        "ours_left": 142,
+        "ours_right": 141
+      },
+      {
+        "frac": 0.4,
+        "row": 333,
+        "target_left": 131,
+        "target_right": 174,
+        "ours_left": 153,
+        "ours_right": 165
+      },
+      {
+        "frac": 0.6,
+        "row": 424,
+        "target_left": 183,
+        "target_right": 188,
+        "ours_left": 158,
+        "ours_right": 191
+      },
+      {
+        "frac": 0.8,
+        "row": 516,
+        "target_left": 183,
+        "target_right": 198,
+        "ours_left": 141,
+        "ours_right": 193
+      },
+      {
+        "frac": 1.0,
+        "row": 607,
+        "target_left": 191,
+        "target_right": 206,
+        "ours_left": 129,
+        "ours_right": 192
+      },
+      {
+        "frac": 1.2,
+        "row": 698,
+        "target_left": 231,
+        "target_right": 246,
+        "ours_left": 208,
+        "ours_right": 205
+      },
+      {
+        "frac": 1.4,
+        "row": 790,
+        "target_left": 239,
+        "target_right": 270,
+        "ours_left": 236,
+        "ours_right": 241
+      }
+    ],
+    "eroded_skipped_frac_rows": 1,
+    "show_through": {
+      "fraction": 0.0013662725853223288,
+      "pass": true,
+      "region_px": 35864,
+      "nonhair_px": 49,
+      "brow_row": 333
+    },
+    "standing_hair": {
+      "flag": true,
+      "mask_crown_row": 88,
+      "skull_crown_row": 103.0,
+      "H_ref": 480.0,
+      "excess_px": 15.0,
+      "threshold_px": 14.399999999999999,
+      "skull_source": "given landmarks"
+    },
+    "below_chin_target": 0.5511637712338218,
+    "below_chin_ours": 0.5795968229244554,
+    "below_chin_row_target": 859,
+    "below_chin_row_ours": 872,
+    "below_chin_run_need_px": 20.48,
+    "below_chin_single_target": 0.5511637712338218,
+    "below_chin_single_ours": 0.5883454542138812,
+    "part_target_px": 22,
+    "part_ours_px": 47,
+    "part_row": 177,
+    "clauses": {
+      "iou": false,
+      "width_rms": false,
+      "below_chin": true,
+      "photo": false,
+      "rb": true,
+      "opening_eye": true,
+      "opening_jaw": true,
+      "iou_eroded": false,
+      "width_rms_eroded": false,
+      "show_through": true,
+      "no_standing_hair": false
+    },
+    "overall": false,
+    "overall_v2": false,
+    "score": 0.9284135516663753
+  },
+  "judgeBaseline": {
+    "iou": 0.5298618966674934,
+    "iou_eroded": 0.4344751124991848,
+    "width_rms": 0.21771395399779908,
+    "width_rms_eroded": 0.3093877679805754,
+    "below_chin_ours": 0.5883454542138812,
+    "below_chin_target": 0.5511637712338218,
+    "part_ours_px": 79,
+    "part_target_px": 22,
+    "show_through": {
+      "brow_row": 333,
+      "fraction": 0.007830444769262894,
+      "nonhair_px": 225,
+      "pass": true,
+      "region_px": 28734
+    },
+    "standing_hair": {
+      "H_ref": 480.0,
+      "excess_px": 7.0,
+      "flag": false,
+      "mask_crown_row": 96,
+      "skull_crown_row": 103.0,
+      "skull_source": "given landmarks",
+      "threshold_px": 14.399999999999999
+    },
+    "photometrics_render": {
+      "RB": 1.535743016496926,
+      "meanB": 0.14673908150103127,
+      "meanR": 0.225353519662382,
+      "meanRminusB": 0.07861443816135077,
+      "p10": 0.058787450980392154,
+      "p50": 0.15679058823529413,
+      "p90": 0.31729176470588233
+    }
+  },
+  "gates": {
+    "G1": {
+      "measured": "7440cc58952d615e x2 equal=True | A:PASS",
+      "bar": "two runs same sha256",
+      "status": "PASS"
+    },
+    "G2": {
+      "measured": "n=50000 req=50000 ppc=32 nan=0 | A n=2000",
+      "bar": "within 2%, 32 pts, 0 NaN",
+      "status": "PASS"
+    },
+    "G3": {
+      "measured": "crossings=0 nearSlit=5",
+      "bar": "0",
+      "status": "PASS"
+    },
+    "G4": {
+      "measured": "rootCapMean=2.99mm cv=0.051",
+      "bar": "mean in [2.5,3.5], CV<=0.30",
+      "status": "PASS"
+    },
+    "G5": {
+      "measured": "gated=0.1561 raw=0.4195 excluded=0.2990",
+      "bar": "gated<=0.03",
+      "status": "MISS"
+    },
+    "G6": {
+      "measured": "hull=0.9917",
+      "bar": ">=0.99",
+      "status": "PASS"
+    },
+    "G7": {
+      "measured": "showRest=0.1071 gutters=3 (partBand=0.0455 total=0.1526)",
+      "bar": "show<=0.15 and gutters<=3",
+      "status": "PASS"
+    }
+  },
+  "X": {
+    "generatorSeconds50k": 22.298684125002183,
+    "topShowTotal": 0.15264984997557743,
+    "topPartBandShow": 0.045504500732677415,
+    "judgePartPx": 47
+  }
+}

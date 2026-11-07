@@ -1,0 +1,20 @@
+{
+ "corners": {
+  "xpos": {
+   "x": 0.04440419003367424,
+   "y": -0.13646046817302704,
+   "z": 1.5545985698699951,
+   "obj": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+  },
+  "xneg": {
+   "x": -0.0444040484726429,
+   "y": -0.1364610344171524,
+   "z": 1.554598093032837,
+   "obj": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+  }
+ },
+ "facePlaneY": -0.13646075129508972,
+ "jawZ": 1.445,
+ "body": "mpfb_parent_tara_johnson_v1_body",
+ "eyeYmean": -0.13646075129508972
+}

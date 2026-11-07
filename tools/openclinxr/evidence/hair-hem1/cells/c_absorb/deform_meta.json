@@ -1,0 +1,9 @@
+{
+  "tag": "c_absorb",
+  "base": "hair-hem1/base/strands.npz",
+  "deform": {
+    "cell": "absorb",
+    "railFibres": 10604,
+    "rule": "rail arc15..31 follows nearest sheet-guide lower path, anchored at own arc15, blend 0.33/0.66 then full; mid-length untouched"
+  }
+}

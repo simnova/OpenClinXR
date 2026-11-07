@@ -1,0 +1,1011 @@
+{
+  "schemaVersion": 1,
+  "ok": true,
+  "claim": "PASS",
+  "error": "",
+  "blenderVersion": "5.1.1",
+  "assetBlend": "/Applications/Blender.app/Contents/Resources/5.1/datafiles/assets/nodes/procedural_hair_node_assets.blend",
+  "canonicalSceneModule": "tools/openclinxr/evidence/hair-scene/hair_scene.py",
+  "distanceMethod": "hair_scene.surface_distance; BVH true signed nearest-surface distance; not vertex-only",
+  "surfaceUvMap": "UVMap",
+  "scalpMask": {
+    "vertexGroup": "OCLX_interp_scalp_mask",
+    "insideVertexCount": 3203,
+    "outsideVertexCount": 12746,
+    "weightedAreaM2": 0.10984471795191371,
+    "hairlineZWorld": 0.9880224871635437,
+    "frontThresholdYWorld": -0.10010491856417451,
+    "headCenterXWorld": 0.0,
+    "apexYWorld": -0.05754147842526436,
+    "partHalfWidthM": 0.0015,
+    "frontYMarginM": 0.02,
+    "rule": "weight 1 on the crown-connected mesh island above the hairline; weight 0 on lower vertices and every disconnected island",
+    "crownConnectedComponentVertexCount": 3203
+  },
+  "guideDefinition": {
+    "curveCount": 5,
+    "pointsPerCurve": 24,
+    "lengthM": 0.25,
+    "initialNormalClearanceM": 0.003,
+    "direction": "world gravity"
+  },
+  "nodeGroupInputs": {
+    "Attach Hair Curves to Surface": [
+      {
+        "name": "Geometry",
+        "identifier": "Output_1",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Surface UV Coordinate",
+        "identifier": "Output_9",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketVector",
+        "default": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Surface Normal",
+        "identifier": "Output_11",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketVector",
+        "default": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Geometry",
+        "identifier": "Input_0",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Surface Input Type",
+        "identifier": "Socket_0",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketMenu",
+        "default": "Object"
+      },
+      {
+        "name": "Surface",
+        "identifier": "Input_3",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Surface",
+        "identifier": "Input_4",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketObject",
+        "default": null
+      },
+      {
+        "name": "Surface UV Map",
+        "identifier": "Input_2",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketVector",
+        "default": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Surface Rest Position",
+        "identifier": "Input_6",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": false
+      },
+      {
+        "name": "Sample Attachment UV",
+        "identifier": "Input_10",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": true
+      },
+      {
+        "name": "Snap to Surface",
+        "identifier": "Input_8",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": true
+      },
+      {
+        "name": "Align to Surface Normal",
+        "identifier": "Input_7",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": true
+      },
+      {
+        "name": "Blend along Curve",
+        "identifier": "Input_12",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketFloat",
+        "default": 0.0
+      }
+    ],
+    "Interpolate Hair Curves": [
+      {
+        "name": "Geometry",
+        "identifier": "Output_1",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Guide Index",
+        "identifier": "Output_6",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketInt",
+        "default": 0
+      },
+      {
+        "name": "Surface Normal",
+        "identifier": "Output_25",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketVector",
+        "default": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Geometry",
+        "identifier": "Input_0",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Surface Input Type",
+        "identifier": "Socket_0",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketMenu",
+        "default": "Object"
+      },
+      {
+        "name": "Surface",
+        "identifier": "Input_23",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Surface",
+        "identifier": "Input_2",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketObject",
+        "default": null
+      },
+      {
+        "name": "Surface UV Map",
+        "identifier": "Input_18",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketVector",
+        "default": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Surface Rest Position",
+        "identifier": "Input_12",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": false
+      },
+      {
+        "name": "Follow Surface Normal",
+        "identifier": "Input_24",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": false
+      },
+      {
+        "name": "Part by Mesh Islands",
+        "identifier": "Input_26",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": true
+      },
+      {
+        "name": "Interpolation Guides",
+        "identifier": "Input_10",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketInt",
+        "default": 4
+      },
+      {
+        "name": "Distance to Guides",
+        "identifier": "Input_28",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketFloat",
+        "default": 0.0
+      },
+      {
+        "name": "Distribution Method",
+        "identifier": "Socket_2",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketMenu",
+        "default": "Random"
+      },
+      {
+        "name": "Density",
+        "identifier": "Input_15",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketFloat",
+        "default": 10.0
+      },
+      {
+        "name": "Density Mask",
+        "identifier": "Input_14",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketFloat",
+        "default": 1.0
+      },
+      {
+        "name": "Mask Texture",
+        "identifier": "Input_19",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketImage",
+        "default": null
+      },
+      {
+        "name": "Viewport Amount",
+        "identifier": "Input_17",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketFloat",
+        "default": 1.0
+      },
+      {
+        "name": "Seed",
+        "identifier": "Input_16",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketInt",
+        "default": 0
+      }
+    ]
+  },
+  "renderSettings": {
+    "size": 384,
+    "samples": 16,
+    "views": [
+      "crown_top",
+      "front"
+    ],
+    "hairOnlyMasks": true
+  },
+  "barsProvenance": "Fable consult round 2, 2026-10-12; tunable",
+  "passBars": {
+    "p3EvaluatedCountOver1000": true,
+    "p3EveryCurveHas24Points": true,
+    "p3NoRootFartherThan2mm": true,
+    "p3ZeroRootsOutsideMask": true,
+    "p5FailureReproduced": true
+  },
+  "p5Explanation": "P5 omitted Attach Hair Curves to Surface (the missing precondition), but did not reproduce mixed topology; the earlier one-point curves came from mask-positive disconnected mesh islands with no guides, as the bisect demonstrates.",
+  "bisect": {
+    "requestedDimensions": [
+      "surface UV map missing",
+      "Surface Rest Position on/off",
+      "Surface input type Attached/Object/Input",
+      "guide point count 24/61/16"
+    ],
+    "installedSurfaceMenuItems": [
+      "Object",
+      "Geometry"
+    ],
+    "unavailableInInstalledAsset": [
+      "The Blender 5.1.1 asset exposes Object and Geometry, not separate Attached/Object/Input items."
+    ],
+    "results": [
+      {
+        "id": "B0",
+        "label": "baseline attached; UV present; rest off; Object; 24 points",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "24": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 24
+      },
+      {
+        "id": "B1",
+        "label": "surface UV map missing",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "24": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 24
+      },
+      {
+        "id": "B2",
+        "label": "Surface Rest Position on",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "24": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 24
+      },
+      {
+        "id": "B3",
+        "label": "Surface input type Geometry (installed asset's Input equivalent)",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "24": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 24
+      },
+      {
+        "id": "B4",
+        "label": "guide point count 61",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "61": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 61
+      },
+      {
+        "id": "B5",
+        "label": "guide point count 16",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "16": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 16
+      },
+      {
+        "id": "B6",
+        "label": "height-only mask across all mesh islands",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 15288,
+        "pointsPerCurveHistogram": {
+          "1": 12918,
+          "24": 2370
+        },
+        "uniformAtGuidePointCount": false,
+        "pointCount": 24
+      },
+      {
+        "id": "B7",
+        "label": "height-only mask across all islands; Part by Mesh Islands off",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 15288,
+        "pointsPerCurveHistogram": {
+          "24": 15288
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 24
+      }
+    ],
+    "finding": "The mixed topology is caused by Part by Mesh Islands distributing one-point curves onto mask-positive disconnected mesh islands that have no guides. Restricting the vertex mask to the crown-connected component fixes P3; turning Part by Mesh Islands off also fixes the deliberately broad-mask reproduction."
+  },
+  "cells": [
+    {
+      "id": "P3",
+      "label": "density 20000; islands on; mask",
+      "ok": true,
+      "error": "",
+      "settings": {
+        "id": "P3",
+        "label": "density 20000; islands on; mask",
+        "attach": true,
+        "interpolate": true,
+        "density": 20000,
+        "islands": true,
+        "mask": true
+      },
+      "surfaceUvMap": "UVMap",
+      "nodeInputs": {
+        "Attach Hair Curves to Surface": [
+          {
+            "name": "Geometry",
+            "identifier": "Output_1",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Surface UV Coordinate",
+            "identifier": "Output_9",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketVector",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "name": "Surface Normal",
+            "identifier": "Output_11",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketVector",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "name": "Geometry",
+            "identifier": "Input_0",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Surface Input Type",
+            "identifier": "Socket_0",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketMenu",
+            "default": "Object"
+          },
+          {
+            "name": "Surface",
+            "identifier": "Input_3",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Surface",
+            "identifier": "Input_4",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketObject",
+            "default": null
+          },
+          {
+            "name": "Surface UV Map",
+            "identifier": "Input_2",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketVector",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "name": "Surface Rest Position",
+            "identifier": "Input_6",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": false
+          },
+          {
+            "name": "Sample Attachment UV",
+            "identifier": "Input_10",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": true
+          },
+          {
+            "name": "Snap to Surface",
+            "identifier": "Input_8",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": true
+          },
+          {
+            "name": "Align to Surface Normal",
+            "identifier": "Input_7",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": true
+          },
+          {
+            "name": "Blend along Curve",
+            "identifier": "Input_12",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketFloat",
+            "default": 0.0
+          }
+        ],
+        "Interpolate Hair Curves": [
+          {
+            "name": "Geometry",
+            "identifier": "Output_1",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Guide Index",
+            "identifier": "Output_6",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketInt",
+            "default": 0
+          },
+          {
+            "name": "Surface Normal",
+            "identifier": "Output_25",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketVector",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "name": "Geometry",
+            "identifier": "Input_0",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Surface Input Type",
+            "identifier": "Socket_0",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketMenu",
+            "default": "Object"
+          },
+          {
+            "name": "Surface",
+            "identifier": "Input_23",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Surface",
+            "identifier": "Input_2",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketObject",
+            "default": null
+          },
+          {
+            "name": "Surface UV Map",
+            "identifier": "Input_18",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketVector",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "name": "Surface Rest Position",
+            "identifier": "Input_12",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": false
+          },
+          {
+            "name": "Follow Surface Normal",
+            "identifier": "Input_24",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": false
+          },
+          {
+            "name": "Part by Mesh Islands",
+            "identifier": "Input_26",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": true
+          },
+          {
+            "name": "Interpolation Guides",
+            "identifier": "Input_10",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketInt",
+            "default": 4
+          },
+          {
+            "name": "Distance to Guides",
+            "identifier": "Input_28",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketFloat",
+            "default": 0.0
+          },
+          {
+            "name": "Distribution Method",
+            "identifier": "Socket_2",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketMenu",
+            "default": "Random"
+          },
+          {
+            "name": "Density",
+            "identifier": "Input_15",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketFloat",
+            "default": 10.0
+          },
+          {
+            "name": "Density Mask",
+            "identifier": "Input_14",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketFloat",
+            "default": 1.0
+          },
+          {
+            "name": "Mask Texture",
+            "identifier": "Input_19",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketImage",
+            "default": null
+          },
+          {
+            "name": "Viewport Amount",
+            "identifier": "Input_17",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketFloat",
+            "default": 1.0
+          },
+          {
+            "name": "Seed",
+            "identifier": "Input_16",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketInt",
+            "default": 0
+          }
+        ]
+      },
+      "socketReadBack": {
+        "attach": {
+          "Socket_0": {
+            "name": "Surface Input Type",
+            "identifier": "Socket_0",
+            "socketType": "NodeSocketMenu",
+            "interfaceDefault": "Object",
+            "wrote": "Object",
+            "wroteRaw": 0,
+            "readBack": 0
+          },
+          "Input_4": {
+            "name": "Surface",
+            "identifier": "Input_4",
+            "socketType": "NodeSocketObject",
+            "interfaceDefault": null,
+            "wrote": "OCLX_Aisha_head",
+            "wroteRaw": "OCLX_Aisha_head",
+            "readBack": "OCLX_Aisha_head"
+          },
+          "Input_2": {
+            "name": "Surface UV Map",
+            "identifier": "Input_2",
+            "socketType": "NodeSocketVector",
+            "interfaceDefault": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "wroteAttribute": "UVMap",
+            "readBackUseAttribute": true,
+            "readBackAttribute": "UVMap"
+          },
+          "Input_6": {
+            "name": "Surface Rest Position",
+            "identifier": "Input_6",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": false,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_10": {
+            "name": "Sample Attachment UV",
+            "identifier": "Input_10",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": true,
+            "wrote": true,
+            "wroteRaw": true,
+            "readBack": true
+          },
+          "Input_8": {
+            "name": "Snap to Surface",
+            "identifier": "Input_8",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": true,
+            "wrote": true,
+            "wroteRaw": true,
+            "readBack": true
+          },
+          "Input_7": {
+            "name": "Align to Surface Normal",
+            "identifier": "Input_7",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": true,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_12": {
+            "name": "Blend along Curve",
+            "identifier": "Input_12",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 0.0,
+            "wrote": 0.0,
+            "wroteRaw": 0.0,
+            "readBack": 0.0
+          }
+        },
+        "interpolate": {
+          "Socket_0": {
+            "name": "Surface Input Type",
+            "identifier": "Socket_0",
+            "socketType": "NodeSocketMenu",
+            "interfaceDefault": "Object",
+            "wrote": "Object",
+            "wroteRaw": 0,
+            "readBack": 0
+          },
+          "Input_2": {
+            "name": "Surface",
+            "identifier": "Input_2",
+            "socketType": "NodeSocketObject",
+            "interfaceDefault": null,
+            "wrote": "OCLX_Aisha_head",
+            "wroteRaw": "OCLX_Aisha_head",
+            "readBack": "OCLX_Aisha_head"
+          },
+          "Input_18": {
+            "name": "Surface UV Map",
+            "identifier": "Input_18",
+            "socketType": "NodeSocketVector",
+            "interfaceDefault": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "wroteAttribute": "UVMap",
+            "readBackUseAttribute": true,
+            "readBackAttribute": "UVMap"
+          },
+          "Input_12": {
+            "name": "Surface Rest Position",
+            "identifier": "Input_12",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": false,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_24": {
+            "name": "Follow Surface Normal",
+            "identifier": "Input_24",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": false,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_26": {
+            "name": "Part by Mesh Islands",
+            "identifier": "Input_26",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": true,
+            "wrote": true,
+            "wroteRaw": true,
+            "readBack": true
+          },
+          "Input_10": {
+            "name": "Interpolation Guides",
+            "identifier": "Input_10",
+            "socketType": "NodeSocketInt",
+            "interfaceDefault": 4,
+            "wrote": 3,
+            "wroteRaw": 3,
+            "readBack": 3
+          },
+          "Input_28": {
+            "name": "Distance to Guides",
+            "identifier": "Input_28",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 0.0,
+            "wrote": 1.0,
+            "wroteRaw": 1.0,
+            "readBack": 1.0
+          },
+          "Socket_2": {
+            "name": "Distribution Method",
+            "identifier": "Socket_2",
+            "socketType": "NodeSocketMenu",
+            "interfaceDefault": "Random",
+            "wrote": "Poisson Disk",
+            "wroteRaw": 1,
+            "readBack": 1
+          },
+          "Input_15": {
+            "name": "Density",
+            "identifier": "Input_15",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 10.0,
+            "wrote": 20000.0,
+            "wroteRaw": 20000.0,
+            "readBack": 20000.0
+          },
+          "Input_14": {
+            "name": "Density Mask",
+            "identifier": "Input_14",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 1.0,
+            "wroteAttribute": "OCLX_interp_scalp_mask",
+            "readBackUseAttribute": true,
+            "readBackAttribute": "OCLX_interp_scalp_mask"
+          },
+          "Input_17": {
+            "name": "Viewport Amount",
+            "identifier": "Input_17",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 1.0,
+            "wrote": 1.0,
+            "wroteRaw": 1.0,
+            "readBack": 1.0
+          },
+          "Input_16": {
+            "name": "Seed",
+            "identifier": "Input_16",
+            "socketType": "NodeSocketInt",
+            "interfaceDefault": 0,
+            "wrote": 0,
+            "wroteRaw": 0,
+            "readBack": 0
+          }
+        }
+      },
+      "guideRoots": [
+        {
+          "vertexIndex": 960,
+          "surfaceWorld": [
+            -0.03286193683743477,
+            -0.13901014626026154,
+            1.5849095582962036
+          ],
+          "normalWorld": [
+            -0.5011532306671143,
+            -0.813904345035553,
+            0.29394787549972534
+          ],
+          "initialRootWorld": [
+            -0.034365396946668625,
+            -0.1414518654346466,
+            1.5857913494110107
+          ]
+        },
+        {
+          "vertexIndex": 6212,
+          "surfaceWorld": [
+            0.03286194056272507,
+            -0.13901016116142273,
+            1.584909439086914
+          ],
+          "normalWorld": [
+            0.5011910200119019,
+            -0.8138837218284607,
+            0.2939404547214508
+          ],
+          "initialRootWorld": [
+            0.03436551243066788,
+            -0.14145180583000183,
+            1.5857912302017212
+          ]
+        },
+        {
+          "vertexIndex": 4653,
+          "surfaceWorld": [
+            -0.041703466325998306,
+            -0.10378754138946533,
+            1.632003664970398
+          ],
+          "normalWorld": [
+            -0.611133873462677,
+            -0.4802340269088745,
+            0.629198431968689
+          ],
+          "initialRootWorld": [
+            -0.04353686794638634,
+            -0.1052282452583313,
+            1.633891224861145
+          ]
+        },
+        {
+          "vertexIndex": 9809,
+          "surfaceWorld": [
+            0.0417034737765789,
+            -0.10378754138946533,
+            1.632003664970398
+          ],
+          "normalWorld": [
+            0.6111335158348083,
+            -0.4802342355251312,
+            0.6291986703872681
+          ],
+          "initialRootWorld": [
+            0.043536875396966934,
+            -0.1052282452583313,
+            1.633891224861145
+          ]
+        },
+        {
+          "vertexIndex": 4339,
+          "surfaceWorld": [
+            5.292219995567393e-10,
+            -0.13402311503887177,
+            1.6171457767486572
+          ],
+          "normalWorld": [
+            -4.3787449044430105e-07,
+            -0.8461223840713501,
+            0.5329888463020325
+          ],
+          "initialRootWorld": [
+            -7.844014326963133e-10,
+            -0.13656148314476013,
+            1.6187447309494019
+          ]
+        }
+      ],
+      "metrics": {
+        "evaluatedCurveCount": 2370,
+        "evaluatedPointCount": 56880,
+        "pointsPerCurveHistogram": {
+          "24": 2370
+        },
+        "evaluationSeconds": 0.00032250000367639586,
+        "distanceMethod": "hair_scene.surface_distance; BVH true signed nearest-surface distance; not vertex-only",
+        "rootFartherThan2mmCount": 0,
+        "rootDistanceMm": {
+          "min": 0.0,
+          "p50": 9.313225746154785e-06,
+          "p95": 0.00012132647699829458,
+          "max": 0.00026034422531211594
+        },
+        "rootsOutsideMaskedRegionCount": 0,
+        "rootInterpolatedMaskValue": {
+          "min": 0.9999998211860657,
+          "p05": 0.9999998807907104,
+          "p50": 1.0
+        }
+      },
+      "renders": {
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/step1/P3/crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/step1/P3/crown_top-id.png"
+        },
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/step1/P3/front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/step1/P3/front-id.png"
+        }
+      },
+      "renderSeconds": 2.4510356669998146
+    }
+  ]
+}

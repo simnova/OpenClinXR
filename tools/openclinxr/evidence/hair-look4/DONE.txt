@@ -1,0 +1,1 @@
+BEST::eval15 HUANG melanin=0.887321 redness=0.361525 Reflection=0.401852 SecondaryReflection=1.372479 roughness=0.390002 Random=0.019248 fitness1024=2.843455; geometry/silhouette unchanged

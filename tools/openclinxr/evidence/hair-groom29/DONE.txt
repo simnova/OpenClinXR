@@ -1,0 +1,19 @@
+DONE hair-groom29: re-drape the -x back curtain before fairing.
+
+GATES_PASS: no (back IoU 0.7865 vs >= 0.795, fail by 0.0085; right-hem
+alpha/miss fail lineage-wide incl. ctrl; everything else passes).
+
+What was built: s14_back_redrape.py (orient/) maps the -x back long
+drape hem-|x| onto the +x distribution (hem p90 41.1 -> 78.6 exact;
+p50 7.3 -> 14.6 partial via 40-120 mm dilution; +x/FRONT/tuck/take-off
+byte-identical; kinks unchanged; zero new body violations), then the
+groom26 recipe verbatim (s11 anchor 0.6 hem-keep-200; children pool60 +
+taper0.5 + lobe-drop65, pool-ref = hair-tgt2 guides-8a). Back miss
+halved (+3241 vs +6574 px, all image-right); 3D crossings 760 (best of
+lineage); gradAniso sigma4 0.5312 (gate 0.7961); determinism exact at
+all three stages. Full gate table + geography + visual read: RESULT.txt.
+Evidence: tools/openclinxr/evidence/hair-groom29/ (+ renders-29,
+sheet/crops). Store: /Volumes/files/openclinxr-assets/store/hair-groom29/
+(guides-29a + guides-29 + strands-29 + SHA256SUMS). No .npz in git.
+Remaining: opaque image-right corner cover needs density, not spread
+(see RESULT sect 8).

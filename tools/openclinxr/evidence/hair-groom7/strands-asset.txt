@@ -1,0 +1,24 @@
+hair-groom7 strands asset (big npz lives outside git):
+path: /Volumes/files/openclinxr-assets/store/hair-groom7/strands.npz
+sha256: 0548522cfecba9be5aeaec5bbe3cb074df1d10aff2d0038022dcfa31904996e1
+bytes: 110301328
+children: 306001 (13/root + 7 extra x 834 part roots + 22 x 2531 hem-edge roots + 14 x 4319 curtain roots), pointsPer 32
+radiiMm: root 0.04 tip 0.04 (fixed, t^1.5 profile constant; hem/curtain taper class thins to x0.25 at tip)
+round-1 backup: /Volumes/files/openclinxr-assets/store/hair-groom7/strands-r1.npz
+rebuild: tools/openclinxr/hair-groom/strands/children.py --outdir <E>/build
+  --guides tools/openclinxr/evidence/hair-groom4/tucked/guides-tucked.npz
+  --roots tools/openclinxr/evidence/hair-scalp1/roots.npz
+  --sdf tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz
+  --children-per-root 13 --r-root-mm 0.04 --r-tip-mm 0.04
+  --max-guide-gap-mm 15 --min-guide-len-mm 20 --len-trunc-sigma 1.0
+  --len-trunc-lo-sigma 2.0 --tuck-route 1 --tuck-k 20 --coarse-pull 0.2
+  --fine-pull 0.15 --ear-wrap 1
+  --ear-frame tools/openclinxr/evidence/hair-groom4/tucked/earframe.json
+  --tuck-blend 1 --ear-keep-mm 4.0 --ear-clump-cap-mm 30
+  --ear-clump-cap-w 0.3 --sideburn-short 1 --sideburn-len-mm 12 24
+  --part-extra 7 --sideburn-hug-mm 2.0 --sideburn-zt-margin-mm 3.0
+  --sideburn-tuck 1 --deg-cap-mm 30.0 --kill-root-dots 1
+  --hem-edge-extra 22 --hem-edge-spread-mm 9.0 --hem-tip-trim 1
+  --hem-trim-cols 266 761 --hem-trim-margin-px 12 --lobe-trim 0
+  --curtain-extra 14 --curtain-widen-mm 11.0 --part-crisp 1
+  --part-style 1 --kink-guard 1 --hem-taper 1 --spike-trim 1

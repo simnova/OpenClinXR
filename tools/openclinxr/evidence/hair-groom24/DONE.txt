@@ -1,0 +1,10 @@
+DONE hair-groom24: children built from guides-21 (faired) and guides-19
+(control) with --region-weight --uv-cutoff 0.15 --pool-max-move-mm 60,
+both rendered studio 1024/64, scored with the calibrated scorer + 3D
+crossing count + gradAniso + groom19 gates. GATES_PASS = no (honest):
+control passes everything except back (0.7964 vs >= 0.80); test passes
+front/3q/safety gates, fails profile (0.8076) + back (0.7778). Locks
+largely gone in groom24 by eye (native knot-box read), 3D true crossings
+1827 -> 753, gradAniso 1.023 -> 0.612 (target 0.530); silhouette cost
+bounded and recorded. Promote neither as passing; carry guides-21 as the
+lock-fix lineage, keep groom19 as silhouette reference. See RESULT.txt.

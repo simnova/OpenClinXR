@@ -1,0 +1,28 @@
+RESULT::hair-blend-1
+G1::sha cea67168 x2 equal True (A PASS) | two runs same sha256 PASS
+G2::n=50000 req=50000 ppc=32 nan=0, A n=2000 | within 2%, 32 pts, 0 NaN PASS
+G3::crossings=0 nearSlit=5 (clamped margin pts) | 0 PASS
+G4::rootCapMean=2.99mm (n=5000) cv=0.051 (633 ~1cm2 patches) | mean in [2.5,3.5], CV<=0.30 PASS
+G5::gated=0.1579 raw=0.4169 excluded=0.2823 | gated<=0.03 MISS
+G6::hull=0.9919 | >=0.99 PASS
+G7::showRest=0.1070 gutters=3 (partBand=0.0456 total=0.1526) | show<=0.15 and gutters<=3 PASS
+X1::IoU 0.5299 | 0.5501 | >=0.80
+X1::eroded-IoU 0.4345 | 0.4250 | >=0.80
+X1::width_rms 0.2177 | 0.1953 | <=0.10
+X1::below_chin 0.5883 | 0.5599 | tgt 0.5512, |d|<=0.10
+X1::part_px 79 | 47 | tgt 22
+X1::show-through 0.0078 PASS | 0.0000 PASS | <=0.03
+X1::standing_hair excess 7px no-flag | excess 15px FLAG (thr 14.4) | no-flag
+X1::score 1.0367 | 1.0746 | lower-better (photo p50 brighter both)
+X2::top show-through total 0.1526 incl part band 0.0456 ; front judge part 47 px
+X3::generator wall 20.9 s for 50,000 children (best-candidate K32; A 2000 in 1.7 s)
+SAW::front: dense continuous canopy, narrow part line, face clear with eyes, falls both sides to chest, blunt even hem; fine strands with gloss, no lanes
+SAW::three_quarter: smooth drape over the side, face clear, no lanes, mild helmet gloss at crown
+SAW::profile_90: hairline correct at forehead, falls behind jaw, ear-top covered, mild shelf at ear level (guide-inherited)
+SAW::back: full coverage to mid-back, no banding, blunt hem, faint center-back seam line, two tiny skin dots at hem level
+SAW::crown_top: dense continuous canopy, clean part line front-to-back, no lane gutters, faint back seam; reads as strands, not a moulded shell
+CAUSE::G5 MISS after 3 honest configurations, all MISS: (1) cylindrical-chart triangulation (folded, worse); (2) PCA-chart faithful M1-M5 blend: gated 15.8%; (3) Shrinkwrap resolution: 23.1% inside with temple flyaway damage, and the bar is raw-only. Root cause measured: guides3 authored on the visible head (guides 0.3% in-head) while the collision basemesh is inflated in the drape zones (guides 39.2% in-body); children preserve head fidelity (3.1% in-head, method cost ~3pp: npar0-inside 5.4%). Points with 1-2 parents inside a collider (27% share) follow guides into the basemesh but are not excludable under the all-3 rule. No M1-M5-compliant variant passes: drape shape = guides = fixed input (P1). Fix belongs to collision-aware guide authoring, out of scope here.
+COMMIT::5085788b4
+STILL::G5 MISS (cause above); standing_hair flag marginal (excess 15 vs 14.4 threshold); center-back seam line (same-side rule behind apex); blunt hem (constant 0.05 mm profile, guide-inherited); ear shelf (guide-inherited); photo clause FAIL shared with baseline (render brighter than target); eroded IoU slightly below baseline (0.4250 vs 0.4345)
+BRIEF_MISSING::(1) face side: 'front of the crown apex' = y<apex_y, measured from slit/forehead verts (children3's part strip uses the opposite side; read-only, untouched); slit rejection, G3 and clamp all use y<apex_y. (2) 'allowed up to 0.5 mm from the slit' read as 0.5 mm minimum clearance, slit exists front-only. (3) M2's suggested cylindrical chart folds (measured p95 116 mm); per-side PCA-plane chart used instead, attempts + p95 recorded, 3-nearest fallback where triangles exceed 40 mm. (4) M4 'resampling' implemented as last-segment compression (uniform resample measured hull 0.67: guides fan 2x, tips exit prisms); points 0..30 keep exact index correspondence, tip at f*L. (5) G6 'prism' read as same-index triangle or previous-triangle infinite prism or 2 mm near-miss; definition stored in row-blend.json. (6) part band masked by dilating the projected slit polyline by 6 mm in px (no view-orientation assumption). (7) shrinkwrap keep rule needed a numeric damage guard (p95<20 mm) plus alt renders; kept raw (pair 0.4179 | 0.2294).
+HARM::none (local Blender renders + numpy only; no external calls; no clinical/Quest claims)

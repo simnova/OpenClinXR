@@ -1,0 +1,43 @@
+{
+ "in": "/Volumes/files/openclinxr-assets/store/hair-groom36/roots-36.npz",
+ "out": "/Volumes/files/openclinxr-assets/store/hair-part1/roots-d.npz",
+ "sha256": "1c9b3ba7f871dac8",
+ "nIn": 13528,
+ "nEdgeRoots": 487,
+ "nAdded": 377,
+ "nOut": 13905,
+ "edgeMm": [
+  0.75,
+  8.0
+ ],
+ "edgeDensityMultiplier": 1.7741,
+ "pairGapMm": {
+  "p50": 1.807,
+  "max": 2.906
+ },
+ "addedXpos": 194,
+ "addedXneg": 183,
+ "partJitter": {
+  "ampMm": 3.0,
+  "seed": 20261106,
+  "wavelengthsMm": [
+   12.8086,
+   24.0572,
+   16.1729
+  ],
+  "phasesRad": [
+   3.789283,
+   4.855944,
+   3.433341
+  ],
+  "weights": [
+   0.545754,
+   0.854289,
+   0.799018
+  ],
+  "scale": 0.0015648972408945153,
+  "yLoM": -0.06,
+  "yHiM": 0.0342,
+  "fadeM": 0.01
+ }
+}

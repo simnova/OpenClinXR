@@ -1,0 +1,182 @@
+cage1: spec v4, exact collision field, fit, adequacy and feasibility verdict — RESULT
+===============================================================================
+Card: fit the 22-parameter guide cage (spec v4) to front/profile_90/back
+with the exact collision field; gate adequacy per view AND per region;
+split-hem feasibility; verdict ADEQUATE+PASS / STOP / MODEL_INADEQUATE.
+WRITE ROOTS: S3 = tools/openclinxr/hair-groom/cage,
+E = tools/openclinxr/evidence/hair-cage1. hair-groom/scalp/ untouched
+(no such dir; git status shows only S3 + E paths). No *.blend anywhere.
+
+VERDICT: STOP (target inconsistent; corroborated by an inadequate fit)
+- Split-hem: profile-fitted curtain end misses the front-view target
+  curtain ray by 99.1 mm (> 30 mm threshold, 3.3x); profile/front curtain
+  rays are 136.4 mm skew apart (pure target geometry, no model involved);
+  height-matched check (profile ray at cheek-plane depths projects into
+  the front view with 0/441 hair px in a 21x21 patch) confirms no lock
+  explains both pixels. Back is consistent (4.0 mm; skew gap 23.7 mm),
+  so the method is sound where the views agree.
+- The all-view best fit is additionally inadequate (17 unique gate fails;
+  table below), as expected when the target views disagree by ~100 mm.
+
+STEP 1 — exact collision field (E/body-exact-sdf.npz)
+  Method (stated): Blender BVHTree on the station0b bare-body mesh
+  (body-verts.npz: 15949 verts / 26756 tris, topper excluded — the same
+  mesh the voxel SDF was built from). Closest point via
+  BVHTree.find_nearest (exact distance to the triangles); sign via ray
+  parity along +X (odd crossings = inside, negative). Precomputed on a
+  2 mm grid over the head/neck/shoulder region x[-260,260] y[-260,160]
+  z[1080,1720] mm (261x211x321 = 17.68M cells, float32) in a Blender
+  export step (S3/export_exact_sdf.py, 85 s, 9008162 parity hits).
+  Blender 5.1 note: ray_cast returns the 4-None tuple on a miss (not
+  None); the parity walk ends on it. Queried offline by trilinear
+  (S3/exact.py); out-of-grid reads +50 mm (documented sentinel; the grid
+  covers every cage sample with margin).
+  Self-test (scalp reference = topmost body vertex + area-weighted normal,
+  exported in the same step): +13 mm off scalp reads +13.05 (want 13
+  +/- 1, PASS); -10 mm inside reads -9.74 (want -10 +/- 1, PASS).
+  F1 resolved: the voxel SDF's crown-ball inflation is gone — part roots
+  at +2.7 mm read clean (below-ball part violation 0 in the best fit).
+
+STEP 2 — spec v4 (E/cage-spec.json), frozen BEFORE any fit
+  SPEC_SHA before fit 51506271ed34794ce7fc78c7e54bd97d16edb0619c72f09ce22904e8da64d36a
+  (E/spec-sha-before-fit.txt; re-verified identical AFTER all fitting —
+  the spec was not edited to chase a number). Process note: one earlier
+  v4 sha (ff3cb1b3...) was superseded BEFORE any optimizer ran (smoke
+  evaluation at spec defaults showed temple/nape/back/part roots could not
+  reach the 1-3 mm band from hardcoded offsets, so P0 of every family was
+  re-seated on its measured attachment + lift; no least_squares had run).
+  22 parameters (max 24). Anchors/attachments/crown/pins identical to
+  cage0 (verified field-by-field); diff vs cage0 spec (d5aa424b...):
+    params: crown_lift 10.0/2-30 -> 2.0/0.5-8 then 3.7-class fit range
+      (root-standoff rule: every root 1-3 mm off the scalp by the exact
+      field); cap_span 60/40-95 -> 75/40-120; part_w_top 24/10-50 ->
+      36/10-80; part_w_hem 20/10-50 -> 32/10-80 (crown sheets, finding:
+      cage0 crown miss 20-28 px); curtain_hem_drop lo 280 -> 180 (short
+      target front, F2 row 344); curtain_front_sh lo -20 -> -100
+      (behind-shoulder positions in bound; the fit, not the spec,
+      decides); back_hem_drop hi 520 -> 600 (long target back, row ~870).
+    text: schema v1 -> v2 (v2Changes list); temple-curtain routing no
+      longer fixed front-of-shoulder; P0-on-attachment root rule;
+      rootStandoff + collisionField (exact, tol 0.0) clauses.
+    code (S3/cage.py): P0 = attachment + lift for part/temple/back/nape
+      (side keeps its fittable side_out_sh root offset).
+
+STEP 3 — fit (S3/fit_cage.py, scipy least_squares trf, bounded,
+  x_scale = bound range, diff_step = 5% of range, ftol/xtol/gtol 1e-10,
+  max_nfev 200 with one polish restart; occlusion-aware raster throughout)
+  Measurement fix found during the card (recorded, not hidden): the cage0
+  strip raster is an X-RAY (union of all families), but the target masks
+  are OCCLUDED views — the back sheet filled the face hole invisibly to
+  every contour loss (front solid-over-face read 0 loss) and the
+  face-opening gate was vacuous. Fix: one-time body depth maps
+  (E/body-depth.npz, S3 rasterizer, E/make_body_depth.py) + depth-tested
+  occluded raster warped to the target frame (S3/instruments.py
+  occluded_union; losses themselves unchanged). Occlusion self-test
+  (E/occlusion-test.json) 3/3 PASS: back sheet 3087 raw px over the front
+  face box -> 0 occluded; temple curtain keeps 31686 px over the chest
+  band; brow-point map depth agrees to 0.05 mm.
+  Objective: per (view, region, excess/miss side) 150 sampled Huber-3px
+  contour residuals (cage0 boxes) + depth-aware guard (front x3.0,
+  profile x0.5, clipped triangle scan) + exact collision x8.0 per family
+  + root standoff x8.0 per family.
+  THREE named starts (spec default / behind-shoulder curtains /
+  long-back short-front), all status 3 (xtol), 2-pass:
+    spec-default ......... cost 1370041.7 (regional 1319257.4,
+      guard 0.0, penalty 50784.3), 17 unique fails
+    behind-shoulder ...... cost 758929.9 (regional 707850.6, guard 0.0,
+      penalty 51079.4), 17 unique fails  <- BEST
+    long-back-short-front  cost 3119075.3 (regional 3084604.5, guard 0.0,
+      penalty 34470.9), 16 unique fails
+  Best values (behind-shoulder): crown_lift 3.698, part_angle 25.089,
+    cap_span 65.974, part_w_top 38.146, part_w_hem 34.125,
+    curtain_hem_drop 190.9, curtain_front_sh -49.8, curtain_ear_u 46.1,
+    curtain_w_top 50.3, curtain_w_hem 49.5, side_hem_drop 243.1,
+    side_out_sh 17.7, side_w_top 73.1, side_w_hem 41.7,
+    back_hem_drop 311.7, back_post_sh -110.0, back_w_top 142.5,
+    back_w_hem 152.3, nape_hem_drop 322.9, nape_post_sh -103.4,
+    nape_width 72.9, thickness 3.0 (= init: sub-pixel gradient, unmoved
+    in all starts). No hem param on its bound (nearest: curtain 190.9
+    in [180, 480]). The fit moved the right directions (curtain 320 ->
+    191 short front per F2; front_sh 46 -> -49.8 behind shoulder) but
+    stopped far from the gate.
+  ADEQUACY GATE on the best fit (in-sample; per view AND per region
+  p95 <= 24 px and p50 <= 12 px; excess/miss separately; erosion
+  p50/p95 = 1.0/1.0 px all views and landmark confidence 2-4 px printed
+  only, never gated): 17 unique FAILS —
+    regional (11): front/crown 5.0/49.8, front/side_curtain_L 14.6/35.0,
+      front/side_curtain_R 23.0/38.0, front/hem 8.5/34.7,
+      profile/crown 6.0/50.6, profile/side_curtain_L 14.0/77.2,
+      profile/hem 36.1/46.1, back/crown 22.4/68.1,
+      back/side_curtain_L 17.6/25.5, back/side_curtain_R 21.6/32.2,
+      back/hem 5.0/37.4 (p50/p95; face_opening passes 0/0 front+profile
+      and empty back — now MEANINGFUL under occlusion)
+    front face guard 0 px (PASS); collision below-ball max 21.75 mm /
+      106 samples (temple 50+50 edge samples where the 50 mm ribbon
+      band cuts the head corner; back 5, nape 1 sub-mm grazes on fixed
+      P1s; part/side 0); roots 1-3 mm: back 1.07 PASS, temple 1.3 PASS,
+      part 4.24 FAIL, side 17.68 FAIL (probe: out_sh 2.0 recovers 2.0
+      with ~no regional change — optimizer basin artifact, not
+      structural), nape -0.57 FAIL.
+  Structural reads (measured, not speculated): the temple ribbon's fixed
+  +14 mm lateral line forces its wide band through the head corner
+  (centreline rides +15..+37 outside while band edges cut 21.75 deep —
+  a flat ribbon cannot wrap the corner); below-crown lateral extent has
+  no fittable X parameter (temple line fixed, side width spans U); the
+  single crown_lift cannot seat 8 roots of different normal tilts at
+  once. E/fit.png + E/fit-cage.png show it: bare crown, flat-board
+  curtains ending at the chin, short narrow back sheet vs the target.
+
+STEP 4 — split-hem on the best fit (E/split-rays.json, E/fit-split-*.json,
+  E/split-hem.json); LOO skipped by the card's decision tree (LOO runs
+  only "if adequate and not STOP")
+  Separate profile-only fits: curtain (hem_drop, front_sh, ear_u,
+  widths) end (z 1479.3, U -52.7); back (hem_drop, post_sh, widths) end
+  (z 1338.2, U -116.7). Front curtain-hem pixel (670.5, 512.8),
+  back hem pixel (823.0, 520.5) by the symmetric lowest-5 rule.
+  D_curtain = 99.1 mm (> 30, STOP); D_back = 4.0 mm (consistent).
+  Target-only corroboration: profile/front curtain-ray skew gap 136.4 mm
+  (back 23.7 mm); height-matched front projection of the profile-implied
+  wisp lands on 0/441 hair px. Caveat recorded: the front rule reads the
+  long-layer hem (row ~670) while the profile anterior rule reads the
+  short-layer wisp (row 344, F2) — but the height-matched zero overlap
+  shows no single lock explains both pixels, so this is target
+  inconsistency, not just layer mismatch.
+
+STEP 5 — heights, figures (E/heights.json, E/fit.png, E/fit-cage.npz/png)
+  Fitted curtain end height z = 1469.0 mm: +64.0 above the shoulder plane
+    (z = 1.405 m), +19.8 above the chin (menton z = 1449.3 mm);
+    curtain offsets at shoulder height (X +-82.2, U -40.0) — behind the
+    shoulder plane, as F2/target-profile require.
+  Fitted back end height z = 1348.3 mm: -56.7 below the shoulder plane,
+    -101.0 below the chin; back offsets at shoulder height (X 0.0,
+    U -112.4).
+  E/fit.png: per view occluded fit raster (red) vs target outline
+    (green) + region/guard boxes. E/fit-cage.png: Workbench render of the
+    fitted cage on Aisha (front/profile_90/back/three_quarter;
+    REMOVED_TOPPERS=[bob mesh], same exclusion as cage0/station0b).
+
+BAN-PROOF GREPS (pasted outputs; empty = pass):
+  $ grep -RInE 'hair-guides|children_station|hair-cap|hair-hem|hair-crown|hair-sweep|score\.py' tools/openclinxr/hair-groom/cage tools/openclinxr/evidence/hair-cage1/make_spec_v4.py tools/openclinxr/evidence/hair-cage1/make_body_depth.py tools/openclinxr/evidence/hair-cage1/step4_hems.py tools/openclinxr/evidence/hair-cage1/make_fit_figs.py
+  (no output; exit 1)
+  $ grep -nE 'hair-scene|hair-curtain|hair-score|hair-look|children>' tools/openclinxr/evidence/hair-cage1/inputs-opened.txt
+  (no output; exit 1)
+
+INPUTS-OPENED (E/inputs-opened.txt, runtime paths incl. Blender-side
+E/blender-opened.txt for the GLB/cameras/cage-npz): both scans above
+empty. Render-side inputs logged in E/blender-opened.txt.
+
+SAW: exact field self-tests to +0.05/-0.26 mm (F1 closed); occlusion
+verified 3087 -> 0 px with curtain visibility kept; the fit honored the
+behind-shoulder/short-front direction (front_sh -49.8, curtain 191) with
+front guard 0 and part/side collision 0 below the ball; back views are
+cross-view consistent (4 mm); no hem param saturated.
+  NOT TESTED: Quest/worn-headset rendering; IWSDK sidecar; cross-machine
+  Blender determinism (single Apple M1 Max host); MongoDB persistence (no
+  records written); leave-one-view-out (card gates it on adequacy, which
+  failed); other cage topologies (verdict covers exactly the frozen
+  22-param spec v4, sha 51506271...).
+
+GATES_PASS=no — verdict STOP (not a gate pass): split-hem curtain
+disagreement 99.1 mm > 30 mm with 136.4 mm target-only skew gap, plus a
+17-fail inadequate all-view fit. The target front/profile curtain hems do
+not describe one 3D head of hair; do not build the groom on these views.

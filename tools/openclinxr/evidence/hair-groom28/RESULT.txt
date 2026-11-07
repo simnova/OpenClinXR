@@ -1,0 +1,177 @@
+RESULT hair-groom28: one-sided back cover loss — side diagnosis, controls A/B, anisotropy controls
+===============================================================================================
+Card: why does back fairing (groom25/26) lose cover only on the image-right /
+world -x side (back IoU 0.777 vs groom19 0.796; miss +2,110 px mid and +4,544
+px bottom, image right; pool-drop 6 -> 67/83)? Proposed suspect: the arctan2
+branch cut of the scalp frame (s11:154/:235, cut at world -x).
+
+VERDICT: cause FOUND, and it is not the cut. The -x back drape in guides-19
+is a narrow central curtain (hem |x| p50 11.7 mm vs 24.1 mm on +x); the
+anchor-0.6 smoothing drags the inner half of that curtain outward ~20 mm
+mean, scattering it, while the already-fanned +x drape only breathes. The
+cut is measured inert (control A: output identical within 2e-16 mm) and the
+code is measured x-symmetric (control B: 1.5e-13 mm). No station change was
+made: s11_back_coherent.py in this tree is untouched (still byte-identical
+to hair-tgt2). Step 4 (children/render/score) NOT RUN: a guide-level
+mitigation probe shows locks and cover in direct conflict (curtain kept ->
+3D crossings 1132 > 900), and all six prior fairing variants already prove
+no fairing choice reaches back >= 0.795, so a full build+render+score would
+re-prove a foreknown gate failure. GATES_PASS = no.
+
+1. SIDE DIAGNOSIS (E/side-diag.json, E/side-diag-band.json,
+   E/side-diag-input.json, E/side-diag-children.json, E/side-topview.png)
+--------------------------------------------------------------------------------
+Inputs (read-only from hair-tgt2): guides-19, guides-25b (anchor 0.6),
+pool-ref guides-8a. BACK = root_y < -0.0635 & root_z > 1.51 (563 guides,
+524 non-tuck graph guides: 253 +x / 271 -x). Stock s11 rerun here
+reproduces guides-25b byte-exactly (sha 54bc0db4...).
+
+Per-side fairing (19 -> 25b), BACK non-tuck guides:
+  displacement max/guide (mm): +x mean 20.0 p50 0.37 p90 83.4 max 145.5;
+                               -x mean 18.5 p50 0.18 p90 66.3 max 191.3.
+  neighbour count (20 mm chord): +x mean 47.0 p50 50; -x mean 48.8 p50 51
+    -> the graph is NOT sparser on -x. Graph-density asymmetry: none.
+  pool-dropped (move-vs-8a > 60 mm, replication matches build total 67
+    exactly): +x 32 / -x 29 of back guides (+6 non-back) -> symmetric.
+  mean fairing-delta direction (mm, x=lateral y=ant+/post- z=up):
+    +x (0.52, -4.75, +4.64) unit (0.08, -0.71, +0.70): posterior + UP.
+    -x (-4.01, -3.73, +1.68) unit (-0.70, -0.65, +0.29): posterior +
+        strong LATERAL-OUTWARD, barely up.
+  arc bands, hem-band mean delta: +x (+3.6, -9.5, +8.4) vs -x (-13.1, -6.1,
+    +2.3). Hem outward-movers (>5 mm): +x 87 / -x 119.
+  outward hem dx by input-hem|x| quartile (curtain-break signature):
+    -x inner half (hem|x| <= 11.7 mm): +19.1 / +20.4 mm outward;
+    -x outer half: +6.1 / +9.4 mm. +x quartiles: +5.5 / -0.3 / +0.2 / +11.4
+    (no inner-curtain drag). Correlation(|hemX|, outwardDx): -x -0.12
+    (inner guides move most), +x +0.16.
+
+Input baseline (guides-19, BACK non-tuck): hem|x| mean 30.3 (+x) vs 16.5
+(-x), p50 24.1 vs 11.7, p90 69.3 vs 31.9; total arc mean 113 vs 98 mm.
+The -x drape hangs as a narrow central curtain; +x fans out. Root counts
+are symmetric (253/271) -- the asymmetry is in drape SHAPE, not density.
+Children level (strands-ctrl vs strands-25b, drape column |x|<0.12,
+y<-0.0635, z<1.55): -x 137678 -> 134620 (-3058, -2.2%), +x 69918 ->
+66078 (-3840, -5.5%). Absolute sample loss is symmetric; the rendered
+one-sided miss comes from the curtain SCATTER (strands leave the coherent
+column laterally), not from strands vanishing one-sidedly.
+
+2. CONTROL A: azimuth origin rotated 90 deg (cut at face centre)
+--------------------------------------------------------------------------------
+Variant E/ctrlA_s11.py: phi = arctan2(xx, -yy) (= alpha + pi/2 exactly,
+verified to 9e-16 rad), recomposition subtracts pi/2 for a consistent
+frame. First attempt without the recomposition correction produced a
+rotated-frame artefact (p90 123.7 vs 70.5) -- caught by the
+rotation-identity check (offsets identical to 2e-16) and corrected.
+Corrected result: guides-28A vs guides-25b max world difference
+1.8e-16 mm (machine epsilon; head-bit rounding only). Per-side numbers
+identical (BACK p50 0.278, p90 70.52, max 191.32 both).
+The fairing is EXACTLY cut-independent for this input: relocating the
+cut to the face centre changes nothing. The arctan2 branch cut is
+exonerated as a matter of measurement, not code reading.
+
+3. CONTROL B: mirrored guides (x -> -x), stock s11 recipe (E/controlB.py,
+   E/controlB.json)
+--------------------------------------------------------------------------------
+B1 code x-symmetry: fair(mirror(g19)) vs mirror(fair(g19)) max world
+difference 1.5e-13 mm -> the station (including the cut) has NO -x-specific
+behaviour. B2 geometry: on the mirrored input the strong outward hem
+scatter moves to +x (+13.75 mm mean, 119 guides; -x now +4.20 mm, 87) --
+it FOLLOWS the mirrored narrow curtain. The lost side follows the input
+drape geometry, not the code. (Mirrored fairing stored only in /tmp.)
+
+4. CAUSE (measured, no speculation)
+--------------------------------------------------------------------------------
+guides-19 carries a one-sided drape shape: narrow central curtain on -x,
+fanned drape on +x. Anchor-0.6 smoothing drags the inner -x curtain
+outward ~20 mm (outer guides ~6-9 mm), breaking curtain coherence in the
+mid/bottom drape; the +x side, already spread, shows no gap. Rendered
+consequence per groom25 sect 1: image-right (= world -x) miss +2110 mid /
++4544 bottom. Pool-drop (32/29) and neighbour counts (47/49) are symmetric
+and are not the one-sided agent. The branch cut contributes 0.0 mm.
+CAUSE = input drape-shape asymmetry amplified by symmetric smoothing;
+no code defect.
+
+5. STEP 4: NOT RUN (documented rationale, not an omission)
+--------------------------------------------------------------------------------
+The cause admits no station-code fix (B1: nothing -x-specific to fix).
+Candidate mitigation probed at guide level only: E/mitig_s11.py leaves
+the inner -x curtain (136 guides, hem|x| <= 11.66 mm) unfaired (w = 0).
+Result (E/metrics-crossM.json, diag23 step A verbatim): 3D crossings
+25b 865 -> 28M 1132 (gate <= 900: FAIL by 232); s11 UV pairs 7702 -> 8256.
+The curtain guides carry ~267 of the fixed crossings: keeping the curtain
+unfaired reintroduces the locks. Locks and cover are in DIRECT conflict at
+guide level, so no fairing variant can pass both; this matches the six
+already-measured variants (25a/b/c, keep200, bf, final-26: back <= 0.786,
+ctrl/unfaired = 0.7959 caps the gate at 0.795). Cover must be ADDED on -x
+(re-drape/regrowth on 25b/keep200 guides) -- a separate slice, not a diag
+card. A full children build + 4x1024/64 renders + score would re-prove a
+foreknown failure; gates below are reported NOT RUN.
+Mitigation artefact: /Volumes/files/openclinxr-assets/store/hair-groom28/
+guides-28M.npz + SHA256SUMS (b4c9430e...). No .npz in git.
+
+Gates (step 4 not run; lock-side numbers are guide-level measurements):
+  back IoU >= 0.795 .............. NOT RUN (no render; prior best faired
+    0.7862, ctrl 0.7959)
+  3D crossings <= 900 ............ 865 PASS (25b rerun here); 1132 FAIL
+    (28M curtain-kept candidate, guide-level)
+  gradAniso <= 0.70 .............. NOT RUN (no render)
+  front/3q/profile +-0.005 of groom26 (0.8044/0.8411/0.8105) ... NOT RUN
+  pool-drop <= 10 each side ...... NOT RUN (25b recipe gives 32/29)
+  GATES_PASS = no.
+
+6. ANISOTROPY CONTROLS (E/aniso28.py, E/metrics-aniso28.json,
+   E/renders-aniso-r05, E/renders-aniso-r20 back-only 1024/64spp/seed7)
+--------------------------------------------------------------------------------
+groom12-8a strands (161849 x 41, radii 0.04 mm) at radius x0.5 / x1.0
+(existing groom12 renders-studio-8a, same camera) / x2.0, knot box
+(groom10diag rows 150-420 cols 512-765, judge-v6 registration), gy/gx:
+  sigma2: r05 0.5185 / r10 0.5456 / r20 0.5813 (range 0.0628)
+  sigma4: r05 0.4332 / r10 0.4435 / r20 0.4706 (range 0.0374)
+  nHairPx 35631 / 36383 / 36408 (mask stable; the effect is gradient
+  redistribution, not coverage).
+At the gate metric's sigma (2), gy/gx moves 0.063 over a 4x radius change
+-- MORE than the 0.05 threshold: the metric reads fineness. At sigma 4 the
+movement (0.037) is under threshold. Thicker strands read HIGHER gy/gx
+(more vertical-gradient dominance) at both sigmas. Any future lock-gate
+reading should be quoted with the radius it was measured at, or moved to
+sigma >= 4.
+
+7. FILE MANIFEST
+------------------
+E/side-diag.json + E/side_diag.py (per-side displacement/neighbours/
+pool-drop/delta-direction) ; E/side-diag-band.json + E/side_diag_band.py
+(arc-banded delta) ; E/side-diag-input.json + E/side_diag_input.py
+(guides-19 drape-shape baseline) ; E/side-diag-children.json +
+E/side_diag_children.py (strand-column counts ctrl vs 25b) ;
+E/side-topview.png (roots coloured by displacement + delta quiver) ;
+E/ctrlA_s11.py (cut-relocated variant; corrected recomposition) ;
+E/controlB.py + E/controlB.json (mirror test) ; E/mitig_s11.py +
+E/crossM.py + E/metrics-crossM.json (curtain-kept candidate: 1132 3D) ;
+E/aniso28.py + E/metrics-aniso28.json + E/renders-aniso-r05/r20
+(back.png/back-id.png/opened.txt/render-times.json) ;
+E/{calibrate25,cross26,grad26,score26}.py (groom26 copies; score/cross/
+grad not re-run: no step-4 renders) ; E/groom28cal-calib.json
+(calibration: exact 0.0 all views) ; E/RESULT.txt ; E/DONE.txt.
+STORE: /Volumes/files/openclinxr-assets/store/hair-groom28/
+guides-28M.npz + SHA256SUMS. No .npz in git.
+Station diff vs hair-tgt2: NONE (s11_back_coherent.py untouched).
+
+8. SCOPE
+----------
+Guide/guide-image analysis + 2 Blender back renders (Cycles 1024/64spp/
+seed7, studio rig, scorer-v3 back camera, params-c08, aisha body) in this
+worktree (hair-tgt2b @ b0c9c5eb4); hair-tgt2 tree read-only; /tmp/hair28
+holds intermediates only. No children builds, no 4-view renders, no
+scorer/cross/grad re-runs on new renders (nothing new to score).
+No .npz in git.
+
+9. NOT TESTED
+---------------
+Children build + 4-view render + score of any 28 variant (step 4, see
+sect 5). Re-drape/regrowth adding -x cover (the prescribed next slice).
+Physical Quest 3 / worn-headset evidence; EEVEE/Quest material response;
+other bodies/seeds; animation/combing; relit/held-out rows; clinical
+validity, licensure, or scoring claims. guides-22 family. Whether sigma-4
+gradAniso still separates locks from fineness (needs labelled variants).
+
+GATES_PASS: no (step 4 not run; cause is input geometry, fix = re-drape).

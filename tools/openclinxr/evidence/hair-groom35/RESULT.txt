@@ -1,0 +1,86 @@
+groom35 RESULT (2026-10-19): symmetric ear inputs + tuck clumping A/B vs groom34 mask20
+====================================================================================
+VERDICT: STEP2 (mirrored pinna+frame) PARTIAL - concha burial fixed, mirror-IoU up,
+front IoU crosses its bar, but every zero-gate still fails and column -x regresses.
+STEP3 (--ear-band-routed) FAILS CATASTROPHICALLY - routed guides 2263/2507 themselves
+transit the shell/column, so clumping band children to them drags 38k children into
+the ear (shell +x 4900->15312, -x 8818->19864; column -x 709->10332; gt30 ->15883;
+insideBody 0->14). Hypothesis disproven as coded; NO new fix attempted per card.
+
+BUILDS (store/hair-groom35/, NOT in git; mask20 recipe + swapped --pinna/--ear-frame)
+- identity35: orig inputs + edited code, sha 5e6814ba == mask20 bit-exact (268280
+  children). PROVES --ear-band-routed default-OFF is a no-op. PASS.
+- 35step2: sha da3a5a59, 267908 children (-372). lobeDrop -x now mirrors +x box;
+  sideburnCap -x dropped 12 (mask20 dropped 20).
+- 35step3 (+--ear-band-routed): sha 79d1d9bd, 267920 children. earBandRouted on:
+  1925 band roots, 37880 band children (14%), routed pool 15+24 groom30 guides.
+- determinism: 35step3det rebuild sha 79d1d9bd == step3 bit-exact. PASS.
+  35step2det rebuild running at RESULT time; sha check in DONE.txt.
+
+3D GATES (same groom34 gate defs; proxy shells verified symmetric max|mirror diff| 0.0)
+ gate                  | mask20 +x | mask20 -x | step2 +x | step2 -x | step3 +x | step3 -x
+ shell segs (0/side)   | 4914 FAIL |12191 FAIL| 4900 FAIL| 8818 FAIL|15312 FAIL|19864 FAIL
+ shell strands         | 2545      | 5399      | 2519     | 4833     | 6099     | 9125
+ column strands (0)    | 22 FAIL   | 553 FAIL  | 26 FAIL  | 709 FAIL | 785 FAIL |10332 FAIL
+ gt30 (<=1789)         | 2094 FAIL | (global)  | 2161 FAIL| (global) |15883 FAIL| (global)
+ insideBody (0)        | 0 PASS    |           | 0 PASS   |          | 14 FAIL  |
+ concha34 3D-proj      | 0         | 0         | 0        | 0        | 0        | 0
+
+RENDER GATES (E/gates-35step2full.json, E/gates-35step3full.json)
+ gate                        | mask20 +x | mask20 -x    | step2 +x | step2 -x     | step3 +x | step3 -x
+ profile ear box (0 px) std  | 0 PASS    | 41 FAIL      | 0 PASS   | 82 FAIL      | 573 FAIL | 1047 FAIL
+ profile ear box mirror (-x) | -         | 12 FAIL      | -        | 49 FAIL      | -        | 3426 FAIL
+ 3q ear box (<=842) std      | 331 PASS  | 0 PASS       | 247 PASS | 0 PASS       | 1151 FAIL| 0 PASS
+ 3q ear box mirror (-x)      | -         | 1146 FAIL    | -        | 979 FAIL     | -        | 3842 FAIL
+ concha render (0/0/0)       | 0/0/0     | 7702/195/10584 FAIL | 0/0/0 PASS | 0/0/0 PASS | 0/0/0* | 0/0/0*
+ *projection metric; beauty renders show step3 hair slab over ear (see visual read).
+ mirrorIou -xflip vs +x (rep)| 3q 0.8997 / prof 0.9294 | step2 3q 0.9330 / prof 0.9495 (BETTER) | step3 3q 0.7940 / prof 0.8928 (WORSE)
+ +x IoU (bar)                | front 0.7838 (FAIL .79) / 3q 0.8501 (PASS .83) / prof 0.8265 (FAIL .84) / back 0.8925 (rep)
+ step2: front 0.7947 PASS +0.0047 / 3q 0.8501 PASS (same) / prof 0.8259 FAIL -0.0141 / back 0.8935 (rep, +0.0010)
+ step3: front 0.7551 FAIL / 3q 0.8049 FAIL / prof 0.7623 FAIL / back 0.8858 (rep)
+ crossings 3D (<=935)        | 941 FAIL (guides-level; identical all three builds, same guides file)
+ gradAniso s4 (<=0.70)       | mask20 0.3712 PASS | step2 back 0.3700 PASS | step3 back 0.3702 PASS
+ calibration                 | calibrate31.py groom8a 0.7446/0.8261/0.8543/0.8579 delta 0, all_within_0.02 true. PASS.
+
+RESIDUAL ATTRIBUTION (E/residual-35step2.json, E/residual-35step3.json; NO new fix per card)
+- step2 +x shell: roots p50 98mm (crown, same as groom34); top guides 280 (648,
+  unrouted), 1061 (327, unrouted); routedFrac 0.158. Entry mid y p50 -52.3 z 1.544.
+  Unchanged mechanism: far crown roots crossing (groom27 blend defect, out of scope).
+- step2 -x shell: roots p50 49.5mm (temple curtain, NOT crown); top guide 2278
+  (2098/4833 strands = 43%, UNROUTED), then 264/355/1096 unrouted; routedFrac 0.0077.
+  Entry mid y p50 -52.5 z 1.540. Nearby roots on one unrouted backbone dominate.
+- step2 -x column: roots p50 24.2mm; guides 2278 (406, unrouted) + 2700 (254, ROUTED).
+- step3 shell routedFrac 0.74 (+x) / 0.77 (-x): guide 2507 (+x, 3771, routed) and
+  2263 (-x, 5822, routed) dominate. Column -x 99.5% routed, 2263 alone 9099/10332
+  strands, col roots p50 44.9mm. The ROUTED guides themselves transit shell+column;
+  forcing band children onto them + clumping drags the band into the ear. gt30 max
+  stays 118.04mm but count 2161->15883 (far-snap to distant routed guides).
+- inputs audit: roots-34mask20 ~mirror-symmetric (p50 0.00mm, max 2.94, 39>2mm);
+  guides-34mirror NOT set-symmetric (p90 1459mm); proxy shells exactly symmetric.
+  Guide-level asymmetry is a prior-round artifact, out of scope, reported as found.
+
+SCOPE: new code tools/openclinxr/hair-groom/strands/interp_children.py (--ear-band-routed,
+default OFF; identity35 proves no-op) + E drivers (run_gates35/iou35/run_cross35/
+run_grad35/residual35/ears35/make_sheet35/run_renders35). New evidence E/hair-groom35/.
+Store (NOT in git): /Volumes/files/openclinxr-assets/store/hair-groom35/ + build.json
+SHA sidecars. Renders E/renders-35step{2,3}{,neg,ear}. Sheet rows target|groom34|
+step2|step3 (3q, 3q -x flip, profile, profile -x flip, ear +x, ear -x flip);
+ears.png 640x640 1:1 native crops both sides.
+NOT TESTED: wearer-side (Quest) views; VLM review of sheet/ears; step2det sha
+(see DONE.txt - filled at commit time); front/profile/back IoU for step3 (3D/render
+gates already fail, no build survives).
+VISUAL READ (citing crops): ears.png +x row - groom34 a few dark wisps in upper
+concha; step2 concha fully clear and symmetric-looking; step3 denser slab pressing
+over upper ear, concha half-shadowed. ears.png -x flip row - groom34 upper ear buried
+under slab, lobe only (brief confirmed); step2 FULL ear visible, concha clear, reads
+mirror-symmetric with +x (the headline win); step3 slab returns over upper ear with
+strands crossing the concha. sheet.png 3q -x flip: step3 hangs a thick curtain slab
+in front of/below the ear; profile +x step3: a curled roll sits ON the ear. The tuck
+clump as coded reads as hair dragged INTO the ear, not held behind it.
+GATES_PASS: NO. Zero-gates fail on both sides in step2 (shell 4900/8818, column
+26/709, profile -x 82/49px, 3q -x mirror 979px) and catastrophically in step3.
+Passes: insideBody step2, concha render step2, 3q +x box, profile +x box, front IoU
+step2 (0.7947), 3q IoU step2, gradAniso both, determinism, calibration, identity.
+REMAINING (measured, no fix invented): -x shell riders are NEARBY (p50 49.5mm) on
+unrouted guide 2278 (43%); column -x roots p50 24.2mm on 2278/2700; routed set
+(2263/2507) violates shell/column itself, so routed-clumping cannot hold the tuck.

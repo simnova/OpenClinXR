@@ -1,0 +1,21 @@
+hair-hull5 DONE
+==============================================================================
+STEP 1: E/hull.npz promoted from hair-hull4 WS/baseline_kept.npz (bit-identical
+occupancy 393153 vox + uint16 states; hull3 15-key schema; 6 views incl. both
+mirrors). File exists, verified on load.
+STEP 2: every hull3 gate + redefined sensitivity gate re-scored with numbers
+(WS/rescore.json; undilated 6-view re-carve re-run, reproduces hull4
+sens.json). 8/9 PASS. Redefined-(ii) FAILS as specified: zero-slack miss
+deltas concentrate in crown-top bands (front rows 57-216, 3q rows 86-205),
+not the hem band (hem band0 green everywhere, d <= 2.9 px).
+STEP 3: E/hull.png rendered (Blender, opaque light-grey, key+fill) and READ:
+dome cap over crown, symmetric curtains/sheet matching aisha-v3 targets. A
+Y-flip OBJ-import artefact that buried the dome (bald-crown first render,
+same artefact present in hull3's hull.png) was diagnosed by scene bounds and
+fixed E-side (WS/hull_surface_fig.obj); canonical mesh untouched.
+GATE CHANGE: S6/hull3.py block only (HEM_BAND_PX, SENSITIVITY_REDEFINED,
+hem_start_row + 40 px band regionalization note). No carve-rule change.
+VERDICT: GATES_FAIL (single failing sub-gate: redefined sensitivity-(ii)).
+E/RESULT.txt states every number + the crown-apex mechanism + the
+extend-exception-or-restate-on-excess recommendation. No re-carve needed for
+the re-decision. No *.blend under either write root.

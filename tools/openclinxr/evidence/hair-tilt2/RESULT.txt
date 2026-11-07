@@ -1,0 +1,82 @@
+HAIR TILT 2 — ZERO-MEAN PER-FIBRE WAVE (no root rotation)
+
+Lineage: E/tilt.py is the hair-tilt1 tilt.py copied verbatim (helpers kept);
+E/wave.py replaces apply_tilt_wave's root rotation (s*tan(theta)) with
+offset(s) = A1*sin(2*pi*s/L + phi1) + A2*sin(2*pi*s/(L/2.3) + phi2),
+A2 = A1/2, L = 80 mm, in the local strand frame (S = sheet/in-plane,
+N = normalize(T x S)/out-of-sheet). phi1/phi2 come from independent smooth
+phase FIELDS over the scalp (5 mm lattice noise, bilinearly interpolated
+at the root: sub-bundles move together, review 18b). Envelope: zero within
+3 mm of the part, fade-in smooth(s/15mm), fade-out 1-smooth over the last
+20 mm (tips return toward the unwaved end). Roots fixed. Out-of-sheet peak
+(w10m) 1.44 mm <= 1.5 mm cap (review 18c). Guides untouched. Collider
+audit = transport2 repair.py flow (3x repair_outside + strict clamp + final
+repair). Material: hair-look7 best-params.json. Scorer: hair-score/score.py
+schema v2. Base (a1+look7): IoU f/p/b = 0.6883/0.6810/0.7819;
+ori err f/3q/p/b = 27.09/33.65/31.97/24.55; EMD = 3.96/7.36/29.23/9.48;
+back bands 353x41.1 vs TS 849x16.4; ear 127x6.7 vs TS 89x11.7;
+honest part/side 0.9482; eye/jaw openings 0.6046/0.4365.
+
+STEP 1 REALISED WAVE STATS (vs unwaved strand; per-fibre max displacement;
+tangent max ~150 deg is a near-degenerate-gradient artifact at tips/kinks,
+rms/p95 are the load-bearing stats; protected fibres 8949/69181 all cells):
+  cell | target/weights  | A1/A2 mm      | peakOut | tangent rms/p95 | disp p50/p95/max mm
+  w4i  | 4deg 100/0 in   | 0.414/0.207   | 0.000   | 1.390/2.629     | 0.597/0.619/0.621
+  w7i  | 7deg 100/0 in   | 0.727/0.364   | 0.000   | 2.375/4.619     | 1.049/1.087/1.091
+  w7m  | 7deg 30/70 mix  | 0.955/0.477   | 1.003   | 2.380/4.642     | 1.049/1.087/1.091
+  w10m | 10deg 30/70 mix | 1.371/0.686   | 1.440   | 3.380/6.622     | 1.505/1.561/1.566
+  c1   | 7deg 100/0 on r1| 0.727/0.364   | 0.000   | 2.563/4.707     | 1.048/1.087/1.091
+  vs tilt1 t4 (3.74 deg tilt std): p95 displacement 43.5 mm. The wave holds
+  p95 displacement to 0.6-1.6 mm at comparable peak tangent angles.
+
+STEP 2 GATES (inside 0; part gap <= 3 mm; eroded front mask within 5% of a1
+60422 px; face/eye openings within 1% of a1 0.6046/0.4365; honest part/side
+within 0.1 of a1 0.9482):
+  w4i: inside PASS; part 1.1 PASS; eroded 61999 (+2.61%) PASS; eye 0.6046 (0.00%) PASS; jaw PASS; honest 0.9104 (|d| 0.038) PASS
+  w7i: inside PASS; part 1.1 PASS; eroded 63022 (+4.30%) PASS; eye 0.6046 PASS; jaw PASS; honest 1.0632 (|d| 0.115) FAIL
+  w7m: inside PASS; part 1.1 PASS; eroded 62418 (+3.30%) PASS; eye 0.6046 PASS; jaw PASS; honest 1.0101 (|d| 0.062) PASS
+  w10m: inside PASS; part 1.1 PASS; eroded 62702 (+3.77%) PASS; eye 0.6046 PASS; jaw PASS; honest 1.0798 (|d| 0.132) FAIL
+  c1: inside PASS; part 1.1 PASS; eroded 71845 (+18.91%) FAIL; eye 0.5849 (|d| 0.0197) FAIL; jaw PASS; honest 1.4657 FAIL
+
+STEP 3 SCORES (look7 material; IoU f/p/b; ori err f/3q/p/b; EMD f/3q/p/b):
+  w4i: IoU = 0.6878/0.6830/0.7806 (d -0.0005/+0.0020/-0.0013); ori = 27.18/34.87/31.06/23.33 (d +0.09/+1.22/-0.91/-1.22); EMD = 4.39/9.05/27.57/7.96; back 321x44.7 (0.91x); ear 134x6.8
+  w7i: IoU = 0.6889/0.6841/0.7795 (d +0.0006/+0.0031/-0.0024); ori = 27.53/34.14/32.34/22.92 (d +0.44/+0.49/+0.37/-1.63); EMD = 4.60/7.76/29.90/7.47; back 458x31.3 (1.30x, smaller); ear 168x5.5
+  w7m: IoU = 0.6908/0.6809/0.7783 (d +0.0025/-0.0001/-0.0036); ori = 27.50/33.83/30.70/22.98 (d +0.41/+0.18/-1.27/-1.57); EMD = 4.98/7.32/27.01/7.45; back 397x36.1 (1.12x); ear 152x5.7
+  w10m: IoU = 0.6925/0.6805/0.7772 (d +0.0042/-0.0005/-0.0047); ori = 27.40/33.72/29.91/22.21 (d +0.31/+0.07/-2.06/-2.34); EMD = 3.54/6.30/25.22/6.93; back 390x38.2 (1.10x); ear 155x5.6
+  c1 (r1+w7i): IoU = 0.7098/0.6950/0.7643 (d +0.0215/+0.0140/-0.0176); ori = 27.04/32.60/33.02/22.97 (d -0.05/-1.05/+1.05/-1.58); EMD = 4.23/6.74/29.71/7.51; back 449x31.8 (1.27x); ear 103x10.5 (closest to TS 89x11.7)
+  KEEP rule (back count >= 2x base=706 with mean <= 25 px; no IoU drop > 0.01
+  any view; ori not worse by > 1 deg any view):
+  w4i: 0.91x FAIL; IoU PASS; ori FAIL (3q +1.22) -> REVERTED
+  w7i: 1.30x FAIL; IoU PASS; ori PASS -> REVERTED (bands)
+  w7m: 1.12x FAIL; IoU PASS; ori PASS -> REVERTED (bands)
+  w10m: 1.10x FAIL; IoU PASS; ori PASS -> REVERTED (bands)
+  c1: 1.27x FAIL; IoU FAIL (back -0.0176); ori FAIL (profile +1.05) -> REVERTED
+  Direction (review 18a): in-plane beats out-of-sheet at equal peak angle
+  (w7i 458 vs w7m 397 back bands); the mixed cells gain nothing in any view.
+  Look-sheet: E/look-sheet.png rows TS | current(a1+look7) | tilt1-t4 | best-w7i;
+    cols front, three_quarter, profile_90, back, back crop (320,280,704,664),
+    ear crop (three_quarter 100,240,484,624).
+
+KEPT/REVERTED: all five REVERTED. No KEPT cell. Scores and renders retained
+under E/scores/* and E/cells/*/strands.npz for the record.
+c1 selection (declared before building): w7i = max back bands (458) among
+w-cells passing the IoU+orientation KEEP clauses.
+
+SAW::The hypothesis half-confirmed: the zero-mean wave holds the silhouette
+(eroded mask +2.6/+4.3/+3.3/+3.8% vs tilt1's +26/+45/+62%, IoU never drops
+more than 0.005 in any w-cell, eye/jaw openings bit-identical to a1) and
+tilt1's band fragmentation does NOT reproduce — the best wave cell reaches
+only 458 back bands vs tilt1 t4's 778 at a comparable peak tangent angle,
+and the count does not grow monotonically with amplitude (w7i 458 > w10m
+390). The fragmentation came from the rigid per-fibre ROTATION (coherent
+slope change along the whole strand, accumulating centimetres of
+displacement), not from tangent variation per se: the wave's slope
+oscillates about zero along the strand, so adjacent highlight rows shift in
+opposite directions and re-merge into the same coarse bands. Against TS the
+first wrong read is unchanged: the back curtain keeps thick smooth vertical
+bands (best 458 x 31 px vs TS 849 x 16 px). c1 shows the r1 base and the
+wave do not stack (back IoU -0.0176, eroded +18.9%, eye -1.96 pp inherited
+from r1); the front curtain still has no slack left for direction surgery.
+
+NOT TESTED::Physical Quest 3 / worn-headset evidence; clinical validity/
+scoring claims (out of scope per repo guardrails).

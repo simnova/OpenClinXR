@@ -1,0 +1,43 @@
+{
+ "guides": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz",
+ "units": "m",
+ "arcMm": [
+  10,
+  80
+ ],
+ "nGuides": 2707,
+ "bands": {
+  "parietal": {
+   "n": 21649,
+   "p50": 8.085,
+   "p90": 17.048,
+   "std": 6.524,
+   "min": -6.017,
+   "max": 51.141
+  },
+  "temple": {
+   "n": 9806,
+   "p50": 5.573,
+   "p90": 9.033,
+   "std": 4.029,
+   "min": -10.083,
+   "max": 32.074
+  },
+  "crown": {
+   "n": 26171,
+   "p50": 6.555,
+   "p90": 11.454,
+   "std": 3.645,
+   "min": -10.083,
+   "max": 29.822
+  },
+  "back": {
+   "n": 1005,
+   "p50": 13.63,
+   "p90": 27.504,
+   "std": 7.992,
+   "min": 4.113,
+   "max": 46.237
+  }
+ }
+}

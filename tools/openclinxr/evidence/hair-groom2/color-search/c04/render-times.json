@@ -1,0 +1,40 @@
+{
+  "engine": "CYCLES-CPU",
+  "envOverrides": {
+    "HAIR_COLOR_SCALE": "",
+    "HAIR_R": "",
+    "HAIR_ROUGH": "",
+    "HAIR_TRT": "",
+    "HAIR_TT": ""
+  },
+  "idBodyHoldout": true,
+  "material": {
+    "Color": [
+      0.029999999329447746,
+      0.014999999664723873,
+      0.00800000037997961,
+      1.0
+    ],
+    "R lobe": 1.0,
+    "Roughness": 0.30000001192092896,
+    "TRT lobe": 1.0,
+    "TT lobe": 0.5,
+    "model": "HUANG",
+    "parametrization": "COLOR"
+  },
+  "relitNote": "none (studio rig only)",
+  "rig": "target2 studio rig verbatim: world 0.5 grey, 12m backdrop (0.72,0.72,0.74) at y+2.2, Area key 100W/2m front-left, fill 40W/2m front-right, rim 60W/1.5m behind-top, film opaque (beauty)",
+  "seconds": {
+    "back": 53.4,
+    "front": 20.9
+  },
+  "seed": 7,
+  "size": 512,
+  "spp": 64,
+  "total": 76.5,
+  "transmissionNote": "TT lobe 0.5 per card; look7 lobe_T recorded in params, unused",
+  "views": [
+    "back",
+    "front"
+  ]
+}

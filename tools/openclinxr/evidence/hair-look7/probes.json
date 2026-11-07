@@ -1,0 +1,536 @@
+{
+  "schemaVersion": 1,
+  "resolution": 512,
+  "samples": 32,
+  "geometrySource": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-real1/cells/a1/strands.npz",
+  "rigSource": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-look5/cells/best/metrics.json",
+  "targetPhotometrics": {
+    "front": {
+      "p50": 0.0660643137254902,
+      "p90": 0.17471529411764705,
+      "hueDeg": 14.000403285023562,
+      "saturation": 0.19277108433734938
+    },
+    "three_quarter": {
+      "p50": 0.06687764705882353,
+      "p90": 0.14758352941176472,
+      "hueDeg": 21.266061323378928,
+      "saturation": 0.19298245614035092
+    },
+    "profile_90": {
+      "p50": 0.09601647058823529,
+      "p90": 0.1601819607843137,
+      "hueDeg": 23.433920630079907,
+      "saturation": 0.16666666666666666
+    },
+    "back": {
+      "p50": 0.11228941176470587,
+      "p90": 0.1766862745098039,
+      "hueDeg": 20.51565726511302,
+      "saturation": 0.23214285714285707
+    }
+  },
+  "baseFaceCheekP50": 0.7336650980392156,
+  "cells": {
+    "base": {
+      "views": {
+        "front": {
+          "p50": 0.12433725490196076,
+          "p90": 0.2086250980392157,
+          "highlight": {
+            "hueDeg": 22.129570795624794,
+            "saturation": 0.2000000000000001,
+            "pixels": 2133
+          },
+          "maskPx": 21176
+        },
+        "three_quarter": {
+          "p50": 0.15542666666666669,
+          "p90": 0.2019349019607843,
+          "highlight": {
+            "hueDeg": 21.880904268282332,
+            "saturation": 0.14285714285714285,
+            "pixels": 2857
+          },
+          "maskPx": 28545
+        },
+        "profile_90": {
+          "p50": 0.1803043137254902,
+          "p90": 0.21591764705882355,
+          "highlight": {
+            "hueDeg": 20.73905525570719,
+            "saturation": 0.14754098360655743,
+            "pixels": 4110
+          },
+          "maskPx": 40762
+        },
+        "back": {
+          "p50": 0.16326980392156862,
+          "p90": 0.20331921568627453,
+          "highlight": {
+            "hueDeg": 17.21530099238693,
+            "saturation": 0.14285714285714285,
+            "pixels": 6669
+          },
+          "maskPx": 60445
+        }
+      },
+      "faceCheekP50": 0.7328243137254902,
+      "faceMoveFraction": 0.0011460056038818574,
+      "silhouette": {
+        "front": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "three_quarter": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "profile_90": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "back": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        }
+      },
+      "gates": {
+        "absDeltaIouAtMost001EachView": true,
+        "faceCheekWithin5Percent": true
+      },
+      "label": "t3 COLOR at TS back-hair linear colour",
+      "params": {
+        "colorScale": 1.0,
+        "hueShiftDeg": 0.0,
+        "directColorLinear": [
+          0.01599629336550963,
+          0.011612245179743883,
+          0.009134058702220787
+        ],
+        "reflection": 0.40185151623278714,
+        "secondaryReflection": 0.8009397021454464,
+        "roughness": 0.3900021247258665
+      },
+      "materialReadback": {
+        "model": "HUANG",
+        "parametrization": "COLOR",
+        "Color": [
+          0.01599629409611225,
+          0.011612244881689548,
+          0.009134058840572834,
+          1.0
+        ],
+        "Reflection": 0.40185150504112244,
+        "Secondary Reflection": 0.800939679145813,
+        "Roughness": 0.39000213146209717
+      },
+      "renderSeconds": {
+        "front": 9.304046500008553,
+        "three_quarter": 10.074626374989748,
+        "profile_90": 11.628860500000883,
+        "back": 11.920420042006299
+      }
+    },
+    "k1": {
+      "views": {
+        "front": {
+          "p50": 0.10810039215686275,
+          "p90": 0.18541490196078433,
+          "highlight": {
+            "hueDeg": 22.262562846800574,
+            "saturation": 0.17857142857142858,
+            "pixels": 2121
+          },
+          "maskPx": 21176
+        },
+        "three_quarter": {
+          "p50": 0.13526823529411763,
+          "p90": 0.17840549019607843,
+          "highlight": {
+            "hueDeg": 21.77228383797469,
+            "saturation": 0.12244897959183673,
+            "pixels": 2935
+          },
+          "maskPx": 28545
+        },
+        "profile_90": {
+          "p50": 0.15963137254901957,
+          "p90": 0.19100392156862744,
+          "highlight": {
+            "hueDeg": 20.565178128401254,
+            "saturation": 0.12727272727272732,
+            "pixels": 4213
+          },
+          "maskPx": 40762
+        },
+        "back": {
+          "p50": 0.14311137254901962,
+          "p90": 0.1792392156862745,
+          "highlight": {
+            "hueDeg": 15.996144986575784,
+            "saturation": 0.12244897959183673,
+            "pixels": 6536
+          },
+          "maskPx": 60445
+        }
+      },
+      "faceCheekP50": 0.7328125490196078,
+      "faceMoveFraction": 0.0011620411300556114,
+      "silhouette": {
+        "front": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "three_quarter": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "profile_90": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "back": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        }
+      },
+      "gates": {
+        "absDeltaIouAtMost001EachView": true,
+        "faceCheekWithin5Percent": true
+      },
+      "label": "TS linear colour x0.60",
+      "params": {
+        "colorScale": 0.6,
+        "hueShiftDeg": 0.0,
+        "directColorLinear": [
+          0.009597776019305778,
+          0.0069673471078463296,
+          0.005480435221332472
+        ],
+        "reflection": 0.40185151623278714,
+        "secondaryReflection": 0.8009397021454464,
+        "roughness": 0.3900021247258665
+      },
+      "materialReadback": {
+        "model": "HUANG",
+        "parametrization": "COLOR",
+        "Color": [
+          0.00959777645766735,
+          0.006967347115278244,
+          0.005480435211211443,
+          1.0
+        ],
+        "Reflection": 0.40185150504112244,
+        "Secondary Reflection": 0.800939679145813,
+        "Roughness": 0.39000213146209717
+      },
+      "renderSeconds": {
+        "front": 8.988199167011771,
+        "three_quarter": 10.007237375015393,
+        "profile_90": 9.685564792016521,
+        "back": 12.679639375011902
+      }
+    },
+    "k2": {
+      "views": {
+        "front": {
+          "p50": 0.10025725490196077,
+          "p90": 0.1747670588235294,
+          "highlight": {
+            "hueDeg": 22.264485800622072,
+            "saturation": 0.16,
+            "pixels": 2127
+          },
+          "maskPx": 21176
+        },
+        "three_quarter": {
+          "p50": 0.12659137254901962,
+          "p90": 0.16692392156862745,
+          "highlight": {
+            "hueDeg": 21.49570835992594,
+            "saturation": 0.10869565217391297,
+            "pixels": 2989
+          },
+          "maskPx": 28545
+        },
+        "profile_90": {
+          "p50": 0.1506713725490196,
+          "p90": 0.1792392156862745,
+          "highlight": {
+            "hueDeg": 20.573356909110025,
+            "saturation": 0.11538461538461539,
+            "pixels": 4213
+          },
+          "maskPx": 40762
+        },
+        "back": {
+          "p50": 0.13443450980392155,
+          "p90": 0.17056235294117647,
+          "highlight": {
+            "hueDeg": 15.278543378611642,
+            "saturation": 0.10869565217391297,
+            "pixels": 6055
+          },
+          "maskPx": 60445
+        }
+      },
+      "faceCheekP50": 0.7328125490196078,
+      "faceMoveFraction": 0.0011620411300556114,
+      "silhouette": {
+        "front": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "three_quarter": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "profile_90": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "back": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        }
+      },
+      "gates": {
+        "absDeltaIouAtMost001EachView": true,
+        "faceCheekWithin5Percent": true
+      },
+      "label": "TS linear colour x0.45",
+      "params": {
+        "colorScale": 0.45,
+        "hueShiftDeg": 0.0,
+        "directColorLinear": [
+          0.007198332014479334,
+          0.005225510330884748,
+          0.004110326415999354
+        ],
+        "reflection": 0.40185151623278714,
+        "secondaryReflection": 0.8009397021454464,
+        "roughness": 0.3900021247258665
+      },
+      "materialReadback": {
+        "model": "HUANG",
+        "parametrization": "COLOR",
+        "Color": [
+          0.007198331877589226,
+          0.005225510336458683,
+          0.004110326524823904,
+          1.0
+        ],
+        "Reflection": 0.40185150504112244,
+        "Secondary Reflection": 0.800939679145813,
+        "Roughness": 0.39000213146209717
+      },
+      "renderSeconds": {
+        "front": 9.67986112498329,
+        "three_quarter": 9.966300541011151,
+        "profile_90": 9.319309207989136,
+        "back": 7.943129374994896
+      }
+    },
+    "k3": {
+      "views": {
+        "front": {
+          "p50": 0.11173882352941175,
+          "p90": 0.19072078431372547,
+          "highlight": {
+            "hueDeg": 22.69195908780967,
+            "saturation": 0.22807017543859653,
+            "pixels": 2120
+          },
+          "maskPx": 21176
+        },
+        "three_quarter": {
+          "p50": 0.13581882352941177,
+          "p90": 0.18117411764705885,
+          "highlight": {
+            "hueDeg": 22.124888597107713,
+            "saturation": 0.17307692307692302,
+            "pixels": 2856
+          },
+          "maskPx": 28545
+        },
+        "profile_90": {
+          "p50": 0.1601819607843137,
+          "p90": 0.19178227450980398,
+          "highlight": {
+            "hueDeg": 20.85221869942792,
+            "saturation": 0.17543859649122806,
+            "pixels": 4077
+          },
+          "maskPx": 40762
+        },
+        "back": {
+          "p50": 0.14169098039215686,
+          "p90": 0.18259450980392156,
+          "highlight": {
+            "hueDeg": 17.254612552167295,
+            "saturation": 0.17307692307692302,
+            "pixels": 6058
+          },
+          "maskPx": 60445
+        }
+      },
+      "faceCheekP50": 0.7328243137254902,
+      "faceMoveFraction": 0.0011460056038818574,
+      "silhouette": {
+        "front": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "three_quarter": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "profile_90": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "back": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        }
+      },
+      "gates": {
+        "absDeltaIouAtMost001EachView": true,
+        "faceCheekWithin5Percent": true
+      },
+      "label": "t3 colour; Reflection 0.25",
+      "params": {
+        "colorScale": 1.0,
+        "hueShiftDeg": 0.0,
+        "directColorLinear": [
+          0.01599629336550963,
+          0.011612245179743883,
+          0.009134058702220787
+        ],
+        "reflection": 0.25,
+        "secondaryReflection": 0.8009397021454464,
+        "roughness": 0.3900021247258665
+      },
+      "materialReadback": {
+        "model": "HUANG",
+        "parametrization": "COLOR",
+        "Color": [
+          0.01599629409611225,
+          0.011612244881689548,
+          0.009134058840572834,
+          1.0
+        ],
+        "Reflection": 0.25,
+        "Secondary Reflection": 0.800939679145813,
+        "Roughness": 0.39000213146209717
+      },
+      "renderSeconds": {
+        "front": 6.055384415987646,
+        "three_quarter": 6.271678582997993,
+        "profile_90": 8.017125084006693,
+        "back": 8.287441083026351
+      }
+    },
+    "k4": {
+      "views": {
+        "front": {
+          "p50": 0.09914039215686274,
+          "p90": 0.17194666666666666,
+          "highlight": {
+            "hueDeg": 22.58704857243251,
+            "saturation": 0.20389266817838242,
+            "pixels": 2120
+          },
+          "maskPx": 21176
+        },
+        "three_quarter": {
+          "p50": 0.12069882352941178,
+          "p90": 0.1635529411764706,
+          "highlight": {
+            "hueDeg": 21.914567035598484,
+            "saturation": 0.1521739130434782,
+            "pixels": 2918
+          },
+          "maskPx": 28545
+        },
+        "profile_90": {
+          "p50": 0.14394509803921568,
+          "p90": 0.17503450980392157,
+          "highlight": {
+            "hueDeg": 20.828927265315045,
+            "saturation": 0.14285714285714293,
+            "pixels": 4337
+          },
+          "maskPx": 40762
+        },
+        "back": {
+          "p50": 0.12742509803921567,
+          "p90": 0.1635529411764706,
+          "highlight": {
+            "hueDeg": 16.14616546401263,
+            "saturation": 0.14893617021276603,
+            "pixels": 6387
+          },
+          "maskPx": 60445
+        }
+      },
+      "faceCheekP50": 0.7328243137254902,
+      "faceMoveFraction": 0.0011460056038818574,
+      "silhouette": {
+        "front": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "three_quarter": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "profile_90": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "back": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        }
+      },
+      "gates": {
+        "absDeltaIouAtMost001EachView": true,
+        "faceCheekWithin5Percent": true
+      },
+      "label": "TS linear colour x0.60; Reflection 0.30",
+      "params": {
+        "colorScale": 0.6,
+        "hueShiftDeg": 0.0,
+        "directColorLinear": [
+          0.009597776019305778,
+          0.0069673471078463296,
+          0.005480435221332472
+        ],
+        "reflection": 0.3,
+        "secondaryReflection": 0.8009397021454464,
+        "roughness": 0.3900021247258665
+      },
+      "materialReadback": {
+        "model": "HUANG",
+        "parametrization": "COLOR",
+        "Color": [
+          0.00959777645766735,
+          0.006967347115278244,
+          0.005480435211211443,
+          1.0
+        ],
+        "Reflection": 0.30000001192092896,
+        "Secondary Reflection": 0.800939679145813,
+        "Roughness": 0.39000213146209717
+      },
+      "renderSeconds": {
+        "front": 4.684354458004236,
+        "three_quarter": 6.075677499989979,
+        "profile_90": 6.3398669169982895,
+        "back": 8.02932050000527
+      }
+    }
+  }
+}

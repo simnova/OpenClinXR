@@ -1,0 +1,16 @@
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-hull3/workspace/ear_pinna.npz
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-hull5/hull.npz
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json
+/Volumes/files/src/openclinxr/.openclinxr/scratch/target-views/aisha-v3
+/Volumes/files/src/openclinxr/.openclinxr/scratch/target-views/aisha-v3/mask-back.png
+/Volumes/files/src/openclinxr/.openclinxr/scratch/target-views/aisha-v3/mask-front.png
+/Volumes/files/src/openclinxr/.openclinxr/scratch/target-views/aisha-v3/mask-three_quarter.png
+/Volumes/files/src/openclinxr/.openclinxr/scratch/target-views/aisha-v3/target-front-a1.png
+/Volumes/files/src/openclinxr/.openclinxr/scratch/target-views/aisha-v3/target-three_quarter-a1.png
+/tmp/station0b-run/station-frame.npz
+tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz
+tools/openclinxr/evidence/hair-groom4/tucked/earframe.json
+tools/openclinxr/evidence/hair-groom9/build/build.json
+tools/openclinxr/evidence/hair-groom9/build/guides-9.npz
+tools/openclinxr/evidence/hair-groom9/build/strands.npz
+tools/openclinxr/evidence/hair-scalp1/roots.npz

@@ -1,0 +1,97 @@
+{
+ "registration": "skull",
+ "idThreshold": 230,
+ "r1": {
+  "front": {
+   "transform": {
+    "scale": 0.9545143883864126,
+    "tx": 24.28863314615677,
+    "ty": 51.51811157072147
+   },
+   "chinRow": 608,
+   "above": {
+    "iou": 0.6087,
+    "nOursContour": 4773,
+    "nTgtContour": 2864,
+    "signedP50px": -11.0,
+    "signedP95px": 14.17,
+    "absP95px": 34.42,
+    "signedP50mm": -5.058,
+    "signedP95mm": 6.515,
+    "absP95mm": 15.826
+   },
+   "below": {
+    "iou": 0.1591,
+    "nOursContour": 2640,
+    "nTgtContour": 946,
+    "signedP50px": 86.96,
+    "signedP95px": 175.37,
+    "absP95px": 175.37,
+    "signedP50mm": 39.984,
+    "signedP95mm": 80.632,
+    "absP95mm": 80.632
+   }
+  },
+  "profile_90": {
+   "transform": {
+    "scale": 1.0511627906976744,
+    "tx": 124.30697674418604,
+    "ty": -12.702325581395343
+   },
+   "chinRow": 577,
+   "above": {
+    "iou": 0.854,
+    "nOursContour": 5210,
+    "nTgtContour": 1850,
+    "signedP50px": -9.0,
+    "signedP95px": 31.76,
+    "absP95px": 136.57,
+    "signedP50mm": -4.138,
+    "signedP95mm": 14.605,
+    "absP95mm": 62.791
+   },
+   "below": {
+    "iou": 0.8922,
+    "nOursContour": 1623,
+    "nTgtContour": 1158,
+    "signedP50px": -2.0,
+    "signedP95px": 2.83,
+    "absP95px": 8.94,
+    "signedP50mm": -0.92,
+    "signedP95mm": 1.3,
+    "absP95mm": 4.112
+   }
+  },
+  "back": {
+   "transform": {
+    "scale": 1.0403225806451613,
+    "tx": -19.645161290322562,
+    "ty": -31.25
+   },
+   "chinRow": 611,
+   "above": {
+    "iou": 0.8394,
+    "nOursContour": 10296,
+    "nTgtContour": 1923,
+    "signedP50px": -80.23,
+    "signedP95px": 21.93,
+    "absP95px": 162.19,
+    "signedP50mm": -36.889,
+    "signedP95mm": 10.084,
+    "absP95mm": 74.572
+   },
+   "below": {
+    "iou": 0.8059,
+    "nOursContour": 3644,
+    "nTgtContour": 1384,
+    "signedP50px": 0.0,
+    "signedP95px": 28.02,
+    "absP95px": 68.0,
+    "signedP50mm": 0.0,
+    "signedP95mm": 12.882,
+    "absP95mm": 31.266
+   }
+  }
+ },
+ "three_quarter": "no registered target (same as the shell lane)"
+}

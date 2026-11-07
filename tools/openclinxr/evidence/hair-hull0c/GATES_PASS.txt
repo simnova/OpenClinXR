@@ -1,0 +1,6 @@
+GATES_PASS=yes
+carve excess p95: front 2.0 / profile_90 2.0 / back 2.0 (<= 4 px)
+root proximity within 6 mm: all 100.0% / crown 100.0% (>= 95%)
+scalp-connected: union 1 component, keep [1], shellOutsideKept 0
+sensitivity max |d p95|: 4.7 px (1mm) / 3.04 px (undilated), no fragile
+bans: no *.blend; cards+scalp untouched; hull.py+render_hull.py untouched

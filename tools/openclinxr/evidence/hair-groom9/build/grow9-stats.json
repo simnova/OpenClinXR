@@ -1,0 +1,95 @@
+{
+ "nNew": 2650,
+ "nTucked": 57,
+ "nTotal": 2707,
+ "unreachable": 0,
+ "lengths": {
+  "p50": 301.9,
+  "p95": 452.8,
+  "max": 558.3
+ },
+ "stops": {
+  "part-local+edge-tail": 45,
+  "budget-fair+part-local+edge-tail": 4,
+  "edge-tail": 531,
+  "budget-fair+part-local": 7,
+  "budget-fair+edge-tail": 22,
+  "part-local": 135,
+  "budget-fair": 28,
+  "kept8a": 1878
+ },
+ "stopsBySide": {
+  "1.0": {
+   "part-local+edge-tail": 0,
+   "budget-fair+part-local+edge-tail": 0,
+   "edge-tail": 0,
+   "budget-fair+part-local": 2,
+   "budget-fair+edge-tail": 0,
+   "part-local": 99,
+   "budget-fair": 7,
+   "kept8a": 1225
+  },
+  "-1.0": {
+   "part-local+edge-tail": 45,
+   "budget-fair+part-local+edge-tail": 4,
+   "edge-tail": 531,
+   "budget-fair+part-local": 5,
+   "budget-fair+edge-tail": 22,
+   "part-local": 36,
+   "budget-fair": 21,
+   "kept8a": 653
+  }
+ },
+ "turnGateRelaxGuides": 0,
+ "turnGateRelaxSteps": 0,
+ "turnSmoothedBreaches15degPer5mm": 2636,
+ "turnSmoothedP50": 46.3,
+ "turnSmoothedP95": 71.8,
+ "turnSmoothedMax": 158.7,
+ "partCrossingsOver2mmAnterior": 184,
+ "earMinDistMm": 7.82,
+ "positionalProjections": 0,
+ "maxPositionalMoveMm": 0.0,
+ "priorStepFrac": 0.0,
+ "centerMergeSteps": 0,
+ "rideOutSteps": 0,
+ "steerSteps": 0,
+ "turnBudgetDeg": 600.0,
+ "regionBudgets": {
+  "faceframe": 650.0,
+  "crown": 300.0,
+  "back": 450.0,
+  "other": 650.0
+ },
+ "takeoffArcMm": 40.0,
+ "selective": {
+  "kept8a": 1877,
+  "retraced": 773,
+  "overBudget": 61,
+  "band": 191,
+  "xnegEdge": 603
+ },
+ "budgetCoastGuides": 61,
+ "budgetCoastSteps": 61,
+ "cumTurnP50": 129.4,
+ "cumTurnP95": 283.8,
+ "cumTurnMax": 604.4,
+ "corridorHalfMm": 2.5,
+ "corridorLenMm": 40.0,
+ "corridorRoots": 191,
+ "corridorStripGuides": 191,
+ "corridorStripSteps": 3241,
+ "edgeSlideGuides": 602,
+ "edgeSlideSteps": 6193,
+ "partX": 0.14,
+ "depthU": {
+  "lo": 0.3,
+  "hi": 0.9
+ },
+ "thicknessP50": 4.91,
+ "thicknessP90": 5.32,
+ "dstarP50": 2.82,
+ "dstarP90": 4.11,
+ "poissonSpacingMm": 6.0,
+ "seconds": 5.2
+}

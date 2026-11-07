@@ -1,0 +1,144 @@
+{
+  "fitTargetToRender": {
+    "scale": 1.2540248095075883,
+    "scaleBounded": true,
+    "tx": -234.68721250898497,
+    "ty": -132.49930400475597
+  },
+  "frame": 1024,
+  "maxTargetPx": 109.70464400678134,
+  "p95TargetPx": 106.8984778430834,
+  "pairs": [
+    {
+      "pair": "crown/skull_top",
+      "render": [
+        430.2980651855469,
+        111.48809814453125
+      ],
+      "target": [
+        527.5,
+        129.0
+      ]
+    },
+    {
+      "pair": "menton/chin",
+      "render": [
+        288.5628356933594,
+        578.5343017578125
+      ],
+      "target": [
+        451.98,
+        569.51
+      ]
+    },
+    {
+      "pair": "nose_tip",
+      "render": [
+        228.26829528808594,
+        415.97869873046875
+      ],
+      "target": [
+        421.19,
+        431.81
+      ]
+    },
+    {
+      "pair": "philtrum",
+      "render": [
+        248.85519409179688,
+        453.30438232421875
+      ],
+      "target": [
+        436.55,
+        488.26
+      ]
+    },
+    {
+      "pair": "acromion",
+      "render": [
+        817.9437255859375,
+        815.2571563720703
+      ],
+      "target": [
+        739.2,
+        711.11
+      ]
+    },
+    {
+      "pair": "shoulder/neck_base",
+      "render": [
+        512.0,
+        650.4205627441406
+      ],
+      "target": [
+        560.72,
+        716.485
+      ]
+    }
+  ],
+  "perLandmark": [
+    {
+      "dx_render_px": -3.487190679279024,
+      "dy_render_px": -82.21820172280832,
+      "pair": "crown/skull_top",
+      "resid_render_px": 82.29212108923947,
+      "resid_target_px": 65.62240273504055
+    },
+    {
+      "dx_render_px": 43.54408519889546,
+      "dy_render_px": 3.14606350009808,
+      "pair": "menton/chin",
+      "resid_render_px": 43.65758893199802,
+      "resid_target_px": 34.813975450087646
+    },
+    {
+      "dx_render_px": 65.22720171943024,
+      "dy_render_px": -6.977549741752966,
+      "pair": "nose_tip",
+      "resid_render_px": 65.59934484845013,
+      "resid_target_px": 52.31104229445724
+    },
+    {
+      "dx_render_px": 63.902123989755864,
+      "dy_render_px": 26.486467161200324,
+      "pair": "philtrum",
+      "resid_render_px": 69.1737984578227,
+      "resid_target_px": 55.161427376372906
+    },
+    {
+      "dx_render_px": -125.6557989069131,
+      "dy_render_px": -56.00687808788507,
+      "pair": "acromion",
+      "resid_render_px": 137.57234530270176,
+      "resid_target_px": 109.70464400678134
+    },
+    {
+      "dx_render_px": -43.53042132189,
+      "dy_render_px": 115.57009889114784,
+      "pair": "shoulder/neck_base",
+      "resid_render_px": 123.49633734718996,
+      "resid_target_px": 98.47997935198958
+    }
+  ],
+  "provenance": {
+    "bodyId": "mpfb-peds-parent-aisha",
+    "bodySha256": "5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde",
+    "detector": "MediaPipe tasks FaceLandmarker + PoseLandmarker, mediapipe 1.1.1 (Apache-2.0)",
+    "faceBundleSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+    "gateP95Px": 8.0,
+    "poseBundleSha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a",
+    "rotationDeg": 0.0,
+    "scaleBounds": [
+      0.5,
+      2.0
+    ],
+    "targetImage": "target-three_quarter.png",
+    "targetMask": "mask-three_quarter.png",
+    "targetMaskSha256": "9d25c81aebd6a8fa5665a457b28c94ad4b13c0b562a02e2d6c147c348cad6fd3",
+    "targetSha256": "7c05831a88e478abebf6f0cbf8060e1982e1e8179e9efb2aff72b90e26bc7022"
+  },
+  "reason": "p95 106.90px exceeds gate 8.00px",
+  "schemaVersion": "openclinxr.hair-groom.register3q.v1",
+  "status": "REGISTRATION_INSUFFICIENT",
+  "view": "three_quarter"
+}

@@ -1,0 +1,45 @@
+{
+  "tag": "s5h75",
+  "op": "rear-only independent lean-return (tilt5)",
+  "params": {
+    "sigma": 5.0,
+    "hold": 0.75,
+    "seed": 2026102003
+  },
+  "wave": {
+    "sigmaDeg": 5.0,
+    "coherent": false,
+    "hold": 0.75,
+    "thetaStdRear": 4.860631526121963,
+    "thetaMaxAbsRear": 21.55603987676045,
+    "rearFibres": 37647,
+    "tangentDevDeg": {
+      "rms": 8.753099436478184,
+      "p95": 14.169417498212022,
+      "max": 176.87649204262829
+    },
+    "tangentDevDegRear": {
+      "rms": 11.865610628936414,
+      "p95": 20.967729162276385
+    },
+    "maxDispMm": {
+      "p50": 0.24022926564790237,
+      "p95": 28.834827567921508,
+      "max": 101.06925090052424
+    },
+    "maxDispMmRear": {
+      "p50": 9.952429233749328,
+      "p95": 34.41817149164006,
+      "max": 101.06925090052424
+    },
+    "protectedFibres": 8949,
+    "seed": 2026102003
+  },
+  "curtainMaxAbsDiffMm": 0.0,
+  "endAngleDegPreRepair": {
+    "p50": 3.7062818942073608,
+    "p95": 27.33672255949759,
+    "max": 57.33929785765146
+  },
+  "partGapMm": 1.0999999940395355
+}

@@ -1,0 +1,160 @@
+station0b: library-topper removal + multiview envelope feasibility (KILL TEST) — RESULT
+================================================================================
+Card: can the generated target views be ONE plausible 3D hair volume on
+Aisha? Fit a frozen symmetric coarse envelope to front/profile_90/back;
+leave-one-view-out decides. Either verdict completes the card.
+WRITE ROOTS: S = tools/openclinxr/hair-groom, E = tools/openclinxr/evidence/hair-station0b.
+hair-score/ untouched (git status shows only S + E paths).
+
+STEP 0 — library topper removed (E/frame-nohair.png, E/hair-inventory.json, E/head-meshes.json)
+  Station0a's "No hair in scene" was FALSE. The GLB carries one head topper:
+    makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh
+    3085 verts / 4975 tris; material
+    openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat.
+    Source: MakeClothes-library asset "toigo blunt bob with bangs" fitted to the
+    mpfb peds anxious parent — carried ONLY by the mesh/material names. The GLB
+    JSON chunk records NO extras on any mesh, mesh node, or material.
+  Other head meshes, all KEPT and stated: brow 5460v, lash 11088v, eye proxy
+  (.low-poly) 96v, teeth_base 4494v, tongue01 253v (materials in hair-inventory.json).
+  Garments + body kept. A 42-vert material-less Icosphere is created by the GLB
+  import at the scene origin (hidden from renders); it is identical before/after,
+  so the render diff below is topper-only.
+  S/export_frame.py gains exclude_library_topper (drops meshes whose name carries
+  the topper marker while keeping brow/lash furniture; asserts none remain) and
+  records removed_toppers in station-frame.npz. Re-ran the station runner clean:
+  /tmp/station0b-run, REMOVED_TOPPERS=[the bob mesh], registration projection
+  check worst 0.469 px (under the 0.5 bar, same as station0a).
+  E/frame-nohair.png re-renders the station0a composite without the topper.
+  Changed-vs-station0a render pixels (512px frame): front 138377 (52.8%),
+  three_quarter 120216 (45.9%), back 121876 (46.5%), profile_90 87143 (33.2%),
+  crown_top 71974 (27.5%). Bare head verified visually; brows/lashes/eyes kept.
+
+STEP 1 — envelope model, frozen BEFORE optimisation (E/envelope-spec.json)
+  SPEC_SHA 71f84b7f2eca97c8b8b7f40a514c0a94d9d21f6a12125be8e2107f4462c9e2d1
+  (fits.json records the same sha; sha of envelope-spec.json re-verified AFTER
+  fitting: identical — the spec was not edited to chase a verdict.)
+  Process note: a first spec (cd79b415) was voided BEFORE any production fit —
+  smoke diagnostics showed its anchor table was meter-scale fallback garbage
+  (anchor builder compared meter verts against mm drops). Only diagnostics ran
+  against v1; every fit in fits.json ran against v2 (specSha field proves it).
+  Model: 17 parameters (bounds mm): cap_top [6,40], crown_w [40,95],
+  apex_front [15,70], apex_back [15,80], hairline_z [40,105], side_hl [3,45],
+  back_hl [3,45], side_ear [3,65], back_ear [3,65], curtain_front_ear [-40,110],
+  side_jaw [3,85], jaw_front [-60,110], back_jaw [3,85], hem_drop [260,560],
+  hem_halfw [55,175], hem_front [-80,130], hem_back [-170,-20].
+  7 stacked ellipse rings (apex, hairline, ear@115, jaw@170, shoulder@255 and
+  mid interpolated jaw->hem, hem; loop N=64) on the head frame (X lateral,
+  U anterior+ rel crown, Z up), anchored to 53 measured head-section rows
+  (drops 0..260 step 5: half-width / front / back of the body surface).
+  Raster: NumPy pinhole projection with the pinned cameras (matrixWorld + lens
+  + sensor width verbatim; projector reproduces the pinned render triples to
+  worst 0.469 px, E/check_project.py), triangles filled with polygon fill at
+  1024 px, mapped to the target frame with the station similarity transforms.
+  No Cycles anywhere in the loop. Collision: OFFLINE VOXEL SDF of the body
+  (4 mm voxels, region x[-250,250] y[-350,300] z[950,1800] mm; conservative
+  triangle-AABB mark + hole-fill + EDT both sides, E/body-sdf.npz 6.2 MB;
+  watertight sanity: head-section interior fractions 0.020..0.046, all > 0.002).
+  Surface reads within +-1 voxel; collision = penetration deeper than 4 mm.
+  Geometry bugs fixed pre-fit (smoke stage, spec untouched): world/mm mix in
+  the mesh builder; back-half ellipse branch traced the mirrored front half.
+
+STEP 2 — fit (S/envelope.py loss + S/fit_envelope.py, scipy least_squares)
+  Loss: one-sided signed contour distance, Huber delta 3 px: excess (fitted
+  boundary outside target) + miss (target boundary outside fitted), hairline
+  rows (<p15) and hem rows (>p80) weight x2; collision weight x8 (delta 2 mm);
+  smoothness 0.02 on second differences of the side/back/curtain sequences.
+  Optimiser: trf, bounds from spec, x_scale = bound range,
+  diff_step = 5% of range (raster/EDT objective is quantised; eps-steps stall),
+  ftol/xtol/gtol 1e-10, max_nfev 300, THREE deterministic starts
+  (spec / long-wide / narrow-short), best cost kept per fit. All starts land in
+  one basin (costs within ~5%). No photometric term.
+  All-view in-sample contour (pooled both-direction absolute, px [mm]):
+    front      p50 26.31 [11.88]  p95 103.02 [46.51]
+    profile_90 p50 26.87 [13.14]  p95  65.19 [31.88]
+    back       p50 33.24 [17.51]  p95 122.80 [64.68]
+  Pitch at crown: front 0.451, profile 0.489, back 0.527 mm/px.
+
+STEP 3 — leave-one-view-out (each pair fit, held-out predicted)
+  Threshold: max(2 x registration RMS, 12 px). Registration residuals RMS = 0.0
+  (exact 3-point fit, /tmp/station0b-run/registration.json) so the 12 px floor
+  governs: THRESHOLD = 12.0 px.
+  Held-out contour p50/p95 (px [mm]) + saturation:
+    holdout-front    -> front      p50 44.55 [20.11]  p95 112.76 [50.91]; no sat
+    holdout-profile -> profile_90 p50 37.34 [18.26]  p95 117.95 [57.68]; cap_top sat
+    holdout-back    -> back        p50 57.20 [30.13]  p95 132.29 [69.68]; hem_drop sat
+  Collision (max penetration beyond 4 mm / violating samples):
+    all 47.3mm/114; holdout-front 44.4/132; holdout-profile 23.1/117;
+    holdout-back 48.0/92. All four fits collide; two saturate bounds.
+  Fitted hem_drop in ALL fits: 260.9..280.6 (lo bound 260) — every fit pins the
+  hem at the shortest allowed length while the targets show long hair.
+  Fixed-plane probe (DESCRIPTIVE ONLY, not in verdict): each view's hem rays
+  meet the plane 25 mm behind the body surface along the central ray:
+    front      median hem z 1401.2 mm, posterior y   -1.5 mm
+    profile_90 median hem z 1355.1 mm, posterior y  109.9 mm
+    back       median hem z 1321.0 mm, posterior y  -50.5 mm
+    spread of median hem z across views: 80.2 mm;
+    spread of median posterior y: 160.4 mm.
+  The three views do not agree on where the hem lives in 3D either.
+
+STEP 4 — verdict (E/feasibility.json): STOP
+  PASS required every held-out p95 <= 12.0 px AND no saturated bound AND
+  collision 0. Observed: held-out p95 = 112.8 / 118.0 / 132.3 px
+  (9.4x / 9.8x / 11.0x over threshold); cap_top saturated (holdout-profile_90),
+  hem_drop saturated (holdout-back); collision 23.1..48.0 mm in every fit.
+  Which view disagrees and by how much: ALL THREE — front by 100.8 px over,
+  profile_90 by 106.0 px over, back by 120.3 px over (p95, held-out).
+  Mechanism (read off fits + figures, no post-hoc spec change): a single smooth
+  symmetric ring stack cannot be long, wide, thin-front-to-back, AND outside
+  the body at once. Lengthening the hem onto the torso forces the mid/shoulder
+  rings through the trapezius/chest (collision), so every fit retreats to
+  hem_drop ~= lo bound; widening to match the front/back hulls breaks the thin
+  profile strand; the front face-hole topology (hair curtains with visible face
+  between) has no representation in a solid fill. The envelope family is
+  jointly inexplicable for these three masks — the guide fitter must not start.
+  three_quarter VALIDATION (E/validation-three_quarter.png, no score): all-view
+  envelope rendered from the pinned three_quarter camera next to the
+  target-set mask-three_quarter image (display only, sha
+  recorded in feasibility.json, never in the loss; no registration triple
+  exists for this view so no overlay is drawn). Short blue blob vs long target
+  mass — consistent with the STOP.
+
+STEP 5 — files (each view of E/fit.png: green = target outline, red = all-view
+  fit fill, yellow = held-out prediction outline)
+  E/frame-nohair.png, E/frame-nohair-stats.json, E/hair-inventory.json,
+  E/head-meshes.json, E/body-verts.npz, E/body-sdf.npz, E/envelope-spec.json,
+  E/fits.json, E/fixed-plane.json, E/feasibility.json, E/fit.png,
+  E/validation-three_quarter.png, E/inputs-opened.txt, E/RESULT.txt, E/DONE.txt.
+  S: export_frame.py (topper exclusion), envelope.py (model+raster+loss),
+  fit_envelope.py (fits+LOO+figures+verdict), register.py + run.py (station0a,
+  run path only). No *.blend anywhere.
+
+BAN-PROOF GREPS (pasted outputs; empty = pass):
+  $ grep -RInE 'hair-guides|children_station|hair-cap|hair-hem|hair-crown|hair-sweep|score\.py' tools/openclinxr/hair-groom
+  (no output; exit 1)
+  $ grep -nE '<same 7 + hair-scene|hair-curtain|hair-score|hair-look|children>' \
+      tools/openclinxr/evidence/hair-station0b/inputs-opened.txt
+  (no output; exit 1)
+  Note: S/manifests/cameras-scorer-v3.json carries the pre-existing station0a
+  value "openclinxr.hair-score.v3" (schema-version string, not an import/path);
+  it matches neither scan above and is unchanged from station0a.
+
+INPUTS-OPENED (E/inputs-opened.txt, 13 runtime paths: 5 S sources, spec, sdf,
+  cameras file, 3 fit masks + display-only three_quarter mask, station
+  registration.json): both scans above empty. Render-side inputs are logged in
+  /tmp/station0b-run/inputs-opened.txt by the station runner.
+
+SAW: topper identified by name/verts/material with GLB-extras parse (no source
+  recorded beyond the asset name); exclusion lives in S with an assert and a
+  re-rendered station frame; envelope spec frozen with sha before fitting and
+  byte-identical after; projector verified to 0.469 px against pinned triples;
+  SDF watertight sanity passed; 4 fits x 3 deterministic starts converge to one
+  basin with 9-11x threshold margins, so the STOP does not hinge on optimiser luck.
+  NOT TESTED: Quest/worn-headset rendering; IWSDK sidecar; cross-machine Blender
+  determinism (single Apple M1 Max host); MongoDB persistence (no records
+  written); any groom generation (no strands exist — STOP blocks the fitter);
+  other envelope families (verdict covers exactly the frozen 17-param spec).
+
+GATES_PASS=no — STOP with reason: held-out p95 112.8/118.0/132.3 px all exceed
+max(2x0.0, 12) = 12.0 px; bounds saturate in 2/4 fits; collision 23..48 mm in
+4/4 fits. The card is complete: the kill test fired and the guide fitter must
+not start on these targets.

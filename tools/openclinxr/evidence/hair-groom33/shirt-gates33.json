@@ -1,0 +1,65 @@
+{
+ "boxesPx": {
+  "left": [
+   732,
+   1024,
+   261,
+   337
+  ],
+  "right": [
+   732,
+   1024,
+   690,
+   766
+  ]
+ },
+ "groom30": {
+  "insideShirt": 235156,
+  "insideBody": 95836,
+  "hem": {
+   "left": {
+    "nHairSamples": 84218,
+    "nBehindShirt": 6038,
+    "hiddenFrac": 0.0717
+   },
+   "right": {
+    "nHairSamples": 11696,
+    "nBehindShirt": 3981,
+    "hiddenFrac": 0.3404
+   }
+  }
+ },
+ "groom31": {
+  "insideShirt": 105365,
+  "insideBody": 93198,
+  "hem": {
+   "left": {
+    "nHairSamples": 103159,
+    "nBehindShirt": 23562,
+    "hiddenFrac": 0.2284
+   },
+   "right": {
+    "nHairSamples": 11735,
+    "nBehindShirt": 6945,
+    "hiddenFrac": 0.5918
+   }
+  }
+ },
+ "groom33": {
+  "insideShirt": 79360,
+  "insideBody": 93198,
+  "hem": {
+   "left": {
+    "nHairSamples": 83305,
+    "nBehindShirt": 6066,
+    "hiddenFrac": 0.0728
+   },
+   "right": {
+    "nHairSamples": 11801,
+    "nBehindShirt": 4160,
+    "hiddenFrac": 0.3525
+   }
+  }
+ },
+ "note": "groom30/groom31 rows by shirt_gates31.main verbatim; groom33 row same code path on store strands-33 (no sweep, no settle)"
+}

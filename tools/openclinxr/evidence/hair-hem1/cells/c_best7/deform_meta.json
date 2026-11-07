@@ -1,0 +1,13 @@
+{
+  "tag": "c_best7",
+  "base": "hair-hem1/base/strands.npz",
+  "deform": {
+    "cell": "best-combo-delete-splay",
+    "deletedRails": 10604,
+    "sealedLower": 20541,
+    "dupFibres": 12000,
+    "sealedDups": 2793,
+    "totalFibres": 99945,
+    "rule": "rails deleted; 12k root-pivot-splayed (tips +4..12mm outward, cap 0.128) full-length edge dups; self-edge-1mm seal of all lower tips; no trim"
+  }
+}

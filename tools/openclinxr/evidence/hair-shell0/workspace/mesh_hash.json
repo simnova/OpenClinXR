@@ -1,0 +1,9 @@
+{
+ "stage": "raw",
+ "sha256": "5c8463662f98bbfbd1a035168ad10c9e1d76bec670a9111f2832f414b4f7c4a1",
+ "verts": 110108,
+ "tris": 221752,
+ "volumeBeforeMm3": -2473145.3,
+ "volumeAfterMm3": -2469977.7,
+ "driftPct": 0.1281
+}

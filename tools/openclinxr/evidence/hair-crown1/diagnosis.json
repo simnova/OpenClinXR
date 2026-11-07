@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "question": "bright orange lattice/star at part and crown in front/back views: scalp or lit roots?",
+  "method": "combo strands + tt05 params (look7 COLOR + rig1 rig + TT 0.5), geometry-identical variants: (a) visible meshes -> flat green emission, (b) all meshes hidden, (c) OCLX_rim energy 0. Front+back beauty at 1024/64 + ID. Region stats in diag_region_stats.json; crops in diagnose.png.",
+  "latticeRegion": {
+    "definition": "pixel bbox from base renders: pixels with lum>0.45 and R-B>0.12 and R>0.4 clustered in the crown band above the brow (front) / around the crown (back). Front cols further gated at >25% orange rows (cols 399-623) and rows (181-269 core); bbox unioned with the full crown band rows 103-269.",
+    "front": {"rows": [103, 269], "cols": [399, 623], "denseCore": {"rows": [181, 269], "cols": [399, 623]}},
+    "back": {"rows": [155, 281], "cols": [475, 547]}
+  },
+  "idFractionsOverRegion_baseID": {
+    "front": {"bare_alphaLt30": 0.5202, "partial_alpha30To229": 0.1233, "covered_alphaGe230": 0.3566},
+    "back": {"bare_alphaLt30": 0.0549, "partial_alpha30To229": 0.5965, "covered_alphaGe230": 0.3487}
+  },
+  "variantRegionStats": {
+    "front": {
+      "base": {"meanLum": 0.553, "orangeFrac": 0.521, "greenFrac": 0.0},
+      "green": {"meanLum": 0.452, "orangeFrac": 0.0, "greenFrac": 0.645},
+      "haironly": {"meanLum": 0.163, "orangeFrac": 0.0, "greenFrac": 0.0},
+      "norim": {"meanLum": 0.55, "orangeFrac": 0.519, "greenFrac": 0.0}
+    },
+    "back": {
+      "base": {"meanLum": 0.3, "orangeFrac": 0.197, "greenFrac": 0.0},
+      "green": {"meanLum": 0.399, "orangeFrac": 0.0, "greenFrac": 0.805},
+      "haironly": {"meanLum": 0.152, "orangeFrac": 0.0, "greenFrac": 0.0},
+      "norim": {"meanLum": 0.287, "orangeFrac": 0.177, "greenFrac": 0.0}
+    }
+  },
+  "verdict": "SCALP, not lit roots. Green-scalp render removes the orange entirely (orange 0.52->0.00 front, 0.20->0.00 back; green 0.65/0.81 in its place). Hair-only render also removes it (region falls to background-dark 0.16/0.15: sparse roots over nothing). Rim-off keeps it (0.52/0.18). Front lattice = 52% bare scalp between diverging part roots; back lattice = 60% partial (thin hair over scalp) + 5% bare.",
+  "whyTop1Missed": "hair-top1 BARE<=2% is measured on crown_top physical strips (top-down projection near the apex). The lattice sits on the part/crown slope seen obliquely in front/back views (front rows 103-269, back rows 155-281); those pixels project outside the crown_top strips. The strips miss this region.",
+  "consequence": "Fix = cover the scalp in the lattice region (root density in region, scalp albedo under hair matched toward hair colour as production does, root angle/lift, part slit density falloff). Not a light/TT/material-hue fix."
+}

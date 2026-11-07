@@ -1,0 +1,10 @@
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz
+/Volumes/files/openclinxr-assets/store/hair-groom29/guides-29.npz
+/tmp/hair29/children-29/build.json
+/tmp/hair29/children-29/strands.npz
+tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz
+tools/openclinxr/evidence/hair-groom4/tucked/earframe.json
+tools/openclinxr/evidence/hair-hull3/workspace/ear_pinna.npz
+tools/openclinxr/evidence/hair-hull5/hull.npz
+tools/openclinxr/evidence/hair-scalp1/roots.npz
+tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json

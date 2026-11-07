@@ -1,0 +1,1 @@
+DONE: hair tilt 3 (long-wavelength lean) complete — 4 cells built, repaired (inside 0, part 1.1 mm), scored with hair-score/score.py (look7), gates + KEEP evaluated (all REVERTED, best LR 646x22.4), trade-off table across tilt1/tilt2/tilt3, look-sheet, RESULT present. See RESULT.txt for gate truth.

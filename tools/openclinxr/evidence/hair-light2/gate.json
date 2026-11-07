@@ -1,0 +1,83 @@
+{
+  "G1": {
+    "pass": true,
+    "diagnosis": "diagnosis.json",
+    "initialSha256": "3ff432977b7f4e395fdf4cf12562ef1801a58b187921da90fb321f671fce4fcd",
+    "candidateVerdicts": {
+      "a_fibre_radius_count": {
+        "verdict": "REFUTED",
+        "probe": "r1",
+        "reason": "0.03 mm / 87,296 strands preserved mask area (-0.30%) and slightly reduced p50/p90, but worsened part/side 2.52 to 2.78 and total objective."
+      },
+      "b_roughness_coat": {
+        "verdict": "SUPPORTED",
+        "probe": "r2,r3",
+        "reason": "r2 +0.1 roughness alone worsened the objective; r3 reduced IOR/specular response and moved p50/p90 from 0.0895/0.2778 to 0.0534/0.1837, directly supporting excess specular response while refuting roughness alone."
+      },
+      "c_light_geometry": {
+        "verdict": "SUPPORTED",
+        "probe": "r5 + SEARCH refinement",
+        "reason": "r5 elevation-only violated the face constraint; azimuth/elevation refinement reduced part/side from 2.52 to 1.64 with cheek drift -2.3%, isolating the camera-facing key lobe."
+      },
+      "d_melanin_redness": {
+        "verdict": "UNKNOWN",
+        "probe": "SEARCH evals 0-39",
+        "reason": "bounded melanin/redness co-varied with lights and did not independently reach the photometric gate."
+      },
+      "e_root_darkening": {
+        "verdict": "REFUTED",
+        "probe": "r4",
+        "reason": "30% first-15-mm root melanin left p50/p90 high and worsened part/side to 2.68; it did not remove the broad crown band."
+      }
+    }
+  },
+  "G2": {
+    "iou": {
+      "front": {
+        "baseline": 0.6612757573269846,
+        "best": 0.6703821509242612,
+        "delta": 0.009106393597276607
+      },
+      "profile": {
+        "baseline": 0.6868413218219708,
+        "best": 0.694314414866901,
+        "delta": 0.007473093044930268
+      },
+      "back": {
+        "baseline": 0.7405915815816868,
+        "best": 0.746844140940453,
+        "delta": 0.00625255935876623
+      }
+    },
+    "face": {
+      "baseline": 0.749047843137255,
+      "best": 0.7318180392156861,
+      "driftPct": -2.3002274259818822
+    },
+    "pass": true
+  },
+  "G3": {
+    "p50": 0.11166666666666666,
+    "p90": 0.27938823529411766,
+    "RB": 1.528239520915196,
+    "partSide": 1.6372806415577563,
+    "idShowThrough": 0.014295015144223964,
+    "clauses": {
+      "p50": false,
+      "p90": false,
+      "RB": true,
+      "partSide": false,
+      "idShowThrough": true
+    },
+    "pass": false
+  },
+  "G4": {
+    "pass": true,
+    "command": "node check-light.mjs --self-test",
+    "evidence": "planted face darkening, silhouette drift, and hardcoded landmark fail; honest best integrity passes"
+  },
+  "G5": {
+    "pass": true,
+    "writeRoot": "tools/openclinxr/evidence/hair-light2"
+  }
+}

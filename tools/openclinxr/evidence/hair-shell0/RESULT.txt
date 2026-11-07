@@ -1,0 +1,49 @@
+RESULT hair-shell0: textured hair shell from the carved hull (S8)
+TEXTURED SHELL candidate for the strands/cards/shell bake-off: hull0c solid (multi-view carve + 6-10 mm scalp shell) surfaced as a mesh, shaded with cards0's procedural strand maps on a flow-aligned UV. No target photo projected anywhere (that would bake the target's lighting, view-dependent highlights, and cross-view colour mismatch); appearance is procedural from the shape.
+
+STEP 1 mesh (shell_mesh.py -> _blender_decimate.py x2 -> shell_flow.py)
+- marching cubes on hull.npz occupancy at 2 mm: raw 110108 verts / 221752 tris (hull0c WS/hull_surface.obj: 221752 tris; OBJ roundtrip drops 4 degenerates); Taubin lambda|mu volume-preserving smoother lambda=0.5 mu=-0.53 iters=30: vol -2473145.3 -> -2469977.7 mm^3 (drift +0.128%)
+- decimate COLLAPSE to budget 40000 tris: 19220 verts / 39999 tris (in the 20-60k band); per-face SDF-ascent orientation (57.0% flipped; the rind boundary has two walls so a global volume-sign flip is meaningless: tried, align -0.08 either way; per-face mean vert align +0.88)
+- clearance vs hair-cage1/body-exact-sdf.npz (trilinear): pre-repair min=-0.077 p1=1.438 p50=4.942 mm; SDF-gradient repair (target 2.0 = 1.0 margin over gate, 5 rounds): min=1.992 p1=2.000 p50=4.946 mm (gate >= 1.0: True). Normal-push repair was tried first and REJECTED (drove hug-tight verts deeper: -0.077 -> -2.129 mm) because mesh normals can point into the body in concave spots.
+- inner layer at -3 mm: min=-2.197 p1=-1.004 mm < 1.0 -> EXCLUDED (optional layer; the rind is only 6-10 mm over the scalp and the inner offset dips inside the body in hug-tight spots)
+- determinism: Blender decimate run twice, parsed verts/faces sha runA=b5da1088a52bf951 runB=b5da1088a52bf951 identical=True; shell.npz hash=5531627825215455
+
+STEP 2 flow (shell_flow.py; only stated hairstyle parameter is the part position)
+- part_x=0.0008 m = median x of 7943 scalp1 crown roots (z > 1.60 m): derived from the roots, not assumed; crown axis y=-0.0532 (hairline.json)
+- per-vertex tangent = projection onto the surface of d = w*rhat + (1-w)*down, w = smoothstep(1.56, 1.62, z): radial-from-part on the crown, gravity below the occiput/temple line; all 19220 tangents unit, no NaN
+- flow UVs: u across = azimuth atan2(dx,-dy) 0=front, 0/1 cut at the back midline (seam at the back midline below the crown and at the pole); v along = root->tip run ((zmax-z)+0.5*max(0,rh-0.02))/span, crown top v=0 hem v~0.95; span z 1.6702..1.2549 m
+
+STEP 3 material (Cycles Principled BSDF; no strand BSDF for meshes in Blender)
+- cards/textures.py is ABSENT in this worktree (no cards/ dir; read-only per brief) so it cannot be imported: strand maps VENDORED from commit bc02ca945 with identical seeds/params into S8/textures_vendor.py (rng(7+cell), 2600 strands/cell, same taper/clump/tilt/gradient code); outputs (atlas 8296149 B, rgb 5471369 B, alpha 3169363 B, flow 3059657 B, gradient 305 B) are reproducibility data for the next lane. No per-card id-strip (a shell has no cards); roughness fixed 0.40. Maps sampled by the flow UVs over the FULL map (cards0 used atlas quadrants per card).
+- anisotropic 0.6, rotation = flowR - 0.25 (same quarter-turn base as cards0); alpha = atlas A x facing-ratio edge fade (Layer Weight Facing, smoothstep 0.05..0.50 -> 0..1: silhouette is an alpha-edged fade, not a hard helmet edge); base = atlasRGB x root-tip gradient x sRGB(directColorLinear) x 2.2 exposure gain; 0.3 Translucent mix; double-sided (two-wall rind, no backface culling)
+- colour linear->sRGB as cards0: [0.009475 0.006922 0.005410] -> sRGB [0.0964 0.0778 0.0649] x2.2 = [0.2121 0.1713 0.1427] (cards0 had no boost and read near-black)
+- light rig: key direction from the scorer rig block (hair-score/rig_params.json: el 29.00 deg, daz -34.26 deg; stated convention: az from front -Y toward +X, toward-sun=(sin daz cos el, -cos daz cos el, sin el)=[-0.492 -0.723 0.485]); fill/rim directions are cards0's (rig block gives none); energies EXPOSURE-MATCHED key 5.0 / fill 1.0 / rim 1.5 (cards0 3.0/0.5/1.0 raised; the rig block's 132/51/12 belong to its look-dev light model, not transferred as sun energies); world (0.03,0.03,0.03) x1.0
+- frame mean luminance (exposure audit): {"back": 65.9, "front": 53.7, "front-relit": 53.5, "heldout_22p5": 49.4, "profile_90": 48.8, "three_quarter": 51.6} (cards0 near-black watch closed: hair reads mid-brown, not near-black)
+
+STEP 4 renders + rulers (pinned scorer-v3 cameras, 1024 px, 64 spp, Cycles CPU seed 7; relit front key azimuth +40 deg; held-out az 22.5 deg)
+- render times s: {"back": 15.3, "back-id": 6.3, "front": 17.3, "front-id": 8.6, "front-relit": 12.3, "heldout_22p5": 11.0, "profile_90": 14.5, "profile_90-id": 5.4, "three_quarter": 15.7, "three_quarter-id": 8.7}; total 117.2s; shell.glb 14165252 B (19220 verts / 39999 tris + ShellFlow UV + SHELL_mat)
+- R1 front (skull): above IoU=0.4851 signedP50=+3.00px absP95=43.45px | below IoU=0.0856 signedP50=+69.43px absP95=275.25px
+- R1 profile_90 (skull): above IoU=0.7758 signedP50=+26.48px absP95=74.29px | below IoU=0.7247 signedP50=+3.00px absP95=122.54px
+- R1 back (skull): above IoU=0.9146 signedP50=+3.00px absP95=29.68px | below IoU=0.5656 signedP50=+44.00px absP95=173.93px
+- R1 three_quarter: no registered target (R4 ours-only covers it)
+- R4 profile_90 coverageByThreshold: {"128": 1.0, "230": 1.0, "30": 1.0}; skinVisibleFracHair=0.0193 region=0.0193 (skin [67.0, 47.0, 43.0] hair [70.0, 52.0, 41.0]); targetCoverage=1.0
+- R5 front hem: coverage=1.000 yBottomMAE=128.8px widthMAE=200.7px
+- R5 profile_90 hem: coverage=0.980 yBottomMAE=36.6px widthMAE=23.1px
+- R5 back hem: coverage=1.000 yBottomMAE=114.1px widthMAE=135.9px
+- R2/R3/R6 (contextual, stand-in fixtures): R2 midline distP50=2.80mm P95=4.61mm (scalp-mesh boundary vs S1 roots); R3 front midline signedP50=Nonepx nObs=0; R6 shoulderGap=108px ownHemGap=-8px
+
+provenance: common.py + shell_mesh.py + shell_flow.py + textures_vendor.py + assemble.py new in S8 (tools/openclinxr/hair-groom/shell); _blender_decimate.py + _blender_shell_render.py new (Blender sessions); hull/ + scalp/ untouched (read-only; cards/ absent); topper hidden library-hair; env proxy hidden
+ban-grep (7 names, fragments) over S8+evidence text: clean
+inputs-opened (56 paths) banned-path check: clean
+
+SAW
+- SCOPE: TEXTURED SHELL bake-off candidate. Shell rind reads solid face-on (dome + back mass) and sheer at grazing curtain angles (profile: skin shows through the curtain): strand-atlas gaps + facing fade + 0.3 translucent + two walls. The facing fade does its mandated job (no hard helmet edge) at the cost of curtain opacity at grazing incidence.
+- FACE-HOLE: the rind has no face hole; the front ID pass shows the occiput back-wall through the face opening (body hidden), so R1-front counts that region as hair while the target mask has a hole there. Strands/cards (real face hole) will beat the shell on front-face-region excess by construction; compare above-hairline bands, not whole-mask IoU.
+- HEM: the hull runs to z=1.255 m (below the 1.405 m shoulder plane), so the shell veils the upper back/shirt in the back view with visible 2 mm voxel stepping (horizontal banding on the lower curtain). Carried over from hull0c, not introduced here.
+- ASSUMED: pinna boxes (|x| 50-100 mm, y -35..55 mm, z 1.49-1.58 m, n=64, measured on this lane's body-geo dump) stand in for the cap pinna set behind R4; R2/R3/R4/R5/R6 reported for context, not gated; shared judge module + target masks are the same files cards0 used (bake-off comparability); local hair_judge.py lacks register_view so the sibling module is used.
+- WATCH: ~1%% of shell verts sit at the 2.0 mm repair target (hug-tight spots, margin 1.0 mm over gate); front-dome translucency face-on (thin-rind physics per hull0c); mouth crop verified as the lower lip, not an artifact; frame-edge wedges are body/shirt at the frame border.
+- R4 CAVEAT: skinVisibleFracHair=0.0193 is NOT interpretable as translucency here: the refs coincide (skin [67.0, 47.0, 43.0] vs hair [70.0, 52.0, 41.0]) because the shell curtain covers the skin-reference face box (rows 400-500, cols 150-240 profile), so the heuristic sampled hair for both. Grade sheerness from the renders (profile curtain see-through at grazing incidence), not from this fraction.
+
+NOT TESTED: physical Quest 3 / worn-headset evidence; clinical validity, licensure, or scoring claims; EEVEE/Quest material response; other bodies/seeds; animation/combing dynamics; strand/cards bake-off numbers (this card is one arm of it); whether UV repeat 1x (current) vs denser tiling changes the sheerness verdict.
+
+GATES_PASS=yes (clearance 1.992 >= 1.0 mm: True; mesh-hash determinism over two runs: True; ban: True)

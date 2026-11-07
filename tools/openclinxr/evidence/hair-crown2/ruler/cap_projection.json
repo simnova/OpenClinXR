@@ -1,0 +1,53 @@
+{
+ "cap_object": "OCLX_cap",
+ "cap_matrix_world": [
+  [
+   1.0,
+   0.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   1.0,
+   0.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   1.0,
+   0.0
+  ],
+  [
+   0.0,
+   0.0,
+   0.0,
+   1.0
+  ]
+ ],
+ "forehead_idx_count": 131,
+ "size": 1024,
+ "front_cap_px": "array(27558, 2)",
+ "front_cap_depth": "array(27558,)",
+ "front_forehead_px": "array(131, 2)",
+ "front_camera": {
+  "location": [
+   0.0,
+   -0.7002856135368347,
+   1.4935846328735352
+  ],
+  "lensMm": 50.0
+ },
+ "back_cap_px": "array(27558, 2)",
+ "back_cap_depth": "array(27558,)",
+ "back_forehead_px": "array(131, 2)",
+ "back_camera": {
+  "location": [
+   0.0,
+   0.7008565664291382,
+   1.4935846328735352
+  ],
+  "lensMm": 50.0
+ }
+}

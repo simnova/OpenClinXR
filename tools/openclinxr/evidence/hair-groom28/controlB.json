@@ -1,0 +1,28 @@
+{
+ "B1_maxWorldMm_fairMirror_vs_mirrorFair": 1.5265566588595902e-13,
+ "B1_codeXSymmetric": true,
+ "B2_mirroredFairingSides": {
+  "posX": {
+   "n": 271,
+   "hemDxMean": 13.753,
+   "hemDxOutMean": 13.753,
+   "nHemOut": 119
+  },
+  "negX": {
+   "n": 253,
+   "hemDxMean": -4.197,
+   "hemDxOutMean": 4.197,
+   "nHemOut": 87
+  }
+ },
+ "fairingRecord": {
+  "guides": {
+   "input": 2707,
+   "output": 2707,
+   "deleted": 0,
+   "inputSha256": "0a802157a12b67911c537ca063871767819c6cc183a3afb426f9b8e0b2b48a1a",
+   "outputSha256": "6d39507b98cc9960ac6c9cd94f100b118275ba693a93fc0d636d67ddee016e74"
+  }
+ },
+ "note": "B2 posX here = mirror of original -x narrow curtain. If the strong outward scatter follows it, geometry (input drape shape) drives the one-sided loss."
+}

@@ -1,0 +1,38 @@
+{
+  "slice": "hair-scalp-1",
+  "cell": "K3",
+  "replaces": "tools/openclinxr/evidence/hair-search2/best.json",
+  "params": {
+    "melanin": 0.8999999761581421,
+    "redness": 0.800000011920929,
+    "roughness": 0.25,
+    "radial": 0.30000001192092896,
+    "coat": 0.0,
+    "key_elev_deg": 35.0,
+    "key_energy": 100.0,
+    "key_size_m": 1.5590593523168912,
+    "fill_W": 60.47725258242128,
+    "fill_elev_deg": 28.811320096571063,
+    "rim_W": 26.654435328323842,
+    "worldStrength": 0.4190625,
+    "length": 1.6510535954368561
+  },
+  "scalpUndertone": {
+    "attr": "OCLX_scalp_mask",
+    "mix": 0.65,
+    "rough": 0.9,
+    "rootColour": [
+      0.01751299947500229,
+      0.005762999877333641,
+      0.002059000078588724
+    ]
+  },
+  "gates": {
+    "G1": "PASS",
+    "G2": "MISS",
+    "G3": "MISS",
+    "G4": "PASS",
+    "G5": "PASS",
+    "G6": "PASS"
+  }
+}

@@ -1,0 +1,5 @@
+DONE: hair rulers v4b (root setback, shoulder gap, hairline, one registration).
+71/71 probes pass (32 rulers4a probes frozen under raw + 39 new).
+Skull registration reproduces score.json orientation transforms within 1e-6.
+GATES_PASS=no (current fails 39/45 blocking gates; 6 pass, 2 unobserved non-blocking).
+See RESULT.txt, table.md/table.json, probes.json, reg-delta.json, overlays.png.

@@ -1,0 +1,67 @@
+{
+  "bodyGlb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "bodySha256": "5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde",
+  "excludedTopper": {
+    "decision": "EXCLUDE from the station scene (S/export_frame.py exclude_library_topper; assert none remain)",
+    "glbExtras": "none recorded on the mesh, its node, or its material (parsed GLB JSON chunk: extras null/absent on all 10 meshes and all mesh nodes)",
+    "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat",
+    "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh",
+    "polygons": 4975,
+    "source": "MakeClothes-library asset 'toigo blunt bob with bangs', fitted to the mpfb peds anxious parent (source carried only by the mesh/material names; no provenance extras in the GLB)",
+    "vertices": 3085
+  },
+  "headMeshes": [
+    {
+      "decision": "KEEP (brow furniture, explicitly allowed)",
+      "materials": ["openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mat"],
+      "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+      "polygons": 8988,
+      "vertices": 5460
+    },
+    {
+      "decision": "KEEP (lash furniture)",
+      "materials": ["openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mat"],
+      "name": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh",
+      "polygons": 16632,
+      "vertices": 11088
+    },
+    {
+      "decision": "KEEP (eye proxy)",
+      "materials": ["mat_makeclothes_library_eyes_peds_anxious_parent"],
+      "name": "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+      "polygons": 172,
+      "vertices": 96
+    },
+    {
+      "decision": "KEEP (teeth)",
+      "materials": ["mat_openclinxr_fitted_teeth_mpfb_peds_anxious_parent_mesh"],
+      "name": "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+      "polygons": 7120,
+      "vertices": 4494
+    },
+    {
+      "decision": "KEEP (tongue)",
+      "materials": ["mat_openclinxr_fitted_tongue_mpfb_peds_anxious_parent_mesh"],
+      "name": "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+      "polygons": 448,
+      "vertices": 253
+    }
+  ],
+  "nonHeadMeshes": [
+    {
+      "decision": "KEEP (body)",
+      "name": "mpfb_parent_tara_johnson_v1_body (15949 verts)",
+      "note": "largest mesh; station anatomy head object; skin + hidden-region materials"
+    },
+    {
+      "decision": "KEEP (garments)",
+      "name": "makeclothes_library_female_tight_jeans_pants (8432) + makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent (804) + makeclothes_library_toigo_t_shirt (5400)"
+    },
+    {
+      "decision": "KEEP (untouched; present identically in station0a and station0b runs)",
+      "name": "Icosphere (42 verts, no material)",
+      "note": "created by the GLB import at scene origin, ~2 m across, hidden from renders (no trace in any Workbench render); identical before/after exclusion so the nohair diff is topper-only"
+    }
+  ],
+  "station0aCorrection": "\"No hair in scene\" (station0a RESULT s8) was FALSE: the yellow bob shell visible in all five station0a views is this 3085-vert library topper. Step 0 removes exactly this object; renders re-done as E/frame-nohair.png."
+}

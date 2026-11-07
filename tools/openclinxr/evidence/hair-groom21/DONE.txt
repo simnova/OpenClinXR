@@ -1,0 +1,9 @@
+DONE hair-groom21: STOP (crossings 7417 = 76.4% of groom19's 9715, gate <= 30%).
+GATES_PASS = no. No children, no render, no score per the card's stop clause.
+Held: calibration, FRONT/takeoff/wZero byte-identity, guide determinism,
+interp default-OFF identity (groom8b + groom19 rebuilds hash-identical).
+Failed: crossing (over by 4503), coherenceBACK (204.3/408.5 vs 60/120),
+displacementBACK (86.4/229.5 vs 20/60). Falsifiers run: permuted 8279
+(not void), anchor0.3 p90 117.0 (swap still present). Next: re-trace back
+guides after smoothing the back orientation field. NPZ in the asset store
++ SHA256SUMS, not in git. See RESULT.txt.

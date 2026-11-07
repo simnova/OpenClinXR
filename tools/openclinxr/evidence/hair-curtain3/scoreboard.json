@@ -1,0 +1,1494 @@
+{
+  "schemaVersion": 1,
+  "landmarks": "landmarks.json",
+  "ceilings": {
+    "areas": {
+      "band": 74651,
+      "body_clip": 95347,
+      "skull_clip": 76234,
+      "target": 102503
+    },
+    "binding": "head_exterior_band_0_25mm",
+    "brow_row": 333,
+    "ceilings": {
+      "head_exterior_band_0_25mm": 0.3621991541714725,
+      "target_outside_bare_skull": 0.7437245739149098,
+      "target_within_30mm_body": 0.9301874091490006
+    },
+    "hem_row": 675,
+    "registration": {
+      "px_per_mm": 2.1749205503455684,
+      "render": {
+        "chin_row": 583,
+        "crown_top_row": 103,
+        "face_centre_col": 512
+      },
+      "target_skull": {
+        "chin_row": 608,
+        "crown_top_row": 149.83309357452197,
+        "face_centre_col": 513
+      }
+    },
+    "schemaVersion": 1
+  },
+  "best": "c1",
+  "rows": [
+    {
+      "tag": "c0",
+      "diff": {},
+      "front_iou": 0.5232945315515029,
+      "eroded": 0.41882540809084456,
+      "width_rms_head": 0.08747446699205906,
+      "profile": 0.6413623921140412,
+      "back": 0.7388828105597358,
+      "eye": {
+        "inner_L_mm": 64.39272349272349,
+        "outer_L_mm": 81.47650727650728,
+        "inner_R_mm": 63.516632016632016,
+        "outer_R_mm": 81.03846153846153
+      },
+      "eye_gap_ratio_L": 1.3303571428571428,
+      "eye_gap_ratio_R": 1.4095238095238096,
+      "ear_cover": 0.9236752136752137,
+      "stripe_contrast": 0.3885326830553868,
+      "standing": true,
+      "standing_excess_px": 16.0,
+      "id_show": 0.002889060092449923,
+      "front_table": [
+        {
+          "row": 190,
+          "ours": {
+            "inner_L_mm": 35.04365904365904,
+            "outer_L_mm": 68.33513513513513,
+            "inner_R_mm": 34.167567567567566,
+            "outer_R_mm": 68.33513513513513
+          },
+          "target": {
+            "inner_L_mm": 3.0663201663201662,
+            "outer_L_mm": 54.75571725571726,
+            "inner_R_mm": 2.19022869022869,
+            "outer_R_mm": 54.75571725571726
+          }
+        },
+        {
+          "row": 244,
+          "ours": {
+            "inner_L_mm": 48.185031185031185,
+            "outer_L_mm": 76.65800415800416,
+            "inner_R_mm": 48.185031185031185,
+            "outer_R_mm": 76.21995841995842
+          },
+          "target": {
+            "inner_L_mm": 33.72952182952183,
+            "outer_L_mm": 68.33513513513513,
+            "inner_R_mm": 35.481704781704785,
+            "outer_R_mm": 68.77318087318088
+          }
+        },
+        {
+          "row": 298,
+          "ours": {
+            "inner_L_mm": 63.516632016632016,
+            "outer_L_mm": 82.35259875259875,
+            "inner_R_mm": 63.07858627858628,
+            "outer_R_mm": 81.91455301455302
+          },
+          "target": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 76.21995841995842,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 77.09604989604989
+          }
+        },
+        {
+          "row": 352,
+          "ours": {
+            "inner_L_mm": 65.26881496881497,
+            "outer_L_mm": 81.47650727650728,
+            "inner_R_mm": 64.83076923076923,
+            "outer_R_mm": 81.47650727650728
+          },
+          "target": {
+            "inner_L_mm": 49.06112266112266,
+            "outer_L_mm": 81.47650727650728,
+            "inner_R_mm": 45.99480249480249,
+            "outer_R_mm": 82.7906444906445
+          }
+        },
+        {
+          "row": 406,
+          "ours": {
+            "inner_L_mm": 66.14490644490644,
+            "outer_L_mm": 89.7993762993763,
+            "inner_R_mm": 65.70686070686071,
+            "outer_R_mm": 89.36133056133056
+          },
+          "target": {
+            "inner_L_mm": 52.12744282744283,
+            "outer_L_mm": 84.98087318087317,
+            "inner_R_mm": 54.31767151767152,
+            "outer_R_mm": 86.73305613305614
+          }
+        },
+        {
+          "row": 459,
+          "ours": {
+            "inner_L_mm": 70.96340956340957,
+            "outer_L_mm": 88.04719334719334,
+            "inner_R_mm": 70.52536382536383,
+            "outer_R_mm": 87.17110187110187
+          },
+          "target": {
+            "inner_L_mm": 53.44158004158004,
+            "outer_L_mm": 87.60914760914761,
+            "inner_R_mm": 52.12744282744283,
+            "outer_R_mm": 90.23742203742204
+          }
+        },
+        {
+          "row": 513,
+          "ours": {
+            "inner_L_mm": 55.193762993762995,
+            "outer_L_mm": 86.2950103950104,
+            "inner_R_mm": 54.75571725571726,
+            "outer_R_mm": 85.41891891891892
+          },
+          "target": {
+            "inner_L_mm": 50.813305613305616,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 49.06112266112266,
+            "outer_R_mm": 93.74178794178795
+          }
+        },
+        {
+          "row": 567,
+          "ours": {
+            "inner_L_mm": 42.05239085239085,
+            "outer_L_mm": 84.1047817047817,
+            "inner_R_mm": 41.61434511434511,
+            "outer_R_mm": 83.22869022869023
+          },
+          "target": {
+            "inner_L_mm": 39.862162162162164,
+            "outer_L_mm": 93.3037422037422,
+            "inner_R_mm": 38.10997920997921,
+            "outer_R_mm": 97.24615384615385
+          }
+        },
+        {
+          "row": 621,
+          "ours": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 95.05592515592515,
+            "inner_R_mm": 43.36652806652807,
+            "outer_R_mm": 95.05592515592515
+          },
+          "target": {
+            "inner_L_mm": 44.68066528066528,
+            "outer_L_mm": 97.24615384615385,
+            "inner_R_mm": 40.73825363825364,
+            "outer_R_mm": 102.5027027027027
+          }
+        },
+        {
+          "row": 675,
+          "ours": {
+            "inner_L_mm": 84.98087318087317,
+            "outer_L_mm": 91.98960498960498,
+            "inner_R_mm": 84.1047817047817,
+            "outer_R_mm": 91.55155925155925
+          },
+          "target": null
+        }
+      ],
+      "inside": 0,
+      "collision_repair": null,
+      "over_eye": 0,
+      "face_opening": 0,
+      "curtain_guides": 0,
+      "curtain_children": 0,
+      "blend_children": 0,
+      "smooth": null
+    },
+    {
+      "tag": "c1",
+      "diff": {
+        "curtain_preserving_interpolation": true,
+        "curtain_blend_band_mm": 12.0,
+        "curtain_clearance_max_mm": 8.0,
+        "crown_thickness_mm": 0.0
+      },
+      "front_iou": 0.5674468220899169,
+      "eroded": 0.4614441731721775,
+      "width_rms_head": 0.10305163537812259,
+      "profile": 0.667009219129321,
+      "back": 0.725815356372295,
+      "eye": {
+        "inner_L_mm": 60.888357588357586,
+        "outer_L_mm": 80.6004158004158,
+        "inner_R_mm": 60.45031185031185,
+        "outer_R_mm": 80.16237006237006
+      },
+      "eye_gap_ratio_L": 1.2857142857142858,
+      "eye_gap_ratio_R": 1.361904761904762,
+      "ear_cover": 1.0,
+      "stripe_contrast": 0.41389980149802896,
+      "standing": false,
+      "standing_excess_px": 9.0,
+      "id_show": 0.0022014700138479567,
+      "front_table": [
+        {
+          "row": 190,
+          "ours": {
+            "inner_L_mm": 31.53929313929314,
+            "outer_L_mm": 66.14490644490644,
+            "inner_R_mm": 30.66320166320166,
+            "outer_R_mm": 65.70686070686071
+          },
+          "target": {
+            "inner_L_mm": 3.0663201663201662,
+            "outer_L_mm": 54.75571725571726,
+            "inner_R_mm": 2.19022869022869,
+            "outer_R_mm": 54.75571725571726
+          }
+        },
+        {
+          "row": 244,
+          "ours": {
+            "inner_L_mm": 45.556756756756755,
+            "outer_L_mm": 75.34386694386694,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 74.90582120582121
+          },
+          "target": {
+            "inner_L_mm": 33.72952182952183,
+            "outer_L_mm": 68.33513513513513,
+            "inner_R_mm": 35.481704781704785,
+            "outer_R_mm": 68.77318087318088
+          }
+        },
+        {
+          "row": 298,
+          "ours": {
+            "inner_L_mm": 60.45031185031185,
+            "outer_L_mm": 80.6004158004158,
+            "inner_R_mm": 60.01226611226611,
+            "outer_R_mm": 80.16237006237006
+          },
+          "target": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 76.21995841995842,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 77.09604989604989
+          }
+        },
+        {
+          "row": 352,
+          "ours": {
+            "inner_L_mm": 62.64054054054054,
+            "outer_L_mm": 80.6004158004158,
+            "inner_R_mm": 62.202494802494805,
+            "outer_R_mm": 81.47650727650728
+          },
+          "target": {
+            "inner_L_mm": 49.06112266112266,
+            "outer_L_mm": 81.47650727650728,
+            "inner_R_mm": 45.99480249480249,
+            "outer_R_mm": 82.7906444906445
+          }
+        },
+        {
+          "row": 406,
+          "ours": {
+            "inner_L_mm": 63.07858627858628,
+            "outer_L_mm": 93.74178794178795,
+            "inner_R_mm": 62.64054054054054,
+            "outer_R_mm": 89.36133056133056
+          },
+          "target": {
+            "inner_L_mm": 52.12744282744283,
+            "outer_L_mm": 84.98087318087317,
+            "inner_R_mm": 54.31767151767152,
+            "outer_R_mm": 86.73305613305614
+          }
+        },
+        {
+          "row": 459,
+          "ours": {
+            "inner_L_mm": 62.202494802494805,
+            "outer_L_mm": 87.17110187110187,
+            "inner_R_mm": 61.76444906444907,
+            "outer_R_mm": 86.73305613305614
+          },
+          "target": {
+            "inner_L_mm": 53.44158004158004,
+            "outer_L_mm": 87.60914760914761,
+            "inner_R_mm": 52.12744282744283,
+            "outer_R_mm": 90.23742203742204
+          }
+        },
+        {
+          "row": 513,
+          "ours": {
+            "inner_L_mm": 55.193762993762995,
+            "outer_L_mm": 85.85696465696466,
+            "inner_R_mm": 54.75571725571726,
+            "outer_R_mm": 84.98087318087317
+          },
+          "target": {
+            "inner_L_mm": 50.813305613305616,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 49.06112266112266,
+            "outer_R_mm": 93.74178794178795
+          }
+        },
+        {
+          "row": 567,
+          "ours": {
+            "inner_L_mm": 42.05239085239085,
+            "outer_L_mm": 83.66673596673597,
+            "inner_R_mm": 41.61434511434511,
+            "outer_R_mm": 82.7906444906445
+          },
+          "target": {
+            "inner_L_mm": 39.862162162162164,
+            "outer_L_mm": 93.3037422037422,
+            "inner_R_mm": 38.10997920997921,
+            "outer_R_mm": 97.24615384615385
+          }
+        },
+        {
+          "row": 621,
+          "ours": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 94.17983367983368,
+            "inner_R_mm": 43.36652806652807,
+            "outer_R_mm": 94.17983367983368
+          },
+          "target": {
+            "inner_L_mm": 44.68066528066528,
+            "outer_L_mm": 97.24615384615385,
+            "inner_R_mm": 40.73825363825364,
+            "outer_R_mm": 102.5027027027027
+          }
+        },
+        {
+          "row": 675,
+          "ours": {
+            "inner_L_mm": 85.85696465696466,
+            "outer_L_mm": 91.11351351351351,
+            "inner_R_mm": 84.98087318087317,
+            "outer_R_mm": 91.11351351351351
+          },
+          "target": null
+        }
+      ],
+      "inside": 0,
+      "collision_repair": {
+        "colliders": [
+          "OCLX_Aisha_head",
+          "makeclothes_library_toigo_t_shirt",
+          "makeclothes_library_female_tight_jeans_pants",
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+        ],
+        "first_pass_inside": {
+          "OCLX_Aisha_head": 21483,
+          "makeclothes_library_toigo_t_shirt": 7630,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside": {
+          "OCLX_Aisha_head": 0,
+          "makeclothes_library_toigo_t_shirt": 0,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside_total": 0,
+        "moved_points": 28110,
+        "max_single_projection_mm": 15.197076368163872,
+        "clearance_mm": 0.2,
+        "passes": 3
+      },
+      "over_eye": 0,
+      "face_opening": 0,
+      "curtain_guides": 148,
+      "curtain_children": 15656,
+      "blend_children": 2372,
+      "smooth": null
+    },
+    {
+      "tag": "c2",
+      "diff": {
+        "curtain_preserving_interpolation": true,
+        "curtain_blend_band_mm": 12.0,
+        "curtain_clearance_max_mm": 14.0,
+        "crown_thickness_mm": 0.0
+      },
+      "front_iou": 0.5620268891156764,
+      "eroded": 0.45765307117639026,
+      "width_rms_head": 0.10368616948322695,
+      "profile": 0.6681686897660616,
+      "back": 0.7181940664673628,
+      "eye": {
+        "inner_L_mm": 60.888357588357586,
+        "outer_L_mm": 83.22869022869023,
+        "inner_R_mm": 60.45031185031185,
+        "outer_R_mm": 83.22869022869023
+      },
+      "eye_gap_ratio_L": 1.2857142857142858,
+      "eye_gap_ratio_R": 1.361904761904762,
+      "ear_cover": 0.9999145299145299,
+      "stripe_contrast": 0.4173252877902748,
+      "standing": false,
+      "standing_excess_px": 9.0,
+      "id_show": 0.002159120649044753,
+      "front_table": [
+        {
+          "row": 190,
+          "ours": {
+            "inner_L_mm": 31.53929313929314,
+            "outer_L_mm": 68.33513513513513,
+            "inner_R_mm": 30.66320166320166,
+            "outer_R_mm": 67.8970893970894
+          },
+          "target": {
+            "inner_L_mm": 3.0663201663201662,
+            "outer_L_mm": 54.75571725571726,
+            "inner_R_mm": 2.19022869022869,
+            "outer_R_mm": 54.75571725571726
+          }
+        },
+        {
+          "row": 244,
+          "ours": {
+            "inner_L_mm": 45.556756756756755,
+            "outer_L_mm": 78.41018711018711,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 77.97214137214137
+          },
+          "target": {
+            "inner_L_mm": 33.72952182952183,
+            "outer_L_mm": 68.33513513513513,
+            "inner_R_mm": 35.481704781704785,
+            "outer_R_mm": 68.77318087318088
+          }
+        },
+        {
+          "row": 298,
+          "ours": {
+            "inner_L_mm": 60.45031185031185,
+            "outer_L_mm": 83.22869022869023,
+            "inner_R_mm": 60.01226611226611,
+            "outer_R_mm": 82.7906444906445
+          },
+          "target": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 76.21995841995842,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 77.09604989604989
+          }
+        },
+        {
+          "row": 352,
+          "ours": {
+            "inner_L_mm": 62.64054054054054,
+            "outer_L_mm": 85.85696465696466,
+            "inner_R_mm": 62.202494802494805,
+            "outer_R_mm": 86.73305613305614
+          },
+          "target": {
+            "inner_L_mm": 49.06112266112266,
+            "outer_L_mm": 81.47650727650728,
+            "inner_R_mm": 45.99480249480249,
+            "outer_R_mm": 82.7906444906445
+          }
+        },
+        {
+          "row": 406,
+          "ours": {
+            "inner_L_mm": 63.07858627858628,
+            "outer_L_mm": 93.74178794178795,
+            "inner_R_mm": 62.64054054054054,
+            "outer_R_mm": 91.98960498960498
+          },
+          "target": {
+            "inner_L_mm": 52.12744282744283,
+            "outer_L_mm": 84.98087318087317,
+            "inner_R_mm": 54.31767151767152,
+            "outer_R_mm": 86.73305613305614
+          }
+        },
+        {
+          "row": 459,
+          "ours": {
+            "inner_L_mm": 62.202494802494805,
+            "outer_L_mm": 87.60914760914761,
+            "inner_R_mm": 61.76444906444907,
+            "outer_R_mm": 87.17110187110187
+          },
+          "target": {
+            "inner_L_mm": 53.44158004158004,
+            "outer_L_mm": 87.60914760914761,
+            "inner_R_mm": 52.12744282744283,
+            "outer_R_mm": 90.23742203742204
+          }
+        },
+        {
+          "row": 513,
+          "ours": {
+            "inner_L_mm": 55.193762993762995,
+            "outer_L_mm": 86.73305613305614,
+            "inner_R_mm": 54.75571725571726,
+            "outer_R_mm": 85.85696465696466
+          },
+          "target": {
+            "inner_L_mm": 50.813305613305616,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 49.06112266112266,
+            "outer_R_mm": 93.74178794178795
+          }
+        },
+        {
+          "row": 567,
+          "ours": {
+            "inner_L_mm": 42.05239085239085,
+            "outer_L_mm": 84.54282744282744,
+            "inner_R_mm": 41.61434511434511,
+            "outer_R_mm": 83.66673596673597
+          },
+          "target": {
+            "inner_L_mm": 39.862162162162164,
+            "outer_L_mm": 93.3037422037422,
+            "inner_R_mm": 38.10997920997921,
+            "outer_R_mm": 97.24615384615385
+          }
+        },
+        {
+          "row": 621,
+          "ours": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 95.93201663201663,
+            "inner_R_mm": 43.36652806652807,
+            "outer_R_mm": 95.93201663201663
+          },
+          "target": {
+            "inner_L_mm": 44.68066528066528,
+            "outer_L_mm": 97.24615384615385,
+            "inner_R_mm": 40.73825363825364,
+            "outer_R_mm": 102.5027027027027
+          }
+        },
+        {
+          "row": 675,
+          "ours": {
+            "inner_L_mm": 77.97214137214137,
+            "outer_L_mm": 92.86569646569646,
+            "inner_R_mm": 84.1047817047817,
+            "outer_R_mm": 92.86569646569646
+          },
+          "target": null
+        }
+      ],
+      "inside": 0,
+      "collision_repair": {
+        "colliders": [
+          "OCLX_Aisha_head",
+          "makeclothes_library_toigo_t_shirt",
+          "makeclothes_library_female_tight_jeans_pants",
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+        ],
+        "first_pass_inside": {
+          "OCLX_Aisha_head": 21410,
+          "makeclothes_library_toigo_t_shirt": 6959,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside": {
+          "OCLX_Aisha_head": 0,
+          "makeclothes_library_toigo_t_shirt": 0,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside_total": 0,
+        "moved_points": 27439,
+        "max_single_projection_mm": 15.197076368163872,
+        "clearance_mm": 0.2,
+        "passes": 3
+      },
+      "over_eye": 0,
+      "face_opening": 0,
+      "curtain_guides": 148,
+      "curtain_children": 15656,
+      "blend_children": 2372,
+      "smooth": null
+    },
+    {
+      "tag": "c3",
+      "diff": {
+        "curtain_preserving_interpolation": true,
+        "curtain_blend_band_mm": 12.0,
+        "curtain_clearance_max_mm": 22.0,
+        "crown_thickness_mm": 0.0
+      },
+      "front_iou": 0.5626223496080682,
+      "eroded": 0.46639098354009567,
+      "width_rms_head": 0.12507454385116698,
+      "profile": 0.6623067893745253,
+      "back": 0.6932428803892453,
+      "eye": {
+        "inner_L_mm": 60.888357588357586,
+        "outer_L_mm": 89.7993762993763,
+        "inner_R_mm": 60.888357588357586,
+        "outer_R_mm": 89.7993762993763
+      },
+      "eye_gap_ratio_L": 1.2857142857142858,
+      "eye_gap_ratio_R": 1.361904761904762,
+      "ear_cover": 1.0,
+      "stripe_contrast": 0.4244458847634878,
+      "standing": false,
+      "standing_excess_px": 9.0,
+      "id_show": 0.001725625539257981,
+      "front_table": [
+        {
+          "row": 190,
+          "ours": {
+            "inner_L_mm": 31.53929313929314,
+            "outer_L_mm": 71.83950103950104,
+            "inner_R_mm": 30.66320166320166,
+            "outer_R_mm": 70.96340956340957
+          },
+          "target": {
+            "inner_L_mm": 3.0663201663201662,
+            "outer_L_mm": 54.75571725571726,
+            "inner_R_mm": 2.19022869022869,
+            "outer_R_mm": 54.75571725571726
+          }
+        },
+        {
+          "row": 244,
+          "ours": {
+            "inner_L_mm": 45.556756756756755,
+            "outer_L_mm": 83.22869022869023,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 83.22869022869023
+          },
+          "target": {
+            "inner_L_mm": 33.72952182952183,
+            "outer_L_mm": 68.33513513513513,
+            "inner_R_mm": 35.481704781704785,
+            "outer_R_mm": 68.77318087318088
+          }
+        },
+        {
+          "row": 298,
+          "ours": {
+            "inner_L_mm": 60.45031185031185,
+            "outer_L_mm": 89.36133056133056,
+            "inner_R_mm": 60.01226611226611,
+            "outer_R_mm": 89.36133056133056
+          },
+          "target": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 76.21995841995842,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 77.09604989604989
+          }
+        },
+        {
+          "row": 352,
+          "ours": {
+            "inner_L_mm": 62.64054054054054,
+            "outer_L_mm": 92.86569646569646,
+            "inner_R_mm": 62.202494802494805,
+            "outer_R_mm": 94.17983367983368
+          },
+          "target": {
+            "inner_L_mm": 49.06112266112266,
+            "outer_L_mm": 81.47650727650728,
+            "inner_R_mm": 45.99480249480249,
+            "outer_R_mm": 82.7906444906445
+          }
+        },
+        {
+          "row": 406,
+          "ours": {
+            "inner_L_mm": 63.516632016632016,
+            "outer_L_mm": 95.05592515592515,
+            "inner_R_mm": 62.64054054054054,
+            "outer_R_mm": 95.4939708939709
+          },
+          "target": {
+            "inner_L_mm": 52.12744282744283,
+            "outer_L_mm": 84.98087318087317,
+            "inner_R_mm": 54.31767151767152,
+            "outer_R_mm": 86.73305613305614
+          }
+        },
+        {
+          "row": 459,
+          "ours": {
+            "inner_L_mm": 62.64054054054054,
+            "outer_L_mm": 95.05592515592515,
+            "inner_R_mm": 62.202494802494805,
+            "outer_R_mm": 94.17983367983368
+          },
+          "target": {
+            "inner_L_mm": 53.44158004158004,
+            "outer_L_mm": 87.60914760914761,
+            "inner_R_mm": 52.12744282744283,
+            "outer_R_mm": 90.23742203742204
+          }
+        },
+        {
+          "row": 513,
+          "ours": {
+            "inner_L_mm": 55.193762993762995,
+            "outer_L_mm": 93.3037422037422,
+            "inner_R_mm": 54.75571725571726,
+            "outer_R_mm": 92.86569646569646
+          },
+          "target": {
+            "inner_L_mm": 50.813305613305616,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 49.06112266112266,
+            "outer_R_mm": 93.74178794178795
+          }
+        },
+        {
+          "row": 567,
+          "ours": {
+            "inner_L_mm": 42.05239085239085,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 41.61434511434511,
+            "outer_R_mm": 90.23742203742204
+          },
+          "target": {
+            "inner_L_mm": 39.862162162162164,
+            "outer_L_mm": 93.3037422037422,
+            "inner_R_mm": 38.10997920997921,
+            "outer_R_mm": 97.24615384615385
+          }
+        },
+        {
+          "row": 621,
+          "ours": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 97.68419958419959,
+            "inner_R_mm": 43.36652806652807,
+            "outer_R_mm": 97.68419958419959
+          },
+          "target": {
+            "inner_L_mm": 44.68066528066528,
+            "outer_L_mm": 97.24615384615385,
+            "inner_R_mm": 40.73825363825364,
+            "outer_R_mm": 102.5027027027027
+          }
+        },
+        {
+          "row": 675,
+          "ours": {
+            "inner_L_mm": 84.98087318087317,
+            "outer_L_mm": 95.05592515592515,
+            "inner_R_mm": 84.1047817047817,
+            "outer_R_mm": 94.61787941787942
+          },
+          "target": null
+        }
+      ],
+      "inside": 0,
+      "collision_repair": {
+        "colliders": [
+          "OCLX_Aisha_head",
+          "makeclothes_library_toigo_t_shirt",
+          "makeclothes_library_female_tight_jeans_pants",
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+        ],
+        "first_pass_inside": {
+          "OCLX_Aisha_head": 21328,
+          "makeclothes_library_toigo_t_shirt": 6121,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside": {
+          "OCLX_Aisha_head": 0,
+          "makeclothes_library_toigo_t_shirt": 0,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside_total": 0,
+        "moved_points": 26586,
+        "max_single_projection_mm": 15.197076368163872,
+        "clearance_mm": 0.2,
+        "passes": 3
+      },
+      "over_eye": 0,
+      "face_opening": 0,
+      "curtain_guides": 148,
+      "curtain_children": 15656,
+      "blend_children": 2372,
+      "smooth": null
+    },
+    {
+      "tag": "c4",
+      "diff": {
+        "curtain_preserving_interpolation": true,
+        "curtain_blend_band_mm": 12.0,
+        "curtain_clearance_max_mm": 22.0,
+        "crown_thickness_mm": 10.0
+      },
+      "front_iou": 0.5240254201470803,
+      "eroded": 0.4198760254632337,
+      "width_rms_head": 0.16010382785028665,
+      "profile": 0.6251657971527103,
+      "back": 0.6727122757783761,
+      "eye": {
+        "inner_L_mm": 60.888357588357586,
+        "outer_L_mm": 90.23742203742204,
+        "inner_R_mm": 60.888357588357586,
+        "outer_R_mm": 90.67546777546778
+      },
+      "eye_gap_ratio_L": 1.2857142857142858,
+      "eye_gap_ratio_R": 1.361904761904762,
+      "ear_cover": 1.0,
+      "stripe_contrast": 0.4291735342959246,
+      "standing": true,
+      "standing_excess_px": 33.0,
+      "id_show": 0.003594269000049576,
+      "front_table": [
+        {
+          "row": 190,
+          "ours": {
+            "inner_L_mm": 31.53929313929314,
+            "outer_L_mm": 83.22869022869023,
+            "inner_R_mm": 30.66320166320166,
+            "outer_R_mm": 82.35259875259875
+          },
+          "target": {
+            "inner_L_mm": 3.0663201663201662,
+            "outer_L_mm": 54.75571725571726,
+            "inner_R_mm": 2.19022869022869,
+            "outer_R_mm": 54.75571725571726
+          }
+        },
+        {
+          "row": 244,
+          "ours": {
+            "inner_L_mm": 45.556756756756755,
+            "outer_L_mm": 90.23742203742204,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 89.7993762993763
+          },
+          "target": {
+            "inner_L_mm": 33.72952182952183,
+            "outer_L_mm": 68.33513513513513,
+            "inner_R_mm": 35.481704781704785,
+            "outer_R_mm": 68.77318087318088
+          }
+        },
+        {
+          "row": 298,
+          "ours": {
+            "inner_L_mm": 60.45031185031185,
+            "outer_L_mm": 91.11351351351351,
+            "inner_R_mm": 60.01226611226611,
+            "outer_R_mm": 91.11351351351351
+          },
+          "target": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 76.21995841995842,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 77.09604989604989
+          }
+        },
+        {
+          "row": 352,
+          "ours": {
+            "inner_L_mm": 62.64054054054054,
+            "outer_L_mm": 92.86569646569646,
+            "inner_R_mm": 62.202494802494805,
+            "outer_R_mm": 94.17983367983368
+          },
+          "target": {
+            "inner_L_mm": 49.06112266112266,
+            "outer_L_mm": 81.47650727650728,
+            "inner_R_mm": 45.99480249480249,
+            "outer_R_mm": 82.7906444906445
+          }
+        },
+        {
+          "row": 406,
+          "ours": {
+            "inner_L_mm": 63.516632016632016,
+            "outer_L_mm": 95.05592515592515,
+            "inner_R_mm": 62.64054054054054,
+            "outer_R_mm": 95.4939708939709
+          },
+          "target": {
+            "inner_L_mm": 52.12744282744283,
+            "outer_L_mm": 84.98087318087317,
+            "inner_R_mm": 54.31767151767152,
+            "outer_R_mm": 86.73305613305614
+          }
+        },
+        {
+          "row": 459,
+          "ours": {
+            "inner_L_mm": 62.64054054054054,
+            "outer_L_mm": 95.05592515592515,
+            "inner_R_mm": 62.202494802494805,
+            "outer_R_mm": 94.17983367983368
+          },
+          "target": {
+            "inner_L_mm": 53.44158004158004,
+            "outer_L_mm": 87.60914760914761,
+            "inner_R_mm": 52.12744282744283,
+            "outer_R_mm": 90.23742203742204
+          }
+        },
+        {
+          "row": 513,
+          "ours": {
+            "inner_L_mm": 55.193762993762995,
+            "outer_L_mm": 93.3037422037422,
+            "inner_R_mm": 54.75571725571726,
+            "outer_R_mm": 92.86569646569646
+          },
+          "target": {
+            "inner_L_mm": 50.813305613305616,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 49.06112266112266,
+            "outer_R_mm": 93.74178794178795
+          }
+        },
+        {
+          "row": 567,
+          "ours": {
+            "inner_L_mm": 42.05239085239085,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 41.61434511434511,
+            "outer_R_mm": 90.23742203742204
+          },
+          "target": {
+            "inner_L_mm": 39.862162162162164,
+            "outer_L_mm": 93.3037422037422,
+            "inner_R_mm": 38.10997920997921,
+            "outer_R_mm": 97.24615384615385
+          }
+        },
+        {
+          "row": 621,
+          "ours": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 97.68419958419959,
+            "inner_R_mm": 43.36652806652807,
+            "outer_R_mm": 97.68419958419959
+          },
+          "target": {
+            "inner_L_mm": 44.68066528066528,
+            "outer_L_mm": 97.24615384615385,
+            "inner_R_mm": 40.73825363825364,
+            "outer_R_mm": 102.5027027027027
+          }
+        },
+        {
+          "row": 675,
+          "ours": {
+            "inner_L_mm": 84.98087318087317,
+            "outer_L_mm": 95.05592515592515,
+            "inner_R_mm": 84.1047817047817,
+            "outer_R_mm": 94.61787941787942
+          },
+          "target": null
+        }
+      ],
+      "inside": 0,
+      "collision_repair": {
+        "colliders": [
+          "OCLX_Aisha_head",
+          "makeclothes_library_toigo_t_shirt",
+          "makeclothes_library_female_tight_jeans_pants",
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+        ],
+        "first_pass_inside": {
+          "OCLX_Aisha_head": 21327,
+          "makeclothes_library_toigo_t_shirt": 6121,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside": {
+          "OCLX_Aisha_head": 0,
+          "makeclothes_library_toigo_t_shirt": 0,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside_total": 0,
+        "moved_points": 26585,
+        "max_single_projection_mm": 15.197076368163872,
+        "clearance_mm": 0.2,
+        "passes": 3
+      },
+      "over_eye": 0,
+      "face_opening": 0,
+      "curtain_guides": 148,
+      "curtain_children": 15656,
+      "blend_children": 2372,
+      "smooth": null
+    },
+    {
+      "tag": "c5",
+      "diff": {
+        "curtain_preserving_interpolation": true,
+        "curtain_blend_band_mm": 12.0,
+        "curtain_clearance_max_mm": 22.0,
+        "crown_thickness_mm": 10.0,
+        "curtain_inner_limit_mm": 34.0,
+        "curtain_root_inward_mm": 12.0
+      },
+      "front_iou": 0.5246109998459405,
+      "eroded": 0.42178010471204186,
+      "width_rms_head": 0.1599358543409266,
+      "profile": 0.6557779733098695,
+      "back": 0.6680527876724152,
+      "eye": {
+        "inner_L_mm": 60.888357588357586,
+        "outer_L_mm": 89.7993762993763,
+        "inner_R_mm": 60.888357588357586,
+        "outer_R_mm": 90.23742203742204
+      },
+      "eye_gap_ratio_L": 1.2857142857142858,
+      "eye_gap_ratio_R": 1.361904761904762,
+      "ear_cover": 1.0,
+      "stripe_contrast": 0.4218216728228638,
+      "standing": true,
+      "standing_excess_px": 33.0,
+      "id_show": 0.0036030215684325615,
+      "front_table": [
+        {
+          "row": 190,
+          "ours": {
+            "inner_L_mm": 31.53929313929314,
+            "outer_L_mm": 82.7906444906445,
+            "inner_R_mm": 30.66320166320166,
+            "outer_R_mm": 82.35259875259875
+          },
+          "target": {
+            "inner_L_mm": 3.0663201663201662,
+            "outer_L_mm": 54.75571725571726,
+            "inner_R_mm": 2.19022869022869,
+            "outer_R_mm": 54.75571725571726
+          }
+        },
+        {
+          "row": 244,
+          "ours": {
+            "inner_L_mm": 45.556756756756755,
+            "outer_L_mm": 90.23742203742204,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 89.36133056133056
+          },
+          "target": {
+            "inner_L_mm": 33.72952182952183,
+            "outer_L_mm": 68.33513513513513,
+            "inner_R_mm": 35.481704781704785,
+            "outer_R_mm": 68.77318087318088
+          }
+        },
+        {
+          "row": 298,
+          "ours": {
+            "inner_L_mm": 60.45031185031185,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 60.01226611226611,
+            "outer_R_mm": 90.67546777546778
+          },
+          "target": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 76.21995841995842,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 77.09604989604989
+          }
+        },
+        {
+          "row": 352,
+          "ours": {
+            "inner_L_mm": 62.64054054054054,
+            "outer_L_mm": 92.86569646569646,
+            "inner_R_mm": 62.202494802494805,
+            "outer_R_mm": 93.74178794178795
+          },
+          "target": {
+            "inner_L_mm": 49.06112266112266,
+            "outer_L_mm": 81.47650727650728,
+            "inner_R_mm": 45.99480249480249,
+            "outer_R_mm": 82.7906444906445
+          }
+        },
+        {
+          "row": 406,
+          "ours": {
+            "inner_L_mm": 63.516632016632016,
+            "outer_L_mm": 95.05592515592515,
+            "inner_R_mm": 62.64054054054054,
+            "outer_R_mm": 95.05592515592515
+          },
+          "target": {
+            "inner_L_mm": 52.12744282744283,
+            "outer_L_mm": 84.98087318087317,
+            "inner_R_mm": 54.31767151767152,
+            "outer_R_mm": 86.73305613305614
+          }
+        },
+        {
+          "row": 459,
+          "ours": {
+            "inner_L_mm": 62.64054054054054,
+            "outer_L_mm": 94.61787941787942,
+            "inner_R_mm": 62.202494802494805,
+            "outer_R_mm": 94.17983367983368
+          },
+          "target": {
+            "inner_L_mm": 53.44158004158004,
+            "outer_L_mm": 87.60914760914761,
+            "inner_R_mm": 52.12744282744283,
+            "outer_R_mm": 90.23742203742204
+          }
+        },
+        {
+          "row": 513,
+          "ours": {
+            "inner_L_mm": 55.193762993762995,
+            "outer_L_mm": 92.86569646569646,
+            "inner_R_mm": 54.75571725571726,
+            "outer_R_mm": 92.42765072765073
+          },
+          "target": {
+            "inner_L_mm": 50.813305613305616,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 49.06112266112266,
+            "outer_R_mm": 93.74178794178795
+          }
+        },
+        {
+          "row": 567,
+          "ours": {
+            "inner_L_mm": 42.05239085239085,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 41.61434511434511,
+            "outer_R_mm": 90.23742203742204
+          },
+          "target": {
+            "inner_L_mm": 39.862162162162164,
+            "outer_L_mm": 93.3037422037422,
+            "inner_R_mm": 38.10997920997921,
+            "outer_R_mm": 97.24615384615385
+          }
+        },
+        {
+          "row": 621,
+          "ours": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 97.68419958419959,
+            "inner_R_mm": 43.36652806652807,
+            "outer_R_mm": 97.68419958419959
+          },
+          "target": {
+            "inner_L_mm": 44.68066528066528,
+            "outer_L_mm": 97.24615384615385,
+            "inner_R_mm": 40.73825363825364,
+            "outer_R_mm": 102.5027027027027
+          }
+        },
+        {
+          "row": 675,
+          "ours": {
+            "inner_L_mm": 84.98087318087317,
+            "outer_L_mm": 95.05592515592515,
+            "inner_R_mm": 84.1047817047817,
+            "outer_R_mm": 95.05592515592515
+          },
+          "target": null
+        }
+      ],
+      "inside": 0,
+      "collision_repair": {
+        "colliders": [
+          "OCLX_Aisha_head",
+          "makeclothes_library_toigo_t_shirt",
+          "makeclothes_library_female_tight_jeans_pants",
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+        ],
+        "first_pass_inside": {
+          "OCLX_Aisha_head": 21256,
+          "makeclothes_library_toigo_t_shirt": 6065,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside": {
+          "OCLX_Aisha_head": 0,
+          "makeclothes_library_toigo_t_shirt": 0,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside_total": 0,
+        "moved_points": 26456,
+        "max_single_projection_mm": 15.197076368163872,
+        "clearance_mm": 0.2,
+        "passes": 3
+      },
+      "over_eye": 0,
+      "face_opening": 0,
+      "curtain_guides": 148,
+      "curtain_children": 18597,
+      "blend_children": 3524,
+      "smooth": null
+    },
+    {
+      "tag": "c6",
+      "diff": {
+        "curtain_preserving_interpolation": true,
+        "curtain_blend_band_mm": 12.0,
+        "curtain_clearance_max_mm": 8.0,
+        "crown_thickness_mm": 0.0,
+        "resample_smooth": true
+      },
+      "front_iou": 0.5665687646967327,
+      "eroded": 0.461946171441239,
+      "width_rms_head": 0.0999134270526875,
+      "profile": 0.6754061227748064,
+      "back": 0.7296979460877782,
+      "eye": {
+        "inner_L_mm": 60.888357588357586,
+        "outer_L_mm": 80.6004158004158,
+        "inner_R_mm": 60.888357588357586,
+        "outer_R_mm": 80.16237006237006
+      },
+      "eye_gap_ratio_L": 1.2857142857142858,
+      "eye_gap_ratio_R": 1.361904761904762,
+      "ear_cover": 1.0,
+      "stripe_contrast": 0.41245663602945576,
+      "standing": false,
+      "standing_excess_px": 9.0,
+      "id_show": 0.002706506441485331,
+      "front_table": [
+        {
+          "row": 190,
+          "ours": {
+            "inner_L_mm": 31.53929313929314,
+            "outer_L_mm": 65.70686070686071,
+            "inner_R_mm": 30.66320166320166,
+            "outer_R_mm": 65.26881496881497
+          },
+          "target": {
+            "inner_L_mm": 3.0663201663201662,
+            "outer_L_mm": 54.75571725571726,
+            "inner_R_mm": 2.19022869022869,
+            "outer_R_mm": 54.75571725571726
+          }
+        },
+        {
+          "row": 244,
+          "ours": {
+            "inner_L_mm": 45.556756756756755,
+            "outer_L_mm": 74.90582120582121,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 74.90582120582121
+          },
+          "target": {
+            "inner_L_mm": 33.72952182952183,
+            "outer_L_mm": 68.33513513513513,
+            "inner_R_mm": 35.481704781704785,
+            "outer_R_mm": 68.77318087318088
+          }
+        },
+        {
+          "row": 298,
+          "ours": {
+            "inner_L_mm": 60.45031185031185,
+            "outer_L_mm": 79.28627858627858,
+            "inner_R_mm": 60.01226611226611,
+            "outer_R_mm": 78.84823284823285
+          },
+          "target": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 76.21995841995842,
+            "inner_R_mm": 44.68066528066528,
+            "outer_R_mm": 77.09604989604989
+          }
+        },
+        {
+          "row": 352,
+          "ours": {
+            "inner_L_mm": 62.64054054054054,
+            "outer_L_mm": 81.91455301455302,
+            "inner_R_mm": 62.202494802494805,
+            "outer_R_mm": 81.91455301455302
+          },
+          "target": {
+            "inner_L_mm": 49.06112266112266,
+            "outer_L_mm": 81.47650727650728,
+            "inner_R_mm": 45.99480249480249,
+            "outer_R_mm": 82.7906444906445
+          }
+        },
+        {
+          "row": 406,
+          "ours": {
+            "inner_L_mm": 63.516632016632016,
+            "outer_L_mm": 93.3037422037422,
+            "inner_R_mm": 62.64054054054054,
+            "outer_R_mm": 90.23742203742204
+          },
+          "target": {
+            "inner_L_mm": 52.12744282744283,
+            "outer_L_mm": 84.98087318087317,
+            "inner_R_mm": 54.31767151767152,
+            "outer_R_mm": 86.73305613305614
+          }
+        },
+        {
+          "row": 459,
+          "ours": {
+            "inner_L_mm": 63.516632016632016,
+            "outer_L_mm": 87.17110187110187,
+            "inner_R_mm": 63.07858627858628,
+            "outer_R_mm": 86.73305613305614
+          },
+          "target": {
+            "inner_L_mm": 53.44158004158004,
+            "outer_L_mm": 87.60914760914761,
+            "inner_R_mm": 52.12744282744283,
+            "outer_R_mm": 90.23742203742204
+          }
+        },
+        {
+          "row": 513,
+          "ours": {
+            "inner_L_mm": 55.193762993762995,
+            "outer_L_mm": 85.85696465696466,
+            "inner_R_mm": 54.75571725571726,
+            "outer_R_mm": 84.98087318087317
+          },
+          "target": {
+            "inner_L_mm": 50.813305613305616,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 49.06112266112266,
+            "outer_R_mm": 93.74178794178795
+          }
+        },
+        {
+          "row": 567,
+          "ours": {
+            "inner_L_mm": 42.05239085239085,
+            "outer_L_mm": 83.66673596673597,
+            "inner_R_mm": 41.61434511434511,
+            "outer_R_mm": 82.7906444906445
+          },
+          "target": {
+            "inner_L_mm": 39.862162162162164,
+            "outer_L_mm": 93.3037422037422,
+            "inner_R_mm": 38.10997920997921,
+            "outer_R_mm": 97.24615384615385
+          }
+        },
+        {
+          "row": 621,
+          "ours": {
+            "inner_L_mm": 43.804573804573806,
+            "outer_L_mm": 90.67546777546778,
+            "inner_R_mm": 43.36652806652807,
+            "outer_R_mm": 91.11351351351351
+          },
+          "target": {
+            "inner_L_mm": 44.68066528066528,
+            "outer_L_mm": 97.24615384615385,
+            "inner_R_mm": 40.73825363825364,
+            "outer_R_mm": 102.5027027027027
+          }
+        },
+        {
+          "row": 675,
+          "ours": {
+            "inner_L_mm": 85.41891891891892,
+            "outer_L_mm": 91.55155925155925,
+            "inner_R_mm": 85.41891891891892,
+            "outer_R_mm": 91.11351351351351
+          },
+          "target": null
+        }
+      ],
+      "inside": 0,
+      "collision_repair": {
+        "colliders": [
+          "OCLX_Aisha_head",
+          "makeclothes_library_toigo_t_shirt",
+          "makeclothes_library_female_tight_jeans_pants",
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+        ],
+        "first_pass_inside": {
+          "OCLX_Aisha_head": 21731,
+          "makeclothes_library_toigo_t_shirt": 8905,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside": {
+          "OCLX_Aisha_head": 0,
+          "makeclothes_library_toigo_t_shirt": 0,
+          "makeclothes_library_female_tight_jeans_pants": 0,
+          "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+        },
+        "post_inside_total": 0,
+        "moved_points": 29518,
+        "max_single_projection_mm": 15.199475361914955,
+        "clearance_mm": 0.2,
+        "passes": 3
+      },
+      "over_eye": 0,
+      "face_opening": 0,
+      "curtain_guides": 148,
+      "curtain_children": 15656,
+      "blend_children": 2372,
+      "smooth": {
+        "max_move_mm": 4.500000000000002,
+        "p95_move_mm": 0.0021973545132253436,
+        "iterations": 3,
+        "cap_per_iteration_mm": 1.5
+      }
+    }
+  ],
+  "guide_hashes": {
+    "c0": "1d9d170b8efdfd52e32f8ff07d4269f3d03e341cbcd573e96094b1d9d9ad34e2",
+    "c1": "1d9d170b8efdfd52e32f8ff07d4269f3d03e341cbcd573e96094b1d9d9ad34e2",
+    "c2": "1d9d170b8efdfd52e32f8ff07d4269f3d03e341cbcd573e96094b1d9d9ad34e2",
+    "c3": "1d9d170b8efdfd52e32f8ff07d4269f3d03e341cbcd573e96094b1d9d9ad34e2",
+    "c4": "1d9d170b8efdfd52e32f8ff07d4269f3d03e341cbcd573e96094b1d9d9ad34e2",
+    "c5": "1d9d170b8efdfd52e32f8ff07d4269f3d03e341cbcd573e96094b1d9d9ad34e2",
+    "c6": "1d9d170b8efdfd52e32f8ff07d4269f3d03e341cbcd573e96094b1d9d9ad34e2"
+  },
+  "rev4_hash": "1d9d170b8efdfd52e32f8ff07d4269f3d03e341cbcd573e96094b1d9d9ad34e2",
+  "guide_diff_count_c0_c4": 0,
+  "c5_guide_diff_count": 0,
+  "c5_curtain_child_diff": 2941,
+  "facet": {
+    "guide_segment_median_mm": 9.575318664439001,
+    "guide_segment_p10_p90_mm": [
+      6.968968111735306,
+      12.642809095384932
+    ],
+    "segments_2_4mm_fraction": 0.002869934565491907,
+    "adjacent_turn_gt10deg_fraction": 0.2220640569395018,
+    "blend_band_children": 2372,
+    "verdict": "polyline curvature (not literal 3mm steps); c6 required",
+    "c6_smoothing": {
+      "max_move_mm": 4.500000000000002,
+      "p95_move_mm": 0.0021973545132253436,
+      "iterations": 3,
+      "cap_per_iteration_mm": 1.5
+    }
+  },
+  "target_reference_mm": {
+    "inner_L": 46.4,
+    "inner_R": 44.7,
+    "outer_L": 81.5,
+    "outer_R": 82.8
+  }
+}

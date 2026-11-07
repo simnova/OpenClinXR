@@ -1,0 +1,141 @@
+station0a: schema, deterministic runner, registered camera frame — RESULT
+===============================================================================
+Card: replacement groom station STEP 0a. Schema + deterministic runner +
+registered camera frame + registration parity. NO guides, NO children,
+NO feasibility fit (station0b). No groom.npz emitted this card.
+
+1. INPUT PINS (manifests/aisha_straight_long.json; sha verified at runtime)
+   body: mpfb-peds-parent-aisha
+     apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb
+     sha256 5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde
+   targets (pinned absolute paths under hair-judge/target-set-back):
+     landmarks.json              14f3231c913051ebb91edf1d82febd63cea86c494aa741cb7efdddfed6ac05a1
+     mask-front-v2.png   1024px area=102503  deb150fb57e20aab87654767fdfa0341a112c0b7d8565d936d273ce77200b604
+     mask-profile-v2.png 1024px area=159523  78718ed580c630d0fa68c34080de0b42e699dc6d880377b25a8da4f2629bf07e
+     mask-back-v3.png    1024px area=235860  6d182281e771247a3b3489ab4b7a5a52ce52e16ef85b4bb5ef354e3512fb9cbd
+   cameras: front, three_quarter, profile_90, back, crown_top (5 scorer views)
+   style: part=centre; families part-left(mirror part-right), temple(mirror),
+     side(mirror), back, nape; seed=7
+   manifest sha256 b53f55e22d8b348407ddd8138b4d9d7f0155fc6782f7277548ab8f87343f3eb8
+   codeHash (sha256 over sorted S *.py contents): 
+     22b4ce4dfe0231ae7f38cce12542d8c964a955948926bbd42cc3aca070c275f6
+
+2. RENDER LANDMARKS (projected, 1024 frame; station-owned anatomy search)
+   point3d crown  [0, -0.0532, 1.6599]  == reference bare-head max-z vertex
+   point3d brow   [0, -0.1486, 1.5717]  == reference brow vertex
+   point3d menton [0, -0.1348, 1.4493]  == reference menton (rule v2: nearest
+     z=crown-0.2106 in anterior midline band; v1 min-z rule hit throat 1.3122
+     and was replaced before any evidence was frozen)
+   target (station, shared-loader rule cx,0,crown-0.12): [0, 0, 1.5399]
+   render triples (row_a, row_b, col_c) / target triples:
+     front      render (245.0, 718.7, 512.0)  target (127, 608, 513)
+     profile_90 render (272.2, 696.8, 211.8)  target (125, 577, 344)
+     back       render (295.5, 788.1, 512.0)  target (130, 646, 513)
+     three_quarter NO_TRIPLE (not invented) / crown_top NO_TRIPLE
+
+3. REGISTRATION (S/register.py, pure numpy, scale+tx+ty render->target)
+     front      s=1.0155840858787788 tx=-6.979051969934744   ty=-121.85287537331948 rms=0.0
+     profile_90 s=1.0643701223105337 tx=118.54827989134338   ty=-164.67387671213191 rms=0.0
+     back       s=1.0475514459625255 tx=-23.34630836407996   ty=-179.52645273264824 rms=0.0
+   (full precision in registration.json; residuals ~0 by construction of the
+   3-parameter fit from the same triple — reported, not hidden.)
+
+4. PARITY vs judge register_view (evidence-only parity_check.py): exact match
+     front      dscale=0.0 dtx=0.0 dty=0.0
+     profile_90 dscale=0.0 dtx=0.0 dty=0.0
+     back       dscale=0.0 dtx=0.0 dty=0.0
+   worst abs delta 0.000e+00 <= 1e-6 on all three views. PASS.
+
+5. BAN-PROOF GREP (pasted output; empty = pass):
+   $ grep -RInE 'hair-guides|children_station|hair-cap|hair-hem|hair-crown|hair-sweep|score\.py' tools/openclinxr/hair-groom
+   (no output; exit 1)
+   Provenance notes: camera placement reimplements the scorer model in
+   tools/openclinxr/evidence/hair-score/score.py:314-335 (canonical_camera:
+   recorded rig location + lens per view; three_quarter/crown_top reuse the
+   front 0.7 m radius per score.py:322-330; track() per score.py:310-311).
+   The scorer filename is cited HERE, not in S, because the ban forbids the
+   literal in S. Anatomy rules reimplement
+   the reference landmark definitions scene-relatively (crown = max-z vertex,
+   brow/menton = midline-band nearest-z, shoulder = crown-0.2549 plane).
+
+6. INPUTS-OPENED (E/inputs-opened.txt, 12 paths: schema, manifest, 3 S sources,
+   body GLB, landmarks.json, 3 masks, station-frame.npz, blender-opened.txt):
+   banned-substring scan (same 7 patterns + hair-scene/hair-curtain/hair-score/
+   hair-look/children over the file): no output, exit 1. Only hair-judge
+   pinned-target paths (explicitly allowed) and hair-groom self paths appear.
+   Between run-a/run-b only the outdir prefix differs (2 lines); payloads
+   unaffected. inputs-opened.txt is .txt so outside the JSON/NPZ hash gate.
+
+7. DETERMINISM (run.py twice into clean /tmp/station0a-run-{a,b}; payload
+   hashes = canonical-JSON re-encode + per-key npz dtype/shape/bytes):
+     registration.json 86edb97bfa3228db.. IDENTICAL
+     run-record.json   4513b8357c584b88.. IDENTICAL
+     projected.json    ae5775d14ceb06ef.. IDENTICAL
+     station-frame.npz 56b3daf23132628d.. IDENTICAL (byte-identical too)
+   Full table in determinism.json. PASS. No groom.npz, no *.blend anywhere.
+
+8. FRAME (E/frame.png, 2560x540: 5x512 Workbench renders + label bar)
+   red = pinned target mask inverse-warped into render frame; yellow = render
+   triple; cyan = mapped target triple. Warped target px: front 24859,
+   profile_90 35190, back 53728. Workbench distinct-colour counts (q8):
+   front 369, three_quarter 337, profile_90 219, back 213, crown_top 314.
+   three_quarter/crown_top render-only (NO_TRIPLE). No hair in scene.
+
+9. SAW (station acceptance writeup): station owns schema, frame, and
+   registration from immutable pinned inputs; scorer-camera model
+   reimplemented (locations + track + 50 mm + fallback pair); judge parity
+   bit-exact; runner deterministic across clean dirs. Known limits: station
+   target (crown-0.12) differs from the scorer rig target, so absolute camera
+   pitch differs while locations match — registration absorbs it by design
+   (scales 1.02/1.06/1.05, all near unity). menton v1 defect caught and fixed
+   pre-freeze (throat 1.3122 -> chin 1.4493).
+   NOT TESTED: Quest/worn-headset rendering; IWSDK sidecar; any groom
+   generation (no strands exist yet); cross-machine Blender determinism
+   (single Apple M1 Max host); MongoDB persistence (no records written).
+
+GATES_PASS=yes — empty grep, inputs-opened clean, parity 0<=1e-6 all views,
+all JSON/NPZ payload hashes identical, frame.png present.
+
+===============================================================================
+FIX 1 (2026-10-15): station cameras ARE the scorer cameras now.
+Defect: v0 cameras reused recorded locations but tracked a station-owned
+target (crown-0.12); orientations differed (front ty -121.9 vs +51.5).
+Fix, per handback:
+  * E/extract_cameras.py (evidence-only) read the scorer v3 c_curve score
+    document (sha fde66442cfef454e...) + orientation constants
+    (sha 9bd7af216c29797a...) and wrote
+    S/manifests/cameras-scorer-v3.json (sha
+    833bf1361d6be94ce1d576314ea6f1e4f760a07d588240bf6fcf8b2741eab413):
+    five camera records (lensMm/location/matrixWorld) VERBATIM, plus the
+    scorer's effective registration triples. S never references the scorer
+    paths (ban-grep still empty; the cameras file carries only shas + the
+    schema-version value, no filesystem paths).
+  * Differing landmark rule found and fixed: the scorer front target applies
+    the skull-mode +10 mm hair-over-skull offset
+    (a += 10*(H_raw/210.6591463088989258) -> 149.833094, not raw 127).
+    v0 used the raw triple — that plus the aim rule was the whole 170 px gap.
+    The offset now lives in the pinned cameras file (computed by the
+    extractor with the scorer formula, cross-checked <1e-12 against the
+    stored orientation transforms); S holds no skull logic.
+  * export_frame.py builds cameras from the pinned file only (matrix
+    assigned directly, no aim-point rule, no tracking). run.py registers
+    with the pinned triples and asserts the station's independent
+    projections reproduce them (<0.5 px, i.e. rounding): worst 0.469 px
+    (back crown; front 0.23/0.29, profile 0.15/0.30/0.18) — same frame proven.
+  * Station transforms now EQUAL the scorer stored orientation transforms:
+      front      s=0.9545143883864126 tx=24.28863314615677  ty=51.51811157072147
+      profile_90 s=1.0511627906976744 tx=124.30697674418604 ty=-12.702325581395343
+      back       s=1.0403225806451613 tx=-19.645161290322562 ty=-31.25
+    (bit-exact: identical triple inputs + parity-exact math; judge parity
+    re-run worst 0.000e+00 PASS.)
+  * Determinism re-run (two clean dirs): registration.json 42a08e49dacf6648,
+    run-record.json b7c5456c3c102c09, projected.json dee4db563542a07b,
+    station-frame.npz 8cdc354843f72be5 — all IDENTICAL. New codeHash
+    ead9d2ee105d4c91e53e0467aac3d69bf82c00120ac5c9d7cb601f9ed2a1e281
+    (run.py/export_frame.py changed; schema + manifest gained camerasFile).
+  * frame.png regenerated from the scorer frame (warped px front 28153,
+    profile 36116, back 54474; Workbench colours 397/365/241/217/313).
+    Sections 1-9 above are the superseded v0 record, kept verbatim.
+GATES_PASS=yes — empty grep, inputs-opened clean (re-scanned, exit 1),
+transforms equal scorer stored values exactly, judge parity 0<=1e-6,
+payload hashes identical, frame.png present.

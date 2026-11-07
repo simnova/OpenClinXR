@@ -1,0 +1,188 @@
+{
+  "cell": "C3",
+  "change": "Interpolation Guides 3",
+  "specIntent": {
+    "follow": false,
+    "interp": 3,
+    "maskAttr": true,
+    "distribRaw": 1
+  },
+  "blenderVersion": "5.1.1",
+  "inputs": {
+    "followSurfaceNormal": false,
+    "interpolationGuides": 3,
+    "distributionMethod": "Poisson Disk",
+    "distributionRaw": 1,
+    "densityMask": "attr:OCLX_interp_scalp_mask",
+    "distanceToGuides": 1.0,
+    "partByMeshIslands": true,
+    "density": 38002.0,
+    "seed": 0
+  },
+  "overrideReadback": {
+    "Input_10": {
+      "name": "Interpolation Guides",
+      "identifier": "Input_10",
+      "socketType": "NodeSocketInt",
+      "interfaceDefault": 4,
+      "wrote": 3,
+      "wroteRaw": 3,
+      "readBack": 3
+    }
+  },
+  "densityAttempts": [
+    {
+      "density": 38002,
+      "curves": 1941
+    }
+  ],
+  "density": 38002.0,
+  "radius": 0.0004,
+  "handUV": {
+    "curves": 596,
+    "nan": 0,
+    "uMin": 0.6456583142280579,
+    "uMax": 0.9033679366111755,
+    "vMin": 0.16011300683021545,
+    "vMax": 0.8120583295822144
+  },
+  "colliders": [
+    "OCLX_collision_basemesh",
+    "makeclothes_library_toigo_t_shirt"
+  ],
+  "profileReadback": {
+    "Input_3": {
+      "name": "Radius",
+      "identifier": "Input_3",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.009999999776482582,
+      "wrote": 0.0004,
+      "wroteRaw": 0.0004,
+      "readBack": 0.00039999998989515007
+    },
+    "Input_2": {
+      "name": "Shape",
+      "identifier": "Input_2",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.4999999403953552,
+      "wrote": 0.0,
+      "wroteRaw": 0.0,
+      "readBack": 0.0
+    },
+    "Input_6": {
+      "name": "Replace Radius",
+      "identifier": "Input_6",
+      "socketType": "NodeSocketBool",
+      "interfaceDefault": true,
+      "wrote": true,
+      "wroteRaw": true,
+      "readBack": true
+    },
+    "Socket_0": {
+      "name": "Density",
+      "identifier": "Socket_0",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.0,
+      "wrote": 1.0,
+      "wroteRaw": 1.0,
+      "readBack": 1.0
+    },
+    "Socket_1": {
+      "name": "Length",
+      "identifier": "Socket_1",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 1.0,
+      "wrote": 1.0,
+      "wroteRaw": 1.0,
+      "readBack": 1.0
+    },
+    "Input_4": {
+      "name": "Factor Min",
+      "identifier": "Input_4",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.0,
+      "wrote": 0.0,
+      "wroteRaw": 0.0,
+      "readBack": 0.0
+    },
+    "Input_5": {
+      "name": "Factor Max",
+      "identifier": "Input_5",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 1.0,
+      "wrote": 1.0,
+      "wroteRaw": 1.0,
+      "readBack": 1.0
+    }
+  },
+  "evaluatedCurveCount": 1939,
+  "evaluatedPointCount": 62048,
+  "pointsPerCurveHistogram": {
+    "32": 1939
+  },
+  "insideBodyCount": 14110,
+  "insideBodyFrac": 0.2274045899948427,
+  "insideShirtCount": 3748,
+  "insideShirtFrac": 0.06040484785972151,
+  "bodyDistanceMm": {
+    "p5": 1.048367331458513,
+    "p50": 5.497040653008772
+  },
+  "perGuideMax": 8,
+  "perGuideMedian": 3.0,
+  "partCrossingPointCount": 0,
+  "rootsCorrectIslandCount": 1939,
+  "rootsCorrectIslandFrac": 1.0,
+  "rootDensityCV": 0.8539717074019825,
+  "rootToGuideMm": {
+    "mean": 5.665391354199432,
+    "p50": 5.587662699386002,
+    "p95": 7.769344627902468,
+    "max": 9.560064782362968
+  },
+  "rootToCapMm": {
+    "mean": 0.017254600608806743,
+    "max": 3.4420655574649572
+  },
+  "offsetMeanMm": [
+    0.0770010562206724,
+    -0.5392523833115223,
+    -0.7579003352962768
+  ],
+  "offsetSdMm": [
+    3.322679845576765,
+    3.293706908684809,
+    3.2881864618449486
+  ],
+  "showThroughTop": 0.701341827053402,
+  "gutterCount": 2,
+  "gutterSizes": [
+    20309,
+    21
+  ],
+  "capPixels": 29512,
+  "hairPixelsTop": 8814,
+  "renders": {
+    "crown_top": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C3-crown_top.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C3-crown_top-id.png"
+    },
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C3-front.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C3-front-id.png"
+    }
+  },
+  "capSilhouette": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-lanes/cells/C3-cap-silhouette.png",
+  "visibleSet": [
+    "OCLX_Aisha_head",
+    "OCLX_cam",
+    "OCLX_fill",
+    "OCLX_key",
+    "OCLX_lane_C3",
+    "OCLX_rim",
+    "makeclothes_library_female_tight_jeans_pants",
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+    "makeclothes_library_toigo_t_shirt",
+    "mpfb_parent_tara_johnson_v1_body_mesh"
+  ]
+}

@@ -1,0 +1,68 @@
+{
+ "files": {
+  "c_best8_strands": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/rulers-roots.npz",
+   "sha256": "fd5cc0ab31cd57d6ee0ef0bba3e24d2b45a476876454a249bb742127c56d6dbd"
+  },
+  "c_curve_strands": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/rulers-roots.npz",
+   "sha256": "fd5cc0ab31cd57d6ee0ef0bba3e24d2b45a476876454a249bb742127c56d6dbd"
+  },
+  "cap_v7": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/rulers-cap.npz",
+   "sha256": "ca8177cbb276301b80882157f92de625659bdffc3538e8c87be3ad147ea5ee42"
+  },
+  "cap_v8": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/rulers-cap.npz",
+   "sha256": "ca8177cbb276301b80882157f92de625659bdffc3538e8c87be3ad147ea5ee42"
+  },
+  "current_back_id": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/renders/back-id.png",
+   "sha256": "b22b1999f30f972305e6307a65b702e31012ae51e491a2c8ea336b3b3b29b175"
+  },
+  "current_front_id": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/renders/front-id.png",
+   "sha256": "f1b68c71fe0f54cbdf69137ea1619191731c07b90ea7418f189afb808d6e30b3"
+  },
+  "current_profile_90_beauty": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/renders/profile_90.png",
+   "sha256": "10cb23b93344508eef5abdbd1e8f970d1379c5b7b99ba63e3d4dddf6f4daa491"
+  },
+  "current_profile_90_id": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/renders/profile_90-id.png",
+   "sha256": "3c778bdf36885ba73407e235d2a7b58d2297431e5234f5769773b3d2e778fa82"
+  },
+  "current_score": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/cameras-used.json",
+   "sha256": "b1fbadaa9fdd4218044032cde74f6920fffd63c386023e8941d4779e2fba9b91"
+  },
+  "current_three_quarter_beauty": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/renders/three_quarter.png",
+   "sha256": "7b8feb62bee483f11e3f370f896e090dceb7e736395f7379cd08d80cb702a5ec"
+  },
+  "current_three_quarter_id": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/renders/three_quarter-id.png",
+   "sha256": "ca4e90670d061c8f3f0e0108b85a676b3a9544d525e00810a719a9475981f0f5"
+  },
+  "hair_judge": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/hair_judge.py",
+   "sha256": "46e567734852169b8e89ce015e520f27dcdc2cd83e871903924686c7fd2d8474"
+  },
+  "spread": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-shell1/rulers-roots.npz",
+   "sha256": "fd5cc0ab31cd57d6ee0ef0bba3e24d2b45a476876454a249bb742127c56d6dbd"
+  },
+  "target_back_mask": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-back-v3.png",
+   "sha256": "6d182281e771247a3b3489ab4b7a5a52ce52e16ef85b4bb5ef354e3512fb9cbd"
+  },
+  "target_front_mask": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-front-v2.png",
+   "sha256": "deb150fb57e20aab87654767fdfa0341a112c0b7d8565d936d273ce77200b604"
+  },
+  "target_profile_mask": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-profile-v2.png",
+   "sha256": "78718ed580c630d0fa68c34080de0b42e699dc6d880377b25a8da4f2629bf07e"
+  }
+ }
+}

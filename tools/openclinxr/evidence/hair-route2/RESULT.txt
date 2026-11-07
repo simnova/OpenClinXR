@@ -1,0 +1,270 @@
+hair-route2: routed + relaxed guides on the ear-tucked hull (aisha-v3) -- RESULT
+==============================================================================
+WRITE ROOTS: S7 = tools/openclinxr/hair-groom/route (new route2.py + common2.py; route.py, relax.py, gates.py, gates1.py, export.py, export1.py, add_verdict.py, common.py untouched), E = tools/openclinxr/evidence/hair-route2. No *.blend.
+INPUTS: hull3/hull.npz + scalp1 roots/scalp + cage1 exact-SDF + cage1 body-depth (front/profile/back) + hull3 workspace body-depth-3q + station-frame + hull3 ear_pinna.npz + v4 manifest (masks sha-verified at load) + Aisha GLB. Full runtime list: E/inputs-opened.txt.
+METHOD: route0-method routing (same six-term cost, same weights, spec 33f3f9f0ebd1) + route1-method relaxation (same ladder/weights/accept, spec 9dcf2049fde8). Relax-spec change vs route1: NONE (route1 RESULT recommends no relax-spec change; its findings concern routing resolution + flow-gate recalibration).
+BANDS vs SHOULDER (z=1405): {"yEarMm": -76.9, "shoulderZ": 1405.0, "curtainL": {"n": 43, "endZmin": 1443.0, "endZmax": 1449.0, "nEndsBelowShoulder": 0}, "curtainR": {"n": 42, "endZmin": 1551.0, "endZmax": 1559.0, "nEndsBelowShoulder": 0}, "backL": {"n": 136, "endZmin": 1255.0, "endZmax": 1267.0, "nEndsBelowShoulder": 136}, "backR": {"n": 138, "endZmin": 1255.0, "endZmax": 1275.0, "nEndsBelowShoulder": 138}}
+GATES: {
+ "nGuides": 359,
+ "nRelaxed": 209,
+ "nFallback": 100,
+ "unreachable": 50,
+ "specSha": "9dcf2049fde8b92589f172166ab8af8cfb123d6d5563d3993a5133bfe77c6c41",
+ "routeSpecSha": "33f3f9f0ebd13fe95db91b08d5c573bc2941cc8e0f4ff7b3a8b4bdcfe5038a1c",
+ "endpointCoverage": {
+  "CL": {
+   "n": 43,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.83,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 0.605
+  },
+  "CR": {
+   "n": 42,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.0,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 1.0
+  },
+  "BKL": {
+   "n": 136,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.0,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 0.853
+  },
+  "BKR": {
+   "n": 138,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.0,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 0.848
+  }
+ },
+ "boundaryFrac4mm": 0.0538,
+ "boundaryGate": 0.5,
+ "partCrossings": {
+  "rawFlips": 31,
+  "crossingsOver2mm": 5,
+  "maxExcursionMm": 4.06
+ },
+ "backCentreGap": {
+  "n": 244,
+  "maxGapMm": 10.0
+ },
+ "backCentreGapGateMm": 20.0,
+ "leaderMm": {
+  "max": 36.03,
+  "p95": 26.77,
+  "p50": 5.28,
+  "nOver8mm": 92
+ },
+ "yEarMm": -76.90242677927017,
+ "endDisplacementMm": {
+  "max": 1.82,
+  "p95": 0.16,
+  "p50": 0.0
+ },
+ "crownBandMm": [
+  1570.0,
+  1640.0
+ ],
+ "flowRouted": {
+  "p50": 45.0,
+  "p95": 106.14,
+  "n": 14381,
+  "p50gate": 20.0,
+  "p95gate": 40.0,
+  "releaseRule": "arc from root: lateral below 15 mm, gravity beyond 45 mm (cosine blend)"
+ },
+ "flowRelaxed": {
+  "p50": 45.0,
+  "p95": 107.96,
+  "n": 13475,
+  "p50gate": 20.0,
+  "p95gate": 40.0,
+  "releaseRule": "arc from root: lateral below 15 mm, gravity beyond 45 mm (cosine blend)"
+ },
+ "turnRouted": {
+  "max": 123.14,
+  "p95": 44.89,
+  "p50": 0.0,
+  "fracGuidesOver15": 1.0,
+  "nGuidesOver15": 309,
+  "gate": 15.0
+ },
+ "turnRelaxed": {
+  "max": 113.97,
+  "p95": 22.69,
+  "p50": 1.86,
+  "fracGuidesOver15": 0.3236,
+  "nGuidesOver15": 100,
+  "gate": 15.0
+ },
+ "latticeRelaxed": {
+  "nRunsOver10mm": 977,
+  "nViolations": 613,
+  "maxRunMm": 232.0,
+  "tolDeg": 5.0,
+  "runGateMm": 10.0
+ },
+ "latticeRouted": {
+  "nRunsOver10mm": 2063,
+  "nViolations": 1472,
+  "maxRunMm": 234.0,
+  "tolDeg": 5.0,
+  "runGateMm": 10.0
+ },
+ "regionalGatePx": {
+  "p50": 12.0,
+  "p95": 24.0
+ },
+ "faceGuards": {
+  "front": {
+   "coveredPx": 0,
+   "guardPx": 5200,
+   "eyes": {
+    "coveredPx": 0,
+    "guardPx": 2800
+   },
+   "mouth": {
+    "coveredPx": 0,
+    "guardPx": 2400
+   }
+  },
+  "profile_90": {
+   "coveredPx": 0,
+   "guardPx": 3300,
+   "eyes": {
+    "coveredPx": 0,
+    "guardPx": 1500
+   },
+   "mouth": {
+    "coveredPx": 0,
+    "guardPx": 1800
+   }
+  },
+  "back": {
+   "coveredPx": 0,
+   "guardPx": 0
+  },
+  "totalCoveredPx": 0
+ },
+ "verdict": "MODEL_INADEQUATE",
+ "gateFails": [
+  "unreachable=50",
+  "partCrossings=5",
+  "ear near3 xpos/xneg=1/3 covering=10",
+  "front missP95=64.4",
+  "three_quarter excessP95=238.6",
+  "three_quarter missP95=112.7",
+  "profile_90 missP95=57.1",
+  "back missP95=73.5",
+  "flow p50/p95=45.0/108.0",
+  "turnMax=114.0"
+ ]
+}
+EAR: {
+ "xpos": {
+  "nGuidesNear3mm": 1,
+  "nearIdx": [
+   191
+  ],
+  "minDistMm": 2.32,
+  "p50DistMm": 122.04
+ },
+ "xneg": {
+  "nGuidesNear3mm": 3,
+  "nearIdx": [
+   77,
+   81,
+   125
+  ],
+  "minDistMm": 1.7,
+  "p50DistMm": 105.06
+ },
+ "occlusion": {
+  "coveringSamples": 20,
+  "behindSamples": 23410,
+  "nGuidesCovering": 10,
+  "coveringIdx": [
+   60,
+   62,
+   76,
+   77,
+   81,
+   110,
+   191,
+   209,
+   295,
+   296
+  ],
+  "perView": {
+   "front": [
+    [
+     77,
+     1
+    ],
+    [
+     81,
+     2
+    ],
+    [
+     191,
+     2
+    ]
+   ],
+   "three_quarter": [
+    [
+     60,
+     1
+    ],
+    [
+     76,
+     2
+    ],
+    [
+     81,
+     1
+    ],
+    [
+     110,
+     1
+    ],
+    [
+     209,
+     2
+    ],
+    [
+     295,
+     1
+    ],
+    [
+     296,
+     1
+    ]
+   ],
+   "profile_90": [
+    [
+     60,
+     1
+    ],
+    [
+     62,
+     5
+    ]
+   ]
+  }
+ },
+ "gate": {
+  "clearMm": 3.0,
+  "pass": false
+ }
+}
+REGIONAL (tubes vs aisha-v3 masks, whole-mask, gate p50<=12 p95<=24 px): {"front": {"excessN": 1059, "excessP50": 2.0, "excessP95": 16.1, "missN": 1559, "missP50": 10.0, "missP95": 64.4}, "three_quarter": {"excessN": 523, "excessP50": 2.0, "excessP95": 238.6, "missN": 1438, "missP50": 10.4, "missP95": 112.7}, "profile_90": {"excessN": 1341, "excessP50": 2.0, "excessP95": 8.5, "missN": 880, "missP50": 10.3, "missP95": 57.1}, "back": {"excessN": 991, "excessP50": 2.0, "excessP95": 4.0, "missN": 1354, "missP50": 12.0, "missP95": 73.5}}
+RELAX: 209/359 relaxed, 100 fallback (keep routed curve, counted openly)
+MECHANISMS (all measured, see gates.json/bands.json): (a) 50 unreachable: 38 accept-fail (10-36 mm leaders cross air outside hull3's thin side shell; beyond-8mm arc fails hull-occupancy check) + 12 search-fail (no path within 600k expansions even with zero usage; w_curve=16 turn bills explode in thin corridors). 40/50 are right-side (curtainR 14, backR 26): hull3 itself is 4x asymmetric (below-shoulder sideL 4947 vs sideR 1183 vox; CR hem pool a 50-voxel sliver at z~1551 vs CL 125 at z~1443). Right dome reads bald in front view (E/guides-front.png READ); dome crossings 58 guides/1624 samples vs route1 68/2790. Fix = rind-routing resolution (route1 RESULT prescription), not exemption: exempting air traversal would float hair off-scalp. (b) 100 fallbacks (98 relax + 2 route): relaxed splines corner-cut out of thin corridors (eroded frac <0.95); cold-4x/nc14/wc8 ladder exhausted (cold=147). Same corridor-structural class as route1's 15, scaled by hull3's thinner shell. (c) partCrossings=5 (max 4.1 mm): spline overshoot near the centre part on relaxed guides (route0 max 1.41 dust). (d) ear: 3D clearance fails on 4 guides (min 2.32/1.70 mm) against hull3's own 2.17 mm carve floor: the 3 mm bar is unsatisfiable by construction where guides ride the rind. Occlusion (view-correct, hull3 lineage): 10/309 guides with 1-5 grazing samples covering pinna px; behind-vs-cover sample ratio strongly behind (side hair passes behind the ear; grazes = rind contact). Raw (x,z)-cylinder counts were head-curvature artifact (temple surface ~26 mm anterior of pinna plane) and are superseded. (e) regional: misses p95 57-113 px all views (drape/shoulder mismatch: back hem ends z 1255-1275 vs tucked mask; short high curtain tips CL z~1443/CR z~1555); excess confined to ear zones (front ~22 px temple spill, profile ~19 px) EXCEPT 3q 523 px blob up to 268 px from boundary at rows ~571-579/cols ~271-288 (curtain-tip/drape mass outside the tucked 3q silhouette low-left). (f) flow 45.0/108 both routed+relaxed: route1's gate-model finding stands (style reference itself 45.0 = 2.2x p50 gate; lateral-lay model vs voluminous drape).
+SAW: E/guides.png (Workbench thin tubes on Aisha, topper excluded, 4 views) + E/guides-vs-target.png (render beside aisha-v3 target tiles); E/guides.npz (309 curves_head 41-pt head-mm, tube_r 3.0; 50 unreachable carried as status without curves).
+NOT TESTED: physical Quest 3 / worn-headset evidence; clinical validity, licensure, or scoring claims; strands/material/lighting (guide tubes only); guide interpolation density (comb gaps); whether fallback entries interpolate acceptably.
+VERDICT: MODEL_INADEQUATE
+FAILURES: unreachable=50; partCrossings=5; ear near3 xpos/xneg=1/3 covering=10; front missP95=64.4; three_quarter excessP95=238.6; three_quarter missP95=112.7; profile_90 missP95=57.1; back missP95=73.5; flow p50/p95=45.0/108.0; turnMax=114.0

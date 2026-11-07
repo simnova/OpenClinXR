@@ -1,0 +1,1 @@
+DONE: score.py v3 (in-scorer COLOR material, strict unknown-key fail, node material readback + per-view light readback in score.json), self-test3 (unknown-key fail / look7 repro / determinism-with-noise-bounds), 8-cell rescore3 (a1/b8/s5/h75 x stock/rigged, KEEP a1->b8->s5 holds), RESULT3, rescore3.md; committed without *.blend.

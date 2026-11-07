@@ -1,0 +1,130 @@
+{
+  "change": {
+    "jitterMm": {
+      "min": -5.999968232642348,
+      "max": 5.999974868703583,
+      "seed": 20261075
+    },
+    "taper": {
+      "lengthMm": 25.0,
+      "tipRatio": 0.3
+    },
+    "partFillAdded": 2073,
+    "partRootRangeMm": [
+      0.65,
+      1.0
+    ],
+    "partLean": {
+      "peakArcMm": 10.0,
+      "rejoinArcMm": 25.0,
+      "centreMarginMm": 0.4
+    },
+    "railFix": "at the identified vertical-clamp step, arc-trim >8 mm outliers to 6 mm inside the threshold before strict verticalization",
+    "postCollisionCorrection": "4 mm crown-outward part-cover lift; anchor-preserving final-40-mm tail limited to 7.5 mm from upper sheet",
+    "railOutliersTrimmed": 410,
+    "railLocalEdgeMm": 96.10063269734383
+  },
+  "audit": {
+    "colliders": [
+      "OCLX_Aisha_head",
+      "makeclothes_library_toigo_t_shirt",
+      "makeclothes_library_female_tight_jeans_pants",
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+    ],
+    "post_inside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "post_inside_total": 0,
+    "mode": "read-only signed-distance audit after final clamp"
+  },
+  "materialSource": "hair-look3 h5 HUANG",
+  "params": {
+    "melanin": 0.97,
+    "redness": 0.37295693048012835,
+    "roughness": 0.38419042212641097,
+    "key_energy": 149.37668031234784,
+    "key_elev_deg": 46.53246179277051,
+    "fill_W": 51.79189232647554,
+    "rim_W": 5.274066184423127,
+    "key_azimuth_delta_deg": -31.689290105080133,
+    "key_size_m": 1.6326859138340684,
+    "fill_elev_deg": 15.0,
+    "root_dark": 0.05,
+    "model": "HUANG",
+    "lobe_R": 0.5,
+    "lobe_T": 1.0,
+    "lobe_SR": 1.5
+  },
+  "lightMode": "camera_relative",
+  "lightsPerView": {
+    "front": {
+      "OCLX_key": [
+        -1.199981689453125,
+        -1.4999668598175049,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        1.5000214576721191,
+        -1.0000118017196655,
+        2.4650845527648926
+      ]
+    },
+    "three_quarter": {
+      "OCLX_key": [
+        0.21212153136730194,
+        -1.9091520309448242,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        1.76779043674469,
+        0.3535602390766144,
+        2.4650845527648926
+      ]
+    },
+    "profile_90": {
+      "OCLX_key": [
+        1.4999668598175049,
+        -1.199981689453125,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        1.0000118017196655,
+        1.5000214576721191,
+        2.4650845527648926
+      ]
+    },
+    "back": {
+      "OCLX_key": [
+        1.199981689453125,
+        1.4999668598175049,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        -1.5000214576721191,
+        1.0000118017196655,
+        2.4650845527648926
+      ]
+    }
+  },
+  "renders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-geo6/cells/f1/front.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-geo6/cells/f1/front-id.png"
+    },
+    "three_quarter": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-geo6/cells/f1/three_quarter.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-geo6/cells/f1/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-geo6/cells/f1/profile_90.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-geo6/cells/f1/profile_90-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-geo6/cells/f1/back.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-geo6/cells/f1/back-id.png"
+    }
+  }
+}

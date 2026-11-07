@@ -1,0 +1,247 @@
+{
+ "tag": "35step3",
+ "strands": "/Volumes/files/openclinxr-assets/store/hair-groom35/build-35step3/strands.npz",
+ "strandsSha256": "79d1d9bd2c3b331f",
+ "xpos": {
+  "shellStrands": 6099,
+  "shellSegs": 15312,
+  "rootProxyDistMm": {
+   "min": 19.4,
+   "p10": 22.9,
+   "p50": 33.4,
+   "p90": 110.6,
+   "max": 133.2
+  },
+  "rootAbsXMm": {
+   "p10": 18.1,
+   "p50": 63.9,
+   "p90": 69.0
+  },
+  "topBackbones": [
+   {
+    "guide": 2507,
+    "n": 3771,
+    "routed": true
+   },
+   {
+    "guide": 2589,
+    "n": 684,
+    "routed": true
+   },
+   {
+    "guide": 280,
+    "n": 648,
+    "routed": false
+   },
+   {
+    "guide": 347,
+    "n": 250,
+    "routed": false
+   },
+   {
+    "guide": 477,
+    "n": 188,
+    "routed": false
+   },
+   {
+    "guide": 420,
+    "n": 151,
+    "routed": false
+   },
+   {
+    "guide": 356,
+    "n": 40,
+    "routed": false
+   },
+   {
+    "guide": 436,
+    "n": 35,
+    "routed": false
+   }
+  ],
+  "backboneRoutedFrac": 0.7416,
+  "entryMidYmM": [
+   -73.2,
+   -57.7,
+   -48.8
+  ],
+  "entryMidZ": [
+   1.5316,
+   1.5404,
+   1.55
+  ],
+  "column": {
+   "strands": 785,
+   "samples": 7108,
+   "tips": 3,
+   "strands25mm": 779,
+   "samples25mm": 2328,
+   "tips25mm": 1
+  },
+  "columnRootProxyDistMmP50": 31.8,
+  "columnTopBackbones": [
+   {
+    "guide": 2507,
+    "n": 723,
+    "routed": true
+   },
+   {
+    "guide": 533,
+    "n": 31,
+    "routed": true
+   },
+   {
+    "guide": 280,
+    "n": 9,
+    "routed": false
+   },
+   {
+    "guide": 521,
+    "n": 7,
+    "routed": true
+   },
+   {
+    "guide": 642,
+    "n": 6,
+    "routed": true
+   },
+   {
+    "guide": 609,
+    "n": 3,
+    "routed": false
+   },
+   {
+    "guide": 537,
+    "n": 3,
+    "routed": true
+   },
+   {
+    "guide": 2589,
+    "n": 2,
+    "routed": true
+   }
+  ],
+  "columnBackboneRoutedFrac": 0.9834
+ },
+ "xneg": {
+  "shellStrands": 9125,
+  "shellSegs": 19864,
+  "rootProxyDistMm": {
+   "min": 19.0,
+   "p10": 28.6,
+   "p50": 56.8,
+   "p90": 107.8,
+   "max": 132.5
+  },
+  "rootAbsXMm": {
+   "p10": 21.4,
+   "p50": 58.0,
+   "p90": 68.3
+  },
+  "topBackbones": [
+   {
+    "guide": 2263,
+    "n": 5822,
+    "routed": true
+   },
+   {
+    "guide": 2700,
+    "n": 1170,
+    "routed": true
+   },
+   {
+    "guide": 264,
+    "n": 704,
+    "routed": false
+   },
+   {
+    "guide": 355,
+    "n": 365,
+    "routed": false
+   },
+   {
+    "guide": 339,
+    "n": 263,
+    "routed": false
+   },
+   {
+    "guide": 491,
+    "n": 199,
+    "routed": false
+   },
+   {
+    "guide": 431,
+    "n": 198,
+    "routed": false
+   },
+   {
+    "guide": 511,
+    "n": 67,
+    "routed": false
+   }
+  ],
+  "backboneRoutedFrac": 0.7662,
+  "entryMidYmM": [
+   -85.3,
+   -60.6,
+   -50.3
+  ],
+  "entryMidZ": [
+   1.5119,
+   1.5295,
+   1.5496
+  ],
+  "column": {
+   "strands": 10332,
+   "samples": 63589,
+   "tips": 371,
+   "strands25mm": 10136,
+   "samples25mm": 27351,
+   "tips25mm": 0
+  },
+  "columnRootProxyDistMmP50": 44.9,
+  "columnTopBackbones": [
+   {
+    "guide": 2263,
+    "n": 9099,
+    "routed": true
+   },
+   {
+    "guide": 2700,
+    "n": 1184,
+    "routed": true
+   },
+   {
+    "guide": 509,
+    "n": 25,
+    "routed": false
+   },
+   {
+    "guide": 264,
+    "n": 4,
+    "routed": false
+   },
+   {
+    "guide": 736,
+    "n": 4,
+    "routed": false
+   },
+   {
+    "guide": 650,
+    "n": 4,
+    "routed": false
+   },
+   {
+    "guide": 604,
+    "n": 4,
+    "routed": false
+   },
+   {
+    "guide": 594,
+    "n": 3,
+    "routed": false
+   }
+  ],
+  "columnBackboneRoutedFrac": 0.9953
+ }
+}

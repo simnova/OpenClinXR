@@ -1,0 +1,99 @@
+HAIR HEM 1 — RAIL REMOVAL (side bundles hanging past the sheet hem)
+Base = cover1 best strands (sha256 da2f28b5bbb197ba25a155e6559dbfae52568252ee98b8aafa967eeefa0f9d2b,
+98549 fibres) + cover1 base params (look7 COLOR + rig1 rig + lobe_T 0.5 via
+score_tt adapter; score.py v3 unmodified) -> E/base/ (re-rendered; IoU
+f/p/b = 0.7365/0.7308/0.7600, byte-identical strands to cover1 best4).
+Scorer hair-score/score.py v3 + count2/score_tt.py + holes.py definition
+(alpha>=230 enclosed bg, 8-way). Crown_top rendered for base + every cell.
+
+STEP 1 RAIL RULER (E/rail-ruler.png read before use; E/rails_base.json):
+Hem line: y_bottom(x) = lowest hair row per column; y_hem = 61-wide median
+of nearest-filled y_bottom + 11-wide smooth. Rails (<15px wide) cannot move
+a 61-wide median, so y_hem tracks the lowest CONTINUOUS sheet edge. Rail =
+8-way connected components of hair pixels strictly below y_hem+2px with
+bbox width < 15px (else wide sheet-edge chunk, context only).
+  base back:        233 comps / 2399 px   (side bundles at cols ~228-260,
+                                           ~765-800; biggest 605px)
+  base front:        16 comps / 553 px
+  base profile_90:   92 comps / 270 px
+  TS target back:     5 comps / 18 px      (continuous blunt edge)
+  TS target front:    9 comps / 361 px     (NOTE: TS front itself is 9 comps;
+                                           the 20%-of-base front-count bar =
+                                           <=3.2 comps is STRICTER THAN TARGET)
+  TS target profile: 33 comps / 130 px
+Rail fibres in strands (cover1 c_hem rule): curtain roots, |tip_x|>0.10 &
+tip_z<1.42 = 10,604 here. Their radii p50 = 0.085mm vs 0.05mm overall
+(they caught cover1's x1.7 hole-zone boost).
+
+STEP 2 CELLS (one change each, all Blender-repaired: inside 0, end p95
+<<10deg, part 1.1mm all PASS; scored all views + crown_top + holes + ruler):
+ absorb  rails re-guided to nearest sheet-guide lower path (own arc15
+         anchor, mid-length untouched). RailsB 47.2%/29.5%, front -0.0185,
+         holes 1.350%.
+ blunt   whole lower sheet (tip_z<1.42) shortened up to smooth hem curve
+         fitted to TS back-mask hem (v->zw calib r=-0.99). RailsB
+         63.9%/41.9%, front -0.0103, holes 0.966%.
+ widen   8k short under-dups of lateral edge band (no fringe tips) + c_hem
+         rail trim. RailsB 42.5%/36.7%, front -0.0201 (trim tax, as cover1).
+ best    blunt + full-length sealed edge dups, no trim. front -0.0137.
+ best2   blunt with FLAT-extrapolated curve (deg5 poly dives outside fit
+         range; flat clip) + dups. front -0.0037 PASS; railsB 78.5%/81.1%.
+ best3   seal to OWN-sheet empirical edge -1mm + dups. RailsB 76.4%/93.2%:
+         ruler counts diagonal SHAFTS below local median, not tips (crops
+         proved it) — tip seals cannot fix shafts.
+ best4   12k rigid-outward-translated edge dups. front -0.0408/back -0.0245:
+         mass rigid translation breaks the silhouette. REVERTED as method.
+ best5   best2 + rail tail taper arc18x0.35/arc8x0.7 (rails are boosted
+         x1.7 fibres). RailsB area 16.4% PASS, count 55.4% FAIL (taper
+         fragments + thins front interior: front -0.0144).
+ best6   best2 + 2mm-deep seal + mild taper x0.6. front count 16->62:
+         deeper seals FRAGMENT tips into more comps. REVERTED as method.
+ best7   rails DELETED + 12k root-pivot-splayed dups (sign bug: splayed
+         INWARD) + seal. RailsB 14.6%/22.2%, back +0.0206/profile +0.0191,
+         but front -0.0212 (dups compensated nothing — wrong way).
+ best8   best7 with splay sign fixed (dup tips to |x| 0.128, verified):
+         rails DELETED, 12k outward-splayed full-length edge dups, seal.
+         IoU f/p/b = 0.7269/0.7495/0.7613 (d -0.0096/+0.0187/+0.0014);
+         holes 1.034% (620 comp, largest 55); ori d +0.55/+0.54/-0.04/+0.27;
+         back bands 562 (99.8% of base 563); eye/jaw 0.6024/0.4365 (0.00pp);
+         inside 0; rails back 51/338 (21.9%/14.1%), front 18/431
+         (112.5%/77.9%), profile 69/165 (75.0%/61.1%); n=99945.
+
+STEP 3 KEEP (rails count+area <=20% base back+front; dIoU>=-0.01 f/p/b;
+holes<=1.0; dOri<=+1; back>=479 (85% of 563); eye +/-1pp; inside 0):
+ REVERTED: absorb (front, holes, rails), blunt (front by 0.0003, rails),
+   widen (front, rails), best (front, rails), best2 (railsB 78/81, railsF),
+   best3 (rails), best4 (IoU, method), best5 (front, rails count, railsF),
+   best6 (rails, front-count fragmentation), best7 (front, railsF, railsB
+   area 22.2%), best8 (railsB count 21.9% by 5 comps, holes 1.034% by
+   0.034pp, railsF 112.5%/77.9%).
+ KEPT: none. BEST-CANDIDATE = c_best8 (closest: passes IoU x3, ori x4,
+   back bands, eye, inside; railsB area PASS; 3 narrow misses) — RECORDED
+   ONLY, NOT promoted. Production strands unchanged: base = cover1 best4.
+ Best path: tools/openclinxr/evidence/hair-hem1/base/strands.npz
+   (sha256 da2f28b5...; identical to hair-cover1/best/strands.npz).
+ Figure: E/crops-best.png rows back/front/profile hem bands (NATIVE),
+   cols base | c_best8 | TS (for orchestrator grading; no visual-pass
+   claim made here). E/look-sheet.png rows TS | base | best8, cols front,
+   profile_90, back, back hem crop.
+
+SAW: The bundle read comes from sparse diagonal rail SHAFTS separated by a
+gap from the sheet (crops), not tip length — tip seals alone change nothing
+rendered (c_best3 back rails 76%/93%). Rail 3D paths are shared between
+views with opposite needs: every inward/shortening rail edit costs front
+IoU -0.01..-0.02 (c_hem -0.0214, widen -0.0201, absorb -0.0185, best7
+-0.0212 — four independent proofs the width lives in the rails), because
+deleted/thinned rails remove front INTERIOR coverage, not just edge width
+(best7 vs best8: same rails gone, front -0.0212 both ways; splay direction
+only recovered +0.012). Radius taper cracks back AREA (best5 16.4%) but
+fragments COUNT and thins front. Deeper seals fragment tips into MORE
+comps (best6 front 16->62). The count bar is the wall: micro-fringe comps
+multiply under any strand alteration, and the front-count bar (<=3) is
+stricter than the TS target itself (9). A pass needs edge CONTINUITY (dense
+sealed straight edge merging micro-comps) + preserved front interior —
+untested combo: best8 + hole-zone short under-dups (holes margin) was NOT
+run; recommended next, plus recalibrating the front-count bar to
+target-parity (<=9/<=361px) instead of 20%-of-base.
+NOT TESTED: Quest/worn-headset; clinical validity/scoring claims;
+three_quarter IoU (no gate); crown balance deltas (rendered, ungated);
+best8 + hole-zone under-dups; front-count bar at target parity.

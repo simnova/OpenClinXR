@@ -1,0 +1,17 @@
+GATES_PASS hair-groom3
+partCrossings==0: PASS (value 0)
+seam<=4px(rows156-950): PASS (value 3)
+earBlobGone(<=1px graze): PASS (value max 1 px)
+lanePeak<1.5: PASS (value 0.973)
+insideBody==0: PASS (value 0)
+strands-count: PASS
+strands-partCrossings: PASS
+strands-insideBody: PASS
+strands-determinism: PASS
+strands-lane: PASS
+frizzRuler front<=tgt+0.02: PASS (value 0.0066)
+frizzRuler three_quarter<=tgt+0.02: PASS (value 0.0011)
+frizzRuler profile_90<=tgt+0.02: PASS (value 0.0188)
+frizzRuler back<=tgt+0.02: PASS (value 0.0005)
+ear detail: max 1 ID px graze (front/xneg box edge) vs groom2 0; beauty skin-tone held (worst 136.5 vs 163.0 target; groom1 was 25-70 black).
+seam rows156-950 maxGapPx=3 (gate <=4); rows 150-155 excluded (above crown top; target backdrop there).

@@ -1,0 +1,11 @@
+groom38 DONE (2026-10-19).
+
+Stage: tools/openclinxr/hair-groom/strands/ear_collide.py (new, default
+OFF) run on groom36 children (NOT groom37) -> store/hair-groom38/
+build-38 (sha 2f919fca05c2d5d7) + build-38det (same sha).
+
+VERDICT: PARTIAL. Column 0/0, face-front new gate passes, no image
+regressions; shell 1934/1788, length max 12.15/11.89mm, concha -x
+1/18, gt30 2973, IoU front/profile margins, crossings 1029 fail.
+GATES_PASS: false. Attribution in RESULT.txt + residual-38.json.
+No further fix per card. Operator decides promotion.

@@ -1,0 +1,206 @@
+{
+ "Dots Stroke": {
+  "baseColor": [
+   0.800000011920929,
+   0.800000011920929,
+   0.800000011920929
+  ],
+  "users": []
+ },
+ "mat_makeclothes_library_eyes_peds_anxious_parent": {
+  "baseColor": [
+   0.800000011920929,
+   0.800000011920929,
+   0.800000011920929
+  ],
+  "users": [
+   "mpfb_parent_tara_johnson_v1_body_mesh.low-poly"
+  ]
+ },
+ "mat_makeclothes_library_female_tight_jeans_pants": {
+  "baseColor": [
+   0.800000011920929,
+   0.800000011920929,
+   0.800000011920929
+  ],
+  "users": [
+   "makeclothes_library_female_tight_jeans_pants"
+  ]
+ },
+ "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes": {
+  "baseColor": [
+   0.800000011920929,
+   0.800000011920929,
+   0.800000011920929
+  ],
+  "users": [
+   "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+  ]
+ },
+ "mat_makeclothes_library_toigo_t_shirt": {
+  "baseColor": [
+   0.800000011920929,
+   0.800000011920929,
+   0.800000011920929
+  ],
+  "users": [
+   "makeclothes_library_toigo_t_shirt"
+  ]
+ },
+ "mat_openclinxr_fitted_teeth_mpfb_peds_anxious_parent_mesh": {
+  "baseColor": [
+   0.800000011920929,
+   0.800000011920929,
+   0.800000011920929
+  ],
+  "users": [
+   "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base"
+  ]
+ },
+ "mat_openclinxr_fitted_tongue_mpfb_peds_anxious_parent_mesh": {
+  "baseColor": [
+   0.800000011920929,
+   0.800000011920929,
+   0.800000011920929
+  ],
+  "users": [
+   "mpfb_parent_tara_johnson_v1_body_mesh.tongue01"
+  ]
+ },
+ "Material": {
+  "baseColor": [
+   0.800000011920929,
+   0.800000011920929,
+   0.800000011920929
+  ],
+  "users": []
+ },
+ "Material.001": {
+  "baseColor": [
+   0.800000011920929,
+   0.800000011920929,
+   0.800000011920929
+  ],
+  "users": [
+   "Human"
+  ]
+ },
+ "mpfb_skin_peds_anxious_parent": {
+  "baseColor": [
+   0.800000011920929,
+   0.800000011920929,
+   0.800000011920929
+  ],
+  "users": [
+   "OCLX_Aisha_head"
+  ]
+ },
+ "OCLX_hair_dark": {
+  "baseColor": null,
+  "users": []
+ },
+ "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mat": {
+  "baseColor": [
+   0.1599999964237213,
+   0.10999999940395355,
+   0.09000000357627869
+  ],
+  "users": [
+   "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh"
+  ]
+ },
+ "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mat": {
+  "baseColor": [
+   0.019999999552965164,
+   0.019999999552965164,
+   0.019999999552965164
+  ],
+  "users": [
+   "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+  ]
+ },
+ "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat": {
+  "baseColor": [
+   0.800000011920929,
+   0.800000011920929,
+   0.800000011920929
+  ],
+  "users": [
+   "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh"
+  ]
+ },
+ "openclinxr_hidden_foot_mpfb_parent_tara_johnson_v1_body_mesh": {
+  "baseColor": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "users": [
+   "OCLX_Aisha_head"
+  ]
+ },
+ "openclinxr_hidden_foot_mpfb_parent_tara_johnson_v1_body_mesh.001": {
+  "baseColor": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "users": [
+   "OCLX_Aisha_head"
+  ]
+ },
+ "openclinxr_hidden_lower_mpfb_parent_tara_johnson_v1_body_mesh": {
+  "baseColor": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "users": [
+   "OCLX_Aisha_head"
+  ]
+ },
+ "openclinxr_hidden_lower_mpfb_parent_tara_johnson_v1_body_mesh.001": {
+  "baseColor": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "users": [
+   "OCLX_Aisha_head"
+  ]
+ },
+ "openclinxr_hidden_orphan_mpfb_parent_tara_johnson_v1_body_mesh": {
+  "baseColor": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "users": [
+   "OCLX_Aisha_head"
+  ]
+ },
+ "openclinxr_hidden_upper_mpfb_parent_tara_johnson_v1_body_mesh": {
+  "baseColor": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "users": [
+   "OCLX_Aisha_head"
+  ]
+ },
+ "openclinxr_hidden_upper_mpfb_parent_tara_johnson_v1_body_mesh.001": {
+  "baseColor": [
+   0.0,
+   0.0,
+   0.0
+  ],
+  "users": [
+   "OCLX_Aisha_head"
+  ]
+ },
+ "straight_hair_to_shoulder": {
+  "baseColor": null,
+  "users": []
+ }
+}

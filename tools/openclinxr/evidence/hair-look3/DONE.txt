@@ -1,0 +1,1 @@
+BEST h5: HUANG Reflection=0.5, Transmission=1.0, Secondary Reflection=1.5, roughness=0.384190; L2 fitness 12.955705 at 512x32, confirmed 12.901247 at 1024x64; faceP50 0.733681; silhouette and q1 strands unchanged.

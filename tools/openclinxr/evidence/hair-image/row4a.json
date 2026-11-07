@@ -1,0 +1,89 @@
+{
+ "ok": true,
+ "stage": "measure",
+ "error": "",
+ "blenderVersion": "5.1.1",
+ "exposureStops": -0.375,
+ "lightScale": 0.7711054127039704,
+ "iterations": [
+  {
+   "exposureStops": -1.5,
+   "lightScale": 0.3535533905932738,
+   "faceMeanLuminance": 0.40062484779641727,
+   "backgroundLuminance": 0.28004025065104166,
+   "meanHairLuminance": 0.2078173158960216,
+   "volume": 0.7553606662024142
+  },
+  {
+   "exposureStops": -0.75,
+   "lightScale": 0.5946035575013605,
+   "faceMeanLuminance": 0.5567964040099106,
+   "backgroundLuminance": 0.4083072591145834,
+   "meanHairLuminance": 0.17605289233042737,
+   "volume": 0.22945682451253482
+  },
+  {
+   "exposureStops": -0.375,
+   "lightScale": 0.7711054127039704,
+   "faceMeanLuminance": 0.645340074491335,
+   "backgroundLuminance": 0.4929320685891544,
+   "meanHairLuminance": 0.19666135984534658,
+   "volume": 0.1802605617455896
+  }
+ ],
+ "strandsAfter": 50265,
+ "front4a": "front4a.png",
+ "threeQuarter4a": "three_quarter4a.png",
+ "threeUp4a": "3up4a.png",
+ "widths": {
+  "target": {
+   "crownScalpFraction": 0.06772693085646272,
+   "sweaterPixels": 237142,
+   "meanHairLuminance": 0.12796621925041327,
+   "volume": 0.29440521850302187,
+   "hairPixels": 162116,
+   "headPixels": 550656,
+   "medianFaceSat": 0.2784090909090909,
+   "faceMeanLuminance": 0.5364063625542895,
+   "backgroundLuminance": 0.5034260368795956,
+   "jawWidthRatio": 3.0,
+   "shoulderWidthRatio": 3.7941176470588234,
+   "eyeRow": 349,
+   "eyeRowFound": true,
+   "headWidthPx": 102
+  },
+  "front3b": {
+   "crownScalpFraction": 0.0267488805696249,
+   "sweaterPixels": 4246,
+   "meanHairLuminance": 0.22134140181352183,
+   "volume": 0.08523470188284518,
+   "hairPixels": 46935,
+   "headPixels": 550656,
+   "medianFaceSat": 0.1538461538461539,
+   "faceMeanLuminance": 0.7544785400699782,
+   "backgroundLuminance": 0.6808446470971201,
+   "jawWidthRatio": 0.4350453172205438,
+   "shoulderWidthRatio": 0.1268882175226586,
+   "eyeRow": 314,
+   "eyeRowFound": true,
+   "headWidthPx": 331
+  },
+  "front4a": {
+   "crownScalpFraction": 0.03677982429653913,
+   "sweaterPixels": 4774,
+   "meanHairLuminance": 0.21443122842559065,
+   "volume": 0.13825873140399814,
+   "hairPixels": 76133,
+   "headPixels": 550656,
+   "medianFaceSat": 0.21176470588235297,
+   "faceMeanLuminance": 0.7520404377086428,
+   "backgroundLuminance": 0.6081478716681985,
+   "jawWidthRatio": 0.40522875816993464,
+   "shoulderWidthRatio": 0.1568627450980392,
+   "eyeRow": 256,
+   "eyeRowFound": true,
+   "headWidthPx": 306
+  }
+ },
+ "missingRefs": []
+}

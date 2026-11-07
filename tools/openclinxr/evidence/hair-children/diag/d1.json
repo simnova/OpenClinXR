@@ -1,0 +1,422 @@
+{
+  "blenderVersion": "5.1.1",
+  "a_matrices": {
+    "OCLX_cap": {
+      "name": "OCLX_cap",
+      "type": "MESH",
+      "matrix_world": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "identity": true,
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "parent": null
+    },
+    "OCLX_interp_guides_final_G": {
+      "name": "OCLX_interp_guides_final_G",
+      "type": "CURVES",
+      "matrix_world": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "identity": true,
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "parent": null
+    },
+    "OCLX_interp_guides_final_A": {
+      "name": "OCLX_interp_guides_final_A",
+      "type": "CURVES",
+      "matrix_world": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "identity": true,
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "parent": null
+    },
+    "OCLX_interp_guides_final_B": {
+      "name": "OCLX_interp_guides_final_B",
+      "type": "CURVES",
+      "matrix_world": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "identity": true,
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "parent": null
+    },
+    "OCLX_Aisha_head": {
+      "name": "OCLX_Aisha_head",
+      "type": "MESH",
+      "matrix_world": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "identity": true,
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "parent": "mpfb_peds_anxious_parent_standard_rig"
+    },
+    "OCLX_collision_basemesh": {
+      "name": "OCLX_collision_basemesh",
+      "type": "MESH",
+      "matrix_world": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "identity": true,
+      "location": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "parent": null
+    },
+    "OCLX_canonical_hair": {
+      "name": "OCLX_canonical_hair",
+      "type": "CURVES",
+      "matrix_world": [
+        [
+          1.0,
+          0.0,
+          0.0,
+          2.776418568828376e-06
+        ],
+        [
+          0.0,
+          1.0,
+          0.0,
+          -0.0009392048232257366
+        ],
+        [
+          0.0,
+          0.0,
+          1.0,
+          1.6865825402945234e-09
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "identity": false,
+      "location": [
+        2.776418568828376e-06,
+        -0.0009392048232257366,
+        1.6865825402945234e-09
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "parent": null
+    }
+  },
+  "npz": {
+    "shape": [
+      596,
+      32,
+      3
+    ],
+    "rootZmin": 1.4804102182388306,
+    "rootZmax": 1.6594268083572388
+  },
+  "b_children": {
+    "childCount": 1982,
+    "sample": 200,
+    "rootToCapMm": {
+      "mean": 2.3211170652182034e-05,
+      "p50": 8.33000246558413e-06,
+      "p95": 0.00012372704674135093,
+      "max": 0.00015579554712985555
+    },
+    "rootToGuideMm": {
+      "mean": 4.034923679985716,
+      "p50": 4.1147089667072905,
+      "p95": 6.720281349431721,
+      "max": 8.65111512180271
+    },
+    "offsetMeanMm": [
+      -0.020199837745167315,
+      0.30641044382718974,
+      0.07077634334564209
+    ],
+    "offsetSdMm": [
+      2.3584688450005737,
+      2.4830294901358863,
+      2.697713042407825
+    ]
+  },
+  "c_guides": {
+    "curves": 596,
+    "origRootShiftMm": {
+      "mean": 3.002783444602837,
+      "max": 4.075336343211788
+    },
+    "evaluatedCurves": 596,
+    "pointHist": {
+      "32": 596
+    },
+    "rootShiftMm": {
+      "mean": 415.06896795887167,
+      "p10": 20.33511792004625,
+      "p50": 110.03775139853688,
+      "p90": 1611.4498026622286,
+      "p95": 1631.290382097893,
+      "max": 1660.3874774082437
+    },
+    "evalRootCentroid": [
+      -0.00038695059331515243,
+      0.022547387067562957,
+      1.2180213180164363
+    ],
+    "npzRootCentroid": [
+      0.0003339845444602579,
+      -0.036442764583528166,
+      1.5929912094701857
+    ],
+    "centroidShiftMm": [
+      -0.7209351377754104,
+      58.990151651091125,
+      -374.96989145374937
+    ],
+    "nonRootShiftMm": {
+      "mean": 416.55283741125663,
+      "p95": 1633.7573053766694,
+      "max": 1663.375211070724
+    },
+    "evalRootToCapMm": {
+      "mean": 321.74471987932696,
+      "p50": 1.5081964122032332e-05,
+      "p95": 1475.0757217407227,
+      "max": 1475.0757217407227
+    },
+    "evalPointsCentroid": [
+      0.0015775583521878353,
+      0.023346683377493467,
+      1.09084149261299
+    ],
+    "npzPointsCentroid": [
+      0.0023123179369452743,
+      -0.03510757426358017,
+      1.4665766121870807
+    ]
+  },
+  "d_uv": {
+    "uvTris": 61920,
+    "capFaces": 61920,
+    "pixelsCovered": 625573,
+    "pixelsCoveredTwice": 507565,
+    "fracCoveredTwice": 0.8113601450190465,
+    "facesTouchingOverlap": 59603,
+    "fracFacesOverlap": 0.9625807493540052
+  },
+  "e_visible": [
+    "Curves",
+    "Icosphere",
+    "OCLX_Aisha_head",
+    "OCLX_cam",
+    "OCLX_canonical_hair",
+    "OCLX_cap",
+    "OCLX_fill",
+    "OCLX_interp_guides_final_A",
+    "OCLX_interp_guides_final_B",
+    "OCLX_interp_guides_final_G",
+    "OCLX_key",
+    "OCLX_rim",
+    "makeclothes_library_female_tight_jeans_pants",
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+    "makeclothes_library_toigo_t_shirt",
+    "mpfb_parent_tara_johnson_v1_body_mesh",
+    "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+    "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+    "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+    "mpfb_peds_anxious_parent_standard_rig",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+  ]
+}

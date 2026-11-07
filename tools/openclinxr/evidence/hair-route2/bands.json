@@ -1,0 +1,28 @@
+{
+ "yEarMm": -76.9,
+ "shoulderZ": 1405.0,
+ "curtainL": {
+  "n": 43,
+  "endZmin": 1443.0,
+  "endZmax": 1449.0,
+  "nEndsBelowShoulder": 0
+ },
+ "curtainR": {
+  "n": 42,
+  "endZmin": 1551.0,
+  "endZmax": 1559.0,
+  "nEndsBelowShoulder": 0
+ },
+ "backL": {
+  "n": 136,
+  "endZmin": 1255.0,
+  "endZmax": 1267.0,
+  "nEndsBelowShoulder": 136
+ },
+ "backR": {
+  "n": 138,
+  "endZmin": 1255.0,
+  "endZmax": 1275.0,
+  "nEndsBelowShoulder": 138
+ }
+}

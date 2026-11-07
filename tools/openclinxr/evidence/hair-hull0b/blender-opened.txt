@@ -1,0 +1,4 @@
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-three_quarter.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-hull0b/workspace/hull_surface.obj
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json

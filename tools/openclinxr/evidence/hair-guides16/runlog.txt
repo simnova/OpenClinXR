@@ -1,0 +1,22 @@
+attempt1/front: face clear; narrow side sheets; no chest hair; crown visibly sparse.
+attempt1/three_quarter: ear bridge present; rectangular temple junctions visible.
+attempt1/profileL: ear covered; steep wedge; rectangular upper-back frames and long diagonals.
+attempt1/profileR: mirror of profileL; no face crossing; steep wedge.
+attempt1/back: filled narrow sheet; vertical centre strands; straight hem; hard lift-off artifacts.
+attempt1/top: symmetric scalp walk; spiked/looped magenta interpolation at the widest contour.
+attempt2/front: face and chest clear; side sheets widened; ears covered.
+attempt2/three_quarter: continuous back-combed mass; small rectangular upper junctions remain.
+attempt2/profileL: ear covered; wedge is substantially steeper than TS; no chest bundle.
+attempt2/profileR: mirror-exact; ear covered; steep temple-to-back diagonals.
+attempt2/back: one filled sheet, centre filled, no empty neck wedge, blunt hem.
+attempt2/top: symmetric; interpolation loops removed; small crown spikes remain.
+v7f9/front: face/eyes/chest clear; centre part visible; ears covered by side mass.
+v7f9/three_quarter: hair passes behind shoulder; no rectangle; temple density lower than TS.
+v7f9/profileL: ear covered; clean wedge behind neck; front edge too steep (48.1deg vs 21.4deg).
+v7f9/profileR: mirror-exact; no face crossing; clean but steep temple-to-back wedge.
+v7f9/back: one filled sheet; no horizontal line or rectangle; soft lift-off band; exact mid-blade hem.
+v7f9/top: symmetric centre part and comb-back flow; no crossing; no post-lift horizontal run.
+final/children-front: nothing over eyes/chest; ears framed; forehead/temple mass too narrow versus TS.
+final/children-three_quarter: all hair behind shoulder; ear exposed at front edge; no chest bundle.
+final/children-profile: continuous back wedge, clear neck, hem at upper back; wedge steeper than TS.
+final/children-back: filled two-lobed sheet with visible centre seam; no horizontal bar; blunt hem.

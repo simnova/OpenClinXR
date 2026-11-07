@@ -1,0 +1,9 @@
+{
+  "schemaVersion": 1,
+  "baseBackCount": 66,
+  "splitWinners": [],
+  "splitGate": "back-crop bright component count >= 3x base AND back-crop column-luminance autocorrelation peak <= 0.3",
+  "decision": "no split under the declared gate; best = base (hypothesis failed path)",
+  "bestCell": "base",
+  "brightnessSolve": null
+}

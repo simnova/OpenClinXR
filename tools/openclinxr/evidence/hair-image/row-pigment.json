@@ -1,0 +1,298 @@
+{
+ "ok": false,
+ "stage": "measure",
+ "error": "Error: no pigment cell satisfies all bars; lowest p50 selected",
+ "blenderVersion": "5.1.1",
+ "shaderSocketNames": [
+  "Color",
+  "Melanin",
+  "Melanin Redness",
+  "Tint",
+  "Absorption Coefficient",
+  "Aspect Ratio",
+  "Roughness",
+  "Radial Roughness",
+  "Coat",
+  "IOR",
+  "Offset",
+  "Random Color",
+  "Random Roughness",
+  "Random",
+  "Weight",
+  "Reflection",
+  "Transmission",
+  "Secondary Reflection"
+ ],
+ "parametrizationEnumValues": [
+  "ABSORPTION",
+  "MELANIN",
+  "COLOR"
+ ],
+ "controls": {
+  "rimWatts": 40.0,
+  "keyWatts": 150.0,
+  "fillWatts": 40.0,
+  "radius": 0.0003,
+  "amount": 4,
+  "exposureStops": -0.375,
+  "roughness": 0.25,
+  "radialRoughness": 0.2,
+  "coat": 0.1
+ },
+ "bars": {
+  "p50Max": 0.12,
+  "p90Max": 0.24,
+  "p10Min": 0.03,
+  "meanRBRatio": [
+   1.2,
+   1.8
+  ],
+  "volumeTarget": 0.224,
+  "volumeTolerance": 0.01,
+  "strandsAfter": 50265,
+  "faceMeanLuminance": [
+   0.55,
+   0.7
+  ],
+  "backgroundLuminance": [
+   0.45,
+   0.55
+  ],
+  "coveragePixelsMin": 100000,
+  "meanRBSpreadMaxExclusive": 0.12
+ },
+ "referenceTriple": {
+  "p10": 0.039,
+  "p50": 0.078,
+  "p90": 0.159
+ },
+ "lightCount": 3,
+ "cells": [
+  {
+   "cell": 1,
+   "requested": {
+    "parametrization": "MELANIN",
+    "melanin": 0.95,
+    "melaninRedness": 0.5
+   },
+   "readBack": {
+    "parametrization": "MELANIN",
+    "melanin": 0.949999988079071,
+    "melaninRedness": 0.5
+   },
+   "rimWatts": 40.0,
+   "rimReadBackWatts": 40.0,
+   "radius": 0.0003,
+   "radiusReadBack": 0.0003000000142492354,
+   "amount": 4,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "thresholdVolume": 0.23134770165039517,
+   "faceMeanLuminance": 0.6583646278387274,
+   "backgroundLuminance": 0.49612364621629895,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.20182820480726796,
+    "p10": 0.1049764705882353,
+    "p50": 0.1938243137254902,
+    "p90": 0.3127474509803922
+   },
+   "coverageHairColor": {
+    "meanRgb": [
+     0.21709918034724904,
+     0.19797502704456083,
+     0.19503019007378863
+    ],
+    "meanRBRatio": 1.1131567900595838,
+    "meanRBSpread": 0.022068990273460404
+   },
+   "beautyPng": "pigment-1.png",
+   "idPng": "hair-id-pigment-1.png",
+   "feasible": false
+  },
+  {
+   "cell": 2,
+   "requested": {
+    "parametrization": "MELANIN",
+    "melanin": 1.0,
+    "melaninRedness": 0.3
+   },
+   "readBack": {
+    "parametrization": "MELANIN",
+    "melanin": 1.0,
+    "melaninRedness": 0.30000001192092896
+   },
+   "rimWatts": 40.0,
+   "rimReadBackWatts": 40.0,
+   "radius": 0.0003,
+   "radiusReadBack": 0.0003000000142492354,
+   "amount": 4,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "thresholdVolume": 0.23486714028358902,
+   "faceMeanLuminance": 0.6603703210446326,
+   "backgroundLuminance": 0.4961247970281863,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.19700124161647056,
+    "p10": 0.09942352941176469,
+    "p50": 0.18906901960784311,
+    "p90": 0.30699921568627453
+   },
+   "coverageHairColor": {
+    "meanRgb": [
+     0.20080546748066455,
+     0.19604363694088583,
+     0.19528518130354847
+    ],
+    "meanRBRatio": 1.0282678190954768,
+    "meanRBSpread": 0.005520286177116085
+   },
+   "beautyPng": "pigment-2.png",
+   "idPng": "hair-id-pigment-2.png",
+   "feasible": false
+  },
+  {
+   "cell": 3,
+   "requested": {
+    "parametrization": "ABSORPTION",
+    "sigmaA": [
+     1.0,
+     1.4,
+     2.0
+    ]
+   },
+   "readBack": {
+    "parametrization": "ABSORPTION",
+    "sigmaA": [
+     1.0,
+     1.399999976158142,
+     2.0
+    ]
+   },
+   "rimWatts": 40.0,
+   "rimReadBackWatts": 40.0,
+   "radius": 0.0003,
+   "radiusReadBack": 0.0003000000142492354,
+   "amount": 4,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "thresholdVolume": 0.22292865237099024,
+   "faceMeanLuminance": 0.6529761155650405,
+   "backgroundLuminance": 0.49612248104319845,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.21368731970934526,
+    "p10": 0.11566039215686275,
+    "p50": 0.20388549019607843,
+    "p90": 0.3305129411764706
+   },
+   "coverageHairColor": {
+    "meanRgb": [
+     0.2316661762385161,
+     0.2097630341753719,
+     0.19962006369758362
+    ],
+    "meanRBRatio": 1.1605355290812904,
+    "meanRBSpread": 0.03204611254093248
+   },
+   "beautyPng": "pigment-3.png",
+   "idPng": "hair-id-pigment-3.png",
+   "feasible": false
+  },
+  {
+   "cell": 4,
+   "requested": {
+    "parametrization": "ABSORPTION",
+    "sigmaA": [
+     2.5,
+     3.5,
+     5.0
+    ]
+   },
+   "readBack": {
+    "parametrization": "ABSORPTION",
+    "sigmaA": [
+     2.5,
+     3.5,
+     5.0
+    ]
+   },
+   "rimWatts": 40.0,
+   "rimReadBackWatts": 40.0,
+   "radius": 0.0003,
+   "radiusReadBack": 0.0003000000142492354,
+   "amount": 4,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "thresholdVolume": 0.23492343677359367,
+   "faceMeanLuminance": 0.660323136151066,
+   "backgroundLuminance": 0.4961232096354167,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.1969574265597391,
+    "p10": 0.09915607843137254,
+    "p50": 0.18906901960784311,
+    "p90": 0.30671607843137255
+   },
+   "coverageHairColor": {
+    "meanRgb": [
+     0.20015696854551285,
+     0.19617286440530965,
+     0.19530778981218713
+    ],
+    "meanRBRatio": 1.0248283938801868,
+    "meanRBSpread": 0.004849178733325715
+   },
+   "beautyPng": "pigment-4.png",
+   "idPng": "hair-id-pigment-4.png",
+   "feasible": false
+  }
+ ],
+ "selected": {
+  "cell": 2,
+  "requested": {
+   "parametrization": "MELANIN",
+   "melanin": 1.0,
+   "melaninRedness": 0.3
+  },
+  "readBack": {
+   "parametrization": "MELANIN",
+   "melanin": 1.0,
+   "melaninRedness": 0.30000001192092896
+  },
+  "rimWatts": 40.0,
+  "rimReadBackWatts": 40.0,
+  "radius": 0.0003,
+  "radiusReadBack": 0.0003000000142492354,
+  "amount": 4,
+  "strandsAfter": 50265,
+  "volume": 0.2250697350069735,
+  "thresholdVolume": 0.23486714028358902,
+  "faceMeanLuminance": 0.6603703210446326,
+  "backgroundLuminance": 0.4961247970281863,
+  "coveragePixels": 124541,
+  "coverageHairLuminance": {
+   "mean": 0.19700124161647056,
+   "p10": 0.09942352941176469,
+   "p50": 0.18906901960784311,
+   "p90": 0.30699921568627453
+  },
+  "coverageHairColor": {
+   "meanRgb": [
+    0.20080546748066455,
+    0.19604363694088583,
+    0.19528518130354847
+   ],
+   "meanRBRatio": 1.0282678190954768,
+   "meanRBSpread": 0.005520286177116085
+  },
+  "beautyPng": "pigment-2.png",
+  "idPng": "hair-id-pigment-2.png",
+  "feasible": false
+ },
+ "front": "front-pigment.png",
+ "idPng": "hair-id-pigment.png",
+ "maskOverlay": "mask-overlay-pigment.png",
+ "floorNote": "floor is surface reflection; next lever roughness 0.25->0.45 and coat 0.1->0"
+}

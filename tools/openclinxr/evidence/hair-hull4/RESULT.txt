@@ -1,0 +1,127 @@
+hair-hull4: left-right asymmetry cause and fix — RESULT
+==============================================================================
+WRITE ROOTS: E = tools/openclinxr/evidence/hair-hull4 (new; hull3 WS read-only,
+never written), S6 = tools/openclinxr/hair-groom/hull (flag block in hull3.py
++ 5-line states-dtype sizing in hull.py; hull/hull0c/hull1/hull2 method code
+untouched). No *.blend anywhere under either root (no Blender stage ran).
+
+WHY hull/ changed (the permitted flag, and why the dtype ride-along):
+hull3.py owns the v4 inputs binding, so the fix (mirrored side views) is two
+flags there: MIRROR_PROFILE (virtual camera R'=FRF across x=0 via
+H.mirror_camera, mask=fliplr(profile), body depth rasterized from the same
+station0b mesh) and MIRROR_3Q (chains hull2's own add_mirror_3q: explicit
+mirrored camera + fliplr mask + rasterized depth). H.view_source already
+routes 'profile_90_mirror' through the profile pipeline on x-mirrored points;
+no carve rule changed. The dtype sizing rides along because the flags create
+the first 6-view carve: base-3 state codes need 3**6=729 values > uint8, and
+without it pack_states wraps silently (states max observed 728). 3-5-view
+runs keep uint8 exactly as before.
+
+STEP 1 — per-view symmetry (E/sidediag.json; masks + targets read by eye)
+  Masks (area L/R about image col 512, lowest hair row per side):
+    front        L=39571 R=39183 L/R=1.0099 lowL=656 lowR=656  SYMMETRIC
+    back         L=168141 R=167543 L/R=1.0036 lowL=1023 lowR=1023 SYMMETRIC
+    three_quarter L=32045 R=71754 lowL=359 lowR=725; profile L=71680 R=77434
+      lowL=655 lowR=1023: side views from +x cameras, L/R split meaningless
+      (hair mass sits camera-side by perspective, not by defect).
+  Targets by eye (aisha-v3 tiles = a1 bytes, md5-verified): front symmetric
+    centre part, both curtains to chest; 3q camera-side full curtain, far
+    curtain a correct perspective sliver; profile full near-side sheet; back
+    symmetric sheet with crown part. No target asymmetry: (b) ELIMINATED.
+  Mask derivation (c) ELIMINATED: front/back masks symmetric in area AND
+    lowest row; the 3q far-side upper-only reach (row 359) matches the
+    perspective read, not a trim.
+  Bald sources by eye: front shoulders level, arms mirrored, ears both out;
+    3q normal pose. Mesh (station0b verts): shoulder slab 589/589 verts,
+    zmax 1386.8/1386.8; arm centroids [-433.1,-219.7,943.7] /
+    [433.1,-219.7,943.7] (mirror to 0.1 mm); head-slab x mean 0.0. Body
+    EXACTLY symmetric: (d) ELIMINATED.
+
+STEP 2 — right-curtain rejection attribution (E/sidediag.json, E/asym.png READ)
+  Mirror hull3's kept left below-shoulder side curtain (4947 vox, x->-x;
+  all clear of body) and score under hull3's 4-view inputs:
+    front:          INSIDE 158 / OUTSIDE 9 / OCCLUDED 4780
+    three_quarter:  INSIDE 371 / OUTSIDE 994 / OCCLUDED 3582
+    profile_90:     INSIDE 1614 / OUTSIDE 3226 / OCCLUDED 107
+    back:           INSIDE 1550 / OUTSIDE 109 / OCCLUDED 3288
+  3762/4947 (76%) rejected; sole rejectors: profile_90 2657 (71%),
+  three_quarter 441, back 79, front 9; multi 576. The kept far-side curtain
+  itself is 100% BODY_OCCLUDED in three_quarter. CAUSE (a) CONFIRMED with
+  refinement: not 3q alone — profile_90 is the dominant rejector. The far
+  (xneg) curtain survives via occlusion (no constraint); its mirror on the
+  near side is VISIBLE and trimmed. E/asym.png: top = per-view masks with
+  midline + per-side lowest rows; bottom = 3762 rejected voxels projected
+  per view, coloured by rejecting view (blue=profile dominates, over the
+  shoulder where the tucked masks hold no hair).
+
+STEP 3 — fix tests (re-carves, same rules + added mirror view(s))
+  Test 1, mirror-profile only (5 views): sideL 4947->1615, sideR 1183
+    unchanged, L/R = 1.365 — closer but FAILS 0.8-1.25. Residual measured:
+    mirrored-L under 5 views still 514 rejected, three_quarter-sole 419 +
+    back-sole 79; profile<->mirror-profile now perfectly mutual (0 both
+    ways). 3q mask dilation tested and USELESS (+1px recovers 37/3762,
+    +2px 74/3762: the rejected cloud sits 10-100px outside the mask, not
+    edge noise). So the second mirror is required, not optional.
+  Test 2, + mirror-3q (6 views, L/R-symmetric view set): sideL=1166,
+    sideR=1183, L/R=0.9856 PASS. Volumetric mirror IoU 0.985 (all z bands
+    >=0.978). Undilated 6-view probe (WS/undilated_probe.json, same
+    carve_grids+close calls as the sens branch): 824/846 = 0.974 PASS —
+    the SYMMETRY survives zero-slack; absolute hem length does not.
+  Gates (E/GATES_FAIL): 6/7 hull3 gates PASS — excess p95 <=3.0 all 6 views
+    (front/3q/3qmirror/profile/back 2.0, promirror 3.0); roots 95.29% within
+    6mm (PASS, thinner margin than hull3's 97.66% — mirrors trim
+    dome-adjacent mass); single component (dropped 291 vox = 0.074% grit);
+    tuck-form mismatch (beyond-3px hairlike max 6); back sym 1.0026 (raw
+    splat 1.0016 — better than hull3's 0.976/0.839); ears <=2.13% everywhere
+    (10-50x margin; clearance min 2.17/2.81 mm = SDF floor); spacing-1mm
+    maxDelta 1.64, fragile []. FAIL: sensitivity-undilated (front missP95
+    13.04->56.59, 3q 17.05->30.4, 3qmirror 18.03->30.02; maxDelta 43.55).
+    Mechanism: 6 undilated views shave thin hems multiplicatively + the
+    fliplr 1px discretization bites with zero slack; the 2px carve dilation
+    (documented edge-noise tolerance) is load-bearing at hems. The shipped
+    (dilated) shape passes the strict check (excess vs UNDILATED masks).
+  No E/hull.npz: the fix does not fully pass, per the brief's condition.
+    The symmetric occupancy is preserved in WS/baseline_kept.npz
+    (393153 vox, uint16 states, 6 views) for a waiver decision.
+
+SUBTLETIES (all verified, none hand-waved)
+  1. Legacy splat_visible mirror branch mis-frames: it re-projects mirrored
+     points with the REAL camera, re-landing on the unflipped side (reads
+     exc p95 ~291 on this symmetric hull). The CARVE states were always
+     correct (cols_mc(p) = W-cols_real(mirror(p)), 0.0px error, plumbing
+     agreement 1.0). Fixed E-side (work.py wrapper: original runs, then the
+     mirror entry is rebuilt with the explicit mirrored camera; no method
+     code copied): true silhouette exc p95 3.0, IoU 0.789 = real profile.
+     No re-carve was needed; diag/sens re-ran on the honest basis.
+  2. poke_anatomy.json / ear_boxes.json / body-depth-3q.npz copied read-only
+     from hull3 WS (byte-identical v4 masks/sources; the mirror views don't
+     enter the poke probe). body-depth mirrors rasterized fresh in WS4.
+  3. H2.stage_backdiag not re-run: it hardcodes the 4-view base via use_base
+     and cannot score the 6-view final; STEP2 attribution supersedes it.
+  4. No Blender figure: STEP4's file list needs no hull.png; visual evidence
+     is asym.png (+ auto-saved slices.png/mismatch.png). No .blend risk.
+  5. route2's 40/50 right-side unreachable roots are explained: the right
+     hem pool was a 50-voxel sliver because the carve trimmed it, not
+     because routing failed there first. The 6-view hull restores the pool
+     (1183 vox, minZ 1285 vs left 1291).
+
+SAW: E/asym.png, E/sidediag.json, E/slices.png, E/mismatch.png,
+  E/inputs-opened.txt, E/GATES_FAIL (7 hull3 gates + fix side-sym line),
+  E/RESULT.txt, E/DONE.txt,
+  WS/{baseline_kept,carve_stats,diag,sens,mismatch,ear,symmetry,
+  sidediag,sidediag_pts,undilated_probe,poke_anatomy,ear_boxes}.json/npz,
+  WS/body-depth-{3q,3q-mirror,profile-mirror}.npz,
+  WS/splat_{final_,}*.npy (promirror = true mirror-frame silhouette),
+  WS/{step12_asym,work,fix_mirror_splat,undilated_probe}.py,
+  S6/hull3.py (MIRROR_PROFILE/MIRROR_3Q flags + builders),
+  S6/hull.py (states-dtype sizing + export dtype preserve).
+NOT TESTED: guide routing on the 6-view hull (route3's lane); worn-headset
+  or Quest review; clinical validity/licensure/scoring claims; strands,
+  materials, lighting; whether the undilated hem gap matters to routing
+  (hem tips move, roots/dome do not).
+PRESCRIPTION (orchestrator decision, not a worker waiver): accept the
+  symmetric-with-slack hull for route3 (6/7 + side gate green, symmetry
+  zero-slack-robust), or restate the undilated probe for mirror views, or
+  regenerate a target view. Side-symmetry and undilated-robustness are
+  jointly unsatisfiable in the tried view sets (4/5-view asymmetric,
+  6-view hem-fragile) — one of the two bars must move.

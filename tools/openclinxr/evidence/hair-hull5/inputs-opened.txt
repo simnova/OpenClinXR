@@ -1,0 +1,16 @@
+hair-hull5 inputs opened (read-only sources; hull4 WS never written)
+==============================================================================
+v4 manifest (masks sha-verified at load by H1.load_inputs):
+  tools/openclinxr/hair-groom/manifests/aisha_straight_long_v4.json
+  body mpfb-peds-parent-aisha.glb sha 5cab6676 / cameras cameras-scorer-v3.json sha 833bf136
+  masks: front 6e4c9c6c / three_quarter 935d1d32 / profile_90 b0db9f5f / back cac45580
+  mirrors: profile_90_mirror = fliplr(profile_90); three_quarter_mirror = fliplr(three_quarter) (asserted byte-equal at setup)
+target views dir: /Volumes/files/src/openclinxr/.openclinxr/scratch/target-views/aisha-v3/
+  (target-front/three_quarter/profile/back.png display tiles + mask-*.png)
+carve inputs: tools/openclinxr/evidence/hair-station0b/body-verts.npz (body-depth raster incl. mirrors),
+  tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz,
+  tools/openclinxr/evidence/hair-scalp1/scalp.npz + roots.npz
+promotion source (read-only): tools/openclinxr/evidence/hair-hull4/workspace/baseline_kept.npz
+rescore/diag sources (read-only copies in WS): WS4 diag/sens/carve_stats/mismatch/ear/poke_anatomy/sidediag/undilated_probe.json + splat_final_*.npy
+figure: apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb + cameras-scorer-v3.json + aisha-v3 targets (see blender-opened.txt)
+code: tools/openclinxr/hair-groom/hull/{hull,hull1,hull2,hull3}.py + hair-hull4/workspace/work.py (apply_all/loader/splat_visible_fixed reused by import) + WS/rescore.py (this slice's scorer)

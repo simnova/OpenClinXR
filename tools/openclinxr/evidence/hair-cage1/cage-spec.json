@@ -1,0 +1,647 @@
+{
+  "anchors": [
+    [
+      0,
+      12.82,
+      24.03,
+      -0.0
+    ],
+    [
+      5,
+      35.97,
+      24.03,
+      -29.41
+    ],
+    [
+      10,
+      35.97,
+      42.76,
+      -28.95
+    ],
+    [
+      15,
+      47.25,
+      54.23,
+      -58.18
+    ],
+    [
+      20,
+      49.53,
+      53.78,
+      -57.34
+    ],
+    [
+      25,
+      57.92,
+      65.37,
+      -53.43
+    ],
+    [
+      30,
+      57.92,
+      63.36,
+      0.14
+    ],
+    [
+      35,
+      60.44,
+      75.13,
+      -77.46
+    ],
+    [
+      40,
+      52.29,
+      80.78,
+      -75.32
+    ],
+    [
+      45,
+      66.14,
+      80.78,
+      -71.73
+    ],
+    [
+      50,
+      66.66,
+      84.22,
+      -66.35
+    ],
+    [
+      55,
+      66.28,
+      86.89,
+      -87.49
+    ],
+    [
+      60,
+      69.19,
+      88.8,
+      -86.52
+    ],
+    [
+      65,
+      68.93,
+      90.71,
+      -79.14
+    ],
+    [
+      70,
+      69.99,
+      92.53,
+      -73.1
+    ],
+    [
+      75,
+      70.69,
+      94.1,
+      -92.12
+    ],
+    [
+      80,
+      70.67,
+      95.03,
+      -89.57
+    ],
+    [
+      85,
+      70.86,
+      94.83,
+      -77.15
+    ],
+    [
+      90,
+      70.81,
+      95.39,
+      -57.81
+    ],
+    [
+      95,
+      70.49,
+      95.03,
+      -90.39
+    ],
+    [
+      100,
+      70.49,
+      94.32,
+      -76.38
+    ],
+    [
+      105,
+      81.66,
+      93.94,
+      -57.32
+    ],
+    [
+      110,
+      82.86,
+      94.41,
+      -86.94
+    ],
+    [
+      115,
+      83.27,
+      97.14,
+      -78.7
+    ],
+    [
+      120,
+      82.98,
+      99.91,
+      -41.32
+    ],
+    [
+      125,
+      81.04,
+      102.68,
+      -81.78
+    ],
+    [
+      130,
+      80.3,
+      107.69,
+      -81.78
+    ],
+    [
+      135,
+      80.14,
+      110.74,
+      -75.04
+    ],
+    [
+      140,
+      78.99,
+      111.2,
+      -75.04
+    ],
+    [
+      145,
+      78.0,
+      110.44,
+      -65.38
+    ],
+    [
+      150,
+      77.23,
+      104.81,
+      -65.38
+    ],
+    [
+      155,
+      75.4,
+      101.28,
+      -61.17
+    ],
+    [
+      160,
+      59.62,
+      104.11,
+      -57.83
+    ],
+    [
+      165,
+      59.42,
+      104.01,
+      -57.83
+    ],
+    [
+      170,
+      58.2,
+      102.03,
+      -55.1
+    ],
+    [
+      175,
+      56.01,
+      100.45,
+      -56.01
+    ],
+    [
+      180,
+      53.76,
+      100.31,
+      -11.28
+    ],
+    [
+      185,
+      52.05,
+      99.0,
+      -55.59
+    ],
+    [
+      190,
+      48.11,
+      92.65,
+      -41.2
+    ],
+    [
+      195,
+      46.65,
+      92.65,
+      -15.56
+    ],
+    [
+      200,
+      46.22,
+      92.16,
+      -56.97
+    ],
+    [
+      205,
+      46.66,
+      90.23,
+      -42.74
+    ],
+    [
+      210,
+      46.13,
+      84.73,
+      -59.87
+    ],
+    [
+      215,
+      47.61,
+      65.94,
+      -59.87
+    ],
+    [
+      220,
+      47.61,
+      38.12,
+      -47.78
+    ],
+    [
+      225,
+      50.09,
+      32.31,
+      -64.16
+    ],
+    [
+      230,
+      50.09,
+      12.44,
+      -63.67
+    ],
+    [
+      235,
+      54.79,
+      27.36,
+      -65.4
+    ],
+    [
+      240,
+      55.2,
+      13.67,
+      -70.1
+    ],
+    [
+      245,
+      66.12,
+      23.78,
+      -71.18
+    ],
+    [
+      250,
+      73.18,
+      10.64,
+      -73.86
+    ],
+    [
+      255,
+      82.85,
+      20.53,
+      -76.92
+    ],
+    [
+      260,
+      86.58,
+      7.54,
+      -79.82
+    ]
+  ],
+  "attachmentDetail": {
+    "back": {
+      "Umm": -86.52,
+      "Xmm": -14.48,
+      "azimuthDeg": 180.0,
+      "dropMm": 60.0,
+      "elevationDeg": -34.37,
+      "radialMm": 87.73
+    },
+    "nape": {
+      "Umm": -65.38,
+      "Xmm": 0.0,
+      "azimuthDeg": 180.0,
+      "dropMm": 150.0,
+      "elevationDeg": -66.45,
+      "radialMm": 65.38
+    },
+    "part": {
+      "Umm": 42.44,
+      "Xmm": 18.89,
+      "azimuthDeg": 12.0,
+      "dropMm": 10.0,
+      "elevationDeg": -12.15,
+      "radialMm": 46.46
+    },
+    "side": {
+      "Umm": -8.18,
+      "Xmm": 70.81,
+      "azimuthDeg": 85.0,
+      "dropMm": 90.0,
+      "elevationDeg": -51.62,
+      "radialMm": 71.28
+    },
+    "temple": {
+      "Umm": 64.73,
+      "Xmm": 51.86,
+      "azimuthDeg": 55.0,
+      "dropMm": 70.0,
+      "elevationDeg": -40.16,
+      "radialMm": 82.94
+    }
+  },
+  "attachments": {
+    "back": [
+      -14.48,
+      -86.52,
+      60.0
+    ],
+    "nape": [
+      0.0,
+      -65.38,
+      150.0
+    ],
+    "part": [
+      18.89,
+      42.44,
+      10.0
+    ],
+    "side": [
+      70.81,
+      -8.18,
+      90.0
+    ],
+    "temple": [
+      51.86,
+      64.73,
+      70.0
+    ]
+  },
+  "centreline": "6-control-point clamped cubic B-spline, 61 samples; P0 of every family sits on its measured attachment raised by crown_lift (drop direction), so roots inherit the on-scalp attachment position and the lift sets the 1-3 mm standoff; crown_lift raises P1 fully and P2 halfway; part rides the crown sphere (drop = r^2/2R + lift, R=90 mm) with lateral splay k = 0.5 + part_angle/45; temple/side stand off the max-width line (surfX + 14 / + side_out_sh); back/nape run the posterior midline (nape roots pushed 18/20 mm posterior); below-shoulder points hold the shoulder planform",
+  "collisionField": "exact signed distance to the bare-body mesh (Blender BVHTree closest point + ray-parity sign, 2 mm grid; negative inside), tolerance 0.0 mm",
+  "crown": [
+    1.1403722410818773e-09,
+    -0.053241077810525894,
+    1.6599169969558716
+  ],
+  "families": [
+    {
+      "attachRow": {
+        "azimuthDeg": 12.0,
+        "dropMm": 10.0
+      },
+      "mirror": "L/R",
+      "name": "part"
+    },
+    {
+      "attachRow": {
+        "azimuthDeg": 55.0,
+        "dropMm": 70.0
+      },
+      "mirror": "L/R",
+      "name": "temple-curtain",
+      "routing": "fitted anterior offset at z = 1.405 m (bound spans behind to front of the shoulder plane)"
+    },
+    {
+      "attachRow": {
+        "azimuthDeg": 85.0,
+        "dropMm": 90.0
+      },
+      "mirror": "L/R",
+      "name": "side",
+      "routing": "clears the shoulder laterally"
+    },
+    {
+      "attachRow": {
+        "azimuthDeg": 180.0,
+        "dropMm": 60.0
+      },
+      "mirror": null,
+      "name": "back",
+      "routing": "passes BEHIND the shoulder"
+    },
+    {
+      "attachRow": {
+        "azimuthDeg": 180.0,
+        "dropMm": 150.0
+      },
+      "mirror": null,
+      "name": "nape",
+      "routing": "passes BEHIND the shoulder"
+    }
+  ],
+  "frame": "head mm: X lateral, U anterior+ rel crown, D drop below crown; world(m) = (X/1000, crown_y - U/1000, crown_z - D/1000)",
+  "judgePlaneZm": 1.405,
+  "params": [
+    {
+      "hi": 8.0,
+      "init": 2.0,
+      "lo": 0.5,
+      "name": "crown_lift",
+      "unit": "mm"
+    },
+    {
+      "hi": 60.0,
+      "init": 25.0,
+      "lo": 0.0,
+      "name": "part_angle",
+      "unit": "deg"
+    },
+    {
+      "hi": 120.0,
+      "init": 75.0,
+      "lo": 40.0,
+      "name": "cap_span",
+      "unit": "mm"
+    },
+    {
+      "hi": 80.0,
+      "init": 36.0,
+      "lo": 10.0,
+      "name": "part_w_top",
+      "unit": "mm"
+    },
+    {
+      "hi": 80.0,
+      "init": 32.0,
+      "lo": 10.0,
+      "name": "part_w_hem",
+      "unit": "mm"
+    },
+    {
+      "hi": 480.0,
+      "init": 320.0,
+      "lo": 180.0,
+      "name": "curtain_hem_drop",
+      "unit": "mm"
+    },
+    {
+      "hi": 120.0,
+      "init": 46.0,
+      "lo": -100.0,
+      "name": "curtain_front_sh",
+      "unit": "mm"
+    },
+    {
+      "hi": 110.0,
+      "init": 60.0,
+      "lo": 20.0,
+      "name": "curtain_ear_u",
+      "unit": "mm"
+    },
+    {
+      "hi": 90.0,
+      "init": 44.0,
+      "lo": 20.0,
+      "name": "curtain_w_top",
+      "unit": "mm"
+    },
+    {
+      "hi": 110.0,
+      "init": 40.0,
+      "lo": 20.0,
+      "name": "curtain_w_hem",
+      "unit": "mm"
+    },
+    {
+      "hi": 480.0,
+      "init": 250.0,
+      "lo": 230.0,
+      "name": "side_hem_drop",
+      "unit": "mm"
+    },
+    {
+      "hi": 120.0,
+      "init": 10.0,
+      "lo": 0.0,
+      "name": "side_out_sh",
+      "unit": "mm"
+    },
+    {
+      "hi": 120.0,
+      "init": 70.0,
+      "lo": 30.0,
+      "name": "side_w_top",
+      "unit": "mm"
+    },
+    {
+      "hi": 120.0,
+      "init": 80.0,
+      "lo": 30.0,
+      "name": "side_w_hem",
+      "unit": "mm"
+    },
+    {
+      "hi": 600.0,
+      "init": 380.0,
+      "lo": 280.0,
+      "name": "back_hem_drop",
+      "unit": "mm"
+    },
+    {
+      "hi": -10.0,
+      "init": -110.0,
+      "lo": -160.0,
+      "name": "back_post_sh",
+      "unit": "mm"
+    },
+    {
+      "hi": 180.0,
+      "init": 110.0,
+      "lo": 60.0,
+      "name": "back_w_top",
+      "unit": "mm"
+    },
+    {
+      "hi": 220.0,
+      "init": 150.0,
+      "lo": 80.0,
+      "name": "back_w_hem",
+      "unit": "mm"
+    },
+    {
+      "hi": 480.0,
+      "init": 340.0,
+      "lo": 280.0,
+      "name": "nape_hem_drop",
+      "unit": "mm"
+    },
+    {
+      "hi": -5.0,
+      "init": -115.0,
+      "lo": -140.0,
+      "name": "nape_post_sh",
+      "unit": "mm"
+    },
+    {
+      "hi": 140.0,
+      "init": 80.0,
+      "lo": 40.0,
+      "name": "nape_width",
+      "unit": "mm"
+    },
+    {
+      "hi": 8.0,
+      "init": 3.0,
+      "lo": 1.0,
+      "name": "thickness",
+      "unit": "mm"
+    }
+  ],
+  "pins": {
+    "body": {
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+      "id": "mpfb-peds-parent-aisha",
+      "sha256": "5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde"
+    },
+    "bodyVerts": "e85a9a2702c3afb7feef1880c16c83b29766f718b7f3f988aab05186cbaea3ba",
+    "camerasFile": {
+      "path": "tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json",
+      "sha256": "833bf1361d6be94ce1d576314ea6f1e4f760a07d588240bf6fcf8b2741eab413"
+    },
+    "landmarks": {
+      "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/landmarks.json",
+      "sha256": "14f3231c913051ebb91edf1d82febd63cea86c494aa741cb7efdddfed6ac05a1"
+    },
+    "masks": {
+      "back": {
+        "sha256": "6d182281e771247a3b3489ab4b7a5a52ce52e16ef85b4bb5ef354e3512fb9cbd"
+      },
+      "front": {
+        "sha256": "deb150fb57e20aab87654767fdfa0341a112c0b7d8565d936d273ce77200b604"
+      },
+      "profile_90": {
+        "sha256": "78718ed580c630d0fa68c34080de0b42e699dc6d880377b25a8da4f2629bf07e"
+      }
+    }
+  },
+  "requiredControls": {
+    "backSheetEndHeight": "back_hem_drop (drop mm below crown)",
+    "backSheetPosteriorOffsetAtShoulder": "back_post_sh (U mm at z = 1.405 m plane)",
+    "crownLift": "crown_lift (mm)",
+    "curtainAnteriorOffsetAtShoulder": "curtain_front_sh (U mm at z = 1.405 m plane)",
+    "curtainEndHeight": "curtain_hem_drop (drop mm below crown)",
+    "partDepartureAngle": "part_angle (deg)"
+  },
+  "ribbon": "width profile at 3 arc stations (top s=0, mid s=0.5 mean, hem s=1.0) along a fixed per-family horizontal axis (part X, temple face-corner diagonal (0.8, 0.6), side U, back/nape X), projected perpendicular to the tangent so sheets never twist; closed solid +/- thickness/2 along the ribbon normal",
+  "rootStandoff": "every family root (centreline P0) sits 1-3 mm off the scalp by the EXACT field (positive = outside); enforced as a fit penalty and a gate, verified by exact.root_standoff",
+  "schemaVersion": "openclinxr.cage-spec.v2",
+  "v2Changes": [
+    "part families widened into crown sheets (cap_span 60/40-95 -> 75/40-120; part_w_top 24/10-50 -> 36/10-80; part_w_hem 20/10-50 -> 32/10-80) so the cranium can be covered",
+    "curtain_front_sh lo -20 -> -100 (behind-shoulder positions in bound; fit decides, not spec)",
+    "curtain_hem_drop lo 280 -> 180 (short target front); back_hem_drop hi 520 -> 600 (long target back)",
+    "crown_lift 10.0/2-30 -> 2.0/0.5-6 (root-standoff rule: every root 1-3 mm off the scalp by the exact field)",
+    "temple-curtain routing no longer fixed front-of-shoulder"
+  ]
+}

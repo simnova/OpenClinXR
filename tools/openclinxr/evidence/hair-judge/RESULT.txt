@@ -1,0 +1,13 @@
+HAIR JUDGE: one deterministic judge, target-front.png vs 5 renders (stop bar: orchestrator proposal 2026-10-12, tunable).
+Target part col face_centre_col=514 (closed hair rows 136..175 span cols 412..617). Mask encoding: target=white; all 5 ID masks=alpha>=0.9.
+name | IoU | width_rms | below_chin ours/tgt | p50 ours/tgt | R/B | score | stop-bar clauses failed
+target | 1.0000 | 0.0000 | 0.5250/0.5250 | 0.0826/0.0843 | 1.5347 | 0.0105 | PASS (none)
+packdup | 0.4054 | 0.4796 | 0.2917/0.5250 | 0.0840/0.0843 | 1.4441 | 1.3388 | iou,width_rms,below_chin,opening_eye
+search1 UNREGISTERED: crown=39 chin=714 centre=515 eye=343 (H=675 outside 250..650)
+search2 UNREGISTERED: crown=29 chin=714 centre=515 eye=337 (H=685 outside 250..650)
+length15 UNREGISTERED: crown=30 chin=715 centre=515 eye=338 (H=685 outside 250..650)
+attach UNREGISTERED: crown=56 chin=711 centre=515 eye=351 (H=655 outside 250..650, misses by 5px)
+packdup landmarks: crown=67 chin=710 centre=513 eye=356. Eye lines hit the eyes on all 5 debug images.
+Tests a-f all pass (exit 0): a IoU=1,width=0,pass; b IoU=0.9867,width=0.0041; c fails below_chin+IoU; d fails width_rms; e tripwire (meanR-B=0.254>0.20, contaminated, overall fail); f byte-identical JSON.
+STILL WRONG: 4 of 5 renders frame faces ~1.4x larger than target (H 655-685 vs 480) so they cannot score; the one that scores fails 4 clauses.
+BRIEF MISSING: sweater-top detector (bottom-contiguous rows with R-G>0.15 AND skin<0.5) and part measured at band-middle row were my calls; 3px closing applied to render masks as well as target.

@@ -1,0 +1,137 @@
+{
+ "views": [
+  "front",
+  "three_quarter",
+  "profile_90",
+  "back"
+ ],
+ "maskSym": {
+  "front": {
+   "file": "mask-front.png",
+   "totalPx": 78754,
+   "areaL": 39571,
+   "areaR": 39183,
+   "L_over_R": 1.0099,
+   "lowestRowL": 656,
+   "lowestRowR": 656
+  },
+  "three_quarter": {
+   "file": "mask-three_quarter.png",
+   "totalPx": 103799,
+   "areaL": 32045,
+   "areaR": 71754,
+   "L_over_R": 0.4466,
+   "lowestRowL": 359,
+   "lowestRowR": 725
+  },
+  "profile_90": {
+   "file": "mask-profile.png",
+   "totalPx": 149114,
+   "areaL": 71680,
+   "areaR": 77434,
+   "L_over_R": 0.9257,
+   "lowestRowL": 655,
+   "lowestRowR": 1023
+  },
+  "back": {
+   "file": "mask-back.png",
+   "totalPx": 335684,
+   "areaL": 168141,
+   "areaR": 167543,
+   "L_over_R": 1.0036,
+   "lowestRowL": 1023,
+   "lowestRowR": 1023
+  }
+ },
+ "bodySymMesh": {
+  "shoulderSlab_xneg": {
+   "n": 589,
+   "zmax": 1386.8,
+   "zmin": 0.4,
+   "centroidMm": [
+    -172.7,
+    -7.6,
+    538.9
+   ]
+  },
+  "shoulderSlab_xpos": {
+   "n": 589,
+   "zmax": 1386.8,
+   "zmin": 0.4,
+   "centroidMm": [
+    172.7,
+    -7.6,
+    538.9
+   ]
+  },
+  "arm_xneg": {
+   "n": 2396,
+   "zmax": 1316.1,
+   "zmin": 6.5,
+   "centroidMm": [
+    -433.1,
+    -219.7,
+    943.7
+   ]
+  },
+  "arm_xpos": {
+   "n": 2396,
+   "zmax": 1316.1,
+   "zmin": 6.5,
+   "centroidMm": [
+    433.1,
+    -219.7,
+    943.7
+   ]
+  },
+  "headSlabXmean_mm": 0.0
+ },
+ "hull3BelowShoulderKept": {
+  "sideL": 4947,
+  "sideR": 1183,
+  "L_over_R": 4.1817
+ },
+ "rightCurtainAttribution": {
+  "nMirrored": 4947,
+  "nRejectedAnyOutside": 3762,
+  "rejectedFrac": 0.7605,
+  "nSole": 3186,
+  "nMulti": 576,
+  "perViewStates": {
+   "front": {
+    "INSIDE": 158,
+    "VISIBLE_OUTSIDE": 9,
+    "BODY_OCCLUDED": 4780
+   },
+   "three_quarter": {
+    "INSIDE": 371,
+    "VISIBLE_OUTSIDE": 994,
+    "BODY_OCCLUDED": 3582
+   },
+   "profile_90": {
+    "INSIDE": 1614,
+    "VISIBLE_OUTSIDE": 3226,
+    "BODY_OCCLUDED": 107
+   },
+   "back": {
+    "INSIDE": 1550,
+    "VISIBLE_OUTSIDE": 109,
+    "BODY_OCCLUDED": 3288
+   }
+  },
+  "soleReject": {
+   "front": 9,
+   "three_quarter": 441,
+   "profile_90": 2657,
+   "back": 79
+  },
+  "anyReject": {
+   "front": 9,
+   "three_quarter": 994,
+   "profile_90": 3226,
+   "back": 109
+  },
+  "rejZmin": 1255.0,
+  "rejZmax": 1403.0
+ }
+}

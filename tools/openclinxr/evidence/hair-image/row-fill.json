@@ -1,0 +1,332 @@
+{
+ "ok": false,
+ "stage": "measure",
+ "error": "Error: no fill/colour cell satisfies every bar; selected lowest-failure cell",
+ "blenderVersion": "5.1.1",
+ "dupSockets": [
+  [
+   "Geometry",
+   "Output_1"
+  ],
+  [
+   "Guide Index",
+   "Output_9"
+  ],
+  [
+   "Geometry",
+   "Input_0"
+  ],
+  [
+   "Amount",
+   "Input_2"
+  ],
+  [
+   "Viewport Amount",
+   "Input_4"
+  ],
+  [
+   "Radius",
+   "Input_5"
+  ],
+  [
+   "Distribution Shape",
+   "Input_7"
+  ],
+  [
+   "Tip Roundness",
+   "Input_8"
+  ],
+  [
+   "Even Thickness",
+   "Input_6"
+  ],
+  [
+   "Seed",
+   "Input_3"
+  ]
+ ],
+ "cells": [
+  {
+   "cell": 1,
+   "fillWatts": 80.0,
+   "fillReadBackWatts": 80.0,
+   "melanin": 0.95,
+   "melaninReadBack": 0.949999988079071,
+   "redness": 0.5,
+   "rednessReadBack": 0.5,
+   "rimWatts": 40.0,
+   "radius": 0.0003,
+   "amount": 4,
+   "readBack": 0.0003000000142492354,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "faceMeanLuminance": 0.5877342169319368,
+   "backgroundLuminance": 0.4620337555530024,
+   "faceLR": 0.8331713058497484,
+   "faceLRDetail": {
+    "ratio": 0.8331713058497484,
+    "left": 0.4352065711109092,
+    "right": 0.5223494472928872,
+    "eyeRow": 460,
+    "chinRow": 838,
+    "leftInner": 399,
+    "rightInner": 626
+   },
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.15736558470468265,
+    "p10": 0.03584470588235294,
+    "p50": 0.1543050980392157,
+    "p90": 0.2753435294117647,
+    "redBlueRatio": 1.0882248219525896,
+    "meanRedBlueSpread": 0.013550620624029477
+   },
+   "redBlueRatio": 1.0882248219525896,
+   "meanRedBlueSpread": 0.013550620624029477,
+   "beautyPng": "fill-cell-1.png",
+   "idPng": "hair-id-fill-1.png",
+   "barFailures": [
+    "hair p50 > 0.12",
+    "hair p90 > 0.24",
+    "R/B outside [1.2,1.8]"
+   ],
+   "feasible": false
+  },
+  {
+   "cell": 2,
+   "fillWatts": 120.0,
+   "fillReadBackWatts": 120.0,
+   "melanin": 0.95,
+   "melaninReadBack": 0.949999988079071,
+   "redness": 0.5,
+   "rednessReadBack": 0.5,
+   "rimWatts": 40.0,
+   "radius": 0.0003,
+   "amount": 4,
+   "readBack": 0.0003000000142492354,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "faceMeanLuminance": 0.6221146329035269,
+   "backgroundLuminance": 0.4943613846124387,
+   "faceLR": 0.7896429951863161,
+   "faceLRDetail": {
+    "ratio": 0.7896429951863161,
+    "left": 0.4759217082519668,
+    "right": 0.6027049073482544,
+    "eyeRow": 460,
+    "chinRow": 838,
+    "leftInner": 399,
+    "rightInner": 626
+   },
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.18269771480562902,
+    "p10": 0.03830980392156863,
+    "p50": 0.18122588235294118,
+    "p90": 0.3209819607843137,
+    "redBlueRatio": 1.0788747589752448,
+    "meanRedBlueSpread": 0.014104780991093411
+   },
+   "redBlueRatio": 1.0788747589752448,
+   "meanRedBlueSpread": 0.014104780991093411,
+   "beautyPng": "fill-cell-2.png",
+   "idPng": "hair-id-fill-2.png",
+   "barFailures": [
+    "hair p50 > 0.12",
+    "hair p90 > 0.24",
+    "R/B outside [1.2,1.8]"
+   ],
+   "feasible": false
+  },
+  {
+   "cell": 3,
+   "fillWatts": 80.0,
+   "fillReadBackWatts": 80.0,
+   "melanin": 0.7,
+   "melaninReadBack": 0.699999988079071,
+   "redness": 0.7,
+   "rednessReadBack": 0.699999988079071,
+   "rimWatts": 40.0,
+   "radius": 0.0003,
+   "amount": 4,
+   "readBack": 0.0003000000142492354,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "faceMeanLuminance": 0.5848114420217696,
+   "backgroundLuminance": 0.4620407915900735,
+   "faceLR": 0.8327321184693426,
+   "faceLRDetail": {
+    "ratio": 0.8327321184693426,
+    "left": 0.4371359420936516,
+    "right": 0.5249418539267559,
+    "eyeRow": 460,
+    "chinRow": 838,
+    "leftInner": 399,
+    "rightInner": 626
+   },
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.1768066475313036,
+    "p10": 0.05149490196078431,
+    "p50": 0.17219372549019607,
+    "p90": 0.2968501960784314,
+    "redBlueRatio": 1.339226269324607,
+    "meanRedBlueSpread": 0.05226117361775971
+   },
+   "redBlueRatio": 1.339226269324607,
+   "meanRedBlueSpread": 0.05226117361775971,
+   "beautyPng": "fill-cell-3.png",
+   "idPng": "hair-id-fill-3.png",
+   "barFailures": [
+    "hair p50 > 0.12",
+    "hair p90 > 0.24"
+   ],
+   "feasible": false
+  },
+  {
+   "cell": 4,
+   "fillWatts": 80.0,
+   "fillReadBackWatts": 80.0,
+   "melanin": 0.5,
+   "melaninReadBack": 0.5,
+   "redness": 0.8,
+   "rednessReadBack": 0.800000011920929,
+   "rimWatts": 40.0,
+   "radius": 0.0003,
+   "amount": 4,
+   "readBack": 0.0003000000142492354,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "faceMeanLuminance": 0.577806982439737,
+   "backgroundLuminance": 0.4620461942784927,
+   "faceLR": 0.832409615719421,
+   "faceLRDetail": {
+    "ratio": 0.832409615719421,
+    "left": 0.43921411595775645,
+    "right": 0.5276418095893328,
+    "eyeRow": 460,
+    "chinRow": 838,
+    "leftInner": 399,
+    "rightInner": 626
+   },
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.19756836361787147,
+    "p10": 0.06826666666666666,
+    "p50": 0.19155450980392155,
+    "p90": 0.31876627450980394,
+    "redBlueRatio": 1.4840612877069166,
+    "meanRedBlueSpread": 0.0771395387391915
+   },
+   "redBlueRatio": 1.4840612877069166,
+   "meanRedBlueSpread": 0.0771395387391915,
+   "beautyPng": "fill-cell-4.png",
+   "idPng": "hair-id-fill-4.png",
+   "barFailures": [
+    "hair p50 > 0.12",
+    "hair p90 > 0.24"
+   ],
+   "feasible": false
+  }
+ ],
+ "selected": {
+  "cell": 4,
+  "fillWatts": 80.0,
+  "fillReadBackWatts": 80.0,
+  "melanin": 0.5,
+  "melaninReadBack": 0.5,
+  "redness": 0.8,
+  "rednessReadBack": 0.800000011920929,
+  "rimWatts": 40.0,
+  "radius": 0.0003,
+  "amount": 4,
+  "readBack": 0.0003000000142492354,
+  "strandsAfter": 50265,
+  "volume": 0.2250697350069735,
+  "faceMeanLuminance": 0.577806982439737,
+  "backgroundLuminance": 0.4620461942784927,
+  "faceLR": 0.832409615719421,
+  "faceLRDetail": {
+   "ratio": 0.832409615719421,
+   "left": 0.43921411595775645,
+   "right": 0.5276418095893328,
+   "eyeRow": 460,
+   "chinRow": 838,
+   "leftInner": 399,
+   "rightInner": 626
+  },
+  "coveragePixels": 124541,
+  "coverageHairLuminance": {
+   "mean": 0.19756836361787147,
+   "p10": 0.06826666666666666,
+   "p50": 0.19155450980392155,
+   "p90": 0.31876627450980394,
+   "redBlueRatio": 1.4840612877069166,
+   "meanRedBlueSpread": 0.0771395387391915
+  },
+  "redBlueRatio": 1.4840612877069166,
+  "meanRedBlueSpread": 0.0771395387391915,
+  "beautyPng": "fill-cell-4.png",
+  "idPng": "hair-id-fill-4.png",
+  "barFailures": [
+   "hair p50 > 0.12",
+   "hair p90 > 0.24"
+  ],
+  "feasible": false
+ },
+ "lightCount": 3,
+ "exposureStops": -0.375,
+ "front": "front-fill.png",
+ "idPng": "hair-id-fill.png",
+ "viewTransform": "Standard",
+ "keyElevationDegrees": 55.0,
+ "pins": {
+  "roughness": 0.25,
+  "radialRoughness": 0.2,
+  "coat": 0.1,
+  "rimWatts": 40.0,
+  "radius": 0.0003,
+  "amount": 4
+ },
+ "referenceTriple": {
+  "p10": 0.038916862745098035,
+  "p50": 0.08262039215686273,
+  "p90": 0.1668
+ },
+ "targetFaceLR": {
+  "ratio": 0.7051502020946769,
+  "left": 0.45604929635664143,
+  "right": 0.3215832534910209,
+  "eyeRow": 460,
+  "chinRow": 751,
+  "leftInner": 436,
+  "rightInner": 602
+ },
+ "lightingEffect": {
+  "cells": [
+   1,
+   2
+  ],
+  "fillDeltaWatts": 40.0,
+  "delta": {
+   "p10": 0.002465098039215692,
+   "p50": 0.026920784313725493,
+   "p90": 0.04563843137254897,
+   "redBlueRatio": -0.009350062977344864,
+   "faceLR": -0.043528310663432324
+  }
+ },
+ "colourEffect": {
+  "cells": [
+   1,
+   3,
+   4
+  ],
+  "redBlueRatios": [
+   1.0882248219525896,
+   1.339226269324607,
+   1.4840612877069166
+  ]
+ },
+ "maskOverlay": "mask-overlay-fill.png"
+}

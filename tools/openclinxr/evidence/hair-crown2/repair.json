@@ -1,0 +1,25 @@
+{
+  "spread": {
+    "firstInside": {
+      "OCLX_Aisha_head": 1,
+      "makeclothes_library_toigo_t_shirt": 85,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "postInside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "postInsideTotal": 0,
+    "movedPoints": 86,
+    "maxProjectionMm": 14.259912148353601,
+    "repairDispMm": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "max": 0.023096585151147712
+    },
+    "verifyPostInsideTotal": 0
+  }
+}

@@ -1,0 +1,75 @@
+hair-split0: per-side hem triangulation (target-only, no cage fit) — RESULT
+==============================================================================
+Task: re-decide whether the target views agree on where the hair ends, with
+correct per-side measurements (cage1's STOP rested on averaging both
+curtains' lowest pixels onto the midline: col 512.8 = image centre,
+triangulated X = 0.0047 m). Pinned scorer-v3 cameras; nothing fitted.
+
+STEP 1 — hem pixels (registered target frame, row/col; E/split.png overlays)
+  front L curtain hem (image-left half, split at face centre col 513):
+    (666.0, 331.0), 41 px at hem row, span cols 311-351
+  front R curtain hem (image-right half):
+    (675.0, 700.0), 33 px at hem row, span cols 684-729
+    (R tip sits 9 rows lower than L — the target itself is asymmetric)
+  back hem centre: (823.0, 520.5), 2 px, span 520-521
+  back corner image-L: (814.0, 420.5), 4 px; image-R: (818.0, 604.5), 4 px
+    (corners = lowest row in cols centre-210..-90 / +90..+210)
+  profile posterior-lowest: (870.0, 792.0), 5 px, span 790-794
+    (band [postHeadCol-40, postHeadCol+120], postHeadCol = 826.3)
+  profile anterior-lowest (short wisp tip): (344.0, 414.0), 1 px
+    (band [mentonCol-120, mentonCol+40], mentonCol = 375.2)
+  Method fix: station instruments.front_hems_perside measures each half on
+  its own (lowest row, median col AT that row) and never averages sides.
+
+STEP 2 — triangulation, closest-approach gaps (mm) + midpoints (m)
+  H1 front hem = profile posterior hem:
+    L 112.1  mid (-0.0909, 0.0726, 1.3450)
+    R  56.7  mid ( 0.1117, 0.0552, 1.3690)
+  H2 front hem = profile anterior (wisp) hem:
+    L 139.8  mid (-0.0698, -0.1359, 1.4953)
+    R 132.6  mid ( 0.0854, -0.1089, 1.4844)
+  H3 front hem = same-side back corner (X-mirrored: frontL-backR, frontR-backL):
+    L  85.1  mid (-0.0731, 0.1241, 1.3736)
+    R  84.0  mid ( 0.0742, 0.1054, 1.3706)
+  Controls (geometrically impossible same-image-side corners / back centre):
+    frontL-backL 151.0, frontR-backR 152.9, frontL-backC 115.6,
+    frontR-backC 122.1 — all larger, as the mirror mapping predicts.
+  Mass context (coarse scan, not the verdict rule): each front hem ray
+  pierces the posterior-mass interior within L 23.9 / R 0.0 mm and the
+  back-mass interior within L 12.7 / R 14.9 mm. The masses overlap; the
+  TIPS do not meet — the views disagree on where the hair ends, not on
+  where the bulk sits.
+
+STEP 3 — verdict + heights for the guide fit
+  VERDICT: INCONSISTENT. Best-supported hypothesis H1 gaps L 112.1 /
+    R 56.7 mm, both > 30 mm threshold. H2/H3 worse on both sides.
+  H1 midpoint heights (compromise points, gaps exceed threshold — no
+  single 3D hem is established; per-ray closest-point heights differ by
+  54-108 mm, mostly vertical):
+    L mid z = 1.3450 m: -60.0 mm vs shoulder plane (1.405),
+      -104.3 mm vs chin (menton z = 1.4493)
+    R mid z = 1.3690 m: -36.0 mm vs shoulder, -80.3 mm vs chin
+    front-ray-side heights at closest approach: L 1.3991 / R 1.3962 m
+      (just below shoulder); profile-ray-side: L 1.2908 / R 1.3418 m.
+    A guide fit built on the front hems should target hem tips just
+    below the shoulder plane (~1.396-1.399 m at the curtain columns);
+    the profile/back tips demand 55-105 mm lower. Pick one; they cannot
+    all be satisfied.
+  Station fix: instruments.front_hems_perside (per-side, no averaging) +
+    selftests.test_front_hem_perside: two-curtain synthetic mask yields
+    L (666, 330) + R (675, 694), PASS; old mean col 512.0 reproduces the
+    cage1 artefact value (512.8).
+
+INPUTS-OPENED (abspaths in E/split.json "inputs"): cage.py,
+instruments.py, cameras-scorer-v3.json, landmarks.json,
+station-frame.npz (/tmp/station0b-run), mask-front-v2.png,
+mask-profile-v2.png, mask-back-v3.png. hair-groom/scalp/ untouched
+(no such dir). No *.blend.
+
+SAW: per-side hems sit on the curtains (L (666,331), R (675,700)) instead
+  of the midline; H1 is the best pairing on both sides and still fails;
+  controls (H3x 151/153 mm) confirm the X-mirror mapping; mass interiors
+  intersect (<= 24 mm), isolating the disagreement to the hem tips.
+  NOT TESTED: Quest/worn-headset rendering; IWSDK sidecar; MongoDB
+  persistence (no records written); cross-machine determinism (single
+  Apple M1 Max host); any cage/groom fit (target-only card).

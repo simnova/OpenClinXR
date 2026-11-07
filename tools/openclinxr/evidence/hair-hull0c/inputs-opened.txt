@@ -1,0 +1,15 @@
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-back-v3.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-front-v2.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-profile-v2.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-cage1/body-depth.npz
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-scalp1/roots.npz
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-scalp1/scalp.npz
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/cage/exact.py
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/cage/instruments.py
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/envelope.py
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/hull/hull.py
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/hull/hull0c.py
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/register.py
+/private/tmp/station0b-run/station-frame.npz

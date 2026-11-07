@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "oldDefinitions": {
+    "frontBroadCrownProxy": {
+      "definition": "hair-int1 front_extra crown/sides regions; includes forehead below this model's higher hairline",
+      "partSide": 2.1755707583794344
+    },
+    "projectedCloseupStrip": {
+      "bandDefinition": "projected +/-3 mm strip around cap centreline; sides are 7--24 mm from centre",
+      "bandPixels": 3934,
+      "hairFraction": 0.3462125063548551,
+      "skinFraction": 0.6537874936451449,
+      "hair": {
+        "pixels": 1362,
+        "meanLuminance": 0.15783206702945496,
+        "meanHueDeg": 12.293787313330375
+      },
+      "skin": {
+        "pixels": 2572,
+        "meanLuminance": 0.39516683469033026,
+        "meanHueDeg": 20.920944248286567
+      },
+      "bandLuminance": 0.31299856993331143,
+      "sideLuminance": 0.2230436771115181,
+      "partSide": 1.4033061774569713
+    }
+  },
+  "newDefinition": {
+    "definition": "crown_top ID alpha >=230/255; longitudinal extent is 10 mm behind our centre hairline through apex; part +/-3 mm; sides 7-24 mm; 0-10 tile excludes the intentional +/-3 mm slit",
+    "world": {
+      "hairlineY": -0.12157492339611053,
+      "startY": -0.11157492339611054,
+      "apexY": -0.053241077810525894
+    },
+    "tiles": {
+      "0-10": {
+        "effectiveDistanceMm": [
+          3.0,
+          10.0
+        ],
+        "pixels": 11502,
+        "skinFraction": 0.7304816553642844
+      },
+      "10-20": {
+        "effectiveDistanceMm": [
+          10.0,
+          20.0
+        ],
+        "pixels": 15800,
+        "skinFraction": 0.7019620253164557
+      },
+      "20-30": {
+        "effectiveDistanceMm": [
+          20.0,
+          30.0
+        ],
+        "pixels": 15590,
+        "skinFraction": 0.6572803078896728
+      },
+      "30-50": {
+        "effectiveDistanceMm": [
+          30.0,
+          50.0
+        ],
+        "pixels": 28300,
+        "skinFraction": 0.5403180212014135
+      }
+    },
+    "partLuminance": 0.25095295170100884,
+    "sideLuminance": 0.21914026821953198,
+    "partSide": 1.1451704140911578
+  },
+  "frontHonest": {
+    "i1": {
+      "definition": "front rows strictly above subject-specific centre hairline; part +/-3 mm; sides 7-24 mm",
+      "hairlineRow": 153,
+      "partSide": 1.0330190615685273
+    },
+    "TS": {
+      "definition": "front rows strictly above subject-specific centre hairline; part +/-3 mm; sides 7-24 mm",
+      "hairlineRow": 212,
+      "partSide": 1.0134721117253034
+    }
+  },
+  "renderSeconds": {
+    "crown_top": 26.448642582981847
+  },
+  "projectionCorrection": "camera dependency graph explicitly updated before world_to_camera_view; alpha threshold remains the original strict 230/255"
+}

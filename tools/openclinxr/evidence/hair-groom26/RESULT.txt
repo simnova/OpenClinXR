@@ -1,0 +1,230 @@
+RESULT hair-groom26: hem-preserving back fairing + temple taper + below-lobe root drop
+================================================================================
+Final groom26 = keep200 guides (s11 anchor 0.6, ONE pass, 20 mm graph,
+verbatim 40 mm take-off, 25 mm boundary weight, NEW --hem-keep-mm 200:
+fair fully for input arc < 200 mm, smoothstep-blend the delta back to
+guides-19 toward the hem; short guides stay fully faired) from guides-19;
+children via interp_children.py with the groom25 flags (--region-weight
+--uv-cutoff 0.15 --pool-max-move-mm 60 --pool-ref guides-8a.npz) PLUS new
+default-OFF flags --temple-taper 0.5 (child-side tip taper) and
+--lobe-drop-roots (drop below-lobe roots from the child-root mask).
+281800 children (283100 - 1300 dropped). No backfill in the final.
+Evidence: tools/openclinxr/evidence/hair-groom26/ (this dir).
+Date: 2026-10-18. Branch: hair-tgt2. Blender 5.1.1, CYCLES-CPU, 1024/64spp, seed 7.
+
+VERDICT: GATES_PASS = no. Picked keep200 lineage (option i): lock fix kept
+by both metrics (3D crossings 885 <= 900, gradAniso 0.6253 <= 0.70),
+profile/3q stay green, back does NOT recover (0.7776 vs 0.7772 25b vs
+0.7959 ctrl; gate >= 0.795), front drifts +0.0131 outside its +-0.01 band,
+and the earlobe HARD gate fails for both groom25 and groom26. The sweep
+variant of FIX3 was measured and REVERTED (cheek slab, 3q -0.065). The
+final keeps the (a)-root drop only.
+
+1. BACK-RIGHT COVER: OPTION TABLE (all measured; provenance in parentheses)
+--------------------------------------------------------------------------------
+Guides from guides-19 via s11 (E/build-26keep200/guides-26keep200-fairing.json);
+children 283100/289630/281800 (E/build-*/build.json); pool-drop nDropped:
+ctrl 6 / keep200 44 / bf 67 / final-26 44. Renders studio 1024/64
+(E/renders-26keep200, renders-26bf, renders-26, render-times.json).
+IoU: calibrated scorer E/score26.py (copy of groom25 score25, REF/TEST
+generalised + "26" wired) vs ctrl; calibration E/groom26cal-calib.json
+reproduces groom8a exactly (all deltas 0.0). Crossings: diag23 step A
+verbatim on GUIDES (E/cross26.py, E/metrics-cross26.json). gradAniso:
+diag23 step-B _aniso_darkstats verbatim incl. judge-v6 registration
+(E/grad26.py, E/metrics-grad26.json).
+
+opt | 3D cross (<=900) | gradAniso (<=0.70) | back | profile | front | 3q
+    |                 |                     |      |         |       |
+ctrl| 1827 FAIL (ref) | 1.0162 FAIL (ref)   | 0.7959 | 0.8156 | 0.7915 | 0.8406
+    | guides-19       |                     | pool-drop 6 |
+keep200| 885 PASS (-915) | 0.6179 PASS       | 0.7778 | 0.8108 | 0.8022 | 0.8420
+    | hem-keep-200    |                     | pool-drop 44 | hem p90 16.9 vs 70.5 mm
+bf  | 865 PASS (25b)  | 0.6151 PASS         | 0.7773 | 0.8113 | 0.7985 | 0.8412
+    | 25b guides+6530 | backfill strands    | pool-drop 67 |
+26  | 885 PASS (=keep200 guides) | 0.6253 PASS | 0.7776 | 0.8105 | 0.8044 | 0.8411
+    | final: keep200 + taper0.5 + lobe-drop-65 | pool-drop 44 |
+
+Right-hem box (B, low0..y1 x edge 15%): alpha<0.9 / maskMiss --
+ctrl 0.9064/0.8829; keep200 0.9163/0.9001; bf 0.9163/0.9001;
+26 0.9166/0.8993 (gate <=0.10 / <=0.15: all FAIL by ~0.8).
+PICK: keep200 lineage. Rationale (guide-level first): fraction-mode
+hem blends (0.6/0.7/0.8 of arc) reintroduce crossings (1310/1262/1304,
+all FAIL) because back guides are short (total-arc p50 51 mm) -- the
+fraction cuts into the 40-200 mm lock window; absolute mode
+--hem-keep-mm 200 keeps the window faired (885 PASS, +20 vs 25b) while
+restoring hem tips toward guides-19 (hem p90 16.9 vs 70.5 mm, max 72.9
+vs 191.3). At image level neither option recovers back cover (keep200
++0.0006, bf +0.0001 vs 25b): the miss is mid+bot image-right
+(keep200 vs ctrl: mid +2234 right, bot +4265 right) and persists through
+pool composition changes, so cover must be ADDED, not preserved (same
+conclusion as groom25 sect 7). Backfill (+6530 world -x lower-back
+strands) adds nothing measurable and is dropped from the final.
+
+2. TEMPLE HAIRLINE (3q, profile): DIAGNOSIS + FIX
+--------------------------------------------------
+Box: 3q hairline band rows 106-214 (= top 3-20% of the 3q target mask
+bbox rows 87-725), cols 240-769 (E/crops.png 3q-temple-hairline-NATIVE
+row). Of 283100 keep200 strands, 153023 have >=1 sample in the temple
+region box; of those, 27391 are strand TIPS in the band box while only
+2754 are short (<30 mm) sideburn/hairline strands (sideburn shorts total
+5860). I.e. the ragged dark edge is made by LONG-strand tips ending in
+the band (17k+ tips), not by the sideburn class -- a children cause.
+FIX: child-side tip taper --temple-taper 0.5 (tip radius x(1-0.5*t^2),
+root unchanged), 14520 temple strands (build.json templeTaper). No guide
+change. Front curtains/hairline read unchanged by eye; front IoU drifts
++0.0022 vs keep200 (0.8022 -> 0.8044, see gate note below).
+
+3. EARLOBE HARD RULE (operator FIX3): DIAGNOSIS + FIX + GATE
+--------------------------------------------------------------
+Per-side pinna thresholds (m, from ear_pinna.npz):
+xpos: zmin 1.5083, yfront -0.0463, yback -0.0908, |x| 0.0616..0.0808;
+xneg: zmin 1.5031, yfront -0.0503, yback -0.1212, |x| 0.0566..0.0708.
+(a) scalp roots below the lobe lowest point AND in front of the ear
+back edge (same side, |x| within ear +-20 mm): xpos 55 roots / 1100
+strands, xneg 10 / 200 -- total 65 roots, 1300 strands. REMOVED from the
+child-root mask in the final (--lobe-drop-roots; build.json lobeDropRoots
+nRoots 65). No other root class touched; guides unchanged.
+(b) strands from HIGHER roots routed under the lobe: keep200 baseline
+xpos 2916 strands / 14970 samples, xneg 3480 / 21896 in the ear column
+(z<zmin, y in span, |x| ear-medial). Tuck guides themselves are clean
+(0 xpos / 1 xneg thru). Two re-route variants were built and measured,
+both REVERTED, no new fixes: (i) tuck-class blend restriction forced
+band children onto 21 xneg tuck backbones -> far-snap translations
+through the column (xneg thru 2620 -> 5466); (ii) positional sweep
+behind the ear (221813 samples, max push 83 mm) -> the re-projection
+snapped pushed samples forward onto the cheek = dark slab beside the
+cheek in 3q (sweep build: front 0.7941, 3q 0.7766, profile 0.7749 --
+3q -0.065 / profile -0.036 vs keep200; renders overwritten by the final,
+numbers kept here for the record). Final = (a)-drop only.
+HARD GATE (E/earlobe_gate.py, E/earlobe-gate.json; 3D on strands, any
+radii; curtain y<yback excluded):
+3D unbounded (z<zmin, y in span, ear column): groom25 2059+2735=4794
+strands, groom26 2372+2624=4996 -- FAIL (0). 25mm-bounded:
+25: 4784, 26: 4992 -- FAIL. Tips: 25: 750+672=1422 -> 26: 557+562=1119
+(the drop removed tip-enders; pass-through drape remains).
+IMAGE pixel boxes (projected 3D-box corners; stated):
+3q-xpos rows 439:501 cols 478:553 -- groom25 1120 px, groom26 1180 px
+(FAIL 0); profile-xpos rows 438:495 cols 306:408 -- 583 -> 770 (FAIL 0).
+Far-side boxes occluded in these views (3q-xneg projects onto the mouth,
+profile-xneg onto head interior; both read 0/964-1211 through occluders)
+reported N/A. Reference: the TARGET itself carries 823 curtain px in the
+3q-xpos box (curtain legitimately visible there) and 0 in profile-xpos --
+so the profile-xpos column is the clean read, and it still shows the
+wedge (crops.png lobe-profile-xpos row).
+
+4. EVERY GATE, FINAL 26 (brief thresholds; provenance in parentheses)
+-----------------------------------------------------------------------
+frontIoU   0.8044 vs 0.7913 +-0.01              FAIL (+0.0131, margin -0.0031) (score26-26)
+3q         0.8411 vs >= 0.83                    PASS (+0.0111)
+profile    0.8105 vs >= 0.81                    PASS (+0.0005)
+back       0.7776 vs >= 0.795 / 0.80            FAIL (-0.0174 / -0.0224)
+right hem  alpha 0.9166 (<=0.10) / miss 0.8993 (<=0.15)  FAIL both
+concha     0 / 0 / 0                            PASS
+insideBody 0                                    PASS
+faceMask   front 3192 <= 3424.9                PASS (margin 233 px)
+3D cross   885 <= 900 (guides; diag23-A)        PASS (margin 15; 19: 1827)
+gradAniso  0.6253 <= 0.70 (back-knot; diag23-B) PASS (target 0.5302)
+front/temple guides byte-identical guides-19   PASS (fairing.json)
+fairing determinism (s11 rerun keep200)        PASS (sha a97e76fe identical)
+children determinism (final recipe rebuild)    PASS (E/det-26.json)
+calibration all_within_0.02                   PASS (exact 0.0)
+earlobe HARD (3D + image, 25 and 26)           FAIL (sect 3)
+GATES_PASS = no (back, front-band, right-hem, earlobe fail).
+
+5. EVIDENCE, NOT GATES
+------------------------
+Back miss vs ctrl +6574 px, excess -13: pure miss, same image-right
+mid+bot signature as groom24/25. Knot-box native read (crops.png row 1):
+vertical/downward flow, no crisp lattice (locks stay fixed by both
+metrics). back-hem-R: still thin vs target (measured miss). back-crown:
+small part slot persists. 3q/profile ear rows: no cheek slab in the
+final (slab was sweep-build only, reverted); small under-lobe wedge
+remains (lobe rows). Temple-hairline native: tapered tips read softer
+than keep200 by eye. front-hairline-band: unchanged by eye.
+Sweep-build note (reverted, renders overwritten): 22k swept samples
+rendered as a dark slab on the cheek in 3q (score 3q 0.7766) -- kept in
+RESULT only.
+
+6. FILE MANIFEST
+------------------
+E/sheet.png (target | groom19 | groom25=25b | groom26, 4 views)
+E/crops.png (back-knot NATIVE + 3q-ear-NATIVE + profile-ear-NATIVE +
+3q-temple-hairline-NATIVE + crown/part, hem-L/R, nape, front band,
+lobe-3q-xpos, lobe-profile-xpos rows; same column order)
+E/score26-{26keep200,26bf,26}.json (full scorer output per option/final)
+E/metrics-cross26.json (3D crossings: 19/25b/keep200 guides)
+E/metrics-grad26.json (gradAniso target+ctrl+keep200+bf+26)
+E/earlobe-gate.json + E/earlobe_gate.py (HARD gate numbers + boxes)
+E/groom26cal-calib.json (calibration re-run, exact)
+E/det-26.json + E/det_rebuild26.py (final-recipe rebuild determinism)
+E/build-26keep200/{guides-26keep200.npz,guides-26keep200-fairing.json,
+build.json,inputs-opened.txt} E/build-26bf/build.json
+E/build-26/{guides-26.npz (=keep200 copy),guides-26-fairing.json,
+build.json,inputs-opened.txt,strands.npz (WORKTREE ONLY, not committed)}
+E/renders-{26keep200,26bf,26}/ (studio 1024/64 beauty + IDs + opened.txt
++ render-times.json) E/{cross26,grad26,score26,earlobe_gate,
+make_sheet26,det_rebuild26}.py (station-frame/guide-depth/rulers read
+from groom19, not copied)
+STORE: /Volumes/files/openclinxr-assets/store/hair-groom26/
+strands-{26keep200,26bf,26}.npz + SHA256SUMS (NOT in git, per no-.npz rule)
+store strands-26.npz sha256 61b9be3036a88775e3fd5d95563d7a751fa7b1f13bede8a6550f1c85354f9b54
+Committed station changes: orient/s11_back_coherent.py (--hem-frac,
+--hem-keep-mm; defaults off, groom25 behaviour preserved) +
+strands/interp_children.py (--backfill-*, --temple-taper, --lobe-drop-roots,
+--lobe-tuck sweep post-partclamp; ALL default off: s11 default rerun sha
+a97e76fe identical to 25b; interp default rebuild sha 5ba846af identical
+to store strands-25b).
+
+7. SCOPE
+---------
+Local Blender lane only (Cycles studio 1024/64spp/seed7, scorer-v3
+cameras, skull registration, aisha-v3 masks). Guide inputs unchanged
+except keep200 (hem-keep-200 from guides-19). Children recipes identical
+except flags stated (pool60 everywhere; taper0.5 + lobe-drop65 in final;
+no backfill in final). No .npz in git (store + SHA256SUMS). Score scripts
+adapted from groom25 (REF/TEST generalisation + "26" wiring; scorer math
+untouched); calibration re-run. No new fairing knobs after keep200; the
+(b)-route variants (tuck-blend, sweep) were measured and reverted.
+
+8. NOT TESTED
+---------------
+Children rebuild determinism for the keep200/bf option recipes (only the
+final recipe proven, E/det-26.json). Physical Quest 3 / worn-headset
+evidence; EEVEE/Quest material response; other bodies/seeds; animation/
+combing dynamics; relit/held-out R1 rows; clinical validity, licensure,
+or scoring claims. guides-22 family not re-run. Fairing combinations
+(cap+hem-keep, other keep-mm values) not tried.
+
+9. REMAINING (report-only)
+----------------------------
+- Back silhouette on faired guides: miss +6574 px image-right mid+bot;
+ctrl itself = 0.7959, so cover must be ADDED (re-drape/regrowth), not
+preserved; fairing choice alone cannot reach 0.795.
+- Front IoU +0.0131 above the +-0.01 band (better match, but outside the
+symmetric gate; pool44 composition + taper tip thinning).
+- Earlobe column: 3D pass-through drape + profile wedge persist; the
+(a)-drop cleared tip-enders (1422->1119 tips) but the column cannot reach
+zero while the side drape hangs there -- needs re-drape routing (drape
+parting around the ear above the lobe), not child-level pushes.
+- R-LOOP profile/back 91.8k/111.7k vs groom19 85k/96k (fairing still adds
+winding; report-only).
+- 3q face-mask FAIL persists in all builds incl. control (lineage-wide,
+report-only per groom25).
+
+GATES_PASS: no.
+
+VISUAL READ (E/crops.png, cols target | groom19 | groom25 | groom26)
+-------------------------------------------------------------------------
+back-knot-NATIVE: 26 flows vertical/downward like 25 (locks absent as
+crisp lattice; soft diagonal texture upper area persists).
+back-crown-part: part line present with a small slot, same as 25.
+back-hem-R: 26 as thin as 25 (backdrop shows through mid-lengths).
+back-hem-L: full in all. nape: vertical flow, no change.
+3q-ear-NATIVE: ear + side drape read same as 25; no cheek slab.
+profile-ear-NATIVE: wedge of hair hangs under the ear (the measured
+770 px); ear itself clear.
+3q-temple-hairline-NATIVE: ragged dark edge softened vs 25 (taper).
+front-hairline-band: unchanged vs 25.
+lobe-3q-xpos / lobe-profile-xpos: box holds curtain-edge hair (3q, shared
+with target's 823 px) and the under-ear wedge (profile).
+Sheet (E/sheet.png): 26 back matches 25 outline; other views match 19/25.

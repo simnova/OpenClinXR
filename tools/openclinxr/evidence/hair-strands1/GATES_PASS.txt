@@ -1,0 +1,2 @@
+GATES_PASS hair-strands1
+count 99085/99085 | assignAcross 0 | inside 0 | determinism 2ac057e02b6ea7cc | lanePeak 0.992 | framesSpin 0.000000 deg/100mm

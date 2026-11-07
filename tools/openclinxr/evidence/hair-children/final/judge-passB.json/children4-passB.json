@@ -1,0 +1,263 @@
+{
+  "H_target": 457.21437647448954,
+  "below_chin_ours": 0.5883454542138812,
+  "below_chin_row_ours": 876,
+  "below_chin_row_target": 859,
+  "below_chin_run_need_px": 20.48,
+  "below_chin_single_ours": 0.5905326120362375,
+  "below_chin_single_target": 0.5511637712338218,
+  "below_chin_target": 0.5511637712338218,
+  "clauses": {
+    "below_chin": true,
+    "iou": false,
+    "iou_eroded": false,
+    "no_standing_hair": true,
+    "opening_eye": false,
+    "opening_jaw": false,
+    "photo": false,
+    "rb": true,
+    "show_through": true,
+    "width_rms": false,
+    "width_rms_eroded": false
+  },
+  "contaminated": false,
+  "eroded_skipped_frac_rows": 1,
+  "iou": 0.5298618966674934,
+  "iou_eroded": 0.4344751124991848,
+  "landmarks_auto": {
+    "chin_row": 714.0,
+    "crown_top_row": 96.0,
+    "face_centre_col": 546.0
+  },
+  "landmarks_derived": false,
+  "landmarks_mode": "skull",
+  "landmarks_render": {
+    "chin_row": 583.0,
+    "crown_top_row": 103.0,
+    "face_centre_col": 512.0
+  },
+  "landmarks_target": {
+    "chin_row": 607.0,
+    "crown_top_row": 149.78562352551046,
+    "face_centre_col": 514.0
+  },
+  "landmarks_target_hair": {
+    "chin_row": 607.0,
+    "crown_top_row": 127.0,
+    "face_centre_col": 514.0
+  },
+  "mask_encoding": "alpha>=0.9",
+  "name": "children4-passB",
+  "openings": {
+    "eye": {
+      "ours": 0.6058427167927326,
+      "ours_px": 277,
+      "rel_err": 0.22566371681415928,
+      "row": 356,
+      "target": 0.4942976678525544,
+      "target_px": 226
+    },
+    "jaw": {
+      "ours": 0.4374315644712871,
+      "ours_px": 200,
+      "rel_err": 0.25,
+      "row": 561,
+      "target": 0.34994525157702966,
+      "target_px": 160
+    }
+  },
+  "overall": false,
+  "overall_v2": false,
+  "part_ours_px": 79,
+  "part_row": 177,
+  "part_target_px": 22,
+  "photometrics_render": {
+    "RB": 1.535743016496926,
+    "meanB": 0.14673908150103127,
+    "meanR": 0.225353519662382,
+    "meanRminusB": 0.07861443816135077,
+    "p10": 0.058787450980392154,
+    "p50": 0.15679058823529413,
+    "p90": 0.31729176470588233
+  },
+  "photometrics_target": {
+    "RB": 1.5324643524415986,
+    "meanB": 0.07728496023173957,
+    "meanR": 0.11843644653500748,
+    "meanRminusB": 0.041151486303267905,
+    "p10": 0.03942666666666666,
+    "p50": 0.08425176470588235,
+    "p90": 0.16820470588235292
+  },
+  "registered": true,
+  "score": 1.036653116950366,
+  "score_formula": "(1-IoU) + width_rms + |below_chin_ours - below_chin_target| + |ln(p50_ours/p50_target)|/2 + |ln(RB_ours/RB_target)|/2",
+  "show_through": {
+    "brow_row": 333,
+    "fraction": 0.007830444769262894,
+    "nonhair_px": 225,
+    "pass": true,
+    "region_px": 28734
+  },
+  "standing_hair": {
+    "H_ref": 480.0,
+    "excess_px": 7.0,
+    "flag": false,
+    "mask_crown_row": 96,
+    "skull_crown_row": 103.0,
+    "skull_source": "given landmarks",
+    "threshold_px": 14.399999999999999
+  },
+  "stopbar_provenance": "orchestrator proposal 2026-10-12, tunable",
+  "target_hair_offset_mm": 10.0,
+  "target_hair_offset_px": 22.785623525510474,
+  "target_mask_encoding": "white",
+  "target_skull_assumption": "target skull height assumed = canonical 210.7 mm (measured chin_z-crown_z); target px/mm = 2.2786 from chin-crown 480 px; 10 mm -> 22.79 px; skull crown 149.79",
+  "transform": {
+    "scale": 0.9525299509885199,
+    "tx": 26.304665093877816,
+    "ty": 51.675038573692916
+  },
+  "width_profile": [
+    {
+      "frac": 0.2,
+      "ours_left": 150,
+      "ours_right": 149,
+      "rel_err_left": 0.7045454545454546,
+      "rel_err_right": 0.0,
+      "row": 241,
+      "target_left": 88,
+      "target_right": 149
+    },
+    {
+      "frac": 0.4,
+      "ours_left": 159,
+      "ours_right": 166,
+      "rel_err_left": 0.1865671641791045,
+      "rel_err_right": -0.062146892655367235,
+      "row": 333,
+      "target_left": 134,
+      "target_right": 177
+    },
+    {
+      "frac": 0.6,
+      "ours_left": 149,
+      "ours_right": 192,
+      "rel_err_left": -0.2074468085106383,
+      "rel_err_right": 0.005235602094240838,
+      "row": 424,
+      "target_left": 188,
+      "target_right": 191
+    },
+    {
+      "frac": 0.8,
+      "ours_left": 144,
+      "ours_right": 195,
+      "rel_err_left": -0.24210526315789474,
+      "rel_err_right": -0.029850746268656716,
+      "row": 516,
+      "target_left": 190,
+      "target_right": 201
+    },
+    {
+      "frac": 1.0,
+      "ours_left": 180,
+      "ours_right": 195,
+      "rel_err_left": -0.07216494845360824,
+      "rel_err_right": -0.06698564593301436,
+      "row": 607,
+      "target_left": 194,
+      "target_right": 209
+    },
+    {
+      "frac": 1.2,
+      "ours_left": 231,
+      "ours_right": 233,
+      "rel_err_left": -0.0211864406779661,
+      "rel_err_right": -0.07171314741035857,
+      "row": 698,
+      "target_left": 236,
+      "target_right": 251
+    },
+    {
+      "frac": 1.4,
+      "ours_left": 256,
+      "ours_right": 250,
+      "rel_err_left": 0.04918032786885246,
+      "rel_err_right": -0.09090909090909091,
+      "row": 790,
+      "target_left": 244,
+      "target_right": 275
+    },
+    {
+      "frac": 1.6,
+      "ours_left": 0,
+      "ours_right": 0,
+      "rel_err_left": 0.0,
+      "rel_err_right": 0.0,
+      "row": 881,
+      "target_left": 0,
+      "target_right": 0
+    }
+  ],
+  "width_profile_eroded": [
+    {
+      "frac": 0.2,
+      "ours_left": 145,
+      "ours_right": 144,
+      "row": 241,
+      "target_left": 0,
+      "target_right": 144
+    },
+    {
+      "frac": 0.4,
+      "ours_left": 155,
+      "ours_right": 160,
+      "row": 333,
+      "target_left": 131,
+      "target_right": 174
+    },
+    {
+      "frac": 0.6,
+      "ours_left": 0,
+      "ours_right": 188,
+      "row": 424,
+      "target_left": 183,
+      "target_right": 188
+    },
+    {
+      "frac": 0.8,
+      "ours_left": 140,
+      "ours_right": 191,
+      "row": 516,
+      "target_left": 183,
+      "target_right": 198
+    },
+    {
+      "frac": 1.0,
+      "ours_left": 128,
+      "ours_right": 191,
+      "row": 607,
+      "target_left": 191,
+      "target_right": 206
+    },
+    {
+      "frac": 1.2,
+      "ours_left": 212,
+      "ours_right": 213,
+      "row": 698,
+      "target_left": 231,
+      "target_right": 246
+    },
+    {
+      "frac": 1.4,
+      "ours_left": 244,
+      "ours_right": 245,
+      "row": 790,
+      "target_left": 239,
+      "target_right": 270
+    }
+  ],
+  "width_rms": 0.21771395399779908,
+  "width_rms_eroded": 0.3093877679805754
+}

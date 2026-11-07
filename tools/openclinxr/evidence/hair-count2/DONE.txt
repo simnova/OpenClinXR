@@ -1,0 +1,1 @@
+DONE: base (combo+look7+rig1, score.py v3) and 4 one-change cells (n2 138362 fibres, tt0, tt05, key15 daz-15) scored 1024/64 + crown_top; verdicts.json, look-sheet.png (TS|base|n2|tt0 x front/back/back-crop/ear-crop), RESULT.txt, holes.json present. No *.blend written.

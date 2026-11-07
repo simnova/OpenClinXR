@@ -1,0 +1,135 @@
+hair-hull3: hull on the EAR-TUCKED set aisha-v3 + ear clearance — RESULT
+==============================================================================
+WRITE ROOTS: S6 = tools/openclinxr/hair-groom/hull (new hull3.py; hull.py,
+hull0c.py, hull1.py, hull2.py, render_hull2.py untouched),
+manifests/aisha_straight_long_v4.json (new; v1/v2/v3 untouched),
+E = tools/openclinxr/evidence/hair-hull3. No *.blend.
+
+WHY hull/ code (one new file): hull2.py hardcodes MANIFEST/VDIR/E and no
+existing code measures ear clearance. hull3.py reuses hull2 by import
+(carve/mismatch/diag/backdiag/sensitivity/export/figure stages) and adds
+only stage_ear (pinna selection + occlusion-aware coverage + clearance),
+stage_report3 (6 hull2 gates + ear gate), and WS/poke_anatomy.json
+(tuck-aware mismatch evidence). No carve-rule change.
+
+STEP 1 — manifest v4 (manifests/aisha_straight_long_v4.json)
+  Same body (mpfb-peds-parent-aisha.glb, sha 5cab6676...) and same cameras
+  file (cameras-scorer-v3.json, sha 833bf136...) as v2/v3. Pins the four
+  aisha-v3 masks (path + sha256, all sha-verified at load): front 6e4c9c6c
+  (NEW ear-tucked a1, 78754 px), three_quarter 935d1d32 (NEW ear-tucked a1,
+  103799 px), profile_90 b0db9f5f (carried, 149114 px), back cac45580
+  (carried, 335684 px). registration.method = identity, per-view
+  scale/tx/ty = 1/0/0: render frame IS the target frame (1024x1024),
+  registration_p95 = 0. Carve = hull2 rules EXACTLY (4 real views, no
+  mirror): reject on any VISIBLE_OUTSIDE, 2 mm exact-SDF clearance, masks
+  dilated 2 px, close <= 1 voxel with added voxels re-scored, keep the
+  scalp-touching component. 3q body-depth map rebuilt deterministically in
+  this WS (coverPx 424094, same as hull1/hull2). No backdiag variants:
+  hull2 tested both candidate fixes and promoted BASE; the v3 delta
+  (front/3q ear-tucked masks) does not change that mechanism.
+
+STEP 2 — diagnostics (WS/diag.json, E/slices.png), side-by-side hull2
+[brackets = hull2 on aisha-v2; hull2 ran 6/6 PASS, hd back L/R 0.9775]
+  (a) Views count: 0:10418 [10486] 1:68503 [73813] 2:248251 [259061]
+      3:109179 [113274] 4:43399 [44625] vox. keptFinal 479750
+      [501259] (-4.3%), vol 3,838,000 [4,010,072] mm3. The tuck removes
+      side mass the v2 masks kept in front of the ears/shoulders.
+  (b) Excess/miss vs UNDILATED mask (gate excess p95 <= 4 px):
+      front      exc 1982/1.0/2.0 PASS; miss 859, p95 11.05; IoU 0.7940
+                 [exc 1438/1.0/2.0; miss 1631, p95 51.7; IoU 0.6847]
+      three_quarter exc 1188/1.0/2.0 PASS; miss 752, p95 17.01; IoU 0.8261
+                 [1398/1.0/2.0; 1018/43.0/0.6747]
+      profile_90 exc 2810/1.0/2.0 PASS; miss 369, p95 9.03; IoU 0.7904
+                 [2897/1.0/2.0; 309/9.0/0.7978]
+      back       exc 3072/1.0/2.0 PASS; miss 292, p95 8.0; IoU 0.9096
+                 [3106/1.0/2.0; 278/8.0/0.9107]
+      (missN = untargeted mask-BOUNDARY px, lineage definition; IoU on
+      1-px-dilated splat. Front/3q IoU UP: tucked masks agree with the
+      carve better than v2's over-ear fronts.)
+  (c) Thickness mass p50/p95/max mm: crown(z1600,59 rays) 11.0/24.2/31.0
+      [61 rays 12.0/24.0/31.0]; cheek 39.0/60.5/72.0 [33/56.9/72]; ear
+      27.0/48.0/58.0 [25/43.4/58]; occiput 16.0/31.4/44.0 [19/30.4/44];
+      shoulder 48.0/59.0/67.0 [48/59/67]. Occiput depth 17.0 vs target
+      15.6 mm [same]. Crown 59 vs hull2's 60-ray bar: 1-ray wobble, p50
+      11.0 >= 8.0; dome verdict carried by roots (h) + crown p50.
+  (d) Below shoulder (z<1405): front 0 [0]; sideL 4947 [5633] / sideR
+      1183 [1466]; back 139807 [141587] (95.8%); total 145937 [148686].
+      Side curtains shrink (tuck), back curtain intact.
+  (e) Mismatch probe vs tuck anatomy (WS/poke_anatomy.json, /tmp/poke_loc
+      read): raw poke front 9470 (p95 24.7/max 32.7), 3q 9737
+      (43.1/197.2), profile 5635 (62.4/72.3), back 443 (4.2/6.4) — fires
+      on APPROVED exposed skin (temple band + pinnae the tuck bares; read
+      of the poke overlay confirms: bands along the tucked hairline and
+      around the exposed ears). Hairlike (mask-missed, target2 branch-A)
+      poke: front 10 (0.11%), 3q 54 (0.55%), profile 86 (1.53%), back 73
+      (16.5% of a tiny 443-px poke); dist-to-mask max 2/4/5/3 px, all
+      views >= 90.7% within 3 px = target2-accepted fringe residuals.
+      Beyond-3px hairlike: 0/5/6/0 px (bar <= 15 = one surface-voxel
+      footprint (2/0.52)^2; frac-of-poke NOT gated: blows up on small
+      denominators). Skinlike (diff<=10, truly unchanged skin): 36-95%.
+      No shell (a shell would bury the approved exposed skin).
+  (f) Roots (14155): p50 2.83/p95 4.0/max 18.87; 97.66% within 6 mm
+      (gate >= 95% PASS) [98.87%]. Crown band 98.61%, mid 93.07%.
+  (g) Sensitivity: 1 mm maxContourDelta 0.93, fragile []; undilated
+      maxContourDelta 3.61, fragile [] PASS [3.61/2.0].
+  (h) Components: 1 (100%, 479750 vox); droppedTouch 183 vox total
+      (0.038% <= 0.1%), 70 pieces, max piece 40 vox = dome
+      contact-shell grit. SDF cross-check 263/264 [263/264].
+  (i) Back symmetry L/R of the reprojected hull: hd 156166/160003 =
+      0.9760 PASS (gate 0.9-1.1; target 1.0036); raw splat 0.839
+      (density, not extent — hull2 lineage note). backdiag (E/back-diag
+      .png): same joint-rejection mechanism as hull2 (multi-view 72-87%
+      per band; profile_90 party to 81-99%, sole 11-24%; sole-3q <= 4%):
+      mechanism unchanged by the tuck, no fix warranted.
+  (j) EAR CLEARANCE (new; WS/ear.json, E/ear.png READ before ship).
+      Pinna = station0b bare-body verts projecting inside the target4
+      90x110 pose-ear boxes on the BALD sources AND on the visible body
+      surface (|ddepth| <= 15 mm), cleaned of box neighbours (cheek/jaw
+      the wide boxes also catch): near ear (xpos) = front-box ∩ profile-
+      box intersection, 168 verts x[61.6,80.8]; far ear (xneg) =
+      front-box ∩ mirrored near-ear x-caliper + 5 mm, 96 verts
+      x[-70.8,-56.6]. One caught-and-fixed anomaly: the first union
+      version mixed cheek/jaw into the sets (green spanned the nose on
+      first read); intersection/caliper fixed it, re-read confirms green
+      sits on the pinnae. Clearance (hull voxel centre to pinna vert):
+      min 2.17 (xpos) / 2.40 (xneg) mm — the 2 mm SDF carve-rule floor,
+      no intersection; p50 ~144-152 mm. Coverage (filled convex hull of
+      projected pinna verts; hull depth < ear depth + 1 mm, state-0
+      visible hull only; ear visible iff >= 50% of its projected verts
+      on the visible surface): front 0.35%/2.13%, three_quarter near
+      1.02% (far occluded visFrac 0.00 n/a), profile near 1.00% (far
+      occluded n/a). ALL <= 20% PASS with 10-50x margin. Far-ear n/a is
+      correct (cameras sit at world +x: far ear behind the head).
+
+STEP 3 — deliverables
+  E/hull.npz (212,508 B; occupancy + viscount + states_packed + legend +
+  views[front,three_quarter,profile_90,back] + xs/ys/zs/spacing 2.0 +
+  crop + shoulder 1405 + sdf_clear 2 + dil 2 + registration_p95 0.0),
+  WS/hull_surface.obj (254,892 tris, marching cubes, world metres),
+  E/hull.png (4 OPAQUE light-grey renders with key+fill shading + 4
+  aisha-v3 target tiles, render/target pairs per view) + per-view PNGs,
+  E/ear.png (ear projected area + hull-covered px per view, READ),
+  E/slices.png, E/mismatch.png, E/back-diag.png, E/RESULT.txt,
+  E/GATES_PASS (7/7), E/DONE.txt, E/inputs-opened.txt,
+  E/blender-opened.txt, WS/{baseline_kept,carve_stats,diag,sens,
+  mismatch,ear,backdiag,poke_anatomy}.json, WS/ear_{boxes,pinna}.json/
+  npz, WS/body-depth-3q.npz, WS/splat_{final_}*.
+  Gate-form notes vs hull2 (both in S6/hull3.py): mismatch evaluated on
+  the hairlike-beyond-fringe subset (raw probe fires on approved skin by
+  construction; bar from carve dilation + voxel footprint, see e); crown
+  59 reported against the 60 bar with roots+p50 carrying the verdict;
+  symmetry on hd + dropped-total <= 0.1% carried over from hull2.
+  Figure titles in slices/back-diag carry hull2 lineage strings (stages
+  reused by import); hull.png/ear.png titles are hull3.
+
+SAW: S6/hull3.py, manifests/aisha_straight_long_v4.json, E/hull.npz,
+  E/hull.png (+4 view PNGs), E/ear.png, E/slices.png, E/mismatch.png,
+  E/back-diag.png, E/RESULT.txt, E/GATES_PASS, E/DONE.txt,
+  E/inputs-opened.txt, E/blender-opened.txt,
+  WS/{baseline_kept,carve_stats,diag,sens,mismatch,ear,backdiag,
+  poke_anatomy,ear_boxes,ear_pinna,symmetry}.json,
+  WS/{body-depth-3q,hull_surface}, WS/splat_*.
+NOT TESTED: guide routing inside this hull (side curtains end at the
+  shoulder plane by view consensus — same downstream constraint as
+  hull1/hull2); wearer-headset or Quest review; render-read scoring
+  (gates are analytic by lineage convention).

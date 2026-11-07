@@ -1,0 +1,80 @@
+{
+ "count": {
+  "n": 251401,
+  "pointsPer": 41,
+  "expectBand": [
+   250000,
+   310000
+  ],
+  "pass": true,
+  "hard": true
+ },
+ "insideBody": {
+  "nSge1Inside": 0,
+  "gate": "<= 500",
+  "pass": true,
+  "hard": true
+ },
+ "pinnaProximity": {
+  "clearMm": 3.0,
+  "nVisibleSamplesLt": 10272,
+  "pass": false,
+  "hard": true
+ },
+ "guideClearance": {
+  "postSamplesLtGate": 0,
+  "gate": "0 samples < 1.5 mm",
+  "pass": true,
+  "hard": true
+ },
+ "heightTransfer": {
+  "postInside": 0,
+  "residMaxMm": 28.2728,
+  "pathMaxMm": 150.0,
+  "netMaxMm": 97.81,
+  "fracGt3mm": 0.778541,
+  "gate": "postInside==0, bounded (10/150mm)",
+  "pass": true,
+  "hard": true
+ },
+ "tipDriftAcross": {
+  "n": 26570,
+  "note": "advisory: tips across x=0 vs own root"
+ },
+ "determinism": {
+  "hashA": "609aebe84a3b6071c8b4a2d3c8ff028d4ef3876024cf8ea55b8caec506b603a7",
+  "hashB": "609aebe84a3b6071c8b4a2d3c8ff028d4ef3876024cf8ea55b8caec506b603a7",
+  "pass": true,
+  "hard": true
+ },
+ "buildFlags": {
+  "guides": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom16/build/guides-cleared.npz",
+  "density": "3900000",
+  "seed": "7",
+  "scalp-roots": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "part-by-islands": "1",
+  "clump-factor": "0.2",
+  "sideburn-tuck": "0",
+  "skip-drape": "1",
+  "clear-guides": "0",
+  "outside-pass": "0",
+  "height-transfer": "rerun_transfer18.py",
+  "depth-classes": "1",
+  "interp-guides": "3",
+  "distance-to-guides": "0.02",
+  "follow-surface-normal": "0",
+  "skip-clump": "0",
+  "skip-noise": "0",
+  "skip-shrink": "1",
+  "skip-smooth": "1",
+  "colliders": "",
+  "transferBounds": {
+   "maxStepMm": 10.0,
+   "maxTotalMoveMm": 150.0,
+   "iters": 120,
+   "tolMm": 0.05,
+   "relax": 0.8
+  }
+ },
+ "pass": false
+}

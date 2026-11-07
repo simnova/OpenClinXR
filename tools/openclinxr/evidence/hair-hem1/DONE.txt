@@ -1,0 +1,18 @@
+HAIR HEM 1 DONE (2026-10-15, worker, foreground).
+Base: cover1 best4 strands + look7 COLOR + rig1 rig + TT0.5 (score_tt),
+re-rendered to E/base (IoU f/p/b 0.7365/0.7308/0.7600; strands sha
+da2f28b5 = cover1 best4).
+STEP 1: E/rail-ruler.png (read before use) + E/rails_base.json. Base rails
+back 233/2399px, front 16/553px, profile 92/270px; TS 5/18, 9/361, 33/130.
+STEP 2: 3 briefed cells (absorb/blunt/widen) + 8 combos (best,best2,best3,
+best4, best5,best6,best7,best8), all Blender-repaired (inside 0) and scored
+(all views + crown_top + holes + ruler). Full table in RESULT.txt.
+STEP 3 KEEP (all-at-once): KEPT none — all 11 cells reverted. Closest =
+c_best8 (rails deleted + outward-splayed dups + seal): IoU d
+-0.0096/+0.0187/+0.0014 PASS, railsB area 14.1% PASS, misses = railsB count
+21.9% (51 vs 46), holes 1.034% (vs 1.0), railsF 112.5%/77.9% (bar <=3.2
+comps is stricter than TS target's own 9). Production strands UNCHANGED
+(E/base/strands.npz). E/crops-best.png (native hem crops base|best8|TS)
+saved for orchestrator grading; no visual-pass claim made.
+E/look-sheet.png rows TS|base|best8, cols front/profile/back/back-hem-crop.
+SAW + NOT TESTED in E/RESULT.txt.

@@ -1,0 +1,117 @@
+VERDICT: FAIL (no mask R passes; candidate groom34 = mask20 = best, still fails ear gates both sides)
+
+CARD: hair-groom34. Operator hard rule: no hair below the earlobe, fixed at the
+source (roots, guide routing, root class) - never by trims or render tricks.
+groom33 failed it worst on -x (column xneg 1072 strands, shell 82199 segs).
+
+STEP 1 (instrument, before-column).
+- Ear proxy (hair-groom/strands/ear_proxy.py): ONE pinna definition = xpos mesh
+  region (idx_earXpos 168 verts, |x| 0.0616-0.0808, y -0.0908..-0.0463,
+  z 1.5083-1.5533) mirrored across x=0 for -x; the smaller offset idx_earXneg
+  set is IGNORED on both sides (provenance recorded in gates JSON sidesM).
+  Inflated to a smooth shell 3 mm outside the skin (groom27 routed-guide
+  clearance 3.1 mm). Coverage renders E/ear-coverage.png, E/ear-overlay33-*:
+  selection covers helix, concha, lobe on both sides.
+- Per-side gates (hair-groom/strands/gates34.py, E/run_gates34.py): SEGMENTS
+  (not samples) intersecting each inflated ear volume; earlobe 3D column per
+  side on the mirrored definition; mirrored scorer cameras 3q+profile on -x
+  (E/cameras-mirror34.json, camera reflected across x=0, ear boxes mirrored).
+- Contact sheet E/before-sheet.png (target | groom33 +x | groom33 -x-flip,
+  3q + profile + ear close-ups). E/before.json holds all groom33 numbers.
+- groom33 measured: shell xpos 71062 segs / 6851 str, xneg 82199 / 10329;
+  column xpos 26 str, xneg 1072 str; concha34 xpos 0/0/0, xneg 9768/155/13119
+  (front/3q/profile); imgMirror 3q/xneg 1380 px, profile/xneg 6 px; mirrorIoU
+  3q 0.8260 / profile 0.8877 (flipped -x vs +x, no -x target); +x IoU
+  0.7997/0.8514/0.8375/0.7753 (front/3q/profile/back); gt30 1789; inside 0.
+  -x NOT clean -> proceeded.
+
+STEP 2 (mirror build). Guides + roots built on +x, mirrored across x=0 (kept
+midline guides |root x| < 2 mm, part at x 0.00014); -x set (incl. the narrow
+groom28 -x back curtain) replaced. Children with groom33 recipe (flags in
+store/hair-groom34/build-mask20/build.json). Asymmetry only from seeded child
+stages (sub-root jitter, length jitter, clump); seeds in build.json.
+Two bugs found and fixed this round (E/mirror-stats.json, E/mirror-ref-stats.json):
+ mirror34.py teleported all 6969 -x roots to +x (fixed to donor-mirror;
+ verified roots x range [-0.0708,+0.0708], neg-to-mirrored-pos max 0.000 mm);
+ pool-drop compared per-INDEX vs asymmetric guides-8a (~1k false flags on -x),
+ fixed with slot-mapped symmetrized ref guides-8amirror.npz. Pool-drop mask20:
+ nDropped 31, moveP50 7.9 mm. Nomask v2 reproduces groom33 +x at gate level
+ (shell xpos 70992/6881 vs 71062/6851; xneg 64632/9942 vs 82199/10329).
+
+STEP 3 (root-mirror sweep, R in {10,15,20} mm vs inflated proxy, both sides).
+Masks drop 367/501/709 roots (E/mask{10,15,20}-stats.json). 3D gates per R
+(segments unless noted; gate in parens):
+
+ R     shell+xpos      shell+xneg       col+x  col-x   concha-x(f/3q/p)  gt30
+ nom   70992/6881str   64632/9942str    35     1907    8613/215/13329     2629
+ R10    7472/3614str   15563/6670str    31     1323    8423/191/11811     2432
+ R15    5609/2844str   13390/5938str    29     1067    8280/186/10865     2262
+ R20    4914/2545str   12191/5399str    22      553    7702/195/10584      2094
+ (gate: shell 0/0 segs; column 0/0 str; concha 0/0/0; gt30 <= 1789.)
+ front/3q IoU per R (score31-identical, E/iou-mask.json):
+ R10 0.7818/0.8491, R15 0.7813/0.8482, R20 0.7838/0.8501.
+ Monotone 3D improvement, asymptote far from 0. NO R PASSES -> no smallest
+ passing R. Candidate groom34 = mask20 (best R).
+
+GATES, groom34 = mask20 (strands sha256 5e6814ba18206707...; provenance):
+ ear shell segments: xpos 4914 (0, FAIL, margin -4914, gates-mask20.json),
+   xneg 12191 (0, FAIL, -12191, same).
+ earlobe 3D column: xpos 22 str (0, FAIL, -22, same), xneg 553 str, 1070
+   samples, 1 tip (0, FAIL, -553, same).
+ profile ear box: std xpos 0 px (0, PASS, gates-mask20.json imgStd),
+   mirror xneg 12 px (0, FAIL, -12, imgMirror).
+ 3q ear box: std xpos 331 px (<= 842 target's own, PASS, +511, imgStd),
+   mirror xneg 1146 px (<= 842, FAIL, -304, imgMirror; groom33 was 1380).
+ concha34: xpos 0/0/0 (0/0/0 PASS), xneg 7702/195/10584 (0/0/0 FAIL, same).
+ insideBody: 0 (0 PASS, same).
+ segments > 30 mm: 2094 (<= 1789 groom30/33, FAIL, -305, same).
+ 3D back crossings: 941 (<= 935 groom30, FAIL, -6, E/metrics-cross34.json via
+   diag23.step_a on guides-34mirror.npz; guides-level by construction).
+ +x IoU: front 0.7838 (>= 0.79, FAIL, -0.0062, E/iou-mask.json),
+   3q 0.8501 (>= 0.83, PASS, +0.0201, same),
+   profile 0.8265 (>= 0.84, FAIL, -0.0135, mask-profile.png identical def),
+   back 0.8925 (reported; groom33 0.7753, groom30 0.7878).
+ -x IoU (no target; flipped -x vs +x render): 3q 0.8997, profile 0.9294
+   (reported; before 0.8260/0.8877; mirrorIou in gates-mask20.json).
+ gradAniso sigma 4: 0.3712 (<= 0.70, PASS, +0.3288, E/metrics-grad34.json via
+   grad31 import on renders-34mask20/back.png; groom33 0.6255).
+ determinism: PASS - mask20 flags rebuilt (build-mask20det) sha256
+   5e6814ba18206707... == build-mask20 bit-exact (bytes 96251143 both).
+ calibration: calibrate31.py reruns groom8a 0.7446/0.8261/0.8543/0.8579
+   delta 0 (E in prior round; unchanged code path).
+
+SCOPE: new code tools/openclinxr/hair-groom/strands/{ear_proxy,mirror34,gates34}.py
+ (+ E drivers; new flags default OFF, existing behaviour unchanged). New
+ evidence tools/openclinxr/evidence/hair-groom34/. Store (NOT in git):
+ /Volumes/files/openclinxr-assets/store/hair-groom34/ + SHA256SUMS-sidecars
+ in build.json. Renders E/renders-34{,-neg,-ear} (= mask20 via symlink).
+ Contact sheet E/sheet.png rows target | groom33 | groom34 (3q, 3q -x flip,
+ profile, profile -x flip, ear +x, ear -x flip). Ear crops E/ears.png
+ (groom33 vs mask20, 640x640 center 1:1, both sides).
+NOT TESTED: front/profile/back IoU for R10/R15 (3D gates already fail, no R
+ survives); wearer-side (Quest) views; VLM review of ears.png/sheet.png.
+REMAINING (diagnosis, measured): E/residual34.py on mask20 - min parent-root
+ dist of shell hits 19.9 mm (~mask boundary: the mask WORKS); xpos hits come
+ from roots p50 98 mm away (crown, z p50 1641), xneg p50 48 mm
+ (temple/curtain just outside the mask); entry midpoints y ~-52 mm z ~1540
+ (front-mid ear). Far-root strands ROUTE across the shell: a guide-routing
+ defect R cannot fix (would scalp temple/crown). gt30 midpoints |x| ~45 y ~-85
+ z 1.5-1.64 = back curtain. Second suspect (unmeasured): lobe-drop /
+ sideburn-cap recipe stages use the asymmetric pinna sets, so side -1 may
+ under-trigger on mirrored inputs - the symmetric fix belongs in guide
+ routing / root class, per the operator hard rule.
+GATES_PASS = no (shell, column, concha, 3q/profile -x image boxes, gt30,
+ front/profile IoU, crossings fail; gradAniso, insideBody, determinism pass).
+
+VISUAL READ (native crops): ears.png ear +x - groom33 lays a solid curtain
+ over the upper ear with stray tips crossing the concha; mask20 clears the
+ concha and lobe but a few fine strands still fall in front of the helix.
+ ears.png ear -x flip - BOTH builds bury the ear under a dense side mass;
+ mask20 thins it (lobe tip visible) yet hair still enters above the helix and
+ hangs below the earlobe line, matching the 553-strand column. sheet.png 3q -x
+ flip - groom33 throws a clump across the temple/cheek; mask20 sweeps it back
+ but the ear stays covered. sheet.png profile -x flip - mask20 keeps a thick
+ fall behind the jaw that still overlaps the ear box (12 px) while reading
+ clean elsewhere. The operator's "-x side looks badly wrong" stands: coverage,
+ not length, is the defect.
+DONE: all card outputs on disk; FAIL is measured, not asserted.

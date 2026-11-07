@@ -1,0 +1,1 @@
+DONE hair-strands0: strands.npz + sheet.png + RESULT.txt + GATES_PASS.txt; renders/rulers/gates on disk; strand interpolator ready for the bake-off.

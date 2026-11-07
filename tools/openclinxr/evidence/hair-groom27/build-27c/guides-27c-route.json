@@ -1,0 +1,1246 @@
+{
+ "through": {
+  "xpos": [
+   675,
+   683,
+   696,
+   717,
+   742,
+   806,
+   2145,
+   2147,
+   2148
+  ],
+  "xneg": [
+   2143,
+   2146,
+   2149
+  ]
+ },
+ "nColumnStrands": 1228,
+ "feeders": {
+  "93": {
+   "nDom": 9,
+   "wsum": 6.6
+  },
+  "208": {
+   "nDom": 2,
+   "wsum": 2.1
+  },
+  "280": {
+   "nDom": 5,
+   "wsum": 5.0
+  },
+  "346": {
+   "nDom": 2,
+   "wsum": 1.6
+  },
+  "521": {
+   "nDom": 18,
+   "wsum": 13.9
+  },
+  "523": {
+   "nDom": 7,
+   "wsum": 6.2
+  },
+  "537": {
+   "nDom": 2,
+   "wsum": 2.0
+  },
+  "580": {
+   "nDom": 5,
+   "wsum": 4.1
+  },
+  "609": {
+   "nDom": 1,
+   "wsum": 5.1
+  },
+  "620": {
+   "nDom": 5,
+   "wsum": 4.1
+  },
+  "642": {
+   "nDom": 5,
+   "wsum": 4.6
+  },
+  "645": {
+   "nDom": 3,
+   "wsum": 4.6
+  },
+  "654": {
+   "nDom": 2,
+   "wsum": 2.1
+  },
+  "698": {
+   "nDom": 3,
+   "wsum": 2.3
+  },
+  "725": {
+   "nDom": 3,
+   "wsum": 2.4
+  },
+  "822": {
+   "nDom": 7,
+   "wsum": 5.4
+  },
+  "1061": {
+   "nDom": 6,
+   "wsum": 6.4
+  },
+  "1062": {
+   "nDom": 2,
+   "wsum": 1.6
+  },
+  "1664": {
+   "nDom": 2,
+   "wsum": 1.8
+  },
+  "1666": {
+   "nDom": 33,
+   "wsum": 33.0
+  },
+  "1702": {
+   "nDom": 2,
+   "wsum": 1.3
+  },
+  "1774": {
+   "nDom": 1,
+   "wsum": 4.9
+  },
+  "1788": {
+   "nDom": 4,
+   "wsum": 3.6
+  },
+  "1795": {
+   "nDom": 2,
+   "wsum": 4.1
+  },
+  "1810": {
+   "nDom": 0,
+   "wsum": 4.5
+  },
+  "1854": {
+   "nDom": 4,
+   "wsum": 4.6
+  },
+  "1927": {
+   "nDom": 2,
+   "wsum": 1.5
+  },
+  "2138": {
+   "nDom": 498,
+   "wsum": 498.0
+  },
+  "2145": {
+   "nDom": 549,
+   "wsum": 549.0
+  },
+  "2646": {
+   "nDom": 2,
+   "wsum": 1.7
+  }
+ },
+ "guides": {
+  "93": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -15.1,
+    -43.0,
+    1657.2
+   ],
+   "ownThrough": false,
+   "nRiders": 342,
+   "nDomCol": 9,
+   "wsumCol": 6.6,
+   "lenMm": 218.6,
+   "spliceArcMm": 147.9,
+   "riderDyMm": [
+    -0.7,
+    -1.4,
+    -0.2
+   ],
+   "disp8Mm": 12.0,
+   "spliceIdx": 28,
+   "pushScale": 0.522,
+   "maxPushMm": 48.8,
+   "dispVs8aMm": 50.6,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 3.07,
+   "minSdfMm": 0.04,
+   "hemDeltaMm": [
+    -11.5,
+    47.4,
+    -0.0
+   ],
+   "lenDeltaPct": -8.6
+  },
+  "208": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -27.9,
+    -38.4,
+    1653.3
+   ],
+   "ownThrough": false,
+   "nRiders": 338,
+   "nDomCol": 2,
+   "wsumCol": 2.1,
+   "lenMm": 177.5,
+   "spliceArcMm": 133.1,
+   "riderDyMm": [
+    -2.2,
+    -2.3,
+    -2.1
+   ],
+   "disp8Mm": 10.6,
+   "spliceIdx": 31,
+   "pushScale": 0.722,
+   "maxPushMm": 50.6,
+   "dispVs8aMm": 56.1,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 15.65,
+   "minSdfMm": 0.0,
+   "hemDeltaMm": [
+    -2.8,
+    50.6,
+    0.4
+   ],
+   "lenDeltaPct": -5.6
+  },
+  "280": {
+   "decision": "SKIP-disproportionate",
+   "reason": "operator skip-list: riders >> residual strands",
+   "rootMm": [
+    21.4,
+    -88.7,
+    1650.6
+   ],
+   "side": "xpos",
+   "nRiders": 1567,
+   "nDomCol": 5
+  },
+  "346": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -39.9,
+    -39.4,
+    1647.9
+   ],
+   "ownThrough": false,
+   "nRiders": 497,
+   "nDomCol": 2,
+   "wsumCol": 1.6,
+   "lenMm": 182.7,
+   "spliceArcMm": 128.1,
+   "riderDyMm": [
+    0.8,
+    0.7,
+    0.9
+   ],
+   "disp8Mm": 5.6,
+   "spliceIdx": 29,
+   "pushScale": 1.0,
+   "maxPushMm": 29.2,
+   "dispVs8aMm": 32.2,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 17.84,
+   "minSdfMm": 0.0,
+   "hemDeltaMm": [
+    -1.0,
+    29.2,
+    1.1
+   ],
+   "lenDeltaPct": 3.6
+  },
+  "521": {
+   "decision": "REROUTE",
+   "side": "xpos",
+   "rootMm": [
+    32.4,
+    -99.5,
+    1640.9
+   ],
+   "ownThrough": false,
+   "nRiders": 1089,
+   "nDomCol": 18,
+   "wsumCol": 13.9,
+   "lenMm": 371.9,
+   "spliceArcMm": 224.9,
+   "riderDyMm": [
+    -2.8,
+    -3.3,
+    -1.0
+   ],
+   "disp8Mm": 44.9,
+   "spliceIdx": 28,
+   "pushScale": 1.0,
+   "maxPushMm": 5.6,
+   "dispVs8aMm": 44.9,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 21.15,
+   "minSdfMm": -0.0,
+   "hemDeltaMm": [
+    0.3,
+    -1.0,
+    2.7
+   ],
+   "lenDeltaPct": -1.2
+  },
+  "523": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -47.9,
+    -29.7,
+    1640.9
+   ],
+   "ownThrough": false,
+   "nRiders": 385,
+   "nDomCol": 7,
+   "wsumCol": 6.2,
+   "lenMm": 174.3,
+   "spliceArcMm": 100.7,
+   "riderDyMm": [
+    2.9,
+    0.4,
+    3.7
+   ],
+   "disp8Mm": 15.4,
+   "spliceIdx": 23,
+   "pushScale": 0.522,
+   "maxPushMm": 47.3,
+   "dispVs8aMm": 54.5,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 10.94,
+   "minSdfMm": 0.01,
+   "hemDeltaMm": [
+    -11.5,
+    45.9,
+    -1.0
+   ],
+   "lenDeltaPct": -18.3
+  },
+  "537": {
+   "decision": "REROUTE",
+   "side": "xpos",
+   "rootMm": [
+    18.2,
+    -109.5,
+    1640.4
+   ],
+   "ownThrough": false,
+   "nRiders": 534,
+   "nDomCol": 2,
+   "wsumCol": 2.0,
+   "lenMm": 376.3,
+   "spliceArcMm": 125.3,
+   "riderDyMm": [
+    0.2,
+    -1.7,
+    2.2
+   ],
+   "disp8Mm": 45.7,
+   "spliceIdx": 20,
+   "pushScale": 1.0,
+   "maxPushMm": 2.8,
+   "dispVs8aMm": 45.7,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 11.54,
+   "minSdfMm": -0.76,
+   "hemDeltaMm": [
+    -0.0,
+    -1.2,
+    2.6
+   ],
+   "lenDeltaPct": -1.4
+  },
+  "580": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -52.1,
+    -50.1,
+    1638.2
+   ],
+   "ownThrough": false,
+   "nRiders": 723,
+   "nDomCol": 5,
+   "wsumCol": 4.1,
+   "lenMm": 157.1,
+   "spliceArcMm": 94.5,
+   "riderDyMm": [
+    -0.5,
+    -0.6,
+    1.6
+   ],
+   "disp8Mm": 9.3,
+   "spliceIdx": 24,
+   "pushScale": 0.522,
+   "maxPushMm": 49.0,
+   "dispVs8aMm": 52.6,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 15.61,
+   "minSdfMm": -0.0,
+   "hemDeltaMm": [
+    -13.1,
+    47.2,
+    -1.0
+   ],
+   "lenDeltaPct": -13.2
+  },
+  "609": {
+   "decision": "SKIP-disproportionate",
+   "reason": "operator skip-list: riders >> residual strands",
+   "rootMm": [
+    37.2,
+    -100.9,
+    1636.9
+   ],
+   "side": "xpos",
+   "nRiders": 1149,
+   "nDomCol": 1
+  },
+  "620": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -51.2,
+    -27.0,
+    1636.2
+   ],
+   "ownThrough": false,
+   "nRiders": 612,
+   "nDomCol": 5,
+   "wsumCol": 4.1,
+   "lenMm": 142.7,
+   "spliceArcMm": 96.3,
+   "riderDyMm": [
+    1.3,
+    0.3,
+    1.4
+   ],
+   "disp8Mm": 11.0,
+   "spliceIdx": 28,
+   "pushScale": 0.722,
+   "maxPushMm": 48.0,
+   "dispVs8aMm": 54.7,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 14.54,
+   "minSdfMm": 0.0,
+   "hemDeltaMm": [
+    -1.9,
+    47.9,
+    0.5
+   ],
+   "lenDeltaPct": -8.4
+  },
+  "642": {
+   "decision": "REROUTE",
+   "side": "xpos",
+   "rootMm": [
+    7.4,
+    -119.0,
+    1635.0
+   ],
+   "ownThrough": false,
+   "nRiders": 709,
+   "nDomCol": 5,
+   "wsumCol": 4.6,
+   "lenMm": 397.3,
+   "spliceArcMm": 279.8,
+   "riderDyMm": [
+    -1.2,
+    -1.7,
+    -0.2
+   ],
+   "disp8Mm": 46.7,
+   "spliceIdx": 31,
+   "pushScale": 1.0,
+   "maxPushMm": 3.0,
+   "dispVs8aMm": 46.7,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 17.41,
+   "minSdfMm": -0.07,
+   "hemDeltaMm": [
+    0.1,
+    -1.1,
+    2.8
+   ],
+   "lenDeltaPct": -1.0
+  },
+  "645": {
+   "decision": "REROUTE",
+   "side": "xpos",
+   "rootMm": [
+    5.9,
+    -119.4,
+    1634.7
+   ],
+   "ownThrough": false,
+   "nRiders": 684,
+   "nDomCol": 3,
+   "wsumCol": 4.6,
+   "lenMm": 399.3,
+   "spliceArcMm": 131.8,
+   "riderDyMm": [
+    -3.1,
+    -3.3,
+    -3.1
+   ],
+   "disp8Mm": 49.9,
+   "spliceIdx": 20,
+   "pushScale": 1.0,
+   "maxPushMm": 3.9,
+   "dispVs8aMm": 49.9,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 12.02,
+   "minSdfMm": -1.48,
+   "hemDeltaMm": [
+    0.1,
+    -1.1,
+    2.8
+   ],
+   "lenDeltaPct": -1.6
+  },
+  "654": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -18.6,
+    10.1,
+    1634.3
+   ],
+   "ownThrough": false,
+   "nRiders": 663,
+   "nDomCol": 2,
+   "wsumCol": 2.1,
+   "lenMm": 200.4,
+   "spliceArcMm": 125.3,
+   "riderDyMm": [
+    -2.4,
+    -2.5,
+    -2.4
+   ],
+   "disp8Mm": 14.2,
+   "spliceIdx": 25,
+   "pushScale": 0.522,
+   "maxPushMm": 45.6,
+   "dispVs8aMm": 53.3,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 3.2,
+   "minSdfMm": -0.0,
+   "hemDeltaMm": [
+    -8.8,
+    44.7,
+    -0.1
+   ],
+   "lenDeltaPct": -11.9
+  },
+  "675": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    43.0,
+    -99.0,
+    1633.7
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "683": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    42.0,
+    -101.8,
+    1633.0
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "696": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    43.4,
+    -100.2,
+    1632.4
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "698": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -46.1,
+    -7.5,
+    1632.4
+   ],
+   "ownThrough": false,
+   "nRiders": 489,
+   "nDomCol": 3,
+   "wsumCol": 2.3,
+   "lenMm": 168.7,
+   "spliceArcMm": 97.5,
+   "riderDyMm": [
+    -0.4,
+    -1.0,
+    -0.2
+   ],
+   "disp8Mm": 13.9,
+   "spliceIdx": 24,
+   "pushScale": 0.522,
+   "maxPushMm": 48.5,
+   "dispVs8aMm": 53.8,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 11.5,
+   "minSdfMm": -0.0,
+   "hemDeltaMm": [
+    -12.1,
+    46.9,
+    -0.9
+   ],
+   "lenDeltaPct": -15.7
+  },
+  "717": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    23.9,
+    -117.8,
+    1631.5
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "725": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -24.9,
+    11.6,
+    1631.0
+   ],
+   "ownThrough": false,
+   "nRiders": 834,
+   "nDomCol": 3,
+   "wsumCol": 2.4,
+   "lenMm": 195.4,
+   "spliceArcMm": 117.3,
+   "riderDyMm": [
+    -2.5,
+    -2.8,
+    -2.3
+   ],
+   "disp8Mm": 14.7,
+   "spliceIdx": 25,
+   "pushScale": 0.522,
+   "maxPushMm": 45.3,
+   "dispVs8aMm": 53.6,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 3.09,
+   "minSdfMm": -0.0,
+   "hemDeltaMm": [
+    -9.2,
+    44.4,
+    -0.2
+   ],
+   "lenDeltaPct": -11.5
+  },
+  "742": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    4.4,
+    -124.0,
+    1630.1
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "806": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    44.2,
+    -105.0,
+    1627.2
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "822": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -56.0,
+    -21.1,
+    1626.2
+   ],
+   "ownThrough": false,
+   "nRiders": 473,
+   "nDomCol": 7,
+   "wsumCol": 5.4,
+   "lenMm": 147.7,
+   "spliceArcMm": 84.9,
+   "riderDyMm": [
+    0.9,
+    0.5,
+    1.1
+   ],
+   "disp8Mm": 5.0,
+   "spliceIdx": 23,
+   "pushScale": 0.522,
+   "maxPushMm": 46.8,
+   "dispVs8aMm": 48.9,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 6.96,
+   "minSdfMm": 0.0,
+   "hemDeltaMm": [
+    -10.6,
+    45.5,
+    0.1
+   ],
+   "lenDeltaPct": -14.1
+  },
+  "1061": {
+   "decision": "SKIP-disproportionate",
+   "reason": "operator skip-list: riders >> residual strands",
+   "rootMm": [
+    62.2,
+    -77.6,
+    1613.7
+   ],
+   "side": "xpos",
+   "nRiders": 2001,
+   "nDomCol": 6
+  },
+  "1062": {
+   "decision": "SKIP-disproportionate",
+   "reason": "operator skip-list: riders >> residual strands",
+   "rootMm": [
+    61.0,
+    -82.1,
+    1613.7
+   ],
+   "side": "xpos",
+   "nRiders": 2617,
+   "nDomCol": 2
+  },
+  "1664": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -26.5,
+    31.5,
+    1563.3
+   ],
+   "ownThrough": false,
+   "nRiders": 575,
+   "nDomCol": 2,
+   "wsumCol": 1.8,
+   "lenMm": 193.2,
+   "spliceArcMm": 120.9,
+   "riderDyMm": [
+    0.7,
+    0.6,
+    0.7
+   ],
+   "disp8Mm": 6.2,
+   "spliceIdx": 25,
+   "pushScale": 0.522,
+   "maxPushMm": 49.2,
+   "dispVs8aMm": 49.2,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 11.44,
+   "minSdfMm": 0.01,
+   "hemDeltaMm": [
+    -13.1,
+    47.4,
+    -1.5
+   ],
+   "lenDeltaPct": -14.8
+  },
+  "1666": {
+   "decision": "REROUTE",
+   "side": "xpos",
+   "rootMm": [
+    69.8,
+    -35.5,
+    1563.1
+   ],
+   "ownThrough": false,
+   "nRiders": 1289,
+   "nDomCol": 33,
+   "wsumCol": 33.0,
+   "lenMm": 349.2,
+   "spliceArcMm": 45.0,
+   "riderDyMm": [
+    -45.5,
+    -48.3,
+    -43.4
+   ],
+   "disp8Mm": 36.2,
+   "spliceIdx": 6,
+   "pushScale": 1.0,
+   "maxPushMm": 13.7,
+   "dispVs8aMm": 41.3,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 20.83,
+   "minSdfMm": 0.0,
+   "hemDeltaMm": [
+    0.4,
+    -0.1,
+    2.3
+   ],
+   "lenDeltaPct": 0.9
+  },
+  "1702": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -22.1,
+    31.8,
+    1558.2
+   ],
+   "ownThrough": false,
+   "nRiders": 485,
+   "nDomCol": 2,
+   "wsumCol": 1.3,
+   "lenMm": 208.5,
+   "spliceArcMm": 114.6,
+   "riderDyMm": [
+    -0.1,
+    -0.2,
+    -0.0
+   ],
+   "disp8Mm": 11.5,
+   "spliceIdx": 22,
+   "pushScale": 0.522,
+   "maxPushMm": 49.5,
+   "dispVs8aMm": 51.7,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 22.7,
+   "minSdfMm": 0.0,
+   "hemDeltaMm": [
+    -8.2,
+    48.8,
+    -1.3
+   ],
+   "lenDeltaPct": -19.4
+  },
+  "1774": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -24.8,
+    29.3,
+    1550.4
+   ],
+   "ownThrough": false,
+   "nRiders": 479,
+   "nDomCol": 1,
+   "wsumCol": 4.9,
+   "lenMm": 190.0,
+   "spliceArcMm": 104.5,
+   "riderDyMm": [
+    -1.5,
+    -1.5,
+    -1.5
+   ],
+   "disp8Mm": 5.6,
+   "spliceIdx": 23,
+   "pushScale": 0.522,
+   "maxPushMm": 49.6,
+   "dispVs8aMm": 49.5,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 5.53,
+   "minSdfMm": 0.01,
+   "hemDeltaMm": [
+    -12.0,
+    48.1,
+    -0.3
+   ],
+   "lenDeltaPct": -13.5
+  },
+  "1788": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -21.9,
+    30.1,
+    1549.7
+   ],
+   "ownThrough": false,
+   "nRiders": 543,
+   "nDomCol": 4,
+   "wsumCol": 3.6,
+   "lenMm": 188.4,
+   "spliceArcMm": 103.6,
+   "riderDyMm": [
+    0.6,
+    0.5,
+    0.6
+   ],
+   "disp8Mm": 8.6,
+   "spliceIdx": 22,
+   "pushScale": 0.522,
+   "maxPushMm": 49.1,
+   "dispVs8aMm": 48.4,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 3.2,
+   "minSdfMm": 0.0,
+   "hemDeltaMm": [
+    -11.5,
+    47.7,
+    -0.2
+   ],
+   "lenDeltaPct": -16.3
+  },
+  "1795": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -30.3,
+    26.8,
+    1548.5
+   ],
+   "ownThrough": false,
+   "nRiders": 488,
+   "nDomCol": 2,
+   "wsumCol": 4.1,
+   "lenMm": 185.0,
+   "spliceArcMm": 97.4,
+   "riderDyMm": [
+    -0.1,
+    -0.2,
+    -0.1
+   ],
+   "disp8Mm": 4.1,
+   "spliceIdx": 22,
+   "pushScale": 0.522,
+   "maxPushMm": 50.2,
+   "dispVs8aMm": 49.8,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 19.17,
+   "minSdfMm": 0.0,
+   "hemDeltaMm": [
+    -15.1,
+    47.8,
+    -1.0
+   ],
+   "lenDeltaPct": -20.0
+  },
+  "1810": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -29.3,
+    26.7,
+    1546.8
+   ],
+   "ownThrough": false,
+   "nRiders": 423,
+   "nDomCol": 0,
+   "wsumCol": 4.5,
+   "lenMm": 300.5,
+   "spliceArcMm": 285.5,
+   "riderDyMm": null,
+   "disp8Mm": 17.5,
+   "spliceIdx": 37,
+   "pushScale": 1.0,
+   "maxPushMm": 2.7,
+   "dispVs8aMm": 17.5,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 89.98,
+   "minSdfMm": 0.04,
+   "hemDeltaMm": [
+    -0.2,
+    0.1,
+    2.7
+   ],
+   "lenDeltaPct": -0.9
+  },
+  "1854": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -24.4,
+    26.8,
+    1543.2
+   ],
+   "ownThrough": false,
+   "nRiders": 470,
+   "nDomCol": 4,
+   "wsumCol": 4.6,
+   "lenMm": 197.6,
+   "spliceArcMm": 108.6,
+   "riderDyMm": [
+    -0.4,
+    -0.6,
+    -0.3
+   ],
+   "disp8Mm": 11.6,
+   "spliceIdx": 22,
+   "pushScale": 0.614,
+   "maxPushMm": 56.7,
+   "dispVs8aMm": 57.8,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 23.38,
+   "minSdfMm": -0.01,
+   "hemDeltaMm": [
+    -5.3,
+    56.4,
+    -1.0
+   ],
+   "lenDeltaPct": -20.2
+  },
+  "1927": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -59.8,
+    -13.4,
+    1534.0
+   ],
+   "ownThrough": false,
+   "nRiders": 496,
+   "nDomCol": 2,
+   "wsumCol": 1.5,
+   "lenMm": 180.5,
+   "spliceArcMm": 49.6,
+   "riderDyMm": [
+    -0.1,
+    -0.5,
+    0.2
+   ],
+   "disp8Mm": 10.8,
+   "spliceIdx": 12,
+   "pushScale": 0.444,
+   "maxPushMm": 45.9,
+   "dispVs8aMm": 54.3,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 20.15,
+   "minSdfMm": -0.0,
+   "hemDeltaMm": [
+    -20.9,
+    40.0,
+    8.7
+   ],
+   "lenDeltaPct": -16.7
+  },
+  "2138": {
+   "decision": "SKIP-short",
+   "reason": "len 27.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    -57.2,
+    -50.2,
+    1503.9
+   ],
+   "side": "xneg",
+   "nRiders": 1861,
+   "nDomCol": 498
+  },
+  "2143": {
+   "decision": "SKIP-short",
+   "reason": "len 19.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    -56.9,
+    -51.2,
+    1502.6
+   ],
+   "side": "xneg",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "2145": {
+   "decision": "REROUTE",
+   "side": "xpos",
+   "rootMm": [
+    56.6,
+    -50.7,
+    1502.2
+   ],
+   "ownThrough": true,
+   "nRiders": 1408,
+   "nDomCol": 549,
+   "wsumCol": 549.0,
+   "lenMm": 184.7,
+   "spliceArcMm": 45.0,
+   "riderDyMm": [
+    -18.2,
+    -23.5,
+    -14.8
+   ],
+   "disp8Mm": 20.5,
+   "spliceIdx": 10,
+   "pushScale": 1.0,
+   "maxPushMm": 15.2,
+   "dispVs8aMm": 30.7,
+   "poolKept": true,
+   "colMargin6mm": false,
+   "minPinnaMm": 17.1,
+   "minSdfMm": -0.0,
+   "hemDeltaMm": [
+    0.2,
+    -0.6,
+    1.1
+   ],
+   "lenDeltaPct": 1.6
+  },
+  "2146": {
+   "decision": "SKIP-short",
+   "reason": "len 2.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    -59.4,
+    -62.9,
+    1501.6
+   ],
+   "side": "xneg",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "2147": {
+   "decision": "SKIP-short",
+   "reason": "len 14.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    59.1,
+    -61.7,
+    1501.5
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "2148": {
+   "decision": "SKIP-short",
+   "reason": "len 14.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    60.2,
+    -65.5,
+    1501.4
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "2149": {
+   "decision": "SKIP-short",
+   "reason": "len 1.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    -58.6,
+    -60.1,
+    1501.3
+   ],
+   "side": "xneg",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "2646": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -63.8,
+    -7.7,
+    1559.1
+   ],
+   "ownThrough": false,
+   "nRiders": 475,
+   "nDomCol": 2,
+   "wsumCol": 1.7,
+   "lenMm": 126.5,
+   "spliceArcMm": 45.0,
+   "riderDyMm": [
+    -0.0,
+    -0.2,
+    0.2
+   ],
+   "disp8Mm": 3.1,
+   "spliceIdx": 15,
+   "pushScale": 0.522,
+   "maxPushMm": 49.2,
+   "dispVs8aMm": 50.6,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 19.4,
+   "minSdfMm": -0.05,
+   "hemDeltaMm": [
+    -13.6,
+    47.3,
+    -0.7
+   ],
+   "lenDeltaPct": -29.2
+  }
+ },
+ "nGuides": 2707,
+ "nRerouted": 25,
+ "skipShort": [
+  2138,
+  2143,
+  2146,
+  2147,
+  2148,
+  2149
+ ],
+ "skipTail": [],
+ "skipBig": [
+  280,
+  609,
+  1061,
+  1062
+ ],
+ "skipRiderless": [
+  675,
+  683,
+  696,
+  717,
+  742,
+  806
+ ],
+ "takeoff": {
+  "verbatimMm": 40.0,
+  "byteIdentical": true,
+  "pass": true
+ },
+ "untouchedIdentical": {
+  "n": 2682,
+  "byteIdentical": true,
+  "pass": true
+ },
+ "inputSha256": "dec0b889017915844a3016a2581a13085c2327b86c6608a3685623d4e094cf74",
+ "outputSha256": "1e52eef1a6268d485178ddc1607ef209c0a70e1fd64d5dd8029e499ec7f7010c",
+ "seconds": 2.3
+}

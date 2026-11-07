@@ -1,0 +1,124 @@
+HAIR TILT 5 — STRONGER AND LONGER REAR LEAN ON B8
+
+Lineage: E/wave.py keeps hair-tilt4/wave.py verbatim and adds
+apply_lean_return_rear_held (generic hold fraction; hold=0.60 reproduces
+tilt4) and apply_curtain_below_jaw (curtain-only lean below world-z jaw
+line, faded in over fade_m). Base b8 = copy of tilt4 r_rear/strands.npz
+(rear-only independent sigma 4 deg hold 0.60; curtain bitwise a1).
+Material: hair-look7 best-params.json. Scorer: hair-score/score.py
+schema v2. Base a1+look7 (for trade-off): IoU f/p/b =
+0.6883/0.6810/0.7819; ori err f/3q/p/b = 27.09/33.65/31.97/24.55;
+EMD = 3.96/7.36/29.23/9.48; back bands 353x41.1 vs TS 849x16.4;
+ear 127x6.7 vs TS 89x11.7; honest part/side 0.9482; eye/jaw openings
+0.6046/0.4365.
+
+B8 RE-SCORE (E/scores/b8 from cells/b8/strands.npz, confirms tilt4):
+IoU f/p/b = 0.6944/0.6848/0.7732; ori f/3q/p/b =
+25.19/32.42/30.09/20.93; EMD = 6.33/6.46/19.68/4.31; back 560x25.7
+vs TS 849x16.4; ear 123x7.0; honest 0.9483; eye/jaw 0.6024/0.4365;
+eroded front mask 66154 px (scipy 7x7 erosion baseline for gates).
+
+STEP 1 REALISED STATS (vs unwaved a1 strand except jaw-vs-b8 noted;
+per-fibre max displacement; protected 8949/69181, part gap 1.1 mm all):
+  cell  | theta rear/curtain std | tangent rms/p95 (all) | disp p50/p95/max mm (all) | disp subset p95
+  s5    | rear 4.84 deg indep sigma5 hold0.60 | 6.403/11.428 | 0.227/23.619/84.968 | rear 28.276
+  h75   | rear 3.87 deg indep sigma4 hold0.75 | 7.069/11.310 | 0.213/22.680/69.155 | rear 27.176
+  s5h75 | rear 4.86 deg indep sigma5 hold0.75 | 8.753/14.169 | 0.240/28.835/101.069 | rear 34.418
+  jaw   | curtain 3.60 deg indep sigma4 hold0.60 below jaw_z=1.46 fade30mm (rear bitwise b8, above-jaw bitwise b8) | 4.527/8.477 vs b8 | 0.000/20.030/70.287 vs b8 (curtain 25.425); vs a1 8.052/24.813/70.287
+  b8 (ref, tilt4): rear 3.85 deg indep sigma4 hold0.60 | 5.123/9.122 | 0.170/18.704/69.624 | rear 22.406
+  (tangent max ~173 deg is the known near-degenerate-gradient artifact;
+  rms/p95 load-bearing. Curtain of s5/h75/s5h75 bitwise a1 = b8 curtain,
+  max abs diff 0.0; jaw rear bitwise b8, above-jaw curtain bitwise b8.)
+
+STEP 2 GATES (inside 0; part gap <= 3 mm; eroded front mask within 3% of
+b8 66154 px; eye/jaw openings within 1 pp of b8 0.6024/0.4365; honest
+part/side within 0.1 of b8 0.9483. Eroded = scipy binary_erosion
+ones((7,7)) on raw front-id mask alpha>=230):
+  s5: inside PASS; part 1.1 PASS; eroded 66623 (+0.71%) PASS;
+    eye 0.6024 PASS; jaw PASS; honest 0.9824 (|d| 0.034) PASS
+  h75: inside PASS; part 1.1 PASS; eroded 66546 (+0.59%) PASS;
+    eye 0.6046 (|d| 0.0022) PASS; jaw PASS; honest 0.9482 PASS
+  s5h75: inside PASS; part 1.1 PASS; eroded 67280 (+1.70%) PASS;
+    eye 0.6024 PASS; jaw PASS; honest 0.9482 PASS
+  jaw: inside PASS; part 1.1 PASS; eroded 69899 (+5.66%) FAIL;
+    eye 0.6024 PASS; jaw PASS; honest 1.0252 (|d| 0.077) PASS
+
+STEP 3 SCORES (look7; IoU f/p/b; ori f/3q/p/b; EMD f/3q/p/b; d vs b8
+f/p/b IoU 0.6944/0.6848/0.7732, ori 25.19/32.42/30.09/20.93):
+  s5: IoU = 0.6947/0.6807/0.7696 (d +0.0003/-0.0041/-0.0036); ori = 24.34/32.03/29.97/21.03 (d -0.85/-0.39/-0.12/+0.10); EMD = 5.41/5.33/18.81/3.61; back 713x20.8 (1.27x b8, smaller); ear 122x7.1
+  h75: IoU = 0.6928/0.6758/0.7725 (d -0.0016/-0.0089/-0.0007); ori = 25.23/32.78/30.50/20.77 (d +0.04/+0.36/+0.41/-0.16); EMD = 4.47/5.96/20.14/5.23; back 668x21.5 (1.19x b8, smaller); ear 128x6.7
+  s5h75: IoU = 0.6935/0.6716/0.7686 (d -0.0009/-0.0132/-0.0046); ori = 24.48/32.52/31.26/20.96 (d -0.71/+0.10/+1.17/+0.03); EMD = 4.97/5.86/19.33/3.06; back 772x18.6 (1.38x b8, smaller); ear 126x6.8
+  jaw: IoU = 0.7102/0.6681/0.7554 (d +0.0158/-0.0167/-0.0178); ori = 25.73/33.96/33.56/20.97 (d +0.54/+1.54/+3.47/+0.04); EMD = 6.22/7.70/22.44/4.39; back 617x24.8 (1.10x b8, smaller); ear 140x6.5
+  KEEP rule vs b8 (back count higher with mean size not larger; no IoU
+  drop > 0.01 any view; ori not worse by > 0.5 deg any view):
+  s5: bands 713>560 mean 20.8<25.7 PASS; IoU PASS; ori PASS -> KEPT
+  h75: bands 668>560 mean 21.5<25.7 PASS; IoU PASS; ori PASS -> KEPT
+  s5h75: bands PASS; IoU FAIL (profile -0.0132); ori FAIL (profile +1.17) -> REVERTED
+  jaw: bands PASS; IoU FAIL (profile -0.0167, back -0.0178); ori FAIL (front +0.54, 3q +1.54, profile +3.47); gates FAIL (eroded) -> REVERTED
+  Combination: the natural s5+h75 combination IS s5h75 (sigma 5 +
+  hold 0.75), already built and scored -> fails KEEP (profile IoU/ori).
+  No separate combined cell; stacking strength+length overshoots the
+  profile silhouette. Best KEPT cell = s5 (most back bands among
+  keepers, only cell with front ori -0.85 and EMD best 5.41/5.33/18.81/3.61).
+  Look-sheet: E/look-sheet.png rows TS | current(a1+look7) | b8 |
+    best-s5; cols back, three_quarter, profile_90, back crop
+    (320,280,704,664), ear crop (three_quarter 100,240,484,624).
+
+TRADE-OFF (back component count vs max IoU drop across views vs a1
+f/p/b = 0.6883/0.6810/0.7819):
+  cell       | back count | max IoU drop | notes
+  w4i (t2)   | 321        | 0.0013       | silhouette holds, no fragmentation
+  L240 (t3)  | 374        | 0.0078       | wave re-merges
+  r_rear_coh (t4) | 378   | 0.0104       | coherent sheet re-merges
+  L450 (t3)  | 391        | 0.0174       | wave re-merges
+  w7m (t2)   | 397        | 0.0036       | mixed adds nothing
+  w10m (t2)  | 390        | 0.0047       | ori improves, bands flat
+  r_rear_coh_comp (t4) | 427 | 0.0082    | compensation recovers half the loss
+  c1 (t2)    | 449        | 0.0176       | r1 base does not stack
+  w7i (t2)   | 458        | 0.0024       | best silhouette-holder
+  L450x6(t3) | 460        | 0.0322       | amplitude without lean fails
+  t2 (t1)    | 484        | 0.0477       | dominated by LR
+  r_rear_coh6 (t4) | 496  | 0.0082       | coherent needs sigma 6 to move
+  b8=r_rear (t4/t5) | 560 | 0.0087       | ADOPTED BASE: rear-only keeps silhouette
+  jaw (t5)   | 617        | 0.0265       | lower-curtain lean costs profile/back (NEW, REVERTED)
+  LR (t3)    | 646        | 0.0316       | full-head lean fragments, curtain pays (DOMINATED by h75/s5)
+  h75 (t5)   | 668        | 0.0094       | NEW KEPT: longer hold fragments, silhouette holds
+  s5 (t5)    | 713        | 0.0123       | NEW KEPT/BEST: stronger lean fragments, silhouette holds
+  s5h75 (t5) | 772        | 0.0133       | NEW: most bands below 0.015 drop, but profile pays (REVERTED)
+  t4 (t1)    | 778        | 0.0593       | fragments, silhouette pays (DOMINATED by s5h75)
+  t4w (t1)   | 798        | 0.0583       | wave on tilt adds nothing (DOMINATED)
+  t6 (t1)    | 903        | 0.1147       | TS count+size, IoU destroyed
+  Pareto frontier (bands, drop): w4i (321, 0.0013) -> w7i (458, 0.0024)
+  -> b8 (560, 0.0087) -> h75 (668, 0.0094) -> s5 (713, 0.0123) ->
+  s5h75 (772, 0.0133) -> t6 (903, 0.1147). Tilt5 inserts three new
+  Pareto points and dominates LR/t4/t4w: independent rear-only lean
+  scales monotonically (strength and length both fragment), and the
+  silhouette cost per band stays ~1/4 of full-head lean.
+
+KEPT/REVERTED: KEPT s5, h75. REVERTED s5h75 (KEEP), jaw (gates+KEEP).
+Final best cell id = s5; strands path =
+tools/openclinxr/evidence/hair-tilt5/cells/s5/strands.npz
+(repaired; waved pre-repair at cells/s5/strands_waved.npz; meta at
+cells/s5/wave_meta.json; score at scores/s5/score.json).
+Scores and renders retained under E/scores/* and
+E/cells/*/strands.npz for the record.
+
+SAW::Against TS the first wrong read is still the back curtain's coarse
+bands, but the gap narrowed from pure deficit to striking distance:
+best-kept s5 reaches 713 x 20.8 px vs TS 849 x 16.4 px (84% of the
+count, 27% too large), and the unkept s5h75 reaches 772 x 18.6 px
+(91% of the count) at a profile cost (-0.0132 IoU, +1.17 deg ori) the
+KEEP rule refuses. Strength (sigma 4->5) and length (hold 0.60->0.75)
+both fragment independently and stack almost additively (560 -> 668 /
+713 -> 772), confirming the tilt4 mechanism (sustained independent
+per-fibre lean). The jaw probe resolves the curtain question from the
+other side: even lean confined below the jaw (face/eye pixels bit-identical,
+eye/jaw openings PASS) still costs profile -0.017, back -0.018, 3q +1.54
+and eroded +5.7% FAIL — the lower curtain frames the profile/back
+silhouettes, so there is no free curtain slack below the face. The rear
+is the only place the silhouette is blind, and it is not yet exhausted
+(s5h75 still gains bands); the next step is finer rear scheduling
+(mid-sheet amplitude or per-region sigma), not curtain work.
+
+NOT TESTED::Physical Quest 3 / worn-headset evidence; clinical validity/
+scoring claims (out of scope per repo guardrails).

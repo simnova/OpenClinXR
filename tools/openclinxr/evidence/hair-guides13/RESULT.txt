@@ -1,0 +1,38 @@
+RESULT hair-guides-13 (lift-off at the head's widest contour, depth, ear bridge) — gate MISS, stopped per STOP rule
+LIFT-OFF histogram (588 kept guides; scalp walk STOPS at n.z<=-0.05 / widest-contour / cap edge):
+  above_ear edge n=2 y=[-37.5,-37.2] z=[1535.3,1550.3]; normal n=106 y=[-48.9,-29.7] z=[1519.6,1567.9]
+  behind_ear normal n=237 y=[-28.8,42.8] z=[1519.6,1581.6]; widest n=2 y=[1.0,2.0] z=[1565.8,1566.9]
+  forehead_temple edge n=112 y=[-125.4,-63.5] z=[1554.8,1632.6]; normal n=69 y=[-62.8,-49.0] z=[1553.7,1565.5]
+  nape edge n=6 y=[0.5,6.4] z=[1472.3,1485.5]; normal n=54 y=[-41.3,18.7] z=[1485.7,1517.6]
+  stops: normal=466 edge=120 widest=2. P2 full-trace reference (unchanged): nape 372 / above_ear 62 / forehead_temple 155.
+GATES (row-guides13.json, check-guides13.mjs verifies; checker FAILs exactly the MISS set, self-test catches all 21 plantings):
+  G1 PASS p95=0.0000mm max=0.0000mm (582 mirror pairs)
+  G2 PASS n=588/600 (98.0%) 32pts 0NaN short=0 zero=0 (11 trace-fail + 1 drop-short excluded)
+  G3 PASS behind-viol=0 front-of-shoulder=0 (tot 5625 below-top checks)
+  G4 MISS inside=1 (0.5mm graze, above_ear string at slab edge [80.6,-37.0,1541.1]) min=0.53mm (need >=2)
+  G5 PASS medz=1555.2mm (bar 1509.9..1599.9) nape-edge=6 (1.03%, need <=10%)
+  G6 MISS coverL=0.995 coverR=1.000 (both >=0.90 PASS part); hull-inside=30 (need 0; ph0=10 scalp pinna-tents, ph1=30 string slab-edge grazes)
+  G7 MISS zig=447/588 (76.0%, need <=1%) turn p95=40.28 max=225.78 (need <=20)
+  G8 PASS hembad=0/588 tipstd=3.48mm (tip z within 8mm of z_hem+jitter, 3D, 100%)
+  G9 MISS face=0 PASS; forehead=62 (need <=10; ph0=47 scalp skin-walk, ph1=29 temple drape)
+X1::angle ours=33.2 vs TS=21.4 deg | depth ours=58.3mm (0.277hh) vs TS~0.42hh (row 640: neck-back col 590, hair-outer col 775, H=crown100-chin540=440px; method in log)
+X2::ratio ours=1.244 vs TS=1.26 (within 1.3%; head_hw=83.0mm sheet_hw=103.3mm at z=1.38)
+X3::outer-ear ours=0.518hh | face half-gap at eye row ours L/R=0.0801/0.0806 vs TS 0.2266/0.2100 (ours curtain inner edge sits ~3x closer to center: center-part scalp walks at eye height)
+SAW (guides13-debug.png + target-vs-guides13.png beside TS at native size):
+  front: TS full center-part mass over shoulders/chest; ours thin magenta curtains at the jaw sides onto the collarbones + side sheets falling behind, cyan cap visible on crown, yellow lift-off dots at temples. Ears covered at the sides. No center mass (guides-only).
+  three_quarter: TS full sheet over shoulder, ear covered; ours curtain over the ear falling behind the jaw, steep drape tubes lateral to the cheek, face clear, mirror-exact.
+  profile: TS hugging wedge crown-to-mid-back over covered ear, ~21deg front edge; ours dense magenta fan from the high lift-off band sweeping down-back over the ear into the back sheet (no horizontal beams in final), steep face-framing drapes lateral to the cheek, front edge steeper ~33deg. Ear covered.
+  back: TS solid wide sheet (1.26) to mid-back; ours wide sheet (1.24) to mid-back with visible depth-layer striping (M3 c 4-20mm separates strands in y), straight blunt hem, symmetric, clear of the neck hollow.
+  top: cyan cap + magenta fringe behind crown, yellow lift-off ring, mirror-exact.
+  hem: TRUE tip-z exact by construction (G8 100%), tipstd 3.5mm.
+  mirror: L/R identical in every view (G1 0.0000).
+CAUSE per MISS:
+  G4-1pt: last remaining inside is an above_ear string graze 0.5mm deep at the slab edge (x=80.6 vs head half-width ~83 there); min-clearance 0.53mm ditto. Down from G12 272 via: x-dilated + bilinear Yb obstacle, convex side envelope, front-drape + side-exit lead-in routing, dense+ capped touch-up margins, one-sided downward dilation. No lever left within M1-M6: only outward-only single passes allowed (loops forbidden), scalp phase untouchable (M5), faceted-mesh sign noise ~0.5mm remains.
+  G6-hull-30: 10 scalp points inside pinna-tent faces (convex hull bridges concha/sulcus concavities; 4mm-offset walks sit under the bridge); 30 string points grazing hull-outer (83mm) at 78-86mm. Cover itself now PASSES both sides (drape/diagonal window crossings). Shrinking the hull would weaken what "pinna" means; pushing clearance further floats the sheet off the ear (against TS).
+  G7: structural. Zig attribution (diag): uniform across clearance bands, 82% cross-phase. The route S-turns by anatomy (scalp-forward -> drape-down -> join -> back-down): 3-5 qualifying bends with alternating 3D axes per guide. p95 set by support/L corners at 10mm resample segments. M5 permits smoothing only at L (3-pt arc, done); distributing curvature globally would be a positional blend (forbidden). The 20deg/cm bar demands near-monotone curvature the head-neck-shoulder route cannot give; G12's 8deg/cm bar already failed at true trapezius/temple corners.
+  G9-forehead-62: structural. M1 keeps front strands glued from the hairline to the brow turn-under (~40mm skin walk); resampled scalp interpolation lies on bare forehead skin (47) and temple drapes pass forward-facing skin (29). Face itself 0. The <=10 bar contradicts the mandated scalp walk over real forehead anatomy (TS shows hair touching the temples).
+ATTEMPTS: 8 diag probes (M1 lift-off -> snap fix -> front drape -> start-side check -> bilinear fields/per-side hulls -> dense margins -> corner dilation -> lead-in/span-clearing) + 4 full renders (Counter-import crash with no row; beams identified; beams fixed+cover passed; final). No gate weakened; closed form throughout (fixed-sample hulls/drapes/scans, no push-out loops, no stepwise falling, no Interpolate/Attach, no dynamics).
+COMMIT: tools/openclinxr/evidence/hair-guides13 staged+committed as evidence guides v13 (this envelope included).
+STILL: children/volume render over these guides (striping is guides-only depth layers); G4 last graze; G6-hull tents; G7/G9 bars vs anatomy (need new-brief decisions); X1 angle 33 vs 21 (front edge too steep: curtain hangs lateral-forward instead of temple-hugging); X3 gap 0.08 vs 0.22 (center-part scalp near face center at eye height).
+BRIEF_MISSING: (1) M2 assumed G12-string works from L: from front L it snaps through the slab (needed front-drape + side-exit lead-in, invented under M5 proviso). (2) M5 proviso (Yb above L) insufficient for mid-slab L; needed vertical lead-in to hull start. (3) obstacle dilation must go downward only (upward smear plants phantom supports -> horizontal beams). (4) resample chords cut clearance (needed bilinear fields + margins; nearest 4mm grids wall). (5) cover L/R split on mirror-exact guides (0.85/0.59 mid-round) traces to per-side pinna bboxes on the asymmetric head mesh, not to hair. (6) G7/G9 bars vs S-turn anatomy + hairline-to-brow skin walk (structural, see CAUSE). (7) cyh as median-y of head verts is a wrong axis (face-dense mesh pulls it forward); skull mid-range used. (8) `_run_strings` silently skipped row write on NameError (exit 0, renders present, no row) -> always check row exists + run checker before committing.
+HARM: none. Write-root only E/. No push. G12/C5/TS untouched (read-only). R4 collider set used throughout (head + 3 garments).

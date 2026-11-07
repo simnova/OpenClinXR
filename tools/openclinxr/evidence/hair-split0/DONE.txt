@@ -1,0 +1,11 @@
+DONE. hair-split0 verdict: INCONSISTENT.
+Front hems measured per-side — L (666.0, 331.0), R (675.0, 700.0) — instead of
+cage1's midline average (670.5, 512.8). Best hypothesis H1 (front hem =
+profile posterior hem (870, 792)) misses by L 112.1 / R 56.7 mm (> 30 mm
+threshold); H2 (anterior wisp tip (344, 414)) 139.8/132.6 mm; H3 (same-side
+back corners) 85.1/84.0 mm. Mass interiors still intersect (<= 24 mm), so the
+views disagree on where the hair ENDS, not where the bulk sits. Guide-fit
+hem target: front curtains just below the shoulder plane (~1.396-1.399 m);
+profile/back tips demand 55-105 mm lower. Station fix:
+instruments.front_hems_perside + synthetic two-curtain self-test PASS.
+Files: split.png, split.json, RESULT.txt. No *.blend. No cage fit run.

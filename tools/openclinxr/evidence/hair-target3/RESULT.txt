@@ -1,0 +1,68 @@
+hair target 3: front view with ALL hair behind the shoulders
+=============================================================
+
+WHY: the operator likes the target2 Imagine set except the FRONT view,
+where the hair drapes over the shoulders onto the chest while the
+profile and back views show all hair falling BEHIND the shoulders.
+This slice regenerates the FRONT only so it agrees with the rest.
+
+STEP 1 - complete set in T (gitignored scratch
+.openclinxr/scratch/target-views/aisha-v2/)
+  Copied unchanged from aisha-v1 (md5-verified identical): source-front,
+  source-three_quarter, source-profile_90, source-back, target-three_quarter,
+  target-profile, target-back, mask-three_quarter, mask-profile, mask-back.
+
+STEP 2 - FRONT regeneration (target2 pipeline: grok CLI image_edit on
+aisha-v1/source-front.png, aspect 1:1, driver --model muse-spark-1-go;
+fallback nemotron-ultra armed, never needed; NEVER grok-4.7)
+  Attempt 1 (brief prompt verbatim): hair draped over shoulders onto
+  chest. Check: hair px inside source body silhouette below acromion
+  row 802.3 = 66233/234598 = 0.28233 (gate < 0.01). FAIL. Seen in the
+  read image; kept as target-front-a1.png.
+  Attempt 2 (strengthened: curtains END behind neck/shoulder, shirt
+  bare, tuck-forward locks behind): hair frames face, covers ears,
+  disappears behind shoulders at sides of neck; no hair on shoulders
+  or chest. Check: 0/121151 = 0.0 < 0.01. PASS. First passing image,
+  kept as target-front.png (copy of target-front-a2.png, 128547 bytes).
+  Tool errors/moderation: none (refs.json errors: []).
+
+STEP 3 - alignment + mask, target2 method (T/mask-front.png,
+T/overlay-front.png READ before use, T/mask-overlay-front.png READ)
+  Face mesh: eyes p95 2.92 px (target2 front: 2.88); rigid nose/eye/brow
+  p95 7.29 (brow/nose-tip mesh-fit noise, same residual class as
+  target2's 7.6). Face-interior ECC 0.16 px (target2: 0.05). Edge
+  overlay READ: eyes/nose/mouth/chin coincide; red fringes only on new
+  hair/collar content. VERDICT: ALIGNED (no trustworthy signal > 6 px).
+  Pose landmarker p95 38.79 EXCLUDED from verdict per target2 (systematic
+  portrait-crop bias). Background ECC converged to a 44.32 px shift on the
+  featureless grey backdrop (target2's did not converge at all); judged a
+  spurious lock on backdrop gradient/horizon, contradicted by the 0.16 px
+  face ECC and the edge overlay.
+  Mask (target2 colour/diff/morphology/head-ROI rule): 121151 px (11.55%
+  frame). Overlay READ: covers the hair mass, face clean; residual narrow
+  inpaint seams beside the jaw partly unmasked (same class as target2).
+
+STEP 4 - consistency with profile (occlusion: behind-shoulder hair is
+hidden by the shoulder silhouette, so front-visible hair must end at it)
+  Front curtain lowest rows at curtain columns: left 687, right 681;
+  shoulder silhouette edge at band centres 647/646; below-acromion
+  in-body hair 0 px. Curtains terminate AT the shoulder slope and the
+  rest continues down the back.
+  Profile (unchanged v1): rear curtain falls behind the shoulder down
+  the back to row ~1023; no hair in front of shoulder/chest. Front and
+  profile agree: all length behind the shoulders.
+
+STEP 5 - this record (E/sheet.png rows source | aisha-v1 target |
+aisha-v2 target | v2 mask overlay, cols front/three_quarter/profile/
+back; E/RESULT.txt; E/DONE.txt). E holds sheet.png, RESULT.txt,
+DONE.txt. T images are gitignored scratch; commit holds only E.
+
+SAW: T/source-*.png, T/target-*.png (front = a2 PASS, others md5-same
+  as v1), T/target-front-a1.png (rejected), T/mask-*.png,
+  T/mask-overlay-front.png, T/overlay-front.png, T/alignment-front.json,
+  T/ecc-front.json, T/consistency-front.json, T/refs.json (2 attempts),
+  T/prompt-front-a1.md, T/prompt-front-a2.md, T/run-a1/a2.json,
+  E/sheet.png (read before ship).
+NOT TESTED: downstream groom fit against these targets; scorer-vs-target
+  registration numbers; 3D length agreement of the back curtain with the
+  side views beyond the 2D reads here.

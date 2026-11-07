@@ -1,0 +1,466 @@
+{
+ "through": {
+  "xpos": [
+   675,
+   683,
+   696,
+   717,
+   742,
+   806,
+   2145,
+   2147,
+   2148
+  ],
+  "xneg": [
+   2143,
+   2146,
+   2149
+  ]
+ },
+ "nColumnStrands": 751,
+ "feeders": {
+  "280": {
+   "nDom": 5,
+   "wsum": 5.0
+  },
+  "642": {
+   "nDom": 5,
+   "wsum": 4.7
+  },
+  "645": {
+   "nDom": 3,
+   "wsum": 4.0
+  },
+  "1061": {
+   "nDom": 6,
+   "wsum": 6.4
+  },
+  "1062": {
+   "nDom": 2,
+   "wsum": 1.6
+  },
+  "2109": {
+   "nDom": 181,
+   "wsum": 181.0
+  },
+  "2118": {
+   "nDom": 406,
+   "wsum": 406.0
+  },
+  "2121": {
+   "nDom": 7,
+   "wsum": 7.0
+  },
+  "2137": {
+   "nDom": 114,
+   "wsum": 114.0
+  }
+ },
+ "guides": {
+  "280": {
+   "decision": "SKIP-disproportionate",
+   "reason": "operator skip-list: riders >> residual strands",
+   "rootMm": [
+    21.4,
+    -88.7,
+    1650.6
+   ],
+   "side": "xpos",
+   "nRiders": 1567,
+   "nDomCol": 5
+  },
+  "642": {
+   "decision": "REROUTE",
+   "side": "xpos",
+   "rootMm": [
+    7.4,
+    -119.0,
+    1635.0
+   ],
+   "ownThrough": false,
+   "nRiders": 709,
+   "nDomCol": 5,
+   "wsumCol": 4.7,
+   "lenMm": 385.5,
+   "spliceArcMm": 132.6,
+   "riderDyMm": [
+    1.3,
+    -1.7,
+    1.7
+   ],
+   "disp8Mm": 48.7,
+   "spliceIdx": 20,
+   "pushScale": 1.0,
+   "maxPushMm": 2.3,
+   "dispVs8aMm": 48.7,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 10.85,
+   "minSdfMm": -0.03,
+   "hemDeltaMm": [
+    0.1,
+    -1.0,
+    2.1
+   ],
+   "lenDeltaPct": -0.9
+  },
+  "645": {
+   "decision": "REROUTE",
+   "side": "xpos",
+   "rootMm": [
+    5.9,
+    -119.4,
+    1634.7
+   ],
+   "ownThrough": false,
+   "nRiders": 684,
+   "nDomCol": 3,
+   "wsumCol": 4.0,
+   "lenMm": 394.1,
+   "spliceArcMm": 277.4,
+   "riderDyMm": [
+    -3.1,
+    -3.3,
+    -3.1
+   ],
+   "disp8Mm": 47.8,
+   "spliceIdx": 30,
+   "pushScale": 1.0,
+   "maxPushMm": 2.3,
+   "dispVs8aMm": 47.8,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 17.53,
+   "minSdfMm": -1.47,
+   "hemDeltaMm": [
+    0.1,
+    -1.0,
+    2.1
+   ],
+   "lenDeltaPct": -0.8
+  },
+  "675": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    43.0,
+    -99.0,
+    1633.7
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "683": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    42.0,
+    -101.8,
+    1633.0
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "696": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    43.4,
+    -100.2,
+    1632.4
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "717": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    23.9,
+    -117.8,
+    1631.5
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "742": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    4.4,
+    -124.0,
+    1630.1
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "806": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    44.2,
+    -105.0,
+    1627.2
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "1061": {
+   "decision": "SKIP-disproportionate",
+   "reason": "operator skip-list: riders >> residual strands",
+   "rootMm": [
+    62.2,
+    -77.6,
+    1613.7
+   ],
+   "side": "xpos",
+   "nRiders": 2001,
+   "nDomCol": 6
+  },
+  "1062": {
+   "decision": "SKIP-disproportionate",
+   "reason": "operator skip-list: riders >> residual strands",
+   "rootMm": [
+    61.0,
+    -82.1,
+    1613.7
+   ],
+   "side": "xpos",
+   "nRiders": 2617,
+   "nDomCol": 2
+  },
+  "2109": {
+   "decision": "REROUTE",
+   "side": "xneg",
+   "rootMm": [
+    -57.8,
+    -38.7,
+    1511.5
+   ],
+   "ownThrough": false,
+   "nRiders": 2042,
+   "nDomCol": 181,
+   "wsumCol": 181.0,
+   "lenMm": 132.8,
+   "spliceArcMm": 45.0,
+   "riderDyMm": [
+    -27.7,
+    -32.0,
+    -22.4
+   ],
+   "disp8Mm": 10.5,
+   "spliceIdx": 14,
+   "pushScale": 1.0,
+   "maxPushMm": 3.7,
+   "dispVs8aMm": 10.3,
+   "poolKept": true,
+   "colMargin6mm": true,
+   "minPinnaMm": 17.34,
+   "minSdfMm": 0.02,
+   "hemDeltaMm": [
+    -1.0,
+    -0.6,
+    0.0
+   ],
+   "lenDeltaPct": -0.9
+  },
+  "2118": {
+   "decision": "REROUTE",
+   "side": "xpos",
+   "rootMm": [
+    56.0,
+    -41.7,
+    1506.2
+   ],
+   "ownThrough": false,
+   "nRiders": 1386,
+   "nDomCol": 406,
+   "wsumCol": 406.0,
+   "lenMm": 130.5,
+   "spliceArcMm": 45.0,
+   "riderDyMm": [
+    -27.5,
+    -32.5,
+    -24.0
+   ],
+   "disp8Mm": 43.0,
+   "spliceIdx": 17,
+   "pushScale": 1.0,
+   "maxPushMm": 23.0,
+   "dispVs8aMm": 44.3,
+   "poolKept": true,
+   "colMargin6mm": false,
+   "minPinnaMm": 17.88,
+   "minSdfMm": 0.01,
+   "hemDeltaMm": [
+    -0.0,
+    0.0,
+    0.0
+   ],
+   "lenDeltaPct": 4.0
+  },
+  "2121": {
+   "decision": "SKIP-short",
+   "reason": "len 28.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    -54.5,
+    -37.7,
+    1505.6
+   ],
+   "side": "xneg",
+   "nRiders": 580,
+   "nDomCol": 7
+  },
+  "2137": {
+   "decision": "REROUTE",
+   "side": "xpos",
+   "rootMm": [
+    55.1,
+    -42.6,
+    1503.9
+   ],
+   "ownThrough": false,
+   "nRiders": 188,
+   "nDomCol": 114,
+   "wsumCol": 114.0,
+   "lenMm": 132.3,
+   "spliceArcMm": 45.0,
+   "riderDyMm": [
+    -25.4,
+    -28.5,
+    -22.9
+   ],
+   "disp8Mm": 41.8,
+   "spliceIdx": 17,
+   "pushScale": 1.0,
+   "maxPushMm": 14.8,
+   "dispVs8aMm": 42.2,
+   "poolKept": true,
+   "colMargin6mm": false,
+   "minPinnaMm": 18.64,
+   "minSdfMm": -0.03,
+   "hemDeltaMm": [
+    -0.0,
+    0.0,
+    0.0
+   ],
+   "lenDeltaPct": 1.9
+  },
+  "2143": {
+   "decision": "SKIP-short",
+   "reason": "len 19.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    -56.9,
+    -51.2,
+    1502.6
+   ],
+   "side": "xneg",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "2145": {
+   "decision": "SKIP-riderless",
+   "reason": "own path enters column but zero riders: reroute moves no strands (crossing-gated)",
+   "rootMm": [
+    56.6,
+    -50.7,
+    1502.2
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "2146": {
+   "decision": "SKIP-short",
+   "reason": "len 2.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    -59.4,
+    -62.9,
+    1501.6
+   ],
+   "side": "xneg",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "2147": {
+   "decision": "SKIP-short",
+   "reason": "len 14.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    59.1,
+    -61.7,
+    1501.5
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "2148": {
+   "decision": "SKIP-short",
+   "reason": "len 14.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    60.2,
+    -65.5,
+    1501.4
+   ],
+   "side": "xpos",
+   "nRiders": 0,
+   "nDomCol": 0
+  },
+  "2149": {
+   "decision": "SKIP-short",
+   "reason": "len 1.0 mm < verbatim 40: whole guide is take-off",
+   "rootMm": [
+    -58.6,
+    -60.1,
+    1501.3
+   ],
+   "side": "xneg",
+   "nRiders": 0,
+   "nDomCol": 0
+  }
+ },
+ "nGuides": 2707,
+ "nRerouted": 5,
+ "skipShort": [
+  2121,
+  2143,
+  2146,
+  2147,
+  2148,
+  2149
+ ],
+ "skipTail": [],
+ "skipBig": [
+  280,
+  1061,
+  1062
+ ],
+ "skipRiderless": [
+  675,
+  683,
+  696,
+  717,
+  742,
+  806,
+  2145
+ ],
+ "takeoff": {
+  "verbatimMm": 40.0,
+  "byteIdentical": true,
+  "pass": true
+ },
+ "untouchedIdentical": {
+  "n": 2702,
+  "byteIdentical": true,
+  "pass": true
+ },
+ "inputSha256": "0adfb43fb49e8f94eb2d8eb80f7e6df675acd960681b14be97b00cc18ed42dcb",
+ "outputSha256": "392cbc5c2716133f524b35e7e176616a64ee6d3eff09af094b13a8e767081c74",
+ "seconds": 1.5
+}

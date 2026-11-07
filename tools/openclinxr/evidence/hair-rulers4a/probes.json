@@ -1,0 +1,291 @@
+{
+ "probes": [
+  {
+   "id": "R1-analytic-above-iou",
+   "kind": "analytic",
+   "expected": 1.0,
+   "measured": 1.0,
+   "tol": 1e-09,
+   "pass": true
+  },
+  {
+   "id": "R1-analytic-below-iou",
+   "kind": "analytic",
+   "expected": 0.646,
+   "measured": 0.646,
+   "tol": 1e-09,
+   "pass": true,
+   "note": "73 shared rows / 113 union rows below chin"
+  },
+  {
+   "id": "R1-planted-5px-below",
+   "kind": "planted",
+   "expected": 5.0,
+   "measured": 5.0,
+   "tol": 1.0,
+   "pass": true,
+   "above_iou": 1.0,
+   "above_absP95px": 0.0
+  },
+  {
+   "id": "R1-planted-10px-below",
+   "kind": "planted",
+   "expected": 10.0,
+   "measured": 10.0,
+   "tol": 1.0,
+   "pass": true,
+   "above_iou": 1.0,
+   "above_absP95px": 0.0
+  },
+  {
+   "id": "R1-planted-15px-below",
+   "kind": "planted",
+   "expected": 15.0,
+   "measured": 15.0,
+   "tol": 1.0,
+   "pass": true,
+   "above_iou": 1.0,
+   "above_absP95px": 0.0
+  },
+  {
+   "id": "R1-planted-above-stable",
+   "kind": "planted",
+   "expected": 1.0,
+   "measured": 1.0,
+   "tol": 1e-09,
+   "pass": true,
+   "above_absP95px": 0.0,
+   "note": "above-chin untouched by below-chin shift"
+  },
+  {
+   "id": "R1-monotonic-5-10-15",
+   "kind": "monotonicity",
+   "measured": [
+    5.0,
+    10.0,
+    15.0
+   ],
+   "pass": true
+  },
+  {
+   "id": "R4-analytic-half",
+   "kind": "analytic",
+   "expected": 0.505,
+   "measured": 0.505,
+   "tol": 1e-09,
+   "pass": true
+  },
+  {
+   "id": "R4-planted-remove-10pct",
+   "kind": "planted",
+   "expected": 0.9001,
+   "measured": 0.9001,
+   "tol": 1e-09,
+   "pass": true,
+   "drop": 0.0999
+  },
+  {
+   "id": "R4-planted-remove-20pct",
+   "kind": "planted",
+   "expected": 0.8,
+   "measured": 0.8,
+   "tol": 1e-09,
+   "pass": true,
+   "drop": 0.2
+  },
+  {
+   "id": "R4-planted-remove-30pct",
+   "kind": "planted",
+   "expected": 0.7,
+   "measured": 0.7,
+   "tol": 1e-09,
+   "pass": true,
+   "drop": 0.3
+  },
+  {
+   "id": "R4-monotonic-10-20-30",
+   "kind": "monotonicity",
+   "measured": {
+    "0.1": 0.9001,
+    "0.2": 0.8,
+    "0.3": 0.7
+   },
+   "pass": true
+  },
+  {
+   "id": "R5-analytic-ybottom",
+   "kind": "analytic",
+   "expected": 20.0,
+   "measured": 20.0,
+   "tol": 1e-09,
+   "pass": true
+  },
+  {
+   "id": "R5-analytic-width",
+   "kind": "analytic",
+   "expected": 7.13,
+   "measured": 7.13,
+   "tol": 1e-09,
+   "pass": true
+  },
+  {
+   "id": "R5-planted-30mm",
+   "kind": "planted",
+   "expected": 29.89,
+   "measured": 29.89,
+   "tol": 2.0,
+   "pass": true,
+   "px30": 65,
+   "yBottomMAEpx": 65.0,
+   "note": "mask-shift equiv of +30mm tip z, self-comparison; tol 2mm"
+  },
+  {
+   "id": "R5-monotonic-10-20-30mm",
+   "kind": "monotonicity",
+   "measured": {
+    "10.0": 21.99,
+    "20.0": 42.92,
+    "30.0": 64.92
+   },
+   "shiftsPx": {
+    "10.0": 22,
+    "20.0": 43,
+    "30.0": 65
+   },
+   "pass": true
+  },
+  {
+   "id": "R5-parity-front-yBottomMAEpx",
+   "kind": "parity",
+   "expected": 46.6,
+   "measured": 46.6,
+   "tol": 1.0,
+   "pass": true
+  },
+  {
+   "id": "R5-parity-front-widthMAEpx",
+   "kind": "parity",
+   "expected": 12.35,
+   "measured": 12.35,
+   "tol": 1.0,
+   "pass": true
+  },
+  {
+   "id": "R5-parity-profile_90-yBottomMAEpx",
+   "kind": "parity",
+   "expected": 32.9,
+   "measured": 32.9,
+   "tol": 1.0,
+   "pass": true
+  },
+  {
+   "id": "R5-parity-profile_90-widthMAEpx",
+   "kind": "parity",
+   "expected": 38.48,
+   "measured": 38.48,
+   "tol": 1.0,
+   "pass": true
+  },
+  {
+   "id": "R5-parity-back-yBottomMAEpx",
+   "kind": "parity",
+   "expected": 4.7,
+   "measured": 4.7,
+   "tol": 1.0,
+   "pass": true
+  },
+  {
+   "id": "R5-parity-back-widthMAEpx",
+   "kind": "parity",
+   "expected": 42.48,
+   "measured": 42.48,
+   "tol": 1.0,
+   "pass": true
+  },
+  {
+   "id": "R5-validation-shape-base-divergence",
+   "kind": "validation",
+   "note": "shape_base.json (base/ renders) vs c_curve (scores/c_curve renders): back yBottom 21.58 vs 4.7px. Same method, different inputs; parity gate uses shape_scores_c_curve.json.",
+   "shapeBaseBack": {
+    "yBottomMAEpx": 21.58,
+    "widthMAEpx": 61.86
+   },
+   "pass": true
+  },
+  {
+   "id": "agree-front-scale",
+   "kind": "agreement",
+   "expected": 1.0021,
+   "measured": 1.0020833333333334,
+   "tol": 0.0001,
+   "pass": true
+  },
+  {
+   "id": "agree-front-tx",
+   "kind": "agreement",
+   "expected": -0.0667,
+   "measured": -0.06666666666671972,
+   "tol": 0.001,
+   "pass": true
+  },
+  {
+   "id": "agree-front-ty",
+   "kind": "agreement",
+   "expected": 23.7854,
+   "measured": 23.785416666666663,
+   "tol": 0.001,
+   "pass": true
+  },
+  {
+   "id": "agree-profile_90-scale",
+   "kind": "agreement",
+   "expected": 1.0512,
+   "measured": 1.0511627906976744,
+   "tol": 0.0001,
+   "pass": true
+  },
+  {
+   "id": "agree-profile_90-tx",
+   "kind": "agreement",
+   "expected": 124.307,
+   "measured": 124.30697674418604,
+   "tol": 0.001,
+   "pass": true
+  },
+  {
+   "id": "agree-profile_90-ty",
+   "kind": "agreement",
+   "expected": -12.7023,
+   "measured": -12.702325581395343,
+   "tol": 0.001,
+   "pass": true
+  },
+  {
+   "id": "agree-back-scale",
+   "kind": "agreement",
+   "expected": 1.0403,
+   "measured": 1.0403225806451613,
+   "tol": 0.0001,
+   "pass": true
+  },
+  {
+   "id": "agree-back-tx",
+   "kind": "agreement",
+   "expected": -19.6452,
+   "measured": -19.645161290322562,
+   "tol": 0.001,
+   "pass": true
+  },
+  {
+   "id": "agree-back-ty",
+   "kind": "agreement",
+   "expected": -31.25,
+   "measured": -31.25,
+   "tol": 0.001,
+   "pass": true
+  }
+ ],
+ "pass": true,
+ "nPass": 32,
+ "nTotal": 32
+}

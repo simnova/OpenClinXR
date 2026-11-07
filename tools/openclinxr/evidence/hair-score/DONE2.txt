@@ -1,0 +1,8 @@
+DONE 2026-10-14 — hair score orientation + band metrics (STEPS 1-4 complete, files exist).
+
+1. E/orientation.py — Gabor bank (180 orientations, 1 deg; k15/lambda4/sigma3/gamma0.5/psi0, rationale in header), per-pixel orientation + peak-vs-mean confidence, per-view render-vs-target scores (confidence-weighted mean angular error in mask intersection, 18-bin histogram EMD), registration via judge v6 register_view with hair-curtain3/landmarks.json triples (+10 mm skull-mode front offset, 3q identity).
+2. E/bands.py — lit band count + mean area above hair-mask p90 in back box (320,280,704,664) and ear box (100,240,484,624), detrended column-luminance autocorrelation peak/lag; same function on target.
+3. E/score.py (schema v2) — score.json keys `orientation` + `bands`; all v1 keys/values bit-identical (IoU matches rescore.json to 10 decimals on both cells). Self-tests in E/self-test2.py -> E/self-test2.json: (a) 0.0/0.0 all views; (b) 10.58 deg for 10 deg rotation with shape IoU exactly 1.0; (c) bit-identical repeat. Exit 0.
+4. Re-score: runs/t1-look5-v2 + runs/a1-look5-v2 (Blender, --crown-top) -> E/rescore2.json + E/rescore2.md + E/RESULT2.txt (params, self-test numbers, read). E/DONE2.txt = this file.
+
+Commit: `evidence: hair score, orientation and band metrics` (E dir only, no *.blend).

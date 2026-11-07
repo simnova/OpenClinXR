@@ -1,0 +1,287 @@
+{
+ "cell": "B",
+ "stem": "guides11",
+ "brief": "hair-guides-11/S2",
+ "gates": [
+  {
+   "gate": "G2",
+   "measured": "n=593 roots=600 pts=32 nan=0 ce=22.3% short=1.191% zero=0",
+   "bar": "guides within +-10% of 600 roots and 32 pts and 0 NaN and ce<=8% and short<=1% and 0 zero-length",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G3",
+   "measured": "curtain=15.50% earfront=1846",
+   "bar": "front-curtain pts<=2%% and 0 fall-phase pts in front of ear_front.y below ear-top rim",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G4",
+   "measured": "coverL=0.663 coverR=0.815 gapL=20.5 gapR=18.9",
+   "bar": "pinna cover>=0.90 both sides and ear-row gap<=12mm both and gaps within 20%%",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G5",
+   "measured": "face=0 forehead=250",
+   "bar": "0 face pts and 0 forehead pts",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G6",
+   "measured": "inside=1178 min=0.02mm",
+   "bar": "0 inside and min>=1.0mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G7",
+   "measured": "p95=26.78 max=200.52",
+   "bar": "turn p95<=10 and max<=45 deg/cm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G8",
+   "measured": "hem=1.093",
+   "bar": "back-mask hem within +-0.06 of 0.73 head-heights",
+   "verdict": "MISS"
+  }
+ ],
+ "z_hem": 1.2954059969558716,
+ "menton_z": 1.4492169969558715,
+ "crown_z": 1.6599169969558716,
+ "brow_z": 1.5716520547866821,
+ "nasion_z": 1.548233985900879,
+ "hairline_z": 1.6170182079076767,
+ "ear_y": -0.03894279897212982,
+ "ear_top": 1.5542949438095093,
+ "ear_front_y": -0.048942798972129824,
+ "ear_row_z": 1.5392949438095094,
+ "yneck": -0.1130041554570198,
+ "count": 593,
+ "n_roots": 600,
+ "contact_ended": 132,
+ "contact_ended_frac": 22.259696458684655,
+ "m1_side": 121,
+ "trunc_kept": 77,
+ "swept": 158,
+ "drop_pre": 0,
+ "drop_post": 0,
+ "n_raw": 593,
+ "n_trunc": 77,
+ "ears": {
+  "L": {
+   "ear_top": [
+    -0.07081406563520432,
+    -0.04506228491663933,
+    1.5690526962280273
+   ],
+   "ear_back": [
+    -0.05948171764612198,
+    -0.015127467922866344,
+    1.5314158201217651
+   ],
+   "ear_front": [
+    -0.06290628015995026,
+    -0.09692937880754471,
+    1.524593710899353
+   ],
+   "lobe": [
+    -0.059318121522665024,
+    -0.0951622724533081,
+    1.5047229528427124
+   ],
+   "n": 407
+  },
+  "R": {
+   "ear_top": [
+    0.07081406563520432,
+    -0.04506228491663933,
+    1.5690526962280273
+   ],
+   "ear_back": [
+    0.059481725096702576,
+    -0.015127469785511494,
+    1.5314158201217651
+   ],
+   "ear_front": [
+    0.06290628761053085,
+    -0.09692937880754471,
+    1.5245938301086426
+   ],
+   "lobe": [
+    0.05931812897324562,
+    -0.0951622799038887,
+    1.5047229528427124
+   ],
+   "n": 407
+  }
+ },
+ "hulls": [
+  {
+   "name": "OCLX_ear_hull",
+   "faces": 132,
+   "verts": 470
+  }
+ ],
+ "x_face_jaw_mm": 48.0,
+ "x_face_menton_mm": 34.0,
+ "x_face_jaw_z": 1.4792169969558715,
+ "grp": {
+  "front": 37,
+  "side": 121,
+  "back": 435
+ },
+ "mask_rows": {
+  "crown": 258,
+  "menton": 612,
+  "Hpx": 354.0,
+  "mmpx": 0.5951977401129943
+ },
+ "g2": {
+  "short": 219,
+  "short_frac": 0.011913180656040908,
+  "zero": 0,
+  "nan": 0,
+  "pts32": true
+ },
+ "g3": {
+  "viol": 2941,
+  "tot": 18976,
+  "frac_pct": 15.498524451939291,
+  "ex": [
+   [
+    50.0,
+    -76.2,
+    1380.4
+   ],
+   [
+    51.9,
+    -81.6,
+    1374.0
+   ],
+   [
+    53.3,
+    -87.0,
+    1367.5
+   ],
+   [
+    54.7,
+    -92.3,
+    1360.9
+   ],
+   [
+    55.8,
+    -97.0,
+    1353.9
+   ]
+  ],
+  "earfront": 1846,
+  "earfront_ex": [
+   [
+    55.8,
+    -97.0,
+    1353.9
+   ],
+   [
+    56.7,
+    -101.4,
+    1346.6
+   ],
+   [
+    57.4,
+    -106.0,
+    1339.4
+   ],
+   [
+    57.9,
+    -110.6,
+    1332.2
+   ],
+   [
+    58.3,
+    -115.3,
+    1325.0
+   ]
+  ]
+ },
+ "g4": {
+  "cover": {
+   "L": 0.6632653061224489,
+   "R": 0.8151927437641724
+  },
+  "ear_row": {
+   "L": {
+    "n": 243,
+    "maxgap_mm": 20.457180388283696
+   },
+   "R": {
+    "n": 249,
+    "maxgap_mm": 18.910490722342566
+   }
+  },
+  "gap_balance": 0.9243938002899483
+ },
+ "g5": {
+  "face": 0,
+  "face_ex": [],
+  "forehead": 250,
+  "forehead_ex": [
+   [
+    69.9,
+    -81.5,
+    1579.5
+   ],
+   [
+    -56.6,
+    -107.3,
+    1611.9
+   ],
+   [
+    -61.4,
+    -102.9,
+    1602.0
+   ],
+   [
+    -64.6,
+    -98.7,
+    1591.4
+   ],
+   [
+    -65.9,
+    -96.4,
+    1579.9
+   ]
+  ],
+  "canthus_x": 0.06045817655867047
+ },
+ "g6": {
+  "inside": 1178,
+  "min_mm": 0.018103240278025918,
+  "by": {
+   "makeclothes_library_toigo_t_shirt": 1046,
+   "OCLX_Aisha_head": 71,
+   "OCLX_ear_hull": 61
+  },
+  "phase": {
+   "0": 292,
+   "1": 556,
+   "2": 330
+  }
+ },
+ "g7": {
+  "p95": 26.777997773198084,
+  "max": 200.520240636781
+ },
+ "g8": {
+  "hem_hh": 1.093484419263456,
+  "hem_row": 996,
+  "chin_row": 610,
+  "hem_row_fullwidth": 996
+ },
+ "walk_end": {
+  "direct-behind": 69,
+  "lateral": 17,
+  "sweep-zfloor": 97,
+  "rim-normal": 44
+ }
+}

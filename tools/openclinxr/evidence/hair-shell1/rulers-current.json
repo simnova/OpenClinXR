@@ -1,0 +1,506 @@
+{
+ "subject": "current",
+ "mmPerPx": 0.4597869103039705,
+ "regMode": "skull",
+ "idThreshold": {
+  "R1_R5": 230,
+  "R4": 128,
+  "R4_FIXB": [
+   30,
+   128,
+   230
+  ],
+  "R3_R6": 128,
+  "why": "R1/R5 230 = judge load_mask alpha>=0.9 encoding (reproduces judge profile/back IoU); R4 128 per brief, bracketed by 30/230 in v4b; R3/R6 128 = visible-hair edge"
+ },
+ "registration": {
+  "method": "hair_judge.register_view (imported, no bpy) with SKULL triples",
+  "mode": "skull",
+  "renderTriple": {
+   "front": [
+    103.0,
+    583.0,
+    512.0
+   ],
+   "profile_90": [
+    131.0,
+    561.0,
+    209.0
+   ],
+   "back": [
+    155.0,
+    651.0,
+    512.0
+   ]
+  },
+  "targetTriple": {
+   "front": [
+    149.83309357452197,
+    608.0,
+    513.0
+   ],
+   "profile_90": [
+    125.0,
+    577.0,
+    344.0
+   ],
+   "back": [
+    130.0,
+    646.0,
+    513.0
+   ]
+  },
+  "note": "skull = scorer orientation (front +10 mm offset, scale 0.9545; profile/back raw, matching score.json); raw = v4a-frozen hem2 shape_base parity triple set"
+ },
+ "r1": {
+  "front": {
+   "transform": {
+    "scale": 0.9545143883864126,
+    "tx": 24.28863314615677,
+    "ty": 51.51811157072147
+   },
+   "chinRow": 608,
+   "above": {
+    "iou": 0.792,
+    "nOursContour": 3393,
+    "nTgtContour": 2864,
+    "signedP50px": 2.24,
+    "signedP95px": 18.12,
+    "absP95px": 23.41,
+    "signedP50mm": 1.028,
+    "signedP95mm": 8.329,
+    "absP95mm": 10.763
+   },
+   "below": {
+    "iou": 0.1347,
+    "nOursContour": 2824,
+    "nTgtContour": 946,
+    "signedP50px": 70.51,
+    "signedP95px": 271.01,
+    "absP95px": 271.01,
+    "signedP50mm": 32.419,
+    "signedP95mm": 124.605,
+    "absP95mm": 124.605
+   }
+  },
+  "profile_90": {
+   "transform": {
+    "scale": 1.0511627906976744,
+    "tx": 124.30697674418604,
+    "ty": -12.702325581395343
+   },
+   "chinRow": 577,
+   "above": {
+    "iou": 0.7759,
+    "nOursContour": 1912,
+    "nTgtContour": 1850,
+    "signedP50px": 26.6,
+    "signedP95px": 74.28,
+    "absP95px": 74.28,
+    "signedP50mm": 12.23,
+    "signedP95mm": 34.154,
+    "absP95mm": 34.154
+   },
+   "below": {
+    "iou": 0.6912,
+    "nOursContour": 1780,
+    "nTgtContour": 1158,
+    "signedP50px": 8.0,
+    "signedP95px": 123.02,
+    "absP95px": 123.02,
+    "signedP50mm": 3.678,
+    "signedP95mm": 56.564,
+    "absP95mm": 56.564
+   }
+  },
+  "back": {
+   "transform": {
+    "scale": 1.0403225806451613,
+    "tx": -19.645161290322562,
+    "ty": -31.25
+   },
+   "chinRow": 611,
+   "above": {
+    "iou": 0.9137,
+    "nOursContour": 1893,
+    "nTgtContour": 1923,
+    "signedP50px": 3.0,
+    "signedP95px": 29.68,
+    "absP95px": 29.68,
+    "signedP50mm": 1.379,
+    "signedP95mm": 13.647,
+    "absP95mm": 13.647
+   },
+   "below": {
+    "iou": 0.5636,
+    "nOursContour": 2232,
+    "nTgtContour": 1384,
+    "signedP50px": 45.75,
+    "signedP95px": 174.16,
+    "absP95px": 174.16,
+    "signedP50mm": 21.037,
+    "signedP95mm": 80.077,
+    "absP95mm": 80.077
+   }
+  }
+ },
+ "r4": {
+  "profile_90": {
+   "coverage": 1.0,
+   "nRegionPx": 17572,
+   "nProjPts": 128,
+   "projBBox": [
+    432.2,
+    288.2,
+    545.7,
+    440.3
+   ],
+   "targetCoverage": 1.0,
+   "nTgtRegionPx": 19131,
+   "coverageByThreshold": {
+    "30": 1.0,
+    "128": 1.0,
+    "230": 1.0
+   },
+   "skinRef": [
+    65.0,
+    46.5,
+    43.0
+   ],
+   "hairRef": [
+    80.0,
+    72.0,
+    65.0
+   ],
+   "skinVisibleFrac": {
+    "denomHairPx": 17572,
+    "skinVisibleFracHair": 0.0216,
+    "skinVisibleFracRegion": 0.0216,
+    "nRegionPx": 17572
+   }
+  },
+  "three_quarter": {
+   "coverage": 0.8764,
+   "nRegionPx": 38081,
+   "nProjPts": 128,
+   "projBBox": [
+    357.3,
+    289.6,
+    613.9,
+    438.4
+   ],
+   "targetCoverage": null,
+   "targetNote": "three_quarter has no registered target: ours only",
+   "skinRef": [
+    42.0,
+    42.0,
+    42.0
+   ],
+   "hairRef": [
+    66.0,
+    53.0,
+    52.0
+   ],
+   "skinVisibleFrac": {
+    "denomHairPx": 33374,
+    "skinVisibleFracHair": 0.214,
+    "skinVisibleFracRegion": 0.1875,
+    "nRegionPx": 38081
+   }
+  }
+ },
+ "r5": {
+  "front": {
+   "yTopTgt": 130,
+   "yBotTgt": 675,
+   "lower40Lo": 457,
+   "nTgtHemCols": 308,
+   "nBothHemCols": 308,
+   "coverage": 1.0,
+   "yBottomMAEpx": 130.55,
+   "widthMAEpx": 105.0,
+   "yBottomMAEmm": 60.02,
+   "widthMAEmm": 48.28,
+   "widthMeanTgtPx": 84.2,
+   "widthMeanOursPx": 163.6,
+   "transform": {
+    "scale": 0.9545143883864126,
+    "tx": 24.28863314615677,
+    "ty": 51.51811157072147
+   }
+  },
+  "profile_90": {
+   "yTopTgt": 126,
+   "yBotTgt": 870,
+   "lower40Lo": 572,
+   "nTgtHemCols": 292,
+   "nBothHemCols": 286,
+   "coverage": 0.9795,
+   "yBottomMAEpx": 42.01,
+   "widthMAEpx": 26.75,
+   "yBottomMAEmm": 19.32,
+   "widthMAEmm": 12.3,
+   "widthMeanTgtPx": 65.0,
+   "widthMeanOursPx": 90.6,
+   "transform": {
+    "scale": 1.0511627906976744,
+    "tx": 124.30697674418604,
+    "ty": -12.702325581395343
+   }
+  },
+  "back": {
+   "yTopTgt": 132,
+   "yBotTgt": 823,
+   "lower40Lo": 547,
+   "nTgtHemCols": 441,
+   "nBothHemCols": 441,
+   "coverage": 1.0,
+   "yBottomMAEpx": 114.74,
+   "widthMAEpx": 137.1,
+   "yBottomMAEmm": 52.76,
+   "widthMAEmm": 63.04,
+   "widthMeanTgtPx": 226.8,
+   "widthMeanOursPx": 363.9,
+   "transform": {
+    "scale": 1.0403225806451613,
+    "tx": -19.645161290322562,
+    "ty": -31.25
+   }
+  }
+ },
+ "r2": {
+  "note": "target N/A (geometry ruler). parity combo reproduces the crown4 method on cap-v8 + crown2 spread; station combos run cap-v7 + hem-lineage strands.",
+  "parity_capV8_spread": {
+   "selectionRule": "boundary edges (used once) with y < -0.120 m; midline |x|<=0.01 m; temples 0.01<|x|<=0.045 m; +x = L",
+   "nFrontBndVerts": 15,
+   "nRoots": 14155,
+   "zones": {
+    "midline": {
+     "nBnd": 3,
+     "nRoots": 1190,
+     "capFrontYmm": -137.5,
+     "firstRootYmm": -134.2,
+     "gapMm": 3.2,
+     "distP50mm": 2.8,
+     "distP95mm": 4.61,
+     "distMaxMm": 4.81
+    },
+    "temple_L": {
+     "nBnd": 5,
+     "nRoots": 2838,
+     "capFrontYmm": -138.4,
+     "firstRootYmm": -134.8,
+     "gapMm": 3.6,
+     "distP50mm": 2.27,
+     "distP95mm": 3.76,
+     "distMaxMm": 3.98
+    },
+    "temple_R": {
+     "nBnd": 5,
+     "nRoots": 2809,
+     "capFrontYmm": -138.4,
+     "firstRootYmm": -134.4,
+     "gapMm": 4.0,
+     "distP50mm": 1.96,
+     "distP95mm": 3.99,
+     "distMaxMm": 4.31
+    }
+   }
+  },
+  "current_capV7_cCurve": {
+   "selectionRule": "boundary edges (used once) with y < -0.120 m; midline |x|<=0.01 m; temples 0.01<|x|<=0.045 m; +x = L",
+   "nFrontBndVerts": 15,
+   "nRoots": 14155,
+   "zones": {
+    "midline": {
+     "nBnd": 3,
+     "nRoots": 1190,
+     "capFrontYmm": -137.5,
+     "firstRootYmm": -134.2,
+     "gapMm": 3.2,
+     "distP50mm": 2.8,
+     "distP95mm": 4.61,
+     "distMaxMm": 4.81
+    },
+    "temple_L": {
+     "nBnd": 5,
+     "nRoots": 2838,
+     "capFrontYmm": -138.4,
+     "firstRootYmm": -134.8,
+     "gapMm": 3.6,
+     "distP50mm": 2.27,
+     "distP95mm": 3.76,
+     "distMaxMm": 3.98
+    },
+    "temple_R": {
+     "nBnd": 5,
+     "nRoots": 2809,
+     "capFrontYmm": -138.4,
+     "firstRootYmm": -134.4,
+     "gapMm": 4.0,
+     "distP50mm": 1.96,
+     "distP95mm": 3.99,
+     "distMaxMm": 4.31
+    }
+   }
+  },
+  "previous_capV7_cBest8": {
+   "selectionRule": "boundary edges (used once) with y < -0.120 m; midline |x|<=0.01 m; temples 0.01<|x|<=0.045 m; +x = L",
+   "nFrontBndVerts": 15,
+   "nRoots": 14155,
+   "zones": {
+    "midline": {
+     "nBnd": 3,
+     "nRoots": 1190,
+     "capFrontYmm": -137.5,
+     "firstRootYmm": -134.2,
+     "gapMm": 3.2,
+     "distP50mm": 2.8,
+     "distP95mm": 4.61,
+     "distMaxMm": 4.81
+    },
+    "temple_L": {
+     "nBnd": 5,
+     "nRoots": 2838,
+     "capFrontYmm": -138.4,
+     "firstRootYmm": -134.8,
+     "gapMm": 3.6,
+     "distP50mm": 2.27,
+     "distP95mm": 3.76,
+     "distMaxMm": 3.98
+    },
+    "temple_R": {
+     "nBnd": 5,
+     "nRoots": 2809,
+     "capFrontYmm": -138.4,
+     "firstRootYmm": -134.4,
+     "gapMm": 4.0,
+     "distP50mm": 1.96,
+     "distP95mm": 3.99,
+     "distMaxMm": 4.31
+    }
+   }
+  },
+  "crown4Reference": {
+   "capFrontYmm": -148.2,
+   "firstRootYmm": -121.9,
+   "src": "crown4 diagnosis.json A_rootsVsCapFront midline x[-0.01,0.01]; cap = crown3 cap_live.npz, roots = crown2 spread.npz"
+  }
+ },
+ "r3": {
+  "front": {
+   "roi": {
+    "crownRow": 150,
+    "browRow": 308,
+    "centreCol": 513,
+    "colRange": [
+     313,
+     713
+    ],
+    "bands": {
+     "midline": 50,
+     "brow": 130,
+     "temple": 200
+    }
+   },
+   "observedOurs": 252,
+   "observedTgt": 204,
+   "nCols": 400,
+   "zones": {
+    "midline": {
+     "nObserved": 101,
+     "nUnobserved": 0,
+     "signedP50px": 28.0,
+     "signedP95px": 36.0,
+     "absP95px": 36.0,
+     "signedP50mm": 12.874,
+     "signedP95mm": 16.552
+    },
+    "brow_L": {
+     "nObserved": 52,
+     "nUnobserved": 28,
+     "signedP50px": 10.5,
+     "signedP95px": 28.45,
+     "absP95px": 32.45,
+     "signedP50mm": 4.828,
+     "signedP95mm": 13.081
+    },
+    "brow_R": {
+     "nObserved": 51,
+     "nUnobserved": 29,
+     "signedP50px": 13.0,
+     "signedP95px": 27.0,
+     "absP95px": 30.0,
+     "signedP50mm": 5.977,
+     "signedP95mm": 12.414
+    },
+    "temple_L": {
+     "nObserved": 0,
+     "nUnobserved": 70,
+     "note": "UNOBSERVED throughout zone"
+    },
+    "temple_R": {
+     "nObserved": 0,
+     "nUnobserved": 69,
+     "note": "UNOBSERVED throughout zone"
+    }
+   }
+  },
+  "three_quarter": {
+   "note": "three_quarter has no registered target: ours only",
+   "projBrow": [
+    259.4,
+    287.3
+   ],
+   "projCrown": [
+    430.3,
+    111.5
+   ],
+   "projFaceCentre": [
+    288.6,
+    578.5
+   ],
+   "roi": {
+    "crownRow": 111,
+    "browRow": 287,
+    "centreCol": 289,
+    "colRange": [
+     89,
+     489
+    ]
+   },
+   "observed": 168,
+   "nCols": 400,
+   "hairlineP50row": 226.0,
+   "_c0": 89
+  }
+ },
+ "r6": {
+  "bodyRule": "non-background (|RGB-bg|>30, bg=corner median) AND ID alpha<30; target body = current render body (no target body photo; same head/body), registered with the same reference transform",
+  "shoulderRenderRow": 650.73,
+  "shoulderTargetRow": 671,
+  "shoulderRowCommon": true,
+  "bgRef": [
+   42.0,
+   42.0,
+   42.0
+  ],
+  "sign": "+ = hair extends behind (posterior of) the body",
+  "rows": {
+   "shoulderPlane": {
+    "row": 671,
+    "hairPostCol": 780,
+    "bodyPostCol": 658,
+    "gapPx": 122,
+    "gapMm": 56.09
+   },
+   "ownHem": {
+    "row": 1020,
+    "hairPostCol": 786,
+    "bodyPostCol": 794,
+    "gapPx": -8,
+    "gapMm": -3.68
+   }
+  }
+ }
+}

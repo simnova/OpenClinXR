@@ -1,0 +1,88 @@
+{
+  "tag": "x1",
+  "requested": 50000,
+  "generated": 51350,
+  "partClosure": true,
+  "partFill": true,
+  "frontFill": true,
+  "sameSideAheadOnly": true,
+  "frontExits": 1330,
+  "backSeamCount": 4144,
+  "nan": 0,
+  "generatorMeta": {
+    "poisson": {
+      "method": "best-candidate",
+      "k": 32,
+      "r0mm": 1.163142470709703,
+      "capAreaCm2": 585.8230606991901,
+      "part_n_extra": 315,
+      "front_n_extra": 1035,
+      "front_band_area_cm2": 12.130128816089169
+    },
+    "fallback_count": 38173,
+    "part_n_extra": 315,
+    "front_n_extra": 1035
+  },
+  "capInfo": {
+    "apexY": -0.053241077810525894,
+    "stripVertexCount": 604,
+    "solidVertexCount": 31070,
+    "uvMissingCount": 0,
+    "uvRule": "nearest head face, barycentric (fan tri for quads)",
+    "splitIslands": true,
+    "islandCount": 2,
+    "islandSizes": [
+      15837,
+      15837
+    ]
+  },
+  "profileReadback": [
+    "Input_2",
+    "Input_3",
+    "Input_4",
+    "Input_5",
+    "Input_6",
+    "Socket_0",
+    "Socket_1"
+  ],
+  "visible": [
+    "Human",
+    "OCLX_Aisha_head",
+    "OCLX_blend_guides16_children",
+    "OCLX_cam",
+    "OCLX_fill",
+    "OCLX_key",
+    "OCLX_rim",
+    "makeclothes_library_female_tight_jeans_pants",
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+    "makeclothes_library_toigo_t_shirt",
+    "mpfb_parent_tara_johnson_v1_body_mesh",
+    "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+    "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+    "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+  ],
+  "renders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-sweep2/cells/x1/children/front.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-sweep2/cells/x1/children/front-id.png"
+    },
+    "three_quarter": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-sweep2/cells/x1/children/three_quarter.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-sweep2/cells/x1/children/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-sweep2/cells/x1/children/profile_90.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-sweep2/cells/x1/children/profile_90-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-sweep2/cells/x1/children/back.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-sweep2/cells/x1/children/back-id.png"
+    },
+    "crown_top": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-sweep2/cells/x1/children/crown_top.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-sweep2/cells/x1/children/crown_top-id.png"
+    }
+  }
+}

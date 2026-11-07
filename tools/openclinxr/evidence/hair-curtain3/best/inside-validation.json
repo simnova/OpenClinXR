@@ -1,0 +1,27 @@
+{
+  "tag": "c1",
+  "points": 1643200,
+  "inside": 0,
+  "colliders": {
+    "OCLX_Aisha_head": {
+      "tested": 1643200,
+      "inside": 0,
+      "deep_mm": 0.0
+    },
+    "makeclothes_library_toigo_t_shirt": {
+      "tested": 1643200,
+      "inside": 0,
+      "deep_mm": 0.0
+    },
+    "makeclothes_library_female_tight_jeans_pants": {
+      "tested": 1643200,
+      "inside": 0,
+      "deep_mm": 0.0
+    },
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": {
+      "tested": 1643200,
+      "inside": 0,
+      "deep_mm": 0.0
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+ "inputs": {
+  "guides": "tools/openclinxr/evidence/hair-groom1/guides.npz",
+  "roots": "tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "sdf": "tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz"
+ },
+ "counts": {
+  "roots": 14155,
+  "guides": 477,
+  "pointsPer": 32,
+  "childrenPerRoot": 7,
+  "children": 99085
+ },
+ "part": {
+  "partX": 0.0001401995879485164,
+  "crownBandN": 4184
+ },
+ "blend": {
+  "kernel": "1/(duv+0.03)^4, cutoff 1.0 rad, nearest-alone fallback",
+  "meanWeight0": 0.7501,
+  "nearestAloneFrac": 0.0669,
+  "nAlone": 0,
+  "gapGate": {
+   "gateMm": 25.0,
+   "off": false,
+   "nFallbackRows": 507,
+   "nDroppedWeights": 1091,
+   "maxGapMm": 160.3
+  },
+  "rootExactnessMmMax": 0.0
+ },
+ "subRoots": {
+  "perRoot": 7,
+  "seed": 11,
+  "cellFrac": 0.45,
+  "cellRmmP50": 0.753,
+  "cellRmmMax": 1.413,
+  "jitMmMax": 1.386
+ },
+ "clump": {
+  "coarseMm": 20.0,
+  "coarsePullTip": 0.4,
+  "coarseCells": {
+   "nCells": 245,
+   "cellMin": 1,
+   "cellMax": 970,
+   "cellMean": 404.43
+  },
+  "fineMm": 4.5,
+  "finePullTip": 0.25,
+  "fineCells": {
+   "nCells": 3837,
+   "cellMin": 1,
+   "cellMax": 62,
+   "cellMean": 25.82
+  },
+  "profile": "t^2 root->tip, zero at root"
+ },
+ "lengthJitter": {
+  "sigma": 0.04,
+  "seed": 7,
+  "scaleMin": 0.8275,
+  "scaleMax": 1.1744
+ },
+ "projection": {
+  "nPushed": 553067,
+  "maxPushMm": 55.7493,
+  "minSdfAfter": 0.3,
+  "nInsideAfter": 0,
+  "nRounds": 16,
+  "outsideGrid": 0
+ },
+ "radiiMm": {
+  "root": 0.06,
+  "tip": 0.02,
+  "profile": "linear in t^1.5"
+ },
+ "sha256": "e0d14d7901cefe0b943a2b4eb6ba1f3701150ecfa739e1f1afbefbf28576cd95",
+ "bytes": 36048349
+}

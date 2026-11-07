@@ -1,0 +1,258 @@
+{
+  "densityA": 45521,
+  "densityB": 977265,
+  "countAt31000": 1362,
+  "handUV": {
+    "curves": 700,
+    "nan": 0,
+    "uMin": 0.6432041525840759,
+    "uMax": 0.9026291966438293,
+    "vMin": 0.15890896320343018,
+    "vMax": 0.809711754322052
+  },
+  "profileRadius": {
+    "min": 0.00039999998989515007,
+    "max": 0.00039999998989515007
+  },
+  "profileReadback": {
+    "Input_3": {
+      "name": "Radius",
+      "identifier": "Input_3",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.009999999776482582,
+      "wrote": 0.0004,
+      "wroteRaw": 0.0004,
+      "readBack": 0.00039999998989515007
+    },
+    "Input_2": {
+      "name": "Shape",
+      "identifier": "Input_2",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.4999999403953552,
+      "wrote": 0.0,
+      "wroteRaw": 0.0,
+      "readBack": 0.0
+    },
+    "Input_6": {
+      "name": "Replace Radius",
+      "identifier": "Input_6",
+      "socketType": "NodeSocketBool",
+      "interfaceDefault": true,
+      "wrote": true,
+      "wroteRaw": true,
+      "readBack": true
+    },
+    "Socket_0": {
+      "name": "Density",
+      "identifier": "Socket_0",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.0,
+      "wrote": 1.0,
+      "wroteRaw": 1.0,
+      "readBack": 1.0
+    },
+    "Socket_1": {
+      "name": "Length",
+      "identifier": "Socket_1",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 1.0,
+      "wrote": 1.0,
+      "wroteRaw": 1.0,
+      "readBack": 1.0
+    },
+    "Input_4": {
+      "name": "Factor Min",
+      "identifier": "Input_4",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.0,
+      "wrote": 0.0,
+      "wroteRaw": 0.0,
+      "readBack": 0.0
+    },
+    "Input_5": {
+      "name": "Factor Max",
+      "identifier": "Input_5",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 1.0,
+      "wrote": 1.0,
+      "wroteRaw": 1.0,
+      "readBack": 1.0
+    }
+  },
+  "shrinkBodyReadback": {
+    "Socket_0": {
+      "name": "Surface Input Type",
+      "identifier": "Socket_0",
+      "socketType": "NodeSocketMenu",
+      "interfaceDefault": "Object",
+      "wrote": "Object",
+      "wroteRaw": 0,
+      "readBack": 0
+    },
+    "Input_2": {
+      "name": "Surface",
+      "identifier": "Input_2",
+      "socketType": "NodeSocketObject",
+      "interfaceDefault": null,
+      "wrote": "OCLX_Aisha_head",
+      "wroteRaw": "OCLX_Aisha_head",
+      "readBack": "OCLX_Aisha_head"
+    },
+    "SurfaceUVMapSkipped": "input lookup 'Surface UV Map' type='NodeSocketVector' returned 0 sockets",
+    "Input_5": {
+      "name": "Factor",
+      "identifier": "Input_5",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 1.0,
+      "wrote": 1.0,
+      "wroteRaw": 1.0,
+      "readBack": 1.0
+    },
+    "Input_4": {
+      "name": "Offset Distance",
+      "identifier": "Input_4",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.0,
+      "wrote": 0.002,
+      "wroteRaw": 0.002,
+      "readBack": 0.0020000000949949026
+    },
+    "Input_8": {
+      "name": "Above Surface",
+      "identifier": "Input_8",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.5,
+      "wrote": 0.0,
+      "wroteRaw": 0.0,
+      "readBack": 0.0
+    },
+    "Input_6": {
+      "name": "Smoothing Steps",
+      "identifier": "Input_6",
+      "socketType": "NodeSocketInt",
+      "interfaceDefault": 0,
+      "wrote": 0,
+      "wroteRaw": 0,
+      "readBack": 0
+    },
+    "Input_7": {
+      "name": "Lock Roots",
+      "identifier": "Input_7",
+      "socketType": "NodeSocketBool",
+      "interfaceDefault": true,
+      "wrote": true,
+      "wroteRaw": true,
+      "readBack": true
+    }
+  },
+  "shrinkShirtReadback": {
+    "Socket_0": {
+      "name": "Surface Input Type",
+      "identifier": "Socket_0",
+      "socketType": "NodeSocketMenu",
+      "interfaceDefault": "Object",
+      "wrote": "Object",
+      "wroteRaw": 0,
+      "readBack": 0
+    },
+    "Input_2": {
+      "name": "Surface",
+      "identifier": "Input_2",
+      "socketType": "NodeSocketObject",
+      "interfaceDefault": null,
+      "wrote": "makeclothes_library_toigo_t_shirt",
+      "wroteRaw": "makeclothes_library_toigo_t_shirt",
+      "readBack": "makeclothes_library_toigo_t_shirt"
+    },
+    "SurfaceUVMapSkipped": "input lookup 'Surface UV Map' type='NodeSocketVector' returned 0 sockets",
+    "Input_5": {
+      "name": "Factor",
+      "identifier": "Input_5",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 1.0,
+      "wrote": 1.0,
+      "wroteRaw": 1.0,
+      "readBack": 1.0
+    },
+    "Input_4": {
+      "name": "Offset Distance",
+      "identifier": "Input_4",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.0,
+      "wrote": 0.002,
+      "wroteRaw": 0.002,
+      "readBack": 0.0020000000949949026
+    },
+    "Input_8": {
+      "name": "Above Surface",
+      "identifier": "Input_8",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.5,
+      "wrote": 0.0,
+      "wroteRaw": 0.0,
+      "readBack": 0.0
+    },
+    "Input_6": {
+      "name": "Smoothing Steps",
+      "identifier": "Input_6",
+      "socketType": "NodeSocketInt",
+      "interfaceDefault": 0,
+      "wrote": 0,
+      "wroteRaw": 0,
+      "readBack": 0
+    },
+    "Input_7": {
+      "name": "Lock Roots",
+      "identifier": "Input_7",
+      "socketType": "NodeSocketBool",
+      "interfaceDefault": true,
+      "wrote": true,
+      "wroteRaw": true,
+      "readBack": true
+    }
+  },
+  "garmentObjects": [
+    "makeclothes_library_toigo_t_shirt",
+    "makeclothes_library_female_tight_jeans_pants",
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+  ],
+  "bodyObject": "OCLX_Aisha_head",
+  "guidesNp": "tools/openclinxr/evidence/hair-volume/guides4.npz",
+  "noCollide": {
+    "curves": 2329,
+    "insideBody": 4511,
+    "insideBodyFrac": 0.060527586947187635,
+    "insideShirt": 9148,
+    "insideShirtFrac": 0.12274581365392873,
+    "bodyDistMm": {
+      "p5": 0.2376092916983749,
+      "p50": 10.297639938284632
+    }
+  },
+  "withCollide": {
+    "curves": 2339,
+    "insideBody": 2565,
+    "insideBodyFrac": 0.03426945275758871,
+    "insideShirt": 5484,
+    "insideShirtFrac": 0.07326849080803763,
+    "bodyDistMm": {
+      "p5": 1.490800810210411,
+      "p50": 9.587569184213326
+    }
+  },
+  "interpReadbackKeys": [
+    "Input_10",
+    "Input_12",
+    "Input_14",
+    "Input_15",
+    "Input_16",
+    "Input_17",
+    "Input_18",
+    "Input_2",
+    "Input_24",
+    "Input_26",
+    "Input_28",
+    "Socket_0",
+    "Socket_2"
+  ]
+}

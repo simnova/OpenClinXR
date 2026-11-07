@@ -1,0 +1,1 @@
+DONE: colour.json, bands.json, part.json, four-view 512x32 probes, 1024x64 base/best plus crown_top, look-sheet.png, RESULT.txt, and source script exist; no .blend written.

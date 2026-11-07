@@ -1,0 +1,84 @@
+{
+ "mesh": "/Volumes/files/openclinxr-assets/store/hair-groom31/aisha-meshes.npz",
+ "meshSha256": "295e3900b1fb57b670543366a1ba4741da6dcd6ef7a366bcf8d5d5694264cbd3",
+ "pinna": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-hull4/workspace/ear_pinna.npz",
+ "pinnaSha256": "bcdd013c1f2afbf15ee4bc595270b4b4f6acf6aa8dddb946cb84deb56cceb469",
+ "idx_earXposN": 174,
+ "idx_earXnegN_file": 96,
+ "idx_earXnegUsed": false,
+ "inflateMm": 3.0,
+ "smoothIters": 3,
+ "note": "-x proxy is the +x patch mirrored across x=0; idx_earXneg ignored (smaller, offset ear).",
+ "fillBowl": {
+  "on": true,
+  "nAdded": 6,
+  "addedXmeanMm": 68.709
+ },
+ "xpos": {
+  "patchVerts": 168,
+  "patchFaces": 257,
+  "boundaryEdges": 79,
+  "loops": 2,
+  "loopLens": [
+   3,
+   76
+  ],
+  "shellVerts": 336,
+  "shellTris": 672,
+  "xRange": [
+   0.061553,
+   0.080781
+  ],
+  "yRange": [
+   -0.090759,
+   -0.046253
+  ],
+  "zRange": [
+   1.508297,
+   1.553266
+  ],
+  "outerClearMm": 3.0
+ },
+ "xneg": {
+  "patchVerts": 168,
+  "patchFaces": 257,
+  "boundaryEdges": 79,
+  "loops": 2,
+  "loopLens": [
+   3,
+   76
+  ],
+  "shellVerts": 336,
+  "shellTris": 672,
+  "xRange": [
+   -0.080781,
+   -0.061553
+  ],
+  "yRange": [
+   -0.090759,
+   -0.046253
+  ],
+  "zRange": [
+   1.508297,
+   1.553266
+  ],
+  "outerClearMm": 3.0
+ },
+ "mirrorMaxDiffMm": 0.0,
+ "coverage": {
+  "neighbourhoodN": 1350,
+  "neighbourhoodInPatchFrac": 0.1244,
+  "patchDef": "faces-all-3-verts-in-idx_earXpos",
+  "patchIsWholeXposSelection": true
+ },
+ "xposPinnaExtent": {
+  "z": [
+   1.5083,
+   1.5533
+  ],
+  "y": [
+   -0.0908,
+   -0.0463
+  ]
+ }
+}

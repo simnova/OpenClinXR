@@ -1,0 +1,9 @@
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/landmarks.json
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-front-v2.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-profile-v2.png
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-scalp1/hairline.json
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-scalp1/roots.npz
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/hair-groom/manifests/aisha_straight_long.json
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/hair-groom/register.py

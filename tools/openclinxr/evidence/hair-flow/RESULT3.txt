@@ -1,0 +1,33 @@
+RESULT::hair-flow-3
+G1::618.5 | [550,750]+2% MISS
+G2::137 | 101 MISS
+G3::29.78 | <=3 MISS
+G4::1.935e-07 | <=10 PASS
+G5::0.5824 | <=0.2 MISS
+G6::61.85 | >=95 MISS
+G7::90.23 | >=95 MISS
+G8::0 | 0 PASS
+G9::0.0002384 | <=5 PASS
+G10::99.24 | 100 MISS
+G11::47.16 | EXIT|az|>=20+forehas0 PASS
+G12::11.38 | >50 MISS
+STEPS::coarse-select v=566 f=974 area=631.5cm2 comp=1; remove_doubles-1e-5 v=549 f=974 area=631.5cm2 comp=1; subdiv-1 v=2095 f=3896 area=631.5cm2 comp=1; subdiv-2 v=8109 f=15584 area=631.5cm2 comp=1; subdiv-3 v=31825 f=62336 area=631.5cm2 comp=1; triangulate+weld-1e-3 v=21976 f=43172 area=630.3cm2 comp=4
+WELD::dist=0.0001 comp=1 v=31825 f=62336; dist=0.0005 comp=1 v=30737 f=60270; dist=0.0010 comp=4 v=21976 f=43172
+D1::COMP 0 faces=43169 area=630.30cm2 bbox=[-0.0740,-0.1482,1.4734]x[0.0739,0.0389,1.6599]
+D1::COMP 1 faces=1 area=0.01cm2 bbox=[-0.0729,-0.0454,1.5508]x[-0.0716,-0.0446,1.5515]
+D1::COMP 2 faces=1 area=0.01cm2 bbox=[0.0722,-0.0423,1.5482]x[0.0741,-0.0417,1.5491]
+D1::COMP 3 faces=1 area=0.01cm2 bbox=[-0.0754,-0.0424,1.5485]x[-0.0735,-0.0418,1.5496]
+D1::PAIR 0-1 mindist=0.0000mm
+D1::PAIR 0-2 mindist=0.0000mm
+D1::PAIR 0-3 mindist=0.0000mm
+D1::PAIR 1-2 mindist=143.8254mm
+D1::PAIR 1-3 mindist=3.0923mm
+D1::PAIR 2-3 mindist=145.6420mm
+D1::BRIDGES=29
+M12::EXIT=624 az=[-180.0,180.0] FOREHEAD=71 az=[-46.1,46.1] SLIT=177 az=[-180.0,180.0] temples_az=[46.1,-46.1] arc_contains0=True minexit_absaz=47.2 fore_phi_over_max=0.114
+PHICOL::front_hairline=0.11 part_max=1.00 above_ear=0.33 nape=nan lower_back_coloured=TBD-view
+SAW::TBD-view
+CAUSE(D1)::withheld: gates MISS
+COMMIT::pending
+STILL::guides/children/hair renders (later cards)
+HARM::none

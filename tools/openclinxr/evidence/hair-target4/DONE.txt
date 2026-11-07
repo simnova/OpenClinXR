@@ -1,0 +1,6 @@
+DONE: hair target 4
+- Profile + back carried unchanged from aisha-v2 (md5-verified); profile ear exposed with hair behind it (ear boxes uncovered 0.87/0.82).
+- Front + three_quarter regenerated with hair tucked behind the ears (driver muse-spark-1-go, refs.json errors: []); both PASS on attempt 1 (no chest hair; ears uncovered >= 0.92).
+- Alignment: both new views ALIGNED (eyes p95 <= 3.2 px, face ECC <= 0.04 px, edge overlays coincide).
+- Masks + overlays read; all four views agree: ears exposed, all length behind the shoulders.
+- Evidence: E/sheet.png, E/RESULT.txt, E/DONE.txt. T/ holds per-view files (gitignored).

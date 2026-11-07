@@ -1,0 +1,38 @@
+{
+ "ctrl": {
+  "posX": {
+   "nCol": 69918,
+   "nMid": 69918,
+   "nBot": 0
+  },
+  "negX": {
+   "nCol": 137678,
+   "nMid": 137678,
+   "nBot": 0
+  }
+ },
+ "b25": {
+  "posX": {
+   "nCol": 66078,
+   "nMid": 66078,
+   "nBot": 0
+  },
+  "negX": {
+   "nCol": 134620,
+   "nMid": 134620,
+   "nBot": 0
+  }
+ },
+ "delta_b25_minus_ctrl": {
+  "posX": {
+   "nCol": -3840,
+   "nMid": -3840,
+   "nBot": 0
+  },
+  "negX": {
+   "nCol": -3058,
+   "nMid": -3058,
+   "nBot": 0
+  }
+ }
+}

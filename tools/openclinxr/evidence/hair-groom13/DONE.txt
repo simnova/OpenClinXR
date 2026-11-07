@@ -1,0 +1,16 @@
+DONE hair-groom13: scalp-area child roots, continuous back sheet, tucked
+sideburns, full station scoring on groom12-8a + groom13.
+
+Asset: build/strands-8a.npz, 277288 children x 41 pts @ 0.04 mm
+(manual radii; Set Hair Curve Profile returns empty at this size),
+stored at /Volumes/files/openclinxr-assets/store/hair-groom13/
+(SHA256SUMS on disk); commit carries only build/strands-asset.txt.
+
+Evidence: renders-studio-8a (1024/64 + IDs, four scorer views),
+score13.json (both rows, every brief gate), build/gates13.json
+(count PASS, determinism/in-body/pinna FAIL recorded honestly),
+sheet.png (target | groom12-8a | groom13), crops.png (10 crops x 3
+rows), RESULT.txt (numbers, visual read, REMAINING 1-3).
+
+GATES_PASS=no. Kept: temple fill, back split gone. Remaining: right
+hem translucency, cheek frizz, profile ear crossings.

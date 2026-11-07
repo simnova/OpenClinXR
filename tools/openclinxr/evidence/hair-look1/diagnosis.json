@@ -1,0 +1,209 @@
+{
+  "schemaVersion": 1,
+  "baseline": "hair-curtain5/e4 == b6",
+  "geometry": {
+    "sampledChildren": 2000,
+    "radiusMm": 5.0,
+    "fractions": [
+      {
+        "arcFraction": 0.2,
+        "directionAngleStdDeg": 7.134619717249325,
+        "directionAngleMedianDeg": 2.136272523913656,
+        "neighbourSpacingStdMm": 1.2124509472299279,
+        "neighbourSpacingMedianMm": 3.4108568624689855,
+        "pairs": 273135
+      },
+      {
+        "arcFraction": 0.4,
+        "directionAngleStdDeg": 8.325175826435114,
+        "directionAngleMedianDeg": 1.5247240872238792,
+        "neighbourSpacingStdMm": 1.1779682307509398,
+        "neighbourSpacingMedianMm": 3.381216413584321,
+        "pairs": 506140
+      },
+      {
+        "arcFraction": 0.6,
+        "directionAngleStdDeg": 3.847794377924087,
+        "directionAngleMedianDeg": 1.3840509230144513,
+        "neighbourSpacingStdMm": 1.1728166430956046,
+        "neighbourSpacingMedianMm": 3.4120248921322665,
+        "pairs": 735072
+      },
+      {
+        "arcFraction": 0.8,
+        "directionAngleStdDeg": 5.081063479198005,
+        "directionAngleMedianDeg": 1.9848588762902535,
+        "neighbourSpacingStdMm": 1.143463307037189,
+        "neighbourSpacingMedianMm": 3.5775911868190535,
+        "pairs": 1243483
+      }
+    ],
+    "directionAngleStdDeg": 6.097163350201632,
+    "neighbourSpacingStdMm": 1.1766747820284154
+  },
+  "pixels": {
+    "ours": {
+      "front": {
+        "highpass": {
+          "tileCount": 122,
+          "median": 0.10667981895659791,
+          "p90": 0.20293230119890984
+        },
+        "sheen": {
+          "thresholdP90": 0.2833098039215686,
+          "components": 443,
+          "medianAreaPx": 1.0,
+          "maxAreaPx": 1977
+        }
+      },
+      "three_quarter": {
+        "highpass": {
+          "tileCount": 147,
+          "median": 0.05035572284703159,
+          "p90": 0.15188338005274668
+        },
+        "sheen": {
+          "thresholdP90": 0.28389647058823525,
+          "components": 418,
+          "medianAreaPx": 1.0,
+          "maxAreaPx": 2854
+        }
+      },
+      "back": {
+        "highpass": {
+          "tileCount": 282,
+          "median": 0.08490410095628015,
+          "p90": 0.1302346978605164
+        },
+        "sheen": {
+          "thresholdP90": 0.3473717647058824,
+          "components": 452,
+          "medianAreaPx": 1.5,
+          "maxAreaPx": 9622
+        }
+      }
+    },
+    "target": {
+      "front": {
+        "highpass": {
+          "tileCount": 131,
+          "median": 0.09052034499982532,
+          "p90": 0.15706309448848335
+        },
+        "sheen": {
+          "thresholdP90": 0.17471529411764705,
+          "components": 522,
+          "medianAreaPx": 2.0,
+          "maxAreaPx": 3430
+        }
+      },
+      "three_quarter": {
+        "highpass": {
+          "tileCount": 111,
+          "median": 0.10715331680052088,
+          "p90": 0.19886307783093432
+        },
+        "sheen": {
+          "thresholdP90": 0.14758352941176472,
+          "components": 811,
+          "medianAreaPx": 1.0,
+          "maxAreaPx": 2113
+        }
+      },
+      "back": {
+        "highpass": {
+          "tileCount": 255,
+          "median": 0.08856122011892846,
+          "p90": 0.12423705368727854
+        },
+        "sheen": {
+          "thresholdP90": 0.1766862745098039,
+          "components": 1644,
+          "medianAreaPx": 2.0,
+          "maxAreaPx": 11864
+        }
+      }
+    },
+    "ratios": {
+      "front": {
+        "targetOverOursHighpassMedian": 0.848523609105983,
+        "targetOverOursHighpassP90": 0.7739679368960267
+      },
+      "three_quarter": {
+        "targetOverOursHighpassMedian": 2.1279272889404557,
+        "targetOverOursHighpassP90": 1.3093142762682286
+      },
+      "back": {
+        "targetOverOursHighpassMedian": 1.0430735279151178,
+        "targetOverOursHighpassP90": 0.9539474174565873
+      }
+    }
+  },
+  "renderSettings": {
+    "settings-2x": {
+      "metrics": {
+        "highpass": {
+          "tileCount": 121,
+          "median": 0.10956305186162912,
+          "p90": 0.19916839130877642
+        },
+        "sheen": {
+          "thresholdP90": 0.28337490196078424,
+          "components": 430,
+          "medianAreaPx": 1.0,
+          "maxAreaPx": 2086
+        }
+      },
+      "highpassMedianChangePct": 2.7026975985066537,
+      "highpassP90ChangePct": -1.8547613504092286,
+      "sheenMedianChangePct": 0.0
+    },
+    "settings-filter10": {
+      "metrics": {
+        "highpass": {
+          "tileCount": 120,
+          "median": 0.10188615586703131,
+          "p90": 0.18711568668734377
+        },
+        "sheen": {
+          "thresholdP90": 0.2847301960784313,
+          "components": 405,
+          "medianAreaPx": 1.0,
+          "maxAreaPx": 2095
+        }
+      },
+      "highpassMedianChangePct": -4.493505085077876,
+      "highpassP90ChangePct": -7.794034965415864,
+      "sheenMedianChangePct": 0.0
+    }
+  },
+  "settingsMatter": false,
+  "endTangents": {
+    "frontCurtain": {
+      "count": 16889,
+      "p50Deg": 27.79185554736936,
+      "p95Deg": 41.48236042918679
+    },
+    "backHem": {
+      "count": 37640,
+      "p50Deg": 18.378694562826624,
+      "p95Deg": 31.56030831494559
+    }
+  },
+  "interpolants": {
+    "guideStation": "centripetal Hermite (hair-curtain5/guides.py:436)",
+    "curtainTransfer": "linear numpy.interp (base_children.py:280)",
+    "b6FinalResample": "none"
+  },
+  "causeD1": {
+    "status": "REFUTED",
+    "rule": "b6 direction std <1 deg AND median TS/ours highpass ratio >2",
+    "directionStdDeg": 6.097163350201632,
+    "targetOverOursHighpassMedian": 1.0430735279151178
+  },
+  "causeD2": {
+    "status": "SUPPORTED",
+    "rule": "either end p95 >20 deg",
+    "maxP95Deg": 41.48236042918679
+  }
+}

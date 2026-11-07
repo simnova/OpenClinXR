@@ -1,0 +1,27 @@
+RESULT::hair-guides-5
+G1::n=652 lay={0: 0.25, 1: 0.25, 2: 0.25, 3: 0.25} minpatch=3 fail=0 | [550,800] 20-30% patch>=3 PASS
+G2::inside=1265 min=0.03mm m12=0(0.0%) | 0 and >=2mm and m12<=5% MISS
+G3::s40=332/527(0.630) s80=1597/2775(0.575) | s40>=90% and s80>=95% +-3mm skull MISS
+G4::p95=30.88 max=186.36 short=3 | p95<=8 and max<=25 and 0 short MISS
+G5::max=9.25mm slitmax=3.94mm | <=9 and slit<=4 MISS
+G6::gap=51.2mm ratio=0.694 (ours 0.243H vs tgt 0.350H) | [0.85,1.10] x target MISS
+G7::outer-ear=95.2mm ratio=1.103 vs 86.3mm | +-8% of 86.3mm MISS
+G8::splay-points=0 | =0 PASS
+ATTEMPTS::a1=base+M1'/M2'/M5'/M9'/M11/M12/M13 | a2=skull-target restore+j pigs best-of-N floor+12iter smooth | a3=union-target worst-first+joint floor20+8iter smooth+kink45x5+k>=2 ear routing+sorted fill
+A1HIST::G2: 1679 -> 1098 -> 1265 | G3 s40: 0.738 -> 0.665 -> 0.630 ; s80: 0.878 -> 0.647 -> 0.575 | G4 p95: 24.60 -> 40.42 -> 30.88 ; max: 212.63 -> 417.01 -> 186.36 ; short: 32 -> 7 -> 3 | G5 max: 9.25 -> 9.25 -> 9.25 | G6 ratio: 0.864 PASS -> 0.839 -> 0.694 | G7 ratio: 1.117 -> 1.117 -> 1.103
+SAW::front: curtains cover temples and stand off the skull; crown loops arc above the head (worst top-right); face gap narrower than target
+SAW::three_quarter: side curtain covers the ear; shoulder splay controlled; stray flick at the hem
+SAW::profile: tangle at the ear; large outward-bowing loop at the nape over the back
+SAW::back: full cover with blunt-ish hem; sideways strays at mid-height left and right
+SAW::top: part line closed with complete crown cover; no bald band
+SAW::mask: two curtains; diagonal strays cross the face gap at eye level; loop out at the right temple; gap narrower than target
+CAUSE::G2: final-resample overshoot (M12 pre-resample found 0 inside; Catmull-Rom samples near tangent surfaces land inside; M6 forbids post-resample moves) plus body/shirt and pinna pinch oscillation that joint-floor could not converge; head 803 (ph0 875), shirt 462
+CAUSE::G3: structural conflict — where the union (pinna, shirt) sits >3mm outside skull+e_k, union-respecting points necessarily miss the skull-referenced band; skull-targeting (a2) scored worse because ear/union floors then overshoot
+CAUSE::G4: per-step envelope reprojection in the surface walk bakes zigzag that tangent smoothing cannot remove without leaving the envelope; face-line/M13 hard clamps and the hem pin add kinks; kink45x5 cut max 417 -> 186 but p95 stuck near 31
+CAUSE::G5: single temple hole (worst vert [-43.5,-19.7,1497.6], 9.25mm); grow_one returns None deterministically for every hole-region candidate (a2/a3 fill tries 80, added 0); UNKNOWN + candidates: kink shredding below 4 points, flow/trace stall at the temple, M12 early-tip
+CAUSE::G6: a3 ear-routing dumped k>=2 tubes at the face line and narrowed the gap to 0.694; config-sensitive (a1 0.864 PASS, a2 0.839); face-line offset +(k/3)*4mm does not hold outer layers outside the inner edge at the eye row
+CAUSE::G7: structural — k=3 over-ear = pinna(83.3mm)+10mm clearance+tube+smooth ≈95-96 vs bar <=93.2; routing moved 96.4 -> 95.2 only; passing needs outer layers routed around (not over) the ear, unbuilt
+COMMIT::c146ca2870e3a375fe4f6604cdbd4ad76ba2dc4c
+STILL::children stage stays with the hair-blend worker; guides carry the listed defects into that stage; G2/G3/G4/G5/G6/G7 open for a follow-up card
+BRIEF_MISSING::none; M11 5-row target inner-edge profile recorded in row-guides5.json target_inner_edge_profile
+HARM::none; evidence-only card, no runtime/product changes, git add scoped to E

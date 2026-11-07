@@ -1,0 +1,27 @@
+hair-hull4 DONE
+==============================================================================
+Brief: diagnose hull3's 4x below-shoulder asymmetry (sideL 4947 vs sideR 1183,
+route2's 40/50 right-side unreachable roots) and test the evidence-pointed fix.
+
+STEP 1 file: E/sidediag.json (+ E/asym.png top row).
+  Masks: front L/R 1.0099 (low 656/656), back 1.0036 — symmetric. Targets by
+  eye symmetric. Body mesh exactly symmetric (589/589, arms mirror 0.1mm).
+  => (b) target, (c) mask-derivation, (d) body all ELIMINATED.
+
+STEP 2 file: E/sidediag.json + E/asym.png (READ it: blue=profile dominates).
+  Mirrored-left 4947 vox: 3762 rejected; sole profile_90 2657, 3q 441, back
+  79, front 9. Far curtain 100% occluded in 3q. => (a) CONFIRMED (profile-led).
+
+STEP 3 files: WS/baseline_kept.npz + WS/diag.json + WS/sens.json.
+  Mirror-profile only: L/R 1.365 FAIL (residual = 3q-sole 419; 3q dilation
+  useless). + Mirror-3q (6 views): 1166/1183 = 0.9856 PASS; volumetric
+  mirror IoU 0.985; undilated symmetry 0.974 PASS.
+
+STEP 4 files: E/asym.png, E/RESULT.txt, E/GATES_FAIL, E/DONE.txt (this file).
+  NO E/hull.npz (fix gated FAIL: sensitivity-undilated front/3q missP95;
+  6/7 hull3 gates + side gate PASS). No *.blend.
+  Commit: "evidence: hair hull 4, left-right asymmetry cause and fix".
+
+VERDICT: cause found and fixed geometrically (0.9856); ship-blocker is the
+  undilated-hem probe (hem length slack-sensitive, symmetry is not).
+  Occupancy preserved in WS/baseline_kept.npz for waiver. See RESULT.txt.

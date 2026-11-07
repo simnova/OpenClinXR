@@ -1,0 +1,5111 @@
+{
+  "schemaVersion": 1,
+  "ok": false,
+  "claim": "MISS",
+  "error": "One or more Fable pass bars missed; see passBars and verbatim cell errors.",
+  "blenderVersion": "5.1.1",
+  "assetBlend": "/Applications/Blender.app/Contents/Resources/5.1/datafiles/assets/nodes/procedural_hair_node_assets.blend",
+  "canonicalSceneModule": "tools/openclinxr/evidence/hair-scene/hair_scene.py",
+  "distanceMethod": "hair_scene.surface_distance; BVH true signed nearest-surface distance; not vertex-only",
+  "surfaceUvMap": "UVMap",
+  "surfaceObject": "OCLX_cap",
+  "useAuthoredGuides": true,
+  "useCapSurface": true,
+  "capSurface": {
+    "apexY": -0.053241077810525894,
+    "stripVertexCount": 400,
+    "solidVertexCount": 31274,
+    "uvMissingCount": 0,
+    "uvRule": "nearest head face, barycentric (fan tri for quads)",
+    "splitIslands": true,
+    "islandCount": 2,
+    "islandSizes": [
+      15837,
+      15837
+    ]
+  },
+  "scalpMask": {
+    "vertexGroup": "OCLX_interp_scalp_mask",
+    "insideVertexCount": 3203,
+    "outsideVertexCount": 12746,
+    "weightedAreaM2": 0.10984471795191371,
+    "hairlineZWorld": 0.9880224871635437,
+    "frontThresholdYWorld": -0.10010491856417451,
+    "headCenterXWorld": 0.0,
+    "apexYWorld": -0.05754147842526436,
+    "partHalfWidthM": 0.0015,
+    "frontYMarginM": 0.02,
+    "rule": "weight 1 on the crown-connected mesh island above the hairline; weight 0 on lower vertices and every disconnected island",
+    "crownConnectedComponentVertexCount": 3203
+  },
+  "guideDefinition": {
+    "curveCount": 596,
+    "pointsPerCurve": 32,
+    "source": "tools/openclinxr/evidence/hair-guides2/guides3.npz",
+    "lengthM": 0.25,
+    "initialNormalClearanceM": 0.003,
+    "direction": "world gravity"
+  },
+  "nodeGroupInputs": {
+    "Attach Hair Curves to Surface": [
+      {
+        "name": "Geometry",
+        "identifier": "Output_1",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Surface UV Coordinate",
+        "identifier": "Output_9",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketVector",
+        "default": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Surface Normal",
+        "identifier": "Output_11",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketVector",
+        "default": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Geometry",
+        "identifier": "Input_0",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Surface Input Type",
+        "identifier": "Socket_0",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketMenu",
+        "default": "Object"
+      },
+      {
+        "name": "Surface",
+        "identifier": "Input_3",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Surface",
+        "identifier": "Input_4",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketObject",
+        "default": null
+      },
+      {
+        "name": "Surface UV Map",
+        "identifier": "Input_2",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketVector",
+        "default": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Surface Rest Position",
+        "identifier": "Input_6",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": false
+      },
+      {
+        "name": "Sample Attachment UV",
+        "identifier": "Input_10",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": true
+      },
+      {
+        "name": "Snap to Surface",
+        "identifier": "Input_8",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": true
+      },
+      {
+        "name": "Align to Surface Normal",
+        "identifier": "Input_7",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": true
+      },
+      {
+        "name": "Blend along Curve",
+        "identifier": "Input_12",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketFloat",
+        "default": 0.0
+      }
+    ],
+    "Interpolate Hair Curves": [
+      {
+        "name": "Geometry",
+        "identifier": "Output_1",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Guide Index",
+        "identifier": "Output_6",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketInt",
+        "default": 0
+      },
+      {
+        "name": "Surface Normal",
+        "identifier": "Output_25",
+        "inOut": "OUTPUT",
+        "socketType": "NodeSocketVector",
+        "default": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Geometry",
+        "identifier": "Input_0",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Surface Input Type",
+        "identifier": "Socket_0",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketMenu",
+        "default": "Object"
+      },
+      {
+        "name": "Surface",
+        "identifier": "Input_23",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketGeometry",
+        "default": null
+      },
+      {
+        "name": "Surface",
+        "identifier": "Input_2",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketObject",
+        "default": null
+      },
+      {
+        "name": "Surface UV Map",
+        "identifier": "Input_18",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketVector",
+        "default": [
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "name": "Surface Rest Position",
+        "identifier": "Input_12",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": false
+      },
+      {
+        "name": "Follow Surface Normal",
+        "identifier": "Input_24",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": false
+      },
+      {
+        "name": "Part by Mesh Islands",
+        "identifier": "Input_26",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketBool",
+        "default": true
+      },
+      {
+        "name": "Interpolation Guides",
+        "identifier": "Input_10",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketInt",
+        "default": 4
+      },
+      {
+        "name": "Distance to Guides",
+        "identifier": "Input_28",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketFloat",
+        "default": 0.0
+      },
+      {
+        "name": "Distribution Method",
+        "identifier": "Socket_2",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketMenu",
+        "default": "Random"
+      },
+      {
+        "name": "Density",
+        "identifier": "Input_15",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketFloat",
+        "default": 10.0
+      },
+      {
+        "name": "Density Mask",
+        "identifier": "Input_14",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketFloat",
+        "default": 1.0
+      },
+      {
+        "name": "Mask Texture",
+        "identifier": "Input_19",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketImage",
+        "default": null
+      },
+      {
+        "name": "Viewport Amount",
+        "identifier": "Input_17",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketFloat",
+        "default": 1.0
+      },
+      {
+        "name": "Seed",
+        "identifier": "Input_16",
+        "inOut": "INPUT",
+        "socketType": "NodeSocketInt",
+        "default": 0
+      }
+    ]
+  },
+  "renderSettings": {
+    "size": 384,
+    "samples": 16,
+    "views": [
+      "crown_top",
+      "front"
+    ],
+    "hairOnlyMasks": true
+  },
+  "barsProvenance": "Fable consult round 2, 2026-10-12; tunable",
+  "passBars": {
+    "p3EvaluatedCountOver1000": true,
+    "p3EveryCurveHas24Points": false,
+    "p3NoRootFartherThan2mm": true,
+    "p3ZeroRootsOutsideMask": true,
+    "p5FailureReproduced": true
+  },
+  "p5Explanation": "P5 omitted Attach Hair Curves to Surface (the missing precondition), but did not reproduce mixed topology; the earlier one-point curves came from mask-positive disconnected mesh islands with no guides, as the bisect demonstrates.",
+  "bisect": {
+    "requestedDimensions": [
+      "surface UV map missing",
+      "Surface Rest Position on/off",
+      "Surface input type Attached/Object/Input",
+      "guide point count 24/61/16"
+    ],
+    "installedSurfaceMenuItems": [
+      "Object",
+      "Geometry"
+    ],
+    "unavailableInInstalledAsset": [
+      "The Blender 5.1.1 asset exposes Object and Geometry, not separate Attached/Object/Input items."
+    ],
+    "results": [
+      {
+        "id": "B0",
+        "label": "baseline attached; UV present; rest off; Object; 24 points",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "24": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 24
+      },
+      {
+        "id": "B1",
+        "label": "surface UV map missing",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "24": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 24
+      },
+      {
+        "id": "B2",
+        "label": "Surface Rest Position on",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "24": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 24
+      },
+      {
+        "id": "B3",
+        "label": "Surface input type Geometry (installed asset's Input equivalent)",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "24": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 24
+      },
+      {
+        "id": "B4",
+        "label": "guide point count 61",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "61": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 61
+      },
+      {
+        "id": "B5",
+        "label": "guide point count 16",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 2370,
+        "pointsPerCurveHistogram": {
+          "16": 2370
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 16
+      },
+      {
+        "id": "B6",
+        "label": "height-only mask across all mesh islands",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 15288,
+        "pointsPerCurveHistogram": {
+          "1": 12918,
+          "24": 2370
+        },
+        "uniformAtGuidePointCount": false,
+        "pointCount": 24
+      },
+      {
+        "id": "B7",
+        "label": "height-only mask across all islands; Part by Mesh Islands off",
+        "ok": true,
+        "error": "",
+        "evaluatedCurveCount": 15288,
+        "pointsPerCurveHistogram": {
+          "24": 15288
+        },
+        "uniformAtGuidePointCount": true,
+        "pointCount": 24
+      }
+    ],
+    "finding": "The mixed topology is caused by Part by Mesh Islands distributing one-point curves onto mask-positive disconnected mesh islands that have no guides. Restricting the vertex mask to the crown-connected component fixes P3; turning Part by Mesh Islands off also fixes the deliberately broad-mask reproduction."
+  },
+  "cells": [
+    {
+      "id": "P3",
+      "label": "density 20000; islands on; mask",
+      "ok": true,
+      "error": "",
+      "settings": {
+        "id": "P3",
+        "label": "density 20000; islands on; mask",
+        "attach": true,
+        "interpolate": true,
+        "density": 20000,
+        "islands": true,
+        "mask": true
+      },
+      "surfaceUvMap": "UVMap",
+      "nodeInputs": {
+        "Attach Hair Curves to Surface": [
+          {
+            "name": "Geometry",
+            "identifier": "Output_1",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Surface UV Coordinate",
+            "identifier": "Output_9",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketVector",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "name": "Surface Normal",
+            "identifier": "Output_11",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketVector",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "name": "Geometry",
+            "identifier": "Input_0",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Surface Input Type",
+            "identifier": "Socket_0",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketMenu",
+            "default": "Object"
+          },
+          {
+            "name": "Surface",
+            "identifier": "Input_3",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Surface",
+            "identifier": "Input_4",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketObject",
+            "default": null
+          },
+          {
+            "name": "Surface UV Map",
+            "identifier": "Input_2",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketVector",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "name": "Surface Rest Position",
+            "identifier": "Input_6",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": false
+          },
+          {
+            "name": "Sample Attachment UV",
+            "identifier": "Input_10",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": true
+          },
+          {
+            "name": "Snap to Surface",
+            "identifier": "Input_8",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": true
+          },
+          {
+            "name": "Align to Surface Normal",
+            "identifier": "Input_7",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": true
+          },
+          {
+            "name": "Blend along Curve",
+            "identifier": "Input_12",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketFloat",
+            "default": 0.0
+          }
+        ],
+        "Interpolate Hair Curves": [
+          {
+            "name": "Geometry",
+            "identifier": "Output_1",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Guide Index",
+            "identifier": "Output_6",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketInt",
+            "default": 0
+          },
+          {
+            "name": "Surface Normal",
+            "identifier": "Output_25",
+            "inOut": "OUTPUT",
+            "socketType": "NodeSocketVector",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "name": "Geometry",
+            "identifier": "Input_0",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Surface Input Type",
+            "identifier": "Socket_0",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketMenu",
+            "default": "Object"
+          },
+          {
+            "name": "Surface",
+            "identifier": "Input_23",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketGeometry",
+            "default": null
+          },
+          {
+            "name": "Surface",
+            "identifier": "Input_2",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketObject",
+            "default": null
+          },
+          {
+            "name": "Surface UV Map",
+            "identifier": "Input_18",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketVector",
+            "default": [
+              0.0,
+              0.0,
+              0.0
+            ]
+          },
+          {
+            "name": "Surface Rest Position",
+            "identifier": "Input_12",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": false
+          },
+          {
+            "name": "Follow Surface Normal",
+            "identifier": "Input_24",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": false
+          },
+          {
+            "name": "Part by Mesh Islands",
+            "identifier": "Input_26",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketBool",
+            "default": true
+          },
+          {
+            "name": "Interpolation Guides",
+            "identifier": "Input_10",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketInt",
+            "default": 4
+          },
+          {
+            "name": "Distance to Guides",
+            "identifier": "Input_28",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketFloat",
+            "default": 0.0
+          },
+          {
+            "name": "Distribution Method",
+            "identifier": "Socket_2",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketMenu",
+            "default": "Random"
+          },
+          {
+            "name": "Density",
+            "identifier": "Input_15",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketFloat",
+            "default": 10.0
+          },
+          {
+            "name": "Density Mask",
+            "identifier": "Input_14",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketFloat",
+            "default": 1.0
+          },
+          {
+            "name": "Mask Texture",
+            "identifier": "Input_19",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketImage",
+            "default": null
+          },
+          {
+            "name": "Viewport Amount",
+            "identifier": "Input_17",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketFloat",
+            "default": 1.0
+          },
+          {
+            "name": "Seed",
+            "identifier": "Input_16",
+            "inOut": "INPUT",
+            "socketType": "NodeSocketInt",
+            "default": 0
+          }
+        ]
+      },
+      "socketReadBack": {
+        "attach": {
+          "Socket_0": {
+            "name": "Surface Input Type",
+            "identifier": "Socket_0",
+            "socketType": "NodeSocketMenu",
+            "interfaceDefault": "Object",
+            "wrote": "Object",
+            "wroteRaw": 0,
+            "readBack": 0
+          },
+          "Input_4": {
+            "name": "Surface",
+            "identifier": "Input_4",
+            "socketType": "NodeSocketObject",
+            "interfaceDefault": null,
+            "wrote": "OCLX_cap",
+            "wroteRaw": "OCLX_cap",
+            "readBack": "OCLX_cap"
+          },
+          "Input_2": {
+            "name": "Surface UV Map",
+            "identifier": "Input_2",
+            "socketType": "NodeSocketVector",
+            "interfaceDefault": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "wroteAttribute": "UVMap",
+            "readBackUseAttribute": true,
+            "readBackAttribute": "UVMap"
+          },
+          "Input_6": {
+            "name": "Surface Rest Position",
+            "identifier": "Input_6",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": false,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_10": {
+            "name": "Sample Attachment UV",
+            "identifier": "Input_10",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": true,
+            "wrote": true,
+            "wroteRaw": true,
+            "readBack": true
+          },
+          "Input_8": {
+            "name": "Snap to Surface",
+            "identifier": "Input_8",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": true,
+            "wrote": true,
+            "wroteRaw": true,
+            "readBack": true
+          },
+          "Input_7": {
+            "name": "Align to Surface Normal",
+            "identifier": "Input_7",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": true,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_12": {
+            "name": "Blend along Curve",
+            "identifier": "Input_12",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 0.0,
+            "wrote": 0.0,
+            "wroteRaw": 0.0,
+            "readBack": 0.0
+          }
+        },
+        "interpolate": {
+          "Socket_0": {
+            "name": "Surface Input Type",
+            "identifier": "Socket_0",
+            "socketType": "NodeSocketMenu",
+            "interfaceDefault": "Object",
+            "wrote": "Object",
+            "wroteRaw": 0,
+            "readBack": 0
+          },
+          "Input_2": {
+            "name": "Surface",
+            "identifier": "Input_2",
+            "socketType": "NodeSocketObject",
+            "interfaceDefault": null,
+            "wrote": "OCLX_cap",
+            "wroteRaw": "OCLX_cap",
+            "readBack": "OCLX_cap"
+          },
+          "Input_18": {
+            "name": "Surface UV Map",
+            "identifier": "Input_18",
+            "socketType": "NodeSocketVector",
+            "interfaceDefault": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "wroteAttribute": "UVMap",
+            "readBackUseAttribute": true,
+            "readBackAttribute": "UVMap"
+          },
+          "Input_12": {
+            "name": "Surface Rest Position",
+            "identifier": "Input_12",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": false,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_24": {
+            "name": "Follow Surface Normal",
+            "identifier": "Input_24",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": false,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_26": {
+            "name": "Part by Mesh Islands",
+            "identifier": "Input_26",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": true,
+            "wrote": true,
+            "wroteRaw": true,
+            "readBack": true
+          },
+          "Input_10": {
+            "name": "Interpolation Guides",
+            "identifier": "Input_10",
+            "socketType": "NodeSocketInt",
+            "interfaceDefault": 4,
+            "wrote": 2,
+            "wroteRaw": 2,
+            "readBack": 2
+          },
+          "Input_28": {
+            "name": "Distance to Guides",
+            "identifier": "Input_28",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 0.0,
+            "wrote": 1.0,
+            "wroteRaw": 1.0,
+            "readBack": 1.0
+          },
+          "Socket_2": {
+            "name": "Distribution Method",
+            "identifier": "Socket_2",
+            "socketType": "NodeSocketMenu",
+            "interfaceDefault": "Random",
+            "wrote": "Poisson Disk",
+            "wroteRaw": 1,
+            "readBack": 1
+          },
+          "Input_15": {
+            "name": "Density",
+            "identifier": "Input_15",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 10.0,
+            "wrote": 20000.0,
+            "wroteRaw": 20000.0,
+            "readBack": 20000.0
+          },
+          "Input_14": {
+            "name": "Density Mask",
+            "identifier": "Input_14",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 1.0,
+            "wroteAttribute": "OCLX_interp_scalp_mask",
+            "readBackUseAttribute": true,
+            "readBackAttribute": "OCLX_interp_scalp_mask"
+          },
+          "Input_17": {
+            "name": "Viewport Amount",
+            "identifier": "Input_17",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 1.0,
+            "wrote": 1.0,
+            "wroteRaw": 1.0,
+            "readBack": 1.0
+          },
+          "Input_16": {
+            "name": "Seed",
+            "identifier": "Input_16",
+            "socketType": "NodeSocketInt",
+            "interfaceDefault": 0,
+            "wrote": 0,
+            "wroteRaw": 0,
+            "readBack": 0
+          }
+        }
+      },
+      "guideRoots": [
+        {
+          "rootWorld": [
+            -0.05702617052197456,
+            0.008041706282645463,
+            1.6009542790949345
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06384207367897034,
+            -0.0936369089782238,
+            1.6007023557126523
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07371397560834884,
+            -0.06277556181699037,
+            1.5518735171556473
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07298984211683274,
+            -0.032912289328873155,
+            1.5710881749466061
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06303599986433983,
+            -0.006185640316456556,
+            1.6076048317551612
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07022382324934005,
+            -0.07473220105469226,
+            1.5638669727547094
+          ]
+        },
+        {
+          "rootWorld": [
+            0.004498205531388522,
+            0.016875140860676766,
+            1.515202372968197
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.044871026903390884,
+            -0.001265972800552845,
+            1.5160303623676301
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06328268492221832,
+            -0.02726856654882431,
+            1.5225029596090316
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02802571977674961,
+            0.035473328202962874,
+            1.5809740557670593
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04621283197402954,
+            -0.0015116161853075028,
+            1.517323243021965
+          ]
+        },
+        {
+          "rootWorld": [
+            0.009372928917407989,
+            0.01230181649327278,
+            1.5108238680362702
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05259929794073105,
+            -0.10662761789560318,
+            1.6193093405365944
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.019440975427627565,
+            -0.1430770707130432,
+            1.5998754769563674
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.029315614506602288,
+            0.027497464656829833,
+            1.6101768451035023
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07251418030261994,
+            -0.04184523365832865,
+            1.5517945918440819
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06939106631278992,
+            -0.039492388516664506,
+            1.5248427183926105
+          ]
+        },
+        {
+          "rootWorld": [
+            0.014773660972714424,
+            -0.13058880960941316,
+            1.6251399245858194
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0048097619898617265,
+            0.03762872102856636,
+            1.556356112703681
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.038809295654296874,
+            -0.11173892724514008,
+            1.6313915002346038
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06207921004295349,
+            -0.048796038938686254,
+            1.629899493008852
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05892211148142815,
+            -0.09668284857273102,
+            1.6142266660034656
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.007770810149610043,
+            -0.14807009732723236,
+            1.5907929829061032
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04511750450730324,
+            0.020856502279639245,
+            1.6046034351438283
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.060201860576868056,
+            -0.07380239196121692,
+            1.6284225157499312
+          ]
+        },
+        {
+          "rootWorld": [
+            0.009727808564901352,
+            -0.1382562313079834,
+            1.6145649644136428
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0360770093202591,
+            0.03221447876095772,
+            1.5747303201258183
+          ]
+        },
+        {
+          "rootWorld": [
+            0.017479085937142372,
+            0.0052287779115140435,
+            1.5013338465094566
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07026288664340972,
+            -0.07431864841282368,
+            1.5584622621401214
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04448876643180847,
+            -0.12698955458402633,
+            1.6009616536796094
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03320226469635963,
+            -0.003789087325334549,
+            1.4974468640238046
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06856158661842346,
+            -0.03076303097605705,
+            1.5344148965775966
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05271148279309273,
+            0.0009594179540872575,
+            1.5266877520680429
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07038642007112503,
+            -0.07473997648060322,
+            1.5848161326050758
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07299989002943039,
+            -0.03145696772634983,
+            1.5746046984866262
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06728163754940034,
+            -0.08743927446007728,
+            1.5800942437630148
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06650465160608292,
+            -0.0900580339729786,
+            1.5844810363799333
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06701361179351807,
+            -0.09054924441874027,
+            1.5652369850501417
+          ]
+        },
+        {
+          "rootWorld": [
+            0.004053502773866058,
+            -0.14634334218502046,
+            1.5970120507478713
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.004034187983721495,
+            -0.14683832263946534,
+            1.5955120018422604
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07064529168605804,
+            -0.022930637642741204,
+            1.553542996868491
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.006533288773149252,
+            -0.08979937818646432,
+            1.6559844483733177
+          ]
+        },
+        {
+          "rootWorld": [
+            0.00815091036632657,
+            0.025082728981971742,
+            1.524629023730755
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05348345342278481,
+            -0.11446925848722458,
+            1.6046332672536374
+          ]
+        },
+        {
+          "rootWorld": [
+            0.024942091450095176,
+            -0.12167351377010345,
+            1.6315386421680451
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07279911661148071,
+            -0.037165706664323804,
+            1.5598279567658901
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07248723489046097,
+            -0.0634916171208024,
+            1.5795894388463347
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07246026688814164,
+            -0.0573923779129982,
+            1.5558199832439423
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03376439434289932,
+            -0.024615006119012833,
+            1.6526479058265686
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04277315557003021,
+            -0.02949357535690069,
+            1.648702716767788
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06753931963443756,
+            -0.08392112708091735,
+            1.595677911967039
+          ]
+        },
+        {
+          "rootWorld": [
+            0.030679858237504957,
+            0.009230802811682225,
+            1.5162797439694404
+          ]
+        },
+        {
+          "rootWorld": [
+            0.047220378905534745,
+            0.017655209630727767,
+            1.6104239479154348
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06188992276787758,
+            -0.08519771125912666,
+            1.6176881084740162
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.026592369630932807,
+            -0.0012509881407022478,
+            1.4918078740239142
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07227003675699234,
+            -0.038209376126527785,
+            1.546749388991545
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05770997425913811,
+            -0.008593423023819923,
+            1.5261329838037492
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04297869536280632,
+            0.013419204771518707,
+            1.5277316190600396
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.01846364200115204,
+            -0.11844007629156113,
+            1.6372081425786018
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05875626674294472,
+            -0.0217404745221138,
+            1.5186005062460899
+          ]
+        },
+        {
+          "rootWorld": [
+            0.010886152543127537,
+            0.030582071602344513,
+            1.5332057840228082
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07160702208802104,
+            -0.03688143295049667,
+            1.534589167323953
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0330253087580204,
+            0.03004908300936222,
+            1.5525037440508604
+          ]
+        },
+        {
+          "rootWorld": [
+            0.021458618432283402,
+            0.007475475277751684,
+            1.5093270906805991
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.004225078891962767,
+            -0.10733272510766984,
+            1.6486514867544175
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.009857541106641292,
+            0.03480242916941643,
+            1.5453383439779282
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07380030995607376,
+            -0.04699863924458623,
+            1.573903753454797
+          ]
+        },
+        {
+          "rootWorld": [
+            0.00847415641695261,
+            0.03495489412546158,
+            1.5453278534710406
+          ]
+        },
+        {
+          "rootWorld": [
+            0.037532389879226684,
+            -0.04963457475602627,
+            1.6541065136194228
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07109213465452194,
+            -0.03837040188908577,
+            1.5250805727913976
+          ]
+        },
+        {
+          "rootWorld": [
+            0.036011837482452395,
+            0.014865744598209859,
+            1.524655392765999
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03063309356570244,
+            0.0008749166112393143,
+            1.5052712880969048
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06861656749248504,
+            -0.024789875715970994,
+            1.5402536051273346
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07175354784727096,
+            -0.025029062539339064,
+            1.5647340000495316
+          ]
+        },
+        {
+          "rootWorld": [
+            0.026183712005615235,
+            -0.1299025593996048,
+            1.6206651099324227
+          ]
+        },
+        {
+          "rootWorld": [
+            0.020482831075787543,
+            -0.11275401419401168,
+            1.6409401854276657
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07165405040979385,
+            -0.024277562975883484,
+            1.5767325984835625
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.047800512969493864,
+            -0.10430565908551216,
+            1.6286138466894626
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05281153428554535,
+            0.012943459488451482,
+            1.5436089341044426
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04576712453365326,
+            0.0224613681435585,
+            1.5527971498668194
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06541442447900772,
+            -0.03916526424884796,
+            1.5195223203599453
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.035448668330907825,
+            0.005228539992123842,
+            1.5141903451681138
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0655151332616806,
+            -0.05593394130468368,
+            1.622114635705948
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04489843118190765,
+            -0.010567214421927928,
+            1.5070570640861989
+          ]
+        },
+        {
+          "rootWorld": [
+            0.014455398850142956,
+            -0.14188486123085023,
+            1.6054858473837377
+          ]
+        },
+        {
+          "rootWorld": [
+            0.009673400565981864,
+            -0.14878394961357116,
+            1.5876099954247476
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0454455406665802,
+            0.025066570654511452,
+            1.5855741781741381
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.036471351474523545,
+            -0.07236185535043478,
+            1.6524852046370506
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05382857099175453,
+            -0.08397767940163613,
+            1.6343786863088607
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03453198254108429,
+            -0.11864598065614701,
+            1.62907754188776
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02165073125064373,
+            -0.1452070038318634,
+            1.5913628471195698
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07176165925711393,
+            -0.05193129721283913,
+            1.5555199548006058
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05916064736247063,
+            0.006983838945627213,
+            1.5518337983340025
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03378947839140892,
+            -0.13132133150100708,
+            1.6114368636310101
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.011690848998725415,
+            -0.06621745719760656,
+            1.660895365715027
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0028203448280692102,
+            -0.15089735162258147,
+            1.579808685913682
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02366085259616375,
+            0.008239288352429867,
+            1.6394889781475066
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.044155958771705625,
+            -0.0024702778831124303,
+            1.6364485848546029
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.019120167434215546,
+            0.034327053099870684,
+            1.5516154455542563
+          ]
+        },
+        {
+          "rootWorld": [
+            0.032209858894348145,
+            -0.004621002569794655,
+            1.4908075032681227
+          ]
+        },
+        {
+          "rootWorld": [
+            0.010200005754828453,
+            -0.09460838770866394,
+            1.653984889268875
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06271276170015336,
+            -0.061494968988001344,
+            1.6265622232258319
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06792870181798935,
+            -0.08610722760856152,
+            1.5597694144267589
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04138983297348022,
+            -0.12349197316169738,
+            1.6155096386671066
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.059465685814619064,
+            -0.10860641425848007,
+            1.5910765594393015
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06952096956968308,
+            -0.016394416719675065,
+            1.5616681898087263
+          ]
+        },
+        {
+          "rootWorld": [
+            0.043921781957149506,
+            -0.02987649229168892,
+            1.647841548860073
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06375497955083848,
+            -0.10098497340083122,
+            1.575567513436079
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04259946283698082,
+            -0.09336153680086136,
+            1.6421486417651177
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.005067624181509018,
+            -0.1148736726641655,
+            1.6427726271152496
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06926509153842926,
+            -0.02727908582985401,
+            1.6069880615472794
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04508502009510994,
+            -0.009358157016336919,
+            1.6388171542286873
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06864634513854981,
+            -0.08243844749033451,
+            1.55870818820782
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04259945219755173,
+            -0.09336153689026833,
+            1.642148522734642
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04882793548703194,
+            -0.0932057029902935,
+            1.6357971620559693
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07291171681880951,
+            -0.058456358291208745,
+            1.586034131458029
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0016023124027997255,
+            0.005381426116451621,
+            1.480316332463175
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02918812294304371,
+            -0.035495061025023464,
+            1.6557066969871521
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07369215416908265,
+            -0.0485281092133373,
+            1.5664746358469128
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06719290506839752,
+            -0.027281926691532135,
+            1.5321441060006618
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.062091190010309216,
+            -0.018900894492864608,
+            1.526578415542841
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07210138756036759,
+            -0.06607471008598804,
+            1.5698943388261832
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0030976662188768388,
+            -0.14345485520362855,
+            1.6050779842734337
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06964956897497177,
+            -0.014424439832568168,
+            1.575002941697836
+          ]
+        },
+        {
+          "rootWorld": [
+            0.028045562103390695,
+            0.0014518509830813856,
+            1.6433089765906335
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.006558111544698477,
+            0.005329262096434832,
+            1.4892141025811434
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04806319579482079,
+            -0.04732902362197638,
+            1.6467192583084107
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.051808347046375276,
+            -0.02182391507923603,
+            1.6382353440523147
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07181361508369445,
+            -0.04295759190409444,
+            1.6010690873116256
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.067049356341362,
+            -0.01618330143392086,
+            1.543578152537346
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07351870042085648,
+            -0.05395922917872667,
+            1.5786870273202658
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0429576498568058,
+            -0.10897782456874848,
+            1.6309343100786209
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.019521349772810937,
+            0.03520037803053856,
+            1.5988439362943172
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.042310924172401426,
+            -0.010326794192194939,
+            1.5021308227479457
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.01546044508367777,
+            0.00660758662596345,
+            1.5032975624203682
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03577804753184319,
+            -0.13536895644664765,
+            1.5990985749661923
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.014589950665831566,
+            -0.1400160710811615,
+            1.6095712302029133
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04326034167408943,
+            0.014111279353499413,
+            1.5287187901139259
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04029318428039551,
+            -0.0050124024637043475,
+            1.5070877610445021
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04931396567821503,
+            -0.07683849346637726,
+            1.6422828940153122
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07328436422348023,
+            -0.044327284255065026,
+            1.5622213362231852
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05642294171452522,
+            0.012218704149127006,
+            1.591242655813694
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07081025916337967,
+            -0.035730670988559726,
+            1.5419142139554023
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02462407547235489,
+            0.0348919686973095,
+            1.5909338038861751
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05873939788341522,
+            -0.0253008331656456,
+            1.516273179769516
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07038642007112503,
+            -0.07473997648060322,
+            1.5848161326050758
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06692291849851609,
+            -0.0061684298999607565,
+            1.5759452008567751
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03918111306428909,
+            -0.0075503277033567425,
+            1.6421330730319024
+          ]
+        },
+        {
+          "rootWorld": [
+            0.005918263114988804,
+            0.008594973608851433,
+            1.5017624595761299
+          ]
+        },
+        {
+          "rootWorld": [
+            0.024670960783958435,
+            -0.04273107396811247,
+            1.6580078909993172
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0655604510307312,
+            -0.0819728277027607,
+            1.6095200127512217
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.050073836982250215,
+            -0.005429077319800853,
+            1.6317255631685257
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06225144827365875,
+            -0.10465005761384964,
+            1.58209802968055
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02738458576798439,
+            0.016800106041133404,
+            1.6291766595244408
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05748980358242989,
+            -0.08956021991372108,
+            1.6259699354469777
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0728873947262764,
+            -0.06602368927001953,
+            1.5432044204175472
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.008860782884061336,
+            0.037360861033201215,
+            1.5979299388229846
+          ]
+        },
+        {
+          "rootWorld": [
+            0.002294047620147467,
+            -0.09850382933020592,
+            1.653181572496891
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03702185949683189,
+            -0.0797620151937008,
+            1.6501945883631706
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05958621379733085,
+            -0.004115218363702297,
+            1.613695297807455
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0719981768131256,
+            -0.06641366805136203,
+            1.5604541934371736
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04473136135935783,
+            0.024808927714824677,
+            1.590093998387456
+          ]
+        },
+        {
+          "rootWorld": [
+            0.006214299265295267,
+            -0.13344452565908432,
+            1.6229093388915061
+          ]
+        },
+        {
+          "rootWorld": [
+            0.006935864441096782,
+            0.040470469623804094,
+            1.583399132207036
+          ]
+        },
+        {
+          "rootWorld": [
+            0.033079844683408736,
+            -0.07244731236249208,
+            1.654127518236637
+          ]
+        },
+        {
+          "rootWorld": [
+            0.00299733904376626,
+            -0.05668833765387535,
+            1.6624061987996102
+          ]
+        },
+        {
+          "rootWorld": [
+            0.029764075443148613,
+            0.001702729806303978,
+            1.5058760523796082
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.031235936731100082,
+            -0.009382002167403697,
+            1.6471387346982955
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03849257299304008,
+            0.027998337268829346,
+            1.5557982726693154
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.029869503766298294,
+            -0.1316591044664383,
+            1.6159343872070313
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06737718605995179,
+            -0.08141987150907516,
+            1.6004116898626088
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0580330403149128,
+            -0.016505876436829568,
+            1.5212740495204926
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07104866349697113,
+            -0.03525159212201834,
+            1.600908642679453
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07370052540302277,
+            -0.04448452895507216,
+            1.5814663104498758
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06045163953304291,
+            -0.02252309162914753,
+            1.626017912209034
+          ]
+        },
+        {
+          "rootWorld": [
+            0.026615001663565636,
+            -0.02770842919498682,
+            1.6557476828694344
+          ]
+        },
+        {
+          "rootWorld": [
+            0.006333926118910312,
+            0.015893731154501437,
+            1.6351998716592788
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06921715396642684,
+            -0.025328182429075242,
+            1.6059458157122135
+          ]
+        },
+        {
+          "rootWorld": [
+            0.022436867386102677,
+            -0.13898885089159013,
+            1.606917222470045
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03863452711701393,
+            0.018566133037209512,
+            1.621228541612625
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07299844759702682,
+            -0.049975719468668106,
+            1.5913434539288283
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.034307973563671115,
+            -0.1215847949385643,
+            1.6255785109996796
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.010418109372258186,
+            -0.1446504249572754,
+            1.6002908028066158
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06474987643957138,
+            -0.03732709303498268,
+            1.5196755352914333
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04996698671579361,
+            0.01138836820423603,
+            1.5352592186927796
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.042145779639482496,
+            -0.12873345243930817,
+            1.6021337148547172
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.004826749708503485,
+            0.03960542538762093,
+            1.5676192003712057
+          ]
+        },
+        {
+          "rootWorld": [
+            0.043842307955026624,
+            0.026714053854346276,
+            1.567176042817533
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.018814886644482613,
+            -0.0893767461180687,
+            1.654396158993244
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05165105831623078,
+            0.019003893971443177,
+            1.5617660688832402
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07257971721887589,
+            -0.04615573886781931,
+            1.55577837844193
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06348936465382576,
+            -0.0987432926595211,
+            1.5916567828953265
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0256330925822258,
+            -0.1347472622990608,
+            1.6134352480769159
+          ]
+        },
+        {
+          "rootWorld": [
+            0.01955107818543911,
+            -0.023614720173180104,
+            1.6573015506267548
+          ]
+        },
+        {
+          "rootWorld": [
+            0.022850748032331468,
+            -0.14212250632047654,
+            1.5990982489287853
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03955057236552238,
+            0.0299951181858778,
+            1.5740408289656043
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03756840780377388,
+            0.0007018480841070414,
+            1.5111783044338227
+          ]
+        },
+        {
+          "rootWorld": [
+            0.004051628585904837,
+            -0.12435061395168305,
+            1.6340962966680528
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05012921193242073,
+            -0.0809132308959961,
+            1.639714172244072
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04916324257850647,
+            0.02275235964357853,
+            1.5735436049997806
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06628417241573334,
+            -0.004442038640379906,
+            1.5721721068900079
+          ]
+        },
+        {
+          "rootWorld": [
+            0.019037862494587898,
+            -0.10428905093669891,
+            1.6474328645467757
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06570029407739639,
+            -0.004986716806888581,
+            1.555174215398729
+          ]
+        },
+        {
+          "rootWorld": [
+            0.01001674596965313,
+            -0.04216645547002554,
+            1.6607069194316864
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07215868896245957,
+            -0.06708360004425049,
+            1.540405403446406
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05723844128847122,
+            0.011865474164485931,
+            1.5884306279718876
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07032875657081604,
+            -0.02367241333425045,
+            1.5960320587307215
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06461781924962998,
+            -0.004243190180510283,
+            1.5515517970621586
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03770401015877724,
+            0.024996644586324692,
+            1.5437023952901363
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.033374793231487274,
+            0.015662317894399168,
+            1.6275521366000176
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.006811989508569241,
+            -0.041849138990044596,
+            1.6609530866146087
+          ]
+        },
+        {
+          "rootWorld": [
+            0.010994353279471398,
+            -0.1043506897687912,
+            1.6492999325990676
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05016990274190903,
+            -0.023668991714715957,
+            1.501270109206438
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06095039689540863,
+            -0.10107414475083351,
+            1.6027749340832234
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07151653999090195,
+            -0.0698188408613205,
+            1.5465000422280282
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0296354608386755,
+            0.01715458435565233,
+            1.5236962654590607
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04937886354327202,
+            0.02274934123456478,
+            1.575844308629632
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05216083636879921,
+            -0.01096653474867344,
+            1.516797062754631
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.020909933775663376,
+            -0.05028701318055391,
+            1.6597494195103646
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.027409136205911636,
+            -0.0831257338821888,
+            1.6537111141085625
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.042776720851659775,
+            -0.07965639561414718,
+            1.6467763193845748
+          ]
+        },
+        {
+          "rootWorld": [
+            0.030376720517873764,
+            0.028096964448690413,
+            1.6072656350433827
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03480921906232834,
+            -0.00344065335765481,
+            1.5013675397634507
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07279382997751235,
+            -0.03982765209674835,
+            1.589365464232862
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02323643586039543,
+            0.014786155432462693,
+            1.6324086616039275
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.01657933470606804,
+            -0.09852748733758926,
+            1.6514021882414818
+          ]
+        },
+        {
+          "rootWorld": [
+            0.017724264934659003,
+            0.01811862088739872,
+            1.5200134420990943
+          ]
+        },
+        {
+          "rootWorld": [
+            0.012150286495685577,
+            -0.08520641809701919,
+            1.6570083944797516
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06905863243341447,
+            -0.01399773097783327,
+            1.5651039077043534
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05191344425082207,
+            0.0014650778844952585,
+            1.6238233078718185
+          ]
+        },
+        {
+          "rootWorld": [
+            0.011236238613724709,
+            0.03493734857439995,
+            1.6057704627215863
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.014779165878891946,
+            -0.07426612570136785,
+            1.6594776096343995
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06921697479486466,
+            -0.05599344484508038,
+            1.6130600786656142
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.029103204667568206,
+            0.034971837252378464,
+            1.5780013580024241
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06416275602579116,
+            -0.09863139626383781,
+            1.5818283411189913
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05135946932435036,
+            -0.02871771839261055,
+            1.6419887303709984
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.017580542370676994,
+            0.011611233502626418,
+            1.5134796135425568
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0023261743970215323,
+            -0.08479065999388695,
+            1.6579760176539422
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04057991513609886,
+            -0.12605349731445312,
+            1.6122889603972435
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07322229319810868,
+            -0.04074578766524792,
+            1.585720917366445
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.022180133551359178,
+            -0.0018150481358170508,
+            1.6461304220557214
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02018533217906952,
+            0.011932204514741897,
+            1.5148995148539544
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03490596833825112,
+            0.03210527539253235,
+            1.5842029150426389
+          ]
+        },
+        {
+          "rootWorld": [
+            0.00956544817239046,
+            0.039367291271686554,
+            1.5739022088944912
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07005622386932372,
+            -0.019514931306242943,
+            1.5903366488739847
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05640029925107956,
+            0.014085131883621215,
+            1.5660370604246854
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02171842022240162,
+            0.0013695101533085108,
+            1.4926852294057609
+          ]
+        },
+        {
+          "rootWorld": [
+            0.024914557367563248,
+            0.03270880389213562,
+            1.5513253048062325
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05800334188342095,
+            0.0015589848849922418,
+            1.5375423718988896
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03403610157966614,
+            -0.12444997417926788,
+            1.6222046551704408
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.004629885382950306,
+            -0.023608689822256564,
+            1.6589212723970412
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03234176936745643,
+            0.032884444683790204,
+            1.5652241054400802
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04284332555532455,
+            0.018857225835323333,
+            1.6165854976773262
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03360862848162651,
+            0.024351556643843652,
+            1.6140859868228437
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.008627110615372658,
+            -0.13404002285003663,
+            1.6217664209008218
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06436834535002708,
+            -0.07357424733042717,
+            1.6185908471941948
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02241280822455883,
+            0.01452012300491333,
+            1.5182842507958412
+          ]
+        },
+        {
+          "rootWorld": [
+            0.052741451501846316,
+            -0.11225919550657272,
+            1.6126831722259523
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06009669968485832,
+            -0.03171703217923641,
+            1.630927458167076
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04652566209435463,
+            0.02004584024846554,
+            1.546698321864009
+          ]
+        },
+        {
+          "rootWorld": [
+            0.038817349463701245,
+            0.0075593446865677835,
+            1.6324875013828277
+          ]
+        },
+        {
+          "rootWorld": [
+            0.01505346067994833,
+            0.013100411549210548,
+            1.6364117755293845
+          ]
+        },
+        {
+          "rootWorld": [
+            0.00896505293995142,
+            -0.015468467265367509,
+            1.6550716740489007
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.004032069474458695,
+            0.006865414455533028,
+            1.4963951803445816
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0028746018148958683,
+            0.03104262553155422,
+            1.5311162184476852
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0016685956083238125,
+            0.02561208337545395,
+            1.5234445293545722
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.009700938358902931,
+            0.004239539558067918,
+            1.4816815882658703
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06452254360914231,
+            -0.0024834432397037743,
+            1.5915572158843279
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0657742845416069,
+            -0.08903809651732444,
+            1.597101984485984
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0036209493577480318,
+            0.04104441305994987,
+            1.5805283380895854
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.041515975683927536,
+            -0.06696707620471716,
+            1.6502599248290062
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06680159360170364,
+            -0.014769054889678956,
+            1.6054007001072168
+          ]
+        },
+        {
+          "rootWorld": [
+            0.028420554876327515,
+            0.034299365818500516,
+            1.5657312217578292
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06226356104016304,
+            0.0053738528862595555,
+            1.5623880463466049
+          ]
+        },
+        {
+          "rootWorld": [
+            0.058301081657409666,
+            -0.11117864507436752,
+            1.591125914901495
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05627728864550591,
+            -0.09701611277461052,
+            1.6212845335304737
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02331738030910492,
+            -0.1291171202659607,
+            1.6234702246189117
+          ]
+        },
+        {
+          "rootWorld": [
+            0.019559754490852357,
+            0.021728252768516542,
+            1.6261269144415855
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0686956570148468,
+            -0.08196128925681115,
+            1.5752898555886932
+          ]
+        },
+        {
+          "rootWorld": [
+            0.024009509727358817,
+            -0.07342277217656373,
+            1.6575320163369178
+          ]
+        },
+        {
+          "rootWorld": [
+            0.050059335917234424,
+            -0.01734930245578289,
+            1.5086030056774615
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07298186200857162,
+            -0.059528893813490864,
+            1.579670642696321
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.017026497393846513,
+            0.037660967290401456,
+            1.5712344553172588
+          ]
+        },
+        {
+          "rootWorld": [
+            0.018253321439027786,
+            -0.015568742156028747,
+            1.653937568128109
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03003648430109024,
+            -0.050164136037230495,
+            1.6569118658304214
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0031355169769376515,
+            0.006227685755118728,
+            1.49166004653275
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05940408220887184,
+            -0.0818464709073305,
+            1.6261402539014815
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06784637147188187,
+            -0.0773706374168396,
+            1.6038041478693486
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0003783849632328735,
+            0.028139660492539405,
+            1.6225751578509808
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0021963600926101206,
+            -0.13910497844219208,
+            1.6141980296969414
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06443589201569558,
+            -0.036546252531930806,
+            1.6240543039143085
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06146062648296356,
+            0.006106105174869299,
+            1.5817061314359306
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0028933758586645124,
+            -0.14914685726165772,
+            1.5879107919633388
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06608837258815765,
+            -0.016016050592064856,
+            1.6110248457193375
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07118058300018311,
+            -0.021854180499911308,
+            1.5702312006733263
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07170399124920368,
+            -0.03687571853399277,
+            1.5357724387577036
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03371251046657562,
+            -0.13723884963989258,
+            1.597617657005787
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.01962612821161747,
+            -0.08198504000902176,
+            1.656667215168476
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02285495576262474,
+            0.03071177953481674,
+            1.6066387688517572
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06288968595862389,
+            -0.02304824109375477,
+            1.5248718212842942
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.047181736171245575,
+            0.015137295469641685,
+            1.5374722199440003
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06299397832155228,
+            0.005380703842267394,
+            1.572522128559649
+          ]
+        },
+        {
+          "rootWorld": [
+            0.048171250462532046,
+            -0.11293918019533157,
+            1.61935519695282
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.059943872451782225,
+            -0.029341370552778245,
+            1.5155584734082221
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03940068832039833,
+            -0.001045373398810625,
+            1.6389034549593926
+          ]
+        },
+        {
+          "rootWorld": [
+            0.009412889510393143,
+            -0.12171020579338074,
+            1.6361390812397003
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.014693608202040196,
+            0.016899754904210567,
+            1.5182366592288017
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05314955359697342,
+            -0.012004389181733131,
+            1.5174084857702255
+          ]
+        },
+        {
+          "rootWorld": [
+            0.01250706196576357,
+            -0.06052604063600302,
+            1.6613834085464478
+          ]
+        },
+        {
+          "rootWorld": [
+            0.011772997237741948,
+            0.02944223240017891,
+            1.6162498288452625
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.013700728215277194,
+            0.024741971418261528,
+            1.5258507880568504
+          ]
+        },
+        {
+          "rootWorld": [
+            0.021464608907699585,
+            0.036702219426631925,
+            1.57078710013628
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03403606992959976,
+            0.02085265225172043,
+            1.5305212239325046
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.01506709460914135,
+            0.03719851765036583,
+            1.5625744631290437
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05901188436150551,
+            0.006202692799270153,
+            1.597055062353611
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05571776303648949,
+            -0.033376157492399215,
+            1.6367974420785905
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04797950541973114,
+            -0.1189817099571228,
+            1.611062867820263
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05303482964634895,
+            0.0015400301665067673,
+            1.5276148409247399
+          ]
+        },
+        {
+          "rootWorld": [
+            0.026768153369426728,
+            -0.10616920983791352,
+            1.6432948392629623
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03737773495912552,
+            -0.10772757989168168,
+            1.636169266819954
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.060605754524469375,
+            0.004372641291469336,
+            1.5937429011613131
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0026164875738322736,
+            0.002653057783842087,
+            1.6475424542427064
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0587059314250946,
+            -0.005702960722148418,
+            1.5300736604630947
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0697721529006958,
+            -0.025935998499393462,
+            1.5451189132481813
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.039117506831884384,
+            -0.10277958041429519,
+            1.6384470129609108
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06313589808344841,
+            0.0017969743758440018,
+            1.5567186933010817
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07376103800535203,
+            -0.05240194982290268,
+            1.574892714843154
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.033079309314489366,
+            0.03104283732175827,
+            1.5936960275173186
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04419603905081749,
+            0.007520837727934122,
+            1.5229306154251099
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04918443784117699,
+            -0.08925590166449547,
+            1.637433543562889
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02929640758037567,
+            0.03194576591253281,
+            1.596945434421301
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03406225115060806,
+            -0.01675183802843094,
+            1.6490934094190597
+          ]
+        },
+        {
+          "rootWorld": [
+            0.047937990486621854,
+            -0.061957191906869415,
+            1.6467383834123612
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.022721178904175757,
+            0.0038057178966701033,
+            1.5025858207046985
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0659791390299797,
+            -0.04749808120727539,
+            1.6210912545323373
+          ]
+        },
+        {
+          "rootWorld": [
+            0.013597135059535503,
+            0.03750893491506577,
+            1.5627135803252459
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0582096494436264,
+            0.012317629061639308,
+            1.5747160179018975
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06679844647645951,
+            -0.0896346483528614,
+            1.5752302998043597
+          ]
+        },
+        {
+          "rootWorld": [
+            0.004625511173158884,
+            -0.15072105920314788,
+            1.580443579211831
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.006984526064246893,
+            -0.12423359793424606,
+            1.6339073874354362
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07175487047433853,
+            -0.06196900625526905,
+            1.5942143952175976
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07209144854545593,
+            -0.028657710030674934,
+            1.583887421131134
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04689453652501106,
+            -0.01696528658270836,
+            1.501233333259821
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06477755463123322,
+            -0.09525632292032242,
+            1.5918279929757118
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.028203310281038285,
+            -0.1075871072113514,
+            1.6418928188085555
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.013501786924898625,
+            -0.10907149189710617,
+            1.645906857430935
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.008855958506464957,
+            -0.04983679841458798,
+            1.661747258901596
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07089509022235871,
+            -0.06929043889045715,
+            1.591593336045742
+          ]
+        },
+        {
+          "rootWorld": [
+            0.042841037660837175,
+            -0.11485417157411576,
+            1.6255508542656898
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02009657509624958,
+            -0.09415108233690261,
+            1.6525464643239975
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06109390830993652,
+            -0.0752536156475544,
+            1.6255366956591606
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06773293912410736,
+            -0.010552500315010548,
+            1.5923262519165873
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.01831079839169979,
+            -0.060098384752869605,
+            1.6602932300567628
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06728760778903961,
+            -0.008088412478566169,
+            1.5858926968947054
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05402813711762428,
+            0.01249144569784403,
+            1.5472435068041086
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0041526013184338805,
+            -0.10874896880984307,
+            1.6479421914815904
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04248180091381073,
+            0.023188817068934442,
+            1.6033391124457121
+          ]
+        },
+        {
+          "rootWorld": [
+            0.029530989944934846,
+            -0.012680024951696395,
+            1.6494797669053078
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0143710435628891,
+            -0.07711177810281515,
+            1.659233588218689
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06302664750814438,
+            -0.04109379313606769,
+            1.6274593992233277
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04077389705181122,
+            0.02579721486568451,
+            1.5987835294902324
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06021349823474884,
+            -0.02801042088866234,
+            1.6290745033621787
+          ]
+        },
+        {
+          "rootWorld": [
+            0.022438302040100097,
+            0.03519733697175979,
+            1.5597238230109214
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.033379482984542845,
+            -0.039831120297312735,
+            1.654226236641407
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07318612772226334,
+            -0.050602954046800735,
+            1.58967118601501
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04543388387560844,
+            -0.059275943994522094,
+            1.6487017604112626
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.008429514240473508,
+            0.015483521193265916,
+            1.5147078182697296
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06718845754861831,
+            -0.08694828656315803,
+            1.587940940566361
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03272548335790634,
+            0.00928903927654028,
+            1.6350378649234771
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.047024867862462995,
+            0.0222780359685421,
+            1.5564864389151334
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07014995211362839,
+            -0.03487884707003832,
+            1.6066237744390965
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05204655385017395,
+            0.018248997047543524,
+            1.5872030468136071
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06810820180177689,
+            -0.015349488869309424,
+            1.5497404841035605
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.007860418435186148,
+            0.029977586418390274,
+            1.616580873042345
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03623862484097481,
+            -0.08673820969462395,
+            1.6483548312187195
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04006943428516388,
+            -0.06699963519722223,
+            1.6511172780394554
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06599099510908127,
+            -0.03772081844229251,
+            1.620497576713562
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04117925879359245,
+            0.02281023259460926,
+            1.5432203130125999
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06969894397258758,
+            -0.01625178599357605,
+            1.5842618080079556
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07093717968463897,
+            -0.07184993532299995,
+            1.57742526772758
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.016289471223950386,
+            0.038550787210464475,
+            1.5825213497281074
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.013339884884655475,
+            0.008710010822862387,
+            1.6413583649992942
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07361367267370224,
+            -0.05387319990992546,
+            1.5678250808790326
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.034905960708856584,
+            0.032105275213718414,
+            1.5842029149532317
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05944736531376839,
+            -0.014097176373004913,
+            1.6233265231847762
+          ]
+        },
+        {
+          "rootWorld": [
+            0.003997672203928232,
+            0.032913370415568355,
+            1.6119197547137738
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0683820708990097,
+            -0.016493782788515092,
+            1.5998666463196278
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07137439167499542,
+            -0.06228444148600101,
+            1.5974449669420718
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.048774176001548764,
+            0.009282153759151698,
+            1.6196960442066193
+          ]
+        },
+        {
+          "rootWorld": [
+            0.021593261405825615,
+            0.029766764655709266,
+            1.6095299515724182
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.007482986353337765,
+            -0.10019955414533616,
+            1.6519070924520494
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05737611946463585,
+            0.012496114239096641,
+            1.582492039859295
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05708564257621765,
+            -0.0920455243587494,
+            1.6244080576598645
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0393186691403389,
+            -0.050076123468577864,
+            1.652930181503296
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0031252659391611814,
+            -0.11908144855499267,
+            1.6394474026560784
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04302294188737869,
+            0.027750219136476517,
+            1.5731602298542857
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.018269532039761543,
+            -0.012078388221561908,
+            1.6522184506058692
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0031980809699743984,
+            -0.142001973092556,
+            1.608309502005577
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06891022288799285,
+            -0.0694273374825716,
+            1.605552840322256
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0652596006989479,
+            -0.023773465827107428,
+            1.617556686937809
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06527957564592361,
+            -0.07397068798542022,
+            1.6161860238909722
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.008456488445401191,
+            0.013417300216853618,
+            1.6373298062682151
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05204189631342888,
+            -0.0264186964482069,
+            1.5025652051866054
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05395245698094368,
+            -0.06104717314988375,
+            1.640405330479145
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.052287355542182924,
+            0.008519008602946996,
+            1.5351052671372891
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0077173604257404806,
+            0.03758828300237656,
+            1.5584522888064385
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06839270639419556,
+            -0.0831820437759161,
+            1.5708641744893976
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05657665678858757,
+            -0.014365521289408207,
+            1.6276603242754937
+          ]
+        },
+        {
+          "rootWorld": [
+            0.029222837835550308,
+            -0.09234463691711425,
+            1.6500043262243271
+          ]
+        },
+        {
+          "rootWorld": [
+            0.021824002370238304,
+            0.02640919789671898,
+            1.530920591622591
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.012126361325383186,
+            0.01995017883181572,
+            1.6297569169402122
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.052046303898096086,
+            0.016064075820147992,
+            1.5515022178143263
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.018497941240668298,
+            -0.12467683184146881,
+            1.6309267014861106
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07010366958379745,
+            -0.04322250475967303,
+            1.6095505898445845
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02611463004350662,
+            0.025331691384315493,
+            1.5328229333758354
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.021692326590418816,
+            0.02647852809727192,
+            1.6171116191446782
+          ]
+        },
+        {
+          "rootWorld": [
+            0.003791577585041523,
+            -0.07423345993459225,
+            1.66069136428833
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06365167739987374,
+            0.003546117644757032,
+            1.5700872556250542
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0620742943584919,
+            -0.002560261245816946,
+            1.6044051341861487
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.016649144187569617,
+            -0.0427905625551939,
+            1.6599024589061737
+          ]
+        },
+        {
+          "rootWorld": [
+            0.002447119519114494,
+            -0.030938090451061724,
+            1.6600103684663772
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06241133639216423,
+            -0.06386214871704578,
+            1.6266089552342893
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06925924861431122,
+            -0.04155768821388483,
+            1.6133160688281059
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02615849433839321,
+            -0.08096291255950928,
+            1.6548918823003769
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04499415001273155,
+            0.005029442913830281,
+            1.6293063395023346
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.031994548812508586,
+            -0.09420636573433876,
+            1.6484001266360282
+          ]
+        },
+        {
+          "rootWorld": [
+            0.039170236110687255,
+            -0.03926572467386723,
+            1.6520489612817764
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04120386144518852,
+            -0.05908016511052847,
+            1.6515000792741776
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05711627668142319,
+            -0.0455729338824749,
+            1.636283538043499
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0024213635697960855,
+            0.01883923903107643,
+            1.6330698400735855
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0061801340728998184,
+            -0.06854386876523495,
+            1.6610606746673584
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06868757379055024,
+            -0.0626420896500349,
+            1.611244998022914
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0581717087328434,
+            -0.031282362341880796,
+            1.5110020948946477
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04360699626803398,
+            -0.018732702061533928,
+            1.6445227492451668
+          ]
+        },
+        {
+          "rootWorld": [
+            0.030192689806222917,
+            -0.09959694838523865,
+            1.645926861166954
+          ]
+        },
+        {
+          "rootWorld": [
+            0.020890044510364532,
+            0.03717714211344719,
+            1.5842980450242758
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0353235145509243,
+            -0.024808469936251642,
+            1.6519660285115243
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06883424860239029,
+            -0.0544813352227211,
+            1.6154025546014308
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.022871071889996528,
+            -0.02762146916985512,
+            1.6567701156139374
+          ]
+        },
+        {
+          "rootWorld": [
+            0.056600818157196045,
+            0.006922531582415104,
+            1.605993814378977
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.050950395226478574,
+            0.01767777210474014,
+            1.59640672044456
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05364544850587845,
+            0.0069605854228138924,
+            1.6132252883017064
+          ]
+        },
+        {
+          "rootWorld": [
+            0.01709027248620987,
+            -0.031227887339890004,
+            1.6586924846172333
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05825451534986496,
+            -0.058445862472057346,
+            1.6357001398205757
+          ]
+        },
+        {
+          "rootWorld": [
+            0.01576156508177519,
+            -0.008451977647840976,
+            1.6508639826774598
+          ]
+        },
+        {
+          "rootWorld": [
+            0.048347777992486955,
+            -0.04419039580971003,
+            1.6461049726605415
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06565945345163346,
+            -0.003460188064724207,
+            1.561936363402754
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07208768862485886,
+            -0.052038561718538406,
+            1.598678878352046
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06058781778812408,
+            -0.08753099405765534,
+            1.6189775976836682
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02321571643650532,
+            0.035347556799650195,
+            1.5911897462308406
+          ]
+        },
+        {
+          "rootWorld": [
+            0.018113009363412858,
+            0.03565598848462105,
+            1.5990997594296932
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0037696838714182377,
+            0.03879427152872086,
+            1.593804315045476
+          ]
+        },
+        {
+          "rootWorld": [
+            0.052037132024765016,
+            -0.015741221964359283,
+            1.634900344967842
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02538930259644985,
+            0.03430046379566193,
+            1.5595141486227513
+          ]
+        },
+        {
+          "rootWorld": [
+            0.01117819694429636,
+            -0.02353783107548952,
+            1.6583289214372634
+          ]
+        },
+        {
+          "rootWorld": [
+            0.01625541001558304,
+            0.03549743089079857,
+            1.5538497736006975
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.051826982855796816,
+            -0.1113696312904358,
+            1.6152758564949035
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06450256052613258,
+            0.0011296764165163041,
+            1.5808570037558676
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02013648635149002,
+            0.02099268811941147,
+            1.523701682448387
+          ]
+        },
+        {
+          "rootWorld": [
+            0.003171794379130006,
+            -0.1292049660682678,
+            1.629094911277294
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05650625672936439,
+            -0.11156280067563057,
+            1.5992126051783562
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.009213258266448974,
+            0.0023361134883016347,
+            1.6466245427131654
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.002416733207181096,
+            -0.004680420510470867,
+            1.6508323532938958
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04906216830015182,
+            -0.027951886318624018,
+            1.643711066186428
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.025156964018940926,
+            -0.03897541133314371,
+            1.6574428389668465
+          ]
+        },
+        {
+          "rootWorld": [
+            0.029822901830077173,
+            -0.00569710984826088,
+            1.6461614571213723
+          ]
+        },
+        {
+          "rootWorld": [
+            0.056858137249946594,
+            -0.0811292032301426,
+            1.6321518567800521
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.003791576698422432,
+            -0.07130889098346234,
+            1.660967095375061
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05557308131456375,
+            -0.005939321115612984,
+            1.6249676783680915
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06584838873147965,
+            -0.09363790073990821,
+            1.5736379021182656
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03718050476908684,
+            -0.017138763442635537,
+            1.6477296553254128
+          ]
+        },
+        {
+          "rootWorld": [
+            0.025405190989375114,
+            0.028093727603554726,
+            1.5388664868175983
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.009276775799691677,
+            0.032162498474121094,
+            1.5372441524267197
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05838241201639176,
+            -0.06783654824644327,
+            1.6343343589901924
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.033610998779535294,
+            -0.10065984553098678,
+            1.6434862280488014
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.016288729831576348,
+            0.02889577592909336,
+            1.5331256755590439
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07266927796602249,
+            -0.03220959185063839,
+            1.5821922505572439
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0178099427819252,
+            -0.03512021218240261,
+            1.658862119436264
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.026037805393338203,
+            -0.01940227821469307,
+            1.653553356230259
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04747584587335586,
+            -0.054239753864705566,
+            1.647964450955391
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03435149690508842,
+            -0.032319795116782186,
+            1.6530961325764657
+          ]
+        },
+        {
+          "rootWorld": [
+            0.018182593405246736,
+            0.005336258936673403,
+            1.6436838898062707
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06551514160633087,
+            -0.05593394511938095,
+            1.6221146336495875
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06986046248674392,
+            -0.07093146060407161,
+            1.599951314881444
+          ]
+        },
+        {
+          "rootWorld": [
+            0.027038146525621413,
+            -0.05037600065767765,
+            1.6580339828729629
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06616016656160355,
+            -0.02191506138443947,
+            1.6143906084001065
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05407585895061493,
+            -0.007296484351158142,
+            1.6278291239142417
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.058693655699491504,
+            -0.004839057743549347,
+            1.6167673218250274
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.017911906108260156,
+            -0.019028746515512465,
+            1.6557153239250184
+          ]
+        },
+        {
+          "rootWorld": [
+            0.003222647475078702,
+            -0.13734756511449814,
+            1.6171043523550033
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.01577779905498028,
+            -0.004961532533168793,
+            1.649144865512848
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.043432591557502745,
+            -0.04062825385481119,
+            1.6490379332900047
+          ]
+        },
+        {
+          "rootWorld": [
+            0.006020809058099985,
+            -0.11485014462471008,
+            1.6426866766810417
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03147881320118904,
+            -0.06207188069820404,
+            1.6559468173980714
+          ]
+        },
+        {
+          "rootWorld": [
+            0.038609301269054416,
+            -0.010875973507761955,
+            1.4905529884397983
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0022075150664895775,
+            -0.13433642357587813,
+            1.6219463274478911
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05679802218079567,
+            -0.03700793905556202,
+            1.635659828543663
+          ]
+        },
+        {
+          "rootWorld": [
+            0.01579400956630707,
+            -0.0014711792077869176,
+            1.6474257483482362
+          ]
+        },
+        {
+          "rootWorld": [
+            0.046429599076509474,
+            0.022945546299219133,
+            1.5939566261023284
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06945689928531647,
+            -0.03508270473778248,
+            1.6111569296121597
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05292951738834381,
+            -0.06861279144138098,
+            1.6403425991535188
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07148412775993347,
+            -0.05267318451870233,
+            1.6024760042577981
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06048523160815239,
+            -0.05047362855821848,
+            1.6332518073916436
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0697659963965416,
+            -0.07663347539305687,
+            1.5473516644835472
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06388227143883705,
+            -0.012131438225507735,
+            1.5370639350712298
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.060423634380102155,
+            -0.0007185955122113227,
+            1.540516052722931
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05935056832432747,
+            -0.10473908552527428,
+            1.6023020283281804
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07157935923337937,
+            -0.031371195189654824,
+            1.5952248894274235
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03147880823910237,
+            -0.06207188078761101,
+            1.6559468170404434
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0343985593020916,
+            0.02245871448516846,
+            1.5343631008267402
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.027143975749611856,
+            0.02984450751543045,
+            1.5445517970919609
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07008249002695084,
+            -0.019842016518116,
+            1.5547845685705544
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07174611604213714,
+            -0.031138422079384328,
+            1.5550798377916217
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.026093406558036804,
+            -0.13761525636911393,
+            1.6067891733646393
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07298582273721695,
+            -0.05901731590926647,
+            1.561277229912579
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06310355740785599,
+            -0.0908945789039135,
+            1.6087119366526603
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04980051171779633,
+            -0.09867176350951194,
+            1.6307330774664879
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0041936459634453055,
+            0.010885214976966382,
+            1.5062087195515632
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.049226517111063,
+            -0.015928264036774636,
+            1.508456974208355
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04630031299591064,
+            0.010649194031953812,
+            1.6214093014001847
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05189737018942833,
+            -0.06632366020232439,
+            1.6418486894965172
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.056590195506811145,
+            0.014370801210403442,
+            1.5772337179854512
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04429860177636147,
+            -0.11554692280292511,
+            1.6223683749139308
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05598585841059685,
+            0.003989027630537748,
+            1.6110509114861489
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03661529952287674,
+            -0.009225876480340957,
+            1.4891642272621393
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02588627053797245,
+            -0.07055499155074357,
+            1.6571314725875854
+          ]
+        },
+        {
+          "rootWorld": [
+            0.016726404830813408,
+            -0.05035395296663046,
+            1.6606664965748787
+          ]
+        },
+        {
+          "rootWorld": [
+            0.051541114687919616,
+            0.0159917159602046,
+            1.600803635880351
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07220076841115952,
+            -0.06730592930316925,
+            1.5505307657718659
+          ]
+        },
+        {
+          "rootWorld": [
+            0.00829021854698658,
+            0.022856351807713508,
+            1.6276517778635025
+          ]
+        },
+        {
+          "rootWorld": [
+            0.024949255466461182,
+            0.010365463331341744,
+            1.6368382405638695
+          ]
+        },
+        {
+          "rootWorld": [
+            0.063130322098732,
+            -0.004197370082139969,
+            1.5450412154197692
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.01570690621435642,
+            0.003753522823564708,
+            1.493696069419384
+          ]
+        },
+        {
+          "rootWorld": [
+            0.042592580199241635,
+            0.007088646724820137,
+            1.5210747649669647
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02960916072130203,
+            -0.11582483154535293,
+            1.635016930282116
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07021662479639053,
+            -0.07191772995889187,
+            1.5943371905088424
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.055732712775468825,
+            -0.02974601523578167,
+            1.5073919026255607
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03330882620811462,
+            0.0006843212619423867,
+            1.641453818500042
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05192004305124283,
+            0.012865678690373897,
+            1.610342331469059
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03162711799144745,
+            0.02253607174754143,
+            1.620873436152935
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02716845625638962,
+            0.01912863302230835,
+            1.5247938255667686
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.011333060942590237,
+            0.03364410653710365,
+            1.6083438687622547
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.058786869645118714,
+            0.0059860840216279035,
+            1.5481368777453899
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.018209046810865402,
+            -0.1352219678759575,
+            1.6176432972550392
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06602144861221314,
+            -0.07983090853691101,
+            1.6102614766210317
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06937502998113632,
+            -0.014656085081398488,
+            1.5819191070832312
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.07222071248292923,
+            -0.06551901489496231,
+            1.570102265197318
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06823977595567703,
+            -0.08217581194639206,
+            1.590541587177664
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06318249356746673,
+            -0.012934032626450062,
+            1.5344059251844884
+          ]
+        },
+        {
+          "rootWorld": [
+            0.044756142765283585,
+            -0.0752875092625618,
+            1.6470794686079024
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0459042412340641,
+            -0.01949854528903961,
+            1.6428004134297371
+          ]
+        },
+        {
+          "rootWorld": [
+            0.058535740554332735,
+            -0.09963183751702309,
+            1.612133958518505
+          ]
+        },
+        {
+          "rootWorld": [
+            0.02212929731607437,
+            -0.06273664651811123,
+            1.659209140777588
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.025421405479311942,
+            0.007233838513493538,
+            1.5110612283945084
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06482533094286919,
+            -0.001690319750458002,
+            1.587683986544609
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06949985748529434,
+            -0.07798761327564717,
+            1.5497408357318492
+          ]
+        },
+        {
+          "rootWorld": [
+            0.03881302788853645,
+            0.028600179627537727,
+            1.592229379594326
+          ]
+        },
+        {
+          "rootWorld": [
+            0.06995503306388855,
+            -0.07629190781712532,
+            1.5676144906952978
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.04975312685966492,
+            0.021319381862878798,
+            1.5659974026158452
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0016364038847386836,
+            0.033788693472743034,
+            1.5392255495786666
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07182809478044509,
+            -0.027167560644447804,
+            1.5622515878602863
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0089419040158391,
+            0.008921235140413045,
+            1.641970385491848
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.054178594499826434,
+            -0.10279973956942558,
+            1.620674763828516
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.008965050123631954,
+            -0.015468467265367509,
+            1.6550716740489007
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06638353568315505,
+            -0.0647047945857048,
+            1.617507554292679
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.049389566570520405,
+            -0.12227202796936035,
+            1.6000246324390173
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.062317242562770846,
+            -0.013829146035015583,
+            1.6189941008687019
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07114886993169785,
+            -0.030421497225761415,
+            1.547867100432515
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05032689452171326,
+            -0.03797840341180563,
+            1.6439437084197999
+          ]
+        },
+        {
+          "rootWorld": [
+            0.01676789903640747,
+            0.03160501497983932,
+            1.5410934364199638
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0735243746638298,
+            -0.04053221905976534,
+            1.5712514188755304
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.05457956337928772,
+            -0.04593064261972904,
+            1.6392544654607772
+          ]
+        },
+        {
+          "rootWorld": [
+            0.01279467236250639,
+            0.004288677260279655,
+            1.4921947480738162
+          ]
+        },
+        {
+          "rootWorld": [
+            0.029619608297944067,
+            -0.1131288845539093,
+            1.6370742436647414
+          ]
+        },
+        {
+          "rootWorld": [
+            0.05145864424109459,
+            -0.1193501062989235,
+            1.5993550292104484
+          ]
+        },
+        {
+          "rootWorld": [
+            0.011800416931509971,
+            0.038259557515382764,
+            1.5903091273605823
+          ]
+        },
+        {
+          "rootWorld": [
+            0.013588520929217338,
+            -0.14553635621070862,
+            1.5962432267665863
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0048267548754811285,
+            0.039388542711734774,
+            1.5654914337620138
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.002188026338815689,
+            0.03679601883888245,
+            1.6046129405200482
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07009137499332428,
+            -0.03385189160704613,
+            1.5394267928302288
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.051784568905830386,
+            0.018873890459537506,
+            1.5854503127858042
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.021090859621763228,
+            0.021606394797563554,
+            1.6257964662909508
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0386978440284729,
+            0.028885511606931688,
+            1.559786657691002
+          ]
+        },
+        {
+          "rootWorld": [
+            0.04788179421424866,
+            -0.0011996188051998616,
+            1.631885780453682
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06688920480012894,
+            -0.03514519202709198,
+            1.526442737698555
+          ]
+        },
+        {
+          "rootWorld": [
+            0.024754531979560852,
+            0.02623475068807602,
+            1.6164508420526982
+          ]
+        },
+        {
+          "rootWorld": [
+            0.0004651100662200172,
+            0.01187661651521921,
+            1.6406178146600723
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.008518955513834954,
+            0.03899319085478783,
+            1.5884805474281312
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.02189825290441513,
+            -0.14501256281137467,
+            1.5916703309714795
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.013360965602099895,
+            -0.02716709829121828,
+            1.6585773535966872
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.06365705418586731,
+            -0.003054749421775341,
+            1.597999304831028
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.0019021501392126085,
+            0.036807477056980134,
+            1.549824993312359
+          ]
+        },
+        {
+          "rootWorld": [
+            -0.03548614114522934,
+            -0.13174471950531005,
+            1.6078211528658868
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07151976859569549,
+            -0.02362822997570038,
+            1.5788305627703667
+          ]
+        },
+        {
+          "rootWorld": [
+            0.07154361009597779,
+            -0.06841901956498622,
+            1.578450915011461
+          ]
+        },
+        {
+          "rootWorld": [
+            0.012343956120312215,
+            0.0035472769029438497,
+            1.4827128679954913
+          ]
+        }
+      ],
+      "metrics": {
+        "evaluatedCurveCount": 1294,
+        "evaluatedPointCount": 41408,
+        "pointsPerCurveHistogram": {
+          "32": 1294
+        },
+        "evaluationSeconds": 0.0002239159948658198,
+        "distanceMethod": "hair_scene.surface_distance; BVH true signed nearest-surface distance; not vertex-only",
+        "rootFartherThan2mmCount": 0,
+        "rootDistanceMm": {
+          "min": 0.0,
+          "p50": 0.00019216640178367216,
+          "p95": 0.0005070191502192972,
+          "max": 0.6685094985963593
+        },
+        "rootsOutsideMaskedRegionCount": 0,
+        "rootInterpolatedMaskValue": {
+          "min": 0.9999998807907104,
+          "p05": 0.9999999403953552,
+          "p50": 1.0
+        }
+      },
+      "renders": {
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/step5/P3/crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/step5/P3/crown_top-id.png"
+        },
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/step5/P3/front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/step5/P3/front-id.png"
+        }
+      },
+      "surfaceObject": "OCLX_cap",
+      "renderSeconds": 2.3654198340009316
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+ "in": "/Volumes/files/openclinxr-assets/store/hair-groom36/roots-36.npz",
+ "out": "/Volumes/files/openclinxr-assets/store/hair-part1/roots-b.npz",
+ "sha256": "d5016499d3d5e7ac",
+ "nIn": 13528,
+ "nEdgeRoots": 491,
+ "nAdded": 377,
+ "nOut": 13905,
+ "edgeMm": [
+  0.75,
+  8.0
+ ],
+ "edgeDensityMultiplier": 1.7678,
+ "pairGapMm": {
+  "p50": 1.808,
+  "max": 2.688
+ },
+ "addedXpos": 188,
+ "addedXneg": 189,
+ "partJitter": null
+}

@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "i1": {
+    "definition": "crown_top ID alpha >=230/255; longitudinal extent is 10 mm behind our centre hairline through apex; part +/-3 mm; sides 7-24 mm; 0-10 tile excludes the intentional +/-3 mm slit",
+    "world": {
+      "hairlineY": -0.12157492339611053,
+      "startY": -0.11157492339611054,
+      "apexY": -0.053241077810525894
+    },
+    "tiles": {
+      "0-10": {
+        "effectiveDistanceMm": [
+          3.0,
+          10.0
+        ],
+        "pixels": 11502,
+        "skinFraction": 0.7304816553642844
+      },
+      "10-20": {
+        "effectiveDistanceMm": [
+          10.0,
+          20.0
+        ],
+        "pixels": 15800,
+        "skinFraction": 0.7019620253164557
+      },
+      "20-30": {
+        "effectiveDistanceMm": [
+          20.0,
+          30.0
+        ],
+        "pixels": 15590,
+        "skinFraction": 0.6572803078896728
+      },
+      "30-50": {
+        "effectiveDistanceMm": [
+          30.0,
+          50.0
+        ],
+        "pixels": 28300,
+        "skinFraction": 0.5403180212014135
+      }
+    },
+    "partLuminance": 0.25095295170100884,
+    "sideLuminance": 0.21914026821953198,
+    "partSide": 1.1451704140911578
+  },
+  "t1": {
+    "definition": "crown_top ID alpha >=230/255; longitudinal extent is 10 mm behind our centre hairline through apex; part +/-3 mm; sides 7-24 mm; 0-10 tile excludes the intentional +/-3 mm slit",
+    "world": {
+      "hairlineY": -0.12157492339611053,
+      "startY": -0.11157492339611054,
+      "apexY": -0.053241077810525894
+    },
+    "tiles": {
+      "0-10": {
+        "effectiveDistanceMm": [
+          3.0,
+          10.0
+        ],
+        "pixels": 11502,
+        "skinFraction": 0.5388628064684403
+      },
+      "10-20": {
+        "effectiveDistanceMm": [
+          10.0,
+          20.0
+        ],
+        "pixels": 15800,
+        "skinFraction": 0.5815822784810126
+      },
+      "20-30": {
+        "effectiveDistanceMm": [
+          20.0,
+          30.0
+        ],
+        "pixels": 15590,
+        "skinFraction": 0.545157152020526
+      },
+      "30-50": {
+        "effectiveDistanceMm": [
+          30.0,
+          50.0
+        ],
+        "pixels": 28300,
+        "skinFraction": 0.5046996466431095
+      }
+    },
+    "partLuminance": 0.232684347419721,
+    "sideLuminance": 0.21784679267643048,
+    "partSide": 1.068110044499617
+  },
+  "frontHonest": {
+    "i1": {
+      "definition": "front rows strictly above subject-specific centre hairline; part +/-3 mm; sides 7-24 mm",
+      "hairlineRow": 153,
+      "partSide": 1.033020355891053
+    },
+    "t1": {
+      "definition": "front rows strictly above subject-specific centre hairline; part +/-3 mm; sides 7-24 mm",
+      "hairlineRow": 159,
+      "partSide": 0.925895267085027
+    },
+    "TS": {
+      "definition": "front rows strictly above subject-specific centre hairline; part +/-3 mm; sides 7-24 mm",
+      "hairlineRow": 212,
+      "partSide": 1.0134721117253034
+    }
+  },
+  "judge": {
+    "i1": {
+      "front": 0.6824606591246257,
+      "profile": 0.6815963561435853,
+      "back": 0.7838798428450611
+    },
+    "t1": {
+      "front": 0.6976681780327565,
+      "profile": 0.6991751038683394,
+      "back": 0.7937878705169497
+    },
+    "delta": {
+      "front": 0.015207518908130768,
+      "profile": 0.017578747724754096,
+      "back": 0.009908027671888586
+    }
+  },
+  "faceCheekP50": {
+    "i1": 0.7333976470588235,
+    "t1": 0.7336650980392156,
+    "moveFraction": 0.00036467390025687847
+  },
+  "renderSeconds": {
+    "i1": {
+      "front": 27.102260790998116,
+      "three_quarter": 32.634051041997736,
+      "profile_90": 58.49086154199904,
+      "back": 79.34376391698606,
+      "crown_top": 48.3858128329739
+    },
+    "t1": {
+      "front": 48.1772153750062,
+      "three_quarter": 58.19541575000039,
+      "profile_90": 64.55172787499032,
+      "back": 79.87012087501353,
+      "crown_top": 50.75172883301275
+    }
+  },
+  "audit": {
+    "construction": "root density x2.5 within 30 mm, linear taper to x1 at 50 mm; root lift peak reduced from 4 mm to 2 mm",
+    "sourceCount": 56602,
+    "t1Count": 69181,
+    "addedCount": 12579,
+    "fibreDiameterMm": 0.1,
+    "partGapMm": 1.1,
+    "densityMultiplier": {
+      "atOrInside30mm": 2.5,
+      "at50mm": 1.0
+    },
+    "rootLiftMaxMm": 2.0,
+    "endAngleDeg": {
+      "p50": 0.0,
+      "p95": 4.613766845829786,
+      "max": 7.810821445953803
+    },
+    "collider": {
+      "colliders": [
+        "OCLX_Aisha_head",
+        "makeclothes_library_toigo_t_shirt",
+        "makeclothes_library_female_tight_jeans_pants",
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+      ],
+      "first_pass_inside": {
+        "OCLX_Aisha_head": 0,
+        "makeclothes_library_toigo_t_shirt": 684,
+        "makeclothes_library_female_tight_jeans_pants": 0,
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+      },
+      "post_inside": {
+        "OCLX_Aisha_head": 0,
+        "makeclothes_library_toigo_t_shirt": 0,
+        "makeclothes_library_female_tight_jeans_pants": 0,
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+      },
+      "post_inside_total": 0,
+      "moved_points": 684,
+      "max_single_projection_mm": 15.196392364324552,
+      "clearance_mm": 0.2,
+      "passes": 3,
+      "audit_relocated_points": 0
+    }
+  },
+  "gates": {
+    "tileSkinAtMost5Percent": false,
+    "absDeltaIouAtMost002": true,
+    "faceCheekWithin5Percent": true,
+    "colliderInsideZero": true,
+    "endP95AtMost10Deg": true
+  }
+}

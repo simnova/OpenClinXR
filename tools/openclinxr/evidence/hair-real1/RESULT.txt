@@ -1,0 +1,9 @@
+HAIR REAL 1 — BACK BANDS + LEFT/RIGHT ASYMMETRY
+
+BANDS::LIGHTING; lit contrast=0.123505; unlit=0.002292; lit/unlit=53.892992; unlit lum period=30px; unlit ID-density period=442px; guide/2x/triangle=4.267/8.534/9.152px
+ASYMMETRY::guide left/right seeds=2026101411/2026101429; root along scalp +/-0.1mm; flow +/-2.5deg; lift +/-0.1mm; hang clearance +/-0.5mm; child seeds=2026101453/2026101471; child root +/-0.03mm; central +/-3mm protected
+T1 BASELINE::stored f/p/b=0.697668/0.699175/0.793788; matched-current-raster=0.697668/0.680769/0.793788; gates use matched raster
+A2::SKIPPED because label=LIGHTING
+CELL a1::IoU f/p/b=0.688319/0.682262/0.782664; delta=-0.009349/+0.001492/-0.011124; inside=0; end p95=4.615570deg; part gap=1.100000mm; back band contrast=0.164824; gates={"colliderInsideZero": true, "endP95AtMost10Deg": true, "iouWithin015EachView": true, "partGapAtMost3Mm": true}
+SAW::Against TS, the remaining wrong read is the overly clean centre part and overly coherent back curtain; a1 breaks the bilateral flow repeat, while fine TS-like strand-scale back variation remains weaker than the target.
+GATES::PASS

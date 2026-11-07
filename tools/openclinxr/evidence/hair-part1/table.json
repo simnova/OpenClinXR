@@ -1,0 +1,212 @@
+{
+ "rows": [
+  {
+   "tag": "id",
+   "name": "groom36",
+   "strandsSha": "42ea14567f34688d",
+   "nStrands": 269480,
+   "crownTopPartSide": 1.1763,
+   "frontPartSide": 0.9199,
+   "tiles": {
+    "0-10": 0.5457,
+    "10-20": 0.4134,
+    "20-30": 0.4171,
+    "30-50": 0.463
+   },
+   "shellXpos": 2134,
+   "shellXneg": 2043,
+   "columnXpos": 53,
+   "columnXneg": 56,
+   "gt30": 2970,
+   "insideBody": 0,
+   "iouFront": 0.7794,
+   "iou3q": 0.8489,
+   "iouProfile": 0.8326,
+   "iouBack": 0.8911
+  },
+  {
+   "tag": "a",
+   "name": "a jitter 3mm",
+   "strandsSha": "283db3b331438160",
+   "nStrands": 269480,
+   "crownTopPartSide": 1.1765,
+   "frontPartSide": 0.9173,
+   "tiles": {
+    "0-10": 0.5456,
+    "10-20": 0.4134,
+    "20-30": 0.4171,
+    "30-50": 0.463
+   },
+   "shellXpos": 2134,
+   "shellXneg": 2049,
+   "columnXpos": 53,
+   "columnXneg": 57,
+   "gt30": 2984,
+   "insideBody": 0,
+   "iouFront": 0.779,
+   "iou3q": 0.8505,
+   "iouProfile": 0.8328,
+   "iouBack": 0.8909
+  },
+  {
+   "tag": "b",
+   "name": "b edge density",
+   "strandsSha": "d56f7eb69b6932ff",
+   "nStrands": 277020,
+   "crownTopPartSide": 1.1758,
+   "frontPartSide": 0.9452,
+   "tiles": {
+    "0-10": 0.55,
+    "10-20": 0.4171,
+    "20-30": 0.4182,
+    "30-50": 0.4638
+   },
+   "shellXpos": 2232,
+   "shellXneg": 2073,
+   "columnXpos": 38,
+   "columnXneg": 33,
+   "gt30": 2881,
+   "insideBody": 0,
+   "iouFront": 0.7812,
+   "iou3q": 0.8466,
+   "iouProfile": 0.83,
+   "iouBack": 0.8929
+  },
+  {
+   "tag": "c",
+   "name": "c flow +2deg",
+   "strandsSha": "f2ae8214da9e5757",
+   "nStrands": 269480,
+   "crownTopPartSide": 1.1763,
+   "frontPartSide": 0.9199,
+   "tiles": {
+    "0-10": 0.5457,
+    "10-20": 0.4134,
+    "20-30": 0.4171,
+    "30-50": 0.463
+   },
+   "shellXpos": 2134,
+   "shellXneg": 2043,
+   "columnXpos": 53,
+   "columnXneg": 56,
+   "gt30": 2976,
+   "insideBody": 0,
+   "iouFront": 0.7793,
+   "iou3q": 0.8489,
+   "iouProfile": 0.8328,
+   "iouBack": 0.891
+  },
+  {
+   "tag": "d",
+   "name": "d a+b+c",
+   "strandsSha": "bcd83b5ce47f863d",
+   "nStrands": 277020,
+   "crownTopPartSide": 1.1819,
+   "frontPartSide": 0.9165,
+   "tiles": {
+    "0-10": 0.5502,
+    "10-20": 0.4172,
+    "20-30": 0.4182,
+    "30-50": 0.4638
+   },
+   "shellXpos": 2231,
+   "shellXneg": 2082,
+   "columnXpos": 38,
+   "columnXneg": 38,
+   "gt30": 2866,
+   "insideBody": 0,
+   "iouFront": 0.7806,
+   "iou3q": 0.8493,
+   "iouProfile": 0.8295,
+   "iouBack": 0.8922
+  }
+ ],
+ "crossings3D": {
+  "guides-36": {
+   "file": "/Volumes/files/openclinxr-assets/store/hair-groom36/guides-36.npz",
+   "sha256": "4336dd13736e412ae4e0e52fd1e91adbced79364a8400e5161360f994802c3fc",
+   "nGuides": 2741,
+   "nBackNonTuck": 256,
+   "nPairs": 32640,
+   "cross2D": 8475,
+   "cross3D_le3mm": 1029,
+   "frac3Dof2D": 0.1214,
+   "d3mm_at_2Dcross": {
+    "n": 8475,
+    "p10": 2.347,
+    "p25": 6.87,
+    "p50": 46.184,
+    "p75": 146.131,
+    "p90": 151.716,
+    "p99": 161.411,
+    "min": 0.0,
+    "max": 178.725
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 383
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 324
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 321
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 574
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1257
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 834
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 566
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4215
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 8475,
+    "p10": 0.609,
+    "p25": 1.691,
+    "p50": 3.796,
+    "p75": 6.705,
+    "p90": 9.491,
+    "p99": 16.521,
+    "min": 0.0,
+    "max": 32.052
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 8475,
+    "p10": 0.285,
+    "p25": 0.778,
+    "p50": 1.661,
+    "p75": 2.69,
+    "p90": 3.87,
+    "p99": 6.077,
+    "min": 0.0,
+    "max": 8.943
+   }
+  }
+ },
+ "targetFrontPartSide": 1.0135
+}

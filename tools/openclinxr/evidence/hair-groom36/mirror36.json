@@ -1,0 +1,93 @@
+{
+ "n": 2741,
+ "nPos": 1366,
+ "nMid": 9,
+ "nNeg": 1366,
+ "midIds": [
+  1366,
+  1367,
+  1368,
+  1369,
+  1370,
+  1371,
+  1372,
+  1373,
+  1374
+ ],
+ "constructionDevMm": {
+  "posMirrorMax": 0.0,
+  "posMirrorNExact": 1366,
+  "midSelfMirrorMax": 162.437024
+ },
+ "pairDevMm": {
+  "p50": 0.0,
+  "p90": 0.0,
+  "max": 307.165294
+ },
+ "nExact001": 2726,
+ "inexactIds": [
+  353,
+  1106,
+  1347,
+  1366,
+  1367,
+  1368,
+  1369,
+  1370,
+  1371,
+  1372,
+  1373,
+  1374,
+  1728,
+  2473,
+  2481
+ ],
+ "inexactNote": "nearest-root metric; duplicate roots share one site so the tree may pair a guide with the wrong duplicate (construction pairing above is exact for all 1366+1366)",
+ "roots": {
+  "n": 13528,
+  "nPos": 6752,
+  "nMid": 24,
+  "nNeg": 6752,
+  "constructionDevMm": {
+   "posMirrorMax": 0.0
+  },
+  "pairDevMm": {
+   "p50": 0.0,
+   "max": 0.991803,
+   "nExact001": 13505
+  },
+  "inexactIds": [
+   6752,
+   6753,
+   6754,
+   6755,
+   6756,
+   6757,
+   6758,
+   6760,
+   6761,
+   6762,
+   6763,
+   6764,
+   6765,
+   6766,
+   6767,
+   6768,
+   6769,
+   6770,
+   6771,
+   6772,
+   6773,
+   6774,
+   6775
+  ],
+  "inexactNote": "24 midline singletons kept once per card; self-mirror dev = 2|x| <= 1 mm"
+ },
+ "guidesIn": "/Volumes/files/openclinxr-assets/store/hair-groom36/step1/guides-36routed.npz",
+ "rootsIn": "/Volumes/files/openclinxr-assets/store/hair-groom34/roots-34mask20.npz",
+ "sha": {
+  "guides36": "4336dd13736e412a",
+  "roots36": "d0f68883407c3e90",
+  "poolRef36": "a0204f4383dcbd5e"
+ }
+}

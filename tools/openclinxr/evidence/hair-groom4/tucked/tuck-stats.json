@@ -1,0 +1,122 @@
+{
+ "nGuides": 558,
+ "nTucked": 57,
+ "nBandGuides": 9,
+ "nBandRoots": {
+  "xpos": 290,
+  "xneg": 242
+ },
+ "nCheekNoHair": 65,
+ "partCrossingsOver2mm": 0,
+ "partCrossingsBelowVertexAllowed": 2,
+ "partMaxExcursionMm": 3.27,
+ "partWhole": {
+  "rawFlips": 13,
+  "crossingsOver2mm": 2,
+  "maxExcursionMm": 3.27
+ },
+ "earNear3mm": {
+  "xpos": 0,
+  "xneg": 0
+ },
+ "tuckEar": {
+  "minDistMm": 3.01,
+  "nBelow3mm": 0,
+  "gateMinGe3mm": true
+ },
+ "backGap": {
+  "n": 347,
+  "maxGapMm": 4.68
+ },
+ "turn": {
+  "max": 179.55,
+  "p95": 37.44,
+  "p50": 4.29,
+  "fracGuidesOver15": 0.853,
+  "nGuidesOver15": 476,
+  "gate": 15.0
+ },
+ "contStops": {
+  "stuck@pin1/sdf0/hull0": 19,
+  "stuck@pin0/sdf1/hull0": 87,
+  "hemfloor": 1,
+  "len": 11
+ },
+ "stuckPos": [
+  [
+   -67.7,
+   -76.3,
+   1553.9,
+   "stuck@pin1/sdf0/hull0"
+  ],
+  [
+   -71.2,
+   -70.9,
+   1550.9,
+   "stuck@pin1/sdf0/hull0"
+  ],
+  [
+   58.7,
+   -28.6,
+   1526.5,
+   "stuck@pin0/sdf1/hull0"
+  ],
+  [
+   65.3,
+   -36.8,
+   1544.4,
+   "stuck@pin0/sdf1/hull0"
+  ],
+  [
+   -71.4,
+   -66.9,
+   1526.5,
+   "stuck@pin1/sdf0/hull0"
+  ],
+  [
+   -66.1,
+   -59.7,
+   1554.4,
+   "stuck@pin0/sdf1/hull0"
+  ],
+  [
+   75.1,
+   24.9,
+   1393.2,
+   "stuck@pin0/sdf1/hull0"
+  ],
+  [
+   -71.2,
+   -68.2,
+   1538.7,
+   "stuck@pin1/sdf0/hull0"
+  ],
+  [
+   53.1,
+   -23.3,
+   1520.7,
+   "stuck@pin0/sdf1/hull0"
+  ],
+  [
+   57.4,
+   -49.4,
+   1556.2,
+   "stuck@pin0/sdf1/hull0"
+  ],
+  [
+   -66.1,
+   -59.7,
+   1555.2,
+   "stuck@pin0/sdf1/hull0"
+  ],
+  [
+   76.2,
+   30.3,
+   1385.1,
+   "stuck@pin0/sdf1/hull0"
+  ]
+ ],
+ "clearFallback": 61,
+ "shortFallback": 59,
+ "tipBacktrack": 97
+}

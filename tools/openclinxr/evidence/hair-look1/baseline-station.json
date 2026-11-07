@@ -1,0 +1,46 @@
+{
+  "interpolants": {
+    "guideStation": "centripetal Hermite (hair-curtain5/guides.py:436)",
+    "curtainTransfer": "linear numpy.interp (base_children.py:280)",
+    "b6FinalResample": "none"
+  },
+  "lightParams": {
+    "roughness": 0.24954088555385912,
+    "melanin": 0.82,
+    "redness": 0.7742335660719442,
+    "key_elev_deg": 33.97561376022246,
+    "key_azimuth_delta_deg": -34.07547569130069,
+    "key_energy": 150.31454886059802,
+    "key_size_m": 1.7035231139100802,
+    "fill_W": 67.1377978877512,
+    "fill_elev_deg": 16.867847855674313,
+    "root_dark": 0.4,
+    "random": 0.03994997405268805
+  },
+  "audit": {
+    "colliders": [
+      "OCLX_Aisha_head",
+      "makeclothes_library_toigo_t_shirt",
+      "makeclothes_library_female_tight_jeans_pants",
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+    ],
+    "first_pass_inside": {
+      "OCLX_Aisha_head": 2843,
+      "makeclothes_library_toigo_t_shirt": 59,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "post_inside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "post_inside_total": 0,
+    "moved_points": 2843,
+    "max_single_projection_mm": 12.984395730170295,
+    "clearance_mm": 0.2,
+    "passes": 3,
+    "audit_relocated_points": 0
+  }
+}

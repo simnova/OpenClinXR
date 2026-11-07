@@ -1,0 +1,189 @@
+{
+  "tag": "probes/r4",
+  "params": {
+    "root_dark": 0.3
+  },
+  "variant": "base",
+  "material": {
+    "Melanin": "linked",
+    "Melanin Redness": 0.840287983417511,
+    "Roughness": 0.14088048040866852,
+    "Radial Roughness": 0.20000000298023224,
+    "Coat": 0.0,
+    "IOR": 1.5499999523162842
+  },
+  "profileReadback": {
+    "Input_3": {
+      "name": "Radius",
+      "identifier": "Input_3",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.009999999776482582,
+      "wrote": 5e-05,
+      "wroteRaw": 5e-05,
+      "readBack": 4.999999873689376e-05
+    },
+    "Input_2": {
+      "name": "Shape",
+      "identifier": "Input_2",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.4999999403953552,
+      "wrote": 0.0,
+      "wroteRaw": 0.0,
+      "readBack": 0.0
+    },
+    "Input_6": {
+      "name": "Replace Radius",
+      "identifier": "Input_6",
+      "socketType": "NodeSocketBool",
+      "interfaceDefault": true,
+      "wrote": true,
+      "wroteRaw": true,
+      "readBack": true
+    },
+    "Socket_0": {
+      "name": "Density",
+      "identifier": "Socket_0",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.0,
+      "wrote": 1.0,
+      "wroteRaw": 1.0,
+      "readBack": 1.0
+    },
+    "Socket_1": {
+      "name": "Length",
+      "identifier": "Socket_1",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 1.0,
+      "wrote": 1.0,
+      "wroteRaw": 1.0,
+      "readBack": 1.0
+    },
+    "Input_4": {
+      "name": "Factor Min",
+      "identifier": "Input_4",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 0.0,
+      "wrote": 0.0,
+      "wroteRaw": 0.0,
+      "readBack": 0.0
+    },
+    "Input_5": {
+      "name": "Factor Max",
+      "identifier": "Input_5",
+      "socketType": "NodeSocketFloat",
+      "interfaceDefault": 1.0,
+      "wrote": 1.0,
+      "wroteRaw": 1.0,
+      "readBack": 1.0
+    }
+  },
+  "lights": {
+    "OCLX_key": {
+      "position": [
+        -1.2000000476837158,
+        -1.5,
+        2.8795340061187744
+      ],
+      "energy_W": 150.0,
+      "size_m": 1.5590593523168912,
+      "elevation_deg": 36.200694730640095
+    },
+    "OCLX_fill": {
+      "position": [
+        1.5,
+        -1.0,
+        2.465132713317871
+      ],
+      "energy_W": 60.47725258242128,
+      "size_m": 1.7,
+      "elevation_deg": 28.811320096571063
+    },
+    "OCLX_rim": {
+      "position": [
+        1.0,
+        1.2000000476837158,
+        2.7843000888824463
+      ],
+      "energy_W": 26.654435328323842,
+      "size_m": 1.0,
+      "elevation_deg": 40.0
+    }
+  },
+  "size": 1024,
+  "samples": 64,
+  "cyclesSeed": 0,
+  "renders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/probes/r4/front.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/probes/r4/front-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/probes/r4/back.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/probes/r4/back-id.png"
+    }
+  },
+  "seconds": 69.87853750000068,
+  "metrics": {
+    "crown_part_band": {
+      "pixels": 4905,
+      "p50": 0.24306509803921567,
+      "p90": 0.394203137254902,
+      "RB": 1.2467796587379516,
+      "mean_luminance": 0.2580254518998221
+    },
+    "sides": {
+      "pixels": 32018,
+      "p50": 0.07305333333333333,
+      "p90": 0.20221803921568626,
+      "RB": 1.6443274828065115,
+      "mean_luminance": 0.09622809054710646
+    },
+    "lower_sheet": {
+      "pixels": 31842,
+      "p50": 0.019144705882352942,
+      "p90": 0.12763607843137256,
+      "RB": 1.7864247034601035,
+      "mean_luminance": 0.043685479900144215
+    },
+    "back_view": {
+      "pixels": 240198,
+      "p50": 0.0781121568627451,
+      "p90": 0.27804,
+      "RB": 1.5075515093301486,
+      "mean_luminance": 0.1202498462428627
+    },
+    "whole_front": {
+      "pixels": 82021,
+      "p50": 0.08675294117647059,
+      "p90": 0.262636862745098,
+      "RB": 1.4891174635717181,
+      "mean_luminance": 0.113374446525053
+    },
+    "part_side_ratio": 2.6813942834448237,
+    "cheek": {
+      "box_norm": [
+        0.39,
+        0.4,
+        0.61,
+        0.52
+      ],
+      "pixels": 27622,
+      "p50": 0.7488007843137255
+    },
+    "mask_area": {
+      "front_px": 82021,
+      "back_px": 240198
+    }
+  },
+  "score": {
+    "p50": 0.5448712087194091,
+    "p90": 0.8152291394042036,
+    "RB": 0.01301946843798225,
+    "part_side": 2.162788566889647,
+    "face": 0.0,
+    "mask": 0.0,
+    "total": 3.535908383451242
+  },
+  "face_drift_pct": -0.032983049853629876,
+  "mask_area_change_pct": -0.4563272934694224
+}

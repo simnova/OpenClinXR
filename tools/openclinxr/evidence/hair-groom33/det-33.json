@@ -1,0 +1,39 @@
+{
+ "refSha": "4034cf7bead7f23f24c7c6f728a33ac90f169cd2c70bc2ef3c2893d69f470c89",
+ "rebuildSha": "4034cf7bead7f23f24c7c6f728a33ac90f169cd2c70bc2ef3c2893d69f470c89",
+ "refArrSha": "d88ba1cd044098a5637b30f173a06bf1a3d9b2ab6619ec5b8cf9be2d579e646b",
+ "rebuildArrSha": "d88ba1cd044098a5637b30f173a06bf1a3d9b2ab6619ec5b8cf9be2d579e646b",
+ "shapes": [
+  [
+   281414,
+   32,
+   3
+  ],
+  [
+   281414,
+   32,
+   3
+  ]
+ ],
+ "maxAbsDiffMm": 0.0,
+ "flags": [
+  "--region-weight",
+  "--uv-cutoff",
+  "0.15",
+  "--pool-max-move-mm",
+  "60",
+  "--pool-ref",
+  "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz",
+  "--temple-taper",
+  "0.5",
+  "--lobe-drop-roots",
+  "--sideburn-cap-lobe",
+  "--cap-reproject",
+  "--shirt-sdf",
+  "/Volumes/files/openclinxr-assets/store/hair-groom31/shirt-sdf-4mm.npz",
+  "--shirt-clear-mm",
+  "0.5"
+ ],
+ "pass": true,
+ "note": "groom33 recipe (no sweep, no tuck, no settle); compares vs store strands-33"
+}

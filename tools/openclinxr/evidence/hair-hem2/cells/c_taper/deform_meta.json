@@ -1,0 +1,12 @@
+{
+  "tag": "c_taper",
+  "base": "hair-hem2/base/strands.npz",
+  "deform": {
+    "cell": "taper",
+    "lowerFibres": 65953,
+    "sMin": 0.818,
+    "sMean": 0.9496,
+    "moved": 34154,
+    "rule": "per-fibre rigid x*=s(v_tip): s=smoothed tgt/ours width ratio over lower-40% band clipped [0.80,1.0], s=1 above band"
+  }
+}

@@ -1,0 +1,205 @@
+{
+ "calibration": {
+  "iou": {
+   "front": {
+    "iou": 0.7446,
+    "missPx": 11274,
+    "excessPx": 11866
+   },
+   "three_quarter": {
+    "iou": 0.8261,
+    "missPx": 14783,
+    "excessPx": 3958
+   },
+   "profile_90": {
+    "iou": 0.8543,
+    "missPx": 8656,
+    "excessPx": 15299
+   },
+   "back": {
+    "iou": 0.8579,
+    "missPx": 30471,
+    "excessPx": 20070
+   }
+  },
+  "all_within_0.02": true,
+  "pass": true,
+  "hard": true
+ },
+ "determinismChildren": {
+  "v": {
+   "groom19f": {
+    "storeSha": "fac47e1c30ffcb0e4da6ab5eb3dc2824903c8cfb656abc1938fa91eb6cb44086",
+    "rebuildSha": "fac47e1c30ffcb0e4da6ab5eb3dc2824903c8cfb656abc1938fa91eb6cb44086",
+    "storeArrSha": "f864fcefa93b62c9cd1bdcf49a7987a6762aea35b83a2fbe2f282dd86419ab19",
+    "rebuildArrSha": "f864fcefa93b62c9cd1bdcf49a7987a6762aea35b83a2fbe2f282dd86419ab19",
+    "pass": true
+   },
+   "groom24": {
+    "storeSha": "c7da8418dd0018aec2ff38560c60a8d4c7173b5ee1a2350509cd3b017e72834f",
+    "rebuildSha": "c7da8418dd0018aec2ff38560c60a8d4c7173b5ee1a2350509cd3b017e72834f",
+    "storeArrSha": "15603459c2e19c07e4c330081027a03c06f11b2b9f0e74b666abe7fa56ac8d2e",
+    "rebuildArrSha": "15603459c2e19c07e4c330081027a03c06f11b2b9f0e74b666abe7fa56ac8d2e",
+    "pass": true
+   }
+  },
+  "gate": "identical points+radii hash on rebuild",
+  "pass": true,
+  "hard": true
+ },
+ "groom19f": {
+  "frontIoU": {
+   "v": 0.7914,
+   "ref": 0.7913,
+   "delta": 0.0001,
+   "gate": "within +-0.01 of groom19 0.7913",
+   "pass": true
+  },
+  "q3IoU": {
+   "v": 0.8406,
+   "gate": ">= 0.83",
+   "pass": true
+  },
+  "profileIoU": {
+   "v": 0.8156,
+   "gate": ">= 0.81",
+   "pass": true
+  },
+  "backIoU": {
+   "v": 0.7964,
+   "gate": ">= 0.80",
+   "pass": false
+  },
+  "concha": {
+   "v": {
+    "front": 0,
+    "three_quarter": 0,
+    "profile_90": 0
+   },
+   "gate": "0 all views",
+   "pass": true
+  },
+  "insideBody": {
+   "v": 0,
+   "gate": "== 0",
+   "pass": true
+  },
+  "faceMaskFront": {
+   "v": {
+    "maskPx": 93895,
+    "targetHairPx": 1547,
+    "oursHairPx": 3036,
+    "allowPx": 3424.9,
+    "pass": true
+   },
+   "gate": "ours<=target+2%mask, front view",
+   "pass": true
+  },
+  "faceMask3q_report": {
+   "v": {
+    "maskPx": 91763,
+    "targetHairPx": 292,
+    "oursHairPx": 2732,
+    "allowPx": 2127.3,
+    "pass": false
+   },
+   "gate": "report only (groom19 3q FAILs this)",
+   "pass": true
+  },
+  "knotHole_report": {
+   "v": 0,
+   "bareFrac": 0.0,
+   "gate": "report only (groom19 == 0)",
+   "pass": true
+  },
+  "rloop_report": {
+   "profile": 85140,
+   "back": 95616,
+   "gate": "report only (groom19 85k/96k vs <11587)",
+   "pass": true
+  },
+  "hard": {
+   "pass": false
+  },
+  "determinism": true,
+  "hardWithDeterminism": false
+ },
+ "groom24": {
+  "frontIoU": {
+   "v": 0.7947,
+   "ref": 0.7913,
+   "delta": 0.0034,
+   "gate": "within +-0.01 of groom19 0.7913",
+   "pass": true
+  },
+  "q3IoU": {
+   "v": 0.8368,
+   "gate": ">= 0.83",
+   "pass": true
+  },
+  "profileIoU": {
+   "v": 0.8076,
+   "gate": ">= 0.81",
+   "pass": false
+  },
+  "backIoU": {
+   "v": 0.7778,
+   "gate": ">= 0.80",
+   "pass": false
+  },
+  "concha": {
+   "v": {
+    "front": 0,
+    "three_quarter": 0,
+    "profile_90": 0
+   },
+   "gate": "0 all views",
+   "pass": true
+  },
+  "insideBody": {
+   "v": 0,
+   "gate": "== 0",
+   "pass": true
+  },
+  "faceMaskFront": {
+   "v": {
+    "maskPx": 93895,
+    "targetHairPx": 1547,
+    "oursHairPx": 3369,
+    "allowPx": 3424.9,
+    "pass": true
+   },
+   "gate": "ours<=target+2%mask, front view",
+   "pass": true
+  },
+  "faceMask3q_report": {
+   "v": {
+    "maskPx": 91763,
+    "targetHairPx": 292,
+    "oursHairPx": 3203,
+    "allowPx": 2127.3,
+    "pass": false
+   },
+   "gate": "report only (groom19 3q FAILs this)",
+   "pass": true
+  },
+  "knotHole_report": {
+   "v": 0,
+   "bareFrac": 0.0,
+   "gate": "report only (groom19 == 0)",
+   "pass": true
+  },
+  "rloop_report": {
+   "profile": 112000,
+   "back": 122498,
+   "gate": "report only (groom19 85k/96k vs <11587)",
+   "pass": true
+  },
+  "hard": {
+   "pass": false
+  },
+  "determinism": true,
+  "hardWithDeterminism": false
+ },
+ "pass": false
+}

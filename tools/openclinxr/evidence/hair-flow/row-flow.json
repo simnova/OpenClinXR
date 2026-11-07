@@ -1,0 +1,292 @@
+{
+  "M11": {
+    "bridges": 0,
+    "components": [
+      {
+        "area_cm2": 631.4731123137208,
+        "bbox": [
+          [
+            -0.07552503794431686,
+            -0.148274227976799,
+            1.4733914136886597
+          ],
+          [
+            0.07552503794431686,
+            0.03888189047574997,
+            1.6599169969558716
+          ]
+        ],
+        "faces": 62336
+      }
+    ],
+    "pair_mindist_mm": [],
+    "weld_trial": [
+      {
+        "components": 1,
+        "dist_m": 1e-05,
+        "faces": 62336,
+        "verts": 31825
+      }
+    ]
+  },
+  "M14": {
+    "arc_contains0": true,
+    "bridges_skipped_near_slit": 0,
+    "corners": [
+      5925,
+      18717
+    ],
+    "disjoint": true,
+    "exit": 891,
+    "exit_az": [
+      -179.9764996809995,
+      179.7126989160406
+    ],
+    "forehead": 82,
+    "forehead_az": [
+      -42.061519719588674,
+      42.06155033904887
+    ],
+    "g13frac": 0.6809752747252747,
+    "g13n": 2912,
+    "minexit_absaz": 42.63631628819954,
+    "slit": 211,
+    "slit_az": [
+      -179.99681616154535,
+      179.87208192832648
+    ],
+    "slit_phi_allpos": true,
+    "slit_phi_min_m": 0.01933363983365835,
+    "temple_az": [
+      42.06155033904887,
+      -42.061519719588674
+    ],
+    "unreachable": []
+  },
+  "M6": {
+    "brow": [
+      2.387085196176031e-09,
+      -0.15853150188922882,
+      1.5303385257720947
+    ],
+    "crown": 1.6599169969558716,
+    "cx": 7.206768515288786e-10,
+    "cy": -0.12045247852802277,
+    "earL": [
+      0.08326534926891327,
+      -0.03894279897212982,
+      1.5447144508361816
+    ],
+    "earR": [
+      -0.08326534926891327,
+      -0.03894279897212982,
+      1.5447144508361816
+    ],
+    "ear_top_z": 1.5542949438095093
+  },
+  "P1": {
+    "dims": [
+      1.015230655670166,
+      0.41669678688049316,
+      1.6599171161651611
+    ],
+    "note": "head is Aisha GLB largest mesh (whole body); landmarks restricted to z>crown-0.26 head-only set",
+    "scale": [
+      1.0,
+      1.0,
+      1.0
+    ]
+  },
+  "P2": {
+    "face": "-Y",
+    "nose": [
+      2.1785400150520218e-09,
+      -0.16444358229637146,
+      1.517953634262085
+    ],
+    "note": "face -Y confirmed: nose y -0.1644 < apex y -0.0532"
+  },
+  "apex": [
+    1.1403722410818773e-09,
+    -0.053241077810525894,
+    1.6599169969558716
+  ],
+  "area_cm2": 632.7531151579659,
+  "argmax": {
+    "id": 19104,
+    "phi": 0.149973571895356,
+    "xoff_mm": 8.910041593424012e-07
+  },
+  "bedge_mm": 0.718941649735995,
+  "coarse_area_cm2": 631.4730500214445,
+  "components": 1,
+  "counts": {
+    "boundary": 1184,
+    "cap_faces": 61920,
+    "cap_verts": 31553,
+    "exit": 891,
+    "fallback": 22,
+    "fore": 82,
+    "g5n": 1220,
+    "g6n": 14568,
+    "g7n": 8324,
+    "slit": 211
+  },
+  "delta": 0.08,
+  "ear_top": 1.5542949438095093,
+  "g3_mm": 2.7902656131320036,
+  "gates": [
+    {
+      "id": "G1",
+      "measured": 632.7531151579659,
+      "status": "PASS",
+      "threshold": "[550,750]+2%"
+    },
+    {
+      "id": "G2",
+      "measured": 101.0,
+      "status": "PASS",
+      "threshold": "101"
+    },
+    {
+      "id": "G3",
+      "measured": 2.7902656131320036,
+      "status": "PASS",
+      "threshold": "<=3"
+    },
+    {
+      "id": "G4",
+      "measured": 19.33363983365835,
+      "status": "MISS",
+      "threshold": "slitmin>=30+allpos+xoff<=10"
+    },
+    {
+      "id": "G5",
+      "measured": 0.24664882761546397,
+      "status": "MISS",
+      "threshold": "<=0.2"
+    },
+    {
+      "id": "G6",
+      "measured": 67.42174629324546,
+      "status": "MISS",
+      "threshold": ">=95"
+    },
+    {
+      "id": "G7",
+      "measured": 93.00816914944738,
+      "status": "MISS",
+      "threshold": ">=95"
+    },
+    {
+      "id": "G8",
+      "measured": 0.0,
+      "status": "PASS",
+      "threshold": "0"
+    },
+    {
+      "id": "G9",
+      "measured": 0.0002384185791015625,
+      "status": "PASS",
+      "threshold": "<=5"
+    },
+    {
+      "id": "G10",
+      "measured": 100.0,
+      "status": "PASS",
+      "threshold": "100"
+    },
+    {
+      "id": "G11",
+      "measured": 42.63631628819954,
+      "status": "PASS",
+      "threshold": "EXIT|az|>=20+forehas0"
+    },
+    {
+      "id": "G13",
+      "measured": 68.09752747252747,
+      "status": "MISS",
+      "threshold": ">=90"
+    }
+  ],
+  "loop_cov": 1.0,
+  "loop_order": 1184,
+  "loop_sizes": [
+    1184
+  ],
+  "loops": 1,
+  "occiput_z": 1.5399169969558715,
+  "phicol": {
+    "above_ear": 0.04488849710980769,
+    "exit": 0.0,
+    "forehead": 0.011801490500064302,
+    "max": 0.149973571895356,
+    "nape": 0.022752926540350736,
+    "slit": 0.048829981051874645
+  },
+  "reach": [
+    31553,
+    31553
+  ],
+  "slice": "hair-flow-4",
+  "steps": [
+    {
+      "area_cm2": 631.4729923815321,
+      "components": 1,
+      "faces": 974,
+      "op": "coarse-select",
+      "verts": 566
+    },
+    {
+      "area_cm2": 631.4729923815321,
+      "components": 1,
+      "faces": 974,
+      "op": "remove_doubles-1e-5",
+      "verts": 549
+    },
+    {
+      "area_cm2": 631.472988300743,
+      "components": 1,
+      "faces": 3896,
+      "op": "subdiv-1",
+      "verts": 2095
+    },
+    {
+      "area_cm2": 631.4731562159182,
+      "components": 1,
+      "faces": 15584,
+      "op": "subdiv-2",
+      "verts": 8109
+    },
+    {
+      "area_cm2": 631.4731123137208,
+      "components": 1,
+      "faces": 62336,
+      "op": "subdiv-3",
+      "verts": 31825
+    },
+    {
+      "area_cm2": 631.4731123137208,
+      "components": 1,
+      "faces": 62336,
+      "op": "triangulate+weld",
+      "verts": 31825
+    }
+  ],
+  "templeL": {
+    "id": 9628,
+    "xyz": [
+      0.020219771191477776,
+      -0.14286035299301147,
+      1.5897736549377441
+    ]
+  },
+  "templeR": {
+    "id": 12752,
+    "xyz": [
+      -0.020219774916768074,
+      -0.14286038279533386,
+      1.5897738933563232
+    ]
+  }
+}

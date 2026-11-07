@@ -1,0 +1,97 @@
+{
+ "registration": "skull",
+ "idThreshold": 230,
+ "r1": {
+  "front": {
+   "transform": {
+    "scale": 0.9545143883864126,
+    "tx": 24.28863314615677,
+    "ty": 51.51811157072147
+   },
+   "chinRow": 608,
+   "above": {
+    "iou": 0.5137,
+    "nOursContour": 8957,
+    "nTgtContour": 2864,
+    "signedP50px": -20.22,
+    "signedP95px": -5.39,
+    "absP95px": 34.02,
+    "signedP50mm": -9.299,
+    "signedP95mm": -2.476,
+    "absP95mm": 15.644
+   },
+   "below": {
+    "iou": 0.4835,
+    "nOursContour": 4527,
+    "nTgtContour": 946,
+    "signedP50px": 8.0,
+    "signedP95px": 120.84,
+    "absP95px": 120.84,
+    "signedP50mm": 3.678,
+    "signedP95mm": 55.563,
+    "absP95mm": 55.563
+   }
+  },
+  "profile_90": {
+   "transform": {
+    "scale": 1.0511627906976744,
+    "tx": 124.30697674418604,
+    "ty": -12.702325581395343
+   },
+   "chinRow": 577,
+   "above": {
+    "iou": 0.5913,
+    "nOursContour": 28906,
+    "nTgtContour": 1850,
+    "signedP50px": -61.52,
+    "signedP95px": 11.4,
+    "absP95px": 137.28,
+    "signedP50mm": -28.287,
+    "signedP95mm": 5.242,
+    "absP95mm": 63.118
+   },
+   "below": {
+    "iou": 0.4143,
+    "nOursContour": 3346,
+    "nTgtContour": 1158,
+    "signedP50px": 1.0,
+    "signedP95px": 109.95,
+    "absP95px": 109.95,
+    "signedP50mm": 0.46,
+    "signedP95mm": 50.552,
+    "absP95mm": 50.552
+   }
+  },
+  "back": {
+   "transform": {
+    "scale": 1.0403225806451613,
+    "tx": -19.645161290322562,
+    "ty": -31.25
+   },
+   "chinRow": 611,
+   "above": {
+    "iou": 0.8227,
+    "nOursContour": 22431,
+    "nTgtContour": 1923,
+    "signedP50px": -41.0,
+    "signedP95px": 5.66,
+    "absP95px": 96.2,
+    "signedP50mm": -18.851,
+    "signedP95mm": 2.601,
+    "absP95mm": 44.232
+   },
+   "below": {
+    "iou": 0.3039,
+    "nOursContour": 20885,
+    "nTgtContour": 1384,
+    "signedP50px": -40.0,
+    "signedP95px": 25.71,
+    "absP95px": 96.0,
+    "signedP50mm": -18.391,
+    "signedP95mm": 11.821,
+    "absP95mm": 44.14
+   }
+  }
+ },
+ "three_quarter": "no registered target (same as the shell lane)"
+}

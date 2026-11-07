@@ -1,0 +1,85 @@
+RESULT hair-groom9: selective groom8a-guide repair + ordinary hairline children
+
+METHOD
+- Base is groom8a guides-8a.npz. Hairline/temple take-off stays unchanged.
+- Total turning is measured in 5 mm chord space after a 40 mm leader. The
+  orientation-field calibration used by the station is faceframe p50/p95/max
+  19/243/640 deg, crown 0/241/482, back 0/245/398, other 0/268/625.
+  Region budgets are 650/300/450/650 deg respectively; crown 300 is the
+  measured selective threshold that binds the 8a knot tail while preserving
+  its p90=278 deg bulk. Only 61 stored guides exceeded budget. Their post-
+  leader remainder was locally chord-faired; leaders and endpoints stayed.
+- Part corridor changed 191 guides rooted within 12 mm of the line. They exit
+  laterally to 3 mm by 10 mm arc, remain outside the 2.5 mm corridor through
+  40 mm, and rejoin the groom8a route by 60 mm. This limits the corridor to
+  the part rows rather than drawing a line down the whole back.
+- Xneg edge repair changed 603 selected guides (602 had an actual downward
+  move). Only the last quarter slides downward with cubic ease to the local
+  hull hem; it does not retrace the accepted leader/body route.
+- Unique changed guide rows: 773. Untouched rows: 1877, byte-identical to
+  guides-8a.npz. The 57 tucked guides are verbatim. No guide was deleted.
+- Hairline/sideburn-short was removed. 5860 hairline children use ordinary
+  nearest-temple interpolation plus a 0.55..1.0 length taper only. Sideburn
+  rescale-collapse, sideburn hug, and temple hug are off; tuck remains.
+- No face/brow trim and no image-position length trim. assignAcross uses each
+  CHILD's stored root: 0 above-vertex assignments across the part (HARD PASS;
+  459 below-vertex pairs are allowed by the sheet-merge convention).
+
+VISUAL READ (native 1024)
+- Face remains visually clear of blunt bangs; no downstream brow trim exists.
+- Full-length back-centre part-corridor regression is gone.
+- The upper-right back knot and one enclosed dark hole remain. Re-tracing/
+  fairing the 61 over-budget rows did NOT remove the knot. The local knot
+  metric reports 1 enclosed hole and 0.0001 bare fraction.
+- A dark sideburn tuft remains in 3q and loops remain behind the ear/profile.
+  These are not hidden by radii or image-position trimming.
+
+GATES
+- Front IoU 0.7041 >= 0.70 PASS. Front miss:excess 0.45 <= 2 PASS.
+- 3q miss:excess 0.48 <= 2 PASS. Concha front/3q/profile 0/0/0 PASS.
+- Parietal depth p50/p90 5.33/14.85 mm PASS. Temple depth p50 3.26 mm
+  (<3.5) FAIL; p90 9.21 mm.
+- Temple tips >3 mm off skin: profile xpos/xneg 0/0, 3q xpos/xneg 3/0;
+  <=10 per box PASS.
+- Hairline luminance contrast is defined as p90-p10 luminance inside the
+  target hairline band: front target/groom9 146/136, ratio 0.932 PASS;
+  3q 149/143, ratio 0.960 PASS (required within 1.5x).
+- Face-mask HARD gate (brow down, target skin component): front ours 4704,
+  target 1547, allowance 3424.9 FAIL; 3q ours 3575, target 292, allowance
+  2127.3 FAIL. No trimming was used to pursue this gate.
+- Part back 0 rows vs target 56 FAIL (need 39-73); front 0 vs 36 FAIL
+  (need 25-47). Median widths 0 vs target 7/9 px FAIL.
+- Seam gate redefined as no bare gap outside part rows wider than the target's
+  own maximum part width: groom9 0 <= target 9 px PASS.
+- Back core alpha<0.9 10.18% >5% FAIL. Right hem alpha<0.9 31.72% >10%
+  FAIL; miss 13.49% <=15% PASS.
+- R-LOOP profile 145796 and back-equivalent 153612, each required <11587:
+  FAIL. Back knot/hole 1, required 0: FAIL.
+- HARD mechanics: count 283100x32 PASS; assignAcross 0 PASS; inside-body 0
+  PASS; visible pinna samples <3 mm 0 PASS; determinism sha
+  3087ba9b...==3087ba9b PASS; lane peak 0.993 PASS; frame spin 0 PASS.
+- GATES_PASS=no.
+
+REMAINING
+- Upper-right back knot/hole persists after selective over-budget repair.
+- Part does not open to the target row counts or width.
+- Behind-ear/profile loops and dark 3q sideburn tuft persist; R-LOOP fails.
+- Face-mask ID counts fail even though the beauty read has no blunt bangs.
+- Temple p50 depth, back-core opacity, and right-hem opacity fail.
+
+RENDER
+- Studio scorer-v3 four views + IDs, 1024 px / 64 spp / seed 7 / OIDN.
+  Seconds: front 56.7, 3q 55.9, profile 61.0, back 106.5; IDs 34.0,
+  32.0, 42.8, 74.0; total 463.9.
+- sheet.png rows are target | groom8b | groom9. crops.png uses the same rows:
+  3q ear, profile ear, back crown/part, back hem L/R, nape, front curtain L/R,
+  top 3q, and front hairline band.
+- Big strands npz is in /Volumes/files/openclinxr-assets/store/hair-groom9,
+  sha256 01cc58ab...d25b803, 103016903 bytes. No *.blend exists.
+
+SCOPE: groom9 guide/child station only; groom8a guide base; selective total-
+turn, part-band, and xneg-edge local guide edits; groom8b interpolation child;
+scorer-v3 cameras, skull registration, aisha-v3 targets; no old-chain paths.
+NOT TESTED: physical Quest 3/worn-headset evidence; clinical validity,
+licensure, exam equivalence, or scoring claims; other bodies/seeds; animation,
+dynamics, or held-out lighting; promotion readiness beyond listed gates.

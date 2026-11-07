@@ -1,0 +1,124 @@
+{
+ "cell": "B",
+ "stem": "guides12",
+ "brief": "hair-guides-12/S2",
+ "gates": [
+  {
+   "gate": "G1",
+   "measured": "p95=0.0000 max=0.0000",
+   "bar": "mirror path p95<=0.5mm max<=2mm",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G2",
+   "measured": "n=584 roots=600 pts32=True nan=0 short=0 zero=0",
+   "bar": "guides>=90% roots and 32pts and 0NaN and 0 segs<2.5mm and 0 zero-length",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G3",
+   "measured": "behind-viol=0 front=0 tot=6173",
+   "bar": "0 pts in front of back surface below shoulder top and 0 in front of shoulder",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G4",
+   "measured": "inside=272 min=0.01mm",
+   "bar": "0 inside and min>=2mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G5",
+   "measured": "coverL=0.413 coverR=0.467 face=0 forehead=51",
+   "bar": "pinna cover>=0.95 both and 0 face and 0 forehead",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G6",
+   "measured": "p95=49.37 max=164.17",
+   "bar": "turn p95<=8 and max<=30 deg/cm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G7",
+   "measured": "hem=1.133 tipstd=3.49mm",
+   "bar": "hem within +-0.04 of 0.73 and tip std<=8mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G8",
+   "measured": "angle=29.3vs21.4 ratio=0.904vs1.26",
+   "bar": "front-edge angle within 12deg and width ratio within 15%",
+   "verdict": "MISS"
+  }
+ ],
+ "z_hem": 1.2954059969558716,
+ "menton_z": 1.4492169969558715,
+ "crown_z": 1.6599169969558716,
+ "brow_z": 1.5716520547866821,
+ "nasion_z": 1.548233985900879,
+ "count": 584,
+ "n_roots": 600,
+ "dropped": 16,
+ "drop_face": {
+  "drop-short:above_ear": 8,
+  "drop-short:forehead_temple": 2
+ },
+ "regs": {
+  "nape": 372,
+  "above_ear": 58,
+  "forehead_temple": 154
+ },
+ "p2": {
+  "nape": 372,
+  "above_ear": 62,
+  "forehead_temple": 155,
+  "trace-fail": 11
+ },
+ "g1": {
+  "p50_mm": 0.0,
+  "p95_mm": 1.4960906878660488e-06,
+  "max_mm": 3.0372087524863416e-06,
+  "n_a": 584,
+  "n_b": 584,
+  "n_pair": 584
+ },
+ "g2": {
+  "short": 0,
+  "zero": 0,
+  "nan": 0,
+  "pts32": true
+ },
+ "g3": {
+  "behind_viol": 0,
+  "front": 0,
+  "tot": 6173
+ },
+ "g4": {
+  "inside": 272,
+  "min_mm": 0.013876597483119514
+ },
+ "g5": {
+  "cover": {
+   "L": 0.41307634164777024,
+   "R": 0.46674225245653816
+  },
+  "face": 0,
+  "forehead": 51,
+  "canthus_x": 0.06045817655867047
+ },
+ "g6": {
+  "p95": 49.36909984255126,
+  "max": 164.17380570946537
+ },
+ "g7": {
+  "hem_hh": 1.13314447592068,
+  "tipstd_mm": 3.494707795215353
+ },
+ "g8": {
+  "angle_ours": 29.30494994622763,
+  "angle_ts": 21.4,
+  "ratio_ours": 0.9040284821662291,
+  "ratio_ts": 1.26
+ }
+}

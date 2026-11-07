@@ -1,0 +1,117 @@
+{
+  "tag": "g5",
+  "silhouette": {
+    "front": 0.6719787879616215,
+    "eroded": 0.493415542347397,
+    "profile": 0.6855332734710167,
+    "back": 0.7718654930720744
+  },
+  "eyeGap": {
+    "L": 1.2321428571428572,
+    "R": 1.3142857142857143
+  },
+  "standing": false,
+  "showThrough": 0.018520040546834333,
+  "inside": 0,
+  "geometry": {
+    "sampledChildren": 2000,
+    "radiusMm": 5.0,
+    "fractions": [
+      {
+        "arcFraction": 0.2,
+        "directionAngleStdDeg": 7.466721113639613,
+        "directionAngleMedianDeg": 1.8779755447053963,
+        "neighbourSpacingStdMm": 1.1554933403870633,
+        "neighbourSpacingMedianMm": 3.479430986449223,
+        "pairs": 237266
+      },
+      {
+        "arcFraction": 0.4,
+        "directionAngleStdDeg": 4.401250249552576,
+        "directionAngleMedianDeg": 1.199213365361944,
+        "neighbourSpacingStdMm": 1.1617196059857022,
+        "neighbourSpacingMedianMm": 3.4190865839122755,
+        "pairs": 443753
+      },
+      {
+        "arcFraction": 0.6,
+        "directionAngleStdDeg": 3.467619290664783,
+        "directionAngleMedianDeg": 2.030107413914016,
+        "neighbourSpacingStdMm": 1.1592372141031584,
+        "neighbourSpacingMedianMm": 3.43712000636041,
+        "pairs": 778823
+      },
+      {
+        "arcFraction": 0.8,
+        "directionAngleStdDeg": 10.629144209091802,
+        "directionAngleMedianDeg": 3.6473646205929633,
+        "neighbourSpacingStdMm": 1.1457534111775458,
+        "neighbourSpacingMedianMm": 3.5313882109371795,
+        "pairs": 1251443
+      }
+    ],
+    "directionAngleStdDeg": 6.491183715737193,
+    "neighbourSpacingStdMm": 1.1555508929133675
+  },
+  "endTangents": {
+    "frontCurtain": {
+      "count": 16889,
+      "p50Deg": 0.07484027192831466,
+      "p95Deg": 0.8838349571696758
+    },
+    "backHem": {
+      "count": 37640,
+      "p50Deg": 0.010698507522202822,
+      "p95Deg": 0.36063716075942215
+    }
+  },
+  "look": {
+    "front": {
+      "highpass": {
+        "tileCount": 122,
+        "median": 0.1049816385995977,
+        "p90": 0.1925633889249982
+      },
+      "sheen": {
+        "thresholdP90": 0.28606611764705986,
+        "components": 308,
+        "medianAreaPx": 1.0,
+        "maxAreaPx": 1982
+      }
+    },
+    "three_quarter": {
+      "highpass": {
+        "tileCount": 146,
+        "median": 0.04668924511030695,
+        "p90": 0.13273866346997565
+      },
+      "sheen": {
+        "thresholdP90": 0.28389647058823525,
+        "components": 458,
+        "medianAreaPx": 1.0,
+        "maxAreaPx": 2399
+      }
+    },
+    "back": {
+      "highpass": {
+        "tileCount": 282,
+        "median": 0.08251528772438413,
+        "p90": 0.13142604138256964
+      },
+      "sheen": {
+        "thresholdP90": 0.34266823529411766,
+        "components": 275,
+        "medianAreaPx": 2.0,
+        "maxAreaPx": 13700
+      }
+    }
+  },
+  "frontLook": {
+    "p50": 0.14437176470588237,
+    "p90": 0.28606611764705986,
+    "partSide": 1.3560873569195357,
+    "faceP50": 0.7314533333333333,
+    "maskPx": 83652
+  },
+  "judgeJson": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g5/judge/g5.json"
+}

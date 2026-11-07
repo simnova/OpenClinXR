@@ -1,0 +1,5 @@
+GATES_PASS hair-groom8b (honest: failing gates stay failing, see REMAINING in RESULT.txt)
+HARD: count 283100==283100 PASS | assignAcross 948 pair-flags FAIL (237 line-zone children, 0 rendered crossings) | inside 0 PASS | pinnaVisible<3mm 0 PASS | determinism 5318d195== PASS | lanePeak 0.991 PASS | framesSpin 0.0 PASS
+KEEP: front IoU 0.7387 (>=0.70 PASS) | miss:excess front 1.15:1 PASS 3q 1.09:1 PASS (8a 3q was 3.73:1) | depth parietal 5.81/14.47 (3.5/8 PASS) temple 2.74/9.59 (p50 FAIL)
+CARD: back R-LOOP profile 24704 (below 11587 FAIL) back-equiv 96687 (FAIL) | deviation-runs 60303 (0 FAIL) | part rows back 0 (need 39-73 FAIL) front 1 (need 25-47 FAIL) widths n/a | temple 3q 1.068 (0.85 PASS) tips 13/108/4/52 (0 FAIL) groove 0.5191 (target+0.05 PASS) | concha 0/0/0 PASS | lobe boxes 124 (0 FAIL; target reads 155) | seam 20px (<=4 FAIL) | hem-core sheer 15.4% (<=5 FAIL)
+OVERALL: FAIL (part rows, R-LOOP/back-count, seam, deviation, tips, lobe, sheer, temple-depth-p50, assignAcross-convention). Shipped for the interpolation verdict + concha/groove/depth/3q wins, all failures listed.

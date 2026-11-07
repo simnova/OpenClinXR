@@ -1,0 +1,152 @@
+{
+ "schema": "openclinxr.hair-back-field-measure.v1",
+ "field": "tools/openclinxr/evidence/hair-orient0/field.npz",
+ "guides": "tools/openclinxr/evidence/hair-groom19/build/guides-19.npz",
+ "region": {
+  "yEarMm": -63.5,
+  "zNapeMm": 1510.0,
+  "backVoxels": 45752,
+  "frontVoxels": 595262,
+  "totalVoxels": 641014,
+  "spacingMm": 2.0
+ },
+ "disagreementDeg": {
+  "backPooledPairs": {
+   "n": 536588,
+   "min": 0.0,
+   "p50": 4.701,
+   "p90": 14.708,
+   "max": 89.999,
+   "mean": 7.768
+  },
+  "frontPooledPairs": {
+   "n": 7371544,
+   "min": 0.0,
+   "p50": 5.482,
+   "p90": 21.779,
+   "max": 90.0,
+   "mean": 9.775
+  },
+  "backPerVoxMean": {
+   "n": 45752,
+   "min": 0.0,
+   "p50": 5.425,
+   "p90": 15.693,
+   "max": 83.989,
+   "mean": 8.14
+  },
+  "backPerVoxP90": {
+   "n": 45752,
+   "min": 0.0,
+   "p50": 9.252,
+   "p90": 28.619,
+   "max": 89.425,
+   "mean": 14.21
+  },
+  "frontPerVoxMean": {
+   "n": 595262,
+   "min": 0.0,
+   "p50": 6.636,
+   "p90": 21.792,
+   "max": 86.928,
+   "mean": 10.092
+  },
+  "frontPerVoxP90": {
+   "n": 595262,
+   "min": 0.0,
+   "p50": 11.414,
+   "p90": 42.218,
+   "max": 89.805,
+   "mean": 17.905
+  },
+  "frontRefP90": 21.779,
+  "signedBackPooledPairs": {
+   "n": 76650,
+   "p50": 4.737,
+   "p90": 16.081,
+   "note": "stride-7 uniform sample, signed angle 0..180"
+  },
+  "signedFrontPooledPairs": {
+   "n": 1053326,
+   "p50": 6.027,
+   "p90": 153.049,
+   "note": "stride-7 uniform sample; large sign flips are the part-line splay (expected structure), not noise"
+  }
+ },
+ "eigen": {
+  "note": "s02 archives gap/beta/nviews, not lam0; residual lam0/trace not recoverable exactly",
+  "backGap": {
+   "n": 45752,
+   "min": 0.0,
+   "p50": 0.139,
+   "p90": 0.324,
+   "max": 0.493,
+   "mean": 0.151
+  },
+  "frontGap": {
+   "n": 595262,
+   "min": 0.0,
+   "p50": 0.297,
+   "p90": 0.463,
+   "max": 0.5,
+   "mean": 0.263
+  },
+  "backBeta": {
+   "n": 45752,
+   "min": 0.0,
+   "p50": 0.696,
+   "p90": 1.0,
+   "max": 1.0,
+   "mean": 0.577
+  },
+  "frontBeta": {
+   "n": 595262,
+   "min": 0.0,
+   "p50": 1.0,
+   "p90": 1.0,
+   "max": 1.0,
+   "mean": 0.758
+  },
+  "backNviewsMean": 2.889,
+  "frontNviewsMean": 2.497
+ },
+ "crossingBACK19": {
+  "nCrossPairs": 9715,
+  "gate30pct": 2914,
+  "baseline9715": 9715
+ },
+ "crossingMidSampleN": 4000,
+ "smoothing": {
+  "schema": "openclinxr.hair-back-field-smooth.v1",
+  "weight": "certainty c=clip(gap/0.2,0,1)*min(nviews,2)/2 (s02 beta), neighbour-weighted mean, lam=0.5",
+  "iterations": 1,
+  "frontRefP90": 21.779,
+  "backPooledP90Before": 14.708,
+  "backPooledP90After": 11.85,
+  "backPooledAfter": {
+   "n": 536588,
+   "min": 0.0,
+   "p50": 3.898,
+   "p90": 11.85,
+   "max": 89.999,
+   "mean": 6.281
+  },
+  "historyP90": [
+   14.708,
+   11.85
+  ],
+  "gate": "backPooledP90 <= frontRefP90",
+  "pass": true,
+  "frontUntouched": true,
+  "frontByteIdentical": true
+ },
+ "causeReading": {
+  "unsignedBackP90": 14.708,
+  "unsignedFrontP90": 21.779,
+  "signedBackP90": 16.081,
+  "signedFrontP90": 153.049,
+  "backGapP50": 0.139,
+  "frontGapP50": 0.297,
+  "interpretation": "back LINE field is locally smooth (p90 below front); back eigen-certainty is lower (gap p50 0.139 vs 0.297, beta mean 0.577 vs 0.758): back voxels are more prior-blended / view-conflicted. The inferred baked-sheen/eigen-averaging cause is supported via certainty, not via local spikes."
+ }
+}

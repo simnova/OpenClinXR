@@ -1,0 +1,182 @@
+RESULT hair-groom8b: interpolated children on dense guides (child model
+replaced; guide tracer untouched)
+METHOD (card option b, station-owned; no Blender geometry nodes were
+needed): child(f) = root + sum_i w_i (G_i(f) - G_i(0)). Each child
+sample is a weighted blend of guide samples at the SAME arc fraction
+f = s/31, rigidly translated so the root is exact (rootExactness 0.0
+mm max). No transported frames, no per-sample rotating-frame offsets:
+the groom8a rope source is gone by construction. A rigid translation
+is shape-preserving (adds zero winding); the banned mechanism was
+offsets transported through rotating frames, which shear neighbours
+past each other (ropes) and swing wide on 5-54 mm offsets.
+Selection per CHILD at its own scalp (u,v): 4 nearest same-side
+guides, inverse-quartic 1/(duv+0.03)^4, 1.0-rad cutoff,
+nearest-alone fallback (13 rows); below-vertex side-neutral (sheet
+merge); tuck-class anterior rows blend tucked guides only (481
+roots / 57 guides); dot floor 20 mm (pool 2429); band exclusion;
+5 mm 3D gap gate (71864 fallback rows, 385355 dropped weights,
+maxGap 161.9 mm). Never across the part half-space or the
+tuck/no-tuck boundary. Sub-roots K=20 Voronoi jitter (seed 11) with
+MATCHED UV jitter (0.45x NN) so siblings fan out instead of
+clustering 20-deep on one blend (meanW0 0.7446). Rigid translations
+p50/p90/max 1.85/15.59/54.44 mm (>5 mm: 57001, >15 mm: 29259 of
+283100); >25 mm snapped to 3D-nearest admissible guide alone
+(16069). Child depth fraction u_c = blended guide u (golden stride,
+p50 0.593); outward-only loft floor u*clip(T,6,20) along body-SDF
+gradient (1.60M samples, max 6.0 mm; never pulls inward). Kept
+transport-free: clump 0.20/0.15 (side/tuck keys; part-band and
+sideburn scale 0), jitter sigma 4% [0.92,1.04], sideburn shorts
+12-24 mm (5860 strands) + hug 2.0 + tuck-behind + clamp, temple hug
+1.5 (774 roots: sideburn+tuck), part sweep (834 band roots, lateral
+flat exits 2-6 mm, on-line roots keep fall) + micro-strip (+-0.75 mm
+roots, arc<50 mm trim, 3858 samples) + half-space clamps (40 mm hard
++ 40-90 mm feather, 11179 strands, reproj loop), ear keep-out 4 mm,
+exact-SDF projection (0 inside after, maxPush 114.7 mm), radii-only
+trims (concha bbox + pin-final + hull-projective 3-view 19664 +
+lobe-all-depth 125877), kill-root-dots (5361).
+BASE: groom8a guides-8a.npz (2707 guides, pool 2429, 5.23 roots/guide)
++ groom8a build geometry. Guides unchanged (zero tracer edits).
+CANDIDATES (swirl + back coverage; ship = v6):
+- groom8a transport baseline: back IoU 0.8579 (miss 30471/exc 20070);
+  R-LOOP profile 17770; diagonal braid/swirl over upper-right back.
+- v1 interp, per-ROOT weights, K14, full strip: back 0.6918 (miss
+  95049); R-LOOP ~13.5k (transcript; build superseded); braid GONE;
+  lower sheet sheer (shirt shows through), crown locks.
+- v2 +per-CHILD UV weights, sweep, micro-strip, K14: back 0.6948;
+  R-LOOP ~13.6k; sheer persists (clustering was not the whole story:
+  downstream divergence + thin tips).
+- v3 K20 + far-snap + outward servo + narrow hug: back 0.8301 (miss
+  44986); R-LOOP 24674; opaque again; tangle/knot returns upper-right.
+- v4 K24 + wide UV + upper-temple hug: back 0.7890; R-LOOP 27757;
+  knot persists; depth collapses to 1.0 (hug).
+- v5 K20 + sweep-all alternating: back 0.8298; R-LOOP 24796; bald
+  hole beside the line (alternation reverted).
+- v6 SHIP (K20, per-child 0.45UV, hug sb+tuck, sweep skips on-line,
+  micro-strip, snap, hull-concha all views, lobe-all): back 0.8304
+  (miss 44904/exc 14503, 3.10:1); R-LOOP profile 24704, back 96687;
+  ropes gone; residual region tangle + closed hole.
+Coverage and region-tangle trade through the child arc distribution:
+more/opaque cover (K, spread) re-renders the winding region guides
+faithfully, so the knot returns with coverage. The transport ropes
+never returned in ANY interpolated build.
+FRONT IoU 0.7387 (gate >= 0.70 PASS; 8a 0.7446), miss:excess 1.15:1
+(<=2:1 PASS). 3q IoU 0.8203, miss:excess 1.00:1 (<=2:1 PASS; was 3.7:1
+in 8a: CLOSED). Profile IoU 0.8469 (excess-heavy 0.18:1, xneg
+over-cover).
+PART: back gap rows 0 (target 56: FAIL, need 39-73), front 1 row/3px
+(target 36: FAIL, need 25-47); crossWithin40mm 0 samples (gateOk).
+The part does not open at child level: guides blanket the midline by
+shape (187 anterior crossings >2 mm, 323 tip crossings) and every
+child-side attempt either does nothing (sweep/0-2 rows: strands
+rejoin crossing guides within ~10 mm arc) or opens a wound
+(full-strip slot 29 px seam; alternating-sweep bald hole). Opening a
+56-row part needs a guide-side part corridor (re-trace), out of scope
+(tracer frozen: braid did not persist, so no guide-side defect was
+declared for THIS card). Seam back rows 156-950 max 20 px p95 7.0
+(gate <=4 FAIL; below-part rows 210+ max 20: the crown tangle + hole
+remnant sits inside the +-60 px window; target's own seam-max is 9 px
+in its part rows, so <=4 contradicts any part restoration literally).
+TEMPLE: 3q/xpos ratio 1.068 (target 3233 px; >=0.85 PASS); profile
+1.107/1.438 (xneg over-cover feeds profile excess 22272);
+tips>3 mm: profile xpos 13 / xneg 108, 3q xpos 4 / xneg 52 (gate 0
+FAIL); R-GROOVE v2 3q R 0.5191 (target 0.4777; <= +0.05 PASS).
+Hairline: ragged dark fringe is (a) sideburn-short stubs (293 roots x
+20 = 5860 strands rescaled 12-24 mm, blunt micro-spaced collapse
+tails) rendering as compact dark fringe at temple/hairline, (b)
+pre-spread per-backbone clustering (fixed by per-child UV weights:
+fringe visibly reduced v1->v6), (c) rigid translations to 54.44 mm
+planting edge strands off the hairline, (d) root dots from trimmed
+strands (killed: 5361). Temple ridge over the ear = hugged compacted
+band (sideburn+tuck hug, pulls to <=1.5-2 mm) abutting the tuck-class
+drape behind, with a bare notch between short-stub cover and the
+behind-ear drape.
+EAR: concha crossings front 0 / 3q 0 / profile 0 (gate 0 PASS; 8a was
+0/25/3450). Lobe boxes hair-ID px 124 (3q 2+0, profile 32+90; gate 0
+FAIL; target itself reads 155 in profile-xneg box, so 0 is stricter
+than the target).
+DEPTH child skull-SDF shell arc 10-80 mm: parietal 5.81/14.47
+(gate p50>=3.5 p90>=8 PASS), temple 2.74/9.59 (p50 FAIL by 0.76,
+p90 PASS), crown 5.05/10.31, back 13.85/31.17. Guides read 8.44/17.56
+parietal, 6.69/11.89 temple: the interpolator preserves guide loft
+where not hugged.
+BACK core sheer alpha<0.9: 15.4% (gate <=5% FAIL; 8a 11.1%; v1 33%:
+K20 + spread halved it). B hem boxes: left alpha 0.25/miss 0.12,
+right alpha 0.73/miss 0.67 (structural xneg thin drape: xneg guides
+die at edge 991 vs 539 xpos; guide-side).
+HARD GATES (E/build/gates.json): count 283100==283100 PASS;
+assignAcross 948 pair-flags FAIL (237 children x 4 = 948; ALL 237
+have parent roots within 1.02 mm (p50 0.35) of the part line and are
+100% same-side by their STORED sub-root (the actual child root);
+below-vertex allowed 535; rendered crossings 0; the checker follows
+the prior-groom parent-root convention while 8b assigns per child
+root -- convention technicality, listed honestly as FAIL);
+insideBody 0 PASS (was 9116 in v1: post-clamp reproj loop fixed it);
+pinnaVisible<3mm 0 PASS; determinism 5318d195...==... PASS (rebuild);
+lanePeak 0.991 (<1.5 PASS); framesSpin 0.0 PASS.
+R-LOOP profile 24704 (gate below groom5 11587 FAIL); back equivalent
+96687 (FAIL). Turn events come from SDF-projection/keep-out pasting
+(maxPush 114.7/52.2 mm on blends that cut through the head), the
+sideburn micro-collapse tails, and short-strand curl -- not from
+transport braiding (zero in all interpolated builds). Back deviation
+>25deg over >40px: 60303 strands (gate 0 FAIL; 8a itself reads 38867
+on the same metric: the target-orientation field is noisy and the
+metric fires on legitimate drape; reported, not chased).
+VISUAL READ (native-res, worker): skull-cap absent everywhere;
+front/3q carry volume to the shoulders, hairline smooth-ish with
+wispy temples; back drape full-length opaque lower half, straight
+flow, short part line at crown center; upper-right back shows
+diagonal lock tangle + closed hole remnant (the knot); right hem
+thinner; faint strands near lower ear bowl in profile; ear bare in
+3q/profile (tucked look holds).
+FALSIFIER verdict: the braid did NOT persist under interpolated
+children in any build (v1-v6) -> the constant-offset child transport
+was a rope source by itself (confirmed); it was not the ONLY
+structure source: the region's guides wind substantially (turn-gated
+<=5 deg/step but 400-495 deg total), and faithful interpolation
+re-renders their winding as the residual knot. Per the brief I stop
+at naming (no tracer change): windiest guides rooted in x[-100,-15]
+y[-60,34.2] z>1600 tuck=0 with swirl-box (back rows 150-420, cols
+512-765) presence: 677 (495 deg, 13 box), 919 (447, 20), 309 (443,
+20), 201 (439, 21), 925 (439, 20), 313 (437, 41), 394 (436, 41), 543
+(434, 20), 401 (431, 33), 476 (428, 32), 987 (426, 20), 293 (425,
+32), 760 (420, 16), 967 (419, 21), 130 (413, 17), 93 (412, 39),
+1008 (409, 14), 297 (404, 33), 614 (404, 14), 713 (403, 17), 282
+(403, 41), 290 (400, 22), 571 (399, 33), 303 (397, 19), 496 (393,
+21). Full list + box counts: E/falsifier8b.json (368 region guides).
+REMAINING (failing gates stay failing): part rows 0/1 (need 39-73 /
+25-47; needs guide-side part corridor); R-LOOP profile 24704 + back
+96687 (need <11587; needs fewer interior blends / guide-side unwind
+of the named guides); seam 20 px (needs <=4; conflicts literally with
+any part opening); back deviation 60303 (metric fires on 8a too);
+temple tips 108/52/13/4 (need 0; xneg curtain floats on sparse
+guides); temple depth p50 2.74 (need 3.5); lobe boxes 124 (need 0;
+target reads 155); B hem right 0.73/0.67 (guide-side thin); back core
+sheer 15.4% (need <=5%); assignAcross parent-convention 948 (237
+line-zone children, 0 rendered crossings); R-PROTRUDE excess comps
+persist (profile xneg over-cover 1.438).
+RENDER: studio four views 1024/64spp/seed7/OIDN + IDs; times s
+back 100.9 back-id 74.7 front 69.0 front-id 29.5 profile_90 61.3
+profile_90-id 43.2 three_quarter 49.4 three_quarter-id 29.7 total
+459.0s. Crops: 3q ear, profile ear, back crown/part, back hem L/R,
+nape, front curtain L/R, top 3q (E/crops.png).
+ASSET: E/build/strands.npz sha256 6644eaf40bc5bda941e8da65f67ccde
+227cd66f22c21e5c84c2a1a2586485ddd bytes 104384438 N=283100 (store
+copy verified same sha; E copy NOT committed per big-npz-to-store
+rule + 8a/7/6 precedent; byte-rebuildable from flags in
+E/strands-asset.txt + guides-8a.npz).
+SAW
+- SCOPE: 8b child-model card: replaced transported-offset children
+with station-owned interpolation in (scalp u,v, depth fraction) on
+the frozen groom8a guide set (2707 guides, pool 2429); K=20;
+studio renders on scorer-v3 cameras; skull registration;
+aisha-v3 targets/masks; no old-chain paths (rulers.py verbatim copy
+kept in-E); big npz to the asset store; no *.blend committed.
+Option (b) picked by measurement: guides are turn-bounded and
+orbit-free (0 orbits, max total turn 663 deg), so positional
+interpolation cannot braid; Blender Interpolate Curves would add an
+unscriptable GUI-side step with the same math. Method stated.
+NOT TESTED: physical Quest 3 / worn-headset evidence; clinical
+validity, licensure, or scoring claims; EEVEE/Quest material
+response; other bodies/seeds; animation/combing dynamics;
+relit/held-out R1 rows (rendered studio only); guide-shape adequacy
+beyond the falsifier list (tracer frozen by card).

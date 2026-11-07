@@ -1,0 +1,42 @@
+{
+  "back": {
+    "changedFrac": 0.4649,
+    "changedPxVsStation0a": 121876,
+    "distinctColorsQ8": 215,
+    "warpedTargetPx": 54474
+  },
+  "crown_top": {
+    "changedFrac": 0.2746,
+    "changedPxVsStation0a": 71974,
+    "distinctColorsQ8": 250
+  },
+  "front": {
+    "changedFrac": 0.5279,
+    "changedPxVsStation0a": 138377,
+    "distinctColorsQ8": 303,
+    "warpedTargetPx": 28153
+  },
+  "note": "red = pinned target mask warped into render frame; changedPxVsStation0a proves the topper render is gone",
+  "panelOrder": [
+    "back",
+    "crown_top",
+    "front",
+    "profile_90",
+    "three_quarter"
+  ],
+  "profile_90": {
+    "changedFrac": 0.3324,
+    "changedPxVsStation0a": 87143,
+    "distinctColorsQ8": 210,
+    "warpedTargetPx": 36116
+  },
+  "projectionCheckWorstPx": 0.4693603515625,
+  "removedToppers": [
+    "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh"
+  ],
+  "three_quarter": {
+    "changedFrac": 0.4586,
+    "changedPxVsStation0a": 120216,
+    "distinctColorsQ8": 285
+  }
+}

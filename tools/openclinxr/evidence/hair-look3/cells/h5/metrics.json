@@ -1,0 +1,155 @@
+{
+  "tag": "h5",
+  "params": {
+    "melanin": 0.97,
+    "redness": 0.37295693048012835,
+    "roughness": 0.38419042212641097,
+    "key_energy": 149.37668031234784,
+    "key_elev_deg": 46.53246179277051,
+    "fill_W": 51.79189232647554,
+    "rim_W": 5.274066184423127,
+    "key_azimuth_delta_deg": -31.689290105080133,
+    "key_size_m": 1.6326859138340684,
+    "fill_elev_deg": 15.0,
+    "root_dark": 0.05,
+    "model": "HUANG",
+    "lobe_R": 0.5,
+    "lobe_T": 1.0,
+    "lobe_SR": 1.5
+  },
+  "radiusMm": 0.05,
+  "densityFactor": 1,
+  "lightMode": "camera_relative",
+  "lightsPerView": {
+    "front": {
+      "OCLX_key": [
+        -1.199981689453125,
+        -1.4999668598175049,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        1.5000214576721191,
+        -1.0000118017196655,
+        2.4650845527648926
+      ]
+    },
+    "three_quarter": {
+      "OCLX_key": [
+        0.21212153136730194,
+        -1.9091520309448242,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        1.76779043674469,
+        0.3535602390766144,
+        2.4650845527648926
+      ]
+    },
+    "profile_90": {
+      "OCLX_key": [
+        1.4999668598175049,
+        -1.199981689453125,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        1.0000118017196655,
+        1.5000214576721191,
+        2.4650845527648926
+      ]
+    },
+    "back": {
+      "OCLX_key": [
+        1.199981689453125,
+        1.4999668598175049,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        -1.5000214576721191,
+        1.0000118017196655,
+        2.4650845527648926
+      ]
+    }
+  },
+  "renders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look3/cells/h5/front.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look3/cells/h5/front-id.png"
+    },
+    "three_quarter": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look3/cells/h5/three_quarter.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look3/cells/h5/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look3/cells/h5/profile_90.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look3/cells/h5/profile_90-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look3/cells/h5/back.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look3/cells/h5/back-id.png"
+    }
+  },
+  "views": {
+    "front": {
+      "p50": 0.07337254901960784,
+      "p90": 0.1458956862745098,
+      "highlight": {
+        "hueDeg": 15.26778712825056,
+        "saturation": 0.16666666666666657,
+        "pixels": 2030
+      },
+      "iou": 0.4620095693779904,
+      "maskPx": 20206,
+      "partSide": 2.298605153092734,
+      "faceP50": 0.7331301960784313
+    },
+    "three_quarter": {
+      "p50": 0.10838352941176471,
+      "p90": 0.1506870588235294,
+      "highlight": {
+        "hueDeg": 13.429846994187493,
+        "saturation": 0.07317073170731715,
+        "pixels": 2856
+      },
+      "iou": 0.3324771453033944,
+      "maskPx": 27533
+    },
+    "profile_90": {
+      "p50": 0.1310792156862745,
+      "p90": 0.1616180392156863,
+      "highlight": {
+        "hueDeg": 11.742518901175803,
+        "saturation": 0.046511627906976744,
+        "pixels": 4100
+      },
+      "iou": 0.3553893396922338,
+      "maskPx": 39155
+    },
+    "back": {
+      "p50": 0.11819764705882352,
+      "p90": 0.15262196078431373,
+      "highlight": {
+        "hueDeg": 359.2033560866762,
+        "saturation": 0.06818181818181811,
+        "pixels": 6079
+      },
+      "iou": 0.8259045701385075,
+      "maskPx": 60730,
+      "backProfile": {
+        "bins": [
+          0.13836259575151758,
+          0.14380185099252385,
+          0.13379765193033735,
+          0.12641324801228623,
+          0.12209120462941435,
+          0.11761382203751064,
+          0.10324466283034953,
+          0.06989969053708439,
+          0.08309782757885761,
+          0.08370865741929959
+        ],
+        "topMinusHemOverMean": 0.48709819977714336,
+        "pixels": 34630
+      }
+    }
+  }
+}

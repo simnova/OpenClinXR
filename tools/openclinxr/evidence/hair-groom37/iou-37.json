@@ -1,0 +1,26 @@
+{
+ "tag": "37",
+ "renders": "tools/openclinxr/evidence/hair-groom37/renders-37",
+ "iou": {
+  "front": {
+   "iou": 0.7798,
+   "missPx": 12180,
+   "excessPx": 6622
+  },
+  "three_quarter": {
+   "iou": 0.8484,
+   "missPx": 10506,
+   "excessPx": 6164
+  },
+  "profile_90": {
+   "iou": 0.8358,
+   "missPx": 5984,
+   "excessPx": 22133
+  },
+  "back": {
+   "iou": 0.8911,
+   "missPx": 25122,
+   "excessPx": 12839
+  }
+ }
+}

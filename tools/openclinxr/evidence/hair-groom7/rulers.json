@@ -1,0 +1,1459 @@
+{
+ "probes": {
+  "protrude": {
+   "analytic": "flap 400px@12px fails, clean passes",
+   "planted": "front-target + 20x15 flap newly fails"
+  },
+  "hemstep": {
+   "analytic": "staircase {'lengthPx': 180.0, 'horizFrac': 0.5556, 'steps': 10} vs diagonal {'lengthPx': 141.4, 'horizFrac': 0.0, 'steps': 0}",
+   "planted": "back-target notches steps 27 -> 43"
+  },
+  "groove": {
+   "analytic": "flat R=0.0000 vs blocks R=0.5264",
+   "planted": "3q-target blocks R 0.4777 -> 0.5561 (gate 0.5277)"
+  },
+  "loop": {
+   "analytic": "hairpin fires (nTurn=1), straight passes",
+   "planted": "50 hairpins in 60 strands count 50; fully-trimmed hairpin counts 0",
+   "profile": "crown hairpin counts+projects above ear top; wrap-zone/below-ear hairpins excluded"
+  }
+ },
+ "rulers": {
+  "target": {
+   "front": {
+    "protrude": {
+     "nComponents": 0,
+     "top": [],
+     "nFail": 0,
+     "gatePass": true,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "hemstep": {
+     "left": {
+      "lengthPx": 153.3,
+      "horizFrac": 0.0,
+      "steps": 0
+     },
+     "right": {
+      "lengthPx": 150.2,
+      "horizFrac": 0.0,
+      "steps": 0
+     },
+     "horizFrac": 0.0,
+     "steps": 0,
+     "lengthPx": 303.5
+    }
+   },
+   "three_quarter": {
+    "protrude": {
+     "nComponents": 0,
+     "top": [],
+     "nFail": 0,
+     "gatePass": true,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "groove": {
+     "energy": 124.1836080632266,
+     "nPx": 52551
+    },
+    "grooveV2": {
+     "e26": 47.93959016044024,
+     "e513": 100.34882870034804,
+     "R": 0.4777294441930439,
+     "nPx": 42177
+    }
+   },
+   "profile_90": {
+    "protrude": {
+     "nComponents": 0,
+     "top": [],
+     "nFail": 0,
+     "gatePass": true,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "groove": {
+     "energy": 70.43215006783886,
+     "nPx": 83732
+    },
+    "grooveV2": {
+     "e26": 23.245258468296125,
+     "e513": 52.48176116760722,
+     "R": 0.44292070142347967,
+     "nPx": 57173
+    }
+   },
+   "back": {
+    "protrude": {
+     "nComponents": 0,
+     "top": [],
+     "nFail": 0,
+     "gatePass": true,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "hemstep": {
+     "lengthPx": 888.2,
+     "horizFrac": 0.3344,
+     "steps": 27
+    }
+   }
+  },
+  "groom5": {
+   "front": {
+    "protrude": {
+     "nComponents": 20,
+     "top": [
+      {
+       "area": 1131,
+       "maxDistPx": 22.0,
+       "centroid": [
+        183.3,
+        431.8
+       ],
+       "fail": true
+      },
+      {
+       "area": 1107,
+       "maxDistPx": 14.2,
+       "centroid": [
+        182.1,
+        593.9
+       ],
+       "fail": true
+      },
+      {
+       "area": 65,
+       "maxDistPx": 5.8,
+       "centroid": [
+        239.2,
+        376.8
+       ],
+       "fail": false
+      },
+      {
+       "area": 54,
+       "maxDistPx": 3.0,
+       "centroid": [
+        322.5,
+        664.4
+       ],
+       "fail": false
+      },
+      {
+       "area": 36,
+       "maxDistPx": 3.6,
+       "centroid": [
+        319.5,
+        359.0
+       ],
+       "fail": false
+      },
+      {
+       "area": 29,
+       "maxDistPx": 4.0,
+       "centroid": [
+        511.4,
+        634.3
+       ],
+       "fail": false
+      },
+      {
+       "area": 19,
+       "maxDistPx": 23.4,
+       "centroid": [
+        187.6,
+        446.9
+       ],
+       "fail": false
+      },
+      {
+       "area": 16,
+       "maxDistPx": 3.2,
+       "centroid": [
+        298.0,
+        361.5
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 2,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "hemstep": {
+     "left": {
+      "lengthPx": 200.5,
+      "horizFrac": 0.1922,
+      "steps": 0
+     },
+     "right": {
+      "lengthPx": 524.1,
+      "horizFrac": 0.6813,
+      "steps": 0
+     },
+     "horizFrac": 0.546,
+     "steps": 0,
+     "lengthPx": 724.6,
+     "gatePass": false
+    }
+   },
+   "three_quarter": {
+    "protrude": {
+     "nComponents": 14,
+     "top": [
+      {
+       "area": 824,
+       "maxDistPx": 10.8,
+       "centroid": [
+        212.9,
+        374.6
+       ],
+       "fail": true
+      },
+      {
+       "area": 715,
+       "maxDistPx": 16.4,
+       "centroid": [
+        644.7,
+        621.0
+       ],
+       "fail": true
+      },
+      {
+       "area": 63,
+       "maxDistPx": 5.0,
+       "centroid": [
+        262.6,
+        441.3
+       ],
+       "fail": false
+      },
+      {
+       "area": 45,
+       "maxDistPx": 5.7,
+       "centroid": [
+        288.7,
+        467.5
+       ],
+       "fail": false
+      },
+      {
+       "area": 43,
+       "maxDistPx": 32.4,
+       "centroid": [
+        451.5,
+        511.2
+       ],
+       "fail": false
+      },
+      {
+       "area": 24,
+       "maxDistPx": 5.1,
+       "centroid": [
+        231.9,
+        240.9
+       ],
+       "fail": false
+      },
+      {
+       "area": 24,
+       "maxDistPx": 4.1,
+       "centroid": [
+        452.2,
+        540.8
+       ],
+       "fail": false
+      },
+      {
+       "area": 23,
+       "maxDistPx": 4.0,
+       "centroid": [
+        166.8,
+        298.0
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 2,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "groove": {
+     "energy": 100.33152680300454,
+     "ratio": 0.808,
+     "note": "v1 energy (insensitive to sparse loops; kept as regression guard)"
+    },
+    "grooveV2": {
+     "R": 0.5051,
+     "e26": 45.8,
+     "e513": 90.68,
+     "nPx": 38782,
+     "gatePass": true,
+     "gate": "fibre-to-block R <= target R + 0.05 (dome rows (150, 330))"
+    }
+   },
+   "profile_90": {
+    "protrude": {
+     "nComponents": 19,
+     "top": [
+      {
+       "area": 5256,
+       "maxDistPx": 16.5,
+       "centroid": [
+        467.3,
+        637.0
+       ],
+       "fail": true
+      },
+      {
+       "area": 668,
+       "maxDistPx": 10.8,
+       "centroid": [
+        246.3,
+        253.2
+       ],
+       "fail": true
+      },
+      {
+       "area": 623,
+       "maxDistPx": 15.6,
+       "centroid": [
+        649.4,
+        495.2
+       ],
+       "fail": true
+      },
+      {
+       "area": 606,
+       "maxDistPx": 14.0,
+       "centroid": [
+        1000.1,
+        640.8
+       ],
+       "fail": true
+      },
+      {
+       "area": 280,
+       "maxDistPx": 24.2,
+       "centroid": [
+        439.9,
+        416.2
+       ],
+       "fail": true
+      },
+      {
+       "area": 119,
+       "maxDistPx": 6.0,
+       "centroid": [
+        619.6,
+        469.7
+       ],
+       "fail": false
+      },
+      {
+       "area": 39,
+       "maxDistPx": 4.1,
+       "centroid": [
+        206.5,
+        232.1
+       ],
+       "fail": false
+      },
+      {
+       "area": 21,
+       "maxDistPx": 3.0,
+       "centroid": [
+        124.0,
+        373.0
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 5,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "groove": {
+     "energy": 67.5988214356115,
+     "ratio": 0.96,
+     "note": "v1 energy (insensitive to sparse loops; kept as regression guard)"
+    },
+    "grooveV2": {
+     "R": 0.3779,
+     "e26": 22.34,
+     "e513": 59.12,
+     "nPx": 57108,
+     "gatePass": true,
+     "gate": "fibre-to-block R <= target R + 0.05 (dome rows (150, 330))"
+    }
+   },
+   "back": {
+    "protrude": {
+     "nComponents": 5,
+     "top": [
+      {
+       "area": 1590,
+       "maxDistPx": 26.9,
+       "centroid": [
+        1005.3,
+        687.9
+       ],
+       "fail": true
+      },
+      {
+       "area": 1022,
+       "maxDistPx": 21.6,
+       "centroid": [
+        1010.2,
+        337.1
+       ],
+       "fail": true
+      },
+      {
+       "area": 397,
+       "maxDistPx": 5.8,
+       "centroid": [
+        178.2,
+        511.3
+       ],
+       "fail": false
+      },
+      {
+       "area": 174,
+       "maxDistPx": 11.0,
+       "centroid": [
+        401.1,
+        689.9
+       ],
+       "fail": true
+      },
+      {
+       "area": 12,
+       "maxDistPx": 3.0,
+       "centroid": [
+        978.5,
+        317.0
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 3,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "hemstep": {
+     "lengthPx": 878.9,
+     "horizFrac": 0.3777,
+     "steps": 21,
+     "gatePass": true
+    }
+   },
+   "geometry": {
+    "loop": {
+     "nTurn": 27544,
+     "nHoriz": 41972,
+     "nLoop": 49577,
+     "frac": 0.26113,
+     "gatePass": false,
+     "gate": "0 visible strands turning >120deg in 60mm (nHoriz diagnostic: crown flow runs horizontal)",
+     "exLenMm": [
+      403.4,
+      425.8,
+      426.1,
+      419.1,
+      399.5,
+      389.9,
+      426.3,
+      425.4,
+      360.6,
+      390.8
+     ]
+    },
+    "loopProfile": {
+     "nProfile": 11587,
+     "nWrapExcluded": 1374,
+     "nEvents": 64897,
+     "gatePass": false,
+     "gate": "0 turn-event strands visible in profile above the ear line outside the wrap zone",
+     "strandIds": [
+      1144,
+      1145,
+      1146,
+      1147,
+      1148,
+      1149,
+      1150,
+      1151,
+      1152,
+      1153,
+      1154,
+      1155,
+      1156,
+      1365,
+      1366,
+      1367,
+      1368,
+      1369,
+      1370,
+      1371,
+      1372,
+      1373,
+      1374,
+      1375,
+      1376,
+      1377,
+      1430,
+      1431,
+      1432,
+      1433,
+      1434,
+      1435,
+      1436,
+      1437,
+      1438,
+      1439,
+      1440,
+      1441,
+      1442,
+      1482,
+      1483,
+      1484,
+      1485,
+      1486,
+      1487,
+      1488,
+      1489,
+      1490,
+      1491,
+      1492
+     ],
+     "overlayMarks": 5000,
+     "overlay": "loop-overlay-groom5.png"
+    }
+   }
+  },
+  "groom6": {
+   "front": {
+    "protrude": {
+     "nComponents": 16,
+     "top": [
+      {
+       "area": 1155,
+       "maxDistPx": 24.8,
+       "centroid": [
+        183.8,
+        431.6
+       ],
+       "fail": true
+      },
+      {
+       "area": 1067,
+       "maxDistPx": 14.3,
+       "centroid": [
+        181.5,
+        593.5
+       ],
+       "fail": true
+      },
+      {
+       "area": 63,
+       "maxDistPx": 5.8,
+       "centroid": [
+        238.5,
+        377.1
+       ],
+       "fail": false
+      },
+      {
+       "area": 51,
+       "maxDistPx": 3.0,
+       "centroid": [
+        322.0,
+        664.4
+       ],
+       "fail": false
+      },
+      {
+       "area": 36,
+       "maxDistPx": 3.6,
+       "centroid": [
+        319.5,
+        359.0
+       ],
+       "fail": false
+      },
+      {
+       "area": 35,
+       "maxDistPx": 14.4,
+       "centroid": [
+        214.1,
+        404.7
+       ],
+       "fail": false
+      },
+      {
+       "area": 29,
+       "maxDistPx": 4.0,
+       "centroid": [
+        511.4,
+        634.3
+       ],
+       "fail": false
+      },
+      {
+       "area": 24,
+       "maxDistPx": 3.0,
+       "centroid": [
+        308.5,
+        360.0
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 2,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "hemstep": {
+     "left": {
+      "lengthPx": 186.1,
+      "horizFrac": 0.1896,
+      "steps": 0
+     },
+     "right": {
+      "lengthPx": 555.5,
+      "horizFrac": 0.7309,
+      "steps": 0
+     },
+     "horizFrac": 0.5951,
+     "steps": 0,
+     "lengthPx": 741.6,
+     "gatePass": false
+    }
+   },
+   "three_quarter": {
+    "protrude": {
+     "nComponents": 17,
+     "top": [
+      {
+       "area": 1170,
+       "maxDistPx": 20.6,
+       "centroid": [
+        653.3,
+        637.0
+       ],
+       "fail": true
+      },
+      {
+       "area": 350,
+       "maxDistPx": 9.9,
+       "centroid": [
+        191.7,
+        343.1
+       ],
+       "fail": true
+      },
+      {
+       "area": 284,
+       "maxDistPx": 7.1,
+       "centroid": [
+        233.9,
+        406.4
+       ],
+       "fail": false
+      },
+      {
+       "area": 147,
+       "maxDistPx": 9.2,
+       "centroid": [
+        299.6,
+        474.6
+       ],
+       "fail": false
+      },
+      {
+       "area": 69,
+       "maxDistPx": 5.8,
+       "centroid": [
+        256.6,
+        434.4
+       ],
+       "fail": false
+      },
+      {
+       "area": 52,
+       "maxDistPx": 7.6,
+       "centroid": [
+        319.2,
+        484.9
+       ],
+       "fail": false
+      },
+      {
+       "area": 50,
+       "maxDistPx": 10.4,
+       "centroid": [
+        234.4,
+        240.0
+       ],
+       "fail": false
+      },
+      {
+       "area": 37,
+       "maxDistPx": 7.1,
+       "centroid": [
+        281.1,
+        459.1
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 2,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "groove": {
+     "energy": 115.1190765055282,
+     "ratio": 0.927,
+     "note": "v1 energy (insensitive to sparse loops; kept as regression guard)"
+    },
+    "grooveV2": {
+     "R": 0.55,
+     "e26": 58.89,
+     "e513": 107.07,
+     "nPx": 39821,
+     "gatePass": false,
+     "gate": "fibre-to-block R <= target R + 0.05 (dome rows (150, 330))"
+    }
+   },
+   "profile_90": {
+    "protrude": {
+     "nComponents": 13,
+     "top": [
+      {
+       "area": 5547,
+       "maxDistPx": 17.0,
+       "centroid": [
+        469.0,
+        637.5
+       ],
+       "fail": true
+      },
+      {
+       "area": 1779,
+       "maxDistPx": 18.9,
+       "centroid": [
+        950.2,
+        639.5
+       ],
+       "fail": true
+      },
+      {
+       "area": 1423,
+       "maxDistPx": 19.8,
+       "centroid": [
+        662.5,
+        507.4
+       ],
+       "fail": true
+      },
+      {
+       "area": 664,
+       "maxDistPx": 10.8,
+       "centroid": [
+        248.5,
+        255.7
+       ],
+       "fail": true
+      },
+      {
+       "area": 72,
+       "maxDistPx": 9.8,
+       "centroid": [
+        443.4,
+        421.1
+       ],
+       "fail": false
+      },
+      {
+       "area": 48,
+       "maxDistPx": 6.0,
+       "centroid": [
+        123.1,
+        370.4
+       ],
+       "fail": false
+      },
+      {
+       "area": 39,
+       "maxDistPx": 4.0,
+       "centroid": [
+        206.3,
+        232.2
+       ],
+       "fail": false
+      },
+      {
+       "area": 19,
+       "maxDistPx": 4.0,
+       "centroid": [
+        151.6,
+        295.1
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 4,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "groove": {
+     "energy": 70.60752087361917,
+     "ratio": 1.002,
+     "note": "v1 energy (insensitive to sparse loops; kept as regression guard)"
+    },
+    "grooveV2": {
+     "R": 0.3986,
+     "e26": 25.51,
+     "e513": 64.0,
+     "nPx": 57324,
+     "gatePass": true,
+     "gate": "fibre-to-block R <= target R + 0.05 (dome rows (150, 330))"
+    }
+   },
+   "back": {
+    "protrude": {
+     "nComponents": 20,
+     "top": [
+      {
+       "area": 5085,
+       "maxDistPx": 63.0,
+       "centroid": [
+        985.9,
+        298.5
+       ],
+       "fail": true
+      },
+      {
+       "area": 4314,
+       "maxDistPx": 48.3,
+       "centroid": [
+        987.1,
+        715.7
+       ],
+       "fail": true
+      },
+      {
+       "area": 492,
+       "maxDistPx": 11.7,
+       "centroid": [
+        675.3,
+        740.1
+       ],
+       "fail": true
+      },
+      {
+       "area": 381,
+       "maxDistPx": 5.0,
+       "centroid": [
+        179.3,
+        511.2
+       ],
+       "fail": false
+      },
+      {
+       "area": 318,
+       "maxDistPx": 5.8,
+       "centroid": [
+        503.9,
+        325.7
+       ],
+       "fail": false
+      },
+      {
+       "area": 156,
+       "maxDistPx": 10.0,
+       "centroid": [
+        401.3,
+        689.4
+       ],
+       "fail": true
+      },
+      {
+       "area": 143,
+       "maxDistPx": 14.0,
+       "centroid": [
+        905.9,
+        755.6
+       ],
+       "fail": false
+      },
+      {
+       "area": 83,
+       "maxDistPx": 5.0,
+       "centroid": [
+        559.7,
+        318.2
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 4,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "hemstep": {
+     "lengthPx": 738.8,
+     "horizFrac": 0.5685,
+     "steps": 12,
+     "gatePass": false
+    }
+   },
+   "geometry": {
+    "loop": {
+     "nTurn": 61476,
+     "nHoriz": 74388,
+     "nLoop": 91014,
+     "frac": 0.29743,
+     "gatePass": false,
+     "gate": "0 visible strands turning >120deg in 60mm (nHoriz diagnostic: crown flow runs horizontal)",
+     "exLenMm": [
+      403.4,
+      425.8,
+      425.2,
+      419.5,
+      426.3,
+      426.0,
+      361.4,
+      391.8,
+      395.2,
+      394.7
+     ]
+    },
+    "loopProfile": {
+     "nProfile": 29879,
+     "nWrapExcluded": 1744,
+     "nEvents": 148470,
+     "gatePass": false,
+     "gate": "0 turn-event strands visible in profile above the ear line outside the wrap zone",
+     "strandIds": [
+      1144,
+      1145,
+      1146,
+      1147,
+      1148,
+      1149,
+      1150,
+      1151,
+      1152,
+      1153,
+      1154,
+      1155,
+      1156,
+      1366,
+      1367,
+      1368,
+      1369,
+      1370,
+      1371,
+      1372,
+      1373,
+      1374,
+      1375,
+      1376,
+      1377,
+      1430,
+      1431,
+      1432,
+      1433,
+      1434,
+      1435,
+      1436,
+      1437,
+      1438,
+      1439,
+      1440,
+      1441,
+      1442,
+      1482,
+      1483,
+      1484,
+      1485,
+      1486,
+      1487,
+      1488,
+      1489,
+      1490,
+      1491,
+      1492,
+      1493
+     ],
+     "overlayMarks": 5000,
+     "overlay": "loop-overlay-groom6.png"
+    }
+   }
+  },
+  "groom7": {
+   "front": {
+    "protrude": {
+     "nComponents": 14,
+     "top": [
+      {
+       "area": 652,
+       "maxDistPx": 10.4,
+       "centroid": [
+        174.9,
+        589.3
+       ],
+       "fail": true
+      },
+      {
+       "area": 288,
+       "maxDistPx": 10.6,
+       "centroid": [
+        185.6,
+        421.9
+       ],
+       "fail": true
+      },
+      {
+       "area": 48,
+       "maxDistPx": 3.0,
+       "centroid": [
+        321.5,
+        664.3
+       ],
+       "fail": false
+      },
+      {
+       "area": 36,
+       "maxDistPx": 3.6,
+       "centroid": [
+        319.5,
+        359.0
+       ],
+       "fail": false
+      },
+      {
+       "area": 29,
+       "maxDistPx": 4.0,
+       "centroid": [
+        511.4,
+        634.3
+       ],
+       "fail": false
+      },
+      {
+       "area": 21,
+       "maxDistPx": 3.0,
+       "centroid": [
+        308.0,
+        360.0
+       ],
+       "fail": false
+      },
+      {
+       "area": 16,
+       "maxDistPx": 3.2,
+       "centroid": [
+        168.5,
+        439.0
+       ],
+       "fail": false
+      },
+      {
+       "area": 15,
+       "maxDistPx": 13.9,
+       "centroid": [
+        362.6,
+        344.4
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 2,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "hemstep": {
+     "left": {
+      "lengthPx": 171.6,
+      "horizFrac": 0.0,
+      "steps": 0
+     },
+     "right": {
+      "lengthPx": 540.4,
+      "horizFrac": 0.6904,
+      "steps": 0
+     },
+     "horizFrac": 0.524,
+     "steps": 0,
+     "lengthPx": 712.0,
+     "gatePass": false
+    }
+   },
+   "three_quarter": {
+    "protrude": {
+     "nComponents": 15,
+     "top": [
+      {
+       "area": 768,
+       "maxDistPx": 17.3,
+       "centroid": [
+        644.6,
+        620.0
+       ],
+       "fail": true
+      },
+      {
+       "area": 147,
+       "maxDistPx": 9.2,
+       "centroid": [
+        299.5,
+        474.6
+       ],
+       "fail": false
+      },
+      {
+       "area": 47,
+       "maxDistPx": 5.7,
+       "centroid": [
+        195.2,
+        352.8
+       ],
+       "fail": false
+      },
+      {
+       "area": 44,
+       "maxDistPx": 7.6,
+       "centroid": [
+        319.1,
+        484.9
+       ],
+       "fail": false
+      },
+      {
+       "area": 42,
+       "maxDistPx": 6.7,
+       "centroid": [
+        201.8,
+        363.4
+       ],
+       "fail": false
+      },
+      {
+       "area": 37,
+       "maxDistPx": 7.1,
+       "centroid": [
+        281.1,
+        459.1
+       ],
+       "fail": false
+      },
+      {
+       "area": 24,
+       "maxDistPx": 4.1,
+       "centroid": [
+        452.2,
+        540.8
+       ],
+       "fail": false
+      },
+      {
+       "area": 23,
+       "maxDistPx": 4.0,
+       "centroid": [
+        166.6,
+        297.6
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 1,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "groove": {
+     "energy": 96.37148815522109,
+     "ratio": 0.776,
+     "note": "v1 energy (insensitive to sparse loops; kept as regression guard)"
+    },
+    "grooveV2": {
+     "R": 0.496,
+     "e26": 43.11,
+     "e513": 86.93,
+     "nPx": 38065,
+     "gatePass": true,
+     "gate": "fibre-to-block R <= target R + 0.05 (dome rows (150, 330))"
+    }
+   },
+   "profile_90": {
+    "protrude": {
+     "nComponents": 11,
+     "top": [
+      {
+       "area": 5320,
+       "maxDistPx": 16.0,
+       "centroid": [
+        468.4,
+        637.2
+       ],
+       "fail": true
+      },
+      {
+       "area": 1200,
+       "maxDistPx": 19.7,
+       "centroid": [
+        979.5,
+        639.7
+       ],
+       "fail": true
+      },
+      {
+       "area": 605,
+       "maxDistPx": 17.0,
+       "centroid": [
+        647.8,
+        493.2
+       ],
+       "fail": true
+      },
+      {
+       "area": 301,
+       "maxDistPx": 9.2,
+       "centroid": [
+        232.5,
+        242.7
+       ],
+       "fail": true
+      },
+      {
+       "area": 133,
+       "maxDistPx": 5.7,
+       "centroid": [
+        274.4,
+        282.0
+       ],
+       "fail": false
+      },
+      {
+       "area": 76,
+       "maxDistPx": 9.8,
+       "centroid": [
+        443.6,
+        421.0
+       ],
+       "fail": false
+      },
+      {
+       "area": 39,
+       "maxDistPx": 4.0,
+       "centroid": [
+        206.3,
+        232.2
+       ],
+       "fail": false
+      },
+      {
+       "area": 30,
+       "maxDistPx": 3.0,
+       "centroid": [
+        621.5,
+        472.0
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 4,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "groove": {
+     "energy": 66.66958265886109,
+     "ratio": 0.947,
+     "note": "v1 energy (insensitive to sparse loops; kept as regression guard)"
+    },
+    "grooveV2": {
+     "R": 0.4432,
+     "e26": 24.97,
+     "e513": 56.32,
+     "nPx": 54251,
+     "gatePass": true,
+     "gate": "fibre-to-block R <= target R + 0.05 (dome rows (150, 330))"
+    }
+   },
+   "back": {
+    "protrude": {
+     "nComponents": 8,
+     "top": [
+      {
+       "area": 2605,
+       "maxDistPx": 38.1,
+       "centroid": [
+        990.3,
+        314.0
+       ],
+       "fail": true
+      },
+      {
+       "area": 1649,
+       "maxDistPx": 29.7,
+       "centroid": [
+        1005.8,
+        688.3
+       ],
+       "fail": true
+      },
+      {
+       "area": 690,
+       "maxDistPx": 13.0,
+       "centroid": [
+        653.4,
+        731.0
+       ],
+       "fail": true
+      },
+      {
+       "area": 145,
+       "maxDistPx": 14.6,
+       "centroid": [
+        957.3,
+        722.6
+       ],
+       "fail": false
+      },
+      {
+       "area": 15,
+       "maxDistPx": 3.0,
+       "centroid": [
+        620.0,
+        717.0
+       ],
+       "fail": false
+      },
+      {
+       "area": 12,
+       "maxDistPx": 3.0,
+       "centroid": [
+        173.5,
+        514.0
+       ],
+       "fail": false
+      },
+      {
+       "area": 9,
+       "maxDistPx": 3.0,
+       "centroid": [
+        151.0,
+        521.0
+       ],
+       "fail": false
+      },
+      {
+       "area": 9,
+       "maxDistPx": 3.0,
+       "centroid": [
+        178.0,
+        514.0
+       ],
+       "fail": false
+      }
+     ],
+     "nFail": 3,
+     "gatePass": false,
+     "gate": "no component area>150px with maxDistPx>8px"
+    },
+    "hemstep": {
+     "lengthPx": 1299.6,
+     "horizFrac": 0.2562,
+     "steps": 35,
+     "gatePass": true
+    }
+   },
+   "geometry": {
+    "loop": {
+     "nTurn": 20411,
+     "nHoriz": 35815,
+     "nLoop": 46455,
+     "frac": 0.15181,
+     "gatePass": false,
+     "gate": "0 visible strands turning >120deg in 60mm (nHoriz diagnostic: crown flow runs horizontal)",
+     "exLenMm": [
+      74.9,
+      74.3,
+      71.5,
+      78.8,
+      74.7,
+      76.7,
+      78.3,
+      72.3,
+      74.6,
+      80.2
+     ]
+    },
+    "loopProfile": {
+     "nProfile": 8876,
+     "nWrapExcluded": 116,
+     "nEvents": 66102,
+     "gatePass": false,
+     "gate": "0 turn-event strands visible in profile above the ear line outside the wrap zone",
+     "strandIds": [
+      1365,
+      1366,
+      1367,
+      1368,
+      1369,
+      1370,
+      1371,
+      1372,
+      1373,
+      1374,
+      1375,
+      1376,
+      1377,
+      1482,
+      1483,
+      1484,
+      1485,
+      1486,
+      1487,
+      1488,
+      1489,
+      1490,
+      1491,
+      1492,
+      1493,
+      1494,
+      2431,
+      2432,
+      2433,
+      2434,
+      2435,
+      2436,
+      2437,
+      2438,
+      2439,
+      2440,
+      2441,
+      2442,
+      2443,
+      2522,
+      2523,
+      2524,
+      2525,
+      2526,
+      2527,
+      2528,
+      2529,
+      2530,
+      2531,
+      2532
+     ],
+     "overlayMarks": 5000,
+     "overlay": "loop-overlay-groom7.png"
+    }
+   }
+  }
+ },
+ "registration": "skull (same masks/cameras as score6)",
+ "idThreshold": 230
+}

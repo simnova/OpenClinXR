@@ -1,0 +1,44 @@
+G0::PASS d1_diagnosis with (a)-(e) in final/row-children.json; CAUSE(D1) named from measured mut0-vs-mut2 pair (same density 31000, seed 0, scene)
+DIAG::(a) cap/guides/children/head/base matrices ALL identity; only OCLX_canonical_hair offset (loc z -0.000375, irrelevant, hidden at render)
+DIAG::(b) n=200 children: root->cap mean 0.00002mm p95 0.00003; root->nearest-npz-guide mean 4.1mm p50 3.9 p95 7.0 max 9.3; offset mean [0.25,-0.28,-0.31]mm sd [2.7,2.6,2.8]mm
+DIAG::(c) authored-vs-npz root shift mean 3.0mm max 4.0 (the 3mm root clearance, write path exact); AFTER Attach: root shift mean 415mm p50 110 p90 1209 p95 1475 max 1475; centroid shift (dx -0.7, dy +59, dz -375)mm; non-root mean 494 p95 1706 max 2013; evaluated-root->cap p50 0.0 / p95 1475 (bimodal: half re-snapped somewhere on cap, rest flung ~1.5m)
+DIAG::(d) cap UVs: 62174 tris / 31070 faces; 1799227 px covered, 1462544 (81.3%) double-covered; 29936 faces (96.3%) touch overlap. Transferred head UVs are not unique.
+DIAG::(e) 29 render-visible in saved blend incl Curves, Icosphere, OCLX_canonical_hair, OCLX_cap, all three children objects, teeth/tongue/brows/lashes, garments
+STEP0::baseline (Attach+Snap on, transferred UV, density 31000) -> 1983 children, root->guide mean 5.3mm, hair on scalp NO (bald crown, slab over left eye/cheek/jaw, masses beside head; reproduces D1 at 384px)
+STEP1::no-solidify (cap carries 0 modifiers; brief's assumed Solidify does not exist; verified no-op) -> 1983, 5.3mm, NO
+STEP2::Attach OFF + hand-written CURVE surface_uv_coordinate (per-root BVH+barycentric, 0 NaN, U 0.646-0.903 V 0.160-0.812) + Interpolate alone -> 1457, 5.8mm, hair on scalp YES (crown covered, face clear). CAUSE named; mut3-mut5 not run per stop rule.
+STEPc::shrinkwrap compare at 384px (real Shrinkwrap Hair Curves, Above 0.0, Offset 2mm, Lock Roots on, body then shirt): without -> inside-body 42.0% shirt 9.5% p5 0.84mm; with -> 22.3% / 5.9% / p5 1.08mm; renders near-identical -> KEPT ON
+CAUSE(D1)::Attach Hair Curves to Surface (Snap to Surface on) re-seats guide roots through the cap's transferred UVs, which are 96.3% overlapped; guides teleport (mean 415mm, centroid -375mm down / +59mm back) matching the forward/down displacement in the renders. Children roots stay on the cap (0.00002mm) but interpolate toward teleported guides. Fix: no Attach; attach via hand-written surface_uv_coordinate.
+G0::PASS (above)
+G2::PASS U[0.646,0.903] V[0.160,0.812] range>0.1 both, NaN 0
+G3A::PASS 1937 vs 2000 (-3.1%), points {32}
+G3B::PASS 50503 vs 50000 (+1.0%) on attempt 2 (attempt 1: 66410, +32.8%, superlinear yield; re-solved 980950->738556)
+G4A::PASS max 8 <= 3*median 3 ; G4B::PASS max 140 <= 3*median 86
+G5A::PASS cross 0, island 1.0 ; G5B::MISS cross 1 (1 point of 1.6M), island 1.0
+G6A::MISS body 13750 (22.2%) shirt 5.9% p5 1.09 (bar 0 / 0.5% / 1.5)
+G6B::MISS body 363761 (22.5%) shirt 5.7% p5 1.09
+G7A::MISS CV 0.85 ; G7B::MISS CV 0.85 (bar <0.3)
+G8::MISS show-through B 0.407 (bar <=0.05)
+G9A::PASS cap 0.014 / guide 5.67 / |off| <=0.76mm ; G9B::PASS cap 0.0001 / guide 5.29 / |off| <=0.74mm
+G10face::MISS passA face-box hair pixels 32 (bar 0); all 32 at box edge cols 610-612 rows 541-571 (side-fall grazing the box boundary; skin clear in renders)
+G10top::MISS show A 0.711 (bar 0.25), B 0.407 (bar 0.05)
+X1::IoU 0.5299 ABOVE packdup baseline 0.416
+X2::width_rms 0.2177 BELOW attach baseline 0.648
+X3::below_chin 0.5883 within 0.028 of packdup 0.560 (bar +-0.05)
+judge-STOP-BAR::overall FAIL (IoU<0.80, width_rms>0.10, photo, openings; orchestrator bar, report-only); judge front show-through 0.0078 PASS; part 79px vs target 22px; R/B 1.536 in [1.2,1.8]; uncontaminated
+SAW-passB-front::hair on scalp yes; face clear yes; part reads as a pale BAND (79px) not a line; falls both sides to chest; ends blunt/uniform
+SAW-passB-three_quarter::drape good over the side; face clear; part band visible
+SAW-passB-profile_90::hairline at forehead correct; ear-top covered; falls behind jaw; horizontal shelf discontinuity at ear level; a few nape flyaway wires
+SAW-passB-back::full coverage to mid-back; horizontal banding mid-mass (guide-blend lanes); blunt bottom edge with slight clumping
+SAW-passB-crown_top::part slit + bald lane gutters between strand lanes (radial striping); 41% show-through
+CAUSE-G5B::one stray point near the part line, stable across 2 builds; filtering it would be hand-editing output, not a process fix
+CAUSE-G6::guides inherit the guides3 P3 input defect (813 pts inside shirt); hug-the-scalp groom keeps 22% body-inside; Shrinkwrap halves it but cannot resolve; needs collision-aware guide authoring
+CAUSE-G7::Poisson disk on masked islands plus part/apex cuts cluster roots; structural to this distribution setup
+CAUSE-G8-G10top::strand lanes + part slit leave scalp visible from directly above (crown_top render); top coverage needs distribution rework, not more density (66k->50k barely moved it: 0.372->0.407)
+CAUSE-G10face::side-fall strands graze the outer box column; literal-box MISS, face skin itself clear
+D2::FIXED steps.json records per-mutation outputs (1983/1983/1457 + collide compare); mutation_log embedded in row-children.json
+D3::FIXED both groups loaded from Blender 5.1.1 bundled procedural_hair_node_assets.blend (INPUTS_ logs in run output); profileNote/collisionNote replace the two false notes; GROUP_NAMES4 + nameToIdentifier recorded
+COMMIT::evidence=083fa444e (blend backup blend1 removed in 90b6ef67c; final.blend stays git-ignored on disk)
+STILL::G5B/G6/G7/G8/G10face/G10top MISS (causes above); part 79px vs 22 target; profile shelf banding; blunt ends; nape flyaways; top lane-gutter coverage
+BRIEF_MISSING::M18(1) assumed a Solidify modifier that does not exist (cap: 0 modifiers) -> recorded verified no-op; mut3-5 skipped by the stop rule after STEP2 fixed placement; G10 face-box geometry underspecified -> used rows 300-583 x centre+-100 with pixel localization; E/diag layout is <n>-<what>/front.png (not bare *.png)
+HARM::none (local Blender renders only; no external calls; no clinical/Quest claims)

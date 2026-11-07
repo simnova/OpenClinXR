@@ -1,0 +1,30 @@
+{
+ "embedded_total": 58986,
+ "regions": {
+  "shoulders": {
+   "embedded": 3674,
+   "strandsEmbedded": 3092,
+   "nStrandsTouch": 25394
+  },
+  "back_mid": {
+   "embedded": 19934,
+   "strandsEmbedded": 9099,
+   "nStrandsTouch": 71304
+  },
+  "back_hem_L": {
+   "embedded": 5,
+   "strandsEmbedded": 5,
+   "nStrandsTouch": 1819
+  },
+  "back_hem_R": {
+   "embedded": 0,
+   "strandsEmbedded": 0,
+   "nStrandsTouch": 720
+  },
+  "nape": {
+   "embedded": 0,
+   "strandsEmbedded": 0,
+   "nStrandsTouch": 130351
+  }
+ }
+}

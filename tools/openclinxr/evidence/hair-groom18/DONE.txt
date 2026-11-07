@@ -1,0 +1,22 @@
+hair-groom18 DONE — SDF height transfer from guides to Blender children
+Date: 2026-10-18   Branch: hair-tgt2
+GATES_PASS = no (14/22 pass; falsifier NOT fired — temple p90 misses band by
+0.08 mm so depth is 5/6; front below groom16 floor, profile above it).
+
+Delivered:
+- strands/height_transfer.py (new station stage, step-bounded: 10 mm/iter,
+  150 mm total, best-residual restore) + blender_children.py --height-transfer
+  path calling it.
+- E/build/strands-18.npz (251401 x 41; insideBody 0; net max move 97.81 mm,
+  path max 150.0 mm; 773 mm unbounded-walker outlier eliminated by the bound)
+  + store copies + SHA256SUMS (off-repo, not in git).
+- E/renders-studio (1024/64 four views + id), E/sheet.png, E/crops.png.
+- E/RESULT.txt (calibration, move distribution, every gate with margin,
+  SCOPE, NOT TESTED, REMAINING, honest GATES_PASS, visual read with crop
+  citations), E/score18.json, E/build/gates18.json.
+- Commit: feat(hair-groom): SDF height transfer from guides to Blender children
+  (strands + evidence, no .npz in git).
+
+Key finding: heights transferred (depth 5/6, inside 0) but placement drifted
+(all 336 bangs added by the transfer; face/ear gates fail). Next card is
+guide-side vs transfer-placement — see RESULT section 6.

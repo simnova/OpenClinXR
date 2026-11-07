@@ -1,0 +1,21 @@
+RESULT::hair-lanes-1
+G1::PASS 7 cells present, each 1937-2032 curves (within 5% of 2000), single point count {32}
+G2::PASS C1..C5 differ from C0 by exactly one read-back input; C6 by two (Follow + IG)
+G3::PASS C0 inside 22.15% (CH 22.18%, bar +-3pts) and CV 0.850 (CH 0.85, bar +-0.1); first attempt, no rerun
+M1::C0 read-back = Follow Surface Normal false, Interpolation Guides 2, Distribution Poisson Disk (raw 1), Density Mask attr:OCLX_interp_scalp_mask, Distance to Guides 1.0, Part by Mesh Islands true, Seed 0, Density 38002
+C0::baseline | inside 22.15 | p5 1.09 | CV 0.850 | show 69.0 | gutters 1 | cross 0
+C1::FollowNormal ON | inside 6.33 | p5 1.78 | CV 0.851 | show 43.5 | gutters 119 | cross 64
+C2::InterpGuides 4 | inside 23.02 | p5 1.04 | CV 0.851 | show 71.9 | gutters 1 | cross 0
+C3::InterpGuides 3 | inside 22.74 | p5 1.05 | CV 0.854 | show 70.1 | gutters 2 | cross 0
+C4::Mask const 1.0 | inside 21.95 | p5 1.14 | CV 0.842 | show 62.5 | gutters 6 | cross 6
+C5::Distrib Random | inside 22.38 | p5 1.10 | CV 0.853 | show 69.0 | gutters 2 | cross 0
+C6::Follow ON + IG4 | inside 6.51 | p5 1.74 | CV 0.850 | show 36.8 | gutters 112 | cross 52
+CAUSE(D1)::(a) SUPPORTED: Follow-on drops inside 22.15->6.33% (C6 confirms 6.51%) and lifts p50 5.6->42mm; the off-state copies the hug-scalp guide shape onto roots 10-20mm away without rotating into the child surface frame, the dominant inside-body mechanism. (b) REFUTED for inside/lanes: IG 2->3->4 gives inside 22.15/22.74/23.02, CV and per-guide max/median flat. (c) REFUTED as clustering source: mask removal leaves CV 0.850->0.842 and inside flat; CV is structural to Poisson-on-split-islands, not the mask attribute (C4 density re-solved 38002->31355 to hold 1946 children). (d) REFUTED: Poisson->Random leaves inside/CV/show flat (CV 0.850->0.853, density re-solved 38002->42084 for 2032 children). Lane/gutter structure persists across C0/C2/C3/C4/C5 (gutters 1-6, show 62-72%); only Follow-on breaks lanes, by lifting hair off the scalp entirely.
+SAW::C0: crown shows parallel dark strand lanes with pale bald gutters between and a part slit; front drapes flat both sides, face clear, ends blunt at chest.
+SAW::C1: radial halo standing off the scalp in all directions, orange rim light on lifted strands, crown covered but unwearable; face clear; best numbers, worst groom.
+SAW::C6: same halo as C1 with a marginally denser crown (show 36.8 vs 43.5); IG4 adds nothing visible over Follow alone.
+RECOMMEND::next children run: Follow Surface Normal ON, Interpolation Guides 2, Poisson Disk, mask attr OCLX_interp_scalp_mask, seed 0 (the C1 input set), paired with re-draped collision-aware guides because Follow-on alone halos; keep Shrinkwrap body+shirt and Profile 0.0004 as rails.
+COMMIT::592592311b7ca29b4ecbaa5e728b01006cf45b1e
+STILL::lanes/gutters structural at ~2000 draped children (show 62-72% top); Follow-on fixes inside% but halos without a drape re-groom; part-crossing only from halo strands (C1 64, C6 52) and strip roots (C4 6); CV 0.84-0.85 everywhere, untouched by any single input.
+BRIEF_MISSING::(1) R4 'NO Shrinkwrap' read as 'no shrinkwrap/profile CHANGE between cells' (parallel to 'NO profile change'); Shrinkwrap body+shirt + Profile 0.0004 held identical in all cells and C0 is otherwise exactly pass-A inputs; under the removal reading C0 could not reproduce CH (no-collide inside is ~42%, brief STOP would fire). (2) children3.configure_modifiers hard-overwrites Distance to Guides to 1.0 after applying spec, so the distGuides parameter is dead; all cells read back 1.0, recorded identically. (3) gutter metric at ~2000 draped children saturates at 1 connected scalp component (sparse hair leaves all scalp connected); it discriminates only lifted-hair cells; recorded as measured, not redefined.
+HARM::none (local Blender renders only; no external calls; no clinical/Quest claims)

@@ -1,0 +1,183 @@
+{
+  "tag": "B",
+  "requested": 50000,
+  "evaluatedCurveCount": 50000,
+  "pointsPerCurve": 32,
+  "nanCount": 0,
+  "sha256": "cea671683409ef62e9ec32581eeb3191a7188ec3cc372907b7369e88c6879df7",
+  "sha256_twice_equal": true,
+  "crossings": 0,
+  "nearSlitPoints": 5,
+  "rootToCapMm": {
+    "mean": 2.9884123080964904,
+    "max": 3.000137028355421,
+    "sample": 5000
+  },
+  "rootDensityCV": 0.05086852877732587,
+  "cvInfo": {
+    "patches": 633,
+    "meanCount": 78.98894154818325,
+    "minCount": 15,
+    "maxCount": 133,
+    "meanPatchCm2": 0.9996099765528689
+  },
+  "hullFrac": 0.991930625,
+  "hullSeconds": 0.4797394589986652,
+  "g5": {
+    "insideBodyFrac": 0.4168775,
+    "insideBodyGatedFrac": 0.157941875,
+    "insideShirtFrac": 0.080444375,
+    "insideHeadFrac": 0.03145,
+    "guideInsideBodyFrac": 0.39225041946308725,
+    "guideInsideShirtFrac": 0.04294253355704698,
+    "guideInsideHeadFrac": 0.003145973154362416,
+    "excludedShare": 0.282265
+  },
+  "wrap": {
+    "insideBodyFrac": 0.22944625,
+    "insideShirtFrac": 0.063859375,
+    "dispMm": {
+      "p50": 4.38297262459264e-05,
+      "p95": 22.8505357097481,
+      "max": 67.02629318338276
+    }
+  },
+  "kept": "raw",
+  "radiusMinMax": {
+    "min": 4.999999873689376e-05,
+    "max": 4.999999873689376e-05
+  },
+  "tipAttempts": [
+    {
+      "radius": 5e-05,
+      "shape": 0.0,
+      "factorMin": 0.0,
+      "minmax": {
+        "min": 4.999999873689376e-05,
+        "max": 4.999999873689376e-05
+      }
+    }
+  ],
+  "profileReadbackKeys": [
+    "Density",
+    "Factor Max",
+    "Factor Min",
+    "Length",
+    "Radius",
+    "Replace Radius",
+    "Shape"
+  ],
+  "evalDiffMax": 5.9604633451115774e-08,
+  "generatorSeconds": 20.94369095800357,
+  "generatorMeta": {
+    "poisson": {
+      "method": "best-candidate",
+      "k": 32,
+      "r0mm": 1.2088344491567504,
+      "capAreaCm2": 632.753115157966
+    },
+    "fallback_all": false,
+    "fallback_count": 2895,
+    "attempts": {
+      "True": {
+        "kind": "pca",
+        "tris": 562,
+        "fails": [
+          "pca p95=25.3mm",
+          "cyl p95=116.5mm",
+          "yz p95=27.9mm",
+          "kept pca p95=25.3mm"
+        ]
+      },
+      "False": {
+        "kind": "pca",
+        "tris": 576,
+        "fails": [
+          "pca p95=24.1mm",
+          "cyl p95=106.7mm",
+          "yz p95=29.7mm",
+          "kept pca p95=24.1mm"
+        ]
+      }
+    },
+    "tipFactorMean": 0.9849606219419482,
+    "seconds_locate": 0.7779040000023087
+  },
+  "lanes": {
+    "showTotal": 0.15259751587467726,
+    "partBandShow": 0.04557427953387761,
+    "showRest": 0.10702323634079966,
+    "gutters": 3,
+    "pxPerM": 2642.88330078125,
+    "bandWidthPx": 32
+  },
+  "renders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB/front.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB/front-id.png"
+    },
+    "three_quarter": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB/three_quarter.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB/profile_90.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB/profile_90-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB/back.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB/back-id.png"
+    },
+    "crown_top": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB/crown_top.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB/crown_top-id.png"
+    },
+    "altVariant": "shrinkwrap",
+    "alt": {
+      "front": {
+        "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB-alt/front.png",
+        "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB-alt/front-id.png"
+      },
+      "crown_top": {
+        "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB-alt/crown_top.png",
+        "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/passB-alt/crown_top-id.png"
+      }
+    }
+  },
+  "silhouette": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-blend/cap-silhouette-B.png",
+  "visible": [
+    "Human",
+    "OCLX_Aisha_head",
+    "OCLX_blend_B",
+    "OCLX_cam",
+    "OCLX_fill",
+    "OCLX_key",
+    "OCLX_rim",
+    "makeclothes_library_female_tight_jeans_pants",
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+    "makeclothes_library_toigo_t_shirt",
+    "mpfb_parent_tara_johnson_v1_body_mesh",
+    "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+    "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+    "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+  ],
+  "capInfo": {
+    "apexY": -0.053241077810525894,
+    "stripVertexCount": 604,
+    "solidVertexCount": 31070,
+    "uvMissingCount": 0,
+    "uvRule": "nearest head face, barycentric (fan tri for quads)",
+    "splitIslands": true,
+    "islandCount": 2,
+    "islandSizes": [
+      15837,
+      15837
+    ]
+  },
+  "radius": 5e-05,
+  "crownZ": 1.6599169969558716,
+  "apexY": -0.053241077810525894,
+  "wallSeconds": 264.0739849160018
+}

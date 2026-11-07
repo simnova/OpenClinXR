@@ -1,0 +1,1 @@
+GATES_PASS=yes (clearance 1.992mm >= 1.0; mesh hash b5da1088a52bf951 identical over two Blender runs; ban clean)

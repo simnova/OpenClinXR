@@ -1,0 +1,360 @@
+{
+  "schemaVersion": 1,
+  "baseline": "b7 = g1 geometry + g6 light/material",
+  "precedesChanges": true,
+  "evaluatedHair": {
+    "objectType": "CURVES",
+    "curves": 54529,
+    "points": 1744928,
+    "pointsPerCurve": {
+      "min": 32,
+      "max": 32,
+      "median": 32.0
+    },
+    "radiusMetres": {
+      "min": 4.999999873689376e-05,
+      "p05": 4.999999873689376e-05,
+      "median": 4.999999873689376e-05,
+      "p95": 4.999999873689376e-05,
+      "max": 4.999999873689376e-05
+    },
+    "radiusMillimetresMedian": 0.04999999701976776,
+    "curveSettings": {
+      "scene.cycles.debug_use_hair_bvh": true,
+      "scene.cycles.filter_width": 1.5,
+      "scene.cycles.max_subdivisions": 12,
+      "scene.render.hair_subdiv": 0,
+      "scene.render.hair_type": "STRAND",
+      "scene.render.simplify_subdivision": 6,
+      "scene.render.simplify_subdivision_render": 6
+    },
+    "dataProperties": {
+      "surface_uv_map": "UVMap"
+    }
+  },
+  "materialNodes": [
+    {
+      "name": "Material Output",
+      "type": "ShaderNodeOutputMaterial",
+      "inputs": {
+        "Surface": "UNREADABLE:'NodeSocketShader' object has no attribute 'default_value'",
+        "Volume": "UNREADABLE:'NodeSocketShader' object has no attribute 'default_value'",
+        "Displacement": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "Thickness": 0.0
+      }
+    },
+    {
+      "name": "Principled Hair BSDF",
+      "type": "ShaderNodeBsdfHairPrincipled",
+      "parametrization": "MELANIN",
+      "inputs": {
+        "Color": [
+          0.01751299947500229,
+          0.005762999877333641,
+          0.002059000078588724,
+          1.0
+        ],
+        "Melanin": 0.800000011920929,
+        "Melanin Redness": 0.8293402194976807,
+        "Tint": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "Absorption Coefficient": [
+          0.24553099274635315,
+          0.5199999809265137,
+          1.3650000095367432
+        ],
+        "Aspect Ratio": 0.8500000238418579,
+        "Roughness": 0.11999999731779099,
+        "Radial Roughness": 0.20000000298023224,
+        "Coat": 0.0,
+        "IOR": 1.5499999523162842,
+        "Offset": 0.03490658476948738,
+        "Random Color": 0.0,
+        "Random Roughness": 0.0,
+        "Random": 0.0,
+        "Weight": 0.0,
+        "Reflection": 1.0,
+        "Transmission": 1.0,
+        "Secondary Reflection": 1.0
+      }
+    },
+    {
+      "name": "Curves Info",
+      "type": "ShaderNodeHairInfo",
+      "inputs": {}
+    },
+    {
+      "name": "Color Ramp",
+      "type": "ShaderNodeValToRGB",
+      "inputs": {
+        "Factor": 0.5
+      }
+    }
+  ],
+  "lights": [
+    {
+      "name": "OCLX_key",
+      "position": [
+        -1.2000000476837158,
+        -1.5,
+        2.8795340061187744
+      ],
+      "energy": 150.0,
+      "size": 1.5590593814849854,
+      "relativeToHeadTarget": [
+        -1.2000000476837158,
+        -1.5,
+        1.405949354171753
+      ]
+    },
+    {
+      "name": "OCLX_fill",
+      "position": [
+        1.5,
+        -1.0,
+        2.465132713317871
+      ],
+      "energy": 60.47725296020508,
+      "size": 1.7000000476837158,
+      "relativeToHeadTarget": [
+        1.5,
+        -1.0,
+        0.9915480613708496
+      ]
+    },
+    {
+      "name": "OCLX_rim",
+      "position": [
+        1.0,
+        1.2000000476837158,
+        2.393584728240967
+      ],
+      "energy": 26.654436111450195,
+      "size": 1.0,
+      "relativeToHeadTarget": [
+        1.0,
+        1.2000000476837158,
+        0.9200000762939453
+      ]
+    }
+  ],
+  "photometrics": {
+    "ours": {
+      "front": {
+        "p50": 0.09906823529411764,
+        "p90": 0.2732847058823529,
+        "highlight": {
+          "hueDeg": 12.745336917178914,
+          "saturation": 0.18556701030927827,
+          "pixels": 8214
+        },
+        "iou": 0.4613277600975316,
+        "maskPx": 82089,
+        "partSide": 1.468845229434774,
+        "faceP50": 0.7278243137254902
+      },
+      "three_quarter": {
+        "p50": 0.1668878431372549,
+        "p90": 0.3066439215686274,
+        "highlight": {
+          "hueDeg": 10.868911979272202,
+          "saturation": 0.18085106382978733,
+          "pixels": 11231
+        },
+        "iou": 0.3305062755220497,
+        "maskPx": 111948
+      },
+      "profile_90": {
+        "p50": 0.21394666666666667,
+        "p90": 0.2816941176470588,
+        "highlight": {
+          "hueDeg": 9.293031182235783,
+          "saturation": 0.12658227848101275,
+          "pixels": 15921
+        },
+        "iou": 0.3536890052178051,
+        "maskPx": 159065
+      },
+      "back": {
+        "p50": 0.06434039215686274,
+        "p90": 0.2989082352941177,
+        "highlight": {
+          "hueDeg": 14.667783586360914,
+          "saturation": 0.35256410256410264,
+          "pixels": 24507
+        },
+        "iou": 0.8224015036397327,
+        "maskPx": 245059,
+        "backProfile": {
+          "bins": [
+            0.14773150872093532,
+            0.2012414780956597,
+            0.11431614558726003,
+            0.07631869286335875,
+            0.06008415667832467,
+            0.04975752934590027,
+            0.04136682850876326,
+            0.03296540810264314,
+            0.0337104070290528,
+            0.034406831493595566
+          ],
+          "topMinusHemOverMean": 1.4310496562051351,
+          "pixels": 138489
+        }
+      }
+    },
+    "target": {
+      "front": {
+        "p50": 0.0660643137254902,
+        "p90": 0.17471529411764705,
+        "highlight": {
+          "hueDeg": 14.000403285023562,
+          "saturation": 0.19277108433734938,
+          "pixels": 10275
+        }
+      },
+      "three_quarter": {
+        "p50": 0.06687764705882353,
+        "p90": 0.14758352941176472,
+        "highlight": {
+          "hueDeg": 21.266061323378928,
+          "saturation": 0.19298245614035092,
+          "pixels": 8483
+        }
+      },
+      "profile_90": {
+        "p50": 0.09601647058823529,
+        "p90": 0.1601819607843137,
+        "highlight": {
+          "hueDeg": 23.433920630079907,
+          "saturation": 0.16666666666666666,
+          "pixels": 16480
+        }
+      },
+      "back": {
+        "p50": 0.11228941176470587,
+        "p90": 0.1766862745098039,
+        "highlight": {
+          "hueDeg": 20.51565726511302,
+          "saturation": 0.23214285714285707,
+          "pixels": 23702
+        },
+        "backProfile": {
+          "bins": [
+            0.06382316903147797,
+            0.0971763793322127,
+            0.14008560688305455,
+            0.1331107532153941,
+            0.12505165588947442,
+            0.11613571337517238,
+            0.11007846470251081,
+            0.10905544050617871,
+            0.09598389064689988,
+            0.0614485308268994
+          ],
+          "topMinusHemOverMean": 0.022573687889849616,
+          "pixels": 120435
+        }
+      }
+    }
+  },
+  "sparsePatch": {
+    "sparse": {
+      "tag": "sparse",
+      "count": 400,
+      "bandCount": 14643,
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/patches/sparse.png"
+    },
+    "full": {
+      "tag": "full",
+      "count": 14643,
+      "bandCount": 14643,
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/patches/full.png"
+    },
+    "registeredCrop": [
+      320,
+      280,
+      704,
+      664
+    ],
+    "sheet": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/sparse-patch.png"
+  },
+  "candidates": {
+    "a_representation": {
+      "status": "UNKNOWN",
+      "probe": "p1 pending",
+      "number": {
+        "evaluatedRadiusMm": 0.04999999701976776,
+        "curveSettings": {
+          "scene.cycles.debug_use_hair_bvh": true,
+          "scene.cycles.filter_width": 1.5,
+          "scene.cycles.max_subdivisions": 12,
+          "scene.render.hair_subdiv": 0,
+          "scene.render.hair_type": "STRAND",
+          "scene.render.simplify_subdivision": 6,
+          "scene.render.simplify_subdivision_render": 6
+        }
+      }
+    },
+    "b_bsdf": {
+      "status": "UNKNOWN",
+      "probe": "p2 pending",
+      "number": {
+        "baselineTopHighlight": {
+          "hueDeg": 14.667783586360914,
+          "saturation": 0.35256410256410264,
+          "pixels": 24507
+        }
+      }
+    },
+    "c_occlusion": {
+      "status": "UNKNOWN",
+      "probe": "p4 pending",
+      "number": {
+        "baselineBackProfile": {
+          "bins": [
+            0.14773150872093532,
+            0.2012414780956597,
+            0.11431614558726003,
+            0.07631869286335875,
+            0.06008415667832467,
+            0.04975752934590027,
+            0.04136682850876326,
+            0.03296540810264314,
+            0.0337104070290528,
+            0.034406831493595566
+          ],
+          "topMinusHemOverMean": 1.4310496562051351,
+          "pixels": 138489
+        }
+      }
+    },
+    "d_density": {
+      "status": "UNKNOWN",
+      "probe": "p4 density ladder pending",
+      "number": {
+        "curves": 54529,
+        "radiusMm": 0.04999999701976776
+      }
+    },
+    "e_light": {
+      "status": "UNKNOWN",
+      "probe": "p3/p5 pending",
+      "number": {
+        "baselineTopHighlight": {
+          "hueDeg": 14.667783586360914,
+          "saturation": 0.35256410256410264,
+          "pixels": 24507
+        }
+      }
+    }
+  }
+}

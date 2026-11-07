@@ -1,0 +1,90 @@
+hair-groom32 RESULT: render + score of build-31/strands.npz WITHOUT settle
+(shas, paths, and provenance for every number; honest FAILs kept)
+
+VERDICT: NO-GO. Skipping the settle preserves insideBody 0, concha 0/0/0,
+crossings 935, gradAniso 0.63 and bit-exact determinism, but build-31
+itself already carries the lobePostSweep spike: 3q/profile IoU collapse
+and earlobe image boxes 5-6x over target. The settle was not the
+destroyer of the curtain; the sweep was. Settle only added concha flood,
+hem-behind-shirt, and a further 3q drop on top.
+
+GATES (value | threshold | margin | provenance):
+- insideBody 0 | == 0 | 0 | PASS. E/score31-32.json insideBody.32.nSge1Inside
+  (canonical scorer; crude shirt_gates path reports 93198, same as settled
+  groom31 crude 93198 vs groom30 crude 95836).
+- inside-shirt 79300 | report-only | - | E/shirt-gates32.json groom32.
+  Repro rows exact: groom30 235156, groom31-settled 105365 (match groom31
+  STATE). Pre-settle is the LOWEST of the three: settle pushed ~26k more
+  samples into the shirt near-band.
+- earlobe 3D column xpos=1/xneg=0 strands (1 sample, 0 tips; 25mm-bounded
+  same) | 0 | +1 | FAIL. E/earlobe-gate31.json gates3d.groom32. The 1
+  strand pre-exists in build-31 (brief: pre-settle column was 1 strand);
+  settled build had 76+69=145.
+- profile ear box 5812 px (box rows 438:495 cols 306:408, camera-side xpos;
+  xneg occluded-N/A 6384) | 0 | +5812 | FAIL. Same file, gatesImg.
+- 3q ear box 4645 px (box rows 439:501 cols 478:553; target's own 842 px
+  in the same box) | <= 842 | +3803 | FAIL. Settled groom31 was 4528, so
+  the settle barely moved this box: the fill is pre-settle sweep damage.
+- concha 0/0/0 (front/3q/profile) | all 0 | - | PASS. E/score31-32.json
+  conchaCrossings.32. Settled groom31: 6674/2483/8239 FAIL -> the concha
+  flood was caused by the SETTLE, not the children.
+- front IoU 0.7737 | >= 0.79 | -0.0163 | FAIL (groom30 0.7994).
+- 3q IoU 0.7003 | >= 0.83 | -0.1297 | FAIL (groom30 0.8505; settled 0.6323,
+  so no-settle recovers +0.068 but remains collapsed).
+- profile IoU 0.7275 | >= 0.84 | -0.1125 | FAIL (groom30 0.8413; settled 0.7128).
+- back IoU 0.7753 | report-only (groom30 0.7878; settled 0.7851).
+- 3D back crossings 935 | <= 935 | 0 | PASS. E/metrics-cross32.json
+  (guides-30 unchanged; rerun, not cited).
+- gradient anisotropy 0.6256 | <= 0.70 | +0.0744 | PASS. E/metrics-grad31.json
+  opt32 (same verbatim _aniso_darkstats pipeline groom30 labels "sigma 4";
+  opt30 repro 0.6257 exact, opt31 repro 0.4886 exact).
+- determinism PASS: exact-recipe rebuild (flags per build.json, NO
+  --lobe-tuck since build-31 lobeTuck off) sha256 identical
+  74a3eefb...115c58, points+radii hash identical, maxAbsDiff 0.0 mm.
+  E/det-32.json. Resolves groom31's recipe mismatch (det_rebuild31 used
+  --lobe-tuck; pass=false was a recipe error, not nondeterminism).
+
+FIRST SUSPECT (brief NOTE): CONFIRMED. Side curtain far wider than
+groom30 in ID alpha>=230 ear bands: 3q rows 340-560 maxW 623 vs 444
+(+40%), meanW 324.5 vs 137.5 (2.36x); profile rows 360-560 maxW 498 vs
+232 (+115%), meanW 371.1 vs 225.0. LobePostSweep moved 641,859 samples
+on 22,275 strands up to 181 mm (build.json), and the sheet shows a solid
+horizontal slab jutting forward from the ear across the cheek in 3q and
+profile. renders-31/three_quarter.png (settled) shows the SAME spike, so
+it predates the settle.
+
+VISUAL READ (citing crops.png rows, all target | groom30 | groom32):
+- lobe-3q-xpos / lobe-profile-xpos (native, earlobe31 boxes +60px margin):
+  groom32 shows a dense forward-projecting slab covering ear and cheek;
+  groom30 shows curtain behind a visible ear; target shows a clean ear.
+- 3q-ear-NATIVE / profile-ear-NATIVE: same slab at full-crop scale.
+- front-hairline-band: part intact, sides fuller than groom30 (faceMask
+  front 6476 px vs allow 3424.9 -> report FAIL, same class as groom31).
+- back-knot-NATIVE + knotRead: enclosedHolePx 0, barePx 0, bareFrac 0.0;
+  small dark crown whorl visible in BOTH groom30 and groom32 (pre-existing,
+  above/outside the gate box).
+- back-hem-L/R-NATIVE: groom32 hem density and shirt overlap read like
+  groom30, not like settled groom31 (hem-behind-shirt L 7.3% vs groom30
+  7.2% vs settled 22.8%; R 35.3% vs 34.0% vs 59.2%).
+- shoulders-NATIVE: back curtain falls clean to mid-back; no clumping
+  regression vs groom30.
+
+CALIBRATION: calibrate31.py rerun EXACT before scoring: groom8a
+0.7446/0.8261/0.8543/0.8579, deltas 0. Scorer faithfulness: ctrl row of
+E/score31-32.json bit-identical to score31-31.json ctrl row
+(0.7915/0.8406/0.8156/0.7959). Render: Blender 5.1.1, 1024px/64spp/seed7,
+studio rig verbatim, total 752.3s (E/renders-32/render-times.json).
+
+SCOPE: measured only. No edits under tools/openclinxr/hair-groom/ (all
+scoring via import/patch drivers run_*.py in E). settle.py NOT run. No
+new .npz: reused build-31/strands.npz (sha verified) + store files; E has
+no .npz.
+NOT TESTED: any settle variant or sweep re-tune; guide changes; worn-
+headset/Quest evidence; IWSDK; clinical-validity or scoring claims.
+REMAINING: next card: drop or tightly bound lobePostSweep (cap push to a
+few mm, or restrict to below-lobe strands), clean the 1 earlobe 3D strand,
+re-render 3q/profile; do NOT re-add settle until the sweep is fixed.
+
+GATES_PASS: NO (5 of 8 hard gates fail: front/3q/profile IoU, earlobe 3D,
+earlobe 3q+profile image; passes: insideBody, concha, crossings, gradAniso,
+determinism).

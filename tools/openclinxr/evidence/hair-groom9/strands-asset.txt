@@ -1,0 +1,14 @@
+hair-groom9 strands asset (big npz lives outside git):
+path: /Volumes/files/openclinxr-assets/store/hair-groom9/strands.npz
+sha256: 01cc58ab3ca99a5bddbd8ea293e0f54ee3a22fc8b919160b188c49335d25b803
+bytes: 103016903
+children: 283100 (20/root), pointsPer 32
+guides: 2707 (2650 groom8a-base selective guides + 57 verbatim tucked)
+note: store file was moved from E/build/strands.npz after render, score,
+  deterministic rebuild, and hash verification. It is byte-rebuildable by:
+  mise exec -- python3 tools/openclinxr/hair-groom/strands/interp9_children.py
+    --outdir tools/openclinxr/evidence/hair-groom9/build
+    --guides tools/openclinxr/evidence/hair-groom9/build/guides-9.npz
+    --roots tools/openclinxr/evidence/hair-scalp1/roots.npz
+    --sdf tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz
+    --ear-frame tools/openclinxr/evidence/hair-groom4/tucked/earframe.json

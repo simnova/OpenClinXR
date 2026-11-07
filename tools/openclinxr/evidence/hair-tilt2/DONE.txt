@@ -1,0 +1,1 @@
+COMPLETE: zero-mean wave operator (wave.py), 5 cells with Collider audits (w4i/w7i/w7m/w10m/c1), 5 look7 scores, step-2 gates, per-cell table, look-sheet.png, RESULT.txt. All cells REVERTED (best 1.30x bands vs 2x bar; silhouette held but tilt1 fragmentation did not reproduce).

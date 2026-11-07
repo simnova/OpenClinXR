@@ -1,0 +1,34 @@
+{
+ "mode": "mirror",
+ "midMm": 2.0,
+ "guidesIn": "tools/openclinxr/evidence/hair-groom30/build-30/guides-30.npz",
+ "rootsIn": "tools/openclinxr/evidence/hair-scalp1/roots.npz",
+ "guidesSha": "3bfe3f599c04c124",
+ "rootsSha": "842da63be7ed0b82",
+ "plane": "x=0, midline kept |root x| <= mid",
+ "guides": {
+  "n": 2707,
+  "nReplaced": 1315,
+  "nDonors": 1392,
+  "donorReuseMax": 6,
+  "pairDistMm": {
+   "p50": 1.70679,
+   "p90": 3.23487,
+   "max": 11.86817
+  },
+  "auxArraysKept": true
+ },
+ "roots": {
+  "n": 14155,
+  "nReplaced": 6969,
+  "nDonors": 7186,
+  "donorReuseMax": 3,
+  "pairDistMm": {
+   "p50": 0.79013,
+   "p90": 1.17045,
+   "max": 3.61011
+  },
+  "uvMap": "u -> -u, v kept",
+  "triKept": "verbatim (unused by interp_children)"
+ }
+}

@@ -1,0 +1,6 @@
+strands asset store: /Volumes/files/openclinxr-assets/store/hair-groom15/ (see SHA256SUMS there)
+45ba28a6e0c2cd65c6356ac1bf0dc0942b494777f8fe7ce95ae695e207e1dba0  strands-8a.npz
+
+array-hash (points+radii, gates15.json): b1ff2c4bc6549bd7d2e4c8c5f5ec0a9d09a84fb271e664054483cf7eb17010d8
+build: blender_children.py --density 3900000 --seed 7 --scalp-roots hair-scalp1/roots.npz
+       (defaults: above-surface 0.0, depth-classes 3, interp-guides 3, colliders auto)

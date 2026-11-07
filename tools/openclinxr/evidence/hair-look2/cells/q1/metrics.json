@@ -1,0 +1,272 @@
+{
+  "tag": "q1",
+  "params": {
+    "melanin": 0.97,
+    "redness": 0.37295693048012835,
+    "roughness": 0.30419042212641095,
+    "key_energy": 149.37668031234784,
+    "key_elev_deg": 46.53246179277051,
+    "fill_W": 51.79189232647554,
+    "rim_W": 5.274066184423127,
+    "key_azimuth_delta_deg": -31.689290105080133,
+    "key_size_m": 1.6326859138340684,
+    "fill_elev_deg": 15.0,
+    "root_dark": 0.05
+  },
+  "radiusMm": 0.05,
+  "densityFactor": 1,
+  "lightMode": "camera_relative",
+  "lightsPerView": {
+    "front": {
+      "OCLX_key": [
+        -1.199981689453125,
+        -1.4999668598175049,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        1.5000214576721191,
+        -1.0000118017196655,
+        2.4650845527648926
+      ]
+    },
+    "three_quarter": {
+      "OCLX_key": [
+        0.21212153136730194,
+        -1.9091520309448242,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        1.76779043674469,
+        0.3535602390766144,
+        2.4650845527648926
+      ]
+    },
+    "profile_90": {
+      "OCLX_key": [
+        1.4999668598175049,
+        -1.199981689453125,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        1.0000118017196655,
+        1.5000214576721191,
+        2.4650845527648926
+      ]
+    },
+    "back": {
+      "OCLX_key": [
+        1.199981689453125,
+        1.4999668598175049,
+        2.8794846534729004
+      ],
+      "OCLX_fill": [
+        -1.5000214576721191,
+        1.0000118017196655,
+        2.4650845527648926
+      ]
+    }
+  },
+  "renders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/q1/front.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/q1/front-id.png"
+    },
+    "three_quarter": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/q1/three_quarter.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/q1/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/q1/profile_90.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/q1/profile_90-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/q1/back.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/q1/back-id.png"
+    }
+  },
+  "views": {
+    "front": {
+      "p50": 0.10243450980392156,
+      "p90": 0.229118431372549,
+      "highlight": {
+        "hueDeg": 12.845159537185646,
+        "saturation": 0.043478260869565064,
+        "pixels": 8450
+      },
+      "iou": 0.443994507668319,
+      "maskPx": 83638,
+      "partSide": 2.2859839318307698,
+      "faceP50": 0.7335125490196079
+    },
+    "three_quarter": {
+      "p50": 0.1595749019607843,
+      "p90": 0.2565694117647059,
+      "highlight": {
+        "hueDeg": 9.273228278372876,
+        "saturation": 0.027397260273972508,
+        "pixels": 11495
+      },
+      "iou": 0.33283589144512493,
+      "maskPx": 114487
+    },
+    "profile_90": {
+      "p50": 0.19354117647058822,
+      "p90": 0.27617725490196077,
+      "highlight": {
+        "hueDeg": 7.013016371913179,
+        "saturation": 0.024691358024691273,
+        "pixels": 16848
+      },
+      "iou": 0.3544146220424093,
+      "maskPx": 162527
+    },
+    "back": {
+      "p50": 0.18514745098039218,
+      "p90": 0.2714219607843137,
+      "highlight": {
+        "hueDeg": 3.447041850956533,
+        "saturation": 0.02564102564102573,
+        "pixels": 25376
+      },
+      "iou": 0.8178612956655363,
+      "maskPx": 250347,
+      "backProfile": {
+        "bins": [
+          0.21999459141633104,
+          0.2345237037636061,
+          0.22999398008060512,
+          0.21396980760778642,
+          0.19858536934960463,
+          0.1831402343269723,
+          0.14348003097556036,
+          0.062390080946979336,
+          0.0979942602234367,
+          0.08430862286531969
+        ],
+        "topMinusHemOverMean": 0.8132794274772389,
+        "pixels": 141105
+      }
+    }
+  },
+  "seed0": true,
+  "seeds": {
+    "q1": 0,
+    "q1s1": 1,
+    "q1s2": 2
+  },
+  "threeSeedSpread": {
+    "front": {
+      "p50": {
+        "seeds": [
+          0.10243450980392156,
+          0.10279450980392156,
+          0.1024705882352941
+        ],
+        "mean": 0.10256653594771241,
+        "min": 0.10243450980392156,
+        "max": 0.10279450980392156,
+        "range": 0.0003599999999999992
+      },
+      "p90": {
+        "seeds": [
+          0.229118431372549,
+          0.22883529411764705,
+          0.229118431372549
+        ],
+        "mean": 0.22902405228758171,
+        "min": 0.22883529411764705,
+        "max": 0.229118431372549,
+        "range": 0.0002831372549019495
+      }
+    },
+    "three_quarter": {
+      "p50": {
+        "seeds": [
+          0.1595749019607843,
+          0.15853019607843136,
+          0.15853019607843136
+        ],
+        "mean": 0.158878431372549,
+        "min": 0.15853019607843136,
+        "max": 0.1595749019607843,
+        "range": 0.0010447058823529476
+      },
+      "p90": {
+        "seeds": [
+          0.2565694117647059,
+          0.2565694117647059,
+          0.2565694117647059
+        ],
+        "mean": 0.2565694117647059,
+        "min": 0.2565694117647059,
+        "max": 0.2565694117647059,
+        "range": 0.0
+      }
+    },
+    "profile_90": {
+      "p50": {
+        "seeds": [
+          0.19354117647058822,
+          0.1929905882352941,
+          0.1929905882352941
+        ],
+        "mean": 0.19317411764705883,
+        "min": 0.1929905882352941,
+        "max": 0.19354117647058822,
+        "range": 0.0005505882352941083
+      },
+      "p90": {
+        "seeds": [
+          0.27617725490196077,
+          0.27617725490196077,
+          0.27617725490196077
+        ],
+        "mean": 0.27617725490196077,
+        "min": 0.27617725490196077,
+        "max": 0.27617725490196077,
+        "range": 0.0
+      }
+    },
+    "back": {
+      "p50": {
+        "seeds": [
+          0.18514745098039218,
+          0.18514745098039218,
+          0.18514745098039218
+        ],
+        "mean": 0.18514745098039218,
+        "min": 0.18514745098039218,
+        "max": 0.18514745098039218,
+        "range": 0.0
+      },
+      "p90": {
+        "seeds": [
+          0.2714219607843137,
+          0.2714219607843137,
+          0.2714219607843137
+        ],
+        "mean": 0.2714219607843137,
+        "min": 0.2714219607843137,
+        "max": 0.2714219607843137,
+        "range": 0.0
+      }
+    }
+  },
+  "q1Best": {
+    "fitness": 6.783277140606804,
+    "eval": 7,
+    "params": {
+      "melanin": 0.97,
+      "redness": 0.37295693048012835,
+      "roughness": 0.30419042212641095,
+      "key_energy": 149.37668031234784,
+      "key_elev_deg": 46.53246179277051,
+      "fill_W": 51.79189232647554,
+      "rim_W": 5.274066184423127,
+      "key_azimuth_delta_deg": -31.689290105080133,
+      "key_size_m": 1.6326859138340684,
+      "fill_elev_deg": 15.0,
+      "root_dark": 0.05
+    }
+  }
+}

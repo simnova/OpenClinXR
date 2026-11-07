@@ -1,0 +1,208 @@
+{
+ "inputs": {
+  "guides": "tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz",
+  "roots": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "sdf": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz",
+  "hull": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-hull5/hull.npz"
+ },
+ "counts": {
+  "roots": 14155,
+  "guides": 2707,
+  "pointsPer": 32,
+  "childrenPerRoot": 20,
+  "children": 283100
+ },
+ "part": {
+  "partX": 0.0001401995879485164,
+  "crownBandN": 4184
+ },
+ "vertex": {
+  "yVertexM": 0.0342,
+  "nBelowVertexRoots": 335
+ },
+ "model": "interpolated children on dense guides (no transport)",
+ "blend": {
+  "kernel": "per-child positional 4-nearest UV 1/(duv+0.03)^4, cutoff 1.0 rad, nearest-alone fallback",
+  "meanWeight0": 0.7446,
+  "nearestAloneFrac": 0.3939,
+  "nAlone": 13,
+  "gapGate": {
+   "gateMm": 5.0,
+   "off": false,
+   "nFallbackRows": 71864,
+   "nDroppedWeights": 385355,
+   "maxGapMm": 161.94
+  },
+  "translationMm": {
+   "p50": 1.85,
+   "p90": 15.59,
+   "max": 54.44,
+   "gt5mm": 57001,
+   "gt15mm": 29259
+  },
+  "rootExactnessMmMax": 0.0
+ },
+ "childU": {
+  "p50": 0.593,
+  "p90": 0.79,
+  "min": 0.302,
+  "max": 0.9
+ },
+ "depthServo": {
+  "on": 1,
+  "nMoved": 1604385,
+  "maxMoveMm": 6.0,
+  "childUP50": 0.593
+ },
+ "earKeepout": {
+  "keepMm": 4.0,
+  "nPushed": 38855,
+  "maxPushMm": 52.1951,
+  "minDistAfterMm": 0.053,
+  "fracLt3mmAfter": 0.01113
+ },
+ "partStyle": {
+  "on": 0,
+  "note": "removed in 8b"
+ },
+ "partExtra": {
+  "extraPerPartRoot": 0,
+  "note": "removed in 8b"
+ },
+ "partSetback": {
+  "on": 0,
+  "note": "removed in 8b"
+ },
+ "partSweep": {
+  "on": 1,
+  "bandMm": 12.0,
+  "nPartRoots": 834,
+  "nStripRoots": 21,
+  "doneRows": 16260
+ },
+ "partStrip": {
+  "stripMm": 0.75,
+  "stripArcMm": 50.0,
+  "lineTrim": false,
+  "nRoots": 21,
+  "nStrands": 420,
+  "nSamples": 3858
+ },
+ "farSnap": {
+  "snapMm": 25.0,
+  "nSnapped": 16069
+ },
+ "partClamp": {
+  "on": 1,
+  "nSamples": 85124,
+  "nStrands": 11179,
+  "nFeather": 53242,
+  "rounds": 2
+ },
+ "tuckBlend": {
+  "on": 1,
+  "nTuckRoots": 481,
+  "nTuckGuides": 57
+ },
+ "conchaTrim": {
+  "nStrands": 30336,
+  "nSamples": 269238,
+  "projConchaSamples": 19664,
+  "pinFinalSamples": 320
+ },
+ "dotGuides": {
+  "floorMm": 20.0,
+  "nDot": 278,
+  "nPool": 2429
+ },
+ "subRoots": {
+  "perRoot": 20,
+  "seed": 11,
+  "cellFrac": 0.45,
+  "uvPerM": 11.6739,
+  "cellRmmP50": 0.753,
+  "cellRmmMax": 1.413,
+  "jitMmMax": 1.374
+ },
+ "sideburnShort": {
+  "on": 1,
+  "nStrands": 5860,
+  "targetMm": [
+   12.0,
+   24.0
+  ]
+ },
+ "sideburnClamp": {
+  "on": 1,
+  "nClamped": 0,
+  "maxBeforeMm": 24.0,
+  "maxAfterMm": 24.0,
+  "rounds": 0
+ },
+ "sideburnHug": {
+  "on": 1,
+  "hugMm": 2.0,
+  "nPushed": 41816,
+  "maxPullMm": 14.2965
+ },
+ "templeRoots": {
+  "hugMm": 1.5,
+  "nRoots": 774
+ },
+ "templeHug": {
+  "on": 1,
+  "hugMm": 1.5,
+  "nPushed": 151498,
+  "maxPullMm": 39.5337
+ },
+ "rootDots": {
+  "on": 1,
+  "nStrands": 5361
+ },
+ "lobeTrim": {
+  "on": 1,
+  "nSamples": 125877
+ },
+ "clump": {
+  "coarseMm": 20.0,
+  "coarsePullTip": 0.2,
+  "coarseCells": {
+   "nCells": 261,
+   "cellMin": 1,
+   "cellMax": 2804,
+   "cellMean": 1084.67
+  },
+  "fineMm": 4.5,
+  "finePullTip": 0.15,
+  "fineCells": {
+   "nCells": 4020,
+   "cellMin": 1,
+   "cellMax": 166,
+   "cellMean": 70.42
+  },
+  "pow": 2.0
+ },
+ "lengthJitter": {
+  "sigma": 0.04,
+  "seed": 7,
+  "truncSigma": 1.0,
+  "truncLoSigma": 2.0,
+  "scaleMin": 0.92,
+  "scaleMax": 1.04
+ },
+ "projection": {
+  "nPushed": 1442829,
+  "maxPushMm": 114.6502,
+  "minSdfAfter": 0.3,
+  "nInsideAfter": 0,
+  "nRounds": 13,
+  "outsideGrid": 0
+ },
+ "radiiMm": {
+  "root": 0.05,
+  "tip": 0.015000000000000001,
+  "profile": "linear in t^1.5"
+ },
+ "sha256": "6644eaf40bc5bda941e8da65f67ccde227cd66f22c21e5c84c2a1a2586485ddd",
+ "bytes": 104384438
+}

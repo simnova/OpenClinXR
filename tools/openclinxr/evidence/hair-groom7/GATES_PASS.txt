@@ -1,0 +1,8 @@
+GATES_PASS hair-groom7: FAIL (honest record; failing gates stay failing, see REMAINING in RESULT.txt)
+RULERS vs groom6: protrude still FAIL (smaller) | hemstep back PASS front FAIL | grooveV2 3q PASS profile PASS | loopProfile FAIL 8876 (was 29879)
+A temple tuck: pixel ratio<=2x True | tips<=3mm False (profile xpos 32 float: FAIL) | hard gates True
+B hem edges: alpha<=0.05 False miss<=0.10 False (worse than groom6; left 0.145/0.33 right 0.63/0.65)
+C part: cross40=0 True | back gapStd 9.12 over 71 rows (REGRESSED; REMAINING) | seam max 62 px (gate <=4: FAIL; REMAINING)
+LOBE boxes hair-ID px 3q 10/0 profile 89/114 (gate 0: FAIL; REMAINING)
+D front IoU 0.5587 >= 0.55: True (PASS; hard gates all pass, no old-chain paths)
+groom6 carries: hard True seam False frizzRuler True transCore False streak True pinna True concha True foe(advisory, xneg 137/245)

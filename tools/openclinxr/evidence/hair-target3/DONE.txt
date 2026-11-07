@@ -1,0 +1,4 @@
+hair target 3 DONE: front view regenerated with all hair behind the
+shoulders (attempt 2, behind-shoulders check 0.0 < 0.01 PASS); three_quarter,
+profile, back unchanged from v1; alignment ALIGNED (eyes 2.92 px, face ECC
+0.16 px); sheet + record in this directory.

@@ -1,0 +1,7 @@
+hair-guides1 DONE — 2026-10-15
+VERDICT: MODEL_INADEQUATE (front face_opening + side_curtains + hem, profile/back crowns, side curtains, hems, projection>10mm)
+Spec sha a742ce6f6b73c5802ae9f38ed3901134d9b5aa4189495498577e127ab68bde4c (frozen pre-fit, verified post-fit).
+Best: spec-default start, cost 734691.5, 11 gate fails (fit-all.json).
+Passing gates: front guard 0, profile guard 0, collision 0, crossing 0, no param on bound; profile face_opening 0/0 (v0's worst region fixed).
+Artifacts: guide-spec.json (v2, 28 params), roots-v2.npz (N=423) + roots-v2-alt.npz (N=459) subsampled from scalp1 14,155, fit-start-*.json, fit-all.json, fit.png, guides.npz (hash 9b7b0063...), guides.png (+4 per-view), heights.json, RESULT.txt, inputs-opened.txt, blender-opened.txt, spec-sha-before-fit.txt.
+LOO skipped per card decision tree (gate not met). No spec edits after the sha. No *.blend.

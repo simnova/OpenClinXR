@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "resolution": 1024,
+  "samples": 64,
+  "materialSpec": {},
+  "materialReadback": {
+    "model": "HUANG",
+    "parametrization": "MELANIN",
+    "Tint": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "Color": [
+      0.01751299947500229,
+      0.005762999877333641,
+      0.002059000078588724,
+      1.0
+    ],
+    "Random Roughness": 0.0,
+    "Aspect Ratio": 0.8500000238418579
+  },
+  "partGeometryKept": false,
+  "views": {
+    "front": {
+      "p50": 0.07137019607843137,
+      "p90": 0.13413098039215687,
+      "highlight": {
+        "hueDeg": 13.580557334064402,
+        "saturation": 0.2222222222222222,
+        "pixels": 8673
+      },
+      "maskPx": 86117
+    },
+    "three_quarter": {
+      "p50": 0.09716941176470588,
+      "p90": 0.13776941176470586,
+      "highlight": {
+        "hueDeg": 12.990328996953243,
+        "saturation": 0.17073170731707324,
+        "pixels": 11643
+      },
+      "maskPx": 115730
+    },
+    "profile_90": {
+      "p50": 0.11761098039215687,
+      "p90": 0.14837019607843147,
+      "highlight": {
+        "hueDeg": 11.799108023407001,
+        "saturation": 0.14545454545454545,
+        "pixels": 16501
+      },
+      "maskPx": 165005
+    },
+    "back": {
+      "p50": 0.10304156862745097,
+      "p90": 0.1383356862745098,
+      "highlight": {
+        "hueDeg": 8.391283736618087,
+        "saturation": 0.17073170731707324,
+        "pixels": 24475
+      },
+      "maskPx": 243610
+    }
+  },
+  "faceCheekP50": 0.7336650980392156,
+  "renderSeconds": {
+    "front": 28.43251750001218,
+    "three_quarter": 36.90092124999501,
+    "profile_90": 42.06259833398508,
+    "back": 45.85965395800304,
+    "crown_top": 31.43828895801562
+  },
+  "baseRenderSeconds": {
+    "front": 42.82046687498223,
+    "three_quarter": 42.67361191599048,
+    "profile_90": 40.94235866700183,
+    "back": 47.80326899999636,
+    "crown_top": 30.736602457996923
+  },
+  "silhouetteVsBaseFinal": {
+    "front": {
+      "iouVsBase": 1.0,
+      "deltaIou": 0.0
+    },
+    "three_quarter": {
+      "iouVsBase": 1.0,
+      "deltaIou": 0.0
+    },
+    "profile_90": {
+      "iouVsBase": 1.0,
+      "deltaIou": 0.0
+    },
+    "back": {
+      "iouVsBase": 1.0,
+      "deltaIou": 0.0
+    }
+  }
+}

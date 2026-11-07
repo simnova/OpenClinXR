@@ -1,0 +1,12 @@
+DONE hair-hull0 (2026-10-15, Apple M1 Max, single host)
+- S6/hull.py: carve (2 mm) + diagnostics + sensitivity + export stages.
+- S6/render_hull.py: Blender EEVEE translucent-hull figure.
+- E/hull.npz (185,313 B), E/hull.png (4 renders + 3q display tile),
+  E/slices.png (visible-count slices + thickness histograms),
+  E/RESULT.txt, E/inputs-opened.txt, E/blender-opened.txt.
+- git scope: tools/openclinxr/hair-groom/hull + tools/openclinxr/evidence/hair-hull0 only.
+- GATES_PASS=yes (excess p95 2.0/2.0/2.0; scalp-connected 89.5%;
+  sensitivity max delta 3.11 px; bans clean).
+- Hands to hull1: route guides through E/hull.npz occupancy; treat the
+  posterior-lateral 1-view wedge and the nape-panel gap as known
+  feasible-space uncertainty, not guide targets.

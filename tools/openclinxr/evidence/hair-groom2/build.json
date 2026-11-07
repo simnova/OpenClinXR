@@ -1,0 +1,104 @@
+{
+ "inputs": {
+  "guides": "tools/openclinxr/evidence/hair-groom2/guides.npz",
+  "roots": "tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "sdf": "tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz"
+ },
+ "counts": {
+  "roots": 14155,
+  "guides": 567,
+  "pointsPer": 32,
+  "childrenPerRoot": 7,
+  "children": 99085
+ },
+ "part": {
+  "partX": 0.0001401995879485164,
+  "crownBandN": 4184
+ },
+ "vertex": {
+  "yVertexM": 0.0342,
+  "nBelowVertexRoots": 335,
+  "note": "no side restriction at/below vertex"
+ },
+ "earKeepout": {
+  "keepMm": 4.0,
+  "nPushed": 37550,
+  "maxPushMm": 24.199,
+  "minDistAfterMm": 1.712,
+  "fracLt3mmAfter": 0.0
+ },
+ "earTuck": {
+  "nStrands": 0,
+  "note": "positional tuck removed"
+ },
+ "conchaTrim": {
+  "nStrands": 3352,
+  "nSamples": 54585
+ },
+ "blend": {
+  "kernel": "1/(duv+0.03)^4, cutoff 1.0 rad, nearest-alone fallback",
+  "meanWeight0": 0.7949,
+  "nearestAloneFrac": 0.2401,
+  "nAlone": 0,
+  "gapGate": {
+   "gateMm": 15.0,
+   "off": false,
+   "nFallbackRows": 750,
+   "nDroppedWeights": 1904,
+   "maxGapMm": 160.3
+  },
+  "earSpanAlone": {
+   "nEarSpanAlone": 2468
+  },
+  "rootExactnessMmMax": 0.0
+ },
+ "subRoots": {
+  "perRoot": 7,
+  "seed": 11,
+  "cellFrac": 0.45,
+  "cellRmmP50": 0.753,
+  "cellRmmMax": 1.413,
+  "jitMmMax": 1.386
+ },
+ "clump": {
+  "coarseMm": 20.0,
+  "coarsePullTip": 0.4,
+  "coarseCells": {
+   "nCells": 252,
+   "cellMin": 1,
+   "cellMax": 970,
+   "cellMean": 393.19
+  },
+  "fineMm": 4.5,
+  "finePullTip": 0.25,
+  "fineCells": {
+   "nCells": 3860,
+   "cellMin": 1,
+   "cellMax": 62,
+   "cellMean": 25.67
+  },
+  "profile": "t^2 root->tip, zero at root"
+ },
+ "lengthJitter": {
+  "sigma": 0.04,
+  "seed": 7,
+  "scaleMin": 0.8275,
+  "scaleMax": 1.1744
+ },
+ "projection": {
+  "nPushed": 692244,
+  "maxPushMm": 70.035,
+  "minSdfAfter": 0.3,
+  "nInsideAfter": 0,
+  "nRounds": 18,
+  "outsideGrid": 0
+ },
+ "coverPostSDFsub": 4778,
+ "radiiMm": {
+  "root": 0.06,
+  "tip": 0.02,
+  "profile": "linear in t^1.5"
+ },
+ "sha256": "b29e644346f48bae5f3c51fb3b880b0e44aa390957557aba16b9da91430f2cb3",
+ "bytes": 35950351
+}

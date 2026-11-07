@@ -1,0 +1,19 @@
+DONE hair-groom25 (2026-10-18, branch hair-tgt2)
+================================================
+Diagnosis: back miss +6656 px is image-right (= world -x) mid rows
+441-732 + bottom rows 732-1023 (right hem + right mid drape); profile
+loss is posterior over-cover (+1952 excess, image-left mid/top). Top
+guide movers are crown-centre/world-x back guides whose TIPS moved
+most (max == hem move; p90 86 mm, max 230 mm).
+Options measured (guides + children + renders + scores):
+  25a cap30:    cross 1157 FAIL | grad 0.611 PASS | back 0.7862 FAIL | prof 0.8132 PASS
+  25b anchor0.6: cross 865 PASS | grad 0.615 PASS | back 0.7772 FAIL | prof 0.8113 PASS
+  25c pin-hem:  cross 806 PASS | grad 0.615 PASS | back 0.7787 FAIL | prof 0.8095 FAIL (+3q/face FAIL)
+PICK: 25b (only option with both lock gates green and 6/7 hard gates
+green). Back NOT recovered (control itself is 0.7959 < 0.80 gate).
+GATES_PASS: no. Full record: E/RESULT.txt.
+Outputs: sheet.png, crops.png, RESULT.txt, score25-*.json,
+metrics-cross/grad25.json, miss maps + displacement, renders-*/,
+build*/ (records only), store strands + SHA256SUMS (not in git).
+Station: s11 --cap-mm/--pin-hem added (defaults off).
+NOT RUN: children rebuild determinism (round cut; see RESULT sect 8/9).

@@ -1,0 +1,5 @@
+DONE hair-groom22: FALSIFIER TRIGGERED, STOP.
+Field gate met (back 11.85 <= front 21.78); re-traced back crossings
+9213 > 2914 (94.8% of groom19's 9715; control on unsmoothed field 10154).
+Crossings are not from field discontinuity. No children, no render, no
+score per card. GATES_PASS = no. See RESULT.txt.

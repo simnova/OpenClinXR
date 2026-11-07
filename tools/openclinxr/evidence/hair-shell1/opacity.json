@@ -1,0 +1,16 @@
+{
+ "front": {
+  "hairPx": 303385,
+  "interiorLowFrac": 1.3e-05,
+  "interiorLowPx": 4,
+  "lowFrac": 0.0117,
+  "lowPx": 3551
+ },
+ "profile_90": {
+  "hairPx": 192079,
+  "interiorLowFrac": 0.0,
+  "interiorLowPx": 0,
+  "lowFrac": 0.01731,
+  "lowPx": 3325
+ }
+}

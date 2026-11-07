@@ -1,0 +1,22 @@
+DONE hair-groom27 (2026-10-18, branch hair-tgt2, base b0c9c5eb4).
+
+Final groom27 = guides-26 + s14 posterior ear re-route (41 guides, tuck
+corridor, verbatim 40 mm take-off) + band=1 on 5 verbatim-locked side
+dots (2113 2133 2138 2144 2145) + children (groom26 final flags:
+--region-weight --uv-cutoff 0.15 --pool-max-move-mm 60 --pool-ref
+guides-8a.npz --temple-taper 0.5 --lobe-drop-roots), 281800 children.
+Store: /Volumes/files/openclinxr-assets/store/hair-groom27/
+strands-27.npz sha256 39e96995747ddb18b9de66454153163fbbcbd76d6ca64a499d80b819b3beac55.
+
+Gates: profile-xpos box 0 px PASS (770 -> 0, target 0), 3q-xpos box 841
+PASS (<= target's own 842; was 1180), profile IoU 0.8412 PASS, 3q 0.8504
+PASS, front 0.8058 PASS, concha 0 PASS, insideBody 0 PASS, faceMask
+front+3q PASS, gradAniso 0.6261 PASS, crossings 1059 FAIL (<=900; image
+lock metric unaffected), takeoff/untouched/SDF/pinna/pool/det/calib
+PASS. FAIL: 3D earlobe 748 strands (card falsifier triggered and
+documented: hug-limited + sideburn-shorts walls; feeding guides
+2118/2137/2109 reported, stopped per card). GATES_PASS = no. Full
+record: E/RESULT.txt. Sheets: E/sheet.png, E/crops.png.
+
+Station change committed: orient/s14_ear_route.py (new stage; no
+existing file touched). No .npz in git.

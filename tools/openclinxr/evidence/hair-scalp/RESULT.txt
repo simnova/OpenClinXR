@@ -1,0 +1,29 @@
+RESULT::hair-scalp-1
+G1::geometry unchanged: child-array sha256 ba151b15262cf983 in K0/K1/K2/K3, equals PT C3 PASS
+G2::best K3 part band ratio 2.744 (bar <=1.6) MISS; part 27 px (bar <=27) PASS
+G3::best K3 p50 0.1540 (bar 0.06-0.10) MISS; p90 0.2605 (bar 0.11-0.20) MISS; R/B 1.308 (bar 1.3-1.7) PASS; redness 0.04618 (bar <=0.04224) MISS
+G4::face 0.5936 vs K0 0.6457 (-8.1%, bar +-15%) PASS; bg 0.4680 vs K0 0.4846 (-3.4%, bar +-10%) PASS
+G5::IoU 0.6183 (bar >=0.608) PASS; ID show-through 2.87% (bar <=3.2%) PASS
+G6::forehead 0.7280 vs K0 0.7945 (-8.4%, bar +-10%) PASS
+K0::S2 as-is (mel 0.851/red 0.840/rough 0.141, key 36.2 deg/150 W, undertone off) | p10/p50/p90 0.067/0.149/0.315 | R/B 1.474 | red 0.07040 | band 0.721 ratio 4.844 | part 27 | ID 2.87% | IoU 0.618
+K1::K0 + scalp undertone mix 0.65 (984 faces, 617.6 cm2, root colour 0.0175/0.0058/0.0021) | p50 0.146 R/B 1.459 red 0.06786 | band 0.499 ratio 3.406 | part 27 | ID 2.87% | IoU 0.618
+K2::K1 + S0 shading (mel 0.90/red 0.80/rough 0.25/radial 0.30/coat 0) | p50 0.168 R/B 1.301 red 0.04935 | band 0.500 ratio 2.979 | part 27 | ID 2.87% | IoU 0.618
+K3::K2-base attempt 3 (mix 0.70, S0 hair, key 35 deg/100 W) | p10/p50/p90 0.083/0.154/0.260 | R/B 1.308 | red 0.04618 | band 0.423 ratio 2.744 | part 27 | ID 2.87% | IoU 0.618
+K3a1::attempt 1 (mix 0.65, S0 hair, key 35 deg/105 W): p50 0.156 R/B 1.308 red 0.04668 band 2.893 face -7.1% forehead -7.1% (see scalp-K3-attempt1.json)
+K3a2::attempt 2 (mix 0.70, hair 0.93/0.85/0.30, key 40 deg/90 W, from key-search-2.json best): p50 0.150 R/B 1.253 red 0.03706 band 2.659 face -14.5% bg -5.5% forehead -16.0% (forehead/R/B miss; superseded, numbers from run log /tmp/scalp/k3b.log)
+M3steps::S0 0.90/0.80/0.25: p50 0.168 R/B 1.301 (CHOSEN: only step with R/B in bar); S1 0.93/0.80/0.32: p50 0.177 R/B 1.222; S2 0.96/0.80/0.40: p50 0.182 R/B 1.144
+M3iso::melanin-only 1.00: p50 0.126 R/B 1.026 (darkens but greys); roughness-only 0.40: p50 0.199 R/B 1.398 (matte lobe brightens under key); both: p50 0.177 R/B 1.016 (see shade-steps-isolation.json)
+M3a1::melanin 1.1-2.0 steps INVALID (out of 0..1 range: p50 rose, R/B greyed to 1.02; see shade-steps-attempt1.json)
+M4::12-eval grid elev x energy minimising |ln(p50/0.078)|+|ln(p90/0.159)| face-constrained: best feasible 35 deg/105 W (obj 1.199, face -7.1%); refinement grid best 40 deg/90 W (face -14.5%). Face and hair move together (elev 25->55 darkens face faster than hair); key alone cannot reach p50 0.078 inside the face bar.
+P1::target re-measured with judge v3: p10/p50/p90 = 0.039/0.084/0.168, R/B 1.53 (brief premise 0.039/0.078/0.159, R/B 1.52 confirmed within rounding)
+P2::cap footprint on OCLX_Aisha_head: 984 faces, 617.6 cm2 (premise ~630 confirmed)
+CAUSE(D1)::both scalp albedo and direct key hit contribute; measured split: undertone alone moved the part band 0.721->0.499 (-31%, scalp-albedo share); shading+key moved it 0.499->0.423 (-15% more, -41% total from K0). The remaining 0.423 floor is lit thin strands at the slit (strand glow, not scalp): it scales with hair brightness, so hair-darkening cannot improve the band ratio past ~2.7 on fixed geometry. Strand radius/density at the slit (coverage) is the unaddressed share; key elevation does not shadow the slit (grid measured).
+SAW::K0: the part is a broad bright copper-orange glowing wedge from crown to forehead; pale scalp plainly visible between thin strands; hair brown-orange and glossy.
+SAW::K1: the wedge narrows and browns but still reads as a bright line, not a dark line; canopy unchanged.
+SAW::K2: hair a touch darker brown, gloss streaks persist; part line still bright brown.
+SAW::K3: dimmest part line of the four, still a brown glow line rather than the target's narrow dark line; hair reads dark brown with glossy streaks, not near-black matte; forehead clean with no dark band or halo at the hairline; profile vs target shows the gloss gap clearly.
+RECOMMEND::station defaults --scalp-undertone on (mix 0.65; 0.70 costs forehead margin), hair S0 (melanin 0.90, redness 0.80, roughness 0.25, radial 0.30, coat 0.0), key 35 deg/100 W (recorded in best.json, replacing S2 for this groom). Do not weaken G2/G3 bars. Next work belongs to a coverage/geometry card (denser slit roots) or a Tint-lever card with re-solved key; melanin-up is spent (R/B greys below bar before p50 reaches target) and key is face-coupled (measured).
+COMMIT::<to fill after commit>
+STILL::G2/G3 MISS after 3 honest attempts (attempt 1 S0+35/105, attempt 2 0.93-mix.70+40/90, attempt 3 S0-mix.70+35/100); part still a brown glow line at 2.74x hair p50; hair still glossy brown (p50 0.154 vs 0.078, p90 0.260 vs 0.159); S2 light/colour does not transfer to this groom's coverage (confirms D2 suspicion).
+BRIEF_MISSING::(1) part band = rows [110,r*) x centre+-15 where r* = topmost row in [120,400) with mean ID coverage <0.2 over centre+-30 (r* = 264 all cells); face/bg/forehead definitions in scalp_photo_metrics(). (2) root colour = hair shader Color socket at S2 melanin (0.0175/0.0058/0.0021); mix default 0.65, attempt 2/3 use brief-max 0.70 via --scalp-mix. (3) key "strength" = AREA energy in W; S2 e0 = 150 W. (4) S2 length param not applied to the blend object (would reshape curves; geometry locked). (5) Blender RNA [] lookup keys on socket identifier, so scalp.py reads/links sockets by .name via _sock() (hair "Color" lookup failed otherwise). (6) refinement key grid elev 30/35/40/45 x efac 0.6/0.7/0.8 (--elev-list/--efac-list/--search-tag -2). (7) COMMIT placeholder per repo precedent.
+HARM::none (local Blender renders + numpy only; no external calls; no push; PT/G6/F/S2/J/hair-guides8 untouched; body textures on disk untouched)

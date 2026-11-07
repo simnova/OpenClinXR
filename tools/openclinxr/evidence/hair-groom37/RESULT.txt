@@ -1,0 +1,110 @@
+groom37 RESULT (2026-10-19): routed-only weights for children that
+enter the ear shell (STEP1 of the brief; STEP2 attribution + STEP3
+flyaway report only, no further fix per card).
+
+VERDICT: PARTIAL (shell segs cut 36-37% both sides, zero regressions
+on any other gate; shell/column/gt30/crossings/front-IoU/profile-IoU
+still fail)
+
+BUILDS (store/hair-groom37/, NOT in git):
+- build-37 (sha eeae8267, 269480 children = same count as 36):
+  build-36 recipe verbatim (mask20 flags + mirror35 pinna/earframe +
+  pool-ref-36 + expect-n-new 2669) plus --shell-routed-only
+  --ear-proxy proxy34. Recipe fidelity: every non-reroute build.json
+  section identical to build-36 (poolDrop 16, gapGate 50290/344805,
+  farSnap 8468, clump, lengthJitter, all class flags).
+- shellRoutedOnly: 60 routed guides (29 +x / 29 -x in pool);
+  blend-time shell hitters 738 +x / 732 -x, ALL recomputed (1470 =
+  0.55% of children); gap-fallback 1468 (routed pool is UV-sparse);
+  far-snap-routed 20. No other child touched.
+- build-37det rebuild sha eeae8267 IDENTICAL. Determinism PASS.
+
+STEP1 (targeted blend rule):
+  recomputed per side: +x 738 / -x 732. Mechanism honored: weights
+  from same-side STEP1-routed guides only, same kernel/cutoff/region
+  rule/gap gate/far-snap as the main loop; standard clump keys (no
+  band bit); no position moves added (downstream stages uniform).
+
+GATE TABLE (value | threshold | verdict | provenance):
+  child segs in 3mm shell +x  | 1356 / 0     | FAIL | gates-37.json
+    (36: 2134; delta -778, -36%)
+  child segs in 3mm shell -x  | 1287 / 0     | FAIL | gates-37.json
+    (36: 2043; delta -756, -37%)
+  child strands in shell +x/-x| 727 / 645    | info | (36: 1136/1036)
+  earlobe column +x           | 53 / 0       | FAIL | 53/55/4 identical 36
+  earlobe column -x           | 56 / 0       | FAIL | 56/58/3 identical 36
+  profile ear box +x (std)    | 0 px / 0     | PASS | imgStd profile_90/xpos
+  profile ear box -x (mirror) | 0 px / 0     | PASS | imgMirror profile_90/xneg
+  profile ear box -x (std)    | 0 px         | INFO | non-graded (36: 5px)
+  3q ear box +x (std)         | 281 / <=842  | PASS | margin -561 (same as 36)
+  3q ear box -x (mirror)      | 357 / <=842  | PASS | margin -485 (same as 36)
+  concha +x / -x              | 0/0/0 both   | PASS | concha34 projective
+  insideBody                  | 0 / 0        | PASS | nSge1Inside
+  segments > 30 mm            | 2907 / <=1789| FAIL | over by 1118 (36: 2970)
+  +x IoU front                | 0.7798/>=0.79| FAIL | margin -0.0102 (36 -0.0106)
+  +x IoU 3q                   | 0.8484/>=0.83| PASS | margin +0.0184 (36 +0.0189)
+  +x IoU profile              | 0.8358/>=0.84| FAIL | margin -0.0042 (36 -0.0074)
+  back IoU                    | 0.8911       | reported (36: 0.8911, same)
+  mirror IoU 3q / profile     | 0.9748/0.9724| reported (36: 0.9731/0.9717)
+  3D back crossings           | 1029 / <=935 | FAIL | guides-level, over by 94
+  gradAniso sigma 4           | 0.3470/<=0.70| PASS | metrics-grad37.json opt37
+  determinism                 | sha identical| PASS | eeae8267 == eeae8267
+  calibration                 | delta 0 all  | PASS | all_within_0.02 true
+
+STEP2 ATTRIBUTION (residual-37.json; routed = STEP1 reroute set):
+  Remaining shell strands +x 727: 183 rerouted-still-in (domW p50
+  1.00 = riding one routed guide alone after the 3D-nearest gap
+  fallback; downstream moves clip the shell) + 544 never-rerouted
+  (blend path never entered; domW p50 0.60; pushed in downstream).
+  -x 645: 120 rerouted-still-in (domW p50 1.00) + 525
+  never-rerouted (domW p50 0.60).
+  Root proxy-dist p50 +x 70.8 / -x 79.6 mm (36: 40.3/39.0): the
+  near-root offenders are fixed; remainder rides from far roots.
+  Top backbones +x: 541 (201, ROUTED, same count as 36), 422 (64),
+  1302 (47); -x: 1916 (129, ROUTED), 1797 (78), 2677 (48).
+  1264/2639 (= orig 2507, 280/271 in 36) are GONE from the top-8:
+  the fix removed the two largest routed feeders. Backbone
+  routedFrac still 0.77/0.75: mid-tier routed guides dominate.
+  Column strands: 0 rerouted either side (their blend paths never
+  enter the shell); column backbones identical to 36 (routedFrac
+  0.62/0.71). No new fix per card.
+
+STEP3 FLYAWAYS (flyaway-37.json; report only):
+  Literal predicate (any sample y>yfront, zmin-5mm<=z<=zmax,
+  |x| in ear span+-30mm, SDF>5mm): groom36 +x 76878 / -x 77053;
+  groom37 +x 76405 (-473) / -x 76583 (-470). Stage: 99.0-99.1%
+  BLEND-created in all four cells (36 +x 76107/76878; 37 +x
+  75618/76405; downstream only ~700-800). The interpolation blend,
+  not any downstream stage, creates them.
+  Caveat (honest): the literal predicate captures the whole front
+  curtain mass (max-anterior p50 44mm, p99 100mm), not just isolated
+  strands. Render check: isolated <300px hair components in native
+  ear crops are speckle-dominated and unchanged (36 +x 2081px /
+  -x 2984px vs 37 +x 2414px / -x 3155px); no measurable change in
+  the isolated-strand population either way.
+
+SCOPE: edited tools/openclinxr/hair-groom/strands/interp_children.py
+  (--shell-routed-only + --ear-proxy, both default OFF; docstring).
+  New evidence E/hair-groom37/ (drivers import, no copies:
+  run_gates37, residual37, run_cross37, run_grad37, flyaway37,
+  make_sheet37, ears37; iou via iou35 CLI; calib via calibrate31 CLI
+  with cwd=E37). Store .npz in
+  /Volumes/files/openclinxr-assets/store/hair-groom37/ + SHA256SUMS.
+  Sheet rows target | groom36 | groom37 (3q, 3q -x flip, profile,
+  profile -x flip, ear +x, ear -x flip). ears.png native 1:1 both
+  sides (cols target-n/a | groom36 | groom37).
+NOT TESTED: wearer-side (Quest) views; VLM review of sheet/ears.
+REMAINING: child-level shell/column/gt30/crossing gates; front/profile
+  IoU margins (-0.0102/-0.0042); mid-tier routed feeders (541/422,
+  1916/1797) + downstream push-in of non-hitters (next card).
+GATES_PASS: false
+VISUAL READ (citing crops): ears.png +x row - 36 vs 37 nearly
+  identical; concha bowl clear in both; the same few fine flyaway
+  strands cross the cheek in front of the ear in both (ID metric
+  0/0/0 both sides; the dark in the bowl is shading, not hair).
+  ears.png -x flip row - the dark fan over the helix top is visibly
+  thinner in 37 than 36 (2639/2507 feeder gone); helix rim reads
+  cleaner; thin sub-lobe curves persist in both (column gate still
+  fails). Sheet 3q/profile rows: 37 silhouette matches 36 on both
+  sides; full pinna visible both sides; no hair below the earlobe in
+  any crop; no slab, no bald slot, no new artifacts anywhere.

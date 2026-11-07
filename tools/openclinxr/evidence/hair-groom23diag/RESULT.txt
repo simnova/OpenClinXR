@@ -1,0 +1,140 @@
+RESULT hair-groom23diag: 3D crossing metric vs 2D projection count + image-space lock metric
+====================================================================================
+Diagnostic card. No station code changed, no builds, no renders, no scores.
+Method: tools/openclinxr/evidence/hair-groom23diag/diag23.py (deterministic, no RNG).
+Date: 2026-10-18. Branch: hair-tgt2 (worktree at 24d7628cb).
+
+0. WHAT WAS RUN
+---------------
+mise exec -- python3 tools/openclinxr/evidence/hair-groom23diag/diag23.py \
+  --step a            # 3D crossing metric, 7 guide files (~25 s)
+mise exec -- python3 .../diag23.py --step b   # image-space lock metric, 4 renders
+mise exec -- python3 .../diag23.py --step c --infile metrics-step-a.json  # guide attribution
+Outputs: E/metrics.json (merged), E/metrics-step-{a,b,c}.json,
+E/lock-map-{8a,8b,12,19}.png, E/RESULT.txt, E/DONE.txt.
+
+1. 3D CROSSING METRIC (step A)
+------------------------------
+Rule: s11_back_coherent.crossing_count logic verbatim (u = azimuth x 100 mm,
+v = height, arc 40-200 mm, back non-tuck guides, first-hit pair counting),
+PLUS: a 2D-crossing pair counts as a 3D crossing only if the minimum
+3D segment-segment distance between the two crossing segments is <= 3 mm.
+2D counts reproduce all published baselines EXACTLY (metric reuse verified):
+guides-19 -> 9715/35245 (groom19), guides-22 -> 9213 (groom22),
+guides-22-control -> 10154 (groom22 control), guides-21 -> 7417 (groom21).
+guides-22 sha 06fd6c7f... matches the groom22 determinism hash.
+
+Guide file      back  pairs   2D cross  3D<=3mm  3D/2D   d3 p50  d3 p90
+guides-8a        266  35245     10154      2258   22.2%   11.8   159.0
+guides-19        266  35245      9715      1827   18.8%   15.0   157.0
+guides-21        266  35245      7417       753   10.2%  138.8   156.9
+guides-21a03     266  35245      6389       676   10.6%  131.1   152.5
+guides-21perm    266  35245      8279       809    9.8%  134.4   156.1
+guides-22        265  34980      9213      1986   21.6%   11.2   159.1
+guides-22-ctl    266  35245     10154      2258   22.2%   11.8   159.0
+(all distances mm; d3 = 3D segment distance at first 2D crossing)
+
+d3 histogram (guides-19, n=9715): 0-1mm 696 / 1-2 563 / 2-3 568 /
+3-5 1017 / 5-10 1596 / 10-20 578 / 20-50 315 / >50 4382.
+Bimodal: ~30% within 10 mm, ~45% beyond 50 mm (different drape columns
+crossing in projection). Same shape for 8a/22-family.
+Radial separation at 2D crossings: p50 2.9-5.3 mm, p90 7.4-15.5 mm
+(small: crossings happen INSIDE one drape shell, not across shells);
+vertical separation p50 1.2-1.7 mm. The remaining d3 is along-flow
+separation (~11 mm at p50 for 8a/19/22): near-misses in the same shell.
+Coincidence note: guides-8a and guides-22-control give IDENTICAL counts
+(10154/2258) from different files (sha 3827eb86 vs 8647d370, maxAbsDiff
+73.2 head-mm, not byte-identical). Count-level coincidence, reported as is.
+
+2. IMAGE-SPACE LOCK METRIC (step B)
+-----------------------------------
+Box: groom10diag back-knot box rows 150-420, cols 512-765 (render frame),
+mapped to the target frame with the scorer's own judge-v6 similarity
+(scale 1.0403, tx -19.65, ty -31.25; identity assumption was checked and
+REJECTED: ~20-30 px + 4% scale). Orientation = scorer's Gabor bank
+(hair-score/orientation.py, verbatim import) + a structure-tensor twin
+(no structure-tensor code exists in the repo; the card's parenthetical
+equates two different things -- Gabor is the scorer's actual machinery).
+Hair pixels = registered render ID alpha>=230 & target mask-back.
+Lock maps: E/lock-map-<groom>.png = target | registered render | dev heat.
+
+Card metric (Gabor vs-target frac>25) does NOT separate 12 from 8a/19:
+  groom  nHair   dev>25  dev>45  dev>60  mean   struct>25  histEMD
+  8a     36404   0.711   0.530   0.371   46.8   0.708     15.3
+  12     36383   0.668   0.487   0.332   45.0   0.631     28.7
+  8b     36077   0.645   0.460   0.312   43.9   0.633     18.5
+  19     36408   0.628   0.454   0.314   43.6   0.608     15.1
+Also no separation (12 mid-pack or inverted): conf-weighted mean,
+flow-scale sigma-2 blur (~0.48-0.52 dev>45 for ALL four), intrinsic
+dispersion 15px (12 HIGHEST 0.339), struct coh<0.5 (12 HIGHEST 0.193),
+cross-scale 15-vs-65px (12 mid), coherent-dev>45 components
+(8a 0.53/12 0.46/8b 0.43/19 0.42), upper-half restriction of all above.
+12's fine Blender-children strands produce as much pixel-level orientation
+disagreement as 8a/19's locks: strand FINENESS and lock presence are
+conflated at Gabor 4px scale, and every groom shares a ~45 deg mean flow
+mismatch vs the photo in this box.
+Best image-space candidate (mechanism: cross-flow gradient energy from
+lock bands; fineness confound NOT yet disentangled):
+  gradAniso gy/gx at sigma-2: target 0.530 / 12 0.546 / 8b 0.849 /
+  19 1.023 / 8a 1.273 (12 ~= target, defectives +60-140%).
+  dark-tail (<=p10) component mean area px: target 56 / 12 68 / 8b 66 /
+  8a 67 / 19 92 (weak: only 19 stands out).
+
+3. GUIDE ATTRIBUTION, groom19 (step C)
+--------------------------------------
+22,878 deviating pixels (registered frame); 23,718 contributing children
+via build/strands.npz guide_idx/guide_w (per-pixel hair z-buffer,
+32 samples/child, no oversampling); 92.4% of dev pixels touched.
+Top guides by summed child weight:
+  393 (767.6), 378 (459.9), 357 (389.7) -- adjacent upper-BACK roots
+    (y -90..-105, z 1646-1648 mm, non-tuck BACK)
+  2278 (266.9), 2279 (186.7) -- BACK roots (y -86/-77, z ~1612)
+  then long front-grown routes crossing the box: 954, 1308, 941, 232,
+  276, 1100, 1712, 761, 1593, 967, 1143, 855, 1255, 251, 474.
+The deviating pixels are fed dominantly by one tight upper-back cluster
+(393/378/357) plus drape-through routes, not uniformly by all guides.
+
+4. ANSWER (one paragraph)
+-------------------------
+The 2D projection metric counts layering, not locks: only 10-22% of its
+pairs are within 3 mm in 3D (8a 22.2%, 19 18.8%, 21-family ~10%), and the
+3D lens shows position fairing worked 2.5x better than the 2D gate could
+see (true crossings 2258->753, -67%, vs 2D -27%); but it cannot score
+groom12, which has no guides file. The card-specified image metric
+(Gabor vs-target orientation deviation in the back-knot box) does NOT
+separate the known-good groom12 from defective 8a/19 -- 12 reads mid-pack
+on every orientation aggregate tested (~14 variants: gates, weighting,
+flow-scale, dispersion, cross-scale, coherent components, histograms),
+because fine Blender-children texture and lock bands produce the same
+pixel-level disagreement and all grooms share the photo's flow mismatch;
+the only image aggregate that puts 12 with the target and all three
+defectives apart is the sigma-2 gradient-anisotropy ratio gy/gx
+(target 0.53, 12 0.55, 8b 0.85, 19 1.02, 8a 1.27), whose lock-vs-fineness
+mechanism is still unproven. The locks' guide sources in groom19 are the
+adjacent upper-back guides 393/378/357 (+2278/2279).
+
+5. SCOPE
+--------
+Step A inputs: 7 guide .npz (E for 8a/19/21, store for 22/22c, read-only).
+Step B inputs: renders-studio back.png/back-id.png (8a, 8b, 12-8a, 19),
+aisha-v3 target-back.png + mask-back.png (read-only). Step C input:
+groom19 build/strands.npz (283100 children, read-only). All writes under
+E (this dir) only. Deterministic: step-B headline stats byte-stable
+across 4 re-runs; step-A 2D counts reproduce 4 published baselines.
+
+6. NOT TESTED
+-------------
+No children built, no renders, no scores, no sheets (card STOP scope).
+Step-C attribution has no occlusion beyond the per-pixel hair z-buffer
+(32 samples/child, no oversampling as in analyze.py): front-layer strands
+projecting into the box count as contributors. gradAniso lock-vs-fineness
+disentangling (e.g. synthetic-lock injection, strand-width-matched
+controls) not attempted. guides-22 files read from the asset store, not
+re-derived. Structure-tensor "scorer machinery" wording: no such code
+exists in-repo; Gabor bank used as the scorer's actual machinery.
+Perceptual validation of lock-map heat colormap: none (maps are evidence,
+not gates). E/d3 histogram beyond the printed bins: in metrics.json.
+
+7. RECOMMENDED NEXT CARD (one line)
+-------------------------------------
+Disentangle gradAniso (strand-width-matched synthetic-lock injection on groom12 renders) and, if it holds, gate the surviving 753 true-3D crossing pairs of guides-21 against the attributed lock guides 393/378/357.

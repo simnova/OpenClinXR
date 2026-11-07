@@ -1,0 +1,135 @@
+HAIR TILT 4 — REAR-ONLY COHERENT LEAN WITH OUTLINE COMPENSATION
+
+Lineage: E/wave.py keeps tilt3 helpers (arc, smooth, sheet_frames,
+phase_field, clamp, part_gap, apply_lean_return) verbatim and adds
+rear_mask (roots[:,1] > apex: 37647/69181 rear, 31534 curtain),
+theta_field (Gaussian lattice, 10 mm spacing, bilinear interpolation,
+rescaled to unit std over rear fibres), apply_lean_return_rear
+(tilt3 lean-return window — s*tan(theta) first 60% arc, smooth return
+last 40%, 3 mm part protection, 15 mm fade-in, in-plane sheet — applied
+ONLY to rear fibres; curtain bitwise identical to a1, verified max abs
+diff 0.0), and compensate_outline (per-z-bin rear half-width =
+p99(|x-bin_median|), 12 bins; ratio = a1_half/leaned_half capped at 1.0;
+rear x -> bin_median_a1 + (x-bin_median_a1)*ratio). Guides untouched.
+Collider audit = tilt3 repair.py flow (3x repair_outside + strict clamp
++ final repair). Material: hair-look7 best-params.json. Scorer:
+hair-score/score.py schema v2. Base (a1+look7): IoU f/p/b =
+0.6883/0.6810/0.7819; ori err f/3q/p/b = 27.09/33.65/31.97/24.55;
+EMD = 3.96/7.36/29.23/9.48; back bands 353x41.1 vs TS 849x16.4;
+ear 127x6.7 vs TS 89x11.7; honest part/side 0.9482; eye/jaw openings
+0.6046/0.4365.
+
+STEP 1 REALISED STATS (vs unwaved a1 strand; per-fibre max displacement;
+curtain 31534 fibres exactly 0; theta realised over rear only):
+  cell           | theta rear std/maxAbs | tangent rms/p95 (all; rear) | disp p50/p95/max mm (all) | disp rear p95
+  r_rear         | 3.85/17.84 deg indep  | 5.123/9.122               | 0.170/18.704/69.624         | 22.406
+  r_rear_coh     | 3.89/21.15 deg coh10  | 5.194/9.334               | 0.152/20.160/81.153         | 24.539
+  r_rear_coh_comp| 3.89/21.15 deg coh10  | 5.194/9.334 pre; 5.214/9.317 post-comp | 0.891/20.160/81.153 post | 24.539 post
+  r_rear_coh6    | 5.87/24.27 deg coh10  | 7.490/13.802              | 0.285/28.926/102.147        | 33.278
+  (protected fibres 8949/69181, of which 2594 rear; part gap 1.1 mm all.)
+  Rear sheet half-width per z-bin, a1 vs leaned (p99 mm; bins top->tip):
+  r_rear: 84.4/84.5 | 95.6/95.6 | 96.1/96.7 | 95.7/95.6 | 94.9/94.9 |
+    94.8/94.9 | 95.1/95.3 | 96.3/96.5 | 87.7/87.1 | 83.3/83.8 | 80.0/80.1 | 68.5/66.3
+  r_rear_coh: 84.4/84.4 | 95.6/95.3 | 96.1/93.6 | 95.7/92.4 | 94.9/92.3 |
+    94.8/94.2 | 95.1/96.2 | 96.3/97.8 | 87.7/89.7 | 83.3/84.2 | 80.0/80.4 | 68.5/68.9
+  comp ratios (bins 0-11): 1.0 x5, 0.9889, 0.9851, 0.9775, 0.9893, 0.9947,
+    0.9928 (only lower-sheet bins 6-11 pulled in; upper bins leaned NARROWER
+    so ratio capped at 1.0); comp halves return to 95.3/96.4/87.9/83.3/80.0/68.5.
+  r_rear_coh6: 84.4/84.3 | 95.6/95.9 | 96.1/100.7 | 95.7/99.1 | 94.9/96.6 |
+    94.8/94.6 | 95.1/94.3 | 96.3/94.9 | 87.7/86.9 | 83.3/85.2 | 80.0/85.2 | 68.5/68.1
+  Finding: rear-only lean barely moves the p99 silhouette (<=2.5 mm except
+  coh6 bin 10 +5.2 mm); the outline was never the rear's problem — the
+  front curtain was. Compensation ratios sit at 0.98-1.0: honest but weak.
+
+STEP 2 GATES (inside 0; part gap <= 3 mm; eroded front mask within 3% of
+a1; eye/jaw openings within 1 pp of a1 0.6046/0.4365; honest part/side
+within 0.1 of a1 0.9482. Eroded mask = 7x7 square erosion (scipy
+binary_erosion, structure ones((7,7))) on raw front-id mask (alpha>=230);
+a1 = 65011 px by this method (absolute scale differs from tilt3's 56575
+px — same kernel family, different implementation; % deltas comparable)):
+  r_rear: inside PASS; part 1.1 PASS; eroded 66154 (+1.76%) PASS;
+    eye 0.6024 (|d| 0.0022) PASS; jaw 0.4365 PASS; honest 0.9483 (|d| 0.0000) PASS
+  r_rear_coh: inside PASS; part 1.1 PASS; eroded 65348 (+0.52%) PASS;
+    eye 0.6046 PASS; jaw PASS; honest 0.9351 (|d| 0.013) PASS
+  r_rear_coh_comp: inside PASS; part 1.1 PASS; eroded 65266 (+0.39%) PASS;
+    eye 0.6024 (|d| 0.0022) PASS; jaw PASS; honest 0.9482 (|d| 0.0000) PASS
+  r_rear_coh6: inside PASS; part 1.1 PASS; eroded 68366 (+5.16%) FAIL;
+    eye 0.6002 (|d| 0.0044) PASS; jaw PASS; honest 0.9198 (|d| 0.028) PASS
+
+STEP 3 SCORES (look7 material; IoU f/p/b; ori err f/3q/p/b; EMD f/3q/p/b):
+  r_rear: IoU = 0.6944/0.6848/0.7732 (d +0.0061/+0.0038/-0.0087); ori = 25.19/32.42/30.09/20.93 (d -1.90/-1.23/-1.88/-3.62); EMD = 6.33/6.46/19.68/4.31; back 560x25.7 (1.59x); ear 123x7.0
+  r_rear_coh: IoU = 0.6887/0.6727/0.7715 (d +0.0004/-0.0083/-0.0104); ori = 26.32/32.41/30.98/21.59 (d -0.77/-1.24/-0.99/-2.96); EMD = 4.43/6.49/22.97/9.33; back 378x40.2 (1.07x); ear 121x7.4
+  r_rear_coh_comp: IoU = 0.6900/0.6728/0.7755 (d +0.0017/-0.0082/-0.0064); ori = 26.28/32.89/31.17/21.62 (d -0.81/-0.76/-0.80/-2.93); EMD = 5.38/6.74/22.79/9.45; back 427x34.7 (1.21x); ear 125x7.3
+  r_rear_coh_comp vs coh: +49 bands with ~same silhouette (compensation
+    recovers half the coherence loss without moving any gate).
+  r_rear_coh6: IoU = 0.7026/0.6759/0.7736 (d +0.0143/-0.0051/-0.0082); ori = 26.04/32.11/28.99/22.05 (d -1.05/-1.54/-2.98/-2.50); EMD = 3.90/6.93/17.87/6.05; back 496x29.0 (1.40x); ear 136x6.3
+  KEEP rule (back count >= 1.8x base = 635 with mean <= 25 px; no IoU drop >
+  0.015 any view; ori not worse by > 1 deg any view):
+  r_rear: 560 (1.59x, mean 25.7) FAIL; IoU PASS; ori PASS (4/4 better) -> REVERTED (bands+size)
+  r_rear_coh: 378 FAIL; IoU PASS; ori PASS -> REVERTED (bands)
+  r_rear_coh_comp: 427 FAIL; IoU PASS; ori PASS -> REVERTED (bands)
+  r_rear_coh6: 496 FAIL; IoU PASS; ori PASS -> REVERTED (bands)
+  Best cell = r_rear: most back bands of tilt4, only tilt4 cell under
+  0.01 max IoU drop, best orientation sweep of all four tilts (4/4 views
+  better than base, back -3.62).
+  All four tilt4 cells PASS the IoU and orientation KEEP clauses — the
+  first clean silhouette sweep in the tilt series (tilt1 0/4, tilt2 3/5
+  on IoU with band failures, tilt3 LR alone on ori). The cost moved
+  entirely into the band count.
+  Look-sheet: E/look-sheet.png rows TS | current(a1+look7) |
+    best-r_rear | tilt3-LR; cols back, three_quarter, profile_90,
+    back crop (320,280,704,664).
+
+TRADE-OFF (back component count vs max IoU drop across views, all tilts;
+base a1 f/p/b = 0.6883/0.6810/0.7819):
+  cell       | back count | max IoU drop | notes
+  w4i (t2)   | 321        | 0.0013       | silhouette holds, no fragmentation
+  L240 (t3)  | 374        | 0.0078       | wave re-merges
+  r_rear_coh (t4) | 378   | 0.0104       | coherent sheet re-merges (NEW)
+  L450 (t3)  | 391        | 0.0174       | wave re-merges
+  w7m (t2)   | 397        | 0.0036       | mixed adds nothing
+  w10m (t2)  | 390        | 0.0047       | ori improves, bands flat
+  r_rear_coh_comp (t4) | 427 | 0.0082    | compensation recovers half the loss (NEW)
+  c1 (t2)    | 449        | 0.0176       | r1 base does not stack
+  w7i (t2)   | 458        | 0.0024       | best silhouette-holder
+  L450x6(t3) | 460        | 0.0322       | amplitude without lean fails
+  t2 (t1)    | 484        | 0.0477       | dominated by LR (fewer bands, more drop)
+  r_rear_coh6 (t4) | 496  | 0.0082       | coherent needs sigma 6 to move (NEW)
+  r_rear (t4)| 560        | 0.0087       | NEW PARETO: rear-only keeps silhouette
+  LR (t3)    | 646        | 0.0316       | full-head lean fragments, curtain pays
+  t4 (t1)    | 778        | 0.0593       | fragments, silhouette pays
+  t4w (t1)   | 798        | 0.0583       | wave on tilt adds nothing
+  t6 (t1)    | 903        | 0.1147       | TS count+size, IoU destroyed
+  Pareto frontier (bands, drop): w7i (458, 0.0024) -> r_rear_coh6
+  (496, 0.0082) -> r_rear (560, 0.0087) -> LR (646, 0.0316) -> t4
+  (778, 0.0593) -> t6 (903, 0.1147). Rear-only lean inserts two new
+  Pareto points below LR at 1/4 the silhouette cost per band.
+
+KEPT/REVERTED: all four REVERTED. No KEPT cell. Scores and renders
+retained under E/scores/* and E/cells/*/strands.npz for the record.
+
+SAW::Against TS the first wrong read is unchanged in kind but narrower in
+extent: the back curtain keeps coarse bands (best 560 x 25.7 px vs TS
+849 x 16.4 px; the gap is now a pure fragmentation deficit, no longer
+bundled with a silhouette/IoU deficit). The three ideas resolved cleanly:
+(a) rear-only scheduling WORKS for the silhouette — eroded mask
++0.4/+0.5/+1.8% vs LR's +36%, eye/jaw bit-identical, honest part/side
+unmoved, all four cells pass IoU+ori; but rear-only INDEPENDENT lean
+reaches only 560 bands vs LR's 646, so the curtain was contributing ~90
+bands of LR's fragmentation. (b) bundle-coherence KILLS the effect —
+378 bands, barely above base 353: neighbours leaning together move the
+sheet as a whole and the highlight rows re-merge, same mechanism as the
+pure wave. Coherence is the wrong direction for fragmentation; the
+fragmentation REQUIRES independent per-fibre lean. (c) outline
+compensation is honest but nearly a no-op — rear p99 half-widths move
+<=2.5 mm under rear-only lean, so ratios sit at 0.98-1.0 and comp gains
+only +49 bands over coh while restoring nothing that was lost (nothing
+was lost). The isolated mechanism stands: fragmentation = sustained
+INDEPENDENT per-fibre lean over tens of cm; silhouette cost scales with
+WHERE the lean is applied (curtain vs rear), not with coherence. Next
+attempt should keep independent rear-only lean and raise its strength
+where the silhouette is blind to it (mid-sheet amplitude schedule, or
+sigma between 4 and 6 rear-only independent), not coherent or compensated.
+
+NOT TESTED::Physical Quest 3 / worn-headset evidence; clinical validity/
+scoring claims (out of scope per repo guardrails).

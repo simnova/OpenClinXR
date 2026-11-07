@@ -1,0 +1,19 @@
+{
+ "after_hidden": {
+  "coveredFrac": 0.99973,
+  "coveredPx": 93861
+ },
+ "after_holdout": {
+  "coveredFrac": 0.04616,
+  "coveredPx": 4334
+ },
+ "before_hidden": {
+  "coveredFrac": 0.99846,
+  "coveredPx": 93741
+ },
+ "before_holdout": {
+  "coveredFrac": 0.04505,
+  "coveredPx": 4230
+ },
+ "holePx": 93886
+}

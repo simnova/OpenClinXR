@@ -1,0 +1,62 @@
+{
+ "gates": [
+  {
+   "gate": "G1",
+   "measured": "n=700 lay={0: 0.25, 1: 0.25, 2: 0.25, 3: 0.25} minpatch=3 fail=0",
+   "bar": "[500,700] \u2227 20-30% \u2227 patch>=3",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G2",
+   "measured": "inside=2430 min=0.01mm",
+   "bar": "0 \u2227 >=2mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G3",
+   "measured": "hit=1829/1951 frac=0.937",
+   "bar": ">=95% \u00b13mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G4",
+   "measured": "p95=25.57 max=206.44 short=1",
+   "bar": "p95<=8 \u2227 max<=25 \u2227 0 short",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G5",
+   "measured": "max=9.25mm slitmax=5.90mm",
+   "bar": "<=9 \u2227 slit<=4",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G6",
+   "measured": "gap=53.6mm ratio=0.726 (ours 0.254H vs tgt 0.350H)",
+   "bar": "[0.60,0.85] x target",
+   "verdict": "PASS"
+  }
+ ],
+ "z_hem": 1.3332169969558714,
+ "menton_z": 1.4492169969558715,
+ "crown_z": 1.6599169969558716,
+ "brow_z": 1.5303385257720947,
+ "ear_y": -0.03894279897212982,
+ "ear_top": 1.5542949438095093,
+ "yneck": -0.1130041554570198,
+ "count": 700,
+ "contact_ended": 0,
+ "layers": {
+  "0": 175,
+  "1": 175,
+  "2": 175,
+  "3": 175
+ },
+ "target_gap_H": 0.35,
+ "g6_gap_H": 0.2542372881355932,
+ "g6_ratio": 0.7263922518159807,
+ "g6_outer_ear_mm": 93.4460451977401,
+ "g6_mmpx": 0.5951977401129943,
+ "hem_front_max_arc_mm": 375.5206692573443,
+ "hem_back_long": 45
+}

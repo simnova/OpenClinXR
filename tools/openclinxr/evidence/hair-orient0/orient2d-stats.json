@@ -1,0 +1,50 @@
+{
+ "front": {
+  "maskPx": 78754,
+  "confMean": 0.716,
+  "confMin": 0.388,
+  "confP5": 0.572,
+  "bbox": [
+   73,
+   665,
+   283,
+   741
+  ]
+ },
+ "three_quarter": {
+  "maskPx": 103799,
+  "confMean": 0.72,
+  "confMin": 0.385,
+  "confP5": 0.571,
+  "bbox": [
+   79,
+   734,
+   232,
+   778
+  ]
+ },
+ "profile_90": {
+  "maskPx": 149114,
+  "confMean": 0.75,
+  "confMin": 0.406,
+  "confP5": 0.598,
+  "bbox": [
+   112,
+   1024,
+   226,
+   705
+  ]
+ },
+ "back": {
+  "maskPx": 335684,
+  "confMean": 0.723,
+  "confMin": 0.391,
+  "confP5": 0.572,
+  "bbox": [
+   142,
+   1024,
+   253,
+   774
+  ]
+ }
+}

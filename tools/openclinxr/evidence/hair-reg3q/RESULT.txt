@@ -1,0 +1,72 @@
+hair-reg3q: three-quarter target registration from landmarks
+============================================================
+
+TARGET
+  file: target-three_quarter.png
+        (/Volumes/files/src/openclinxr/.openclinxr/scratch/target-views/set-back/)
+  sha256: 7c05831a88e478abebf6f0cbf8060e1982e1e8179e9efb2aff72b90e26bc7022
+  frame: 1024x1024 RGB
+
+TARGET LANDMARKS (E/target-landmarks-3q.json, overlay E/landmarks-3q.png)
+  skull_top  col 527.50 row 129.00  hair-mask apex (mask-three_quarter.png
+             sha 9d25c81aebd6a8fa5665a457b28c94ad4b13c0b562a02e2d6c147c348cad6fd3,
+             top row 129, apex col span 521-534)
+  nose_tip   col 421.19 row 431.81  FaceLandmarker idx 1
+  philtrum   col 436.55 row 488.26  FaceLandmarker idx 13 (upper-lip centre proxy)
+  chin       col 451.98 row 569.51  FaceLandmarker idx 152 (menton)
+  acromion   col 739.20 row 711.11  PoseLandmarker idx 11 (subject-left,
+             camera-side shoulder; vis 0.999 / pres 0.998)
+  neck_base  col 560.72 row 716.49  midpoint of Pose shoulders 11+12 (secondary)
+  UNOBSERVED: none (all six located; face 1/1, pose 1/1 detected)
+
+DETECTOR + LICENCE
+  MediaPipe tasks API: FaceLandmarker + PoseLandmarker, mediapipe 1.1.1,
+  Apache-2.0 (only API present in this install; no `solutions` module).
+  face_landmarker.task sha256 64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff
+  pose_landmarker_lite.task sha256 59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a
+  (bundles fetched from Google's MediaPipe model storage; Apache-2.0 model release)
+
+RENDER LANDMARKS (pinned three_quarter camera from cameras-scorer-v3.json,
+  sha 833bf1361d6be94ce1d576314ea6f1e4f760a07d588240bf6fcf8b2741eab413 = manifest pin;
+  MPFB Aisha GLB sha 5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde)
+  crown      col 430.30 row 111.49  bare-head max-z vertex
+  menton     col 288.56 row 578.53  midline vertex nearest crown-0.2106
+  nose_tip   col 228.27 row 415.98  most-anterior midline vertex, crown-0.21..-0.05
+  philtrum   col 248.86 row 453.30  midline vertex nearest nose_z-16mm
+  acromion_L col 817.94 row 815.26  most-lateral +x vertex, crown-0.30..-0.20
+  shoulder   col 512.00 row 650.42  (0,0,crown-0.2549) plane point
+  (E/projected-3q.json, E/render-3q-beauty.png; script E/project3q.py)
+
+FIT (S/register3q.py; ONE similarity target->render, rotation fixed 0 deg,
+  scale bounded [0.5, 2.0], least squares over all 6 pairs)
+  scale 1.2540 (interior), tx -234.69, ty -132.50
+  with-rotation check (record only): theta -3.97 deg, p95 127.3 render-px -> no help
+  head-only check (record only): menton 11px but crown/nose/philtrum 30-61px -> still fails
+
+RESIDUALS (target-frame px, station frame)
+  crown/skull_top      65.62
+  menton/chin          34.81
+  nose_tip             52.31
+  philtrum             55.16
+  acromion             109.70
+  shoulder/neck_base   98.48
+  p95 = 106.90 px (gate <= 8 px)
+
+VERDICT: REGISTRATION_INSUFFICIENT (E/registration-3q.json, status field,
+  per-landmark residuals included, NO transform key emitted).
+  The 3/4 view must keep scoring/carving with front/profile/back only.
+  Cause: a 2D similarity cannot reconcile two different heads (adult photo
+  vs peds-proportioned synthetic, face height differs) under 3/4 perspective;
+  lateral shoulder points diverge most. Not a detector failure.
+  frame-3q.png intentionally NOT produced (gate failed).
+
+SAW (Scope, Assumptions, Warnings)
+  Scope: 3/4 registration validation only; no other hair-groom file touched.
+  Assumptions: FaceMesh idx 13 ~= philtrum; mask apex ~= skull-top direction
+    (hair bulk uncorrected); pose idx 11 = camera-side acromion.
+  Warnings: do NOT carve 3/4 from registration-3q.json (no transform key);
+    station must treat three_quarter as NO_TRIPLE/skip until a passing fit lands.
+
+NOT TESTED: 3/4 carving; Quest/headset or WebXR rendering; scorer-side
+  acceptance of the INSUFFICIENT record; other views' registrations
+  (untouched); frame-3q.png overlay (not produced by design).

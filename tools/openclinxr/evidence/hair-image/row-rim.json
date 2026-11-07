@@ -1,0 +1,164 @@
+{
+ "ok": false,
+ "stage": "measure",
+ "error": "Traceback (most recent call last):\n  File \"/Users/patrick/.grok/worktrees/src-openclinxr/hair-rim/tools/openclinxr/evidence/hair-image/image-rim.py\", line 901, in main\n    raise RuntimeError(\"Error: target reference inputs missing: %s %s\" % (target_path, mask_path))\nRuntimeError: Error: target reference inputs missing: /Users/patrick/.grok/worktrees/src-openclinxr/hair-rim/.openclinxr/scratch/target-views/target-front.png /Users/patrick/.grok/worktrees/src-openclinxr/hair-rim/.openclinxr/scratch/target-views/mask-front.png\n",
+ "blenderVersion": "5.1.1",
+ "dupSockets": [
+  [
+   "Geometry",
+   "Output_1"
+  ],
+  [
+   "Guide Index",
+   "Output_9"
+  ],
+  [
+   "Geometry",
+   "Input_0"
+  ],
+  [
+   "Amount",
+   "Input_2"
+  ],
+  [
+   "Viewport Amount",
+   "Input_4"
+  ],
+  [
+   "Radius",
+   "Input_5"
+  ],
+  [
+   "Distribution Shape",
+   "Input_7"
+  ],
+  [
+   "Tip Roundness",
+   "Input_8"
+  ],
+  [
+   "Even Thickness",
+   "Input_6"
+  ],
+  [
+   "Seed",
+   "Input_3"
+  ]
+ ],
+ "cells": [
+  {
+   "rimWatts": 80.0,
+   "rimReadBackWatts": 80.0,
+   "rimEnergyWatts": 61.68843460083008,
+   "radius": 0.0003,
+   "readBack": 0.0003000000142492354,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "faceMeanLuminance": 0.6574886146001941,
+   "backgroundLuminance": 0.4960941683900122,
+   "coveragePixels": 276115,
+   "coverageHairLuminance": {
+    "mean": 0.4435375534448029,
+    "p10": 0.14192862745098042,
+    "p50": 0.3599545098039215,
+    "p90": 0.8511105882352941
+   },
+   "beautyPng": "rim-80.png",
+   "idPng": "hair-id-rim-80.png",
+   "feasible": false,
+   "thresholdVolume": 0.22571623663412366
+  },
+  {
+   "rimWatts": 40.0,
+   "rimReadBackWatts": 40.0,
+   "rimEnergyWatts": 30.84421730041504,
+   "radius": 0.0003,
+   "readBack": 0.0003000000142492354,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "faceMeanLuminance": 0.6575960229337218,
+   "backgroundLuminance": 0.49612133597579655,
+   "coveragePixels": 276115,
+   "coverageHairLuminance": {
+    "mean": 0.4404586707428313,
+    "p10": 0.1394729411764706,
+    "p50": 0.34959450980392154,
+    "p90": 0.8511105882352941
+   },
+   "beautyPng": "rim-40.png",
+   "idPng": "hair-id-rim-40.png",
+   "feasible": false,
+   "thresholdVolume": 0.23004380230125523
+  },
+  {
+   "rimWatts": 20.0,
+   "rimReadBackWatts": 20.0,
+   "rimEnergyWatts": 15.42210865020752,
+   "radius": 0.0003,
+   "readBack": 0.0003000000142492354,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "faceMeanLuminance": 0.6579995963817624,
+   "backgroundLuminance": 0.4960554534313726,
+   "coveragePixels": 276115,
+   "coverageHairLuminance": {
+    "mean": 0.4385722594755737,
+    "p10": 0.1369356862745098,
+    "p50": 0.3419741176470588,
+    "p90": 0.8511105882352941
+   },
+   "beautyPng": "rim-20.png",
+   "idPng": "hair-id-rim-20.png",
+   "feasible": false,
+   "thresholdVolume": 0.23420066248256624
+  },
+  {
+   "rimWatts": 0.0,
+   "rimReadBackWatts": 0.0,
+   "rimEnergyWatts": 0.0,
+   "radius": 0.0003,
+   "readBack": 0.0003000000142492354,
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "faceMeanLuminance": 0.6590814366825455,
+   "backgroundLuminance": 0.49602697610294116,
+   "coveragePixels": 276115,
+   "coverageHairLuminance": {
+    "mean": 0.43619727166252487,
+    "p10": 0.13441411764705882,
+    "p50": 0.33978039215686273,
+    "p90": 0.8511105882352941
+   },
+   "beautyPng": "rim-0.png",
+   "idPng": "hair-id-rim-0.png",
+   "feasible": false,
+   "thresholdVolume": 0.23820679335192935
+  }
+ ],
+ "selected": {
+  "rimWatts": 0.0,
+  "rimReadBackWatts": 0.0,
+  "rimEnergyWatts": 0.0,
+  "radius": 0.0003,
+  "readBack": 0.0003000000142492354,
+  "strandsAfter": 50265,
+  "volume": 0.2250697350069735,
+  "faceMeanLuminance": 0.6590814366825455,
+  "backgroundLuminance": 0.49602697610294116,
+  "coveragePixels": 276115,
+  "coverageHairLuminance": {
+   "mean": 0.43619727166252487,
+   "p10": 0.13441411764705882,
+   "p50": 0.33978039215686273,
+   "p90": 0.8511105882352941
+  },
+  "beautyPng": "rim-0.png",
+  "idPng": "hair-id-rim-0.png",
+  "feasible": false,
+  "thresholdVolume": 0.23820679335192935
+ },
+ "lightCount": 3,
+ "exposureStops": -0.375,
+ "front": "front-rim.png",
+ "idPng": "hair-id-rim.png"
+}

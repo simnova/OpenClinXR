@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "resolution": 512,
+  "samples": 32,
+  "colourSource": "base",
+  "bandSource": "base",
+  "materialSpec": {},
+  "materialReadback": {
+    "model": "HUANG",
+    "parametrization": "MELANIN",
+    "Tint": [
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "Color": [
+      0.01751299947500229,
+      0.005762999877333641,
+      0.002059000078588724,
+      1.0
+    ],
+    "Random Roughness": 0.0,
+    "Aspect Ratio": 0.8500000238418579
+  },
+  "audit": {
+    "source": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-real1/cells/a1/strands.npz",
+    "seed": 20261620,
+    "nearPartWithin3mm": 6355,
+    "selectedCrossings": 254,
+    "selectedFraction": 0.03996852871754524,
+    "crossedAt20mmAfterRepair": 253,
+    "crossedFractionOfNearPart": 0.03981117230527144,
+    "flow": "selected strands mirror lateral displacement about their root through 20mm, smooth rejoin by 30mm",
+    "rootLeanDeg": {
+      "population": "roots within 3mm of part",
+      "min": -14.996996412774067,
+      "max": 14.992393056851427,
+      "p50Abs": 7.481086824342837
+    },
+    "collider": {
+      "colliders": [
+        "OCLX_Aisha_head",
+        "makeclothes_library_toigo_t_shirt",
+        "makeclothes_library_female_tight_jeans_pants",
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+      ],
+      "first_pass_inside": {
+        "OCLX_Aisha_head": 1691,
+        "makeclothes_library_toigo_t_shirt": 0,
+        "makeclothes_library_female_tight_jeans_pants": 0,
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+      },
+      "post_inside": {
+        "OCLX_Aisha_head": 0,
+        "makeclothes_library_toigo_t_shirt": 0,
+        "makeclothes_library_female_tight_jeans_pants": 0,
+        "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+      },
+      "post_inside_total": 0,
+      "moved_points": 1691,
+      "max_single_projection_mm": 3.9672431496935547,
+      "clearance_mm": 0.2,
+      "passes": 3,
+      "audit_relocated_points": 0
+    }
+  },
+  "metrics": {
+    "views": {
+      "front": {
+        "p50": 0.07335686274509803,
+        "p90": 0.1388862745098039,
+        "highlight": {
+          "hueDeg": 13.792496858770605,
+          "saturation": 0.21276595744680848,
+          "pixels": 2187
+        },
+        "maskPx": 21718
+      },
+      "three_quarter": {
+        "p50": 0.09800313725490195,
+        "p90": 0.13666823529411765,
+        "highlight": {
+          "hueDeg": 13.349075238276347,
+          "saturation": 0.17073170731707324,
+          "pixels": 2927
+        },
+        "maskPx": 28795
+      },
+      "profile_90": {
+        "p50": 0.11761098039215687,
+        "p90": 0.14814980392156865,
+        "highlight": {
+          "hueDeg": 12.299690221877688,
+          "saturation": 0.14285714285714285,
+          "pixels": 4258
+        },
+        "maskPx": 40867
+      },
+      "back": {
+        "p50": 0.10501254901960784,
+        "p90": 0.1363749019607843,
+        "highlight": {
+          "hueDeg": 8.287614794810603,
+          "saturation": 0.16666666666666657,
+          "pixels": 6048
+        },
+        "maskPx": 60476
+      }
+    },
+    "faceCheekP50": 0.7328125490196078,
+    "faceMoveFraction": 0.0,
+    "silhouette": {
+      "front": {
+        "iouVsBase": 0.9750437425177272,
+        "deltaIou": -0.024956257482272814
+      },
+      "three_quarter": {
+        "iouVsBase": 0.9913179371418649,
+        "deltaIou": -0.008682062858135109
+      },
+      "profile_90": {
+        "iouVsBase": 0.997430689798615,
+        "deltaIou": -0.0025693102013849556
+      },
+      "back": {
+        "iouVsBase": 0.9994873999603149,
+        "deltaIou": -0.0005126000396851182
+      }
+    },
+    "commonGates": {
+      "absDeltaIouAtMost001EachView": false,
+      "faceCheekWithin5Percent": true
+    }
+  },
+  "honestPart": {
+    "definition": "hair-top1 physical crown strip, own hairline+10mm through apex; part +/-3mm; sides 7-24mm; crown box +/-50mm",
+    "partSide": 1.565864035696984,
+    "crownBox": {
+      "pixels": 10475,
+      "bareFraction": 0.0007637231503579953,
+      "partialFraction": 0.1766109785202864
+    },
+    "tiles": {
+      "0-10": {
+        "pixels": 1686,
+        "bareFraction": 0.0005931198102016608,
+        "partialFraction": 0.22123368920521946
+      },
+      "10-20": {
+        "pixels": 2288,
+        "bareFraction": 0.0034965034965034965,
+        "partialFraction": 0.3548951048951049
+      },
+      "20-30": {
+        "pixels": 2272,
+        "bareFraction": 0.0,
+        "partialFraction": 0.14568661971830985
+      },
+      "30-50": {
+        "pixels": 4104,
+        "bareFraction": 0.0,
+        "partialFraction": 0.03971734892787524
+      }
+    }
+  },
+  "renderSeconds": {
+    "front": 4.512847749982029,
+    "three_quarter": 5.704936458001612,
+    "profile_90": 10.954941375006456,
+    "back": 11.749335624976084,
+    "crown_top": 7.30940279198694
+  },
+  "gates": {
+    "absDeltaIouAtMost001EachView": false,
+    "faceCheekWithin5Percent": true,
+    "partSideBetween1And1p1": false,
+    "crownBoxBareAtMost5Percent": true,
+    "colliderInsideZero": true
+  },
+  "selected": false
+}

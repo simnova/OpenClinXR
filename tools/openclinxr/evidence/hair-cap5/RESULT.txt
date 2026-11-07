@@ -1,0 +1,23 @@
+RESULT::hair-cap-5b
+P1::cx=513 crown=127 skull=150 chin=608 H=458 rows(dx:L/R)=0:208/208 20:211/211 40:212/213 60:224/219 80:245/238 100:303/284
+P2::v4-centre-h=0.624H (hairline AT brow brow_z=1.5717) | v5 follows P1-mean
+P3::profile hair-front cols rows220-300=390,395,400,403,406; eye-outer=347; offsets=0.095,0.106,0.117,0.124,0.131H behind eye; ear covered
+P4::brow id=227 z=1.57165 nasion id=1026 z=1.54823 (old 1.5303 was nose)
+HAIRLINE::0.00000 target 0.8734 | ours-v4 0.6239 | ours-v5 0.8717
+HAIRLINE::0.04367 target 0.8668 | ours-v4 0.6300 | ours-v5 0.8669
+HAIRLINE::0.08734 target 0.8635 | ours-v4 0.6579 | ours-v5 0.8324
+HAIRLINE::0.13100 target 0.8439 | ours-v4 0.6671 | ours-v5 0.7913
+HAIRLINE::0.17467 target 0.8002 | ours-v4 0.6671 | ours-v5 0.7501
+HAIRLINE::0.21834 target 0.6867 | ours-v4 0.6671 | ours-v5 0.6884
+G1::area=585.0 [560,620] removed_forehead=47.8 added=0.0 ncomp=1 step=11.32mm<=3 MISS
+G2::maxerr=0.0526H<=0.02 mirror=0.00mm<=1 MISS
+G3::g13=1.00>=0.90 g7=1.00>=0.95 g15=7.22<=25 cross=0 sinks=1 fore=0.00%<=2% MISS
+G4::hausdorff=7.3069mm<=1 MISS
+HIST-B::forehead=0 temple-to-ear=114 behind-ear=112 nape=73 never-left=1
+SINK::count=1 roots=[151] (see log SINK lines; repair in B2 only if >0)
+SAW::pending-visual
+CAUSE::MISS G1,G2,G3,G4 see row-cap5.json
+COMMIT::committed (this commit)
+STILL::guides/children/hair renders (later cards)
+BRIEF_MISSING::none
+HARM::none

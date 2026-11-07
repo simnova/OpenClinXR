@@ -1,0 +1,43 @@
+{
+  "a_target_self": {
+    "pass": true,
+    "views": {
+      "front": {
+        "err": 0.0,
+        "emd": 0.0,
+        "pixels": 102503
+      },
+      "three_quarter": {
+        "err": 0.0,
+        "emd": 0.0,
+        "pixels": 82894
+      },
+      "profile_90": {
+        "err": 0.0,
+        "emd": 0.0,
+        "pixels": 159523
+      },
+      "back": {
+        "err": 0.0,
+        "emd": 0.0,
+        "pixels": 235860
+      }
+    }
+  },
+  "b_rotated10": {
+    "pass": true,
+    "err": 10.578154820242581,
+    "emd": 7.544905368422059,
+    "iouShapeGate": 1.0,
+    "expectDeg": 10.0
+  },
+  "b_photo_context": {
+    "err": 19.913244600611524,
+    "emd": 49.43689447693569,
+    "note": "displacement-confounded; informational only"
+  },
+  "c_determinism": {
+    "pass": true
+  },
+  "pass": true
+}

@@ -1,0 +1,1 @@
+hair-scalp1 STEPS 1-6 complete (CORRECTION 1 applied). GATES_PASS=yes. all gates pass (R2' p95 1.60<=2 max 2.05<=4, plants, part, UV ALL, yellow, coverage p95 0.01<3, ban-grep clean)

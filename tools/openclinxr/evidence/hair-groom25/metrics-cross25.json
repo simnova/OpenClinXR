@@ -1,0 +1,429 @@
+{
+ "crossing3D": {
+  "guides-19": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom19/build/guides-19.npz",
+   "sha256": "95a471531b95bde349d9b678902bf9b7c020745f16ec15db22213146ac7981e3",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 9715,
+   "cross3D_le3mm": 1827,
+   "frac3Dof2D": 0.1881,
+   "d3mm_at_2Dcross": {
+    "n": 9715,
+    "p10": 1.494,
+    "p25": 4.166,
+    "p50": 14.957,
+    "p75": 152.254,
+    "p90": 157.044,
+    "p99": 163.709,
+    "min": 0.0,
+    "max": 169.839
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 696
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 563
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 568
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 1017
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1596
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 578
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 315
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4382
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 9715,
+    "p10": 0.481,
+    "p25": 1.367,
+    "p50": 3.294,
+    "p75": 5.523,
+    "p90": 8.064,
+    "p99": 17.159,
+    "min": 0.0,
+    "max": 43.399
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 9715,
+    "p10": 0.21,
+    "p25": 0.64,
+    "p50": 1.632,
+    "p75": 2.72,
+    "p90": 3.628,
+    "p99": 5.999,
+    "min": 0.0,
+    "max": 11.104
+   }
+  },
+  "guides-21": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom21/build/guides-21.npz",
+   "sha256": "ee55481f4dc55eb4992aadbfa7f89842956db3fc5ddaa132b9ab2f9f0c99d8c0",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 7417,
+   "cross3D_le3mm": 753,
+   "frac3Dof2D": 0.1015,
+   "d3mm_at_2Dcross": {
+    "n": 7417,
+    "p10": 2.946,
+    "p25": 8.826,
+    "p50": 138.832,
+    "p75": 149.631,
+    "p90": 156.906,
+    "p99": 170.141,
+    "min": 0.007,
+    "max": 176.067
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 272
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 253
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 228
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 482
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 763
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 706
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 473
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4240
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 7417,
+    "p10": 0.806,
+    "p25": 2.119,
+    "p50": 4.73,
+    "p75": 9.047,
+    "p90": 14.002,
+    "p99": 23.399,
+    "min": 0.001,
+    "max": 43.664
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 7417,
+    "p10": 0.227,
+    "p25": 0.62,
+    "p50": 1.315,
+    "p75": 2.17,
+    "p90": 3.028,
+    "p99": 5.243,
+    "min": 0.0,
+    "max": 8.988
+   }
+  },
+  "guides-25a": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom25/build-25a/guides-25a.npz",
+   "sha256": "6f3d94106df52df512d31db7538e79780c28b26dfc5079036f588f7baabeebbc",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 8297,
+   "cross3D_le3mm": 1157,
+   "frac3Dof2D": 0.1394,
+   "d3mm_at_2Dcross": {
+    "n": 8297,
+    "p10": 2.122,
+    "p25": 5.268,
+    "p50": 141.66,
+    "p75": 150.609,
+    "p90": 155.15,
+    "p99": 161.985,
+    "min": 0.004,
+    "max": 169.789
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 391
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 386
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 380
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 800
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1150
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 536
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 291
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4363
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 8297,
+    "p10": 0.536,
+    "p25": 1.419,
+    "p50": 3.222,
+    "p75": 5.494,
+    "p90": 8.278,
+    "p99": 17.28,
+    "min": 0.0,
+    "max": 38.425
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 8297,
+    "p10": 0.291,
+    "p25": 0.804,
+    "p50": 1.666,
+    "p75": 2.611,
+    "p90": 3.444,
+    "p99": 5.584,
+    "min": 0.0,
+    "max": 9.284
+   }
+  },
+  "guides-25b": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom25/build-25b/guides-25b.npz",
+   "sha256": "a97e76fe37980db0979bf4d680e57662153f38ae361cdfd8070199563cf15429",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 7702,
+   "cross3D_le3mm": 865,
+   "frac3Dof2D": 0.1123,
+   "d3mm_at_2Dcross": {
+    "n": 7702,
+    "p10": 2.656,
+    "p25": 7.43,
+    "p50": 141.22,
+    "p75": 151.017,
+    "p90": 157.337,
+    "p99": 167.116,
+    "min": 0.0,
+    "max": 171.857
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 305
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 288
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 272
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 582
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 794
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 651
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 442
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4368
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 7702,
+    "p10": 0.699,
+    "p25": 1.857,
+    "p50": 4.185,
+    "p75": 7.803,
+    "p90": 12.221,
+    "p99": 19.607,
+    "min": 0.001,
+    "max": 35.996
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 7702,
+    "p10": 0.233,
+    "p25": 0.677,
+    "p50": 1.415,
+    "p75": 2.284,
+    "p90": 3.153,
+    "p99": 5.502,
+    "min": 0.0,
+    "max": 8.772
+   }
+  },
+  "guides-25c": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom25/build-25c/guides-25c.npz",
+   "sha256": "6b568461f2016e377fdcc3ece4a363a709b6b9b6419e7085074aa8bccce061da",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 7424,
+   "cross3D_le3mm": 806,
+   "frac3Dof2D": 0.1086,
+   "d3mm_at_2Dcross": {
+    "n": 7424,
+    "p10": 2.737,
+    "p25": 8.062,
+    "p50": 137.834,
+    "p75": 149.263,
+    "p90": 156.352,
+    "p99": 169.222,
+    "min": 0.007,
+    "max": 175.995
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 301
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 261
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 244
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 494
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 794
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 693
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 464
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4173
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 7424,
+    "p10": 0.796,
+    "p25": 2.08,
+    "p50": 4.636,
+    "p75": 8.839,
+    "p90": 13.489,
+    "p99": 22.839,
+    "min": 0.001,
+    "max": 43.664
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 7424,
+    "p10": 0.235,
+    "p25": 0.634,
+    "p50": 1.333,
+    "p75": 2.215,
+    "p90": 3.121,
+    "p99": 5.783,
+    "min": 0.0,
+    "max": 20.625
+   }
+  }
+ }
+}

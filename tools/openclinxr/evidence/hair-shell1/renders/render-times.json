@@ -1,0 +1,51 @@
+{
+  "alphaBands": {
+    "backface": "opaque-except-hem",
+    "edgeFacing": [
+      0.0,
+      0.3
+    ],
+    "hemV": [
+      0.9,
+      0.98
+    ]
+  },
+  "engine": "CYCLES-CPU",
+  "exposureGain": 2.2,
+  "fillEnergy": 1.0,
+  "keyAngles": {
+    "dazDeg": -34.261880624326544,
+    "elDeg": 28.995110058505865
+  },
+  "keyEnergy": 5.0,
+  "keySun": [
+    -0.49241347094795934,
+    -0.7228837935943891,
+    0.4847349735552078
+  ],
+  "relitNote": "front-relit: key azimuth +40 deg",
+  "rimEnergy": 1.5,
+  "seconds": {
+    "back": 16.9,
+    "back-hidden-id": 7.8,
+    "back-id": 7.4,
+    "front": 13.2,
+    "front-hidden-id": 11.6,
+    "front-id": 6.7,
+    "front-id-shell0holdout": 6.8,
+    "front-opaque": 10.9,
+    "front-relit": 12.9,
+    "heldout_22p5": 12.0,
+    "profile_90": 11.9,
+    "profile_90-hidden-id": 6.6,
+    "profile_90-id": 6.3,
+    "profile_90-opaque": 9.2,
+    "three_quarter": 13.3,
+    "three_quarter-hidden-id": 10.8,
+    "three_quarter-id": 7.1
+  },
+  "seed": 7,
+  "size": 1024,
+  "spp": 64,
+  "total": 174.2
+}

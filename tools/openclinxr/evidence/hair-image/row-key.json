@@ -1,0 +1,390 @@
+{
+ "ok": false,
+ "stage": "measure",
+ "error": "Error: no key-geometry cell satisfies every bar; lowest p50 selected",
+ "blenderVersion": "5.1.1",
+ "lightCount": 3,
+ "targetTriple": {
+  "p10": 0.039,
+  "p50": 0.078,
+  "p90": 0.159
+ },
+ "cells": [
+  {
+   "index": 1,
+   "label": "control",
+   "requestedElevationDegrees": 20.54685433236345,
+   "elevationDegrees": 20.54685433236345,
+   "roughness": 0.25,
+   "exposureStops": -0.375,
+   "exposureCalibrationIterations": 0,
+   "rimWatts": 40.0,
+   "keyWatts": 150.0,
+   "fillWatts": 40.0,
+   "lightScale": 0.7711054127039704,
+   "worldStrength": 0.3,
+   "radius": 0.0003,
+   "amount": 4,
+   "profileRadiusReadBack": 0.0003000000142492354,
+   "surfaceSocketNames": {
+    "Roughness": "Roughness",
+    "Radial Roughness": "Radial Roughness",
+    "Coat": "Coat"
+   },
+   "surfaceReadBack": {
+    "melanin": 0.949999988079071,
+    "redness": 0.5,
+    "roughness": 0.25,
+    "radial": 0.20000000298023224,
+    "coat": 0.10000000149011612
+   },
+   "lightReadBack": {
+    "keyLocation": [
+     -1.2000000476837158,
+     -1.5,
+     2.193584680557251
+    ],
+    "keyEnergy": 115.66580963134766,
+    "keyNominalWatts": 150.0,
+    "keySize": 1.399999976158142,
+    "keyDistance": 2.0514385368972836,
+    "keyElevationDegrees": 20.54685433236345,
+    "fillEnergy": 30.84421730041504,
+    "rimEnergy": 30.84421730041504,
+    "roughness": 0.25
+   },
+   "strandsAfter": 50265,
+   "volume": 0.2334470159228266,
+   "faceMeanLuminance": 0.6595013997090353,
+   "backgroundLuminance": 0.4961201909083946,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.19900158804935644,
+    "p10": 0.102758431372549,
+    "p50": 0.1904533333333333,
+    "p90": 0.3103545098039216,
+    "rbRatio": 1.0653473684618258
+   },
+   "meanRBSpread": 0.012778184237618576,
+   "sheenBandFraction": 0.7151144054141154,
+   "beautyPng": "key-1.png",
+   "idPng": "hair-id-key-1.png",
+   "checks": {
+    "hairP50": false,
+    "hairP90": false,
+    "hairP10": true,
+    "meanRB": false,
+    "face": true,
+    "background": true,
+    "volume": true,
+    "strands": true,
+    "maskPixels": true,
+    "maskRBSpread": true,
+    "sheenBand": true
+   },
+   "ok": false
+  },
+  {
+   "index": 2,
+   "label": "elevation 55 / roughness 0.25",
+   "requestedElevationDegrees": 55.0,
+   "elevationDegrees": 54.99999986944317,
+   "roughness": 0.25,
+   "exposureStops": -0.375,
+   "exposureCalibrationIterations": 0,
+   "rimWatts": 40.0,
+   "keyWatts": 150.0,
+   "fillWatts": 40.0,
+   "lightScale": 0.7711054127039704,
+   "worldStrength": 0.3,
+   "radius": 0.0003,
+   "amount": 4,
+   "profileRadiusReadBack": 0.0003000000142492354,
+   "surfaceSocketNames": {
+    "Roughness": "Roughness",
+    "Radial Roughness": "Radial Roughness",
+    "Coat": "Coat"
+   },
+   "surfaceReadBack": {
+    "melanin": 0.949999988079071,
+    "redness": 0.5,
+    "roughness": 0.25,
+    "radial": 0.20000000298023224,
+    "coat": 0.10000000149011612
+   },
+   "lightReadBack": {
+    "keyLocation": [
+     -0.73811936378479,
+     -0.9226491451263428,
+     3.1610379219055176
+    ],
+    "keyEnergy": 115.66580963134766,
+    "keyNominalWatts": 150.0,
+    "keySize": 1.399999976158142,
+    "keyDistance": 2.06000007497454,
+    "keyElevationDegrees": 54.99999986944317,
+    "fillEnergy": 30.84421730041504,
+    "rimEnergy": 30.84421730041504,
+    "roughness": 0.25
+   },
+   "strandsAfter": 50265,
+   "volume": 0.2803147518596002,
+   "faceMeanLuminance": 0.5607514366632578,
+   "backgroundLuminance": 0.4296653339460783,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.12523311868160275,
+    "p10": 0.03304,
+    "p50": 0.11649411764705882,
+    "p90": 0.2192886274509804,
+    "rbRatio": 1.112839460153974
+   },
+   "meanRBSpread": 0.013677014152831945,
+   "sheenBandFraction": 0.8336278920308483,
+   "beautyPng": "key-2.png",
+   "idPng": "hair-id-key-2.png",
+   "checks": {
+    "hairP50": true,
+    "hairP90": true,
+    "hairP10": true,
+    "meanRB": false,
+    "face": true,
+    "background": false,
+    "volume": false,
+    "strands": true,
+    "maskPixels": true,
+    "maskRBSpread": true,
+    "sheenBand": true
+   },
+   "ok": false
+  },
+  {
+   "index": 3,
+   "label": "elevation 55 / roughness 0.12",
+   "requestedElevationDegrees": 55.0,
+   "elevationDegrees": 54.99999986944317,
+   "roughness": 0.12,
+   "exposureStops": -0.375,
+   "exposureCalibrationIterations": 0,
+   "rimWatts": 40.0,
+   "keyWatts": 150.0,
+   "fillWatts": 40.0,
+   "lightScale": 0.7711054127039704,
+   "worldStrength": 0.3,
+   "radius": 0.0003,
+   "amount": 4,
+   "profileRadiusReadBack": 0.0003000000142492354,
+   "surfaceSocketNames": {
+    "Roughness": "Roughness",
+    "Radial Roughness": "Radial Roughness",
+    "Coat": "Coat"
+   },
+   "surfaceReadBack": {
+    "melanin": 0.949999988079071,
+    "redness": 0.5,
+    "roughness": 0.11999999731779099,
+    "radial": 0.20000000298023224,
+    "coat": 0.10000000149011612
+   },
+   "lightReadBack": {
+    "keyLocation": [
+     -0.73811936378479,
+     -0.9226491451263428,
+     3.1610379219055176
+    ],
+    "keyEnergy": 115.66580963134766,
+    "keyNominalWatts": 150.0,
+    "keySize": 1.399999976158142,
+    "keyDistance": 2.06000007497454,
+    "keyElevationDegrees": 54.99999986944317,
+    "fillEnergy": 30.84421730041504,
+    "rimEnergy": 30.84421730041504,
+    "roughness": 0.11999999731779099
+   },
+   "strandsAfter": 50265,
+   "volume": 0.2799824209669921,
+   "faceMeanLuminance": 0.5606389705736536,
+   "backgroundLuminance": 0.42966600509344355,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.12057103766914463,
+    "p10": 0.027698039215686275,
+    "p50": 0.1114713725490196,
+    "p90": 0.2134321568627451,
+    "rbRatio": 1.1135706746585938
+   },
+   "meanRBSpread": 0.013248680527445801,
+   "sheenBandFraction": 0.802475127396263,
+   "beautyPng": "key-3.png",
+   "idPng": "hair-id-key-3.png",
+   "checks": {
+    "hairP50": true,
+    "hairP90": true,
+    "hairP10": false,
+    "meanRB": false,
+    "face": true,
+    "background": false,
+    "volume": false,
+    "strands": true,
+    "maskPixels": true,
+    "maskRBSpread": true,
+    "sheenBand": true
+   },
+   "ok": false
+  },
+  {
+   "index": 4,
+   "label": "elevation 65 / roughness 0.12",
+   "requestedElevationDegrees": 65.0,
+   "elevationDegrees": 64.99999728618714,
+   "roughness": 0.12,
+   "exposureStops": 0.75,
+   "exposureCalibrationIterations": 2,
+   "rimWatts": 40.0,
+   "keyWatts": 150.0,
+   "fillWatts": 40.0,
+   "lightScale": 0.7711054127039704,
+   "worldStrength": 0.3,
+   "radius": 0.0003,
+   "amount": 4,
+   "profileRadiusReadBack": 0.0003000000142492354,
+   "surfaceSocketNames": {
+    "Roughness": "Roughness",
+    "Radial Roughness": "Radial Roughness",
+    "Coat": "Coat"
+   },
+   "surfaceReadBack": {
+    "melanin": 0.949999988079071,
+    "redness": 0.5,
+    "roughness": 0.11999999731779099,
+    "radial": 0.20000000298023224,
+    "coat": 0.10000000149011612
+   },
+   "lightReadBack": {
+    "keyLocation": [
+     -0.5438555479049683,
+     -0.6798194050788879,
+     3.340578556060791
+    ],
+    "keyEnergy": 115.66580963134766,
+    "keyNominalWatts": 150.0,
+    "keySize": 1.399999976158142,
+    "keyDistance": 2.059999894135204,
+    "keyElevationDegrees": 64.99999728618714,
+    "fillEnergy": 30.84421730041504,
+    "rimEnergy": 30.84421730041504,
+    "roughness": 0.11999999731779099
+   },
+   "strandsAfter": 50265,
+   "volume": 0.24281039342166436,
+   "faceMeanLuminance": 0.6545962159637054,
+   "backgroundLuminance": 0.5830795783547793,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.17993459140552343,
+    "p10": 0.05348156862745098,
+    "p50": 0.1672070588235294,
+    "p90": 0.30279450980392153,
+    "rbRatio": 1.1038693583837544
+   },
+   "meanRBSpread": 0.018138384540188436,
+   "sheenBandFraction": 0.7657983598649301,
+   "beautyPng": "key-4.png",
+   "idPng": "hair-id-key-4.png",
+   "checks": {
+    "hairP50": false,
+    "hairP90": false,
+    "hairP10": true,
+    "meanRB": false,
+    "face": true,
+    "background": false,
+    "volume": false,
+    "strands": true,
+    "maskPixels": true,
+    "maskRBSpread": true,
+    "sheenBand": true
+   },
+   "ok": false
+  }
+ ],
+ "selected": {
+  "index": 3,
+  "label": "elevation 55 / roughness 0.12",
+  "requestedElevationDegrees": 55.0,
+  "elevationDegrees": 54.99999986944317,
+  "roughness": 0.12,
+  "exposureStops": -0.375,
+  "exposureCalibrationIterations": 0,
+  "rimWatts": 40.0,
+  "keyWatts": 150.0,
+  "fillWatts": 40.0,
+  "lightScale": 0.7711054127039704,
+  "worldStrength": 0.3,
+  "radius": 0.0003,
+  "amount": 4,
+  "profileRadiusReadBack": 0.0003000000142492354,
+  "surfaceSocketNames": {
+   "Roughness": "Roughness",
+   "Radial Roughness": "Radial Roughness",
+   "Coat": "Coat"
+  },
+  "surfaceReadBack": {
+   "melanin": 0.949999988079071,
+   "redness": 0.5,
+   "roughness": 0.11999999731779099,
+   "radial": 0.20000000298023224,
+   "coat": 0.10000000149011612
+  },
+  "lightReadBack": {
+   "keyLocation": [
+    -0.73811936378479,
+    -0.9226491451263428,
+    3.1610379219055176
+   ],
+   "keyEnergy": 115.66580963134766,
+   "keyNominalWatts": 150.0,
+   "keySize": 1.399999976158142,
+   "keyDistance": 2.06000007497454,
+   "keyElevationDegrees": 54.99999986944317,
+   "fillEnergy": 30.84421730041504,
+   "rimEnergy": 30.84421730041504,
+   "roughness": 0.11999999731779099
+  },
+  "strandsAfter": 50265,
+  "volume": 0.2799824209669921,
+  "faceMeanLuminance": 0.5606389705736536,
+  "backgroundLuminance": 0.42966600509344355,
+  "coveragePixels": 124541,
+  "coverageHairLuminance": {
+   "mean": 0.12057103766914463,
+   "p10": 0.027698039215686275,
+   "p50": 0.1114713725490196,
+   "p90": 0.2134321568627451,
+   "rbRatio": 1.1135706746585938
+  },
+  "meanRBSpread": 0.013248680527445801,
+  "sheenBandFraction": 0.802475127396263,
+  "beautyPng": "key-3.png",
+  "idPng": "hair-id-key-3.png",
+  "checks": {
+   "hairP50": true,
+   "hairP90": true,
+   "hairP10": false,
+   "meanRB": false,
+   "face": true,
+   "background": false,
+   "volume": false,
+   "strands": true,
+   "maskPixels": true,
+   "maskRBSpread": true,
+   "sheenBand": true
+  },
+  "ok": false
+ },
+ "falsifier": "floor is not R geometry; global tone transform legitimate",
+ "front": "front-key.png",
+ "selectedIdPng": "hair-id-key.png",
+ "maskOverlay": "mask-overlay-key.png",
+ "hairSheen": "hair-sheen-key.png",
+ "sweep": "sweep-key.png"
+}

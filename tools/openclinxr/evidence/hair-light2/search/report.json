@@ -1,0 +1,78 @@
+{
+  "evaluations": 24,
+  "generations": 3,
+  "population": 8,
+  "warmStart": {
+    "root_dark": 0.3
+  },
+  "best": {
+    "index": 0,
+    "generation": 0,
+    "params": {
+      "roughness": 0.12,
+      "melanin": 0.7430786322908133,
+      "redness": 0.8590685337650382,
+      "key_elev_deg": 38.0,
+      "key_energy": 147.33954402600912,
+      "key_size_m": 1.7576362237926888,
+      "root_dark": 0.4,
+      "random": 0.01661755717936675
+    },
+    "metrics": {
+      "crown_part_band": {
+        "pixels": 1167,
+        "p50": 0.2601356862745098,
+        "p90": 0.3786525490196078,
+        "RB": 1.3767975323302353,
+        "mean_luminance": 0.26456526303409106
+      },
+      "sides": {
+        "pixels": 7719,
+        "p50": 0.08615058823529412,
+        "p90": 0.2071592156862745,
+        "RB": 1.986704300675994,
+        "mean_luminance": 0.1055072670695432
+      },
+      "lower_sheet": {
+        "pixels": 7539,
+        "p50": 0.02404392156862745,
+        "p90": 0.1424886274509804,
+        "RB": 2.1874926375308426,
+        "mean_luminance": 0.05040834759902103
+      },
+      "whole_front": {
+        "pixels": 19601,
+        "p50": 0.1000972549019608,
+        "p90": 0.2746329411764706,
+        "RB": 1.7388964703121055,
+        "mean_luminance": 0.12377651020206051
+      },
+      "part_side_ratio": 2.507554885861157,
+      "cheek": {
+        "box_norm": [
+          0.39,
+          0.4,
+          0.61,
+          0.52
+        ],
+        "pixels": 6978,
+        "p50": 0.7216250980392157
+      },
+      "mask_area_px_native": 19601,
+      "mask_area_px": 78404,
+      "mask_area_change_pct": -4.84605022027501
+    },
+    "fitness": {
+      "p50": 0.8310270888884765,
+      "p90": 0.9045553767604004,
+      "RB": 0.1680865298553427,
+      "part_side": 1.8151097717223141,
+      "face": 0.0,
+      "mask": 0.569210044055002,
+      "total": 4.287988811281536
+    },
+    "beauty": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/search/eval-000/front.png",
+    "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/search/eval-000/front-id.png",
+    "seconds": 6.67293879200588
+  }
+}

@@ -1,0 +1,4 @@
+GATES_PASS=no
+
+Coherence and bounded-move gates pass. The full inherited groom9 visual and
+hard gate set does not pass; see RESULT.txt for exact failures.

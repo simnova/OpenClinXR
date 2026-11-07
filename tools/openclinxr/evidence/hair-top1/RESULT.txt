@@ -1,0 +1,12 @@
+HAIR TOP 1 — HONEST PART METRIC + TOP ROOT DENSITY
+
+METRIC OLD I1::front broad crown proxy part/side=2.175571; projected close-up strip part/side=1.403306, skin=65.3787%
+METRIC NEW I1::crown_top physical strip, own hairline+10mm to apex; part/side=1.145170
+TILES::0-10 i1=73.0482% t1=53.8863%; 10-20 i1=70.1962% t1=58.1582%; 20-30 i1=65.7280% t1=54.5157%; 30-50 i1=54.0318% t1=50.4700%; gate t1 <=5% beyond 3mm=FAIL
+HONEST PART/SIDE::crown_top i1=1.145170 t1=1.068110; front-above-own-hairline i1=1.033020 t1=0.925895 TS=1.013472
+IOU::i1 f/p/b=0.682461/0.681596/0.783880; t1=0.697668/0.699175/0.793788; d=+0.015208/+0.017579/+0.009908; |d|<=.02=PASS
+FACE CHEEK P50::i1=0.733398 t1=0.733665 move=0.036%; <=5%=PASS
+AUDIT::inside=0; end p95=4.613767deg; inside=0/end<=10=PASS
+RENDER TIME::front i1=27.10s t1=48.18s x1.78; three_quarter i1=32.63s t1=58.20s x1.78; profile_90 i1=58.49s t1=64.55s x1.10; back i1=79.34s t1=79.87s x1.01; crown_top i1=48.39s t1=50.75s x1.05
+SAW::Against TS, the centre part still reads as a cleaner, straighter light seam first; T1 removes the scattered scalp pinholes but the synthetic bilateral flow remains more mechanically symmetric than the target.
+GATES::{"absDeltaIouAtMost002": true, "colliderInsideZero": true, "endP95AtMost10Deg": true, "faceCheekWithin5Percent": true, "tileSkinAtMost5Percent": false}

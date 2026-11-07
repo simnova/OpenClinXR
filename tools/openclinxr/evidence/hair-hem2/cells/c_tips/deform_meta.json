@@ -1,0 +1,12 @@
+{
+  "tag": "c_tips",
+  "base": "hair-hem2/base/strands.npz",
+  "deform": {
+    "cell": "tips",
+    "lowerFibres": 65953,
+    "seed": 7202,
+    "sigmaMm": 3.0,
+    "curlMm": "0.5..1 inward",
+    "rule": "last ~10% (idx29..31) independent length jitter sigma 3mm along end tangent + 0.5..1mm inward curl"
+  }
+}

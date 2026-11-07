@@ -1,0 +1,7 @@
+hair-hull2 DONE.
+Manifest v3 pins the approved aisha-v2 set (identity registration);
+base carve = hull1 rules exactly (4 views, no mirror). Back-asymmetry
+diagnosis: joint multi-view veto (profile-dominant), sheet extent
+symmetric (hd L/R 0.9775); variants (a)/(b) tested, BASE picked with
+reasons in RESULT.txt. Gates 6/6 PASS (E/GATES_PASS). E/hull.npz,
+E/hull.png (opaque + target tiles), E/RESULT.txt shipped.

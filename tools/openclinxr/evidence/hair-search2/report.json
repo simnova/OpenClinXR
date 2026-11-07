@@ -1,0 +1,278 @@
+{
+  "acceptance": {
+    "baselineFitness": 0.7321992440362125,
+    "bestThreeSeedMean": 1.192454050967906,
+    "bestThreeSeedSd": 0.03818778776761147,
+    "improvement": -0.4602548069316935,
+    "passed": false,
+    "requiredImprovement": 0.07637557553522294
+  },
+  "backgroundBisection": {
+    "faceDriftWithinBand": true,
+    "finalBackgroundLuminance": 0.5023675995710783,
+    "finalWorldStrength": 0.4190625,
+    "iterations": [
+      {
+        "backgroundLuminance": 0.5493573238357843,
+        "faceLuminance": 0.6713357241071888,
+        "iteration": 0,
+        "renderSeconds": 11.522334416999001,
+        "worldStrength": 0.605
+      },
+      {
+        "backgroundLuminance": 0.4687890824142156,
+        "faceLuminance": 0.662736256713127,
+        "iteration": 1,
+        "renderSeconds": 11.830509499999607,
+        "worldStrength": 0.3075
+      },
+      {
+        "backgroundLuminance": 0.5125293443627451,
+        "faceLuminance": 0.6665752127244113,
+        "iteration": 2,
+        "renderSeconds": 12.081305917001373,
+        "worldStrength": 0.45625
+      },
+      {
+        "backgroundLuminance": 0.4917752573529412,
+        "faceLuminance": 0.6649925431426242,
+        "iteration": 3,
+        "renderSeconds": 13.282034165998994,
+        "worldStrength": 0.38187499999999996
+      },
+      {
+        "backgroundLuminance": 0.5023675995710783,
+        "faceLuminance": 0.6658302327253366,
+        "iteration": 4,
+        "renderSeconds": 12.34934104199965,
+        "worldStrength": 0.4190625
+      },
+      {
+        "backgroundLuminance": 0.497169987745098,
+        "faceLuminance": 0.6655468362258946,
+        "iteration": 5,
+        "renderSeconds": 13.926064167000732,
+        "worldStrength": 0.40046875
+      }
+    ]
+  },
+  "baseline": {
+    "fitness": 0.7321992440362125,
+    "metrics": {
+      "bg": 0.448145271139706,
+      "chinPx": 292,
+      "face": 0.6488445896317634,
+      "faceLR": 0.9911393915291027,
+      "hairBottomPx": 365,
+      "hairTopPx": 21,
+      "lengthBelowChinFrac": 0.2693726937269373,
+      "maskPx": 126868,
+      "maskPxNative": 31717,
+      "meanRBSpread": 0.04794509284623141,
+      "meanRGB": [
+        0.1494586622995547,
+        0.11298895192590777,
+        0.10151356945334875
+      ],
+      "p10": 0.03414117647058824,
+      "p50": 0.0769592156862745,
+      "p90": 0.27502431372549013,
+      "rb": 1.47230230504543,
+      "sheenTopFrac": 0.9020979020979021,
+      "volume": 0.28307799442896936
+    },
+    "params": {
+      "fill_W": 134.23803326794558,
+      "fill_elev_deg": 39.70151404826437,
+      "key_elev_deg": 45.80076263214205,
+      "key_size_m": 1.9722093205433104,
+      "length": 1.0,
+      "melanin": 0.8603009826673895,
+      "redness": 0.37875235678777447,
+      "rim_W": 22.065205320216297,
+      "roughness": 0.1408421707345527
+    },
+    "sourceCommit": "f01554aa4",
+    "sourcePng": "hair-search/best-1024.png"
+  },
+  "best": {
+    "finalFitness": 1.2447861062018477,
+    "finalMetrics": {
+      "bg": 0.5022950551470589,
+      "chinPx": 584,
+      "face": 0.6656708501293457,
+      "faceLR": 0.855280830121063,
+      "hairBottomPx": 890,
+      "hairTopPx": 29,
+      "lengthBelowChinFrac": 0.5513513513513514,
+      "maskPx": 226311,
+      "maskPxNative": 226311,
+      "meanRBSpread": 0.0632750645671439,
+      "meanRGB": [
+        0.15969343245453646,
+        0.1096068822873003,
+        0.09641836788740356
+      ],
+      "p10": 0.02461019607843137,
+      "p50": 0.09237803921568627,
+      "p90": 0.2568721568627451,
+      "rb": 1.6562552960969523,
+      "sheenTopFrac": 0.7972692324687376,
+      "volume": 0.43792313168293817
+    },
+    "lineageFitness": 1.1179163555422449,
+    "lineageMetrics": {
+      "bg": 0.4662290724571079,
+      "chinPx": 292,
+      "face": 0.6624259841939589,
+      "faceLR": 0.8532206405668077,
+      "hairBottomPx": 441,
+      "hairTopPx": 16,
+      "lengthBelowChinFrac": 0.5398550724637681,
+      "maskPx": 222036,
+      "maskPxNative": 55509,
+      "meanRBSpread": 0.059473627134833104,
+      "meanRGB": [
+        0.15301641599182286,
+        0.1054071076267349,
+        0.09354278885702332
+      ],
+      "p10": 0.02429098039215686,
+      "p50": 0.08588313725490196,
+      "p90": 0.2558949019607843,
+      "rb": 1.6357906137019582,
+      "sheenTopFrac": 0.8190664984681925,
+      "volume": 0.4518410515320334
+    }
+  },
+  "bestParams": {
+    "fill_W": 60.47725258242128,
+    "fill_elev_deg": 28.811320096571063,
+    "key_elev_deg": 36.200694730640095,
+    "key_size_m": 1.5590593523168912,
+    "length": 1.6510535954368561,
+    "melanin": 0.8513294146645796,
+    "redness": 0.8402879761236122,
+    "rim_W": 26.654435328323842,
+    "roughness": 0.14088048288189484
+  },
+  "boundsHitTable": [
+    {
+      "bound": null,
+      "fractionThroughRange": 0.24890432734755766,
+      "parameter": "key_elev_deg",
+      "value": 36.200694730640095,
+      "within5PctOfBound": false
+    },
+    {
+      "bound": null,
+      "fractionThroughRange": 0.37952967615844563,
+      "parameter": "key_size_m",
+      "value": 1.5590593523168912,
+      "within5PctOfBound": false
+    },
+    {
+      "bound": null,
+      "fractionThroughRange": 0.337310438186844,
+      "parameter": "fill_W",
+      "value": 60.47725258242128,
+      "within5PctOfBound": false
+    },
+    {
+      "bound": null,
+      "fractionThroughRange": 0.5762264019314213,
+      "parameter": "fill_elev_deg",
+      "value": 28.811320096571063,
+      "within5PctOfBound": false
+    },
+    {
+      "bound": null,
+      "fractionThroughRange": 0.333180441604048,
+      "parameter": "rim_W",
+      "value": 26.654435328323842,
+      "within5PctOfBound": false
+    },
+    {
+      "bound": null,
+      "fractionThroughRange": 0.7876134495208279,
+      "parameter": "melanin",
+      "value": 0.8513294146645796,
+      "within5PctOfBound": false
+    },
+    {
+      "bound": null,
+      "fractionThroughRange": 0.9146971087480175,
+      "parameter": "redness",
+      "value": 0.8402879761236122,
+      "within5PctOfBound": false
+    },
+    {
+      "bound": null,
+      "fractionThroughRange": 0.05494863916288116,
+      "parameter": "roughness",
+      "value": 0.14088048288189484,
+      "within5PctOfBound": false
+    },
+    {
+      "bound": null,
+      "fractionThroughRange": 0.7517559923947602,
+      "parameter": "length",
+      "value": 1.6510535954368561,
+      "within5PctOfBound": false
+    }
+  ],
+  "error": "new best does not beat search v1 by more than 2 sd of its 3-seed fitness spread",
+  "evaluations": 120,
+  "finalRender": {
+    "lengthReadBack": 1.651053547859192,
+    "renderSeconds": 31.042552166998576,
+    "strandsAfter": 50265
+  },
+  "generations": 12,
+  "meanRenderSeconds": 7.123428546175023,
+  "ok": false,
+  "pinned": {
+    "amount": 4,
+    "camera": "image-rim fixed front; 90-degree profile only for ungraded descriptors",
+    "crown": "unmodified image-rim structural stage",
+    "exposure": -0.375,
+    "profileRadius": 0.0003,
+    "trim": "removed",
+    "viewTransform": "Standard"
+  },
+  "population": 10,
+  "profileMetrics": {
+    "baseline": {
+      "chinPx": 614,
+      "hairBackExtent": 0.65406162464986,
+      "hairBottomPx": 792,
+      "hairBottomRowBelowChinFraction": 0.33271028037383177,
+      "hairLeftPx": 183,
+      "hairRightPx": 649,
+      "hairTopPx": 79
+    },
+    "best": {
+      "chinPx": 614,
+      "hairBackExtent": 0.5759162303664922,
+      "hairBottomPx": 1023,
+      "hairBottomRowBelowChinFraction": 0.7504587155963303,
+      "hairLeftPx": 149,
+      "hairRightPx": 698,
+      "hairTopPx": 69
+    },
+    "graded": false,
+    "reference": {
+      "chinPx": 307,
+      "hairBackExtent": 0.4853273137697517,
+      "hairBottomPx": 508,
+      "hairBottomRowBelowChinFraction": 0.8340248962655602,
+      "hairLeftPx": 191,
+      "hairRightPx": 405,
+      "hairTopPx": 66
+    },
+    "referenceError": null,
+    "referencePath": "/Volumes/files/src/openclinxr/.openclinxr/scratch/target-views/mask-profile.png"
+  },
+  "seed": 0,
+  "sigma0": 0.25
+}

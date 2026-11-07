@@ -1,0 +1,28 @@
+RESULT::hair-guides-1
+G1::250 | [150,250] PASS
+G2::inside=187 min=0.00mm | 0 ∧ >=2mm MISS
+G3::bad=3/2301 | 100% in [2,6]mm MISS
+G4::bad=161/1495 (10.8%) | >=98% <=20mm MISS
+G5::p95=26.4mm max=60.2mm | p95<=35 ∧ max<=60 MISS
+G6::0 | 0 PASS
+G7::p95=41.85 max=9e10 | p95<=8 ∧ max<=20 MISS
+G8::tipdz=0.00mm stray=2.40% | all<=5mm ∧ <2% MISS
+G9::max=26.83mm | <=9mm MISS
+G10::|meanx|=2.44mm | <=5mm PASS
+SAW::front: ~30 thick white tubes hang each side of the face from a visible midline part; strands lie along the cheeks and temples; daylight gap between tubes and scalp at the sides; tips reach mid-chest; tubes render white, not orange.
+SAW::three_quarter: tubes stand off the head side with a visible gap; strands bunch and kink where they meet the shoulder top; sides fall outside the ears.
+SAW::profile: front hairline tubes hover off the forehead with a visible gap; one strand hangs beside the cheek; back mass falls straight to mid-back; hem sits below the shoulder.
+SAW::back: full drape to mid-back with even coverage both sides of the midline; tips flare outward tent-like; hem sits below the collar across the back.
+SAW::top: part line clear at the midline; tubes radiate laterally then fall; arms extend sideways; no tube crosses the crown center.
+CAUSE::G2 187 non-tip points inside colliders (all 250 tips clear): push_out 3-iteration non-convergence in body/garment inter-surface traps plus stall-point accumulation on the shoulder plane; candidates include inverted garment normals (diag.py census inconclusive, run ended before completion).
+CAUSE::G3 3 scalp-classified points at 0.7-1.6mm near the left ear: scalp/fall boundary misclassification from pre-smooth arc fractions plus push_out best-effort returns below the 2mm floor.
+CAUSE::G4 161 side points float >20mm (viol-mean x=71mm z=1466mm just above menton): straight -Z fall cannot follow the mastoid-to-jaw taper; structural against M3 as written.
+CAUSE::G5 max=60.2mm exceeds 60 by 0.2mm (p95=26.4 passes): marginal, expected to resolve with a contact-slide continuation.
+CAUSE::G7 38 guides carry duplicate-point runs stalled on the shoulder plane z≈1419-1420: M3 restore-length degenerates at resting contact (zero vector), producing 1e9+ deg/cm artifacts; real curvature is otherwise moderate. Needs a contact-slide continuation rule.
+CAUSE::G8 stray=2.40% (6 tips) vs <2%: tip decluster too weak; marginal.
+CAUSE::G9 max=26.83mm vs 9mm: structural G1/G9 contradiction. Covering 632.8cm2 with <=250 roots bounds max-min distance at >=9.87mm (need ~300 roots); the 4mm slit exclusion plus forehead-drop additionally bald the slit-bottom strip (worst verts at slitd 1.9mm). 12 traced patch roots added, max unchanged.
+CAUSE::O3 tubes render white not orange: emission material clipped/unassigned under the key light.
+COMMIT::c97c1a3d7a0039784f6810f9f2fd7ce56747bae2
+STILL::passing guides for the children/interpolation card; contact-slide continuation rule for M3 resting contact; G1/G9 count-vs-coverage ruling.
+BRIEF_MISSING::M3 continuation at resting contact (stall vs slide); whether G9 9mm assumes counts above the G1 250 cap; orange-tube exposure guidance for O3.
+HARM::none

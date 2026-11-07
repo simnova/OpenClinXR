@@ -1,0 +1,46 @@
+RESULT hair-scalp1: target hairline, clean-UV scalp and root map
+correction: 1 (temple curtain pixels removed; frontal arc + PRIOR temples)
+
+CORRECTION 1 (orchestrator defect + fix)
+- defect: temple segments traced the inner edges of hanging curtains (hair in air against the face), back-projected onto skin where no hairline exists; midline peaked at the part (skin, not hairline).
+- fix (a): frontal arc only, between departure points cols 438/593 (rule: last col each side with run-end <= central-third median 207.0 + 35px).
+- fix (b): part band +- 8 px around col 513 excluded (part gap 11 px), interpolated in 3D across 3 bridge points.
+- temples/sideburn/ear-front are PRIOR (azimuth sweep from each departure to 62deg, +12mm temporal peak, bottom earTop+5mm, skin-snapped; sideburn/nape geometric rules on measured ear extent).
+- sanity: TARGET points >= brow plane (1.5717) + 15mm and within 25mm of anatomical parabola boundary: drops brow=0 anat=0 [].
+
+STEP 1 hairline (E/hairline.json + overlay front/profile/three_quarter)
+- TARGET frontal arc: 142 points (139 observed + 3 interp), cols 438..593; mm/target-px front 0.4694.
+- cast: n=139 miss=0 methods={'direct': 139}; residuals px p50=0.0000 p95=0.000 max=0.00 (requested-vs-hit pixel; re-projection is exact by construction, depth validated by overlay + R2').
+- PRIOR: templeA/B 21/21 pts, sideburnA/B 55/55, nape 38; earTop=1.5562 earBot=1.5072; library hair hidden ['makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh'].
+- part: 11 px x 0.4694 mm/px = 5.16 mm (row 135).
+
+STEP 2 scalp mesh (E/scalp.npz 778 tris of 26756 head tris + E/scalp.obj; separate object, copied, no inset)
+- region: 3D flood from crown (2.5mm loop barrier + 5mm ear collar) AND graph V>f(U) clip, minus ear-apparatus box (earCut=1398 tris).
+- boundary vs TARGET loop: coverage p50=0.00 p95=0.01 max=0.21mm (n=148); mesh overshoot p50=4.91 p95=6.47 max=6.57mm (n=10, mesh-only, roots graph-exact).
+- UV chart: U = SIGNED azimuth about head axis (seam +-pi back midline, side-preserving, never abs), V = elevation; pole dome r<15mm circular-mean repair (57 verts); seam-duplicate body verts (11 groups) unified for gate A.
+
+STEP 3 UV gates (E/uv.json): A overlaps=0 (dome-dome 0, excluded stated) pass=True; B flips=0 pass=True; C1 round-trip max=0.0264 mean=0.0046mm (n=10000, same-tri 8884) pass=True; C2 analytic diagnostic max=26.061mm (nUsed=9565). ALL=True.
+
+STEP 4 roots (E/roots.npz): n=14155 seed=7 spacing r0=1.60mm meanNN=1.718mm proposals=4481400 stop=stale.
+- density: full to hairline, 3mm smoothstep ramp, no setback; part valley 1-0.70*exp(-(x/3.3mm)^2) via variable radii (acceptance coins cannot hold valleys under saturation).
+
+STEP 5 ruler R2' hairline-based, TARGET frontal arc only (n=173 samples): p50=0.85 p95=1.60 max=2.05mm; gates p95<=2 max<=4: True.
+- plant drop<10mm: p50=10.84mm (expect 10+-1) nDropped=226: True.
+- plant restore: p50=0.85mm (<2): True.
+- part: target valley 5.16mm, measured FWHM 7.00mm, depth 0.719 (crown band n=1434): True.
+- rulers gatesPass=True.
+
+STEP 6 spikes (E/spikes.png 2x2: front/three_quarter/profile_90/crown_top; 5mm red cones, no strands; library hair excluded, yellow-px {'front': 0, 'three_quarter': 0, 'profile_90': 0, 'crown_top': 0}, gate<0.1%: True).
+
+provenance: manifest aisha_straight_long.json; run.py/register.py/export_frame.py/manifests untouched (S2 reads manifest + cameras-scorer-v3.json + register.py read-only; integrated into run.py later by the owning worker).
+ban-grep (7 banned names, built from fragments) over S2+evidence text: clean.
+inputs-opened log (9 paths) banned-path check: clean.
+
+SAW (scope, assumptions, watch-outs)
+- SCOPE: frontal TARGET arc + PRIOR sides; temples carry no target observation (parallax wedge az 30..37deg chorded ~21mm in the pre-correction build; correction replaces temples with PRIOR sweeps).
+- ASSUMED: pin-hole camera inverse (f=FRAME*lens/sensor, centred principal) validated by sub-px re-projection + overlay; mm scale from local projection derivative at crown; part valley centred x=0 (target centre col).
+- WATCH: scalp mesh tris are coarse (boundary overshoot <=6.57mm mesh-only, roots graph-exact); C2 analytic leg is diagnostic (chart nonlinearity on coarse tris); valley depth 0.72 by radii geometry.
+
+NOT TESTED: strand growth/combing from these roots; cross-view (three_quarter/back/crown) hairline consistency beyond the overlay; other bodies/seeds; run.py integration (owned by hair-p7 worker).
+
+GATES_PASS=yes (all gates pass (R2' p95 1.60<=2 max 2.05<=4, plants, part, UV ALL, yellow, coverage p95 0.01<3, ban-grep clean))

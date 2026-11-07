@@ -1,0 +1,15 @@
+GATES_PASS hair-groom1
+unreachable==0: PASS (value 0)
+partCrossings==0: PASS (value 0)
+earGate: PASS (value True)
+backGap<=20mm: PASS (value 7.93)
+agree-front vs orient0 (19.92 vs 19.80): report
+agree-three_quarter vs orient0 (26.17 vs 26.26): report
+agree-profile_90 vs orient0 (21.98 vs 21.88): report
+agree-back vs orient0 (16.75 vs 16.82): report
+strands-count: PASS
+strands-partCrossings: PASS
+strands-insideBody: PASS
+strands-determinism: PASS
+strands-lane: PASS
+guide-tube contour + render contour/IoU/agreement/color: REPORT-ONLY scores in RESULT.txt (guide tubes fail the orient0 p50<=12/p95<=24 bar as in orient0; MODEL_INADEQUATE at guide level, same verdict).

@@ -1,0 +1,7 @@
+hair-route0 DONE.
+359/359 guides routed smooth through the eroded hull (spec db7706df),
+gates in E/gates.json, figure E/guides.png, full numbers in E/RESULT.txt.
+VERDICT: MODEL_INADEQUATE (front curtain/hem shortfall = shoulder
+mismatch with SDF evidence; profile/back crown overhang = hull outline;
+literal crown-band tangent = dome-lay geometry; routing-quality gates
+pass: 0 unreachable, boundary 0.066, 0 crossings, gap 6 mm, guards 0).

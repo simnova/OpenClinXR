@@ -1,0 +1,28 @@
+{
+  "back": {
+    "distinctColorsQ8": 217,
+    "warpedTargetPx": 54474
+  },
+  "crown_top": {
+    "distinctColorsQ8": 313
+  },
+  "front": {
+    "distinctColorsQ8": 397,
+    "warpedTargetPx": 28153
+  },
+  "note": "red = pinned target mask warped into render frame; yellow = render triple; cyan = mapped target triple",
+  "panelOrder": [
+    "back",
+    "crown_top",
+    "front",
+    "profile_90",
+    "three_quarter"
+  ],
+  "profile_90": {
+    "distinctColorsQ8": 241,
+    "warpedTargetPx": 36116
+  },
+  "three_quarter": {
+    "distinctColorsQ8": 365
+  }
+}

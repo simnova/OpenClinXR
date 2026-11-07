@@ -1,0 +1,90 @@
+hair target 2: Imagine targets generated ON AISHA (same head, shoulders, camera)
+==============================================================================
+
+WHY: prior targets showed a different woman; Aisha's head poked through the
+target hair outline at the crown (up to 6.6 mm p95 front) and target curtains
+draped through her shoulders (route0: 34-73% of curtain inside body at
+z 1480-1380). Generating the target on Aisha matches head/shoulders/camera
+by construction.
+
+STEP 1 - source renders (T/source-<view>.png, E/sources.png)
+  Body: apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb
+  (sha256 5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde,
+  per hair-groom manifest). Library hair topper excluded by name rule
+  (contains 'hair', keeps brow/lash): removed
+  ['makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh'].
+  Shirt mesh makeclothes_library_toigo_t_shirt overridden matte pink
+  Principled (0.91,0.55,0.64) roughness 0.9.
+  Cameras: lensMm/matrixWorld/sensorWidthMm verbatim from pinned
+  tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json for
+  front, three_quarter, profile_90, back.
+  RIG: CYCLES 1024x1024 64sp OpenImageDenoise CPU; film transparent OFF;
+  World solid mid-grey (0.5); 12 m matte light-grey backdrop plane at y+2.2 m
+  (0.72,0.72,0.74, rough 1.0); key Area front-left 100 W/2 m, fill Area
+  front-right 40 W/2 m, rim Area behind-top 60 W/1.5 m, all white.
+  Script: tools/openclinxr/evidence/hair-target2/make_sources.py.
+
+STEP 2 - Imagine edits (T/target-<view>.png, T/prompt.md, T/run.sh, T/refs.json)
+  Driver model: muse-spark-1-go (first choice; worked; no fallback needed).
+  NEVER grok-4.7 per operator rule. Env: OPENCLINXR_RAW_GROK_SANCTIONED=1
+  OPENCLINXR_WORKER=1 GROK_SUBAGENTS=1, direnv exec, grok CLI general-purpose
+  agent, tools image_gen,image_edit,write,read_file,list_dir,run_terminal_command.
+  One image_edit per view, aspect 1:1, view's own source render as image.
+  refs.json errors: []. Returned JPGs -> target PNGs, byte sizes:
+  front 147934, three_quarter 141454, profile 138360, back 143828.
+  CORRECTION (worker mislabel, found by reading each image + source-vs-target
+  mean-abs-diff matrix): returned files were rotated (front file held profile
+  content, profile held back, back held front). Rotated contents so filename
+  matches view; three_quarter was correct. After fix each target is closest to
+  its own source (front 37.7 / tq 19.6 / profile 18.8 / back 45.2 mean-abs-diff;
+  high absolutes = added hair, expected). refs.json carries a 'relabel' note.
+
+STEP 3 - alignment: the edit must not move the person
+  MediaPipe tasks API (face_landmarker.task, pose_landmarker_full.task,
+  Apache-2.0; same role as hair-reg3q Face/Pose). Pose landmarker EXCLUDED
+  from verdict: systematic ~24 px bias on portrait crops (all front-face
+  points shift together while face-interior ECC reads 0.05 px), hallucinates
+  a face on the back of the head (nose/eyes/mouth presence 0.92-0.99), and
+  out-of-frame joints sit at presence 0.00.
+  Trustworthy signals per view:
+    view          eyes-mesh p95   face-interior ECC   edge overlay (read)
+    front         2.88 px         0.05 px             eyes/nose/mouth/chin coincide
+    three_quarter 3.69 px         2.48 px             face features coincide
+    profile       N/A (no face)   N/A                 face contour/ear/shoulder coincide
+    back          N/A (no face)   N/A                 shoulders/ears coincide
+  Face-mesh rigid-subset (nose+eyes+brows) p95: front 7.6 / tq 5.3 px; the
+  front value is brow/nose-tip mesh-fit noise (eyes alone 2.88), contradicted
+  by 0.05 px ECC on the same region. Full tables: T/alignment.json, T/ecc.json;
+  overlays: T/overlay-<view>.png (red=source edges, cyan=target edges; read).
+  VERDICT: all four views ALIGNED (no view exceeds 6 px on a trustworthy signal).
+
+STEP 4 - hair masks (T/mask-<view>.png, T/masks-overlay.png READ before use, T/masks.json)
+  Hair = mean|tgt-src| > 40 AND target warm-dark (branch A: maxRGB 8-130,
+  R-G -5..30, R-B 3..50, G-B 0..25; medians sampled: curtain 62/47/39, crown
+  44/33/27 vs skin 195/169/152, shirt 197/181/184, backdrop 169) OR branch B
+  (maxRGB<8 & diff>100: near-black occlusion seams; nothing else in frame is
+  near-black). 5x5 open then close; keep components with >100 px overlap with
+  head ROI (source non-backdrop in upper 55% frame, dilated 21); scipy
+  binary_fill_holes for enclosed crown highlights. Overlay READ: masks cover
+  the hair masses, faces clean; residuals: narrow V=0 inpaint seams beside the
+  front jaw partly unmasked, frayed bottom-curtain fringe.
+    view          hair px (%frame)  scalp covered  face-oval covered  hair inside body silh.
+    front         238370 (22.7%)    0.7466         0.0302 (face bare)  0.7018 (curtains on chest)
+    three_quarter 142547 (13.6%)    0.8664         0.3143*             0.5894 (curtain on chest)
+    profile       149114 (14.2%)    head>ears 0.79 (face N/A mesh)    0.6926 (curtain on shoulder)
+    back          335684 (32.0%)    head>ears 0.991                  0.8670 (curtain on back)
+  *tq face-oval 0.31 = near curtain crossing jaw/neck edge in 2D projection;
+  overlay read confirms the face itself is clean. Front scalp 0.75 residual =
+  lower side-scalp at the jaw seams. Hair-inside-body is hair IN FRONT of the
+  body (desired); 2D cannot see behind the surface.
+
+STEP 5 - this record (E/sheet.png rows source|target|mask-overlay, E/RESULT.txt,
+  E/DONE.txt). E holds sheet.png, sources.png, scripts, RESULT.txt, DONE.txt.
+  T images are gitignored scratch; commit holds only E.
+
+SAW: T/source-*.png, T/target-*.png, T/mask-*.png, T/masks-overlay.png,
+  T/overlay-*.png, T/alignment.json, T/ecc.json, T/masks.json, T/refs.json
+  (with relabel note), T/prompt.md, T/run.sh, E/sheet.png, E/sources.png.
+NOT TESTED: downstream groom fit against these targets; scorer-vs-target
+  registration numbers; whether Imagine's back-view curtain length matches the
+  side views in 3D (2D lengths read mid-back in all views).

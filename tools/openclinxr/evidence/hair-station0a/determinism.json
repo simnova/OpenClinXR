@@ -1,0 +1,26 @@
+{
+  "codeHash": "ead9d2ee105d4c91e53e0467aac3d69bf82c00120ac5c9d7cb601f9ed2a1e281",
+  "files": {
+    "projected.json": {
+      "identical": true,
+      "runA": "dee4db563542a07bc7a577ad6a7200820cc95a71afe10f7bdfdb45dc99fea8b5",
+      "runB": "dee4db563542a07bc7a577ad6a7200820cc95a71afe10f7bdfdb45dc99fea8b5"
+    },
+    "registration.json": {
+      "identical": true,
+      "runA": "42a08e49dacf664890641c0034a16cbeceae5a669663cba569e234581ddc7ce8",
+      "runB": "42a08e49dacf664890641c0034a16cbeceae5a669663cba569e234581ddc7ce8"
+    },
+    "run-record.json": {
+      "identical": true,
+      "runA": "b7c5456c3c102c095ce8988efff142d9b5e909894881baf0a0ce78207f89e7ea",
+      "runB": "b7c5456c3c102c095ce8988efff142d9b5e909894881baf0a0ce78207f89e7ea"
+    },
+    "station-frame.npz": {
+      "identical": true,
+      "runA": "8cdc354843f72be5af522ac2ed7924db597f1dcb37ac8d56c273681dff23aa42",
+      "runB": "8cdc354843f72be5af522ac2ed7924db597f1dcb37ac8d56c273681dff23aa42"
+    }
+  },
+  "pass": true
+}

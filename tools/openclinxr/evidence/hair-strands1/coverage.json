@@ -1,0 +1,115 @@
+{
+ "method": "rulers4b-R4 skin_visible_frac; hair region = ID alpha>=230 solid hair (128 bracket); refs per groom by the R4 method adapted to this subject: hair = median back beauty at back-ID>=230, skin = median front beauty with R>120,R-B>25,front-ID<30 in face box rows200-500 cols300-724; fixed-ref cross-check skin [255,193,152] hair [34,31,29]",
+ "grooms": {
+  "strands0": {
+   "refs": {
+    "skin": [
+     132.0,
+     96.0,
+     74.0
+    ],
+    "hair": [
+     63.0,
+     57.0,
+     52.0
+    ],
+    "nSkinPx": 40112,
+    "nHairPx": 168233
+   },
+   "views": {
+    "crown_top": {
+     "ownRef": {
+      "id230": 0.033,
+      "id230Denom": 32448,
+      "id128": 0.0263,
+      "id128Denom": 95149
+     },
+     "fixedRef": {
+      "id230": 0.0084,
+      "id128": 0.0093
+     }
+    },
+    "back": {
+     "ownRef": {
+      "id230": 0.0968,
+      "id230Denom": 168233,
+      "id128": 0.3065,
+      "id128Denom": 256929
+     },
+     "fixedRef": {
+      "id230": 0.0218,
+      "id128": 0.1648
+     }
+    }
+   }
+  },
+  "strands1": {
+   "refs": {
+    "skin": [
+     132.0,
+     96.0,
+     74.0
+    ],
+    "hair": [
+     68.0,
+     61.0,
+     57.0
+    ],
+    "nSkinPx": 39640,
+    "nHairPx": 212124
+   },
+   "views": {
+    "crown_top": {
+     "ownRef": {
+      "id230": 0.0,
+      "id230Denom": 129829,
+      "id128": 0.0024,
+      "id128Denom": 149463
+     },
+     "fixedRef": {
+      "id230": 0.0,
+      "id128": 0.0003
+     }
+    },
+    "back": {
+     "ownRef": {
+      "id230": 0.232,
+      "id230Denom": 212124,
+      "id128": 0.2433,
+      "id128Denom": 232234
+     },
+     "fixedRef": {
+      "id230": 0.0001,
+      "id128": 0.0102
+     }
+    }
+   }
+  }
+ },
+ "backDecomposition": {
+  "strands0": {
+   "coreSkinlike": 0.0087,
+   "edgeSkinlike": 0.1875,
+   "warmSkinlike": 0.0019,
+   "hemAlphaMed": 243.0,
+   "hemAlphaP10": 231.0,
+   "hemBeautyMed": [
+    120.0,
+    91.0,
+    97.0
+   ]
+  },
+  "strands1": {
+   "coreSkinlike": 0.244,
+   "edgeSkinlike": 0.1675,
+   "warmSkinlike": 0.0,
+   "hemAlphaMed": 255.0,
+   "hemAlphaP10": 255.0,
+   "hemBeautyMed": [
+    101.0,
+    92.0,
+    86.0
+   ]
+  }
+ }
+}

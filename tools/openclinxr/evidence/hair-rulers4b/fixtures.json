@@ -1,0 +1,130 @@
+{
+ "files": {
+  "target_front_mask": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-front-v2.png",
+   "sha256": "deb150fb57e20aab87654767fdfa0341a112c0b7d8565d936d273ce77200b604"
+  },
+  "target_profile_mask": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-profile-v2.png",
+   "sha256": "78718ed580c630d0fa68c34080de0b42e699dc6d880377b25a8da4f2629bf07e"
+  },
+  "target_back_mask": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-back-v3.png",
+   "sha256": "6d182281e771247a3b3489ab4b7a5a52ce52e16ef85b4bb5ef354e3512fb9cbd"
+  },
+  "target_landmarks": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/landmarks.json",
+   "sha256": "14f3231c913051ebb91edf1d82febd63cea86c494aa741cb7efdddfed6ac05a1"
+  },
+  "hair_judge": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/hair_judge.py",
+   "sha256": "46e567734852169b8e89ce015e520f27dcdc2cd83e871903924686c7fd2d8474"
+  },
+  "cap_v8": {
+   "path": "tools/openclinxr/evidence/hair-cap8/cap-v8.npz",
+   "sha256": "c62ccb4c70763fd0991d9742b4ef183b7bf5f13ba68e92919773996526851a90"
+  },
+  "curtain_landmarks": {
+   "path": "tools/openclinxr/evidence/hair-curtain3/landmarks.json",
+   "sha256": "89424daf8620fc43954af233c0852e68bef994d2d2808994c95b29cd8b1378c7"
+  },
+  "canonical": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/landmarks-canonical.json",
+   "sha256": "1e99480a223ff946a67f66d9675df99022ba96e0210394bf96187d6a5ba96313"
+  },
+  "shape_base": {
+   "path": "tools/openclinxr/evidence/hair-hem2/shape_base.json",
+   "sha256": "049795362c27bfe09ba14bb4340248455cf1e281ed181092d9d91052d7b8711c"
+  },
+  "current_front_id": {
+   "path": "tools/openclinxr/evidence/hair-hem2/scores/c_curve/front-id.png",
+   "sha256": "a4f245217d3adb684ad3ea61c0602f680d6274fdab722c70cb523fcb51352616"
+  },
+  "current_profile_90_id": {
+   "path": "tools/openclinxr/evidence/hair-hem2/scores/c_curve/profile_90-id.png",
+   "sha256": "ef8e7423e3239b54a4795bf25ef42df81927d342190857586009d0db3e8353b8"
+  },
+  "current_back_id": {
+   "path": "tools/openclinxr/evidence/hair-hem2/scores/c_curve/back-id.png",
+   "sha256": "c624aa76aafb3926b4835ce3aa391c962d9a10640c1ae7b9dbd10de09bd293fa"
+  },
+  "current_three_quarter_id": {
+   "path": "tools/openclinxr/evidence/hair-hem2/scores/c_curve/three_quarter-id.png",
+   "sha256": "a0b79106081d4ae130d5b16a994fa1b7a348a5000b2fa29d41eb3f856d49e464"
+  },
+  "current_score": {
+   "path": "tools/openclinxr/evidence/hair-hem2/scores/c_curve/score.json",
+   "sha256": "fde66442cfef454e9911e9aadfeff0ef0a98325b62bd2ffaf5bd7eee63c00a10"
+  },
+  "previous_front_id": {
+   "path": "tools/openclinxr/evidence/hair-hem1/scores/c_best8/front-id.png",
+   "sha256": "385f19704bfeaf4c79b94a84803a380b3e21998144d42d9ad9642bbb22039202"
+  },
+  "previous_profile_90_id": {
+   "path": "tools/openclinxr/evidence/hair-hem1/scores/c_best8/profile_90-id.png",
+   "sha256": "87ce6d09596ef66ce376f3b20e0949db821f88b75b80212f9ef5fe37695d581b"
+  },
+  "previous_back_id": {
+   "path": "tools/openclinxr/evidence/hair-hem1/scores/c_best8/back-id.png",
+   "sha256": "3c1a4a473ef97188a428a94082d44adfaba06090b9770ad4069f20a27bbe031b"
+  },
+  "previous_three_quarter_id": {
+   "path": "tools/openclinxr/evidence/hair-hem1/scores/c_best8/three_quarter-id.png",
+   "sha256": "94ce27d16540470186b82ab90789c3e177d2b30a484cc26184552d903d8172e2"
+  },
+  "previous_score": {
+   "path": "tools/openclinxr/evidence/hair-hem1/scores/c_best8/score.json",
+   "sha256": "8b4db55ecf64cb4132ffbc2acb080e9621bc390b9f1bd902c8a15f30b0118cf0"
+  },
+  "shape_c_curve": {
+   "path": "tools/openclinxr/evidence/hair-hem2/shape_scores_c_curve.json",
+   "sha256": "dff27589773ee63ae4fe28ae3cdd61833fe3a85325ad9c129d4b7669fd53d430"
+  },
+  "current_front_beauty": {
+   "path": "tools/openclinxr/evidence/hair-hem2/scores/c_curve/front.png",
+   "sha256": "5af7efd9e919af752c61ea825703f7122ee5917c47f98f8902428d8fbac42947"
+  },
+  "current_profile_90_beauty": {
+   "path": "tools/openclinxr/evidence/hair-hem2/scores/c_curve/profile_90.png",
+   "sha256": "bf5a83f15a5e4d73ec1b22120dbcc257b8ee4ab7ce2f337f699b734f218b8690"
+  },
+  "current_three_quarter_beauty": {
+   "path": "tools/openclinxr/evidence/hair-hem2/scores/c_curve/three_quarter.png",
+   "sha256": "bb1ce920875c0f7bd36e8521f742ce221fa029251cd57e238f7478c329bd9487"
+  },
+  "previous_front_beauty": {
+   "path": "tools/openclinxr/evidence/hair-hem1/scores/c_best8/front.png",
+   "sha256": "700f580d1a3f974e49dec27a15ee84899fd05cd8235213d9603b024b752bf17d"
+  },
+  "previous_profile_90_beauty": {
+   "path": "tools/openclinxr/evidence/hair-hem1/scores/c_best8/profile_90.png",
+   "sha256": "26f93d79666eff7786224d30db45b40ea9e1a7b57e7c0ac7323bf38b3876f22f"
+  },
+  "previous_three_quarter_beauty": {
+   "path": "tools/openclinxr/evidence/hair-hem1/scores/c_best8/three_quarter.png",
+   "sha256": "5d7f67780e06466d6802f174924f72f0ac31778f21a97002bdf4b380f1cd214f"
+  },
+  "cap_v7": {
+   "path": "tools/openclinxr/evidence/hair-cap7/cap-v7.npz",
+   "sha256": "0fd09ea3e73b53599120c0564493de6bc002b6958f49bfd2f9ac74ae2fa51468"
+  },
+  "spread": {
+   "path": "tools/openclinxr/evidence/hair-crown2/cells/spread.npz",
+   "sha256": "d3d59d1a7df27e19481048cff5691473327d2c414fa60fe02f092a650fedfd44"
+  },
+  "c_curve_strands": {
+   "path": "tools/openclinxr/evidence/hair-hem2/cells/c_curve/strands.npz",
+   "sha256": "1478302a680491d77ca38b3e7826f42a1da0bc56511c1f724abb35b15e6ebaf3"
+  },
+  "c_best8_strands": {
+   "path": "tools/openclinxr/evidence/hair-hem1/cells/c_best8/strands.npz",
+   "sha256": "b47ec1d075770091f06406c02e502a3dbd21a63f0197bdc1c4381f1e7813a5f6"
+  }
+ },
+ "subjects": {
+  "target": "reference: target masks vs themselves (no target beauty: R4-skin/R6-body use current render; R2 target N/A)",
+  "current": "hem2 c_curve groom",
+  "previous": "hem1 c_best8 groom"
+ },
+ "note": "v4a keys frozen (hashes unchanged). c_best8 strands sha matches hem2 RESULT.txt base (b47ec1d0). cap-v7 path from hair-guides16/RESULT.txt RUN lines."
+}

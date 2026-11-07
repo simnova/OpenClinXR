@@ -1,0 +1,8 @@
+DONE hair-groom20: BACK-region tangent fairing from 15 mm; FRONT byte-identical to groom19; station children
+GATES_PASS=no (8/13 HARD: calibration, takeoffBACK, frontIdentical, knotHole, concha, insideBody, determinismFairing, determinismChildren pass)
+FRONT guides 2144/2144 byte-identical to guides-19 (87,904 samples, maxAbsDiff 0.0); BACK 563 guides verbatim 15 mm (10,422 samples).
+BACK coherence 212.3/410.0 FAIL (need 25/60); silhouette front 0.4881 / 3q 0.4897 / profile 0.6691 / back 0.7122 ALL FAIL; R-LOOP 87085/101495 FAIL; knotHole 0 PASS; concha 0/inside 0 PASS; face front FAIL.
+FALSIFIER did not fire (coherence FAIL). Anchor-0.3 x2 passes measured not-viable: BACK max move 412 mm, front excess 75158 px via station blending.
+Store: /Volumes/files/openclinxr-assets/store/hair-groom20/ (guides-20.npz, strands.npz, SHA256SUMS) -- no .npz in git.
+Sheet: tools/openclinxr/evidence/hair-groom20/sheet.png (target|groom8a|groom19|groom20) + crops.png + crop-back-knot-native-*.png.
+Full record: E/RESULT.txt.

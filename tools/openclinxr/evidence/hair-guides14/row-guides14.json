@@ -1,0 +1,188 @@
+{
+ "cell": "B",
+ "stem": "guides14",
+ "brief": "hair-guides-14",
+ "gates": [
+  {
+   "gate": "G1",
+   "measured": "p95=0.0013 max=27.8358",
+   "bar": "mirror path p95<=0.5mm max<=2mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G2",
+   "measured": "n=444 roots=600 pts32=True nan=0 short=0 zero=0",
+   "bar": "guides>=95% roots and 32pts and 0NaN and 0 segs<2.5mm and 0 zero-length",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G3",
+   "measured": "behind-viol=0 front=0 tot=3996",
+   "bar": "0 pts in front of back surface below shoulder top and 0 in front of shoulder",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G4",
+   "measured": "inside=1 deep=0.52mm min=0.43mm",
+   "bar": "inside<=5 and none deeper than 1mm",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G5",
+   "measured": "medz=1562.4mm nape=0.0000 frontlo=0",
+   "bar": "nape-edge<=10% and non-sideburn front liftoff=0",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G6",
+   "measured": "fill=1.055 (L0.920 C0.981 R0.940) travel_viol=0 hull=16",
+   "bar": "central>=0.90xouter and |x(tip)-x(L)|<=15mm for liftoff|x|<45mm (100%)",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G7",
+   "measured": "horiz=164/444",
+   "bar": "no segment >12mm with |dz|<2mm in any guide",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G8",
+   "measured": "coverL=0.991 coverR=0.991 gapL=0.3421 gapR=0.3388 face=0",
+   "bar": "cover>=0.90 both and gap>=0.85xTS (0.2266/0.2100) and 0 face-front pts",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G9",
+   "measured": "hembad=0/444 tipstd=3.42mm",
+   "bar": "tip z within 8mm of z_hem+jitter for 100% of non-dropped guides",
+   "verdict": "PASS"
+  }
+ ],
+ "z_hem": 1.2954059969558716,
+ "menton_z": 1.4492169969558715,
+ "crown_z": 1.6599169969558716,
+ "brow_z": 1.5716520547866821,
+ "nasion_z": 1.548233985900879,
+ "count": 444,
+ "n_roots": 600,
+ "dropped": 156,
+ "drop_face": {
+  "drop-short:behind_ear": 202,
+  "drop-short:nape": 86,
+  "drop-short:forehead_temple": 8
+ },
+ "regs": {
+  "forehead_temple": 194,
+  "behind_ear": 134,
+  "nape": 13,
+  "above_ear": 103
+ },
+ "stops": {
+  "edge": 101,
+  "normal": 339,
+  "widest": 4
+ },
+ "p2": {
+  "forehead_temple": 179,
+  "nape": 272,
+  "above_ear": 130,
+  "trace-fail": 8,
+  "behind_ear": 11
+ },
+ "c_mm": {
+  "min": 4.015644064749231,
+  "p50": 12.098678083157132,
+  "max": 29.91937266757926
+ },
+ "g1": {
+  "p50_mm": 1.9702041774568294e-06,
+  "p95_mm": 0.0013435078256405454,
+  "max_mm": 27.835750938567408,
+  "n_a": 444,
+  "n_b": 444,
+  "n_pair": 444
+ },
+ "g2": {
+  "short": 0,
+  "zero": 0,
+  "nan": 0,
+  "pts32": true
+ },
+ "g3": {
+  "behind_viol": 0,
+  "front": 0,
+  "tot": 3996
+ },
+ "g4": {
+  "inside": 1,
+  "deep_mm": 0.5233828058034969,
+  "min_mm": 0.43090185093672073
+ },
+ "g5": {
+  "liftoff_med_z": 1.5624387092909537,
+  "nape_edge_frac": 0.0,
+  "front_lo": 0
+ },
+ "g6": {
+  "cover": {
+   "L": 0.990551776266062,
+   "R": 0.9909297052154195
+  },
+  "hull_inside": 16,
+  "backfill_ratio": 1.0551001496899282,
+  "backfill_cov": [
+   0.9201319840322889,
+   0.9811745989659286,
+   0.9397380941859266
+  ],
+  "travel_viol": 0,
+  "travel_max_mm": 0.0
+ },
+ "g7": {
+  "horiz": 164,
+  "zig": 390,
+  "zig_frac": 0.8783783783783784,
+  "p95": 49.44152504321841,
+  "max": 257.37819068235694
+ },
+ "g8": {
+  "cover": {
+   "L": 0.990551776266062,
+   "R": 0.9909297052154195
+  },
+  "gapL_hh": 0.34210526315789475,
+  "gapR_hh": 0.33881578947368424,
+  "gapL_ts": 0.2266,
+  "gapR_ts": 0.21,
+  "face": 0
+ },
+ "g9": {
+  "hem_bad": 0,
+  "tipstd_mm": 3.4244187772819483
+ },
+ "x4": {
+  "turn_p95": 49.44152504321841,
+  "turn_max": 257.37819068235694,
+  "zig_frac": 0.8783783783783784
+ },
+ "x5": {
+  "forehead": 35
+ },
+ "x1": {
+  "angle_ours": 32.69769717230068,
+  "angle_ts": 21.4,
+  "depth_mm": 69.44555828586336,
+  "depth_hh": 0.3295944864065655
+ },
+ "x2": {
+  "ratio_ours": 1.3669003758228382,
+  "ratio_ts": 1.26
+ },
+ "x3": {
+  "outer_ear_hh": 0.5774462605140664,
+  "gapL_hh": 3.4203932203553802e-09,
+  "gapR_hh": 0.009691292506516487,
+  "gapL_ts": 0.2266,
+  "gapR_ts": 0.21
+ }
+}

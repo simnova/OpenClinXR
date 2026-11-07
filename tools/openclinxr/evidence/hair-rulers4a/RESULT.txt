@@ -1,0 +1,52 @@
+Hair rulers v4a: R1 regional contour/IoU, R4 ear coverage, R5 hem (freeze).
+
+RULERS (probes): PASS 32/32 (analytic 6, planted 9, monotonicity 4, parity 6,
+agreement 6, validation 1). probes.json. Target-vs-itself is the REFERENCE
+(1.0/0.0 by construction), not a probe.
+  Registration: register_view imported from hair-judge hair_judge.py (no bpy;
+  hair-score/score.py never imported). RAW triples (hem2 shape_ruler triple set);
+  stored-transform agreement vs hem2 shape_base.json within rounding (scale 1e-4,
+  tx/ty 1e-3). score.json orientation.front uses skull-mode (+10 mm offset,
+  scale 0.9545); rulers v4a use raw (scale 1.0021) for hem2 parity. R5 parity
+  vs hem2 shape_scores_c_curve.json (same inputs) within 0.9 px on all 6 numbers;
+  shape_base.json was built from older base/ renders (back yBottom 21.58 vs 4.7),
+  recorded as validation finding, not a gate.
+  ID thresholds: R1/R5 alpha>=230 (judge load_mask alpha>=0.9 encoding;
+  reproduces judge profile 0.7487 / back 0.7921 exactly); R4 alpha>=128 (brief).
+  Local mm 0.4599 mm/px (skull H 210.659 mm over target-frame skull-front H).
+
+NUMBERS (current = hem2 c_curve; full table: table.md/table.json; subjects:
+subject-{target,current,previous}.json; overlays: overlays.png).
+  R1: front above/below IoU 0.59/0.72, contour tails 34.8/19.8 px;
+      profile 0.82/0.50, tails 115.9/100.8 px; back 0.75/0.88, tails 128.1/44.0 px.
+  R4: profile pinna coverage ours 1.0, registered-target 1.0 (match);
+      three_quarter ours-only 0.4927 (both grooms identical, shared head/cap).
+  R5: yBottom MAE front 46.6 px (21.4 mm), profile 32.9 px (15.1 mm),
+      back 4.7 px (2.2 mm); width MAE front 12.4, profile 38.5, back 42.5 px.
+  Previous (hem1 c_best8) is worse-or-equal everywhere except R1-front-below
+  (0.73 vs 0.72, noise): R5-back yBottom 21.6 px vs 4.7 px is the hem2 gain.
+
+CLASSES: 18 HARD_GATE (all R1 + R5 rows: analytic probe + meaningful target +
+current-target separation); 2 ADVISORY (both R4 rows: profile has no separation
+signal, 1.0 vs 1.0; three_quarter has no registered target). No VALIDATION rows
+in the table (parity/agreement live in probes.json).
+  Thresholds from target value + probe noise only (IoU >=0.95; distances/hem
+  <=10 px / 4.6 mm), not tuned to either groom.
+
+GATES_PASS=no. Reason: the current groom fails 17 of 18 HARD_GATE rows (only
+R5-back yBottom 4.7 px passes); the rulers themselves are valid (32/32 probes).
+This is the structural signal the freeze was for: whole-mask IoU 0.73/0.75/0.79
+passes a groom whose profile below-chin IoU is 0.50 with 100 px contour tails.
+The rebuilt groom (hair-p7) will be judged against these frozen gates.
+
+SAW: Splitting at the TARGET chin row is what breaks the whole-mask averaging:
+the helmet reads fine above the chin in back view (0.88) and collapses below it
+in profile (0.50). Ear coverage is a non-signal on this head under judge
+registration (both 1.0) — R4's value is as a frozen tripwire for grooms that
+expose the pinna, not as a current-groom finding. The one genuine improvement
+hem2 over hem1, back-hem yBottom 21.6 -> 4.7 px, is the only hard gate the
+current groom clears.
+
+NOT TESTED: R2 root setback, R6 shoulder gap, hairline ruler (rulers4b);
+R7-R10 (deferred); Quest/worn-headset; clinical validity/scoring claims;
+three_quarter target registration (no target); R4 on a groom that exposes ears.

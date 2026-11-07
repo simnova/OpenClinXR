@@ -1,0 +1,52 @@
+{
+  "tag": "c1",
+  "op": "r1 (curtain-only transport) + w7i wave",
+  "params": {
+    "targetDeg": 7.0,
+    "weightsInOut": [
+      1.0,
+      0.0
+    ],
+    "waveLenMm": 80.0,
+    "secondLenMm": 34.78260869565218,
+    "seed": 2026101711,
+    "phaseFieldMm": 5.0,
+    "partProtectMm": 3.0,
+    "fadeInMm": 15.0,
+    "fadeOutMm": 20.0,
+    "source": "hair-transport2 r1 strands.npz",
+    "selection": "w7i: max back bands (458) among w-cells passing IoU+orientation KEEP clauses"
+  },
+  "wave": {
+    "targetDeg": 7.0,
+    "weights": {
+      "in": 1.0,
+      "out": 0.0,
+      "dirNorm": 1.0
+    },
+    "amplitudesMm": {
+      "A1": 0.727135620579168,
+      "A2": 0.363567810289584,
+      "peakOutMm": 0.0
+    },
+    "tangentDevDeg": {
+      "rms": 2.5631196194576518,
+      "p95": 4.7065236082998005,
+      "max": 170.3427412129374
+    },
+    "maxDispMm": {
+      "p50": 1.0481232812549202,
+      "p95": 1.0871847451199241,
+      "max": 1.090703255305609
+    },
+    "protectedFibres": 8949,
+    "seed": 2026101711,
+    "waveLenMm": 80.0
+  },
+  "endAngleDegPreRepair": {
+    "p50": 0.6303408552259698,
+    "p95": 1.8756140173879092,
+    "max": 6.163099259219118
+  },
+  "partGapMm": 1.0999999940395355
+}

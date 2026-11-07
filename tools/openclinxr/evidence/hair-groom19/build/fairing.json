@@ -1,0 +1,62 @@
+{
+ "schema": "openclinxr.hair-guide-tangent-fair.v1",
+ "method": "scalp-tangent-frame unit-tangent smoothing over 20mm root graph, anchor to self, re-integrate at own segment lengths, hull+body projection",
+ "parameters": {
+  "anchor": 0.3,
+  "kernelMm": 20.0,
+  "verbatimMm": 40.0,
+  "marginMm": 1.5,
+  "gateRootMm": 6.0,
+  "P": 41
+ },
+ "guides": {
+  "input": 2707,
+  "output": 2707,
+  "deleted": 0,
+  "verbatimSamples": 46123,
+  "fairedSamples": 64864
+ },
+ "guideMaxMoveMm": {
+  "n": 2707,
+  "min": 0.0,
+  "p50": 4.914,
+  "p90": 18.483,
+  "p99": 45.817,
+  "max": 78.351
+ },
+ "nearRootPairFullPathSeparationMmBefore": {
+  "n": 7667,
+  "min": 1.603,
+  "p50": 25.539,
+  "p90": 320.526,
+  "p99": 423.664,
+  "max": 440.649
+ },
+ "nearRootPairFullPathSeparationMmAfter": {
+  "n": 7667,
+  "min": 1.603,
+  "p50": 25.561,
+  "p90": 318.767,
+  "p99": 420.97,
+  "max": 451.995
+ },
+ "coherenceGate": {
+  "p90MaxMm": 25.0,
+  "absoluteMaxMm": 60.0,
+  "pass": false
+ },
+ "takeoff": {
+  "verbatimSamples": 46123,
+  "byteIdentical": true,
+  "maxAbsDiffHeadMm": 0.0,
+  "pass": true
+ },
+ "body": {
+  "samplesLtMargin": 5479,
+  "samplesInside0": 1647,
+  "marginMm": 1.5
+ },
+ "hull": {
+  "samplesOutsideHull": 37587
+ }
+}

@@ -1,0 +1,9 @@
+{
+  "tag": "c_hem",
+  "base": "hair-cover1/base/strands.npz",
+  "deform": {
+    "cell": "c_hem",
+    "railFibres": 8829,
+    "rule": "|tip_x|>0.10 & tip_z<1.42 -> x to +-0.10 ramp idx22..31"
+  }
+}

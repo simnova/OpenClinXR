@@ -1,0 +1,160 @@
+{
+  "cause": "children3.set_final_view derives radius from the preceding camera; hair-top1 rendered T1 after I1 crown_top, while hair-real1 rerendered profile from a fresh scene",
+  "controlledVariable": "camera history only",
+  "driftedProfile": {
+    "camera": {
+      "location": [
+        0.7097886204719543,
+        0.0,
+        1.4935846328735352
+      ],
+      "matrixWorld": [
+        [
+          7.549790126404332e-08,
+          -0.02816621959209442,
+          0.999603271484375,
+          0.7097886204719543
+        ],
+        [
+          1.0,
+          3.065528275669749e-08,
+          -7.466407936362884e-08,
+          0.0
+        ],
+        [
+          -2.854011427189107e-08,
+          0.999603271484375,
+          0.02816621959209442,
+          1.4935846328735352
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "radiusFromTarget": 0.7100703588708067
+    },
+    "id": {
+      "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-score/verification/drifted-profile/profile_90-id.png",
+      "sha256": "d5527030a751a3c8d0cf0b8a49353825700b4a01b1a14ef13307d854ee0b82ea"
+    },
+    "iou": {
+      "back": 0.7937878705169497,
+      "front": 0.6976681780327565,
+      "profile": 0.6991751038683394
+    }
+  },
+  "fixed": {
+    "filterSize": 1.5,
+    "idSamples": 16,
+    "idThreshold": "alpha>=230",
+    "judgeV6": {
+      "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/hair_judge.py",
+      "sha256": "46e567734852169b8e89ce015e520f27dcdc2cd83e871903924686c7fd2d8474"
+    },
+    "landmarks": {
+      "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/landmarks.json",
+      "sha256": "89424daf8620fc43954af233c0852e68bef994d2d2808994c95b29cd8b1378c7",
+      "values": {
+        "back": {
+          "crown_top_row": 155,
+          "hair_centre_col": 512,
+          "shoulder_row": 651
+        },
+        "front": {
+          "chin_row": 583,
+          "crown_top_row": 103,
+          "face_centre_col": 512
+        },
+        "profile": {
+          "chin_row": 561,
+          "crown_top_row": 131,
+          "forehead_front_col": 209
+        }
+      }
+    },
+    "objectsVisible": "same R4 body holdouts and one saved T1 strands object",
+    "params": {
+      "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look5/cells/best/metrics.json",
+      "sha256": "75bbe3208c6805872aecf6e5022523010dedd7346a0351b801971bb61dfcf399"
+    },
+    "resolutionPx": 1024,
+    "strands": {
+      "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-top1/cells/t1/strands.npz",
+      "sha256": "a2afd1b05e450c56926cf933f0f9952e3ff13c53309d4eaf8e7984781cf87cc1"
+    }
+  },
+  "freshProfile": {
+    "camera": {
+      "location": [
+        0.7002856135368347,
+        0.0,
+        1.4935846328735352
+      ],
+      "matrixWorld": [
+        [
+          -1.6292068494294654e-07,
+          -0.028548013418912888,
+          0.9995924234390259,
+          0.7002856135368347
+        ],
+        [
+          1.0,
+          -9.358720376440033e-08,
+          1.6031428629048605e-07,
+          0.0
+        ],
+        [
+          8.897240633132242e-08,
+          0.9995924234390259,
+          0.028548013418912888,
+          1.4935846328735352
+        ],
+        [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ]
+      ],
+      "radiusFromTarget": 0.7005711428071093
+    },
+    "id": {
+      "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-score/verification/fresh-profile/profile_90-id.png",
+      "sha256": "3aa5f2d01e5198baeb60ba7832c774b7b7365874698839c4ec5328fb4818a338"
+    },
+    "iou": {
+      "back": 0.7937878705169497,
+      "front": 0.6976681780327565,
+      "profile": 0.6807692307692308
+    }
+  },
+  "pipelineDiff": {
+    "cameraMatrix": "different because radius is inherited from prior view",
+    "filmAndFilter": "same: transparent ID, filter 1.5",
+    "idSettings": "same: hair-scene holdout ID, 16 samples, judge alpha>=230",
+    "judgeLandmarks": "same hair-curtain3/landmarks.json",
+    "objectsVisible": "same",
+    "resolution": "same: 1024",
+    "strandSource": "same saved hair-top1 T1 strands.npz"
+  },
+  "references": {
+    "hairReal1Reraster": {
+      "back": 0.7937878705169497,
+      "front": 0.6976681780327565,
+      "profile": 0.6807692307692308
+    },
+    "hairTop1Stored": {
+      "back": 0.7937878705169497,
+      "front": 0.6976681780327565,
+      "profile": 0.6991751038683394
+    }
+  },
+  "reproduced": {
+    "hairReal1Profile": true,
+    "hairTop1Profile": true
+  },
+  "schemaVersion": 1
+}

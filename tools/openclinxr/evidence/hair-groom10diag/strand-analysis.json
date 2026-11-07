@@ -1,0 +1,5461 @@
+{
+  "schema": "openclinxr.hair-groom10diag.v1",
+  "sourceCommit": "e1533373f",
+  "selectionRule": "final visible polyline intersects native 1024 scorer box; 4x segment oversampling; within 5 mm of nearest hair depth per pixel",
+  "controlRule": "seed 1010, 512 children outside union of all four boxes",
+  "stageNames": [
+    "far_snap",
+    "part_sweep",
+    "persistent_offset",
+    "depth_servo",
+    "coarse_clump",
+    "fine_clump",
+    "length_jitter",
+    "hairline_taper",
+    "ear_keepout",
+    "sdf_project_outside",
+    "part_clamp_reproject"
+  ],
+  "disabledGeometryStages": [
+    "sideburn_hug",
+    "temple_hug",
+    "sideburn_clamp"
+  ],
+  "defects": {
+    "back-knot": {
+      "view": "back",
+      "boxRowCol": [
+        150,
+        420,
+        512,
+        765
+      ],
+      "nChildren": 31766,
+      "nParents": 2418,
+      "nUniqueGuides": 590,
+      "guideTurnDegUsed": {
+        "min": 0.0,
+        "p50": 151.039,
+        "p90": 235.558,
+        "p99": 316.238,
+        "max": 379.419
+      },
+      "guideSeparationMaxMm": {
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 162.886,
+        "p99": 398.526,
+        "max": 434.879
+      },
+      "guideRootSeparationMaxMm": {
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 3.185,
+        "p99": 4.747,
+        "max": 5.817
+      },
+      "rawChildTurnDeg": {
+        "min": 0.0,
+        "p50": 129.555,
+        "p90": 209.387,
+        "p99": 280.521,
+        "max": 347.32
+      },
+      "finalChildTurnDeg": {
+        "min": 0.0,
+        "p50": 186.004,
+        "p90": 319.746,
+        "p99": 478.052,
+        "max": 1041.131
+      },
+      "rawChildrenOver120Deg": 17423,
+      "dominantStageGt5mmCounts": {
+        "part_sweep": 3,
+        "depth_servo": 20,
+        "coarse_clump": 18085,
+        "fine_clump": 1900,
+        "length_jitter": 3942,
+        "sdf_project_outside": 6601,
+        "part_clamp_reproject": 557
+      },
+      "perStageMaxMm": {
+        "far_snap": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 0.0
+        },
+        "part_sweep": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 1.777,
+          "max": 7.551
+        },
+        "persistent_offset": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 2.0,
+          "max": 2.0
+        },
+        "depth_servo": {
+          "min": 0.0,
+          "p50": 1.315,
+          "p90": 5.298,
+          "p99": 6.0,
+          "max": 6.0
+        },
+        "coarse_clump": {
+          "min": 0.0,
+          "p50": 27.449,
+          "p90": 56.303,
+          "p99": 78.232,
+          "max": 98.057
+        },
+        "fine_clump": {
+          "min": 0.0,
+          "p50": 4.414,
+          "p90": 24.025,
+          "p99": 44.119,
+          "max": 68.679
+        },
+        "length_jitter": {
+          "min": 0.0,
+          "p50": 6.238,
+          "p90": 15.768,
+          "p99": 26.921,
+          "max": 32.817
+        },
+        "hairline_taper": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 0.0
+        },
+        "ear_keepout": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 2.755,
+          "max": 8.55
+        },
+        "sdf_project_outside": {
+          "min": 0.0,
+          "p50": 11.497,
+          "p90": 42.818,
+          "p99": 66.53,
+          "max": 99.901
+        },
+        "part_clamp_reproject": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 40.779,
+          "max": 55.918
+        }
+      },
+      "representativeHighestDisplacement": [
+        {
+          "child": 54712,
+          "guideIds": [
+            750,
+            760,
+            855,
+            853
+          ],
+          "guideTurnDeg": [
+            157.63,
+            218.91,
+            207.05,
+            176.57
+          ],
+          "weights": [
+            0.576468,
+            0.423532,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 178.304,
+          "guideRootSeparationMaxMm": 2.465,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.418,
+            "coarse_clump": 12.227,
+            "fine_clump": 9.309,
+            "length_jitter": 10.693,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 99.901,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 137.86,
+          "finalTurnDeg": 587.31
+        },
+        {
+          "child": 129684,
+          "guideIds": [
+            1562,
+            1562,
+            1562,
+            1562
+          ],
+          "guideTurnDeg": [
+            157.03,
+            157.03,
+            157.03,
+            157.03
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.0,
+            "coarse_clump": 98.057,
+            "fine_clump": 10.374,
+            "length_jitter": 0.468,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 20.395,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 151.77,
+          "finalTurnDeg": 216.35
+        },
+        {
+          "child": 129696,
+          "guideIds": [
+            1562,
+            1562,
+            1562,
+            1562
+          ],
+          "guideTurnDeg": [
+            157.03,
+            157.03,
+            157.03,
+            157.03
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.066,
+            "coarse_clump": 98.05,
+            "fine_clump": 10.375,
+            "length_jitter": 0.614,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 20.437,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 151.77,
+          "finalTurnDeg": 224.41
+        },
+        {
+          "child": 129689,
+          "guideIds": [
+            1562,
+            1562,
+            1562,
+            1562
+          ],
+          "guideTurnDeg": [
+            157.03,
+            157.03,
+            157.03,
+            157.03
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.504,
+            "coarse_clump": 97.995,
+            "fine_clump": 10.336,
+            "length_jitter": 0.364,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 20.333,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 151.77,
+          "finalTurnDeg": 217.66
+        },
+        {
+          "child": 129694,
+          "guideIds": [
+            1562,
+            1562,
+            1562,
+            1562
+          ],
+          "guideTurnDeg": [
+            157.03,
+            157.03,
+            157.03,
+            157.03
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.17,
+            "coarse_clump": 97.979,
+            "fine_clump": 35.507,
+            "length_jitter": 0.561,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 10.56,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 151.77,
+          "finalTurnDeg": 185.36
+        },
+        {
+          "child": 129697,
+          "guideIds": [
+            1562,
+            1562,
+            1562,
+            1562
+          ],
+          "guideTurnDeg": [
+            157.03,
+            157.03,
+            157.03,
+            157.03
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.198,
+            "coarse_clump": 97.97,
+            "fine_clump": 35.502,
+            "length_jitter": 2.331,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 10.816,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 151.77,
+          "finalTurnDeg": 221.37
+        },
+        {
+          "child": 129698,
+          "guideIds": [
+            1562,
+            1562,
+            1562,
+            1562
+          ],
+          "guideTurnDeg": [
+            157.03,
+            157.03,
+            157.03,
+            157.03
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.203,
+            "coarse_clump": 97.966,
+            "fine_clump": 35.502,
+            "length_jitter": 2.33,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 10.805,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 151.77,
+          "finalTurnDeg": 220.79
+        },
+        {
+          "child": 129695,
+          "guideIds": [
+            1562,
+            1562,
+            1562,
+            1562
+          ],
+          "guideTurnDeg": [
+            157.03,
+            157.03,
+            157.03,
+            157.03
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.224,
+            "coarse_clump": 97.963,
+            "fine_clump": 35.497,
+            "length_jitter": 1.418,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 10.24,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 151.77,
+          "finalTurnDeg": 152.3
+        },
+        {
+          "child": 129685,
+          "guideIds": [
+            1562,
+            1562,
+            1562,
+            1562
+          ],
+          "guideTurnDeg": [
+            157.03,
+            157.03,
+            157.03,
+            157.03
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.311,
+            "coarse_clump": 97.931,
+            "fine_clump": 35.484,
+            "length_jitter": 0.874,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 10.261,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 151.77,
+          "finalTurnDeg": 159.28
+        },
+        {
+          "child": 123305,
+          "guideIds": [
+            571,
+            618,
+            621,
+            629
+          ],
+          "guideTurnDeg": [
+            172.9,
+            181.62,
+            243.71,
+            214.66
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.34,
+            "coarse_clump": 13.215,
+            "fine_clump": 4.454,
+            "length_jitter": 19.202,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 97.61,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 139.41,
+          "finalTurnDeg": 477.0
+        },
+        {
+          "child": 184795,
+          "guideIds": [
+            1394,
+            1396,
+            1386,
+            1471
+          ],
+          "guideTurnDeg": [
+            164.63,
+            18.08,
+            15.2,
+            157.87
+          ],
+          "weights": [
+            0.611336,
+            0.388664,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 168.056,
+          "guideRootSeparationMaxMm": 2.798,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 3.707,
+            "coarse_clump": 45.325,
+            "fine_clump": 12.29,
+            "length_jitter": 6.771,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 97.134,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 73.18,
+          "finalTurnDeg": 736.96
+        },
+        {
+          "child": 3447,
+          "guideIds": [
+            1702,
+            1702,
+            1702,
+            1702
+          ],
+          "guideTurnDeg": [
+            189.29,
+            189.29,
+            189.29,
+            189.29
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 94.714,
+            "fine_clump": 25.86,
+            "length_jitter": 4.745,
+            "hairline_taper": 0.0,
+            "ear_keepout": 3.298,
+            "sdf_project_outside": 4.776,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 183.33,
+          "finalTurnDeg": 501.84
+        },
+        {
+          "child": 184786,
+          "guideIds": [
+            1394,
+            1396,
+            1386,
+            1471
+          ],
+          "guideTurnDeg": [
+            164.63,
+            18.08,
+            15.2,
+            157.87
+          ],
+          "weights": [
+            0.642489,
+            0.357511,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 168.056,
+          "guideRootSeparationMaxMm": 2.798,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 3.159,
+            "coarse_clump": 45.706,
+            "fine_clump": 12.969,
+            "length_jitter": 1.963,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 94.56,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 76.22,
+          "finalTurnDeg": 675.44
+        },
+        {
+          "child": 966,
+          "guideIds": [
+            1339,
+            1326,
+            1396,
+            1327
+          ],
+          "guideTurnDeg": [
+            10.72,
+            142.6,
+            18.08,
+            80.55
+          ],
+          "weights": [
+            0.507567,
+            0.492433,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 164.608,
+          "guideRootSeparationMaxMm": 1.728,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.889,
+            "coarse_clump": 45.127,
+            "fine_clump": 6.534,
+            "length_jitter": 7.985,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 93.118,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 53.57,
+          "finalTurnDeg": 768.68
+        },
+        {
+          "child": 100792,
+          "guideIds": [
+            1079,
+            1079,
+            1079,
+            1079
+          ],
+          "guideTurnDeg": [
+            304.08,
+            304.08,
+            304.08,
+            304.08
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.346,
+            "coarse_clump": 92.284,
+            "fine_clump": 29.997,
+            "length_jitter": 9.215,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 0.0,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 254.38,
+          "finalTurnDeg": 289.96
+        },
+        {
+          "child": 153847,
+          "guideIds": [
+            386,
+            386,
+            386,
+            386
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 75.636,
+            "fine_clump": 19.548,
+            "length_jitter": 2.884,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 92.082,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 315.01
+        },
+        {
+          "child": 98106,
+          "guideIds": [
+            571,
+            571,
+            571,
+            571
+          ],
+          "guideTurnDeg": [
+            172.9,
+            172.9,
+            172.9,
+            172.9
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.395,
+            "coarse_clump": 13.345,
+            "fine_clump": 12.73,
+            "length_jitter": 15.09,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 91.744,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 139.41,
+          "finalTurnDeg": 628.22
+        },
+        {
+          "child": 178762,
+          "guideIds": [
+            589,
+            589,
+            589,
+            589
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 91.47,
+            "fine_clump": 9.865,
+            "length_jitter": 0.483,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 53.513,
+            "part_clamp_reproject": 0.87
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 144.7
+        },
+        {
+          "child": 115863,
+          "guideIds": [
+            1359,
+            1346,
+            1375,
+            1373
+          ],
+          "guideTurnDeg": [
+            174.8,
+            151.0,
+            141.67,
+            161.51
+          ],
+          "weights": [
+            0.621017,
+            0.213192,
+            0.16579,
+            0.0
+          ],
+          "guideSeparationMaxMm": 190.267,
+          "guideRootSeparationMaxMm": 3.177,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.999,
+            "coarse_clump": 35.961,
+            "fine_clump": 13.822,
+            "length_jitter": 7.28,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 90.784,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 146.54,
+          "finalTurnDeg": 623.37
+        },
+        {
+          "child": 245748,
+          "guideIds": [
+            397,
+            397,
+            397,
+            397
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 90.63,
+            "fine_clump": 19.179,
+            "length_jitter": 2.3,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 44.289,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 290.31
+        },
+        {
+          "child": 58173,
+          "guideIds": [
+            397,
+            397,
+            397,
+            397
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 90.611,
+            "fine_clump": 19.168,
+            "length_jitter": 5.761,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 45.098,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 281.9
+        },
+        {
+          "child": 245758,
+          "guideIds": [
+            397,
+            397,
+            397,
+            397
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 90.61,
+            "fine_clump": 19.169,
+            "length_jitter": 1.153,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 44.74,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 307.69
+        },
+        {
+          "child": 245755,
+          "guideIds": [
+            397,
+            397,
+            397,
+            397
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 90.609,
+            "fine_clump": 19.168,
+            "length_jitter": 1.191,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 46.459,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 285.99
+        },
+        {
+          "child": 58165,
+          "guideIds": [
+            397,
+            397,
+            397,
+            397
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 90.609,
+            "fine_clump": 19.168,
+            "length_jitter": 0.531,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 46.016,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 359.69
+        },
+        {
+          "child": 58168,
+          "guideIds": [
+            397,
+            397,
+            397,
+            397
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 90.609,
+            "fine_clump": 19.167,
+            "length_jitter": 4.341,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 43.717,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 248.49
+        }
+      ]
+    },
+    "behind-ear-loops": {
+      "view": "profile_90",
+      "boxRowCol": [
+        270,
+        550,
+        250,
+        530
+      ],
+      "nChildren": 70124,
+      "nParents": 5613,
+      "nUniqueGuides": 1329,
+      "guideTurnDegUsed": {
+        "min": 0.0,
+        "p50": 173.221,
+        "p90": 251.827,
+        "p99": 299.716,
+        "max": 484.15
+      },
+      "guideSeparationMaxMm": {
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 304.763,
+        "p99": 422.086,
+        "max": 440.164
+      },
+      "guideRootSeparationMaxMm": {
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 3.884,
+        "p99": 5.127,
+        "max": 5.897
+      },
+      "rawChildTurnDeg": {
+        "min": 0.0,
+        "p50": 146.848,
+        "p90": 204.368,
+        "p99": 259.874,
+        "max": 367.242
+      },
+      "finalChildTurnDeg": {
+        "min": 0.0,
+        "p50": 195.241,
+        "p90": 340.646,
+        "p99": 550.615,
+        "max": 1237.573
+      },
+      "rawChildrenOver120Deg": 46662,
+      "dominantStageGt5mmCounts": {
+        "depth_servo": 158,
+        "coarse_clump": 40220,
+        "fine_clump": 3009,
+        "length_jitter": 6850,
+        "hairline_taper": 3317,
+        "sdf_project_outside": 15282,
+        "part_clamp_reproject": 35
+      },
+      "perStageMaxMm": {
+        "far_snap": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 0.0
+        },
+        "part_sweep": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 3.682
+        },
+        "persistent_offset": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 2.5,
+          "max": 2.5
+        },
+        "depth_servo": {
+          "min": 0.0,
+          "p50": 1.227,
+          "p90": 4.471,
+          "p99": 6.0,
+          "max": 6.0
+        },
+        "coarse_clump": {
+          "min": 0.0,
+          "p50": 21.586,
+          "p90": 59.84,
+          "p99": 90.442,
+          "max": 103.405
+        },
+        "fine_clump": {
+          "min": 0.0,
+          "p50": 3.268,
+          "p90": 21.695,
+          "p99": 41.654,
+          "max": 57.045
+        },
+        "length_jitter": {
+          "min": 0.0,
+          "p50": 4.541,
+          "p90": 13.234,
+          "p99": 23.97,
+          "max": 33.345
+        },
+        "hairline_taper": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 56.82,
+          "max": 70.589
+        },
+        "ear_keepout": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 2.459,
+          "p99": 4.946,
+          "max": 10.246
+        },
+        "sdf_project_outside": {
+          "min": 0.0,
+          "p50": 4.41,
+          "p90": 34.284,
+          "p99": 61.202,
+          "max": 107.456
+        },
+        "part_clamp_reproject": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 54.74
+        }
+      },
+      "representativeHighestDisplacement": [
+        {
+          "child": 224874,
+          "guideIds": [
+            839,
+            835,
+            838,
+            949
+          ],
+          "guideTurnDeg": [
+            218.55,
+            221.06,
+            200.37,
+            207.63
+          ],
+          "weights": [
+            0.81781,
+            0.0,
+            0.18219,
+            0.0
+          ],
+          "guideSeparationMaxMm": 162.012,
+          "guideRootSeparationMaxMm": 1.759,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.234,
+            "coarse_clump": 22.972,
+            "fine_clump": 11.666,
+            "length_jitter": 7.784,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 107.456,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 205.95,
+          "finalTurnDeg": 519.24
+        },
+        {
+          "child": 206867,
+          "guideIds": [
+            453,
+            557,
+            449,
+            572
+          ],
+          "guideTurnDeg": [
+            0.0,
+            226.69,
+            0.0,
+            223.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.976,
+            "coarse_clump": 103.405,
+            "fine_clump": 0.766,
+            "length_jitter": 3.249,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 66.675,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 293.98
+        },
+        {
+          "child": 206873,
+          "guideIds": [
+            453,
+            557,
+            449,
+            572
+          ],
+          "guideTurnDeg": [
+            0.0,
+            226.69,
+            0.0,
+            223.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.958,
+            "coarse_clump": 103.4,
+            "fine_clump": 0.778,
+            "length_jitter": 0.326,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 75.682,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 248.87
+        },
+        {
+          "child": 153902,
+          "guideIds": [
+            453,
+            453,
+            453,
+            453
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.204,
+            "coarse_clump": 103.377,
+            "fine_clump": 53.225,
+            "length_jitter": 1.387,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 51.046,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 386.15
+        },
+        {
+          "child": 206878,
+          "guideIds": [
+            453,
+            449,
+            557,
+            572
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            226.69,
+            223.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.073,
+            "coarse_clump": 103.364,
+            "fine_clump": 0.795,
+            "length_jitter": 5.303,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 53.982,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 161.49
+        },
+        {
+          "child": 206863,
+          "guideIds": [
+            453,
+            557,
+            449,
+            572
+          ],
+          "guideTurnDeg": [
+            0.0,
+            226.69,
+            0.0,
+            223.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.107,
+            "coarse_clump": 103.364,
+            "fine_clump": 0.768,
+            "length_jitter": 0.017,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 75.158,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 250.84
+        },
+        {
+          "child": 206866,
+          "guideIds": [
+            453,
+            449,
+            557,
+            572
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            226.69,
+            223.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.108,
+            "coarse_clump": 103.353,
+            "fine_clump": 0.785,
+            "length_jitter": 0.049,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 75.191,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 251.68
+        },
+        {
+          "child": 153906,
+          "guideIds": [
+            453,
+            457,
+            557,
+            564
+          ],
+          "guideTurnDeg": [
+            0.0,
+            210.33,
+            226.69,
+            196.72
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.2,
+            "coarse_clump": 103.352,
+            "fine_clump": 0.719,
+            "length_jitter": 3.448,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 51.114,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 160.23
+        },
+        {
+          "child": 206861,
+          "guideIds": [
+            453,
+            449,
+            557,
+            572
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            226.69,
+            223.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.138,
+            "coarse_clump": 103.342,
+            "fine_clump": 0.793,
+            "length_jitter": 0.147,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 74.982,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 252.47
+        },
+        {
+          "child": 153901,
+          "guideIds": [
+            453,
+            453,
+            453,
+            453
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.278,
+            "coarse_clump": 103.329,
+            "fine_clump": 53.2,
+            "length_jitter": 3.415,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 58.365,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 534.15
+        },
+        {
+          "child": 153919,
+          "guideIds": [
+            453,
+            453,
+            453,
+            453
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.288,
+            "coarse_clump": 103.316,
+            "fine_clump": 0.708,
+            "length_jitter": 2.77,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 56.649,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 251.16
+        },
+        {
+          "child": 153914,
+          "guideIds": [
+            453,
+            457,
+            557,
+            449
+          ],
+          "guideTurnDeg": [
+            0.0,
+            210.33,
+            226.69,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.292,
+            "coarse_clump": 103.292,
+            "fine_clump": 0.74,
+            "length_jitter": 0.654,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 75.337,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 249.76
+        },
+        {
+          "child": 109879,
+          "guideIds": [
+            1069,
+            1057,
+            1075,
+            844
+          ],
+          "guideTurnDeg": [
+            188.92,
+            237.45,
+            315.71,
+            267.29
+          ],
+          "weights": [
+            0.654746,
+            0.345254,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 177.797,
+          "guideRootSeparationMaxMm": 3.012,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.904,
+            "coarse_clump": 18.569,
+            "fine_clump": 0.302,
+            "length_jitter": 0.347,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 99.413,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 176.95,
+          "finalTurnDeg": 773.14
+        },
+        {
+          "child": 82712,
+          "guideIds": [
+            343,
+            324,
+            437,
+            342
+          ],
+          "guideTurnDeg": [
+            0.0,
+            181.06,
+            158.05,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.0,
+            "coarse_clump": 99.353,
+            "fine_clump": 20.722,
+            "length_jitter": 4.309,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 58.473,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 348.46
+        },
+        {
+          "child": 148268,
+          "guideIds": [
+            1682,
+            2615,
+            1680,
+            2616
+          ],
+          "guideTurnDeg": [
+            241.47,
+            122.32,
+            140.74,
+            93.62
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.865,
+            "coarse_clump": 98.538,
+            "fine_clump": 7.986,
+            "length_jitter": 2.547,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 53.304,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 234.23,
+          "finalTurnDeg": 584.19
+        },
+        {
+          "child": 38588,
+          "guideIds": [
+            1787,
+            1772,
+            1765,
+            1725
+          ],
+          "guideTurnDeg": [
+            198.17,
+            183.12,
+            284.11,
+            198.02
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.243,
+            "coarse_clump": 98.165,
+            "fine_clump": 5.85,
+            "length_jitter": 0.056,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 38.951,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 164.9,
+          "finalTurnDeg": 336.7
+        },
+        {
+          "child": 38590,
+          "guideIds": [
+            1787,
+            1772,
+            1765,
+            1725
+          ],
+          "guideTurnDeg": [
+            198.17,
+            183.12,
+            284.11,
+            198.02
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.2,
+            "coarse_clump": 98.135,
+            "fine_clump": 5.834,
+            "length_jitter": 3.857,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 36.013,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 164.9,
+          "finalTurnDeg": 321.15
+        },
+        {
+          "child": 38592,
+          "guideIds": [
+            1787,
+            1772,
+            1765,
+            1725
+          ],
+          "guideTurnDeg": [
+            198.17,
+            183.12,
+            284.11,
+            198.02
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.269,
+            "coarse_clump": 98.126,
+            "fine_clump": 5.831,
+            "length_jitter": 2.712,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 28.902,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 164.9,
+          "finalTurnDeg": 292.26
+        },
+        {
+          "child": 38595,
+          "guideIds": [
+            1787,
+            1772,
+            1765,
+            1725
+          ],
+          "guideTurnDeg": [
+            198.17,
+            183.12,
+            284.11,
+            198.02
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.238,
+            "coarse_clump": 98.087,
+            "fine_clump": 5.81,
+            "length_jitter": 0.062,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 39.583,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 164.9,
+          "finalTurnDeg": 315.25
+        },
+        {
+          "child": 38593,
+          "guideIds": [
+            1787,
+            1772,
+            1765,
+            1725
+          ],
+          "guideTurnDeg": [
+            198.17,
+            183.12,
+            284.11,
+            198.02
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.265,
+            "coarse_clump": 98.042,
+            "fine_clump": 5.787,
+            "length_jitter": 0.504,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 37.972,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 164.9,
+          "finalTurnDeg": 322.21
+        },
+        {
+          "child": 38584,
+          "guideIds": [
+            1787,
+            1772,
+            1765,
+            1725
+          ],
+          "guideTurnDeg": [
+            198.17,
+            183.12,
+            284.11,
+            198.02
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.281,
+            "coarse_clump": 98.008,
+            "fine_clump": 5.769,
+            "length_jitter": 0.458,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 37.671,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 164.9,
+          "finalTurnDeg": 305.29
+        },
+        {
+          "child": 38599,
+          "guideIds": [
+            1787,
+            1772,
+            1765,
+            1725
+          ],
+          "guideTurnDeg": [
+            198.17,
+            183.12,
+            284.11,
+            198.02
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.292,
+            "coarse_clump": 97.938,
+            "fine_clump": 5.733,
+            "length_jitter": 1.019,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 39.564,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 164.9,
+          "finalTurnDeg": 355.47
+        },
+        {
+          "child": 278491,
+          "guideIds": [
+            1787,
+            1765,
+            1772,
+            1770
+          ],
+          "guideTurnDeg": [
+            198.17,
+            284.11,
+            183.12,
+            202.51
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.337,
+            "coarse_clump": 97.745,
+            "fine_clump": 36.625,
+            "length_jitter": 0.805,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 20.223,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 164.9,
+          "finalTurnDeg": 404.43
+        },
+        {
+          "child": 278488,
+          "guideIds": [
+            1787,
+            1772,
+            1765,
+            1770
+          ],
+          "guideTurnDeg": [
+            198.17,
+            183.12,
+            284.11,
+            202.51
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.284,
+            "coarse_clump": 97.682,
+            "fine_clump": 36.593,
+            "length_jitter": 0.045,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 21.073,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 164.9,
+          "finalTurnDeg": 620.6
+        },
+        {
+          "child": 278496,
+          "guideIds": [
+            1787,
+            1772,
+            1765,
+            1770
+          ],
+          "guideTurnDeg": [
+            198.17,
+            183.12,
+            284.11,
+            202.51
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.283,
+            "coarse_clump": 97.681,
+            "fine_clump": 36.593,
+            "length_jitter": 2.869,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 19.506,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 164.9,
+          "finalTurnDeg": 391.32
+        }
+      ]
+    },
+    "sideburn-tuft": {
+      "view": "three_quarter",
+      "boxRowCol": [
+        330,
+        610,
+        380,
+        660
+      ],
+      "nChildren": 57801,
+      "nParents": 4608,
+      "nUniqueGuides": 1137,
+      "guideTurnDegUsed": {
+        "min": 0.0,
+        "p50": 159.853,
+        "p90": 251.827,
+        "p99": 336.534,
+        "max": 604.356
+      },
+      "guideSeparationMaxMm": {
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 356.946,
+        "p99": 428.036,
+        "max": 440.164
+      },
+      "guideRootSeparationMaxMm": {
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 3.715,
+        "p99": 5.049,
+        "max": 5.93
+      },
+      "rawChildTurnDeg": {
+        "min": 0.0,
+        "p50": 142.854,
+        "p90": 209.818,
+        "p99": 293.042,
+        "max": 560.116
+      },
+      "finalChildTurnDeg": {
+        "min": 0.0,
+        "p50": 194.105,
+        "p90": 377.552,
+        "p99": 666.275,
+        "max": 1237.573
+      },
+      "rawChildrenOver120Deg": 35108,
+      "dominantStageGt5mmCounts": {
+        "depth_servo": 45,
+        "coarse_clump": 34116,
+        "fine_clump": 2300,
+        "length_jitter": 6657,
+        "hairline_taper": 648,
+        "sdf_project_outside": 11940,
+        "part_clamp_reproject": 606
+      },
+      "perStageMaxMm": {
+        "far_snap": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 0.0
+        },
+        "part_sweep": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.376,
+          "max": 5.784
+        },
+        "persistent_offset": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 2.5,
+          "max": 2.5
+        },
+        "depth_servo": {
+          "min": 0.0,
+          "p50": 1.727,
+          "p90": 5.259,
+          "p99": 6.0,
+          "max": 6.0
+        },
+        "coarse_clump": {
+          "min": 0.0,
+          "p50": 23.631,
+          "p90": 59.339,
+          "p99": 88.634,
+          "max": 106.966
+        },
+        "fine_clump": {
+          "min": 0.0,
+          "p50": 3.181,
+          "p90": 21.044,
+          "p99": 42.204,
+          "max": 59.729
+        },
+        "length_jitter": {
+          "min": 0.0,
+          "p50": 5.197,
+          "p90": 13.824,
+          "p99": 24.442,
+          "max": 34.016
+        },
+        "hairline_taper": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 38.592,
+          "max": 70.302
+        },
+        "ear_keepout": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 1.193,
+          "p99": 4.96,
+          "max": 10.246
+        },
+        "sdf_project_outside": {
+          "min": 0.0,
+          "p50": 5.425,
+          "p90": 34.598,
+          "p99": 65.94,
+          "max": 119.761
+        },
+        "part_clamp_reproject": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 39.119,
+          "max": 55.338
+        }
+      },
+      "representativeHighestDisplacement": [
+        {
+          "child": 174071,
+          "guideIds": [
+            2535,
+            1504,
+            1491,
+            1476
+          ],
+          "guideTurnDeg": [
+            113.36,
+            154.0,
+            111.38,
+            140.51
+          ],
+          "weights": [
+            0.373219,
+            0.288191,
+            0.184622,
+            0.153968
+          ],
+          "guideSeparationMaxMm": 174.451,
+          "guideRootSeparationMaxMm": 4.34,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 3.476,
+            "coarse_clump": 25.472,
+            "fine_clump": 2.858,
+            "length_jitter": 7.598,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 119.761,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 27.75,
+          "finalTurnDeg": 565.72
+        },
+        {
+          "child": 131946,
+          "guideIds": [
+            2626,
+            1700,
+            1698,
+            2622
+          ],
+          "guideTurnDeg": [
+            120.07,
+            128.62,
+            119.16,
+            339.5
+          ],
+          "weights": [
+            0.658701,
+            0.203757,
+            0.137543,
+            0.0
+          ],
+          "guideSeparationMaxMm": 178.59,
+          "guideRootSeparationMaxMm": 3.63,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 30.598,
+            "fine_clump": 11.047,
+            "length_jitter": 7.584,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 109.199,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 28.0,
+          "finalTurnDeg": 681.8
+        },
+        {
+          "child": 135096,
+          "guideIds": [
+            2263,
+            1039,
+            2168,
+            2158
+          ],
+          "guideTurnDeg": [
+            161.34,
+            265.97,
+            307.36,
+            186.83
+          ],
+          "weights": [
+            0.501474,
+            0.498526,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 187.059,
+          "guideRootSeparationMaxMm": 3.648,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.898,
+            "coarse_clump": 33.392,
+            "fine_clump": 1.592,
+            "length_jitter": 2.086,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 108.587,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 156.56,
+          "finalTurnDeg": 841.18
+        },
+        {
+          "child": 38088,
+          "guideIds": [
+            2175,
+            2200,
+            879,
+            880
+          ],
+          "guideTurnDeg": [
+            222.01,
+            77.25,
+            43.96,
+            24.38
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.446,
+            "coarse_clump": 106.966,
+            "fine_clump": 51.301,
+            "length_jitter": 15.345,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 40.773,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 201.11,
+          "finalTurnDeg": 316.3
+        },
+        {
+          "child": 38094,
+          "guideIds": [
+            2175,
+            2200,
+            879,
+            880
+          ],
+          "guideTurnDeg": [
+            222.01,
+            77.25,
+            43.96,
+            24.38
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.58,
+            "coarse_clump": 106.945,
+            "fine_clump": 51.29,
+            "length_jitter": 2.468,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 40.668,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 201.11,
+          "finalTurnDeg": 314.12
+        },
+        {
+          "child": 38081,
+          "guideIds": [
+            2175,
+            879,
+            2200,
+            880
+          ],
+          "guideTurnDeg": [
+            222.01,
+            43.96,
+            77.25,
+            24.38
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.14,
+            "coarse_clump": 106.942,
+            "fine_clump": 46.884,
+            "length_jitter": 2.223,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 39.899,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 201.11,
+          "finalTurnDeg": 329.03
+        },
+        {
+          "child": 194978,
+          "guideIds": [
+            599,
+            599,
+            599,
+            599
+          ],
+          "guideTurnDeg": [
+            231.97,
+            231.97,
+            231.97,
+            231.97
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.75,
+            "coarse_clump": 106.94,
+            "fine_clump": 3.092,
+            "length_jitter": 15.623,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 28.418,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 210.43,
+          "finalTurnDeg": 296.15
+        },
+        {
+          "child": 194970,
+          "guideIds": [
+            599,
+            599,
+            599,
+            599
+          ],
+          "guideTurnDeg": [
+            231.97,
+            231.97,
+            231.97,
+            231.97
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.235,
+            "coarse_clump": 106.926,
+            "fine_clump": 3.093,
+            "length_jitter": 19.071,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 28.836,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 210.43,
+          "finalTurnDeg": 292.45
+        },
+        {
+          "child": 38084,
+          "guideIds": [
+            2175,
+            879,
+            2200,
+            880
+          ],
+          "guideTurnDeg": [
+            222.01,
+            43.96,
+            77.25,
+            24.38
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.986,
+            "coarse_clump": 106.903,
+            "fine_clump": 46.865,
+            "length_jitter": 9.117,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 40.358,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 201.11,
+          "finalTurnDeg": 298.67
+        },
+        {
+          "child": 38096,
+          "guideIds": [
+            2175,
+            2200,
+            879,
+            880
+          ],
+          "guideTurnDeg": [
+            222.01,
+            77.25,
+            43.96,
+            24.38
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.565,
+            "coarse_clump": 106.877,
+            "fine_clump": 51.256,
+            "length_jitter": 7.163,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 40.142,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 201.11,
+          "finalTurnDeg": 303.44
+        },
+        {
+          "child": 38098,
+          "guideIds": [
+            2175,
+            879,
+            2200,
+            880
+          ],
+          "guideTurnDeg": [
+            222.01,
+            43.96,
+            77.25,
+            24.38
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.255,
+            "coarse_clump": 106.84,
+            "fine_clump": 46.832,
+            "length_jitter": 2.979,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 40.152,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 201.11,
+          "finalTurnDeg": 309.11
+        },
+        {
+          "child": 109869,
+          "guideIds": [
+            1069,
+            1057,
+            1075,
+            844
+          ],
+          "guideTurnDeg": [
+            188.92,
+            237.45,
+            315.71,
+            267.29
+          ],
+          "weights": [
+            0.590797,
+            0.270597,
+            0.138607,
+            0.0
+          ],
+          "guideSeparationMaxMm": 193.091,
+          "guideRootSeparationMaxMm": 4.39,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.598,
+            "coarse_clump": 16.089,
+            "fine_clump": 2.058,
+            "length_jitter": 13.889,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 106.836,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 170.58,
+          "finalTurnDeg": 864.55
+        },
+        {
+          "child": 38091,
+          "guideIds": [
+            2175,
+            2200,
+            879,
+            880
+          ],
+          "guideTurnDeg": [
+            222.01,
+            77.25,
+            43.96,
+            24.38
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.671,
+            "coarse_clump": 106.836,
+            "fine_clump": 51.235,
+            "length_jitter": 9.669,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 39.931,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 201.11,
+          "finalTurnDeg": 309.42
+        },
+        {
+          "child": 38083,
+          "guideIds": [
+            2175,
+            879,
+            880,
+            2200
+          ],
+          "guideTurnDeg": [
+            222.01,
+            43.96,
+            24.38,
+            77.25
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.639,
+            "coarse_clump": 106.787,
+            "fine_clump": 51.21,
+            "length_jitter": 4.907,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 40.648,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 201.11,
+          "finalTurnDeg": 309.33
+        },
+        {
+          "child": 174060,
+          "guideIds": [
+            1491,
+            1476,
+            1504,
+            2535
+          ],
+          "guideTurnDeg": [
+            111.38,
+            140.51,
+            154.0,
+            113.36
+          ],
+          "weights": [
+            0.419347,
+            0.263358,
+            0.168426,
+            0.148869
+          ],
+          "guideSeparationMaxMm": 174.451,
+          "guideRootSeparationMaxMm": 4.34,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 3.033,
+            "coarse_clump": 25.966,
+            "fine_clump": 2.946,
+            "length_jitter": 8.743,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 106.433,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 27.93,
+          "finalTurnDeg": 524.45
+        },
+        {
+          "child": 238666,
+          "guideIds": [
+            1959,
+            1959,
+            1959,
+            1959
+          ],
+          "guideTurnDeg": [
+            267.85,
+            267.85,
+            267.85,
+            267.85
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.643,
+            "coarse_clump": 106.011,
+            "fine_clump": 38.643,
+            "length_jitter": 3.352,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 42.503,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 255.69,
+          "finalTurnDeg": 465.39
+        },
+        {
+          "child": 238664,
+          "guideIds": [
+            1959,
+            1959,
+            1959,
+            1959
+          ],
+          "guideTurnDeg": [
+            267.85,
+            267.85,
+            267.85,
+            267.85
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.644,
+            "coarse_clump": 106.004,
+            "fine_clump": 38.639,
+            "length_jitter": 0.985,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 45.245,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 255.69,
+          "finalTurnDeg": 493.97
+        },
+        {
+          "child": 238663,
+          "guideIds": [
+            1959,
+            1959,
+            1959,
+            1959
+          ],
+          "guideTurnDeg": [
+            267.85,
+            267.85,
+            267.85,
+            267.85
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.634,
+            "coarse_clump": 105.949,
+            "fine_clump": 38.611,
+            "length_jitter": 1.872,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 46.033,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 255.69,
+          "finalTurnDeg": 498.76
+        },
+        {
+          "child": 238668,
+          "guideIds": [
+            1959,
+            1959,
+            1959,
+            1959
+          ],
+          "guideTurnDeg": [
+            267.85,
+            267.85,
+            267.85,
+            267.85
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.631,
+            "coarse_clump": 105.944,
+            "fine_clump": 38.609,
+            "length_jitter": 1.478,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 43.627,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 255.69,
+          "finalTurnDeg": 491.8
+        },
+        {
+          "child": 238669,
+          "guideIds": [
+            1959,
+            1959,
+            1959,
+            1959
+          ],
+          "guideTurnDeg": [
+            267.85,
+            267.85,
+            267.85,
+            267.85
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.632,
+            "coarse_clump": 105.938,
+            "fine_clump": 38.606,
+            "length_jitter": 3.109,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 42.619,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 255.69,
+          "finalTurnDeg": 504.02
+        },
+        {
+          "child": 238678,
+          "guideIds": [
+            1959,
+            1959,
+            1959,
+            1959
+          ],
+          "guideTurnDeg": [
+            267.85,
+            267.85,
+            267.85,
+            267.85
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.632,
+            "coarse_clump": 105.933,
+            "fine_clump": 38.603,
+            "length_jitter": 4.58,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 41.695,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 255.69,
+          "finalTurnDeg": 453.35
+        },
+        {
+          "child": 238662,
+          "guideIds": [
+            1959,
+            1959,
+            1959,
+            1959
+          ],
+          "guideTurnDeg": [
+            267.85,
+            267.85,
+            267.85,
+            267.85
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.629,
+            "coarse_clump": 105.925,
+            "fine_clump": 38.599,
+            "length_jitter": 2.232,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 43.145,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 255.69,
+          "finalTurnDeg": 476.46
+        },
+        {
+          "child": 238660,
+          "guideIds": [
+            1959,
+            1959,
+            1959,
+            1959
+          ],
+          "guideTurnDeg": [
+            267.85,
+            267.85,
+            267.85,
+            267.85
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.633,
+            "coarse_clump": 105.878,
+            "fine_clump": 38.575,
+            "length_jitter": 2.087,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 43.328,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 255.69,
+          "finalTurnDeg": 468.18
+        },
+        {
+          "child": 238665,
+          "guideIds": [
+            1959,
+            1959,
+            1959,
+            1959
+          ],
+          "guideTurnDeg": [
+            267.85,
+            267.85,
+            267.85,
+            267.85
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.623,
+            "coarse_clump": 105.829,
+            "fine_clump": 38.55,
+            "length_jitter": 0.438,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 44.26,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 255.69,
+          "finalTurnDeg": 512.18
+        },
+        {
+          "child": 78588,
+          "guideIds": [
+            1495,
+            1504,
+            2525,
+            2516
+          ],
+          "guideTurnDeg": [
+            123.07,
+            154.0,
+            141.36,
+            154.97
+          ],
+          "weights": [
+            0.587219,
+            0.412781,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 175.013,
+          "guideRootSeparationMaxMm": 1.619,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.967,
+            "coarse_clump": 26.198,
+            "fine_clump": 4.272,
+            "length_jitter": 11.734,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 104.776,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 32.37,
+          "finalTurnDeg": 697.44
+        }
+      ]
+    },
+    "hairline-band": {
+      "view": "front",
+      "boxRowCol": [
+        98,
+        196,
+        291,
+        733
+      ],
+      "nChildren": 42766,
+      "nParents": 2873,
+      "nUniqueGuides": 463,
+      "guideTurnDegUsed": {
+        "min": 0.0,
+        "p50": 30.933,
+        "p90": 251.179,
+        "p99": 365.691,
+        "max": 604.356
+      },
+      "guideSeparationMaxMm": {
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 14.597,
+        "p99": 405.087,
+        "max": 434.115
+      },
+      "guideRootSeparationMaxMm": {
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 2.439,
+        "p99": 4.655,
+        "max": 5.852
+      },
+      "rawChildTurnDeg": {
+        "min": 0.0,
+        "p50": 29.728,
+        "p90": 212.747,
+        "p99": 273.071,
+        "max": 560.117
+      },
+      "finalChildTurnDeg": {
+        "min": 0.0,
+        "p50": 45.736,
+        "p90": 290.058,
+        "p99": 464.6,
+        "max": 1060.791
+      },
+      "rawChildrenOver120Deg": 11580,
+      "dominantStageGt5mmCounts": {
+        "part_sweep": 312,
+        "depth_servo": 1529,
+        "coarse_clump": 24519,
+        "fine_clump": 1505,
+        "length_jitter": 990,
+        "sdf_project_outside": 5145,
+        "part_clamp_reproject": 2707
+      },
+      "perStageMaxMm": {
+        "far_snap": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 0.0
+        },
+        "part_sweep": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 7.811,
+          "max": 9.412
+        },
+        "persistent_offset": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 2.0
+        },
+        "depth_servo": {
+          "min": 0.0,
+          "p50": 2.253,
+          "p90": 5.999,
+          "p99": 6.0,
+          "max": 6.0
+        },
+        "coarse_clump": {
+          "min": 0.0,
+          "p50": 10.436,
+          "p90": 53.961,
+          "p99": 80.827,
+          "max": 103.405
+        },
+        "fine_clump": {
+          "min": 0.0,
+          "p50": 1.346,
+          "p90": 15.399,
+          "p99": 41.764,
+          "max": 66.486
+        },
+        "length_jitter": {
+          "min": 0.0,
+          "p50": 1.354,
+          "p90": 8.904,
+          "p99": 19.7,
+          "max": 32.542
+        },
+        "hairline_taper": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 0.0
+        },
+        "ear_keepout": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 6.024
+        },
+        "sdf_project_outside": {
+          "min": 0.0,
+          "p50": 2.947,
+          "p90": 33.99,
+          "p99": 50.651,
+          "max": 82.512
+        },
+        "part_clamp_reproject": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 5.114,
+          "p99": 12.1,
+          "max": 58.285
+        }
+      },
+      "representativeHighestDisplacement": [
+        {
+          "child": 206867,
+          "guideIds": [
+            453,
+            557,
+            449,
+            572
+          ],
+          "guideTurnDeg": [
+            0.0,
+            226.69,
+            0.0,
+            223.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.976,
+            "coarse_clump": 103.405,
+            "fine_clump": 0.766,
+            "length_jitter": 3.249,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 66.675,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 293.98
+        },
+        {
+          "child": 206873,
+          "guideIds": [
+            453,
+            557,
+            449,
+            572
+          ],
+          "guideTurnDeg": [
+            0.0,
+            226.69,
+            0.0,
+            223.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.958,
+            "coarse_clump": 103.4,
+            "fine_clump": 0.778,
+            "length_jitter": 0.326,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 75.682,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 248.87
+        },
+        {
+          "child": 153902,
+          "guideIds": [
+            453,
+            453,
+            453,
+            453
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.204,
+            "coarse_clump": 103.377,
+            "fine_clump": 53.225,
+            "length_jitter": 1.387,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 51.046,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 386.15
+        },
+        {
+          "child": 206863,
+          "guideIds": [
+            453,
+            557,
+            449,
+            572
+          ],
+          "guideTurnDeg": [
+            0.0,
+            226.69,
+            0.0,
+            223.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.107,
+            "coarse_clump": 103.364,
+            "fine_clump": 0.768,
+            "length_jitter": 0.017,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 75.158,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 250.84
+        },
+        {
+          "child": 206866,
+          "guideIds": [
+            453,
+            449,
+            557,
+            572
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            226.69,
+            223.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.108,
+            "coarse_clump": 103.353,
+            "fine_clump": 0.785,
+            "length_jitter": 0.049,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 75.191,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 251.68
+        },
+        {
+          "child": 153906,
+          "guideIds": [
+            453,
+            457,
+            557,
+            564
+          ],
+          "guideTurnDeg": [
+            0.0,
+            210.33,
+            226.69,
+            196.72
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.2,
+            "coarse_clump": 103.352,
+            "fine_clump": 0.719,
+            "length_jitter": 3.448,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 51.114,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 160.23
+        },
+        {
+          "child": 206861,
+          "guideIds": [
+            453,
+            449,
+            557,
+            572
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            226.69,
+            223.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.138,
+            "coarse_clump": 103.342,
+            "fine_clump": 0.793,
+            "length_jitter": 0.147,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 74.982,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 252.47
+        },
+        {
+          "child": 153901,
+          "guideIds": [
+            453,
+            453,
+            453,
+            453
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.278,
+            "coarse_clump": 103.329,
+            "fine_clump": 53.2,
+            "length_jitter": 3.415,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 58.365,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 534.15
+        },
+        {
+          "child": 153904,
+          "guideIds": [
+            453,
+            453,
+            453,
+            453
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.342,
+            "coarse_clump": 103.318,
+            "fine_clump": 53.195,
+            "length_jitter": 5.846,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 50.619,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 360.57
+        },
+        {
+          "child": 153919,
+          "guideIds": [
+            453,
+            453,
+            453,
+            453
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.288,
+            "coarse_clump": 103.316,
+            "fine_clump": 0.708,
+            "length_jitter": 2.77,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 56.649,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 251.16
+        },
+        {
+          "child": 153914,
+          "guideIds": [
+            453,
+            457,
+            557,
+            449
+          ],
+          "guideTurnDeg": [
+            0.0,
+            210.33,
+            226.69,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 5.292,
+            "coarse_clump": 103.292,
+            "fine_clump": 0.74,
+            "length_jitter": 0.654,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 75.337,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 249.76
+        },
+        {
+          "child": 270892,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.756,
+            "fine_clump": 31.442,
+            "length_jitter": 11.182,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 30.789,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 326.41
+        },
+        {
+          "child": 270882,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.749,
+            "fine_clump": 50.119,
+            "length_jitter": 14.514,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 31.585,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 419.6
+        },
+        {
+          "child": 270894,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.745,
+            "fine_clump": 31.436,
+            "length_jitter": 4.928,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 31.766,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 355.12
+        },
+        {
+          "child": 270883,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.739,
+            "fine_clump": 31.433,
+            "length_jitter": 11.183,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 30.772,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 324.92
+        },
+        {
+          "child": 270891,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.722,
+            "fine_clump": 31.425,
+            "length_jitter": 8.109,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 31.674,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 358.37
+        },
+        {
+          "child": 270884,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.702,
+            "fine_clump": 31.414,
+            "length_jitter": 14.176,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 31.978,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 437.48
+        },
+        {
+          "child": 270888,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.699,
+            "fine_clump": 50.095,
+            "length_jitter": 0.773,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 30.941,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 372.61
+        },
+        {
+          "child": 270890,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.681,
+            "fine_clump": 31.403,
+            "length_jitter": 11.186,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 30.624,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 315.38
+        },
+        {
+          "child": 270895,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.678,
+            "fine_clump": 31.401,
+            "length_jitter": 13.257,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 31.878,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 414.42
+        },
+        {
+          "child": 270893,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.675,
+            "fine_clump": 31.399,
+            "length_jitter": 0.641,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 31.428,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 342.06
+        },
+        {
+          "child": 270881,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.671,
+            "fine_clump": 50.081,
+            "length_jitter": 0.261,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 30.89,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 391.69
+        },
+        {
+          "child": 270886,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.668,
+            "fine_clump": 50.079,
+            "length_jitter": 8.915,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 31.362,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 411.5
+        },
+        {
+          "child": 270885,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.668,
+            "fine_clump": 31.396,
+            "length_jitter": 11.187,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 30.536,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 310.73
+        },
+        {
+          "child": 270887,
+          "guideIds": [
+            749,
+            749,
+            749,
+            749
+          ],
+          "guideTurnDeg": [
+            248.37,
+            248.37,
+            248.37,
+            248.37
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 102.656,
+            "fine_clump": 31.389,
+            "length_jitter": 8.203,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 30.957,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 225.65,
+          "finalTurnDeg": 346.41
+        }
+      ]
+    },
+    "control": {
+      "view": null,
+      "boxRowCol": null,
+      "nChildren": 512,
+      "nParents": 493,
+      "nUniqueGuides": 613,
+      "guideTurnDegUsed": {
+        "min": 0.0,
+        "p50": 163.275,
+        "p90": 227.981,
+        "p99": 316.421,
+        "max": 484.15
+      },
+      "guideSeparationMaxMm": {
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 305.166,
+        "p99": 429.529,
+        "max": 437.668
+      },
+      "guideRootSeparationMaxMm": {
+        "min": 0.0,
+        "p50": 0.0,
+        "p90": 4.189,
+        "p99": 5.243,
+        "max": 5.622
+      },
+      "rawChildTurnDeg": {
+        "min": 0.0,
+        "p50": 115.426,
+        "p90": 193.227,
+        "p99": 260.797,
+        "max": 415.2
+      },
+      "finalChildTurnDeg": {
+        "min": 0.0,
+        "p50": 123.079,
+        "p90": 249.819,
+        "p99": 546.913,
+        "max": 828.066
+      },
+      "rawChildrenOver120Deg": 236,
+      "dominantStageGt5mmCounts": {
+        "part_sweep": 3,
+        "depth_servo": 3,
+        "coarse_clump": 336,
+        "fine_clump": 18,
+        "length_jitter": 59,
+        "sdf_project_outside": 71,
+        "part_clamp_reproject": 1
+      },
+      "perStageMaxMm": {
+        "far_snap": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 0.0
+        },
+        "part_sweep": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.435,
+          "max": 8.478
+        },
+        "persistent_offset": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 2.0,
+          "max": 2.5
+        },
+        "depth_servo": {
+          "min": 0.0,
+          "p50": 1.488,
+          "p90": 4.025,
+          "p99": 6.0,
+          "max": 6.0
+        },
+        "coarse_clump": {
+          "min": 0.0,
+          "p50": 21.928,
+          "p90": 55.317,
+          "p99": 76.881,
+          "max": 89.275
+        },
+        "fine_clump": {
+          "min": 0.006,
+          "p50": 2.438,
+          "p90": 17.387,
+          "p99": 41.295,
+          "max": 49.397
+        },
+        "length_jitter": {
+          "min": 0.004,
+          "p50": 3.577,
+          "p90": 14.872,
+          "p99": 24.095,
+          "max": 27.965
+        },
+        "hairline_taper": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 0.0,
+          "max": 29.467
+        },
+        "ear_keepout": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 2.332,
+          "max": 4.215
+        },
+        "sdf_project_outside": {
+          "min": 0.0,
+          "p50": 0.435,
+          "p90": 39.505,
+          "p99": 58.723,
+          "max": 97.121
+        },
+        "part_clamp_reproject": {
+          "min": 0.0,
+          "p50": 0.0,
+          "p90": 0.0,
+          "p99": 2.016,
+          "max": 33.614
+        }
+      },
+      "representativeHighestDisplacement": [
+        {
+          "child": 158057,
+          "guideIds": [
+            259,
+            259,
+            259,
+            259
+          ],
+          "guideTurnDeg": [
+            153.81,
+            153.81,
+            153.81,
+            153.81
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.213,
+            "coarse_clump": 18.831,
+            "fine_clump": 2.021,
+            "length_jitter": 2.093,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 97.121,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 131.74,
+          "finalTurnDeg": 505.99
+        },
+        {
+          "child": 33525,
+          "guideIds": [
+            1783,
+            1783,
+            1783,
+            1783
+          ],
+          "guideTurnDeg": [
+            277.75,
+            277.75,
+            277.75,
+            277.75
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 6.0,
+            "coarse_clump": 89.275,
+            "fine_clump": 20.539,
+            "length_jitter": 0.812,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 12.831,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 256.21,
+          "finalTurnDeg": 577.55
+        },
+        {
+          "child": 53655,
+          "guideIds": [
+            2648,
+            1674,
+            1687,
+            1683
+          ],
+          "guideTurnDeg": [
+            79.85,
+            0.0,
+            158.35,
+            163.3
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.686,
+            "coarse_clump": 83.397,
+            "fine_clump": 19.288,
+            "length_jitter": 2.033,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 0.0,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 78.32,
+          "finalTurnDeg": 44.37
+        },
+        {
+          "child": 56852,
+          "guideIds": [
+            939,
+            959,
+            852,
+            943
+          ],
+          "guideTurnDeg": [
+            175.69,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 80.255,
+            "fine_clump": 33.951,
+            "length_jitter": 14.929,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 0.0,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 121.67,
+          "finalTurnDeg": 145.15
+        },
+        {
+          "child": 27946,
+          "guideIds": [
+            591,
+            470,
+            597,
+            471
+          ],
+          "guideTurnDeg": [
+            188.37,
+            16.65,
+            30.04,
+            37.01
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 79.716,
+            "fine_clump": 41.488,
+            "length_jitter": 1.009,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 9.713,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 154.93,
+          "finalTurnDeg": 216.27
+        },
+        {
+          "child": 13919,
+          "guideIds": [
+            27,
+            5,
+            22,
+            3
+          ],
+          "guideTurnDeg": [
+            0.0,
+            240.3,
+            249.28,
+            250.95
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 3.595,
+            "coarse_clump": 77.024,
+            "fine_clump": 39.741,
+            "length_jitter": 0.968,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 46.943,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 220.41
+        },
+        {
+          "child": 268218,
+          "guideIds": [
+            845,
+            836,
+            960,
+            931
+          ],
+          "guideTurnDeg": [
+            23.04,
+            25.02,
+            49.08,
+            128.09
+          ],
+          "weights": [
+            0.798837,
+            0.201163,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 4.032,
+          "guideRootSeparationMaxMm": 1.64,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.919,
+            "coarse_clump": 76.919,
+            "fine_clump": 0.117,
+            "length_jitter": 1.639,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 51.682,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 22.88,
+          "finalTurnDeg": 67.8
+        },
+        {
+          "child": 6013,
+          "guideIds": [
+            1064,
+            1084,
+            1066,
+            2208
+          ],
+          "guideTurnDeg": [
+            49.14,
+            297.02,
+            62.28,
+            198.2
+          ],
+          "weights": [
+            0.76521,
+            0.147617,
+            0.087173,
+            0.0
+          ],
+          "guideSeparationMaxMm": 429.977,
+          "guideRootSeparationMaxMm": 2.403,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.349,
+            "coarse_clump": 76.574,
+            "fine_clump": 23.22,
+            "length_jitter": 0.595,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 35.038,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 6.11,
+          "finalTurnDeg": 828.07
+        },
+        {
+          "child": 231325,
+          "guideIds": [
+            561,
+            463,
+            644,
+            478
+          ],
+          "guideTurnDeg": [
+            237.65,
+            23.89,
+            245.46,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.508,
+            "coarse_clump": 74.884,
+            "fine_clump": 22.186,
+            "length_jitter": 14.447,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 0.0,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 187.97,
+          "finalTurnDeg": 205.9
+        },
+        {
+          "child": 179777,
+          "guideIds": [
+            1324,
+            2403,
+            2395,
+            1341
+          ],
+          "guideTurnDeg": [
+            34.67,
+            46.99,
+            163.86,
+            159.45
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.321,
+            "coarse_clump": 73.029,
+            "fine_clump": 4.253,
+            "length_jitter": 0.447,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 0.581,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 34.92,
+          "finalTurnDeg": 36.77
+        },
+        {
+          "child": 41223,
+          "guideIds": [
+            2217,
+            1061,
+            938,
+            940
+          ],
+          "guideTurnDeg": [
+            21.32,
+            175.73,
+            176.89,
+            13.16
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 72.865,
+            "fine_clump": 10.382,
+            "length_jitter": 1.186,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 26.402,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 21.06,
+          "finalTurnDeg": 23.19
+        },
+        {
+          "child": 12263,
+          "guideIds": [
+            632,
+            632,
+            632,
+            632
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.996,
+            "coarse_clump": 72.207,
+            "fine_clump": 9.753,
+            "length_jitter": 2.558,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 47.038,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 45.03
+        },
+        {
+          "child": 12265,
+          "guideIds": [
+            632,
+            738,
+            625,
+            762
+          ],
+          "guideTurnDeg": [
+            0.0,
+            251.6,
+            186.33,
+            341.05
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.699,
+            "coarse_clump": 71.77,
+            "fine_clump": 9.586,
+            "length_jitter": 2.67,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 50.389,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 43.83
+        },
+        {
+          "child": 86902,
+          "guideIds": [
+            957,
+            2203,
+            2212,
+            932
+          ],
+          "guideTurnDeg": [
+            195.96,
+            200.48,
+            211.95,
+            231.44
+          ],
+          "weights": [
+            0.819924,
+            0.091346,
+            0.08873,
+            0.0
+          ],
+          "guideSeparationMaxMm": 18.069,
+          "guideRootSeparationMaxMm": 3.936,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 71.641,
+            "fine_clump": 7.314,
+            "length_jitter": 6.173,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 24.968,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 168.08,
+          "finalTurnDeg": 234.07
+        },
+        {
+          "child": 226767,
+          "guideIds": [
+            588,
+            704,
+            694,
+            439
+          ],
+          "guideTurnDeg": [
+            0.0,
+            452.37,
+            0.0,
+            167.22
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.571,
+            "coarse_clump": 70.983,
+            "fine_clump": 0.615,
+            "length_jitter": 2.388,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 47.955,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 71.09
+        },
+        {
+          "child": 22321,
+          "guideIds": [
+            2535,
+            2561,
+            1504,
+            1574
+          ],
+          "guideTurnDeg": [
+            113.36,
+            122.53,
+            154.0,
+            108.62
+          ],
+          "weights": [
+            0.538209,
+            0.254632,
+            0.20716,
+            0.0
+          ],
+          "guideSeparationMaxMm": 174.655,
+          "guideRootSeparationMaxMm": 4.79,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 4.359,
+            "coarse_clump": 27.215,
+            "fine_clump": 8.108,
+            "length_jitter": 9.206,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.799,
+            "sdf_project_outside": 70.336,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 44.16,
+          "finalTurnDeg": 442.61
+        },
+        {
+          "child": 229596,
+          "guideIds": [
+            682,
+            677,
+            814,
+            580
+          ],
+          "guideTurnDeg": [
+            207.41,
+            484.15,
+            231.32,
+            204.28
+          ],
+          "weights": [
+            0.877395,
+            0.122605,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 175.974,
+          "guideRootSeparationMaxMm": 1.778,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 18.125,
+            "fine_clump": 9.055,
+            "length_jitter": 2.936,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 69.443,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 193.87,
+          "finalTurnDeg": 329.4
+        },
+        {
+          "child": 198848,
+          "guideIds": [
+            142,
+            136,
+            224,
+            86
+          ],
+          "guideTurnDeg": [
+            0.0,
+            181.71,
+            0.0,
+            217.8
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.0,
+            "coarse_clump": 68.524,
+            "fine_clump": 19.328,
+            "length_jitter": 3.217,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 46.324,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 160.67
+        },
+        {
+          "child": 255287,
+          "guideIds": [
+            142,
+            136,
+            224,
+            270
+          ],
+          "guideTurnDeg": [
+            0.0,
+            181.71,
+            0.0,
+            227.02
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.0,
+            "coarse_clump": 68.343,
+            "fine_clump": 7.79,
+            "length_jitter": 0.792,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 47.567,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 181.87
+        },
+        {
+          "child": 271294,
+          "guideIds": [
+            142,
+            142,
+            142,
+            142
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 3.471,
+            "coarse_clump": 68.155,
+            "fine_clump": 19.134,
+            "length_jitter": 3.21,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 45.144,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 114.83
+        },
+        {
+          "child": 170775,
+          "guideIds": [
+            224,
+            224,
+            224,
+            224
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 1.767,
+            "coarse_clump": 67.345,
+            "fine_clump": 28.357,
+            "length_jitter": 3.638,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 43.848,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 278.9
+        },
+        {
+          "child": 58007,
+          "guideIds": [
+            534,
+            534,
+            534,
+            534
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 66.984,
+            "fine_clump": 28.01,
+            "length_jitter": 0.012,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 56.674,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 272.53
+        },
+        {
+          "child": 77214,
+          "guideIds": [
+            470,
+            470,
+            470,
+            470
+          ],
+          "guideTurnDeg": [
+            16.65,
+            16.65,
+            16.65,
+            16.65
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 2.49,
+            "coarse_clump": 66.169,
+            "fine_clump": 39.012,
+            "length_jitter": 1.744,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 35.211,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 16.42,
+          "finalTurnDeg": 219.79
+        },
+        {
+          "child": 205069,
+          "guideIds": [
+            208,
+            284,
+            210,
+            153
+          ],
+          "guideTurnDeg": [
+            212.62,
+            214.81,
+            182.46,
+            215.03
+          ],
+          "weights": [
+            0.985667,
+            0.0,
+            0.014333,
+            0.0
+          ],
+          "guideSeparationMaxMm": 180.211,
+          "guideRootSeparationMaxMm": 2.763,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 0.0,
+            "coarse_clump": 29.174,
+            "fine_clump": 4.039,
+            "length_jitter": 0.699,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 66.03,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 193.23,
+          "finalTurnDeg": 304.03
+        },
+        {
+          "child": 174130,
+          "guideIds": [
+            265,
+            268,
+            373,
+            360
+          ],
+          "guideTurnDeg": [
+            0.0,
+            0.0,
+            196.98,
+            206.48
+          ],
+          "weights": [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "guideSeparationMaxMm": 0.0,
+          "guideRootSeparationMaxMm": 0.0,
+          "stageMaxMm": {
+            "far_snap": 0.0,
+            "part_sweep": 0.0,
+            "persistent_offset": 0.0,
+            "depth_servo": 3.048,
+            "coarse_clump": 65.86,
+            "fine_clump": 0.22,
+            "length_jitter": 1.673,
+            "hairline_taper": 0.0,
+            "ear_keepout": 0.0,
+            "sdf_project_outside": 44.965,
+            "part_clamp_reproject": 0.0
+          },
+          "rawTurnDeg": 0.0,
+          "finalTurnDeg": 191.41
+        }
+      ]
+    }
+  }
+}

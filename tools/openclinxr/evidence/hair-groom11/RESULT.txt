@@ -1,0 +1,20 @@
+RESULT hair-groom11 fix: no posterior geometry push; bounded constructor fit
+
+METHOD
+- Removed the centreGain 1.5 / centreCap 100 mm posterior advection. Groom8a take-off remains only in the exact first two guide samples. The coherent cylindrical scalp field retains 2707/2707 guides and 57 tuck anchors.
+- Hairline roots select the tucked temple backbone rather than a frontal face-crossing route; this is root-class routing, not an image trim.
+- Constructor fitting is capped at 8 mm. Routes still inside after that budget are recorded and suppressed as invisible outward stubs rather than receiving a larger correction.
+
+GATES
+- Coherence (<6 mm roots): p90 17.644 mm <=25; max 52.187 mm <=60: PASS.
+- Constructor: p90 8.000, max 8.000 mm: PASS. 93,628 children needed more because sparse root-to-backbone routes entered the exact SDF; 2,902,468 samples were suppressed rather than pushed farther.
+- Coarse/fine/projection retain their 8/3/5 mm bounds. Projection has 5,662/283,100 children >5 mm (2.000%), the allowed limit.
+- The profile wedge is gone. The new frontal route removes the eye-covering block, but scored front IoU is 0.5214 (<0.70), so promotion fails. Part rows and back-core opacity also remain failing.
+- Same-box ABC was regenerated: knot, behind-ear loops, sideburn tuft and blunt hairline band stay absent in B and C. Falsifier not triggered: raw B has no back knot.
+
+RENDER / SCOPE
+- Re-rendered scorer-v3 studio front/3q/profile/back plus IDs at 1024/64; rebuilt sheet.png, crops.png and ABC crops. External strands SHA256: 26dcd6ab48e0749ec3c49043cb70e1d19dfde78b9236258a21f7d66a76d44b74.
+- SCOPE: coherent guides, child construction and hair-groom11 evidence; skull registration, aisha-v3 targets and scorer-v3 cameras retained. No old-chain path, image-position trim or .blend.
+NOT TESTED: Quest/headset, other bodies/seeds, dynamics, held-out lights or promotion readiness.
+REMAINING: front IoU, part opening, back opacity/hem and the constructor suppression population need a guide-coverage pass.
+GATES_PASS=no.

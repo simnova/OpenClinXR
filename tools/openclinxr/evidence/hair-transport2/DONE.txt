@@ -1,0 +1,1 @@
+hair-transport2 done: narrow.json (REFUTED), r1/r2/r3 built+audited+scored, look-sheet.png, RESULT.txt. All REVERTED; CURRENT KEPT.

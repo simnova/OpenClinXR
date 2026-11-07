@@ -1,0 +1,76 @@
+{
+ "outsidePass": {
+  "targetMm": 0.5,
+  "threshMm": 0.5,
+  "nChildren": 276984,
+  "pointsPerChild": 41,
+  "offGridSamples": 0,
+  "preSamplesInside": 2164671,
+  "preSamplesFinite": 11356344,
+  "preInsideFracSamples": 0.190613,
+  "preInsideFracByBand": {
+   "parietal": {
+    "nSamples": 5355440,
+    "insideFrac": 0.210875
+   },
+   "temple": {
+    "nSamples": 3987040,
+    "insideFrac": 0.271926
+   },
+   "crown": {
+    "nSamples": 5075600,
+    "insideFrac": 0.159804
+   },
+   "back": {
+    "nSamples": 250960,
+    "insideFrac": 0.195712
+   }
+  },
+  "preChildrenWithInside": 132002,
+  "preChildInsideFracMax": 1.0,
+  "postSamplesLt0": 17,
+  "postSamplesLtTarget": 551839,
+  "nChildrenMoveGt3mm": 89362,
+  "fracChildrenMoveGt3mm": 0.322625,
+  "childMoveMm_p50": 0.507,
+  "childMoveMm_p90": 21.049,
+  "childMoveMm_p99": 51.5029,
+  "childMoveMm_max": 89.0081,
+  "nChildrenMovedGt0p05mm": 276962,
+  "pass": false
+ },
+ "guideClearStats": {
+  "nGuides": 2707,
+  "pointsPerGuide": 41,
+  "clearanceMm": 2.0,
+  "threshMm": 2.0,
+  "gateMm": 1.5,
+  "preOffGridSamples": 0,
+  "preSamplesLt2mm": 8325,
+  "preSamplesInside": 2550,
+  "preMinMm": -10.0832,
+  "postOffGridSamples": 0,
+  "postSamplesLtGate": 0,
+  "postSamplesLtClearance": 2604,
+  "postMinMm": 1.5036,
+  "nGuidesMovedGt0p05mm": 2702,
+  "fracGuidesMoved": 0.9982,
+  "guideMaxMoveMm_p50": 2.0,
+  "guideMaxMoveMm_p90": 2.7052,
+  "guideMaxMoveMm_p99": 7.3935,
+  "guideMaxMoveMm_max": 15.2275,
+  "sampleMoveMm_p50": 0.3167,
+  "sampleMoveMm_p90": 1.9666,
+  "sampleMoveMm_p99": 5.0848,
+  "sampleMoveMm_max": 15.2275,
+  "nSamplesMovedGt0p05mm": 99004,
+  "pass": true
+ },
+ "falsifier": {
+  "triggered": true,
+  "preInsideFracSamples": 0.190613,
+  "preChildrenWithInside": 132002,
+  "preChildInsideFracMax": 1.0,
+  "note": ">10% of children enter the body before the outside pass: Interpolate cuts through the skull between outside guides."
+ }
+}

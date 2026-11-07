@@ -1,0 +1,19 @@
+RESULT::hair-flow-1
+G1::3.227e+04 | [550,750] MISS
+G2::150 | 101 MISS
+G3::12.96 | <=3 MISS
+G4::4.393e-07 | <=10 PASS
+G5::0.8934 | <=0.2 MISS
+G6::33.45 | >=95 MISS
+G7::91.65 | >=95 MISS
+G8::0 | 0 PASS
+SAW::front: arrows front
+SAW::three_quarter: arrows three_quarter
+SAW::profile: arrows profile
+SAW::back: arrows back
+SAW::top: arrows top
+CAUSE(D1)::withheld: gates MISS
+COMMIT::pending
+STILL::guides/children/hair renders (later cards)
+BRIEF_MISSING::P1 head is Aisha GLB import at scale 1 (not MPFB 0.1); cap baked to world identity so scale is applied trivially
+HARM::none

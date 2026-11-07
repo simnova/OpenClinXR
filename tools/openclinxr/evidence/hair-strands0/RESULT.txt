@@ -1,0 +1,30 @@
+RESULT hair-strands0: frame-transport children (S9)
+interpolator: child(s) = sum_i w_i (G_i(s) + R_i(s) d_i), transported frames, inverse-quartic UV weights + 1.0-rad cutoff
+inputs: guides=/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-guides0/guides.npz roots=/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-scalp1/roots.npz sdf=/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz
+counts: roots=14155 guides=276 pointsPer=32 children=14155 (one per root)
+frames self-test: spin 0.000000 deg/100mm (gate <= 1.0), frenet contrast 64.70 deg/100mm, ortho 1.25e-16: True
+blend: 1/(duv+0.03)^4, cutoff 1.0 rad, nearest-alone fallback meanW0=0.6388 alone=467 rootExact=0.0000 mm
+clump: coarse 20.0 mm pull-tip 0.40 (219 cells 64.63); fine 4.5 mm pull-tip 0.25 (3468 cells mean 4.08); profile t^2 root->tip
+length jitter: sigma 0.04 seed 7 scale [0.8531, 1.1497]
+radii: root 0.050 mm -> tip 0.015 mm (t^1.5)
+projection (exact SDF, 0.3 mm margin, s>=1, roots pinned): pushed=158195 maxPush=73.1430 mm minSdfAfter=0.0579 insideAfter=0 rounds=8 outsideGrid=126
+part: assignAcross=0 (HARD 0); tipDrift=167 overshoot p50=1.68 max=6.33 mm; guideTipCross=13 (shape calibration: fitted guides converge across the midline by shape; interpolator adds no assignment crossing)
+lane: backStrands=12182 guideSpacing=1.55 mm lag=3 peakRatio=0.981 (gate < 1.5); within-guide tangent RMS ours=1.25 deg (n=224) vs old-style jittered control=8.61 deg
+determinism: 125b3bef142df97e == 125b3bef142df97e
+material: Principled Hair BSDF HUANG COLOR direct COLOR + look7 COLOR, Transmission 0.5 (card), radius 0.05 mm root tapering
+rig: v3-scorer rig geometry (key el 28.995 / daz -34.262 deg), shell-lane exposure suns 5.0/1.0/1.5, world 0.03, OIDN
+cameras: pinned v3-scorer manifest (front, three_quarter, profile_90, back) + held-out 22.5 deg + front-relit (+40 deg key); 1024 px / 64 spp / seed 7
+render times s: {"back": 45.1, "back-id": 49.4, "front": 21.9, "front-id": 14.5, "front-relit": 22.5, "heldout_22p5": 22.7, "profile_90": 37.1, "profile_90-id": 32.8, "three_quarter": 26.0, "three_quarter-id": 15.8}; total 288.3s
+R1 front above (skull, ID230): IoU=0.5137 signedP50=-20.22px absP95=34.02px
+R1 front below (skull, ID230): IoU=0.4835 signedP50=+8.00px absP95=120.84px
+R1 profile_90 above (skull, ID230): IoU=0.5913 signedP50=-61.52px absP95=137.28px
+R1 profile_90 below (skull, ID230): IoU=0.4143 signedP50=+1.00px absP95=109.95px
+R1 back above (skull, ID230): IoU=0.8227 signedP50=-41.00px absP95=96.20px
+R1 back below (skull, ID230): IoU=0.3039 signedP50=-40.00px absP95=96.00px
+R1 three_quarter: no registered target (same as shell)
+strands.npz sha256=557daea861fda1289fde7e13824e550f9d5494433dfebfd3202ecdd56ff11787 bytes=5355177
+ban-grep (7 names, fragments) over S9 *.py + evidence json/txt (RESULT/DONE excluded): sibling hits none; card-sanctioned input-path mentions (provenance, not reads) ['build.json:3:hair-guides', 'inputs-opened.txt:6:hair-guides']
+inputs-opened log (29 paths) in E/inputs-opened.txt; render inputs in E/blender-opened.txt
+SAW
+- SCOPE: strand interpolator output for the bake-off: 14,155 frame-transport children with two clump scales, Cycles renders on the pinned cameras, R1 rows for the record. Guide shape is the fitted-but-inadequate guides0 input (interpolator card, not a shape card).
+NOT TESTED: physical Quest 3 / worn-headset evidence; clinical validity, licensure, or scoring claims; EEVEE/Quest material response; other bodies/seeds; animation/combing dynamics; strands/cards bake-off numbers; relit/held-out R1 rows (rendered for the record, scored on front/profile/back); guide-shape adequacy (inadequate shape acknowledged in inputs).

@@ -1,0 +1,1589 @@
+{
+  "schemaVersion": 4,
+  "surfaceObject": "OCLX_cap",
+  "surfaceUvMap": "UVMap",
+  "attachment": "no Attach modifier; hand-written CURVE-domain surface_uv_coordinate (children1 M2); Interpolate alone",
+  "causeD1": "Attach Hair Curves to Surface (Snap to Surface on) teleports guides: evaluated guide roots shift mean 415 mm, centroid (dy +59 mm, dz -375 mm); cap/object matrices all identity; cap UVs 96% overlapped. Before/after: mut0 Attach-on displaced vs mut2 Attach-off on-scalp, same density/seed/scene.",
+  "capSurface": {
+    "apexY": -0.053241077810525894,
+    "stripVertexCount": 604,
+    "solidVertexCount": 31070,
+    "uvMissingCount": 0,
+    "uvRule": "nearest head face, barycentric (fan tri for quads)",
+    "splitIslands": true,
+    "islandCount": 2,
+    "islandSizes": [
+      15837,
+      15837
+    ]
+  },
+  "nameToIdentifier": {
+    "Geometry": [
+      "Output_1",
+      "Input_0",
+      "Output_1",
+      "Input_0",
+      "Output_1",
+      "Input_0",
+      "Output_1",
+      "Input_0"
+    ],
+    "Surface UV Coordinate": [
+      "Output_9"
+    ],
+    "Surface Normal": [
+      "Output_11",
+      "Output_25"
+    ],
+    "Surface Input Type": [
+      "Socket_0",
+      "Socket_0",
+      "Socket_0"
+    ],
+    "Surface": [
+      "Input_3",
+      "Input_4",
+      "Input_23",
+      "Input_2",
+      "Input_2",
+      "Input_3"
+    ],
+    "Surface UV Map": [
+      "Input_2",
+      "Input_18"
+    ],
+    "Surface Rest Position": [
+      "Input_6",
+      "Input_12"
+    ],
+    "Sample Attachment UV": [
+      "Input_10"
+    ],
+    "Snap to Surface": [
+      "Input_8"
+    ],
+    "Align to Surface Normal": [
+      "Input_7"
+    ],
+    "Blend along Curve": [
+      "Input_12"
+    ],
+    "Guide Index": [
+      "Output_6"
+    ],
+    "Follow Surface Normal": [
+      "Input_24"
+    ],
+    "Part by Mesh Islands": [
+      "Input_26"
+    ],
+    "Interpolation Guides": [
+      "Input_10"
+    ],
+    "Distance to Guides": [
+      "Input_28"
+    ],
+    "Distribution Method": [
+      "Socket_2"
+    ],
+    "Density": [
+      "Input_15",
+      "Socket_0"
+    ],
+    "Density Mask": [
+      "Input_14"
+    ],
+    "Mask Texture": [
+      "Input_19"
+    ],
+    "Viewport Amount": [
+      "Input_17"
+    ],
+    "Seed": [
+      "Input_16"
+    ],
+    "Replace Radius": [
+      "Input_6"
+    ],
+    "Radius": [
+      "Input_3"
+    ],
+    "Shape": [
+      "Input_2"
+    ],
+    "Factor Min": [
+      "Input_4"
+    ],
+    "Factor Max": [
+      "Input_5"
+    ],
+    "Length": [
+      "Socket_1"
+    ],
+    "Factor": [
+      "Input_5"
+    ],
+    "Offset Distance": [
+      "Input_4"
+    ],
+    "Above Surface": [
+      "Input_8"
+    ],
+    "Smoothing Steps": [
+      "Input_6"
+    ],
+    "Lock Roots": [
+      "Input_7"
+    ]
+  },
+  "cameraTarget": [
+    0.0,
+    0.0,
+    1.4735846519470215
+  ],
+  "d1_diagnosis": {
+    "blenderVersion": "5.1.1",
+    "a_matrices": {
+      "OCLX_cap": {
+        "name": "OCLX_cap",
+        "type": "MESH",
+        "matrix_world": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "identity": true,
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "parent": null
+      },
+      "OCLX_interp_guides_final_G": {
+        "name": "OCLX_interp_guides_final_G",
+        "type": "CURVES",
+        "matrix_world": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "identity": true,
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "parent": null
+      },
+      "OCLX_interp_guides_final_A": {
+        "name": "OCLX_interp_guides_final_A",
+        "type": "CURVES",
+        "matrix_world": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "identity": true,
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "parent": null
+      },
+      "OCLX_interp_guides_final_B": {
+        "name": "OCLX_interp_guides_final_B",
+        "type": "CURVES",
+        "matrix_world": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "identity": true,
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "parent": null
+      },
+      "OCLX_Aisha_head": {
+        "name": "OCLX_Aisha_head",
+        "type": "MESH",
+        "matrix_world": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "identity": true,
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "parent": "mpfb_peds_anxious_parent_standard_rig"
+      },
+      "OCLX_collision_basemesh": {
+        "name": "OCLX_collision_basemesh",
+        "type": "MESH",
+        "matrix_world": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            0.0
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "identity": true,
+        "location": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "parent": null
+      },
+      "OCLX_canonical_hair": {
+        "name": "OCLX_canonical_hair",
+        "type": "CURVES",
+        "matrix_world": [
+          [
+            1.0,
+            0.0,
+            0.0,
+            2.776418568828376e-06
+          ],
+          [
+            0.0,
+            1.0,
+            0.0,
+            -0.0009392048232257366
+          ],
+          [
+            0.0,
+            0.0,
+            1.0,
+            1.6865825402945234e-09
+          ],
+          [
+            0.0,
+            0.0,
+            0.0,
+            1.0
+          ]
+        ],
+        "identity": false,
+        "location": [
+          2.776418568828376e-06,
+          -0.0009392048232257366,
+          1.6865825402945234e-09
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ],
+        "parent": null
+      }
+    },
+    "npz": {
+      "shape": [
+        596,
+        32,
+        3
+      ],
+      "rootZmin": 1.4804102182388306,
+      "rootZmax": 1.6594268083572388
+    },
+    "b_children": {
+      "childCount": 1982,
+      "sample": 200,
+      "rootToCapMm": {
+        "mean": 2.3211170652182034e-05,
+        "p50": 8.33000246558413e-06,
+        "p95": 0.00012372704674135093,
+        "max": 0.00015579554712985555
+      },
+      "rootToGuideMm": {
+        "mean": 4.034923679985716,
+        "p50": 4.1147089667072905,
+        "p95": 6.720281349431721,
+        "max": 8.65111512180271
+      },
+      "offsetMeanMm": [
+        -0.020199837745167315,
+        0.30641044382718974,
+        0.07077634334564209
+      ],
+      "offsetSdMm": [
+        2.3584688450005737,
+        2.4830294901358863,
+        2.697713042407825
+      ]
+    },
+    "c_guides": {
+      "curves": 596,
+      "origRootShiftMm": {
+        "mean": 3.002783444602837,
+        "max": 4.075336343211788
+      },
+      "evaluatedCurves": 596,
+      "pointHist": {
+        "32": 596
+      },
+      "rootShiftMm": {
+        "mean": 415.06896795887167,
+        "p10": 20.33511792004625,
+        "p50": 110.03775139853688,
+        "p90": 1611.4498026622286,
+        "p95": 1631.290382097893,
+        "max": 1660.3874774082437
+      },
+      "evalRootCentroid": [
+        -0.00038695059331515243,
+        0.022547387067562957,
+        1.2180213180164363
+      ],
+      "npzRootCentroid": [
+        0.0003339845444602579,
+        -0.036442764583528166,
+        1.5929912094701857
+      ],
+      "centroidShiftMm": [
+        -0.7209351377754104,
+        58.990151651091125,
+        -374.96989145374937
+      ],
+      "nonRootShiftMm": {
+        "mean": 416.55283741125663,
+        "p95": 1633.7573053766694,
+        "max": 1663.375211070724
+      },
+      "evalRootToCapMm": {
+        "mean": 321.74471987932696,
+        "p50": 1.5081964122032332e-05,
+        "p95": 1475.0757217407227,
+        "max": 1475.0757217407227
+      },
+      "evalPointsCentroid": [
+        0.0015775583521878353,
+        0.023346683377493467,
+        1.09084149261299
+      ],
+      "npzPointsCentroid": [
+        0.0023123179369452743,
+        -0.03510757426358017,
+        1.4665766121870807
+      ]
+    },
+    "d_uv": {
+      "uvTris": 61920,
+      "capFaces": 61920,
+      "pixelsCovered": 625573,
+      "pixelsCoveredTwice": 507565,
+      "fracCoveredTwice": 0.8113601450190465,
+      "facesTouchingOverlap": 59603,
+      "fracFacesOverlap": 0.9625807493540052
+    },
+    "e_visible": [
+      "Curves",
+      "Icosphere",
+      "OCLX_Aisha_head",
+      "OCLX_cam",
+      "OCLX_canonical_hair",
+      "OCLX_cap",
+      "OCLX_fill",
+      "OCLX_interp_guides_final_A",
+      "OCLX_interp_guides_final_B",
+      "OCLX_interp_guides_final_G",
+      "OCLX_key",
+      "OCLX_rim",
+      "makeclothes_library_female_tight_jeans_pants",
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+      "makeclothes_library_toigo_t_shirt",
+      "mpfb_parent_tara_johnson_v1_body_mesh",
+      "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+      "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+      "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+      "mpfb_peds_anxious_parent_standard_rig",
+      "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+      "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+    ]
+  },
+  "mutation_log": [
+    {
+      "n": 0,
+      "what": "baseline",
+      "children": 1983,
+      "rootToGuideMm": {
+        "mean": 5.287268427527402,
+        "p95": 7.608190768272056,
+        "max": 9.560064782362968
+      },
+      "hist": {
+        "32": 1983
+      },
+      "notes": {
+        "capInfo": {
+          "apexY": -0.053241077810525894,
+          "stripVertexCount": 604,
+          "solidVertexCount": 31070,
+          "uvMissingCount": 0,
+          "uvRule": "nearest head face, barycentric (fan tri for quads)",
+          "splitIslands": true,
+          "islandCount": 2,
+          "islandSizes": [
+            15837,
+            15837
+          ]
+        }
+      },
+      "renders": {
+        "front": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/0-baseline/front.png",
+        "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/0-baseline/front-id.png"
+      }
+    },
+    {
+      "n": 1,
+      "what": "no-solidify",
+      "children": 1983,
+      "rootToGuideMm": {
+        "mean": 5.2857928125735025,
+        "p95": 7.608190768272056,
+        "max": 9.560064782362968
+      },
+      "hist": {
+        "32": 1983
+      },
+      "notes": {
+        "capInfo": {
+          "apexY": -0.053241077810525894,
+          "stripVertexCount": 604,
+          "solidVertexCount": 31070,
+          "uvMissingCount": 0,
+          "uvRule": "nearest head face, barycentric (fan tri for quads)",
+          "splitIslands": true,
+          "islandCount": 2,
+          "islandSizes": [
+            15837,
+            15837
+          ]
+        },
+        "capModifiers": [],
+        "solidifyPresent": false
+      },
+      "renders": {
+        "front": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/1-no-solidify/front.png",
+        "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/1-no-solidify/front-id.png"
+      }
+    },
+    {
+      "n": 2,
+      "what": "no-attach-hand-uv",
+      "children": 1457,
+      "rootToGuideMm": {
+        "mean": 5.767084886274106,
+        "p95": 7.799437243551642,
+        "max": 9.560064782362968
+      },
+      "hist": {
+        "32": 1457
+      },
+      "notes": {
+        "capInfo": {
+          "apexY": -0.053241077810525894,
+          "stripVertexCount": 604,
+          "solidVertexCount": 31070,
+          "uvMissingCount": 0,
+          "uvRule": "nearest head face, barycentric (fan tri for quads)",
+          "splitIslands": true,
+          "islandCount": 2,
+          "islandSizes": [
+            15837,
+            15837
+          ]
+        },
+        "handUV": {
+          "curves": 596,
+          "nan": 0,
+          "uMin": 0.6456583142280579,
+          "uMax": 0.9033679366111755,
+          "vMin": 0.16011300683021545,
+          "vMax": 0.8120583295822144
+        }
+      },
+      "renders": {
+        "front": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/2-no-attach-hand-uv/front.png",
+        "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/2-no-attach-hand-uv/front-id.png"
+      }
+    }
+  ],
+  "collideCompare": {
+    "without": {
+      "curves": 2238,
+      "insideBody": 30072,
+      "insideBodyFrac": 0.4199061662198391,
+      "insideShirt": 6823,
+      "insideShirtFrac": 0.09527200625558535,
+      "bodyDistMm": {
+        "p5": 0.8390431088607421,
+        "p50": 10.057582181538782
+      }
+    },
+    "with": {
+      "curves": 2240,
+      "insideBody": 15910,
+      "insideBodyFrac": 0.22195870535714285,
+      "insideShirt": 4166,
+      "insideShirtFrac": 0.05811941964285714,
+      "bodyDistMm": {
+        "p5": 1.0840559266521914,
+        "p50": 5.564781377218102
+      }
+    },
+    "verdict": "kept on: no visible degradation at 384px; inside-body 42%->22%, shirt 9.5%->5.8%"
+  },
+  "renderSettings": {
+    "size": 1024,
+    "samples": 64,
+    "views": [
+      "front",
+      "three_quarter",
+      "profile_90",
+      "back",
+      "crown_top"
+    ],
+    "camera": "HS camera/target via set_final_view"
+  },
+  "profileNote": "Real Set Hair Curve Profile group (Blender 5.1.1 bundled procedural_hair_node_assets.blend): Radius per pass, Shape 0, Replace Radius on. Corrects the false note in the superseded row-children.json.",
+  "collisionNote": "Real Shrinkwrap Hair Curves group (same asset blend): Above Surface 0.0, Offset Distance 2 mm, Lock Roots on, Factor 1.0, against body then t-shirt. Corrects the false note in the superseded row-children.json.",
+  "showThroughTop": {
+    "A": 0.7113411349242813,
+    "B": 0.4073090605797545
+  },
+  "guidesHandUV": {
+    "curves": 596,
+    "nan": 0,
+    "uMin": 0.6456583142280579,
+    "uMax": 0.9033679366111755,
+    "vMin": 0.16011300683021545,
+    "vMax": 0.8120583295822144
+  },
+  "guidesRenders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/guides/front.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/guides/front-id.png"
+    },
+    "three_quarter": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/guides/three_quarter.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/guides/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/guides/profile_90.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/guides/profile_90-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/guides/back.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/guides/back-id.png"
+    },
+    "crown_top": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/guides/crown_top.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/guides/crown_top-id.png"
+    }
+  },
+  "passes": {
+    "A": {
+      "evaluatedCurveCount": 1937,
+      "evaluatedPointCount": 61984,
+      "pointsPerCurveHistogram": {
+        "32": 1937
+      },
+      "insideBodyCount": 13750,
+      "insideBodyFrac": 0.22183144037170882,
+      "insideShirtCount": 3662,
+      "insideShirtFrac": 0.059079762519359834,
+      "bodyDistanceMm": {
+        "p5": 1.0877143335569057,
+        "p50": 5.56995275797032
+      },
+      "perGuideMax": 8,
+      "perGuideMedian": 3.0,
+      "partCrossingPointCount": 0,
+      "rootsCorrectIslandCount": 1937,
+      "rootsCorrectIslandFrac": 1.0,
+      "rootDensityCV": 0.8513455843327077,
+      "rootToGuideMm": {
+        "mean": 5.671241004722036,
+        "p50": 5.589052661355677,
+        "p95": 7.770256802602764,
+        "max": 9.560064782362968
+      },
+      "rootToCapMm": {
+        "mean": 0.013959596712486358,
+        "max": 3.0001818668097258
+      },
+      "offsetMeanMm": [
+        0.07708056194709086,
+        -0.5398091741364319,
+        -0.7586829106978238
+      ],
+      "offsetSdMm": [
+        3.3243938554975796,
+        3.2953612832943486,
+        3.289793351173061
+      ],
+      "faceBoxHairPixels": 32,
+      "faceBoxMaskTotal": 113243,
+      "renders": {
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passA/front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passA/front-id.png"
+        },
+        "three_quarter": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passA/three_quarter.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passA/three_quarter-id.png"
+        },
+        "profile_90": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passA/profile_90.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passA/profile_90-id.png"
+        },
+        "back": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passA/back.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passA/back-id.png"
+        },
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passA/crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passA/crown_top-id.png"
+        }
+      },
+      "density": 38002,
+      "radius": 0.0004,
+      "socketReadBack": {
+        "attach": {},
+        "interpolate": {
+          "Socket_0": {
+            "name": "Surface Input Type",
+            "identifier": "Socket_0",
+            "socketType": "NodeSocketMenu",
+            "interfaceDefault": "Object",
+            "wrote": "Object",
+            "wroteRaw": 0,
+            "readBack": 0
+          },
+          "Input_2": {
+            "name": "Surface",
+            "identifier": "Input_2",
+            "socketType": "NodeSocketObject",
+            "interfaceDefault": null,
+            "wrote": "OCLX_cap",
+            "wroteRaw": "OCLX_cap",
+            "readBack": "OCLX_cap"
+          },
+          "Input_18": {
+            "name": "Surface UV Map",
+            "identifier": "Input_18",
+            "socketType": "NodeSocketVector",
+            "interfaceDefault": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "wroteAttribute": "UVMap",
+            "readBackUseAttribute": true,
+            "readBackAttribute": "UVMap"
+          },
+          "Input_12": {
+            "name": "Surface Rest Position",
+            "identifier": "Input_12",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": false,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_24": {
+            "name": "Follow Surface Normal",
+            "identifier": "Input_24",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": false,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_26": {
+            "name": "Part by Mesh Islands",
+            "identifier": "Input_26",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": true,
+            "wrote": true,
+            "wroteRaw": true,
+            "readBack": true
+          },
+          "Input_10": {
+            "name": "Interpolation Guides",
+            "identifier": "Input_10",
+            "socketType": "NodeSocketInt",
+            "interfaceDefault": 4,
+            "wrote": 2,
+            "wroteRaw": 2,
+            "readBack": 2
+          },
+          "Input_28": {
+            "name": "Distance to Guides",
+            "identifier": "Input_28",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 0.0,
+            "wrote": 1.0,
+            "wroteRaw": 1.0,
+            "readBack": 1.0
+          },
+          "Socket_2": {
+            "name": "Distribution Method",
+            "identifier": "Socket_2",
+            "socketType": "NodeSocketMenu",
+            "interfaceDefault": "Random",
+            "wrote": "Poisson Disk",
+            "wroteRaw": 1,
+            "readBack": 1
+          },
+          "Input_15": {
+            "name": "Density",
+            "identifier": "Input_15",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 10.0,
+            "wrote": 38002.0,
+            "wroteRaw": 38002.0,
+            "readBack": 38002.0
+          },
+          "Input_14": {
+            "name": "Density Mask",
+            "identifier": "Input_14",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 1.0,
+            "wroteAttribute": "OCLX_interp_scalp_mask",
+            "readBackUseAttribute": true,
+            "readBackAttribute": "OCLX_interp_scalp_mask"
+          },
+          "Input_17": {
+            "name": "Viewport Amount",
+            "identifier": "Input_17",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 1.0,
+            "wrote": 1.0,
+            "wroteRaw": 1.0,
+            "readBack": 1.0
+          },
+          "Input_16": {
+            "name": "Seed",
+            "identifier": "Input_16",
+            "socketType": "NodeSocketInt",
+            "interfaceDefault": 0,
+            "wrote": 0,
+            "wroteRaw": 0,
+            "readBack": 0
+          }
+        }
+      },
+      "colliders": [
+        {
+          "collider": "OCLX_collision_basemesh",
+          "readback": {
+            "Socket_0": {
+              "name": "Surface Input Type",
+              "identifier": "Socket_0",
+              "socketType": "NodeSocketMenu",
+              "interfaceDefault": "Object",
+              "wrote": "Object",
+              "wroteRaw": 0,
+              "readBack": 0
+            },
+            "Input_2": {
+              "name": "Surface",
+              "identifier": "Input_2",
+              "socketType": "NodeSocketObject",
+              "interfaceDefault": null,
+              "wrote": "OCLX_collision_basemesh",
+              "wroteRaw": "OCLX_collision_basemesh",
+              "readBack": "OCLX_collision_basemesh"
+            },
+            "SurfaceUVMapSkipped": "input lookup 'Surface UV Map' type='NodeSocketVector' returned 0 sockets",
+            "Input_5": {
+              "name": "Factor",
+              "identifier": "Input_5",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 1.0,
+              "wrote": 1.0,
+              "wroteRaw": 1.0,
+              "readBack": 1.0
+            },
+            "Input_4": {
+              "name": "Offset Distance",
+              "identifier": "Input_4",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 0.0,
+              "wrote": 0.002,
+              "wroteRaw": 0.002,
+              "readBack": 0.0020000000949949026
+            },
+            "Input_8": {
+              "name": "Above Surface",
+              "identifier": "Input_8",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 0.5,
+              "wrote": 0.0,
+              "wroteRaw": 0.0,
+              "readBack": 0.0
+            },
+            "Input_6": {
+              "name": "Smoothing Steps",
+              "identifier": "Input_6",
+              "socketType": "NodeSocketInt",
+              "interfaceDefault": 0,
+              "wrote": 0,
+              "wroteRaw": 0,
+              "readBack": 0
+            },
+            "Input_7": {
+              "name": "Lock Roots",
+              "identifier": "Input_7",
+              "socketType": "NodeSocketBool",
+              "interfaceDefault": true,
+              "wrote": true,
+              "wroteRaw": true,
+              "readBack": true
+            }
+          }
+        },
+        {
+          "collider": "makeclothes_library_toigo_t_shirt",
+          "readback": {
+            "Socket_0": {
+              "name": "Surface Input Type",
+              "identifier": "Socket_0",
+              "socketType": "NodeSocketMenu",
+              "interfaceDefault": "Object",
+              "wrote": "Object",
+              "wroteRaw": 0,
+              "readBack": 0
+            },
+            "Input_2": {
+              "name": "Surface",
+              "identifier": "Input_2",
+              "socketType": "NodeSocketObject",
+              "interfaceDefault": null,
+              "wrote": "makeclothes_library_toigo_t_shirt",
+              "wroteRaw": "makeclothes_library_toigo_t_shirt",
+              "readBack": "makeclothes_library_toigo_t_shirt"
+            },
+            "SurfaceUVMapSkipped": "input lookup 'Surface UV Map' type='NodeSocketVector' returned 0 sockets",
+            "Input_5": {
+              "name": "Factor",
+              "identifier": "Input_5",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 1.0,
+              "wrote": 1.0,
+              "wroteRaw": 1.0,
+              "readBack": 1.0
+            },
+            "Input_4": {
+              "name": "Offset Distance",
+              "identifier": "Input_4",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 0.0,
+              "wrote": 0.002,
+              "wroteRaw": 0.002,
+              "readBack": 0.0020000000949949026
+            },
+            "Input_8": {
+              "name": "Above Surface",
+              "identifier": "Input_8",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 0.5,
+              "wrote": 0.0,
+              "wroteRaw": 0.0,
+              "readBack": 0.0
+            },
+            "Input_6": {
+              "name": "Smoothing Steps",
+              "identifier": "Input_6",
+              "socketType": "NodeSocketInt",
+              "interfaceDefault": 0,
+              "wrote": 0,
+              "wroteRaw": 0,
+              "readBack": 0
+            },
+            "Input_7": {
+              "name": "Lock Roots",
+              "identifier": "Input_7",
+              "socketType": "NodeSocketBool",
+              "interfaceDefault": true,
+              "wrote": true,
+              "wroteRaw": true,
+              "readBack": true
+            }
+          }
+        }
+      ],
+      "profileGroup": "Set Hair Curve Profile",
+      "profileReadback": {
+        "Input_3": {
+          "name": "Radius",
+          "identifier": "Input_3",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.009999999776482582,
+          "wrote": 0.0004,
+          "wroteRaw": 0.0004,
+          "readBack": 0.00039999998989515007
+        },
+        "Input_2": {
+          "name": "Shape",
+          "identifier": "Input_2",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.4999999403953552,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_6": {
+          "name": "Replace Radius",
+          "identifier": "Input_6",
+          "socketType": "NodeSocketBool",
+          "interfaceDefault": true,
+          "wrote": true,
+          "wroteRaw": true,
+          "readBack": true
+        },
+        "Socket_0": {
+          "name": "Density",
+          "identifier": "Socket_0",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Socket_1": {
+          "name": "Length",
+          "identifier": "Socket_1",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Input_4": {
+          "name": "Factor Min",
+          "identifier": "Input_4",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_5": {
+          "name": "Factor Max",
+          "identifier": "Input_5",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        }
+      },
+      "radiusMinMax": {
+        "min": 0.00039999998989515007,
+        "max": 0.00039999998989515007
+      }
+    },
+    "B": {
+      "evaluatedCurveCount": 50503,
+      "evaluatedPointCount": 1616096,
+      "pointsPerCurveHistogram": {
+        "32": 50503
+      },
+      "insideBodyCount": 363761,
+      "insideBodyFrac": 0.22508625725204442,
+      "insideShirtCount": 91517,
+      "insideShirtFrac": 0.05662844286478031,
+      "bodyDistanceMm": {
+        "p5": 1.092665549253117,
+        "p50": 5.537919359089502
+      },
+      "perGuideMax": 140,
+      "perGuideMedian": 86.0,
+      "partCrossingPointCount": 1,
+      "rootsCorrectIslandCount": 50503,
+      "rootsCorrectIslandFrac": 1.0,
+      "rootDensityCV": 0.846820197779505,
+      "rootToGuideMm": {
+        "mean": 5.288600926150961,
+        "p50": 5.201390535014636,
+        "p95": 7.630421104679931,
+        "max": 10.09031295258782
+      },
+      "offsetMeanMm": [
+        -0.0340264044584502,
+        -0.5013821125985887,
+        -0.7431733689055348
+      ],
+      "offsetSdMm": [
+        3.1108397574949107,
+        3.1397693621665304,
+        3.045818449048948
+      ],
+      "faceBoxHairPixels": 43,
+      "faceBoxMaskTotal": 136874,
+      "renders": {
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passB/front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passB/front-id.png"
+        },
+        "three_quarter": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passB/three_quarter.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passB/three_quarter-id.png"
+        },
+        "profile_90": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passB/profile_90.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passB/profile_90-id.png"
+        },
+        "back": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passB/back.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passB/back-id.png"
+        },
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passB/crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/final/passB/crown_top-id.png"
+        }
+      },
+      "rootToCapMm": {
+        "mean": 0.00012128247729510133,
+        "max": 3.0001397244632244
+      },
+      "density": 738556,
+      "radius": 5e-05,
+      "socketReadBack": {
+        "attach": {},
+        "interpolate": {
+          "Socket_0": {
+            "name": "Surface Input Type",
+            "identifier": "Socket_0",
+            "socketType": "NodeSocketMenu",
+            "interfaceDefault": "Object",
+            "wrote": "Object",
+            "wroteRaw": 0,
+            "readBack": 0
+          },
+          "Input_2": {
+            "name": "Surface",
+            "identifier": "Input_2",
+            "socketType": "NodeSocketObject",
+            "interfaceDefault": null,
+            "wrote": "OCLX_cap",
+            "wroteRaw": "OCLX_cap",
+            "readBack": "OCLX_cap"
+          },
+          "Input_18": {
+            "name": "Surface UV Map",
+            "identifier": "Input_18",
+            "socketType": "NodeSocketVector",
+            "interfaceDefault": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "wroteAttribute": "UVMap",
+            "readBackUseAttribute": true,
+            "readBackAttribute": "UVMap"
+          },
+          "Input_12": {
+            "name": "Surface Rest Position",
+            "identifier": "Input_12",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": false,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_24": {
+            "name": "Follow Surface Normal",
+            "identifier": "Input_24",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": false,
+            "wrote": false,
+            "wroteRaw": false,
+            "readBack": false
+          },
+          "Input_26": {
+            "name": "Part by Mesh Islands",
+            "identifier": "Input_26",
+            "socketType": "NodeSocketBool",
+            "interfaceDefault": true,
+            "wrote": true,
+            "wroteRaw": true,
+            "readBack": true
+          },
+          "Input_10": {
+            "name": "Interpolation Guides",
+            "identifier": "Input_10",
+            "socketType": "NodeSocketInt",
+            "interfaceDefault": 4,
+            "wrote": 2,
+            "wroteRaw": 2,
+            "readBack": 2
+          },
+          "Input_28": {
+            "name": "Distance to Guides",
+            "identifier": "Input_28",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 0.0,
+            "wrote": 1.0,
+            "wroteRaw": 1.0,
+            "readBack": 1.0
+          },
+          "Socket_2": {
+            "name": "Distribution Method",
+            "identifier": "Socket_2",
+            "socketType": "NodeSocketMenu",
+            "interfaceDefault": "Random",
+            "wrote": "Poisson Disk",
+            "wroteRaw": 1,
+            "readBack": 1
+          },
+          "Input_15": {
+            "name": "Density",
+            "identifier": "Input_15",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 10.0,
+            "wrote": 738556.0,
+            "wroteRaw": 738556.0,
+            "readBack": 738556.0
+          },
+          "Input_14": {
+            "name": "Density Mask",
+            "identifier": "Input_14",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 1.0,
+            "wroteAttribute": "OCLX_interp_scalp_mask",
+            "readBackUseAttribute": true,
+            "readBackAttribute": "OCLX_interp_scalp_mask"
+          },
+          "Input_17": {
+            "name": "Viewport Amount",
+            "identifier": "Input_17",
+            "socketType": "NodeSocketFloat",
+            "interfaceDefault": 1.0,
+            "wrote": 1.0,
+            "wroteRaw": 1.0,
+            "readBack": 1.0
+          },
+          "Input_16": {
+            "name": "Seed",
+            "identifier": "Input_16",
+            "socketType": "NodeSocketInt",
+            "interfaceDefault": 0,
+            "wrote": 0,
+            "wroteRaw": 0,
+            "readBack": 0
+          }
+        }
+      },
+      "colliders": [
+        {
+          "collider": "OCLX_collision_basemesh",
+          "readback": {
+            "Socket_0": {
+              "name": "Surface Input Type",
+              "identifier": "Socket_0",
+              "socketType": "NodeSocketMenu",
+              "interfaceDefault": "Object",
+              "wrote": "Object",
+              "wroteRaw": 0,
+              "readBack": 0
+            },
+            "Input_2": {
+              "name": "Surface",
+              "identifier": "Input_2",
+              "socketType": "NodeSocketObject",
+              "interfaceDefault": null,
+              "wrote": "OCLX_collision_basemesh",
+              "wroteRaw": "OCLX_collision_basemesh",
+              "readBack": "OCLX_collision_basemesh"
+            },
+            "SurfaceUVMapSkipped": "input lookup 'Surface UV Map' type='NodeSocketVector' returned 0 sockets",
+            "Input_5": {
+              "name": "Factor",
+              "identifier": "Input_5",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 1.0,
+              "wrote": 1.0,
+              "wroteRaw": 1.0,
+              "readBack": 1.0
+            },
+            "Input_4": {
+              "name": "Offset Distance",
+              "identifier": "Input_4",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 0.0,
+              "wrote": 0.002,
+              "wroteRaw": 0.002,
+              "readBack": 0.0020000000949949026
+            },
+            "Input_8": {
+              "name": "Above Surface",
+              "identifier": "Input_8",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 0.5,
+              "wrote": 0.0,
+              "wroteRaw": 0.0,
+              "readBack": 0.0
+            },
+            "Input_6": {
+              "name": "Smoothing Steps",
+              "identifier": "Input_6",
+              "socketType": "NodeSocketInt",
+              "interfaceDefault": 0,
+              "wrote": 0,
+              "wroteRaw": 0,
+              "readBack": 0
+            },
+            "Input_7": {
+              "name": "Lock Roots",
+              "identifier": "Input_7",
+              "socketType": "NodeSocketBool",
+              "interfaceDefault": true,
+              "wrote": true,
+              "wroteRaw": true,
+              "readBack": true
+            }
+          }
+        },
+        {
+          "collider": "makeclothes_library_toigo_t_shirt",
+          "readback": {
+            "Socket_0": {
+              "name": "Surface Input Type",
+              "identifier": "Socket_0",
+              "socketType": "NodeSocketMenu",
+              "interfaceDefault": "Object",
+              "wrote": "Object",
+              "wroteRaw": 0,
+              "readBack": 0
+            },
+            "Input_2": {
+              "name": "Surface",
+              "identifier": "Input_2",
+              "socketType": "NodeSocketObject",
+              "interfaceDefault": null,
+              "wrote": "makeclothes_library_toigo_t_shirt",
+              "wroteRaw": "makeclothes_library_toigo_t_shirt",
+              "readBack": "makeclothes_library_toigo_t_shirt"
+            },
+            "SurfaceUVMapSkipped": "input lookup 'Surface UV Map' type='NodeSocketVector' returned 0 sockets",
+            "Input_5": {
+              "name": "Factor",
+              "identifier": "Input_5",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 1.0,
+              "wrote": 1.0,
+              "wroteRaw": 1.0,
+              "readBack": 1.0
+            },
+            "Input_4": {
+              "name": "Offset Distance",
+              "identifier": "Input_4",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 0.0,
+              "wrote": 0.002,
+              "wroteRaw": 0.002,
+              "readBack": 0.0020000000949949026
+            },
+            "Input_8": {
+              "name": "Above Surface",
+              "identifier": "Input_8",
+              "socketType": "NodeSocketFloat",
+              "interfaceDefault": 0.5,
+              "wrote": 0.0,
+              "wroteRaw": 0.0,
+              "readBack": 0.0
+            },
+            "Input_6": {
+              "name": "Smoothing Steps",
+              "identifier": "Input_6",
+              "socketType": "NodeSocketInt",
+              "interfaceDefault": 0,
+              "wrote": 0,
+              "wroteRaw": 0,
+              "readBack": 0
+            },
+            "Input_7": {
+              "name": "Lock Roots",
+              "identifier": "Input_7",
+              "socketType": "NodeSocketBool",
+              "interfaceDefault": true,
+              "wrote": true,
+              "wroteRaw": true,
+              "readBack": true
+            }
+          }
+        }
+      ],
+      "profileGroup": "Set Hair Curve Profile",
+      "profileReadback": {
+        "Input_3": {
+          "name": "Radius",
+          "identifier": "Input_3",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.009999999776482582,
+          "wrote": 5e-05,
+          "wroteRaw": 5e-05,
+          "readBack": 4.999999873689376e-05
+        },
+        "Input_2": {
+          "name": "Shape",
+          "identifier": "Input_2",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.4999999403953552,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_6": {
+          "name": "Replace Radius",
+          "identifier": "Input_6",
+          "socketType": "NodeSocketBool",
+          "interfaceDefault": true,
+          "wrote": true,
+          "wroteRaw": true,
+          "readBack": true
+        },
+        "Socket_0": {
+          "name": "Density",
+          "identifier": "Socket_0",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Socket_1": {
+          "name": "Length",
+          "identifier": "Socket_1",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        },
+        "Input_4": {
+          "name": "Factor Min",
+          "identifier": "Input_4",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 0.0,
+          "wrote": 0.0,
+          "wroteRaw": 0.0,
+          "readBack": 0.0
+        },
+        "Input_5": {
+          "name": "Factor Max",
+          "identifier": "Input_5",
+          "socketType": "NodeSocketFloat",
+          "interfaceDefault": 1.0,
+          "wrote": 1.0,
+          "wroteRaw": 1.0,
+          "readBack": 1.0
+        }
+      },
+      "radiusMinMax": {
+        "min": 4.999999873689376e-05,
+        "max": 4.999999873689376e-05
+      }
+    },
+    "Battempts": 2
+  },
+  "judge": {
+    "dir": "final/judge-passB.json",
+    "name": "children4-passB",
+    "landmarks": [
+      103,
+      583,
+      512
+    ],
+    "iou": 0.5298618966674934,
+    "iouBaselinePackdup": 0.416,
+    "x1AboveBaseline": true,
+    "widthRms": 0.2177,
+    "widthBaselineAttach": 0.648,
+    "x2BelowBaseline": true,
+    "belowChin": 0.5883454542138812,
+    "belowChinTarget": 0.5511637712338218,
+    "belowChinBaselinePackdup": 0.56,
+    "x3Within": true,
+    "overallStopBar": false,
+    "overallV2": false,
+    "judgeShowThrough": {
+      "fraction": 0.007830444769262894,
+      "pass": true
+    },
+    "partOursPx": 79,
+    "partTargetPx": 22,
+    "photometricsRB": 1.535743016496926,
+    "photoClause": false,
+    "contaminated": false
+  },
+  "blendProvenance": {
+    "note": "final.blend re-saved by final3: A rebuilt at recorded density (fresh count 1941 vs rendered 1937; A renders/metrics kept from final2), B rebuilt at re-solved density and re-rendered."
+  }
+}

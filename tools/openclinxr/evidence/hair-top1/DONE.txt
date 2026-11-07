@@ -1,0 +1,1 @@
+COMPLETE_WITH_FAILED_DENSITY_GATE: honest baseline, T1 strands, five matched views, strict-alpha ID metrics, v6 judge, audits, timing, look sheet, and RESULT are present; see RESULT.txt for gate truth.

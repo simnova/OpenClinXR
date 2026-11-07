@@ -1,0 +1,13 @@
+{
+  "tag": "c_thin",
+  "base": "hair-ends1/base/strands.npz",
+  "deform": {
+    "cell": "thin",
+    "rule": "lower radii[:,0:27]=0.05mm + full-length dups w/ x/y 0.3mm jitter",
+    "lowerFibres": 65953,
+    "need": 18055,
+    "sBefore": 4.200415,
+    "sAfterThin": 3.29765,
+    "n": 118000
+  }
+}

@@ -1,0 +1,3 @@
+DONE2 hair-groom11 corrective pass
+
+Posterior advection is removed; coherence remains hard-pass. Constructor fit is capped at 8 mm and reports/suppresses routes needing more instead of increasing the cap. GATES_PASS=no; see RESULT.txt.

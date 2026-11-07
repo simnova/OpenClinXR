@@ -1,0 +1,52 @@
+{
+ "union": true,
+ "iters": 200,
+ "stepMm": 0.15,
+ "pinMm": 40.0,
+ "finalCleanup": {
+  "nPushed": 670251,
+  "nInsideAfter": 0
+ },
+ "nLive": 207566,
+ "nFrozen": 73848,
+ "dropFreeMeanMm": 7.738,
+ "dropFreeMaxMm": 106.617,
+ "dropFreeP90Mm": 24.093,
+ "contactBefore": 1266863,
+ "contactAfter": 1404028,
+ "contactDenom": 4987963,
+ "lenChangeMaxMm": 21.6038,
+ "lenChangeMeanMm": 0.03655,
+ "regions": {
+  "shoulders": {
+   "nFree": 184303,
+   "dropMeanMm": 4.389,
+   "dropMaxMm": 34.369,
+   "contactBefore": 14498,
+   "contactAfter": 17908
+  },
+  "back_mid": {
+   "nFree": 861000,
+   "dropMeanMm": -0.293,
+   "dropMaxMm": 31.28,
+   "contactBefore": 102886,
+   "contactAfter": 99459
+  },
+  "back_hem": {
+   "nFree": 2567,
+   "dropMeanMm": -1.484,
+   "dropMaxMm": 25.272,
+   "contactBefore": 151,
+   "contactAfter": 153
+  },
+  "nape": {
+   "nFree": 1098371,
+   "dropMeanMm": 7.477,
+   "dropMaxMm": 44.756,
+   "contactBefore": 103371,
+   "contactAfter": 22451
+  }
+ },
+ "secs": 3233.6,
+ "sha256": "0a65920c74b013f023ebd853235d78eed0f8a851e8f8fbd0ed64c5d4ef7f2550"
+}

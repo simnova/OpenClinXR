@@ -1,0 +1,117 @@
+hair-hull1: four-view hull from targets generated ON AISHA — RESULT
+===============================================================================
+WRITE ROOTS: S6 = tools/openclinxr/hair-groom/hull (new hull1.py; hull.py,
+hull0c.py, render_hull.py untouched), manifests/aisha_straight_long_v2.json
+(new; v1 untouched), E = tools/openclinxr/evidence/hair-hull1. No *.blend.
+
+STEP 1 — manifest v2 (manifests/aisha_straight_long_v2.json)
+  Same body (mpfb-peds-parent-aisha.glb, sha 5cab6676...) and same cameras
+  file (cameras-scorer-v3.json, sha 833bf136...) as v1. Pins the four
+  aisha-v1 masks (path + sha256): front be5173c1..., three_quarter
+  be5b9c77..., profile_90 b0db9f5f... (file mask-profile.png), back
+  cac45580.... registration.method = identity with per-view
+  scale/tx/ty = 1/0/0 for all four views, stated in the schema: the targets
+  were rendered from our own cameras on our own body (hair-target2), all
+  four ALIGNED on trustworthy signals (<= 3.7 px), so render frame IS the
+  target frame (1024x1024), including three_quarter — no landmark
+  registration, no warp. Mask provenance + residuals recorded in-manifest
+  (branch-A/B rule, 5x5 open/close, frayed bottom fringe, front-jaw seams).
+
+STEP 2 — carve (S6/hull1.py; reuse by import from hull/hull0c/instruments/
+envelope/exact; runtime inputs in E/inputs-opened.txt)
+  Rules = hull0's: per-voxel INSIDE_MASK / VISIBLE_OUTSIDE / BODY_OCCLUDED
+  per view, reject on any VISIBLE_OUTSIDE, 2 mm exact-SDF clearance, masks
+  dilated 2 px (registration p95 = 0 here + mask-edge noise), close <= 1
+  voxel with added voxels re-scored under the same rule, keep the
+  scalp-touching component. New: three_quarter body-depth map rasterized
+  from the same station0b bare-body mesh with the pinned 3q camera
+  (WS/body-depth-3q.npz, coverPx 424094); occlusion occl0 (5 mm patch).
+  Base (4 real views, no mirror): keptFinal 503,348 vox = 4,026,784 mm3;
+  volByVisCount 0:10775 1:75578 2:258435 3:113342 4:45218; closing +1895
+  all-pruned (136 SDF, 1759 outside) so close contributed nothing net;
+  1284 comps pre-close, dominant label 14 holds 100%, 43 dropped crumbs of
+  1-25 vox (101 vox = 0.02%, closing artifacts in the contact zone).
+  Mirror variant (E/variant-mirror, hull0b rule, mirrorVerify exact: proj
+  err 0.0 px, plumbing agreement 1.0): keptFinal 412,762; removes 90,586
+  vox (18.0%), adds 0 — the 3/4 view does NOT already constrain the far
+  side (removed mean x = -68 mm; sideL below-shoulder 5707 -> 2009 vox).
+  NOT ADOPTED: miss worsens (front missN 3520 -> 4016, IoU 0.36 -> 0.30),
+  roots 0.9887 -> 0.9664, crown p95 23.2 -> 17.2 mm. Imagine's four views
+  are mutually inconsistent, so exact-symmetry enforcement over-carves
+  curtain fullness the front+back silhouettes allow. Ships: 4-real-view
+  base. (hull0b needed the mirror against a phantom wedge; here the weak
+  side is real hair volume, not a wedge: 0/1-view bins 17% in both.)
+
+STEP 3 — head-mismatch check (hull0c step-1 probe over all four views,
+E/mismatch.png + WS/mismatch.json; identity = no warp)
+  poke: front 4529 px p95 24.2/max 29.5; three_quarter 2489 px p95 28.0/
+  max 89.0 (edge streak); profile_90 5635 px p95 62.4/max 72.3
+  (forehead/hairline rim); back 443 px p95 4.2/max 6.4. Expectation of ~0
+  NOT met — but the poke is exposed-scalp-as-skin anatomy, verified
+  against the target images: centre-part seam at the crown (correctly
+  unmasked scalp line), bare forehead above the hairline in profile/3q
+  (correctly unmasked skin), a 1-2 px far-rim streak. NO SHELL ADDED:
+  the carve covers the dome by itself (crown band 64/72 rays, mass p50
+  11.5 mm; roots 98.87% within 6 mm; occiput depth 17.0 vs target
+  15.6 mm), so there is no bald-dome mechanism to repair, and hull0c's
+  6-10 mm rind would lay hair over bare forehead/part skin the target
+  explicitly shows. The probe conflates skin-anatomy with head-mismatch
+  on same-body targets; carve coverage is the discriminator.
+
+STEP 4 — diagnostics (WS/diag.json, E/slices.png), side-by-side vs
+hull0c union [brackets; hull0c = different-person masks + shell]
+  (a) Volume by constraining-view count: 0:10775 1:75578 2:258435
+      3:113342 4:45218 vox [0:16817 1:33352 2:65937 3:153572 4:26331].
+  (b) Excess/miss vs UNDILATED mask (excess p95 <= 4 px gate):
+      front      exc 1180/1.0/2.0 PASS; miss 3520, p95 354.7; IoU 0.3645
+      three_quarter exc 1438/1.0/2.0 PASS; miss 1012, p95 43.0; IoU 0.6736
+      profile_90 exc 2890/1.0/2.0 PASS; miss 303, p95 9.1; IoU 0.7981
+      back       exc 3104/1.0/2.0 PASS; miss 277, p95 8.0; IoU 0.9109
+      [hull0c-carve exc p95 2.0 all views; union exc p95 11-35 from shell]
+      Front miss = curtain-length inconsistency across Imagine views
+      (front wants chest-length curtains to row 1023, 3q ends row 756,
+      profile shows no front curtain; miss rows concentrate 640+; verified
+      in target-*.png). The reject-on-any-OUTSIDE rule resolves it by
+      intersection: consensus = shoulder-length sides + full back.
+      Downstream consequence: guides cannot route long front curtains
+      from this hull; needs a view-priority rule or consistent targets —
+      flagged, not silently fixed.
+  (c) Thickness (mass p50/p95/max mm): crown(z1600) 11.5/23.2/31.0 [6.0/
+      11.2/12.0]; cheek 32.0/56.6/72.0 [28/49/50]; ear 24.0/41.9/58.0
+      [19/33/36]; occiput 18.0/30.0/44.0 [11/20.2/22]; shoulder 43.0/
+      59.7/67.0 [29/35/35]. Every band thicker than hull0c — no shell
+      needed, dome included.
+  (d) Hair below shoulder plane (z<1405) by sector: front 0 vox;
+      sideL 5707 / sideR 1740 vox (far-side -x fatter: the weak side);
+      back 141791 vox (95.0%); total 149238 vox = 1,193,904 mm3.
+      Front curtains stop at the plane: side-view veto (see b).
+  (e) Root proximity (14155 scalp1 roots): p50 2.83 / p95 4.0 /
+      max 12.81 mm; 98.87% within 6 mm (gate >= 95% PASS). Crown band
+      98.64%, mid 100%. [hull0c 100% with shell.]
+  (f) Sensitivity: 1 mm re-carve keptFinal 4032833 vox = same volume
+      +0.15%, maxContourDelta 3.61 px, fragile []; undilated-mask re-carve
+      excess 0 everywhere, maxContourDelta 2.0 px, fragile []. PASS.
+      [hull0c deltas 4.7 / 3.04.]
+  (g) Components: 1 (100%). SDF cross-check 263/264 probes hit body.
+      Symmetry note: front/back mask self-mirror IoU carried in
+      WS/carve_stats.json symmetry annex (unchanged instrument).
+
+STEP 5 — deliverables
+  E/hull.npz (220,588 B; occupancy + viscount + states_packed + legend +
+  views[front,three_quarter,profile_90,back] + mirror_profile False +
+  xs/ys/zs/spacing 2.0 + crop + shoulder 1405 + sdf_clear 2 + dil 2 +
+  registration_p95 0.0), WS/hull_surface.obj (270,964 tris, marching
+  cubes, world metres), E/hull.png (EEVEE light-material composite: 4
+  camera views + mirrored profile + target-3q tile; same murk level as
+  hull0c lineage figure) + per-view PNGs, E/slices.png (visible-count
+  slices + crown/cheek/ear/occiput bands), E/mismatch.png, E/GATES_PASS
+  (5/5), E/DONE.txt. Variant record kept at E/variant-mirror/.
+
+SAW: S6/hull1.py, manifests/aisha_straight_long_v2.json, E/hull.npz,
+  E/hull.png (+5 view PNGs), E/slices.png, E/mismatch.png, E/RESULT.txt,
+  E/GATES_PASS, E/DONE.txt, E/inputs-opened.txt, E/blender-opened.txt,
+  WS/{baseline_kept,carve_stats,diag,sens,mismatch}.json,
+  WS/{body-depth-3q,splat_final_*}, E/variant-mirror/.
+NOT TESTED: guide routing inside this hull (front-curtain shortfall above
+  is the known constraint); Blender-figure pixel-measurement of hull vs
+  target (diagnostics are analytic splats, not render reads).

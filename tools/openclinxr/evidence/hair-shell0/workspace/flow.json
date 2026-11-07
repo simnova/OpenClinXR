@@ -1,0 +1,24 @@
+{
+ "meshHashA": "b5da1088a52bf951c8f8175a357e8582bc7c1987d00828db498e0ffdd5dbd313",
+ "meshHashB": "b5da1088a52bf951c8f8175a357e8582bc7c1987d00828db498e0ffdd5dbd313",
+ "meshHashIdentical": true,
+ "shellNpzHash": "55316278252154557e00f4a75ed3be04577c34e7fcab9a19c7e64d0c85277531",
+ "verts": 19220,
+ "tris": 39999,
+ "volumeM3": -0.002468,
+ "clearancePreMinMm": -0.077,
+ "clearancePreP1Mm": 1.438,
+ "clearancePreP50Mm": 4.942,
+ "repairRounds": 5,
+ "clearanceMinMm": 1.992,
+ "clearanceP1Mm": 2.0,
+ "clearanceP50Mm": 4.946,
+ "innerMinMm": -2.197,
+ "innerIncluded": false,
+ "partX": 0.0008,
+ "nCrownRoots": 7943,
+ "uvSpan": [
+  1.6702,
+  1.2549
+ ]
+}

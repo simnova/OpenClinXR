@@ -1,0 +1,229 @@
+RESULT hair-groom24: children on back-faired guides, scored with the 3D crossing metric
+================================================================================
+Station: tools/openclinxr/hair-groom/strands/interp_children.py used as-is
+except ONE crash-fix line (sect 0b); guides = groom21 anchor-0.5 main
+(guides-21.npz) vs groom19 control (guides-19.npz), both with
+--region-weight --uv-cutoff 0.15 --pool-max-move-mm 60.
+Evidence: tools/openclinxr/evidence/hair-groom24/ (this dir).
+Date: 2026-10-18. Branch: hair-tgt2. Blender 5.1.1.
+
+VERDICT: GATES_PASS = no (neither build passes all gates).
+groom19f control reproduces groom19 almost exactly (front 0.7914 vs
+0.7913, 3q/profile identical, back 0.7964 vs 0.7965): the new flags alone
+change essentially nothing. groom24 (faired guides) removes the
+diagonal crossing locks by eye AND by both diagnostic metrics (3D true
+crossings 1827 -> 753 guide-level; gradAniso 1.023 -> 0.612, vs target
+0.530 / lock-free groom12 0.546), but REGRESSES silhouette: profile
+0.8156 -> 0.8076 (gate >= 0.81, miss 0.0024), back 0.7964 -> 0.7778
+(gate >= 0.80, miss 0.0222), R-LOOP profile 85k -> 112k / back 96k ->
+122k. Recommendation (sect 7): keep groom19 as the silhouette reference;
+carry groom24's GUIDES (not its silhouette) forward as the lock-fix
+lineage. The fairing answers the card's question: faired guides make a
+better lock read and a slightly worse silhouette.
+
+0. WHAT WAS BUILT (commands, deterministic)
+----------------------------------------------
+Control (guides-19 + flags):
+  mise exec -- python3 tools/openclinxr/hair-groom/strands/interp_children.py \
+    --outdir E/build-19f \
+    --guides tools/openclinxr/evidence/hair-groom19/build/guides-19.npz \
+    --roots .../hair-scalp1/roots.npz --sdf .../hair-cage1/body-exact-sdf.npz \
+    --hull .../hair-hull5/hull.npz \
+    --ear-frame .../hair-groom4/tucked/earframe.json \
+    --region-weight --uv-cutoff 0.15 --pool-max-move-mm 60
+  -> 283100 children, file sha fac47e1c30ffcb0e4da6ab5eb3dc2824903c8cfb656abc1938fa91eb6cb44086
+Test (same, guides-21 anchor-0.5 main):
+  (same with --outdir E/build-19f->build-24,
+   --guides .../hair-groom21/build/guides-21.npz)
+  -> 283100 children, file sha c7da8418dd0018aec2ff38560c60a8d4c7173b5ee1a2350509cd3b017e72834f
+strands.npz live in the asset store, NOT in git:
+  /Volumes/files/openclinxr-assets/store/hair-groom24/strands-{19f,24}.npz
+  + SHA256SUMS (both hashes above). E keeps build-{19f,24}/build.json +
+  inputs-opened.txt + render.log (small records).
+Region/pool flags as recorded in build.json: regionWeight on (both;
+nCrossUsed 13052 both -- weights depend on roots only, roots identical),
+uvCutoffRad 0.15 (both), poolDrop on:false (both). --pool-max-move-mm 60
+is INERT: it needs --pool-ref, none was prescribed, so no pool guide was
+dropped in either build (nDropped 0). The control therefore separates the
+flags' own effect cleanly: region-weight + uv-cutoff 0.15 change
+groom19's scores by <= 0.0001 (sect 4).
+Render (both, studio rig verbatim, HUANG c08 params):
+  HAIR_SIZE=1024 HAIR_SPP=64 Blender --background --python \
+    strands/render_studio.py -- --strands <store>/strands-{19f,24}.npz \
+    --params hair-groom7/params-c08.json \
+    --cameras hair-groom/manifests/cameras-scorer-v3.json \
+    --body-glb apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb \
+    --outdir E/renders-{19f,24} --opened E/renders-{19f,24}/opened.txt
+  19f: 470.8 s total; 24: 469.1 s total; CYCLES-CPU, seed 7, 1024/64spp.
+Calibration (re-run first, per card): E/calibrate24.py (copy of
+calibrate19 logic) against groom8a's own renders-studio reproduces groom8a
+exactly (front 0.7446 / 3q 0.8261 / profile 0.8543 / back 0.8579, all
+delta 0.0, all_within_0.02 = true; E/groom24cal-calib.json, E/calib.log).
+
+0b. STATION-CODE DEVIATION (one line, crash fix, algorithm unchanged)
+------------------------------------------------------------------------
+interp_children.py line 452 (inside `if args.region_weight:`):
+  old: (w[_r][_keep[_r]].sum(axis=1) > 0).sum()
+  new: ((w[_r] * _keep[_r]).sum(axis=1) > 0).sum()
+The old expression boolean-masks a (k,4) array to 1-D, then .sum(axis=1)
+raises AxisError: EVERY build with --region-weight and any cross-boundary
+candidate crashed. groom21 never built children, so it never hit this.
+The fix preserves the author's intent (per-row kept-weight sums) and is
+unreachable with default flags. Proof the default path is untouched:
+rebuilt groom19 with all-default flags to /tmp -> points+radii sha
+c75e203fbc66a6551c02e4b408f061612407922591901ed4b198154c25be92ed,
+identical to the value groom21 RESULT sect 6 recorded for the same
+rebuild. (Groom19's own 41dcdd57... is the compressed-FILE sha, not the
+array sha; same bytes either way.)
+
+1. EVERY GATE (brief thresholds; provenance in parentheses)
+--------------------------------------------------------------
+groom19f control (calibrated scorer E/score24.py; gates E/build/gates24.json):
+  frontIoU   0.7914 vs groom19 0.7913, delta +0.0001  PASS (+-0.01)
+  3q         0.8406 vs >= 0.83                       PASS
+  profile    0.8156 vs >= 0.81                       PASS
+  back       0.7964 vs >= 0.80                       FAIL (miss 0.0036)
+  concha     front 0 / 3q 0 / profile 0               PASS
+  insideBody 0                                       PASS
+  faceMask   front 3036 <= 3424.9                    PASS (3q 2732 > 2127.3,
+             report: same 3q FAIL groom19 has)
+  determinism file+array sha identical on rebuild    PASS
+groom24 test (same provenance):
+  frontIoU   0.7947 vs groom19 0.7913, delta +0.0034  PASS (+-0.01)
+  3q         0.8368 vs >= 0.83                       PASS
+  profile    0.8076 vs >= 0.81                       FAIL (miss 0.0024)
+  back       0.7778 vs >= 0.80                       FAIL (miss 0.0222)
+  concha     0 / 0 / 0                               PASS
+  insideBody 0                                       PASS
+  faceMask   front 3369 <= 3424.9                    PASS (margin only 56 px;
+             3q 3203 > 2127.3, report)
+  determinism file+array sha identical on rebuild    PASS
+  calibration all_within_0.02                        PASS (both)
+GATES_PASS = no (control 6/7 silhouette gates + all safety gates pass;
+test passes front/3q + all safety gates, fails profile+back).
+
+2. EVIDENCE, NOT GATES (reported; provenance in parentheses)
+---------------------------------------------------------------
+3D crossing count (diag23 step A VERBATIM: cross24.py monkeypatches only
+GUIDE_FILES, same code; E/metrics-cross24.json):
+  guides-19: 2D 9715 / 3D<=3mm 1827 (18.8%), d3 p50 15.0 mm
+  guides-21: 2D 7417 / 3D<=3mm  753 (10.2%), d3 p50 138.8 mm
+  Both 2D counts reproduce groom19/groom21 baselines exactly. True
+  crossings cut -59%. Permuted control 809 (groom23diag, not re-run):
+  most of the cut is smoothing, NOT coherence -- recorded, not hidden.
+gradAniso gy/gx sigma-2 in the back-knot box (diag23 _aniso_darkstats
+VERBATIM incl. judge-v6 registration; E/grad24.py, E/metrics-grad24.json):
+  target 0.5302 (reproduces diag23 0.530) / groom12 0.546 (diag23, not
+  re-run) / groom19 1.0228 (reproduces 1.023) / groom19f 1.0165 /
+  groom24 0.6121. Fairing moves the metric 84% of the way from locked to
+  lock-free. Mechanism still NOT proven (fineness confound stands) -- use
+  as evidence, not as gate. Dark-tail secondary metric moves the WRONG
+  way (mean area px: target 56.4 / 19 91.6 / 19f 98.8 / 24 110.6) --
+  reported, not hidden.
+Native-resolution back-knot read (rows 150-420, cols 512-765; E/crops.png
+row 1; /tmp/knot4.png work copy):
+  groom19: LOCKS PRESENT -- a near-horizontal strand bundle crosses the box
+    mid-height, with diagonal bands forming X/lattice crossings, worst on
+    the right side.
+  groom19f: LOCKS PRESENT, same bundles in the same places -- the flags
+    alone change nothing visible here (matches scores <= 0.0001).
+  groom24: LOCKS LARGELY ABSENT -- flow reads vertical/downward through
+    the box; the horizontal bundle is gone; soft diagonal texture remains
+    upper-right plus a vertical rope-like clump at the right edge, but no
+    crisp crossing lattice in the box centre.
+  knotHole metric 0 px for both (no bald hole anywhere -- consistent with
+  groom19: tangle without hole).
+R-LOOP (report; groom19 85k/96k vs <11587 gate already failed there):
+  groom19f profile 85,140 / back 95,616 (= groom19 to the digit);
+  groom24 profile 112,000 / back 122,498 (+31% / +28% vs control).
+  The fairing adds winding while removing crossings.
+Miss/excess px (report): front 6813/12155 -> 6355/12353; 3q 8155/9982 ->
+8022/10662; profile 4321/28421 -> 4166/30373 (excess grows); back
+50597/22246 -> 57253/22282 (miss grows +6656: the back IoU drop is miss,
+not excess). Colour ratio 1.02 (report PASS). Depth bands: same pattern
+as groom19 (parietal p50 ratio 0.71, temple 0.50 -- interpolator sits
+closer than guides; report).
+
+3. WHY THE SILHOUETTE GOT WORSE (mechanism, evidence-backed)
+---------------------------------------------------------------
+The fairing moved back guides a lot (groom21: back displacement p90 86.4
+mm, max 229.5 mm -- recorded). Children follow their guides; the drape
+columns land in different pixels. The knot-box flow improves (locks were
+misplaced strands; moving them helps the box) while the silhouette pays
+(back miss +6656 px, concentrated right hem + upper-right where the
+tangle was; profile excess +1952 px). Concha trim rose (33826 -> 40132
+strands trimmed, all projected/trimmed -- concha gate still 0). Nothing
+here suggests the scorer moved: calibration is exact and the control
+reproduces groom19 to <= 0.0001.
+
+4. CONTROL DETAILS (the flags' own effect, isolated)
+--------------------------------------------------------
+groom19f vs published groom19: front 0.7914/0.7913, 3q 0.8406/0.8406,
+profile 0.8156/0.8156, back 0.7964/0.7965, concha 0, insideBody 0,
+faceMask front PASS / 3q FAIL (same), knotHole 0, R-LOOP identical to the
+digit, gradAniso 1.0165 vs 1.0228, blend translation stats identical
+(roots unchanged -> same selection/weights; guides enter only via shape).
+Region-weight cross-boundary uses: 13052 both builds. Conclusion: with
+these guides, --region-weight --uv-cutoff 0.15 (--pool-max-move-mm inert)
+is a no-op within measurement noise. All groom24 deltas are the
+FAIRING's doing, not the flags'.
+
+5. FILE MANIFEST
+------------------
+E/sheet.png (target | groom19 | groom19f | groom24, 4 views)
+E/crops.png (back-knot box NATIVE row + 9 regional rows, same column order)
+E/score24.json (full scorer output, both builds) + E/build/gates24.json
+E/groom24cal-calib.json + E/calib.log (calibration re-run)
+E/metrics-cross24.json (3D crossings) + E/metrics-grad24.json (gradAniso)
+E/build-{19f,24}/build.json + inputs-opened.txt + render.log (small)
+E/renders-{19f,24}/ (studio 1024/64 beauty + IDs + render-times.json)
+E/calibrate24.py E/score24.py E/gates24.py E/cross24.py E/grad24.py
+E/make_sheet24.py (all committed; station-frame/guide-depth/rulers read
+from groom19, not copied)
+STORE: /Volumes/files/openclinxr-assets/store/hair-groom24/
+strands-{19f,24}.npz + SHA256SUMS (NOT in git, per no-.npz rule)
+Committed station change: strands/interp_children.py line 452 (sect 0b).
+
+6. SCOPE
+----------
+Local Blender lane only (Cycles studio 1024/64spp/seed7, scorer-v3
+cameras, skull registration, aisha-v3 targets/masks). Guide inputs
+unchanged (guides-19 anchor n/a, guides-21 anchor 0.5 ONE pass). No .npz
+in git (store + SHA256SUMS). Score scripts adapted from groom19 (tag
+swap + brief gate table); scorer math untouched; calibration re-run.
+
+7. PROMOTION RECOMMENDATION
+-----------------------------
+Promote NEITHER build as a gate-passing groom (GATES_PASS = no, honest).
+Keep groom19 as the silhouette reference. Carry GUIDES-21 forward as the
+lock-fix lineage: it is the first variant since groom12 whose back-knot
+box reads as flow rather than lattice (eye 0.612 vs 1.023 vs target
+0.530), with zero safety-gate regressions (concha/insideBody/face-front
+all pass, determinism byte-identical). Cost is known and bounded:
+profile -0.008 / back -0.019 IoU, R-LOOP +~30%, dark-tail metric worse.
+Next work should recover back silhouette (right-hem density + upper-right
+re-drape) on guides-21, not revert to guides-19.
+
+8. NOT TESTED
+---------------
+Physical Quest 3 / worn-headset evidence; EEVEE/Quest material response;
+other bodies/seeds; animation/combing dynamics; relit/held-out R1 rows;
+clinical validity, licensure, or scoring claims. gradAniso lock-vs-
+fineness disentangling (strand-width-matched synthetic-lock injection)
+not attempted. guides-22 family not re-run here (diag23 numbers cited).
+Pool-drop path (--pool-ref) untested: inert by prescription.
+
+9. REMAINING (report-only)
+----------------------------
+- Back silhouette on guides-21: miss +6656 px (right hem + upper-right);
+  needs region-targeted cover without re-breaking the knot box.
+- Profile excess +1952 px: side over-cover from displaced drape columns.
+- R-LOOP +31%/+28%: fairing adds winding; needs guide-side unwind or
+  fewer interior blends (same prescription as groom19's remainder).
+- Face-mask front margin thinned (3036 -> 3369 vs allow 3424.9): watch on
+  the next variant; 3q face FAIL persists in all builds.
+- Station: the --pool-ref drop path has never been exercised with a real
+  reference; if a future card prescribes it, test on a toy first (the
+  line-452 crash shows these paths were never run).
+
+GATES_PASS: no.

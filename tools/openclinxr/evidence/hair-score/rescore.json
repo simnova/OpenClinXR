@@ -1,0 +1,40 @@
+{
+  "schemaVersion": "openclinxr.hair-rescore.v1",
+  "scorer": "tools/openclinxr/evidence/hair-score/score.py",
+  "definitions": {
+    "iou": "judge v6 with hair-curtain3/landmarks.json and canonical absolute cameras",
+    "partSideHonest": "hair-top1/metric.py front rows strictly above the subject-specific centre hairline; part +/-3 mm; sides 7-24 mm",
+    "bareTiles": "crown-top physical strips from hair-top1/metric.py; fraction with ID alpha <30",
+    "partialTiles": "same strips; fraction with 30<=ID alpha<230",
+    "tileOrderMm": ["0-10", "10-20", "20-30", "30-50"]
+  },
+  "cells": [
+    {
+      "cell": "hair-top1 t1 + hair-look5 BEST",
+      "score": "runs/t1-look5/score.json",
+      "iou": {"front": 0.686925885126954, "profile": 0.6815174867792478, "back": 0.7839616782198362},
+      "p50": {"front": 0.07640862745098038, "three_quarter": 0.10806431372549019, "profile_90": 0.13020941176470588, "back": 0.11143529411764706},
+      "partSideHonest": 0.9059002230122042,
+      "bareTiles": {"0-10": 0.007213014119091467, "10-20": 0.020027002700270028, "20-30": 0.00034215328467153286, "30-50": 0.00006257039169065198},
+      "partialTiles": {"0-10": 0.22084100675260895, "10-20": 0.39018901890189017, "20-30": 0.16902372262773724, "30-50": 0.04204730321611813}
+    },
+    {
+      "cell": "hair-real1 a1 + hair-look5 BEST",
+      "score": "runs/a1-look5/score.json",
+      "iou": {"front": 0.6883191297783517, "profile": 0.681018814167117, "back": 0.7818585363420665},
+      "p50": {"front": 0.07585803921568628, "three_quarter": 0.10778117647058824, "profile_90": 0.13020941176470588, "back": 0.11060156862745098},
+      "partSideHonest": 0.9468840140276018,
+      "bareTiles": {"0-10": 0.005985267034990792, "10-20": 0.017326732673267328, "20-30": 0.0004562043795620438, "30-50": 0.00012514078338130396},
+      "partialTiles": {"0-10": 0.224524248004911, "10-20": 0.3851260126012601, "20-30": 0.1594434306569343, "30-50": 0.039294205981729446}
+    },
+    {
+      "cell": "hair-int1 i1 + hair-int1 material",
+      "score": "runs/i1-int1/score.json",
+      "iou": {"front": 0.6824606591246257, "profile": 0.6805344431490036, "back": 0.782668500687758},
+      "p50": {"front": 0.07775686274509803, "three_quarter": 0.11143529411764706, "profile_90": 0.13464549019607844, "back": 0.11535686274509803},
+      "partSideHonest": 1.0330517358749698,
+      "bareTiles": {"0-10": 0.016267648864333947, "10-20": 0.016201620162016202, "20-30": 0.0002281021897810219, "30-50": 0.0006257039169065198},
+      "partialTiles": {"0-10": 0.5540208717004297, "10-20": 0.524077407740774, "20-30": 0.3974680656934307, "30-50": 0.15673883118508322}
+    }
+  ]
+}

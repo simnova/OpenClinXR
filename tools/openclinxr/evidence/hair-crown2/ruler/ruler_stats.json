@@ -1,0 +1,61 @@
+{
+ "bands": {
+  "front": {
+   "ours": [
+    103,
+    271
+   ],
+   "tgt": [
+    127,
+    295
+   ]
+  },
+  "back": {
+   "ours": [
+    145,
+    299
+   ],
+   "tgt": [
+    120,
+    274
+   ]
+  }
+ },
+ "definition": "OUR = capmask-white(>127) & silhouette(ID>=30,close7,dilate5) & band; TARGET = targetmask(>127) & band(H-mapped)",
+ "front": {
+  "ours": {
+   "pixels": 23002,
+   "meanLum": 0.21317161641528187,
+   "meanHueDeg": 23.799199517100003,
+   "orangeFrac": 0.09516563777062864
+  },
+  "drapeHairFrac": 0.88769327204346,
+  "drapePx": 38288,
+  "capPx": 31924,
+  "capInBandPx": 29782,
+  "target": {
+   "pixels": 29317,
+   "meanLum": 0.12268445060652088,
+   "meanHueDeg": 29.415625011290267,
+   "orangeFrac": 0.0
+  }
+ },
+ "back": {
+  "ours": {
+   "pixels": 22502,
+   "meanLum": 0.1924120621260681,
+   "meanHueDeg": 22.819331904404294,
+   "orangeFrac": 0.07341569638254378
+  },
+  "drapeHairFrac": 0.9184120465434634,
+  "drapePx": 51135,
+  "capPx": 23727,
+  "capInBandPx": 22502,
+  "target": {
+   "pixels": 32156,
+   "meanLum": 0.09144415950184027,
+   "meanHueDeg": 32.04768747940668,
+   "orangeFrac": 0.0
+  }
+ }
+}

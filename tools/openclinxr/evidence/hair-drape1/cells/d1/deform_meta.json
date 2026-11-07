@@ -1,0 +1,33 @@
+{
+  "tag": "d1",
+  "base": "hair-prof1/cells/combo/strands.npz",
+  "op": "rear y-shift anterior by k*gap(z) with 150mm arc fade, curtain untouched, generator copy guides16_drape.py",
+  "k": 0.5,
+  "gap_anchors_mm": [
+    {
+      "z": 1.602,
+      "gap": 27.9636
+    },
+    {
+      "z": 1.56,
+      "gap": 22.8369
+    },
+    {
+      "z": 1.518,
+      "gap": 22.3709
+    },
+    {
+      "z": 1.476,
+      "gap": 27.0315
+    },
+    {
+      "z": 1.432,
+      "gap": 27.4975
+    },
+    {
+      "z": 1.384,
+      "gap": 50.8005
+    }
+  ],
+  "rearFibres": 37647
+}

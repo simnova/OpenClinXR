@@ -1,0 +1,11 @@
+{
+  "tag": "c_spread",
+  "base": "hair-ends1/base/strands.npz",
+  "deform": {
+    "cell": "spread",
+    "rule": "independent per-fibre lateral lean sigma 2.5deg over lower 30% arc (tilt4 sheet-frame, all fibres)",
+    "seed": 1507,
+    "thetaStd": 2.5,
+    "thetaMaxAbs": 10.624
+  }
+}

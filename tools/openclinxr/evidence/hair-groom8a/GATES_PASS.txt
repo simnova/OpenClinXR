@@ -1,0 +1,6 @@
+GATES_PASS hair-groom8a (honest: failing gates stay failing, see REMAINING in RESULT.txt)
+depth parietal 7.05/14.75 temple 5.91/10.15 (p50>=3.5 p90>=8): PASS
+miss:excess front 0.95:1 (<=2:1 PASS) 3q 3.73:1 (<=2:1 FAIL)
+front IoU 0.7446 (>=0.62 PASS, target 0.65) | 0 deleted: TRUE | seam 0px (<=4 PASS)
+R-LOOP 17770 (below groom5 11587: FAIL) | temple 3q ratio 0.793 (holds groom6 0.85: FAIL)
+hard gates (count/part/inside/pinna-3mm/determinism/lane/frames): PASS

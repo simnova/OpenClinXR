@@ -1,0 +1,56 @@
+{
+ "files": {
+  "hair_judge": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/hair_judge.py",
+   "sha256": "46e567734852169b8e89ce015e520f27dcdc2cd83e871903924686c7fd2d8474"
+  },
+  "rulers_v4": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-score/rulers_v4.py",
+   "sha256": "0ab5cde74ccc530e65a85003d424aad9327a7a1f77b59a64042d201dcdcb9bef"
+  },
+  "target_front_mask": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-front-v2.png",
+   "sha256": "deb150fb57e20aab87654767fdfa0341a112c0b7d8565d936d273ce77200b604"
+  },
+  "target_profile_90_mask": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-profile-v2.png",
+   "sha256": "78718ed580c630d0fa68c34080de0b42e699dc6d880377b25a8da4f2629bf07e"
+  },
+  "target_back_mask": {
+   "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-back-v3.png",
+   "sha256": "6d182281e771247a3b3489ab4b7a5a52ce52e16ef85b4bb5ef354e3512fb9cbd"
+  },
+  "current_front_id": {
+   "path": "tools/openclinxr/evidence/hair-strands0/renders/front-id.png",
+   "sha256": "0ff8ee3511ffec76a54ca06736ba10113a545de2b6c9b73610d3dd7ccda44660"
+  },
+  "current_three_quarter_id": {
+   "path": "tools/openclinxr/evidence/hair-strands0/renders/three_quarter-id.png",
+   "sha256": "c117f7ed500bd41c4351e8689616fa094214e34cbfc99de715f9a02738fb7d07"
+  },
+  "current_profile_90_id": {
+   "path": "tools/openclinxr/evidence/hair-strands0/renders/profile_90-id.png",
+   "sha256": "c684bd95e400ba71233fa3b3a20fd13db82e3ea64c88e88a6f1869484b02d85b"
+  },
+  "current_back_id": {
+   "path": "tools/openclinxr/evidence/hair-strands0/renders/back-id.png",
+   "sha256": "9026dd97bb4e035bb4fa9486cb3093d97a60c7b9836679831a59496e3f204ea9"
+  },
+  "current_front_beauty": {
+   "path": "tools/openclinxr/evidence/hair-strands0/renders/front.png",
+   "sha256": "7750452bd3873a3173903bff7aba98da7801f6e883377b55bf22561358716d82"
+  },
+  "current_three_quarter_beauty": {
+   "path": "tools/openclinxr/evidence/hair-strands0/renders/three_quarter.png",
+   "sha256": "18b3039558358babad0d47faf3bd623746c2641bc6ce019e069980070407876d"
+  },
+  "current_profile_90_beauty": {
+   "path": "tools/openclinxr/evidence/hair-strands0/renders/profile_90.png",
+   "sha256": "b2fa60832729258ac3fa8f2c96f6f3c1d828b7f5074107a89cb51ef1ce0ebfd3"
+  },
+  "current_back_beauty": {
+   "path": "tools/openclinxr/evidence/hair-strands0/renders/back.png",
+   "sha256": "00eea705749b49a1cc086745749f32c8a2b9d6264498e31b42b725ce48963525"
+  }
+ }
+}

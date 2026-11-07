@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "best": "base (keep set empty under the briefed all-at-once KEEP rule; see RESULT.txt).",
+  "derivation": "Combination of zero kept cells = base strands + base params + base scene. Beauty/ID/score/judge artifacts copied bit-for-bit from E/base/; no re-render (renderer is seeded deterministic: 1024px/64sp/seed 0, score.py v3 + score_tt TT 0.5).",
+  "strands": "tools/openclinxr/evidence/hair-prof1/cells/combo/strands.npz",
+  "materialRigParams": "tools/openclinxr/evidence/hair-crown1/base_params.json (look7 COLOR + rig1 rig block + lobe_T 0.5)",
+  "scorer": "tools/openclinxr/evidence/hair-score/score.py v3 via tools/openclinxr/evidence/hair-count2/score_tt.py"
+}

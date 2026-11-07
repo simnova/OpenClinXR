@@ -1,0 +1,113 @@
+RESULT hair-groom10diag: groom9 knot / loops / tuft / hairline attribution
+
+SUBJECT AND REPRODUCTION
+- Source is commit e1533373f (this worktree HEAD).  diag_build.py executes
+  interp9_children.py after fail-closed, in-memory instrumentation; station
+  code was not edited.  Build flags are the groom9 flags recorded in
+  hair-groom9/strands-asset.txt: guides-9.npz, scalp1 roots, exact body SDF,
+  groom4 earframe, and all interp9 defaults (K=20, seed=7, subseed=11,
+  max-guide-gap=3 mm, far-snap=15 mm, depth servo on, ear keep-out=4 mm).
+- Rebuilt final SHA256 is
+  01cc58ab3ca99a5bddbd8ea293e0f54ee3a22fc8b919160b188c49335d25b803,
+  byte-identical to groom9.  Raw/final big NPZs are under
+  /Volumes/files/openclinxr-assets/store/hair-groom10diag/; no blend file.
+- stage-displacements.npz has 283100 children x 11 ordered stage IDs,
+  per-child maximum net displacement, argmax sample, raw/final guide IDs and
+  weights, active-guide root/full-path separations, parent and root.  Exact
+  per-selected-strand records, guide turns, child turns and controls are in
+  strand-analysis.json + defect-strands.npz.
+
+STAGE DISPLACEMENT, ALL 283100 CHILDREN (net input->output per stage)
+stage                    moved       >5 mm     p90 mm    max mm
+far_snap                      0            0      0.000      0.000
+part_sweep                 4248         2054      0.000      9.615
+persistent_offset         11040            0      0.000      2.500
+depth_servo              208314        25068      4.776      6.000
+coarse_clump             266419       223600     55.986    106.966
+fine_clump               283008       107908     20.319     68.679
+length_jitter            283100       124541     13.858     34.016
+hairline_taper             5860         5860      0.000     70.589
+ear_keepout               18233          767      0.000     10.246
+sdf_project_outside      166585       128243     37.729    119.761
+part_clamp_reproject      17993         5944      0.000     58.504
+
+- The pipeline build record's path-summed maxima are ear 87.186 mm and SDF
+  139.446 mm.  Net maxima above are smaller because the ear oscillation cap
+  reverts >12 mm samples and iterative paths can reverse.  This distinction
+  explains the prior maxPush observation; it does not make projection the
+  first cause of any inspected defect.
+- sideburn_hug, temple_hug and sideburn_clamp are disabled in groom9 and
+  therefore apply exactly 0 mm.  Hull/concha/lobe/part-slot operations are
+  radii-only render trims, not point displacement; part clamp/reprojection is
+  recorded separately above.
+
+BOX SELECTION AND CONTROL
+- Coordinates are native 1024 scorer [row0,row1,col0,col1].  A child is
+  selected when its final visible polyline intersects the box (4x segment
+  oversampling) within 5 mm of the nearest hair depth in that pixel.  This
+  excludes projected-through hidden layers.  Control is seed-1010 random 512
+  children outside the union of all four boxes.
+- Back knot/back: [150,420,512,765], 31766 children / 2418 parents / 590
+  active guides.  Behind-ear/profile: [270,550,250,530], 70124 / 5613 / 1329.
+  Sideburn tuft/3q: [330,610,380,660], 57801 / 4608 / 1137.  Hairline/front:
+  [98,196,291,733], 42766 / 2873 / 463.
+- Complete child-level guide IDs, four weights, guide turn totals, active
+  guide separation and every per-stage maximum are retained in the NPZ/JSON;
+  strand-analysis.json also lists the 25 highest-displacement rows per box.
+
+ATTRIBUTION (first producing stage, not merely largest later mover)
+defect | first stage | raw already defective? | measured basis
+back knot/hole | GUIDE PATH | YES | Guide-only crop contains the crossing /
+  winding bundle.  Active guide total-turn p50/p90/max is
+  151.0/235.6/379.4 deg; raw child p50/p90/max is
+  129.6/209.4/347.3 deg and 17423 raw children exceed 120 deg.  Active guide
+  root separation p90/max is 3.19/5.82 mm (full-path separation
+  162.9/434.9 mm).  Coarse clump is the largest >5 mm stage for 18085
+  selected children and SDF for 6601, but panel B already contains the knot.
+behind-ear loops | GUIDE PATH | YES | Guide-only crop visibly loops behind
+  and above the ear.  Active guide turn p50/p90/max is
+  173.2/251.8/484.2 deg; raw child p50/p90/max is
+  146.8/204.4/367.2 deg and 46662 raw children exceed 120 deg.  Active guide
+  root separation p90/max is 3.88/5.90 mm.  Ear keep-out net max is only
+  10.25 mm in the box; coarse clump is dominant for 40220 and SDF for 15282,
+  but neither is first.
+sideburn tuft | INTERPOLATION / CHILD DENSITY | YES | Guide-only crop has
+  individual routes but not the compact dark slab; raw panel B already has
+  the blunt dense tuft.  Active guide root separation p90/max is
+  3.72/5.93 mm; raw turn p50/p90/max is 142.9/209.8/560.1 deg (35108 over
+  120 deg).  Coarse clump later dominates 34116 selected children, SDF 11940,
+  and hairline taper reaches 70.30 mm, so these amplify/rearrange an existing
+  raw tuft rather than create it.
+hairline band | INTERPOLATION / CHILD DENSITY | YES | Guide-only panel is a
+  sparse set of tubes; panel B is already a continuous thick frontal band.
+  This matches groom9's face-mask excess (front hair-ID 4704 vs target 1547).
+  Active guide root separation p90/max is 2.44/5.85 mm; raw turn p50/p90/max
+  is 29.7/212.7/560.1 deg.  The configured hairline_taper moves 0.0 mm for
+  every final-visible strand selected in this front band: it is not the band
+  source.  Coarse clump later dominates 24519 selected children, SDF 5145,
+  and clamp/reprojection 2707, but the band predates all three.
+
+ISOLATED RENDERS
+- defect-<name>-abc.png uses the exact scorer camera and stated crop.  Panel
+  A is active guides only as 0.40 mm cyan tubes; B is raw interpolation before
+  snap/projection/shove/clump in magenta; C is final children.  In C, every
+  strand with a >5 mm stage displacement is coloured by its largest stage;
+  the legend is embedded.  Blender 5.1 EEVEE, distinct node materials, never
+  Workbench.  render-manifest.json records counts and colour groups.
+
+CONCLUSION
+- The candidate explanation "SDF projection / keep-out caused all defects"
+  is falsified.  Those stages often make large later moves, but every defect
+  is plainly present in raw interpolation.  Knot and profile loops originate
+  in guide paths; tuft and hairline band originate when sparse guides are
+  expanded into dense children.  Projection/clump amplify rather than first
+  produce the four named defects.
+
+NEXT
+- Back knot: investigate only the box-active high-turn guide paths.
+- Behind-ear loops: investigate the profile-box active guide routing before any shove.
+- Sideburn tuft: investigate child density/weighting in the 3q box, not a new trim.
+- Hairline band: investigate front-box interpolation density/weights, not hairline taper.
+
+SCOPE: diagnostic evidence and scripts only under hair-groom10diag; groom9
+station inputs read-only; no fixes implemented; no promotion/readiness claim.

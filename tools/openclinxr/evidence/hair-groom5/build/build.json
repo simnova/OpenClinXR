@@ -1,0 +1,234 @@
+{
+ "inputs": {
+  "guides": "tools/openclinxr/evidence/hair-groom4/tucked/guides-tucked.npz",
+  "roots": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "sdf": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz"
+ },
+ "counts": {
+  "roots": 14155,
+  "guides": 567,
+  "pointsPer": 32,
+  "childrenPerRoot": 13,
+  "children": 189853
+ },
+ "part": {
+  "partX": 0.0001401995879485164,
+  "crownBandN": 4184
+ },
+ "vertex": {
+  "yVertexM": 0.0342,
+  "nBelowVertexRoots": 335,
+  "note": "no side restriction at/below vertex"
+ },
+ "earKeepout": {
+  "keepMm": 4.0,
+  "nPushed": 6652,
+  "maxPushMm": 2.2946,
+  "minDistAfterMm": 0.052,
+  "fracLt3mmAfter": 0.00688
+ },
+ "earTuck": {
+  "nStrands": 0,
+  "note": "positional tuck removed"
+ },
+ "earWrap": {
+  "on": 1,
+  "sides": {
+   "xpos": {
+    "xEar": 71.2,
+    "yBack": -49.3,
+    "zMin": 1508.3
+   },
+   "xneg": {
+    "xEar": -68.1,
+    "yBack": -56.1,
+    "zMin": 1503.1
+   }
+  },
+  "nStrands": 9172,
+  "maxPushMm": 40.0,
+  "nInsideAfterSnap": 2962,
+  "nCapped": 0,
+  "nRimDrop": 20086
+ },
+ "partStyle": {
+  "on": 0,
+  "bandMm": 12.0,
+  "nPartRows": 834
+ },
+ "curtainWiden": {
+  "widenMm": 0.0,
+  "nRows": 0
+ },
+ "conchaTrim": {
+  "nStrands": 6794,
+  "nSamples": 110564,
+  "lobeFrontSamples": 1385,
+  "rimExtraSamples": 4325,
+  "projConchaSamples": 324,
+  "pinFinalSamples": 93
+ },
+ "blend": {
+  "kernel": "1/(duv+0.03)^4, cutoff 1.0 rad, nearest-alone fallback",
+  "meanWeight0": 0.8211,
+  "nearestAloneFrac": 0.3419,
+  "nAlone": 0,
+  "gapGate": {
+   "gateMm": 15.0,
+   "off": false,
+   "nFallbackRows": 1427,
+   "nDroppedWeights": 5244,
+   "maxGapMm": 160.3
+  },
+  "earSpanAlone": {
+   "nEarSpanAlone": 2355
+  },
+  "rootExactnessMmMax": 0.0
+ },
+ "tuckBlend": {
+  "on": 1,
+  "nTuckRoots": 481,
+  "nTuckGuides": 57,
+  "earFrame": "tools/openclinxr/evidence/hair-groom4/tucked/earframe.json",
+  "active": true
+ },
+ "cheekTrim": {
+  "on": 0,
+  "earFrame": true,
+  "nRoots": 65,
+  "nStrands": 0,
+  "nSamples": 0
+ },
+ "bandTrim": {
+  "on": 0,
+  "nRoots": 0,
+  "nStrands": 0,
+  "nSamples": 0
+ },
+ "degenerateTrim": {
+  "on": 1,
+  "capMm": 30.0,
+  "nStrands": 3355,
+  "maxMm": 49.8,
+  "nStrandsApplied": 302
+ },
+ "rimSet": {
+  "pushMm": 0.0,
+  "nStrands": 0
+ },
+ "curtainThin": {
+  "on": 0,
+  "nRoots": 0,
+  "nStrands": 0
+ },
+ "haloTrim": {
+  "on": 0,
+  "nSamples": 0
+ },
+ "subRoots": {
+  "perRoot": 13,
+  "seed": 11,
+  "cellFrac": 0.45,
+  "cellRmmP50": 0.753,
+  "cellRmmMax": 1.413,
+  "jitMmMax": 1.374
+ },
+ "dotGuides": {
+  "floorMm": 20.0,
+  "nDot": 104,
+  "nPool": 463
+ },
+ "tuckRoute": {
+  "k": 20.0,
+  "nTuckRows": 3647,
+  "box": [
+   0.045,
+   0.085,
+   -0.135,
+   -0.04
+  ],
+  "maxGapMm": 49.27
+ },
+ "sideburnShort": {
+  "on": 1,
+  "nStrands": 4147,
+  "targetMm": [
+   20.0,
+   40.0
+  ]
+ },
+ "sideburnClamp": {
+  "on": 1,
+  "nClamped": 642,
+  "maxBeforeMm": 96.9,
+  "maxAfterMm": 40.0,
+  "rounds": 1,
+  "reproj": {
+   "nPushed": 1454,
+   "maxPushMm": 8.5656,
+   "minSdfAfter": 0.297,
+   "nInsideAfter": 0,
+   "nRounds": 20
+  }
+ },
+ "sideburnRoots": {
+  "on": 1,
+  "nRoots": 319
+ },
+ "earClumpCap": {
+  "on": 1,
+  "capMm": 30.0,
+  "capW": 0.3,
+  "nNearChildren": 15165,
+  "capFactor": 1.0
+ },
+ "partExtra": {
+  "extraPerPartRoot": 7,
+  "nPartRoots": 834,
+  "nExtra": 5838
+ },
+ "clump": {
+  "coarseMm": 20.0,
+  "coarsePullTip": 0.2,
+  "coarseCells": {
+   "nCells": 268,
+   "cellMin": 1,
+   "cellMax": 1823,
+   "cellMean": 708.41
+  },
+  "fineMm": 4.5,
+  "finePullTip": 0.15,
+  "fineCells": {
+   "nCells": 3991,
+   "cellMin": 1,
+   "cellMax": 163,
+   "cellMean": 47.57
+  },
+  "pow": 2.0,
+  "profile": "t^2.0 root->tip, zero at root"
+ },
+ "lengthJitter": {
+  "sigma": 0.04,
+  "seed": 7,
+  "truncSigma": 1.0,
+  "truncLoSigma": 2.0,
+  "scaleMin": 0.92,
+  "scaleMax": 1.04
+ },
+ "projection": {
+  "nPushed": 891201,
+  "maxPushMm": 80.7915,
+  "minSdfAfter": 0.3,
+  "nInsideAfter": 0,
+  "nRounds": 13,
+  "outsideGrid": 0
+ },
+ "coverPostSDFsub": 8738,
+ "radiiMm": {
+  "root": 0.04,
+  "tip": 0.04,
+  "profile": "linear in t^1.5"
+ },
+ "sha256": "f3a2fbe32ba40c0f96c8c7244fc930444b9d44801e4ec0de3d9c1f537f0703b6",
+ "bytes": 68611346
+}

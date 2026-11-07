@@ -1,0 +1,278 @@
+{
+  "adequacy": {
+    "guard": {
+      "back": {
+        "coveredPx": 0,
+        "guardPx": 0
+      },
+      "front": {
+        "coveredPx": 0,
+        "eyes": {
+          "coveredPx": 0,
+          "guardPx": 3087
+        },
+        "guardPx": 5712,
+        "mouth": {
+          "coveredPx": 0,
+          "guardPx": 2625
+        }
+      },
+      "profile_90": {
+        "coveredPx": 0,
+        "eyes": {
+          "coveredPx": 0,
+          "guardPx": 1368
+        },
+        "guardPx": 3024,
+        "mouth": {
+          "coveredPx": 0,
+          "guardPx": 1656
+        }
+      },
+      "totalCoveredPx": 0
+    },
+    "guideHash": "9752cb6637ed9d61c7724cd922163e85c5e444a72d3b003f3a5fc5f86646b84c",
+    "projection": {
+      "max_proj_fall_mm": 38.068,
+      "max_proj_shell_mm": 11.402,
+      "min_sdf_mm": -0.223,
+      "n_acr_viol": 0,
+      "n_cross_part": 0,
+      "n_inside_mm": 2,
+      "n_proj_fall": 1186,
+      "n_proj_shell": 1777,
+      "n_side_sector": 214
+    },
+    "regional": {
+      "back": {
+        "crown": {
+          "excessMaxPx": 25.5,
+          "excessMeanPx": 21.34,
+          "excessN": 349,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "n": 349,
+          "p50": 21.4,
+          "p95": 24.13
+        },
+        "face_opening": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "n": 0,
+          "p50": 0.0,
+          "p95": 0.0
+        },
+        "hem": {
+          "excessMaxPx": 71.85,
+          "excessMeanPx": 37.07,
+          "excessN": 303,
+          "missMaxPx": 129.31,
+          "missMeanPx": 52.93,
+          "missN": 391,
+          "n": 694,
+          "p50": 43.0,
+          "p95": 108.84
+        },
+        "side_curtain_L": {
+          "excessMaxPx": 20.59,
+          "excessMeanPx": 12.64,
+          "excessN": 227,
+          "missMaxPx": 102.0,
+          "missMeanPx": 41.09,
+          "missN": 353,
+          "n": 580,
+          "p50": 21.19,
+          "p95": 76.17
+        },
+        "side_curtain_R": {
+          "excessMaxPx": 27.2,
+          "excessMeanPx": 14.51,
+          "excessN": 249,
+          "missMaxPx": 71.17,
+          "missMeanPx": 32.45,
+          "missN": 157,
+          "n": 406,
+          "p50": 16.0,
+          "p95": 59.83
+        }
+      },
+      "front": {
+        "crown": {
+          "excessMaxPx": 18.44,
+          "excessMeanPx": 7.33,
+          "excessN": 330,
+          "missMaxPx": 3.0,
+          "missMeanPx": 2.0,
+          "missN": 13,
+          "n": 343,
+          "p50": 7.0,
+          "p95": 14.99
+        },
+        "face_opening": {
+          "excessMaxPx": 41.0,
+          "excessMeanPx": 30.47,
+          "excessN": 107,
+          "missMaxPx": 11.0,
+          "missMeanPx": 8.99,
+          "missN": 50,
+          "n": 157,
+          "p50": 25.5,
+          "p95": 39.62
+        },
+        "hem": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 146.35,
+          "missMeanPx": 80.84,
+          "missN": 537,
+          "n": 537,
+          "p50": 76.06,
+          "p95": 138.15
+        },
+        "side_curtain_L": {
+          "excessMaxPx": 20.25,
+          "excessMeanPx": 8.71,
+          "excessN": 77,
+          "missMaxPx": 33.0,
+          "missMeanPx": 12.24,
+          "missN": 334,
+          "n": 411,
+          "p50": 8.0,
+          "p95": 27.1
+        },
+        "side_curtain_R": {
+          "excessMaxPx": 18.38,
+          "excessMeanPx": 10.16,
+          "excessN": 31,
+          "missMaxPx": 29.7,
+          "missMeanPx": 16.66,
+          "missN": 242,
+          "n": 273,
+          "p50": 17.2,
+          "p95": 26.0
+        }
+      },
+      "profile_90": {
+        "crown": {
+          "excessMaxPx": 36.72,
+          "excessMeanPx": 21.05,
+          "excessN": 422,
+          "missMaxPx": 1.41,
+          "missMeanPx": 1.14,
+          "missN": 3,
+          "n": 425,
+          "p50": 20.88,
+          "p95": 31.58
+        },
+        "face_opening": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "n": 0,
+          "p50": 0.0,
+          "p95": 0.0
+        },
+        "hem": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 36.06,
+          "missMeanPx": 22.03,
+          "missN": 172,
+          "n": 172,
+          "p50": 20.9,
+          "p95": 34.05
+        },
+        "side_curtain_L": {
+          "excessMaxPx": 63.98,
+          "excessMeanPx": 21.97,
+          "excessN": 491,
+          "missMaxPx": 16.76,
+          "missMeanPx": 6.08,
+          "missN": 113,
+          "n": 604,
+          "p50": 13.93,
+          "p95": 54.94
+        },
+        "side_curtain_R": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "n": 0,
+          "p50": 0.0,
+          "p95": 0.0
+        }
+      }
+    }
+  },
+  "cost": 1612809.3535929404,
+  "gateFails": [
+    "front/face_opening p50=25.5 p95=39.6",
+    "front/side_curtain_L p50=8.0 p95=27.1",
+    "front/side_curtain_R p50=17.2 p95=26.0",
+    "front/hem p50=76.1 p95=138.2",
+    "profile_90/crown p50=20.9 p95=31.6",
+    "profile_90/side_curtain_L p50=13.9 p95=54.9",
+    "profile_90/hem p50=20.9 p95=34.0",
+    "back/crown p50=21.4 p95=24.1",
+    "back/side_curtain_L p50=21.2 p95=76.2",
+    "back/side_curtain_R p50=16.0 p95=59.8",
+    "back/hem p50=43.0 p95=108.8",
+    "exact collision inside=2 min_sdf=-0.22mm",
+    "fall projection max=38.07mm > 10mm"
+  ],
+  "nfev": 25,
+  "optimality": 1147954.4687688318,
+  "secs": 1180.4,
+  "specSha": "a742ce6f6b73c5802ae9f38ed3901134d9b5aa4189495498577e127ab68bde4c",
+  "start": "long-back-short-front",
+  "status": 3,
+  "terms": {
+    "guard": 0.0,
+    "penalty": 25340.7,
+    "regional": 1587465.5,
+    "regularizer": 3.154
+  },
+  "values": [
+    30.003,
+    2.036,
+    3.364,
+    1.968,
+    2.027,
+    1.823,
+    1.944,
+    85.326,
+    -26.594,
+    -7.542,
+    -30.215,
+    10.03,
+    23.684,
+    1.651,
+    0.7,
+    -97.826,
+    11.635,
+    -0.727,
+    43.013,
+    8.282,
+    -0.005,
+    -4.065,
+    248.112,
+    -27.211,
+    2.587,
+    32.12,
+    42.935,
+    4.819
+  ]
+}

@@ -1,0 +1,227 @@
+{
+ "inputs": {
+  "guides": "tools/openclinxr/evidence/hair-groom25/build-25a/guides-25a.npz",
+  "roots": "tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "sdf": "tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz",
+  "hull": "tools/openclinxr/evidence/hair-hull5/hull.npz"
+ },
+ "counts": {
+  "roots": 14155,
+  "guides": 2707,
+  "pointsPer": 32,
+  "childrenPerRoot": 20,
+  "children": 283100
+ },
+ "part": {
+  "partX": 0.0001401995879485164,
+  "crownBandN": 4184
+ },
+ "vertex": {
+  "yVertexM": 0.0342,
+  "nBelowVertexRoots": 335
+ },
+ "model": "interpolated children on dense guides (no transport)",
+ "blend": {
+  "kernel": "per-child positional 4-nearest UV 1/(duv+0.03)^4, cutoff 1.0 rad, nearest-alone fallback",
+  "meanWeight0": 0.7451,
+  "nearestAloneFrac": 0.3949,
+  "nAlone": 28328,
+  "gapGate": {
+   "gateMm": 5.0,
+   "off": false,
+   "nFallbackRows": 71895,
+   "nDroppedWeights": 385975,
+   "maxGapMm": 161.94
+  },
+  "translationMm": {
+   "p50": 1.85,
+   "p90": 15.59,
+   "max": 54.44,
+   "gt5mm": 57001,
+   "gt15mm": 29259
+  },
+  "rootExactnessMmMax": 0.0
+ },
+ "regionWeight": {
+  "on": true,
+  "yEarM": -0.0635,
+  "zNapeM": 1.51,
+  "widthMm": 25.0,
+  "tol": 0.5,
+  "maxCross": 1,
+  "nCrossUsed": 13052
+ },
+ "uvCutoffRad": 0.15,
+ "poolDrop": {
+  "on": true,
+  "ref": "tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz",
+  "maxMoveMm": 60.0,
+  "nDropped": 6,
+  "moveP50": 6.621,
+  "moveP90": 24.483,
+  "moveMax": 78.351
+ },
+ "childU": {
+  "p50": 0.593,
+  "p90": 0.79,
+  "min": 0.302,
+  "max": 0.9
+ },
+ "depthServo": {
+  "on": 1,
+  "nMoved": 1699905,
+  "maxMoveMm": 6.0,
+  "childUP50": 0.593
+ },
+ "earKeepout": {
+  "keepMm": 4.0,
+  "nPushed": 42016,
+  "maxPushMm": 68.5945,
+  "minDistAfterMm": 0.039,
+  "fracLt3mmAfter": 0.01105
+ },
+ "partStyle": {
+  "on": 0,
+  "note": "removed in 8b"
+ },
+ "partExtra": {
+  "extraPerPartRoot": 0,
+  "note": "removed in 8b"
+ },
+ "partSetback": {
+  "on": 0,
+  "note": "removed in 8b"
+ },
+ "partSweep": {
+  "on": 1,
+  "bandMm": 12.0,
+  "nPartRoots": 834,
+  "nStripRoots": 21,
+  "doneRows": 16260
+ },
+ "partStrip": {
+  "stripMm": 0.75,
+  "stripArcMm": 50.0,
+  "lineTrim": false,
+  "nRoots": 21,
+  "nStrands": 420,
+  "nSamples": 3864
+ },
+ "farSnap": {
+  "snapMm": 25.0,
+  "nSnapped": 16069
+ },
+ "partClamp": {
+  "on": 1,
+  "nSamples": 79346,
+  "nStrands": 10518,
+  "nFeather": 35462,
+  "rounds": 2
+ },
+ "tuckBlend": {
+  "on": 1,
+  "nTuckRoots": 481,
+  "nTuckGuides": 57
+ },
+ "conchaTrim": {
+  "nStrands": 35454,
+  "nSamples": 283067,
+  "projConchaSamples": 19213,
+  "pinFinalSamples": 291
+ },
+ "dotGuides": {
+  "floorMm": 20.0,
+  "nDot": 284,
+  "nPool": 2423
+ },
+ "subRoots": {
+  "perRoot": 20,
+  "seed": 11,
+  "cellFrac": 0.45,
+  "uvPerM": 11.6739,
+  "cellRmmP50": 0.753,
+  "cellRmmMax": 1.413,
+  "jitMmMax": 1.374
+ },
+ "sideburnShort": {
+  "on": 1,
+  "nStrands": 5860,
+  "targetMm": [
+   12.0,
+   24.0
+  ]
+ },
+ "sideburnClamp": {
+  "on": 1,
+  "nClamped": 0,
+  "maxBeforeMm": 24.0,
+  "maxAfterMm": 24.0,
+  "rounds": 0
+ },
+ "sideburnHug": {
+  "on": 1,
+  "hugMm": 2.0,
+  "nPushed": 41841,
+  "maxPullMm": 13.5636
+ },
+ "templeRoots": {
+  "hugMm": 1.5,
+  "nRoots": 774
+ },
+ "templeHug": {
+  "on": 1,
+  "hugMm": 1.5,
+  "nPushed": 196394,
+  "maxPullMm": 43.5782
+ },
+ "rootDots": {
+  "on": 1,
+  "nStrands": 5381
+ },
+ "lobeTrim": {
+  "on": 1,
+  "nSamples": 129251
+ },
+ "clump": {
+  "coarseMm": 20.0,
+  "coarsePullTip": 0.2,
+  "coarseCells": {
+   "nCells": 261,
+   "cellMin": 1,
+   "cellMax": 2804,
+   "cellMean": 1084.67
+  },
+  "fineMm": 4.5,
+  "finePullTip": 0.15,
+  "fineCells": {
+   "nCells": 4020,
+   "cellMin": 1,
+   "cellMax": 166,
+   "cellMean": 70.42
+  },
+  "pow": 2.0
+ },
+ "lengthJitter": {
+  "sigma": 0.04,
+  "seed": 7,
+  "truncSigma": 1.0,
+  "truncLoSigma": 2.0,
+  "scaleMin": 0.92,
+  "scaleMax": 1.04
+ },
+ "projection": {
+  "nPushed": 1520324,
+  "maxPushMm": 93.2092,
+  "minSdfAfter": 0.3,
+  "nInsideAfter": 0,
+  "nRounds": 15,
+  "outsideGrid": 0
+ },
+ "radiiMm": {
+  "root": 0.05,
+  "tip": 0.015000000000000001,
+  "profile": "linear in t^1.5"
+ },
+ "sha256": "2816217ba67d5bea6114718d4e9cbbe58a1fab5d43be76979fad5256e7fdfd60",
+ "bytes": 104317438
+}

@@ -1,0 +1,222 @@
+RESULT hair-groom30: combined re-drape + back fairing + ear routing + sideburn cap above the lobe
+================================================================================================
+Pipeline (deterministic, in order, from guides-19.npz):
+ 1. s14_back_redrape (orient/, groom29's stage, defaults): guides-19 ->
+    guides-30a. Output sha 3c517d0b... IDENTICAL to groom29's guides-29a.
+ 2. s11_back_coherent anchor 0.6, ONE pass, --hem-keep-mm 200 (groom26's
+    fairing): guides-30a -> guides-30f. Output sha b2a99ffc... IDENTICAL
+    to groom29's guides-29. FRONT byte-identical, take-off byte-identical.
+ 3. s14_ear_route (orient/, groom27's stage) in 4 passes, same parameters
+    as groom27 (pass 1: corridor +11, dom-n 10/wsum 25; passes 2-4:
+    corridor +20, dom-n 2/wsum 25, skip 280/609/1061/1062):
+      pass1 (build-30b): 19 rerouted, column 4966 -> 1321; band 2145/2138.
+      pass2 (build-30c): 23 rerouted, column 1321 -> 927; band 2113/2144.
+      pass3 (build-30d): 6 rerouted, column 927 -> 751; band 2133.
+      pass4 (build-30e): 5 rerouted (642/645/2109/2118/2137), column -> 751.
+    39 unique guides rerouted (union; groom27 had 41 -- 2273/609-class
+    differences from the re-draped input), band 5 dots (2113/2133/2138/
+    2144/2145) carried through every pass. Take-off verbatim-40
+    byte-identical TRUE every pass; untouched guides byte-identical TRUE.
+    Final guides: E/build-30/guides-30.npz (copy of guides-30e).
+ 4. Children via interp_children.py with the groom26 final flags
+    (--region-weight --uv-cutoff 0.15 --pool-max-move-mm 60
+    --pool-ref hair-groom8a/build/guides-8a.npz --temple-taper 0.5
+    --lobe-drop-roots) PLUS the new default-OFF flag --sideburn-cap-lobe:
+    root class = builder sideburn roots in front of the ear's back edge
+    (same side) + peri-lobe shorts (<= 40 mm, roots in the ear |x| band
+    within the ear y-span, in front of the back edge); any such strand
+    with a sample below the lobe's lowest point is shortened about its
+    root until its LOWEST sample sits 3 mm above the lobe bottom
+    (tip ends at least 3 mm above; anatomy: sideburns end near the
+    tragus); strands whose root itself sits at/below that level (below-
+    lobe roots the lobe-drop missed via jitter/|x| edge -- no shortening
+    can clear them) are dropped under the same flag. Per-root 3D length
+    rule decided before rendering, not an image-position trim;
+    vectorised over strands (no O(n^2) passes; one diff/cumsum for arc
+    length + one min-reduction).
+    Effect on the final build: capped 426 strands (xpos 380 / xneg 46;
+    mean shorten 12.2 mm, max 20.2 mm) + dropped 386 (roots at/below
+    target); 812 strands touched, all sideburn/peri-lobe shorts.
+    Children 281800 -> 281414. build.json sideburnCapLobe + sha d641a7c1
+    == store strands-30.npz sha (SHA256SUMS).
+Evidence: tools/openclinxr/evidence/hair-groom30/ (this dir). Branch
+hair-tgt2. Blender 5.1.1, CYCLES-CPU, 1024/64spp, seed 7.
+
+BUILD PICK (orchestrator round instruction -- no new variants; guide-level
+gates decide): build-30 (full route + cap) is final. build-30nb (same but
+back guides 445/521/533 restored to faired shape) is the CHECK variant only.
+With back guides: earlobe 26+11 = 37 strands, crossings 935. Without:
+earlobe 198+11 = 209 strands, crossings 894. The reroutes move 172
+strands out of the column at a cost of +41 crossings. Keeper = WITH:
+the operator hard rule (earlobe) is 6x closer; crossings miss by 35
+(3.9%) with a known mechanism (sect 6). 30nb is reported, not shipped.
+
+VERDICT: GATES_PASS = no. The combination + the new rule cut the earlobe
+column 748 -> 37 (-95%) and crossings 1059 -> 935, kept profile (+0.031),
+3q, front green and gradAniso flat -- but three gates fail: earlobe 3D
+HARD (37 strands, all single-sample top-grazers 0-10 mm below the lobe),
+3D crossings (935 vs <= 900, -35), and insideBody (2638 samples on 327
+capped strands, pulled toward jittered sub-roots sitting at SDF ~ 0).
+
+1. NEW RULE (tools/openclinxr/hair-groom/strands/interp_children.py)
+--------------------------------------------------------------------------------
+--sideburn-cap-lobe (default OFF; default builds provably untouched: the
+block is fully guarded, consumes no RNG, only adds the sideburnCapLobe
+metadata dict). First attempt (root box |x| ear+-20 mm, no class limit)
+touched 69,582 strands incl. the legitimate curtain -- measured and
+REVERTED. Second attempt (sideburn-class + tip rule) touched 423 and left
+330. Final rule (sideburn class + peri-lobe shorts, min-sample lift,
+drop-if-root-below) touches 812: capped 426 (mean 12.2 / max 20.2 mm),
+dropped 386. The 386 dropped are sideburn-root strands whose roots sit at
+or below the allowed tip level (rootz - zmin in [-0.5, +5.5] mm): the
+lobe-drop (strict z < zmin on scalp roots) missed them via sub-root
+jitter and |x| edge; shortening is geometrically incapable of clearing
+them, so they are excluded under the same flag instead of left hanging.
+
+2. BACK-GUIDE CHECK (card requirement; crossings 935 > 900 triggered it)
+--------------------------------------------------------------------------------
+Excluded set (strict reading: behind the ear-canal plane AND not entering
+the column): 445, 521, 533 (roots y -99..-106 mm < -63.5, z > 1.51; own
+path never enters the ear column). Guides 522/537/550/551/642/645 are
+also behind-plane but DO enter the column, so they stay rerouted.
+Reverted rows are bit-copies of guides-30f; route/band flags kept;
+E/build-30nb/ holds guides-30nb.npz + revert json + children (cap rule on).
+  WITH (guides-30, final):    earlobe 37 (26 xpos + 11 xneg), cross 935.
+  WITHOUT (guides-30nb):      earlobe 209 (198 xpos + 11 xneg), cross 894.
+The 3 excluded guides contribute -41 crossings but their riders (+172
+column strands) return. Keeper = WITH (sect above).
+
+3. EVERY GATE, FINAL 30 (provenance in parentheses)
+-----------------------------------------------------------------------
+earlobe HARD 3D 37 (26+11) vs 0 ........... FAIL (-37; 27: 748) (sect 6)
+profile box 0 px vs 0 ...................... PASS (27: 0)
+3q box 841 px vs <= target 842 ............. PASS (margin 1 px; 27: 841)
+backIoU   0.7878 vs >= 0.786 ............... PASS (+0.0018; 29: 0.7865)
+frontIoU  0.7994 vs 0.7913 +-0.01 .......... PASS (+0.0081, margin -0.0019)
+3q        0.8505 vs >= 0.83 ................ PASS (+0.0205)
+profile   0.8412 vs >= 0.81 ................ PASS (+0.0312, keeps 27's gain)
+3D cross  935 vs <= 900 (guides) ........... FAIL (-35; 27: 1059) (cross30)
+gradAniso 0.6257 vs <= 0.70 (sigma 4) ...... PASS (margin 0.074; 29: 0.5312)
+concha    0 / 0 / 0 ........................ PASS (score30-30)
+insideBody 2638 vs 0 ....................... FAIL (sect 7)
+faceMask  front 3131 <= 3424.9 PASS; 3q 1996 <= 2127.3 PASS (report-only gate passes too)
+takeoff verbatim40 / untouched byte-identical PASS all 4 passes (route jsons)
+bypass clearance: all reroutes pool-kept (disp <= 60 vs guides-8a);
+  colMargin6mm holds except 2145 (banded right after) + 2113/2118/2137-class
+  verbatim-zone grazes (the residual backbones -- sect 6)
+pool-drop 56 (= groom29; redrape moves guides; no cascade by ear-route)
+calibration all_within_0.02 ............... PASS (exact 0.0, groom30cal-calib)
+knotHole 0 enclosed, bareFrac 0.0 ......... PASS (report-only)
+determinism: build.json sha == store sha (d641a7c1...); full recipe
+  rebuild skipped this round (NOT TESTED, sect 8)
+Right hem (REPORT ONLY): alpha 0.916 / miss 0.8985 (ctrl 0.9064/0.8829:
+  fails lineage-wide incl. control; thin-curtain rendering, not a 30
+  regression). The box (bottom-third rows x outer 15% of mask width,
+  alpha>=230 vs mask) must be redefined: it scores translucency, not
+  absence. Redefine as (a) opaque-cover vs the TARGET's own alpha in the
+  same box (relative, not absolute 0.10/0.15), or (b) move the box up to
+  mid-lengths where the curtain renders opaque; keep the extreme corner
+  as a sheer-fabric report, not a gate.
+GATES_PASS = no (earlobe 3D, 3D crossings, insideBody fail).
+
+4. EVIDENCE, NOT GATES
+------------------------
+Lobe rows (E/crops.png, cols target|19|27|29|30): 3q under-lobe wedge
+gone (bare skin + curtain edge at box right, 841 vs target 842 px);
+profile 0 px, ear clear, posterior curtain outside the box (legitimate).
+Sheet (E/sheet.png): 30 matches 27/29 in all four views; drape outline
+kept; no cheek slab; back-knot-NATIVE vertical flow kept; back-hem-R
+still thin (measured sheer, lineage miss); crown slot persists; temple
+taper + front band unchanged.
+
+5. FILE MANIFEST
+------------------
+E/sheet.png (target | groom19 | groom27 | groom29 | groom30, 4 views)
+E/crops.png (back-knot/3q-ear/profile-ear/3q-temple-hairline NATIVE +
+crown/part, hem-L/R, nape, front band, lobe boxes; same column order)
+E/score30-30.json (full scorer output, REF ctrl / TEST 30)
+E/metrics-cross30.json (19 / 29 / 30f / 30 / 30nb) E/metrics-grad30.json
+(target / ctrl / opt29 / opt30, sigma 4 + full _aniso_darkstats)
+E/earlobe-gate30.json + E/earlobe30.py (HARD numbers + boxes; 3q/29/30 cols)
+E/groom30cal-calib.json (calibration exact) E/det_rebuild30.py (recipe;
+rebuild not run this round -- see sect 8)
+E/build-30a/guides-30a.npz (redrape; sha 3c517d0b == 29a) + redrape json
+E/build-30f/{guides-30f.npz,strands.npz,build.json} (faired; sha b2a99ffc
+== 29; intermediate children, no cap flag)
+E/build-30{b,c,d,e}/ (4 ear-route passes: guides + route jsons + banded
+npz + children; columns 4966 -> 1321 -> 927 -> 751 -> 751 pre-cap)
+E/build-30/{guides-30.npz,guides-30-route.json,strands.npz,build.json,
+inputs-opened.txt} (final; strands 281414, cap 426+386, sha d641a7c1)
+E/build-30nb/ (CHECK variant: guides-30nb.npz + revert json + children;
+earlobe 209 / cross 894 -- reported, not shipped)
+E/renders-30/ (studio 1024/64 beauty + IDs + opened.txt + render-times.json)
+E/{score30,cross30,grad30,earlobe30,calibrate30,make_sheet30,det_rebuild30}.py
+STORE: /Volumes/files/openclinxr-assets/store/hair-groom30/
+strands-30.npz + SHA256SUMS (NOT in git, per no-.npz rule)
+store strands-30.npz sha256 d641a7c16bd9ba9789f99e3b2748704ff28d1525296130db3bc1ad852a2c80db
+Committed station change: strands/interp_children.py (+ --sideburn-cap-lobe,
+default OFF; docstring). orient/ untouched (s14 stages reused verbatim).
+
+6. REMAINING (mechanisms, measured)
+-------------------------------------
+- Earlobe 37: all single-sample TOP grazers 0-10 mm below zmin. xpos 26:
+  long curtain strands (p50 248 mm) from high behind-ear roots, riding
+  skipped-disproportionate backbones (280/1061/1062/609: 14 strands) and
+  already-rerouted guides (642/522/533/537/521/645) re-seated onto the
+  skull by the hug; median 1 through-sample each. xneg 11: short wigglers
+  on mid-size backbones (1668/812/1939/2622/1598/2188/1869/636/1932, none
+  bandable -- 126-631 riders each). Clearing them needs guide-side work
+  (5th pass on the small feeders, or revisiting the disproportionate
+  skips at the cost of moving 6000+ riders and +crossings) -- out of
+  scope for this card; no child-side lever remains without breaking the
+  verbatim/hug/projection locks.
+- Crossings 935 (-35): +175 from the ear-route (same magnitude as groom27's
+  +174); reverting 445/521/533 saves 41 (894 PASS) but returns 172 column
+  strands. Both gates pass simultaneously only with the deeper guide work
+  above.
+- insideBody 2638 on 327 capped strands (sect 7): post-cap re-projection
+  (or pre-cap root SDF clamp) clears it; one-line change, needs a rebuild
+  + re-render -- next round.
+- Back silhouette: residual miss image-right mid/bot (lineage; the SDF
+  collision field is the BARE body with no shirt, so back IoU and hem
+  coverage read PROVISIONAL until the clothed-body field lands).
+- R-LOOP profile/back 92.6k/106.7k (report-only).
+
+7. SCOPE
+---------
+Local Blender lane only (Cycles studio 1024/64spp/seed7, scorer-v3
+cameras, skull registration, aisha-v3 masks). Guide inputs = guides-19;
+redrape + s11(0.6/1pass/hem-keep-200) + 4x s14 (corr +11 then +20,
+dom-n 10 then 2, skip 280/609/1061/1062) + band cascade (2145/2138 ->
+2113/2144 -> 2133) + children (pool60/taper0.5/lobe-drop65/cap-lobe).
+No .npz in git (store + SHA256SUMS). Score/cross/grad/gate scripts copied
+from groom27 (REF/TEST generalisation + "30" wiring + 5th sheet column;
+scorer math untouched); calibration re-run exact. New station code is the
+--sideburn-cap-lobe flag only (default OFF; first over-broad box measured
+69,582 touches and reverted).
+
+8. NOT TESTED
+---------------
+Recipe-rebuild determinism (det_rebuild30.py written but not run this
+round; build.json sha == store file sha d641a7c1 recorded instead).
+Physical Quest 3 / worn-headset evidence; EEVEE/Quest material response;
+other bodies/seeds; animation/combing dynamics; relit/held-out R1 rows;
+clinical validity, licensure, or scoring claims. guides-22 family.
+Clothed-body SDF (collision field is bare body -- back IoU/hem
+provisional, per orchestrator).
+
+GATES_PASS: no.
+
+VISUAL READ (E/crops.png lobe rows + /tmp/lobe*_30.png, cols target | 19 | 27 | 29 | 30)
+-------------------------------------------------------------------------
+lobe-3q-xpos: 30 shows bare skin under the lobe with the curtain edge at
+the box right (target-matching; 841 vs target 842 px). No hair below the
+lobe in the box beyond the curtain. lobe-profile-xpos: 0 hair px; ear
+clear, posterior curtain visible outside the box (legitimate). 3q-ear /
+profile-ear NATIVE: drape passes behind the ear; no cheek slab.
+back-knot-NATIVE: vertical flow kept, gradAniso flat. Answer: no hair
+below the lobe is visible in either ear crop beyond the target's own
+curtain; the 37 3D-gate strands are sub-pixel skull-hugging grazers
+invisible at 1024 px.
+
+(End of file)

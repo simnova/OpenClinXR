@@ -1,0 +1,9 @@
+hair-groom11 large assets (outside git)
+final: /Volumes/files/openclinxr-assets/store/hair-groom11/build/strands.npz
+final sha256: 66bccf5b38827aa77749612791408dcd294872ce6048a1b4b0c26036d2e7d489
+final bytes: 101662300
+raw diagnostic: /Volumes/files/openclinxr-assets/store/hair-groom11/raw-interpolation.npz
+raw sha256: 6f37e10bc2123c4c8bac72c3fdd9244f331b7019183e3951b551f118e460dae0
+raw bytes: 87027325
+children: 283100 (20/root), pointsPer: 32, guides: 2707
+No .blend file is produced.

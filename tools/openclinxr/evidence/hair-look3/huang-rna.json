@@ -1,0 +1,852 @@
+{
+  "blender": "5.1.1",
+  "models": [
+    "CHIANG",
+    "HUANG"
+  ],
+  "parametrizations": [
+    "ABSORPTION",
+    "MELANIN",
+    "COLOR"
+  ],
+  "states": {
+    "CHIANG": {
+      "ABSORPTION": {
+        "accepted": true,
+        "enabledInputs": [
+          "Absorption Coefficient",
+          "Roughness",
+          "Radial Roughness",
+          "Coat",
+          "IOR",
+          "Offset",
+          "Random Roughness",
+          "Random"
+        ],
+        "sockets": [
+          {
+            "name": "Color",
+            "identifier": "Color",
+            "enabled": false,
+            "default": [
+              0.01751299947500229,
+              0.005762999877333641,
+              0.002059000078588724,
+              1.0
+            ]
+          },
+          {
+            "name": "Melanin",
+            "identifier": "Melanin",
+            "enabled": false,
+            "default": 0.800000011920929
+          },
+          {
+            "name": "Melanin Redness",
+            "identifier": "Melanin Redness",
+            "enabled": false,
+            "default": 1.0
+          },
+          {
+            "name": "Tint",
+            "identifier": "Tint",
+            "enabled": false,
+            "default": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Absorption Coefficient",
+            "identifier": "Absorption Coefficient",
+            "enabled": true,
+            "default": [
+              0.24553099274635315,
+              0.5199999809265137,
+              1.3650000095367432
+            ]
+          },
+          {
+            "name": "Aspect Ratio",
+            "identifier": "Aspect Ratio",
+            "enabled": false,
+            "default": 0.8500000238418579
+          },
+          {
+            "name": "Roughness",
+            "identifier": "Roughness",
+            "enabled": true,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Radial Roughness",
+            "identifier": "Radial Roughness",
+            "enabled": true,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Coat",
+            "identifier": "Coat",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "IOR",
+            "identifier": "IOR",
+            "enabled": true,
+            "default": 1.5499999523162842
+          },
+          {
+            "name": "Offset",
+            "identifier": "Offset",
+            "enabled": true,
+            "default": 0.03490658476948738
+          },
+          {
+            "name": "Random Color",
+            "identifier": "Random Color",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "Random Roughness",
+            "identifier": "Random Roughness",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Random",
+            "identifier": "Random",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Weight",
+            "identifier": "Weight",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "Reflection",
+            "identifier": "R lobe",
+            "enabled": false,
+            "default": 1.0
+          },
+          {
+            "name": "Transmission",
+            "identifier": "TT lobe",
+            "enabled": false,
+            "default": 1.0
+          },
+          {
+            "name": "Secondary Reflection",
+            "identifier": "TRT lobe",
+            "enabled": false,
+            "default": 1.0
+          }
+        ]
+      },
+      "MELANIN": {
+        "accepted": true,
+        "enabledInputs": [
+          "Melanin",
+          "Melanin Redness",
+          "Tint",
+          "Roughness",
+          "Radial Roughness",
+          "Coat",
+          "IOR",
+          "Offset",
+          "Random Color",
+          "Random Roughness",
+          "Random"
+        ],
+        "sockets": [
+          {
+            "name": "Color",
+            "identifier": "Color",
+            "enabled": false,
+            "default": [
+              0.01751299947500229,
+              0.005762999877333641,
+              0.002059000078588724,
+              1.0
+            ]
+          },
+          {
+            "name": "Melanin",
+            "identifier": "Melanin",
+            "enabled": true,
+            "default": 0.800000011920929
+          },
+          {
+            "name": "Melanin Redness",
+            "identifier": "Melanin Redness",
+            "enabled": true,
+            "default": 1.0
+          },
+          {
+            "name": "Tint",
+            "identifier": "Tint",
+            "enabled": true,
+            "default": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Absorption Coefficient",
+            "identifier": "Absorption Coefficient",
+            "enabled": false,
+            "default": [
+              0.24553099274635315,
+              0.5199999809265137,
+              1.3650000095367432
+            ]
+          },
+          {
+            "name": "Aspect Ratio",
+            "identifier": "Aspect Ratio",
+            "enabled": false,
+            "default": 0.8500000238418579
+          },
+          {
+            "name": "Roughness",
+            "identifier": "Roughness",
+            "enabled": true,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Radial Roughness",
+            "identifier": "Radial Roughness",
+            "enabled": true,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Coat",
+            "identifier": "Coat",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "IOR",
+            "identifier": "IOR",
+            "enabled": true,
+            "default": 1.5499999523162842
+          },
+          {
+            "name": "Offset",
+            "identifier": "Offset",
+            "enabled": true,
+            "default": 0.03490658476948738
+          },
+          {
+            "name": "Random Color",
+            "identifier": "Random Color",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Random Roughness",
+            "identifier": "Random Roughness",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Random",
+            "identifier": "Random",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Weight",
+            "identifier": "Weight",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "Reflection",
+            "identifier": "R lobe",
+            "enabled": false,
+            "default": 1.0
+          },
+          {
+            "name": "Transmission",
+            "identifier": "TT lobe",
+            "enabled": false,
+            "default": 1.0
+          },
+          {
+            "name": "Secondary Reflection",
+            "identifier": "TRT lobe",
+            "enabled": false,
+            "default": 1.0
+          }
+        ]
+      },
+      "COLOR": {
+        "accepted": true,
+        "enabledInputs": [
+          "Color",
+          "Roughness",
+          "Radial Roughness",
+          "Coat",
+          "IOR",
+          "Offset",
+          "Random Roughness",
+          "Random"
+        ],
+        "sockets": [
+          {
+            "name": "Color",
+            "identifier": "Color",
+            "enabled": true,
+            "default": [
+              0.01751299947500229,
+              0.005762999877333641,
+              0.002059000078588724,
+              1.0
+            ]
+          },
+          {
+            "name": "Melanin",
+            "identifier": "Melanin",
+            "enabled": false,
+            "default": 0.800000011920929
+          },
+          {
+            "name": "Melanin Redness",
+            "identifier": "Melanin Redness",
+            "enabled": false,
+            "default": 1.0
+          },
+          {
+            "name": "Tint",
+            "identifier": "Tint",
+            "enabled": false,
+            "default": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Absorption Coefficient",
+            "identifier": "Absorption Coefficient",
+            "enabled": false,
+            "default": [
+              0.24553099274635315,
+              0.5199999809265137,
+              1.3650000095367432
+            ]
+          },
+          {
+            "name": "Aspect Ratio",
+            "identifier": "Aspect Ratio",
+            "enabled": false,
+            "default": 0.8500000238418579
+          },
+          {
+            "name": "Roughness",
+            "identifier": "Roughness",
+            "enabled": true,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Radial Roughness",
+            "identifier": "Radial Roughness",
+            "enabled": true,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Coat",
+            "identifier": "Coat",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "IOR",
+            "identifier": "IOR",
+            "enabled": true,
+            "default": 1.5499999523162842
+          },
+          {
+            "name": "Offset",
+            "identifier": "Offset",
+            "enabled": true,
+            "default": 0.03490658476948738
+          },
+          {
+            "name": "Random Color",
+            "identifier": "Random Color",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "Random Roughness",
+            "identifier": "Random Roughness",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Random",
+            "identifier": "Random",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Weight",
+            "identifier": "Weight",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "Reflection",
+            "identifier": "R lobe",
+            "enabled": false,
+            "default": 1.0
+          },
+          {
+            "name": "Transmission",
+            "identifier": "TT lobe",
+            "enabled": false,
+            "default": 1.0
+          },
+          {
+            "name": "Secondary Reflection",
+            "identifier": "TRT lobe",
+            "enabled": false,
+            "default": 1.0
+          }
+        ]
+      }
+    },
+    "HUANG": {
+      "ABSORPTION": {
+        "accepted": true,
+        "enabledInputs": [
+          "Absorption Coefficient",
+          "Aspect Ratio",
+          "Roughness",
+          "IOR",
+          "Offset",
+          "Random Roughness",
+          "Random",
+          "Reflection",
+          "Transmission",
+          "Secondary Reflection"
+        ],
+        "sockets": [
+          {
+            "name": "Color",
+            "identifier": "Color",
+            "enabled": false,
+            "default": [
+              0.01751299947500229,
+              0.005762999877333641,
+              0.002059000078588724,
+              1.0
+            ]
+          },
+          {
+            "name": "Melanin",
+            "identifier": "Melanin",
+            "enabled": false,
+            "default": 0.800000011920929
+          },
+          {
+            "name": "Melanin Redness",
+            "identifier": "Melanin Redness",
+            "enabled": false,
+            "default": 1.0
+          },
+          {
+            "name": "Tint",
+            "identifier": "Tint",
+            "enabled": false,
+            "default": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Absorption Coefficient",
+            "identifier": "Absorption Coefficient",
+            "enabled": true,
+            "default": [
+              0.24553099274635315,
+              0.5199999809265137,
+              1.3650000095367432
+            ]
+          },
+          {
+            "name": "Aspect Ratio",
+            "identifier": "Aspect Ratio",
+            "enabled": true,
+            "default": 0.8500000238418579
+          },
+          {
+            "name": "Roughness",
+            "identifier": "Roughness",
+            "enabled": true,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Radial Roughness",
+            "identifier": "Radial Roughness",
+            "enabled": false,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Coat",
+            "identifier": "Coat",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "IOR",
+            "identifier": "IOR",
+            "enabled": true,
+            "default": 1.5499999523162842
+          },
+          {
+            "name": "Offset",
+            "identifier": "Offset",
+            "enabled": true,
+            "default": 0.03490658476948738
+          },
+          {
+            "name": "Random Color",
+            "identifier": "Random Color",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "Random Roughness",
+            "identifier": "Random Roughness",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Random",
+            "identifier": "Random",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Weight",
+            "identifier": "Weight",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "Reflection",
+            "identifier": "R lobe",
+            "enabled": true,
+            "default": 1.0
+          },
+          {
+            "name": "Transmission",
+            "identifier": "TT lobe",
+            "enabled": true,
+            "default": 1.0
+          },
+          {
+            "name": "Secondary Reflection",
+            "identifier": "TRT lobe",
+            "enabled": true,
+            "default": 1.0
+          }
+        ]
+      },
+      "MELANIN": {
+        "accepted": true,
+        "enabledInputs": [
+          "Melanin",
+          "Melanin Redness",
+          "Tint",
+          "Aspect Ratio",
+          "Roughness",
+          "IOR",
+          "Offset",
+          "Random Color",
+          "Random Roughness",
+          "Random",
+          "Reflection",
+          "Transmission",
+          "Secondary Reflection"
+        ],
+        "sockets": [
+          {
+            "name": "Color",
+            "identifier": "Color",
+            "enabled": false,
+            "default": [
+              0.01751299947500229,
+              0.005762999877333641,
+              0.002059000078588724,
+              1.0
+            ]
+          },
+          {
+            "name": "Melanin",
+            "identifier": "Melanin",
+            "enabled": true,
+            "default": 0.800000011920929
+          },
+          {
+            "name": "Melanin Redness",
+            "identifier": "Melanin Redness",
+            "enabled": true,
+            "default": 1.0
+          },
+          {
+            "name": "Tint",
+            "identifier": "Tint",
+            "enabled": true,
+            "default": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Absorption Coefficient",
+            "identifier": "Absorption Coefficient",
+            "enabled": false,
+            "default": [
+              0.24553099274635315,
+              0.5199999809265137,
+              1.3650000095367432
+            ]
+          },
+          {
+            "name": "Aspect Ratio",
+            "identifier": "Aspect Ratio",
+            "enabled": true,
+            "default": 0.8500000238418579
+          },
+          {
+            "name": "Roughness",
+            "identifier": "Roughness",
+            "enabled": true,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Radial Roughness",
+            "identifier": "Radial Roughness",
+            "enabled": false,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Coat",
+            "identifier": "Coat",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "IOR",
+            "identifier": "IOR",
+            "enabled": true,
+            "default": 1.5499999523162842
+          },
+          {
+            "name": "Offset",
+            "identifier": "Offset",
+            "enabled": true,
+            "default": 0.03490658476948738
+          },
+          {
+            "name": "Random Color",
+            "identifier": "Random Color",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Random Roughness",
+            "identifier": "Random Roughness",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Random",
+            "identifier": "Random",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Weight",
+            "identifier": "Weight",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "Reflection",
+            "identifier": "R lobe",
+            "enabled": true,
+            "default": 1.0
+          },
+          {
+            "name": "Transmission",
+            "identifier": "TT lobe",
+            "enabled": true,
+            "default": 1.0
+          },
+          {
+            "name": "Secondary Reflection",
+            "identifier": "TRT lobe",
+            "enabled": true,
+            "default": 1.0
+          }
+        ]
+      },
+      "COLOR": {
+        "accepted": true,
+        "enabledInputs": [
+          "Color",
+          "Aspect Ratio",
+          "Roughness",
+          "IOR",
+          "Offset",
+          "Random Roughness",
+          "Random",
+          "Reflection",
+          "Transmission",
+          "Secondary Reflection"
+        ],
+        "sockets": [
+          {
+            "name": "Color",
+            "identifier": "Color",
+            "enabled": true,
+            "default": [
+              0.01751299947500229,
+              0.005762999877333641,
+              0.002059000078588724,
+              1.0
+            ]
+          },
+          {
+            "name": "Melanin",
+            "identifier": "Melanin",
+            "enabled": false,
+            "default": 0.800000011920929
+          },
+          {
+            "name": "Melanin Redness",
+            "identifier": "Melanin Redness",
+            "enabled": false,
+            "default": 1.0
+          },
+          {
+            "name": "Tint",
+            "identifier": "Tint",
+            "enabled": false,
+            "default": [
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ]
+          },
+          {
+            "name": "Absorption Coefficient",
+            "identifier": "Absorption Coefficient",
+            "enabled": false,
+            "default": [
+              0.24553099274635315,
+              0.5199999809265137,
+              1.3650000095367432
+            ]
+          },
+          {
+            "name": "Aspect Ratio",
+            "identifier": "Aspect Ratio",
+            "enabled": true,
+            "default": 0.8500000238418579
+          },
+          {
+            "name": "Roughness",
+            "identifier": "Roughness",
+            "enabled": true,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Radial Roughness",
+            "identifier": "Radial Roughness",
+            "enabled": false,
+            "default": 0.30000001192092896
+          },
+          {
+            "name": "Coat",
+            "identifier": "Coat",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "IOR",
+            "identifier": "IOR",
+            "enabled": true,
+            "default": 1.5499999523162842
+          },
+          {
+            "name": "Offset",
+            "identifier": "Offset",
+            "enabled": true,
+            "default": 0.03490658476948738
+          },
+          {
+            "name": "Random Color",
+            "identifier": "Random Color",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "Random Roughness",
+            "identifier": "Random Roughness",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Random",
+            "identifier": "Random",
+            "enabled": true,
+            "default": 0.0
+          },
+          {
+            "name": "Weight",
+            "identifier": "Weight",
+            "enabled": false,
+            "default": 0.0
+          },
+          {
+            "name": "Reflection",
+            "identifier": "R lobe",
+            "enabled": true,
+            "default": 1.0
+          },
+          {
+            "name": "Transmission",
+            "identifier": "TT lobe",
+            "enabled": true,
+            "default": 1.0
+          },
+          {
+            "name": "Secondary Reflection",
+            "identifier": "TRT lobe",
+            "enabled": true,
+            "default": 1.0
+          }
+        ]
+      }
+    }
+  }
+}

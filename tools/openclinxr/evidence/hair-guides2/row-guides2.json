@@ -1,0 +1,75 @@
+{
+ "gates": [
+  {
+   "gate": "G1",
+   "measured": "440",
+   "bar": "[350,450]",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G2",
+   "measured": "inside=37 min=0.03mm",
+   "bar": "0 \u2227 >=2mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G3",
+   "measured": "bad=741/5485",
+   "bar": ">=99.5% in [2,6]mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G5",
+   "measured": "p95=26.1mm max=54.5mm",
+   "bar": "p95<=35 \u2227 max<=65",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G6",
+   "measured": "4",
+   "bar": "0",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G7",
+   "measured": "p95=719.93 max=1329.25 short=101",
+   "bar": "p95<=8 \u2227 max<=25 \u2227 0 short",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G8",
+   "measured": "hemdz=0.00mm cend=8.0% stray=2.50%",
+   "bar": "hem<=5mm \u2227 cend<=10% \u2227 stray<3%",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G9",
+   "measured": "max=10.13mm",
+   "bar": "<=9mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G10",
+   "measured": "|meanx|=1.44mm",
+   "bar": "<=5mm",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G11",
+   "measured": "gap=1.5mm req=136.7mm outer=93.3mm",
+   "bar": "gap>=req",
+   "verdict": "MISS"
+  }
+ ],
+ "z_hem": 1.3332169969558714,
+ "menton_z": 1.4492169969558715,
+ "crown_z": 1.6599169969558716,
+ "brow_z": 1.5303385257720947,
+ "ear_y": -0.03894279897212982,
+ "ear_top": 1.5542949438095093,
+ "yneck": -0.1130041554570198,
+ "count": 440,
+ "contact_ended": 35,
+ "xwide_eyez_mm": 80.43950363613617,
+ "g11_outer_ear_mm": 93.33114760313765
+}

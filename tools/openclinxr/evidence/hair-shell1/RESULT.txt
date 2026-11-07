@@ -1,0 +1,64 @@
+RESULT hair-shell1: opaque shell with face opening (S8 follow-up to shell0)
+Opaque body (alpha 1 except the facing 0.00-0.30 silhouette band + hem v 0.90-0.98), full inner layer at -3 mm, anterior face-hole cut, periodic tiling textures. Same cameras/rig/seeds as shell0; IDs on a head-holdout basis.
+
+FIX 1 opacity (before=shell0 material, after=shell1)
+- before: alpha = atlas A x facing fade (0.05..0.50) x 1 everywhere incl. backfaces + 0.3 translucent: whole curtain translucent (face/ear/scalp read through).
+- after: alpha = 1-breakup*(1-strandA), breakup = max(1-edge, hemM); edge = smoothstep(0.00,0.30,facing) (STATED BAND: facing-ratio 0.00-0.30); hemM = smoothstep(0.90,0.98,v), v=1-V crown 0 hem ~0.90; backfaces opaque except hem (their Facing ~0 over the whole surface, not just the silhouette). HASHED dither; 0.15 translucent.
+- inner: FULL coverage 39638 faces at -3.0 mm, gradient-repaired to 1.5 mm target: min=1.018 p1=1.500 mm (stated: no inner rim inside the curtain); opaque dark-hair material (base = hairRGB x gradient, roughness 0.55, OPAQUE blend).
+- opacity front (shell-only RGBA, body hidden): hairPx=303385 lowPx(alpha<0.95)=3551 lowFrac=0.0117 (gate <= 0.15); interior-low (>6px from any transparency)=4 (0.000013 of hair; gate: confined to outer 6px)
+- opacity profile_90 (shell-only RGBA, body hidden): hairPx=192079 lowPx(alpha<0.95)=3325 lowFrac=0.0173 (gate <= 0.15); interior-low (>6px from any transparency)=0 (0.000000 of hair; gate: confined to outer 6px)
+
+FIX 2 length (diagnose-first)
+- hull0c occupancy below the 1.405 m shoulder plane by z band (voxels): {"1250-1300": 1539, "1300-1350": 6245, "1350-1405": 25788, "1405-1450": 52520, "1450-1500": 89122}
+- hull0c occupancy below 1.405 m by azimuth sector (voxels; crown axis x=0.8 y=-53.2 mm): {"backL": 7899, "backMid": 9300, "backMid2": 9617, "backR": 6756, "front": 0, "frontL": 0, "frontR": 0, "left": 0, "right": 0}
+- shell mesh lowest z per sector (m): raw={"backL": 1.255, "backMid": 1.2551, "backMid2": 1.2554, "backR": 1.2552, "front": 1.5944, "frontL": 1.454, "frontR": 1.4488, "left": 1.4145, "right": 1.4083}
+  dec(pre-repair)={"backL": 1.255, "backMid": 1.2551, "backMid2": 1.2554, "backR": 1.2552, "front": 1.5942, "frontL": 1.4541, "frontR": 1.4489, "left": 1.4146, "right": 1.4084}
+  repaired={"backL": 1.2549, "backMid": 1.2551, "backMid2": 1.2554, "backR": 1.2552, "front": 1.5942, "frontL": 1.4541, "frontR": 1.4489, "left": 1.4146, "right": 1.4084}
+- verdict: the hull itself stops near the shoulders at front/sides (0 voxels below 1.405 m outside |az|>112.5 deg) while the back holds 33572 voxels down to the 1255 mm grid floor; the mesh preserves all of it (minz identical raw->dec->repaired, back 1.2549 m). NO geometry lengthened: length fix stopped at the hull (hull card). shell0's visual shortness was the translucency artifact (gappy alpha + no inner).
+
+FIX 3 face opening (cut + holdout ID)
+- target front gap (rows with exactly 2 hair runs, gap>=8px): 93886 px target frame -> 93886 px render frame (inverse skull); eroded 2px -> 58430 px; faces projecting inside + anterior of y=-0.008 m: CUT 361 of 39999 (kept 39638); removed |x|max=0.0609 m z [1.4202, 1.6214] (curtains kept by hole geometry).
+- face-hole hair coverage (ID alpha>=230 inside the 93886-px render-frame hole): hidden-basis before(shell0 mesh)=0.9985 after=0.9997 (no drop: the back mass covers the same pixels either way; the sheet's contribution is proven by the row band + R1 rows below, not by this count).
+- holdout-basis hole residual: before=0.0450 after=0.0462 (gate after<=0.05; residual = curtain-rim/inner-wall edge pixels, recomposition not reduction: upper-hole rows 170-256 drop 2879->2374 px = anterior sheet over the forehead gone; lower-hole rows 426-682 rise 473->1296 px = recessed inner wall behind the skin plane, visible through the lower opening).
+- R1 front (skull) before/after, same holdout basis: before above IoU=0.7682 signedP50=+1.00px absP95=25.00px | below IoU=0.1337 signedP50=+70.64px absP95=271.20px
+- R1 front (skull) shell1 holdout: above IoU=0.7920 signedP50=+2.24px absP95=23.41px | below IoU=0.1347 signedP50=+70.51px absP95=271.01px (shell0 recorded body-hidden: above 0.4851/below 0.0856; different ID basis, not comparable).
+- R1-front gain, same holdout basis: above-chin IoU 0.7682 -> 0.7920 (+0.0238; the cut removes anterior-sheet excess over the face) | below-chin 0.1337 -> 0.1347 (flat: below-chin mismatch is curtain-vs-target shape, agreed by both methods).
+
+STEP 1 mesh/displacement
+- decimate reuse (shell0 WS files, hash-verified identical b5da1088a52bf951/b5da1088a52bf951); SDF-gradient repair target 2.0 mm, 5 rounds: min=1.992 p1=2.000 p50=4.946 mm (gate >= 1.0).
+- part_x=0.0008 m from 7943 crown roots; 19220 verts / 39638 tris outer + 39638 inner tris; span z 1.6702..1.2549 m; npz hash=f25e27b9b687c837.
+
+STEP 3 textures (E1/textures, two stated divergences from the shell0 vendor)
+- same strand model/seeds (rng(7), 2600/cell, taper/clump/tilt/gradient); DIVERGENCE 1: cell u-border fade OFF (cards-only construct drawing fault lines at u=0/0.5/1); DIVERGENCE 2: all 4 cells bit-identical + x-wrapped splat (one periodic cell tiled 2x2: seamless u-wrap at the back-midline cut, no v=0.5 step). Kills the torn-meridian smear (per-face-loop u weld + REPEAT sampling in Blender).
+
+STEP 4 renders + rulers (pinned scorer-v3, 1024 px, 64 spp, seed 7; relit +40 deg; held-out 22.5 deg)
+- render times s: {"back": 16.9, "back-hidden-id": 7.8, "back-id": 7.4, "front": 13.2, "front-hidden-id": 11.6, "front-id": 6.7, "front-id-shell0holdout": 6.8, "front-opaque": 10.9, "front-relit": 12.9, "heldout_22p5": 12.0, "profile_90": 11.9, "profile_90-hidden-id": 6.6, "profile_90-id": 6.3, "profile_90-opaque": 9.2, "three_quarter": 13.3, "three_quarter-hidden-id": 10.8, "three_quarter-id": 7.1}; total 174.2s; shell.glb 9286544 B (outer 19220/39638 + inner 39638 tris, SHELL1_mat + SHELL1_inner_mat)
+- R1 profile_90 holdout (skull): above IoU=0.7759 signedP50=+26.60px absP95=74.28px | below IoU=0.6912 signedP50=+8.00px absP95=123.02px
+- R1 back holdout (skull): above IoU=0.9137 signedP50=+3.00px absP95=29.68px | below IoU=0.5636 signedP50=+45.75px absP95=174.16px
+- R1 three_quarter: no registered target (R4 ours-only covers it)
+- R4 profile_90 coverageByThreshold: {"128": 1.0, "230": 1.0, "30": 1.0}; skinVisibleFracHair=0.0216 region=0.0216 (skin [65.0, 46.5, 43.0] hair [80.0, 72.0, 65.0]); targetCoverage=1.0
+- R5 front holdout-ID: coverage=1.000 yBottomMAE=130.6px widthMAE=105.0px
+- R5 profile_90 holdout-ID: coverage=0.980 yBottomMAE=42.0px widthMAE=26.8px
+- R5 back holdout-ID: coverage=1.000 yBottomMAE=114.7px widthMAE=137.1px
+- frame mean luminance: {"back": 69.2, "front": 54.3, "front-relit": 54.2, "heldout_22p5": 50.5, "profile_90": 51.2, "three_quarter": 52.5}
+
+provenance: shell_flow1.py + textures_vendor1.py + _blender_shell1_render.py + assemble1.py new in S8; shell0 WS decimate + hull/scalp/cage read-only (logged); topper hidden library-hair; env proxy hidden; head-holdout proxy (body z>1.385 m) + brow/lash/teeth/tongue holdout only in ID passes
+ban-grep (7 names, fragments) over S8+evidence text: clean
+inputs-opened (78 paths) banned-path check: clean
+
+SAW
+- SCOPE: opaque textured-shell revision. Curtains read solid dark fibre at all views; face/ears read skin through a real opening; back mass falls to 1.255 m (grid floor) with strand fringe at the hem.
+- KEY-SHADOW BAND: a straight dark band crosses the back curtain (~z 1.50 m): verified as the key-light cast shadow of the head (probe: same view with key shadow off brightens rows 400-520/1024 from ~35 to ~115; band gone). Same rig as shell0 (comparability kept); translucency used to mask it. Not geometry (mesh cross-section smooth there; identical-cell textures rule out the v=0.5 cell step).
+- SPEC STREAK: a narrow bright smudge left of the back midline (~cols 430-550, rows 260-400): aniso-rotation step across the u-seam (identical cells still sample different intra-cell tilts each side). Static across resamples (geometry/material, not firefly). Residual; reads as hair shine.
+- HEM FRINGE: bottom-rim fringe + isolated fringe chunks on the shirt are attached geometry (only 4 faces in sub-50-face components) tattered by the silhouette strand breakup + 2 mm voxel stepping, not floaters. Hem band v 0.90-0.98 starts at the hem bottom (hem v~0.90 by the span formula), so most fringe breakup is the facing-edge term.
+- WHITE JAW SHARDS: cut-edge/curtain-edge sliver faces at the jaw catch rim light (also present in shell0's front as gray shards; brighter here). Residual.
+- COLOUR: carried from shell0 (look7 directColorLinear sRGB x2.2 = [0.2121 0.1713 0.1427]); reads ash-gray under the key specular on the dome; no colour retune (comparability).
+- LENGTH HULL CARD: below-shoulder hair exists only at the back (|az|>112.5 deg); front/side curtains end at 1.41-1.59 m in the hull itself. Longer side/front curtains need a hull change, not a shell change. Grid floor clips the back at 1255 mm (1539 voxels in 1250-1300).
+- FACE-HOLE fine print: the cut removes the anterior sheet only (361 faces, y<-8 mm); the back mass behind the head is kept and still covers face-hole pixels in shell-only renders (that is hair, correctly). R1-front reliability comes from cut + holdout together: holdout alone lifts shell0 front-above IoU 0.4851->0.7682 (measurement fix); the cut adds 0.7682->0.7920 (shape fix). The lower opening shows the recessed inner wall in front of the neck skin (holdout-visible blade, rows 426-682); in beauty it reads as neck-hollow shadow.
+- INNER fine print: full faces kept; kept-vert min can sit at the 1.5 mm repair target in hug-tight spots (margin 0.5 mm over gate); faces straddling tight spots pull one vert to 1.5 mm off the skin (hidden behind body, punched by holdout in IDs).
+- R4 CAVEAT (same as shell0): skinVisibleFrac sampled against refs [65.0, 46.5, 43.0]/[80.0, 72.0, 65.0]; grade sheerness from the opacity passes (front 1.17% low-alpha with 4 interior dither strays, profile 1.73% with 0), not from this fraction.
+
+NOT TESTED: physical Quest 3 / worn-headset evidence; clinical validity, licensure, or scoring claims; EEVEE/Quest material response; other bodies/seeds; animation/combing dynamics; strands/cards bake-off numbers; whether denser UV tiling changes the fringe verdict; relit/held-out R1 rows (rendered for the record, scored on the four pinned views).
+
+GATES_PASS=yes {"ban": true, "clearance": true, "determinism": true, "facehole": true, "opacity": true}
+gate numbers: clearance outerMin=1.992 innerMin=1.018 (>=1.0); opacity front low=0.0117 interior=4 (1.3e-05); profile_90 low=0.0173 interior=0 (0.0e+00) (interior gate <=2e-4: dither strays); facehole holdout residual before=0.0450 after=0.0462 (gate after<=0.05) + R1-front-above gain +0.0238 (gate >0); determinism hash b5da1088a52bf951 identical=True; ban=True

@@ -1,0 +1,33 @@
+{
+  "engine": "CYCLES-CPU",
+  "exposureGain": 2.2,
+  "fillEnergy": 1.0,
+  "keyAngles": {
+    "dazDeg": -34.261880624326544,
+    "elDeg": 28.995110058505865
+  },
+  "keyEnergy": 5.0,
+  "keySun": [
+    -0.49241347094795934,
+    -0.7228837935943891,
+    0.4847349735552078
+  ],
+  "relitNote": "front-relit: key azimuth +40 deg",
+  "rimEnergy": 1.5,
+  "seconds": {
+    "back": 15.3,
+    "back-id": 6.3,
+    "front": 17.3,
+    "front-id": 8.6,
+    "front-relit": 12.3,
+    "heldout_22p5": 11.0,
+    "profile_90": 14.5,
+    "profile_90-id": 5.4,
+    "three_quarter": 15.7,
+    "three_quarter-id": 8.7
+  },
+  "seed": 7,
+  "size": 1024,
+  "spp": 64,
+  "total": 117.2
+}

@@ -1,0 +1,1 @@
+DONE: i0/i1 four-view 1024x64 renders, v6 judge, photometrics, 512 part diagnosis and three one-change probes, comparison sheet, gates, and RESULT are present.

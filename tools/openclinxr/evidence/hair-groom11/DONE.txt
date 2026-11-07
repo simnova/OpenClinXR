@@ -1,0 +1,3 @@
+DONE hair-groom11: coherent guide field and bounded clump/final-SDF moves
+built, rendered at 1024/64 x4 + IDs, scored, defect A/B/C evidence composed,
+and results reported. GATES_PASS=no; exact failures are in RESULT.txt.

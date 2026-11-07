@@ -1,0 +1,56 @@
+{
+  "back": {
+    "cageEndHeightMm": 1348.3,
+    "cageEndM": [
+      0.0,
+      0.0768,
+      1.3483
+    ],
+    "cageEndUMm": -130.0,
+    "hemPixel": [
+      870.0,
+      792.0
+    ],
+    "nBandPx": 2559,
+    "rayDir": [
+      -0.96423,
+      0.08411,
+      -0.25138
+    ],
+    "rayOriginM": [
+      0.7006,
+      0.0,
+      1.4936
+    ],
+    "rayToEndMm": 39.7
+  },
+  "curtain": {
+    "cageEndHeightMm": 1469.0,
+    "cageEndM": [
+      -0.0618,
+      -0.0184,
+      1.469
+    ],
+    "cageEndUMm": -34.8,
+    "hemPixel": [
+      344.0,
+      414.5
+    ],
+    "nBandPx": 3512,
+    "rayDir": [
+      -0.98251,
+      -0.16249,
+      0.09091
+    ],
+    "rayOriginM": [
+      0.7006,
+      0.0,
+      1.4936
+    ],
+    "rayToEndMm": 141.2
+  },
+  "mentonCol": 375.2,
+  "postHeadCol": 826.3,
+  "rule": "anterior band [menton_col-120, menton_col+40], posterior band [posthead_col-40, posthead_col+120]; hem = median col of mask px in lowest 5 band rows",
+  "specSha": "51506271ed34794ce7fc78c7e54bd97d16edb0619c72f09ce22904e8da64d36a"
+}

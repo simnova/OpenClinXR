@@ -1,0 +1,44 @@
+{
+  "construction": "root density x2.5 within 30 mm, linear taper to x1 at 50 mm; root lift peak reduced from 4 mm to 2 mm",
+  "sourceCount": 56602,
+  "t1Count": 69181,
+  "addedCount": 12579,
+  "fibreDiameterMm": 0.1,
+  "partGapMm": 1.1,
+  "densityMultiplier": {
+    "atOrInside30mm": 2.5,
+    "at50mm": 1.0
+  },
+  "rootLiftMaxMm": 2.0,
+  "endAngleDeg": {
+    "p50": 0.0,
+    "p95": 4.613766845829786,
+    "max": 7.810821445953803
+  },
+  "collider": {
+    "colliders": [
+      "OCLX_Aisha_head",
+      "makeclothes_library_toigo_t_shirt",
+      "makeclothes_library_female_tight_jeans_pants",
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+    ],
+    "first_pass_inside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 684,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "post_inside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "post_inside_total": 0,
+    "moved_points": 684,
+    "max_single_projection_mm": 15.196392364324552,
+    "clearance_mm": 0.2,
+    "passes": 3,
+    "audit_relocated_points": 0
+  }
+}

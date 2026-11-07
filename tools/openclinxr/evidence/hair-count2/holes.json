@@ -1,0 +1,56 @@
+{
+  "base": {
+    "ours": {
+      "holeComponents": 1141,
+      "holePixels": 11630,
+      "hairPixels": 170570,
+      "holePctOfHair": 6.81831506126517,
+      "largestHolePx": 7300
+    }
+  },
+  "n2": {
+    "ours": {
+      "holeComponents": 1387,
+      "holePixels": 16762,
+      "hairPixels": 158315,
+      "holePctOfHair": 10.587752266051858,
+      "largestHolePx": 12462
+    }
+  },
+  "tt0": {
+    "ours": {
+      "holeComponents": 1141,
+      "holePixels": 11630,
+      "hairPixels": 170570,
+      "holePctOfHair": 6.81831506126517,
+      "largestHolePx": 7300
+    }
+  },
+  "tt05": {
+    "ours": {
+      "holeComponents": 1141,
+      "holePixels": 11630,
+      "hairPixels": 170570,
+      "holePctOfHair": 6.81831506126517,
+      "largestHolePx": 7300
+    }
+  },
+  "key15": {
+    "ours": {
+      "holeComponents": 1141,
+      "holePixels": 11630,
+      "hairPixels": 170570,
+      "holePctOfHair": 6.81831506126517,
+      "largestHolePx": 7300
+    }
+  },
+  "TS_target": {
+    "target": {
+      "holeComponents": 2,
+      "holePixels": 42,
+      "hairPixels": 159523,
+      "holePctOfHair": 0.026328491816227127,
+      "largestHolePx": 29
+    }
+  }
+}

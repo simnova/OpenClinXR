@@ -1,0 +1,25 @@
+HAIR INT 1 — F1 GEOMETRY + LOOK-4 MATERIAL + PART DIAGNOSIS
+
+PARAMS::HUANG melanin=0.887321 redness=0.361525 Reflection=0.401852 SecondaryReflection=1.372479 roughness=0.390002 Random=0.019248; camera-relative rig
+
+I0::IoU front=0.679282 profile=0.681869 back=0.785769; part/side=2.180072; face=0.733398
+i0.front::p50=0.077793 vs TS 0.066064; p90=0.158123 vs TS 0.174715; hue=17.378444 vs TS 14.000403; sat=0.411765 vs TS 0.192771
+i0.three_quarter::p50=0.111986 vs TS 0.066878; p90=0.154536 vs TS 0.147584; hue=12.233231 vs TS 21.266061; sat=0.254902 vs TS 0.192982
+i0.profile_90::p50=0.134682 vs TS 0.096016; p90=0.162416 vs TS 0.160182; hue=10.285829 vs TS 23.433921; sat=0.224490 vs TS 0.166667
+i0.back::p50=0.115357 vs TS 0.112289; p90=0.157856 vs TS 0.176686; hue=7.939762 vs TS 20.515657; sat=0.235294 vs TS 0.232143
+
+I1::IoU front=0.682461 profile=0.681596 back=0.783880; part/side=2.175571; face=0.733398
+i1.front::p50=0.077757 vs TS 0.066064; p90=0.157696 vs TS 0.174715; hue=17.350089 vs TS 14.000403; sat=0.410256 vs TS 0.192771
+i1.three_quarter::p50=0.111986 vs TS 0.066878; p90=0.154573 vs TS 0.147584; hue=12.208282 vs TS 21.266061; sat=0.254902 vs TS 0.192982
+i1.profile_90::p50=0.134645 vs TS 0.096016; p90=0.162096 vs TS 0.160182; hue=10.330638 vs TS 23.433921; sat=0.224490 vs TS 0.166667
+i1.back::p50=0.115331 vs TS 0.112289; p90=0.157660 vs TS 0.176686; hue=7.915703 vs TS 20.515657; sat=0.235294 vs TS 0.232143
+
+GATES::face move=0.000% PASS<=5%; dIoU front=+0.003179 profile=-0.000272 back=-0.001889 PASS |dIoU|<=0.01
+
+PART BAND i0::hairFraction=0.322318 skinFraction=0.677682 hairLum=0.159716 hairHue=12.490 skinLum=0.396653 skinHue=20.943 bandLum=0.320284 part/side=1.424215
+CANDIDATE A REFUTED::scalp darkened under cap; hairFraction=0.322318 skinFraction=0.677682 bandLum=0.260732 part/side=1.799005
+CANDIDATE B SUPPORTED::+50% roots within 6 mm; hairFraction=0.346213 skinFraction=0.653787 bandLum=0.313000 part/side=1.403317
+CANDIDATE C REFUTED::roughness +0.15 within 15 mm; hairFraction=0.322318 skinFraction=0.677682 bandLum=0.320206 part/side=1.429916
+APPLIED::candidate B only; i1 close-up hairFraction=0.346213 skinFraction=0.653787 bandLum=0.312999 part/side=1.403306
+
+SAW::The bright warm/skin-coloured centre part still reads wrong first versus TS. The supported +50% root cover is directionally correct but weak at full scale (part/side 2.180072 -> 2.175571, still above 1.6); the next mismatch is the broad vertically banded copper-brown curtain, especially in the back crop.

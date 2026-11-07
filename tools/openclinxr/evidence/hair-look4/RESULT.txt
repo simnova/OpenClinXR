@@ -1,0 +1,21 @@
+HAIR LOOK 4 — HUANG COLOUR SEARCH
+
+SEARCH::CMA-ES 18 evaluations (3 generations x 6), 512 px, 32 samples, seed 0, camera-relative rig, immutable hair-look1 g1 strands; fitness is L2 with hue and saturation terms weighted x3 and +10 if cheek p50 moves >5% from 0.7335
+BEST::eval15 search fitness 2.859051; 1024 px / 64 sample fitness 2.843455
+PARAMS::HUANG melanin=0.887321 redness=0.361525 Reflection=0.401852 Transmission=1.000000 SecondaryReflection=1.372479 roughness=0.390002 Random=0.019248
+FIXED::key_energy=149.376680 key_elev_deg=46.532462 fill_W=51.791892 rim_W=5.274066 key_azimuth_delta_deg=-31.689290 key_size_m=1.632686 fill_elev_deg=15.000000 root_dark=0.050000
+GEOMETRY::hair-look1/cells/g1/strands.npz, unchanged; silhouette unchanged
+
+METRICS::best seed 0 at 1024 px / 64 samples; each value is BEST vs TS
+front::p50 0.073053 vs 0.066064; p90 0.146163 vs 0.174715; hue 14.657 deg vs 14.000 deg; sat 0.351852 vs 0.192771; part/side 2.309195 vs 1.422806; face p50 0.734499 vs 0.733500 (+0.14%, PASS <=5%)
+three_quarter::p50 0.103592 vs 0.066878; p90 0.144475 vs 0.147584; hue 12.746 deg vs 21.266 deg; sat 0.250000 vs 0.192982
+profile_90::p50 0.124034 vs 0.096016; p90 0.154253 vs 0.160182; hue 10.996 deg vs 23.434 deg; sat 0.212766 vs 0.166667
+back::p50 0.108898 vs 0.112289; p90 0.147280 vs 0.176686; hue 6.343 deg vs 20.516 deg; sat 0.244444 vs 0.232143
+
+SEED_SPREAD::seeds 0,1,2 at 1024 px / 64 samples
+front::p50 0.000566; p90 0.000036; hue 0.040 deg; sat 0.011426; part/side 0.013376; face p50 0.000036
+three_quarter::p50 0.000834; p90 0.000834; hue 0.093 deg; sat 0.005556
+profile_90::p50 0.000000; p90 0.001137; hue 0.031 deg; sat 0.002920
+back::p50 0.000283; p90 0.000206; hue 0.352 deg; sat 0.005314
+
+SAW::best is visibly dark brown rather than h5's uniform black, but the crops first read as broad, vertically banded copper-brown sheets—strongest in the back crop—with a dark hem and coarse highlight blocks; TS has finer strand-scale variation, a softer warm sheen, and more even top-to-hem tone.

@@ -1,0 +1,125 @@
+{
+  "base": {
+    "melanin": 0.8513293862342834,
+    "redness": 0.840287983417511,
+    "roughness": 0.14088048040866852,
+    "radial": 0.20000000298023224,
+    "coat": 0.0
+  },
+  "undertone": {
+    "attr": "OCLX_scalp_mask",
+    "mix": 0.65,
+    "rough": 0.9,
+    "rootColour": [
+      0.01751299947500229,
+      0.005762999877333641,
+      0.002059000078588724
+    ],
+    "skinMaterial": "mpfb_skin_peds_anxious_parent",
+    "footFaces": 984,
+    "footAreaCm2": 617.5540267363372,
+    "maskMean": 0.040806271459956626
+  },
+  "sha_is_pt_c3": true,
+  "steps": [
+    {
+      "step": 0,
+      "requested": {
+        "melanin": 0.92,
+        "redness": 0.7,
+        "roughness": 0.25,
+        "radial": 0.3,
+        "coat": 0.0
+      },
+      "readback": {
+        "melanin": 0.9200000166893005,
+        "redness": 0.699999988079071,
+        "roughness": 0.25,
+        "radial": 0.30000001192092896,
+        "coat": 0.0
+      },
+      "png": "tools/openclinxr/evidence/hair-scalp/shade-S0-front.png",
+      "id_png": "tools/openclinxr/evidence/hair-scalp/shade-S0-front-id.png",
+      "photo": {
+        "p10": 0.08481803921568626,
+        "p50": 0.16466980392156863,
+        "p90": 0.286238431372549,
+        "RB": 1.2346019394338361,
+        "redness": 0.03845168993628237,
+        "partBand": 0.4983374214905904,
+        "partBandRatio": 3.026282959126774,
+        "faceTopRow": 264,
+        "faceSkin": 0.6444348861754029,
+        "bgMean": 0.48464254226026354,
+        "forehead": 0.792816010052307,
+        "hairPx": 155416
+      }
+    },
+    {
+      "step": 1,
+      "requested": {
+        "melanin": 0.97,
+        "redness": 0.55,
+        "roughness": 0.35,
+        "radial": 0.35,
+        "coat": 0.0
+      },
+      "readback": {
+        "melanin": 0.9700000286102295,
+        "redness": 0.550000011920929,
+        "roughness": 0.3499999940395355,
+        "radial": 0.3499999940395355,
+        "coat": 0.0
+      },
+      "png": "tools/openclinxr/evidence/hair-scalp/shade-S1-front.png",
+      "id_png": "tools/openclinxr/evidence/hair-scalp/shade-S1-front-id.png",
+      "photo": {
+        "p10": 0.10474509803921568,
+        "p50": 0.1747670588235294,
+        "p90": 0.26608,
+        "RB": 1.095125104915077,
+        "redness": 0.01675431785091991,
+        "partBand": 0.4979580878451087,
+        "partBandRatio": 2.8492674260080135,
+        "faceTopRow": 264,
+        "faceSkin": 0.6436675003105138,
+        "bgMean": 0.48460267371323534,
+        "forehead": 0.7929723520645218,
+        "hairPx": 155373
+      }
+    },
+    {
+      "step": 2,
+      "requested": {
+        "melanin": 1.0,
+        "redness": 0.45,
+        "roughness": 0.45,
+        "radial": 0.4,
+        "coat": 0.0
+      },
+      "readback": {
+        "melanin": 1.0,
+        "redness": 0.44999998807907104,
+        "roughness": 0.44999998807907104,
+        "radial": 0.4000000059604645,
+        "coat": 0.0
+      },
+      "png": "tools/openclinxr/evidence/hair-scalp/shade-S2-front.png",
+      "id_png": "tools/openclinxr/evidence/hair-scalp/shade-S2-front-id.png",
+      "photo": {
+        "p10": 0.11764705882352941,
+        "p50": 0.1803921568627451,
+        "p90": 0.2518141176470588,
+        "RB": 1.014688039917305,
+        "redness": 0.0026729808064843985,
+        "partBand": 0.49757842562244836,
+        "partBandRatio": 2.7583151855157464,
+        "faceTopRow": 264,
+        "faceSkin": 0.6435555339760839,
+        "bgMean": 0.48458407437193624,
+        "forehead": 0.7933987306040151,
+        "hairPx": 155319
+      }
+    }
+  ]
+}

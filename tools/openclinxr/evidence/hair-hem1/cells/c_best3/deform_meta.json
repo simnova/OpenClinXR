@@ -1,0 +1,12 @@
+{
+  "tag": "c_best3",
+  "base": "hair-hem1/base/strands.npz",
+  "deform": {
+    "cell": "best-combo-self-edge",
+    "sealedLower": 22409,
+    "dupFibres": 8000,
+    "sealedDups": 2332,
+    "totalFibres": 106549,
+    "rule": "shorten-only seal of all lower tips to own-sheet smooth edge minus 1mm + full-length sealed edge dups; no trim"
+  }
+}

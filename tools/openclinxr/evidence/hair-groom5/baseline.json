@@ -1,0 +1,244 @@
+{
+ "alphaHair": 30,
+ "alphaSolid": 230,
+ "groom": "groom3",
+ "translucency": {
+  "front": {
+   "global": {
+    "frac": 0.2123,
+    "nHair": 52789,
+    "nTrans": 11207
+   }
+  },
+  "three_quarter": {
+   "global": {
+    "frac": 0.1051,
+    "nHair": 83530,
+    "nTrans": 8780
+   }
+  },
+  "profile_90": {
+   "global": {
+    "frac": 0.0803,
+    "nHair": 158768,
+    "nTrans": 12742
+   },
+   "behindEar": {
+    "xpos": {
+     "frac": 0.4644,
+     "nHair": 7507,
+     "nTrans": 3486
+    },
+    "xneg": {
+     "frac": 0.6153,
+     "nHair": 4713,
+     "nTrans": 2900
+    }
+   }
+  },
+  "back": {
+   "global": {
+    "frac": 0.0882,
+    "nHair": 306074,
+    "nTrans": 26990
+   },
+   "crown": {
+    "frac": 0.048,
+    "nHair": 45566,
+    "nTrans": 2187
+   },
+   "backHem": {
+    "frac": 0.1538,
+    "nHair": 54727,
+    "nTrans": 8416
+   },
+   "nape": {
+    "frac": 0.0008,
+    "nHair": 23200,
+    "nTrans": 19
+   }
+  }
+ },
+ "pinnaVisibility": {
+  "front": {
+   "xpos/cover30": {
+    "cover": 0.1739,
+    "visible": 0.8261,
+    "nHull": 2536
+   },
+   "xpos/cover230": {
+    "cover": 0.0166,
+    "visible": 0.9834,
+    "nHull": 2536
+   },
+   "xneg/cover30": {
+    "cover": 0.2661,
+    "visible": 0.7339,
+    "nHull": 1958
+   },
+   "xneg/cover230": {
+    "cover": 0.0439,
+    "visible": 0.9561,
+    "nHull": 1958
+   }
+  },
+  "three_quarter": {
+   "xpos/cover30": {
+    "cover": 0.1217,
+    "visible": 0.8783,
+    "nHull": 9699
+   },
+   "xpos/cover230": {
+    "cover": 0.0125,
+    "visible": 0.9875,
+    "nHull": 9699
+   },
+   "xneg/cover30": {
+    "cover": 0.0,
+    "visible": 1.0,
+    "nHull": 8723
+   },
+   "xneg/cover230": {
+    "cover": 0.0,
+    "visible": 1.0,
+    "nHull": 8723
+   }
+  },
+  "profile_90": {
+   "xpos/cover30": {
+    "cover": 0.1265,
+    "visible": 0.8735,
+    "nHull": 9042
+   },
+   "xpos/cover230": {
+    "cover": 0.0115,
+    "visible": 0.9885,
+    "nHull": 9042
+   },
+   "xneg/cover30": {
+    "cover": 0.113,
+    "visible": 0.887,
+    "nHull": 10362
+   },
+   "xneg/cover230": {
+    "cover": 0.0154,
+    "visible": 0.9846,
+    "nHull": 10362
+   }
+  }
+ },
+ "conchaBoxesID": {
+  "front": {
+   "xpos": {
+    "id230": 0,
+    "id30": 27
+   },
+   "xneg": {
+    "id230": 1,
+    "id30": 65
+   }
+  },
+  "three_quarter": {
+   "xpos": {
+    "id230": 0,
+    "id30": 0
+   },
+   "xneg": {
+    "id230": 0,
+    "id30": 0
+   }
+  },
+  "profile_90": {
+   "xpos": {
+    "id230": 0,
+    "id30": 0
+   },
+   "xneg": {
+    "id230": 0,
+    "id30": 27
+   }
+  }
+ },
+ "conchaCrossingsStrand": {
+  "front": {
+   "xpos": {
+    "nSamples": 4,
+    "nStrands": 4
+   },
+   "xneg": {
+    "nSamples": 6,
+    "nStrands": 6
+   },
+   "note": "box 11px; depth window pinna-3mm..pinna+30mm"
+  },
+  "three_quarter": {
+   "xpos": {
+    "nSamples": 0,
+    "nStrands": 0
+   },
+   "xneg": {
+    "nSamples": 0,
+    "nStrands": 0
+   },
+   "note": "box 11px; depth window pinna-3mm..pinna+30mm"
+  },
+  "profile_90": {
+   "xpos": {
+    "nSamples": 0,
+    "nStrands": 0
+   },
+   "xneg": {
+    "nSamples": 0,
+    "nStrands": 0
+   },
+   "note": "box 11px; depth window pinna-3mm..pinna+30mm"
+  }
+ },
+ "frontOfEarAboveSideburn": {
+  "xpos": {
+   "nSamples": 86365,
+   "nStrands": 17759,
+   "zTopMm": 1553.3
+  },
+  "xneg": {
+   "nSamples": 65163,
+   "nStrands": 16084,
+   "zTopMm": 1551.1
+  }
+ },
+ "streakWidth": {
+  "groom3": {
+   "median": 3.0,
+   "p25": 2.0,
+   "p75": 6.0,
+   "nRuns": 1098
+  },
+  "target": {
+   "median": 3.0,
+   "p25": 2.0,
+   "p75": 4.0,
+   "nRuns": 1405
+  },
+  "box": "back rows140-500 cols380-660 step8, bg med61, thr 0.5std"
+ },
+ "streakWidthWide": {
+  "groom3": {
+   "median": 12.0,
+   "p25": 7.0,
+   "p75": 17.0,
+   "nRuns": 440
+  },
+  "target": {
+   "median": 7.0,
+   "p25": 5.0,
+   "p75": 11.0,
+   "nRuns": 586
+  },
+  "box": "same crop, bandpass sigma3-sigma12 zero-crossing runs"
+ },
+ "groom3NxD": {
+  "N": 99085,
+  "rRootMm": 0.05,
+  "rTipMm": 0.015000000000000001
+ }
+}

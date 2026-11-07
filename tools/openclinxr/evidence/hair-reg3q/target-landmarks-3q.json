@@ -1,0 +1,46 @@
+{
+  "detector": "MediaPipe tasks FaceLandmarker + PoseLandmarker, mediapipe 1.1.1 (Apache-2.0)",
+  "faceBundleSha256": "64184e229b263107bc2b804c6625db1341ff2bb731874b0bcc2fe6544e0bc9ff",
+  "framePx": 1024,
+  "image": "target-three_quarter.png",
+  "landmarks": {
+    "acromion": {
+      "col": 739.2,
+      "method": "MediaPipe PoseLandmarker idx 11 (subject-left = camera-side shoulder)",
+      "row": 711.11
+    },
+    "chin": {
+      "col": 451.98,
+      "method": "MediaPipe FaceLandmarker idx 152 (menton)",
+      "row": 569.51
+    },
+    "neck_base": {
+      "col": 560.72,
+      "method": "midpoint of PoseLandmarker shoulders idx 11+12 (secondary)",
+      "row": 716.49
+    },
+    "nose_tip": {
+      "col": 421.19,
+      "method": "MediaPipe FaceLandmarker idx 1",
+      "row": 431.81
+    },
+    "philtrum": {
+      "col": 436.55,
+      "method": "MediaPipe FaceLandmarker idx 13 (upper-lip centre proxy)",
+      "row": 488.26
+    },
+    "skull_top": {
+      "col": 527.5,
+      "method": "hair-mask apex (mask-three_quarter.png top row 129, col span 521-534)",
+      "row": 129.0
+    }
+  },
+  "mask": {
+    "file": "mask-three_quarter.png",
+    "framePx": 1024,
+    "sha256": "9d25c81aebd6a8fa5665a457b28c94ad4b13c0b562a02e2d6c147c348cad6fd3"
+  },
+  "poseBundleSha256": "59929e1d1ee95287735ddd833b19cf4ac46d29bc7afddbbf6753c459690d574a",
+  "sha256": "7c05831a88e478abebf6f0cbf8060e1982e1e8179e9efb2aff72b90e26bc7022",
+  "unobserved": []
+}

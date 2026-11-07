@@ -1,0 +1,303 @@
+{
+ "nGuides": 359,
+ "nRelaxed": 344,
+ "nFallback": 15,
+ "unreachable": 0,
+ "specSha": "1fb058a377005c8834139fc935dc872069bb3a4c720715a002d329e39bc4e089",
+ "route0SpecSha": "db7706df6109a5b3895828bcf84625cfed7ada0f1f424d395ba20d82bf04a9de",
+ "endpointCoverage": {
+  "CL": {
+   "n": 43,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.0,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 0.814
+  },
+  "CR": {
+   "n": 42,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.0,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 0.857
+  },
+  "BKL": {
+   "n": 136,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.0,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 0.949
+  },
+  "BKR": {
+   "n": 138,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.0,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 0.928
+  }
+ },
+ "boundaryFrac4mm": 0.1071,
+ "boundaryGate": 0.5,
+ "crownTangentLegacy": {
+  "mean": 0.5646,
+  "n": 14036
+ },
+ "partCrossings": {
+  "rawFlips": 9,
+  "crossingsOver2mm": 0,
+  "maxExcursionMm": 1.41
+ },
+ "backCentreGap": {
+  "n": 268,
+  "maxGapMm": 6.0
+ },
+ "backCentreGapGateMm": 20.0,
+ "leaderMm": {
+  "max": 18.74,
+  "p95": 6.23,
+  "p50": 5.13,
+  "nOver8mm": 12
+ },
+ "yEarMm": -76.90242677927017,
+ "endDisplacementMm": {
+  "max": 0.14,
+  "p95": 0.05,
+  "p50": 0.02
+ },
+ "bodyClearanceMm": {
+  "min": 2.18,
+  "p5": 2.76,
+  "fracBelow3": 0.1058,
+  "route0min": 2.14,
+  "route0fracBelow3": 0.0056
+ },
+ "hullSdfMm": {
+  "min": -0.23,
+  "p5": 1.18,
+  "fracBelow3": 0.6964,
+  "route0min": 1.38
+ },
+ "erodedFrac": {
+  "min": 0.9531,
+  "route0min": 0.9649,
+  "gate": 0.95
+ },
+ "crownBandMm": [
+  1570.0,
+  1640.0
+ ],
+ "flowRoute0": {
+  "p50": 63.23,
+  "p95": 116.71,
+  "n": 20135,
+  "p50gate": 20.0,
+  "p95gate": 40.0
+ },
+ "flowRoute1": {
+  "p50": 58.82,
+  "p95": 108.45,
+  "n": 17680,
+  "p50gate": 20.0,
+  "p95gate": 40.0
+ },
+ "turnRoute0": {
+  "max": 132.61,
+  "p95": 48.3,
+  "p50": 0.0,
+  "fracGuidesOver15": 1.0,
+  "nGuidesOver15": 359,
+  "gate": 15.0
+ },
+ "turnRoute1": {
+  "max": 107.55,
+  "p95": 9.37,
+  "p50": 2.11,
+  "fracGuidesOver15": 0.0418,
+  "nGuidesOver15": 15,
+  "gate": 15.0
+ },
+ "latticeRoute0": {
+  "nRunsOver10mm": 2012,
+  "nViolations": 1435,
+  "maxRunMm": 175.0,
+  "tolDeg": 5.0,
+  "runGateMm": 10.0
+ },
+ "latticeRoute1": {
+  "nRunsOver10mm": 374,
+  "nViolations": 146,
+  "maxRunMm": 165.0,
+  "tolDeg": 5.0,
+  "runGateMm": 10.0
+ },
+ "pokePx": {
+  "front": 1775,
+  "profile_90": 5474,
+  "back": 2389
+ },
+ "regional": {
+  "front": {
+   "crown": {
+    "excessN": 316,
+    "excessP50": 7.1,
+    "excessP95": 10.7,
+    "missN": 84,
+    "missP50": 4.5,
+    "missP95": 12.5
+   },
+   "side_curtain_L": {
+    "excessN": 0,
+    "excessP50": 0.0,
+    "excessP95": 0.0,
+    "missN": 598,
+    "missP50": 11.3,
+    "missP95": 33.1
+   },
+   "side_curtain_R": {
+    "excessN": 0,
+    "excessP50": 0.0,
+    "excessP95": 0.0,
+    "missN": 566,
+    "missP50": 18.7,
+    "missP95": 35.5
+   },
+   "hem": {
+    "excessN": 92,
+    "excessP50": 2.8,
+    "excessP95": 5.0,
+    "missN": 551,
+    "missP50": 30.8,
+    "missP95": 84.5
+   },
+   "face_opening": {
+    "excessN": 0,
+    "excessP50": 0.0,
+    "excessP95": 0.0,
+    "missN": 93,
+    "missP50": 840.1,
+    "missP95": 855.2
+   }
+  },
+  "profile_90": {
+   "crown": {
+    "excessN": 505,
+    "excessP50": 21.0,
+    "excessP95": 35.8,
+    "missN": 39,
+    "missP50": 2.0,
+    "missP95": 5.4
+   },
+   "side_curtain_L": {
+    "excessN": 62,
+    "excessP50": 2.2,
+    "excessP95": 4.0,
+    "missN": 441,
+    "missP50": 10.0,
+    "missP95": 17.0
+   },
+   "side_curtain_R": {
+    "excessN": 0,
+    "excessP50": 0.0,
+    "excessP95": 0.0,
+    "missN": 0,
+    "missP50": 0.0,
+    "missP95": 0.0
+   },
+   "hem": {
+    "excessN": 17,
+    "excessP50": 2.0,
+    "excessP95": 2.4,
+    "missN": 184,
+    "missP50": 28.6,
+    "missP95": 34.5
+   },
+   "face_opening": {
+    "excessN": 0,
+    "excessP50": 0.0,
+    "excessP95": 0.0,
+    "missN": 0,
+    "missP50": 0.0,
+    "missP95": 0.0
+   }
+  },
+  "back": {
+   "crown": {
+    "excessN": 456,
+    "excessP50": 22.1,
+    "excessP95": 26.6,
+    "missN": 35,
+    "missP50": 5.0,
+    "missP95": 8.3
+   },
+   "side_curtain_L": {
+    "excessN": 303,
+    "excessP50": 3.0,
+    "excessP95": 17.4,
+    "missN": 461,
+    "missP50": 10.0,
+    "missP95": 16.3
+   },
+   "side_curtain_R": {
+    "excessN": 341,
+    "excessP50": 2.8,
+    "excessP95": 17.0,
+    "missN": 230,
+    "missP50": 7.0,
+    "missP95": 18.0
+   },
+   "hem": {
+    "excessN": 372,
+    "excessP50": 2.2,
+    "excessP95": 3.0,
+    "missN": 78,
+    "missP50": 5.0,
+    "missP95": 13.9
+   },
+   "face_opening": {
+    "excessN": 0,
+    "excessP50": 0.0,
+    "excessP95": 0.0,
+    "missN": 0,
+    "missP50": 0.0,
+    "missP95": 0.0
+   }
+  }
+ },
+ "faceGuards": {
+  "front": {
+   "coveredPx": 0,
+   "guardPx": 5712,
+   "eyes": {
+    "coveredPx": 0,
+    "guardPx": 3087
+   },
+   "mouth": {
+    "coveredPx": 0,
+    "guardPx": 2625
+   }
+  },
+  "profile_90": {
+   "coveredPx": 0,
+   "guardPx": 3024,
+   "eyes": {
+    "coveredPx": 0,
+    "guardPx": 1368
+   },
+   "mouth": {
+    "coveredPx": 0,
+    "guardPx": 1656
+   }
+  },
+  "back": {
+   "coveredPx": 0,
+   "guardPx": 0
+  },
+  "totalCoveredPx": 0
+ },
+ "verdict": "MODEL_INADEQUATE",
+ "gateFails": [
+  "fallback=15",
+  "flow p50/p95=58.8/108.5",
+  "turnMax=107.5",
+  "latticeViol=146"
+ ]
+}

@@ -1,0 +1,90 @@
+{
+ "crossing3D": {
+  "guides-34mirror": {
+   "file": "/Volumes/files/openclinxr-assets/store/hair-groom34/guides-34mirror.npz",
+   "sha256": "44532124539441cb996948c29fd718b65f2a205e0f86574b34cf7ff063ca9542",
+   "nGuides": 2707,
+   "nBackNonTuck": 279,
+   "nPairs": 38781,
+   "cross2D": 9540,
+   "cross3D_le3mm": 941,
+   "frac3Dof2D": 0.0986,
+   "d3mm_at_2Dcross": {
+    "n": 9540,
+    "p10": 3.043,
+    "p25": 8.373,
+    "p50": 43.319,
+    "p75": 147.076,
+    "p90": 153.121,
+    "p99": 161.228,
+    "min": 0.0,
+    "max": 171.244
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 347
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 268
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 325
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 614
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1203
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 1103
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 973
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4706
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 9540,
+    "p10": 0.605,
+    "p25": 1.61,
+    "p50": 3.796,
+    "p75": 6.785,
+    "p90": 9.351,
+    "p99": 18.033,
+    "min": 0.0,
+    "max": 32.052
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 9540,
+    "p10": 0.287,
+    "p25": 0.786,
+    "p50": 1.717,
+    "p75": 2.702,
+    "p90": 3.817,
+    "p99": 6.055,
+    "min": 0.0,
+    "max": 8.672
+   }
+  }
+ },
+ "note": "mask20 children ride guides-34mirror unchanged; crossing count is guides-level by construction"
+}

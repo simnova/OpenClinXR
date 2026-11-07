@@ -1,0 +1,44 @@
+{
+  "body": {
+    "glb": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+    "id": "mpfb-peds-parent-aisha",
+    "sha256": "5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde"
+  },
+  "cameras": ["front", "three_quarter", "profile_90", "back", "crown_top"],
+  "camerasFile": {
+    "path": "tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json",
+    "sha256": "833bf1361d6be94ce1d576314ea6f1e4f760a07d588240bf6fcf8b2741eab413"
+  },
+  "schemaVersion": "openclinxr.hair-groom.manifest.v1",
+  "seed": 7,
+  "style": {
+    "families": [
+      {"mirror": "part-right", "name": "part-left"},
+      {"mirror": true, "name": "temple"},
+      {"mirror": true, "name": "side"},
+      {"mirror": false, "name": "back"},
+      {"mirror": false, "name": "nape"}
+    ],
+    "part": "centre"
+  },
+  "targets": {
+    "landmarks": {
+      "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/landmarks.json",
+      "sha256": "14f3231c913051ebb91edf1d82febd63cea86c494aa741cb7efdddfed6ac05a1"
+    },
+    "masks": {
+      "back": {
+        "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-back-v3.png",
+        "sha256": "6d182281e771247a3b3489ab4b7a5a52ce52e16ef85b4bb5ef354e3512fb9cbd"
+      },
+      "front": {
+        "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-front-v2.png",
+        "sha256": "deb150fb57e20aab87654767fdfa0341a112c0b7d8565d936d273ce77200b604"
+      },
+      "profile_90": {
+        "path": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back/mask-profile-v2.png",
+        "sha256": "78718ed580c630d0fa68c34080de0b42e699dc6d880377b25a8da4f2629bf07e"
+      }
+    }
+  }
+}

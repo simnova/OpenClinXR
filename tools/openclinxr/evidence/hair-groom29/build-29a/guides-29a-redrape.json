@@ -1,0 +1,200 @@
+{
+ "schema": "openclinxr.hair-guide-back-redrape-negx.v1",
+ "method": "hem-quantile-map -x BACK long-drape |x| to +x hem distribution, monotone C1 fraction ramp, exit-sign rule, lateral-only; root/take-off verbatim; +x/FRONT/tuck byte-identical",
+ "parameters": {
+  "verbatimMm": 40.0,
+  "dilutionFullMm": 120.0,
+  "marginMm": 1.5,
+  "yEarM": -0.0635,
+  "zNapeM": 1.51,
+  "P": 41,
+  "nFrac": 41
+ },
+ "sets": {
+  "backNonTuck": 524,
+  "posXlong_T": 131,
+  "negXlong_S": 140,
+  "negXshortVerbatim": 131,
+  "posXshortVerbatim": 122
+ },
+ "hemAbsXmm_allBackNonTuck": {
+  "posX": {
+   "before": {
+    "n": 253,
+    "min": 0.052,
+    "mean": 30.343,
+    "p50": 24.084,
+    "p90": 69.264,
+    "max": 111.791
+   },
+   "after": {
+    "n": 253,
+    "min": 0.052,
+    "mean": 30.343,
+    "p50": 24.084,
+    "p90": 69.264,
+    "max": 111.791
+   }
+  },
+  "negX": {
+   "before": {
+    "n": 271,
+    "min": 0.153,
+    "mean": 16.497,
+    "p50": 11.661,
+    "p90": 31.871,
+    "max": 88.782
+   },
+   "after": {
+    "n": 271,
+    "min": 0.052,
+    "mean": 23.517,
+    "p50": 16.439,
+    "p90": 65.031,
+    "max": 111.791
+   }
+  }
+ },
+ "hemAbsXmm_longSubset": {
+  "posX": {
+   "before": {
+    "n": 131,
+    "min": 0.052,
+    "mean": 40.188,
+    "p50": 46.931,
+    "p90": 78.312,
+    "max": 111.791
+   },
+   "after": {
+    "n": 131,
+    "min": 0.052,
+    "mean": 40.188,
+    "p50": 46.931,
+    "p90": 78.312,
+    "max": 111.791
+   }
+  },
+  "negX": {
+   "before": {
+    "n": 140,
+    "min": 0.153,
+    "mean": 15.628,
+    "p50": 7.32,
+    "p90": 41.084,
+    "max": 88.782
+   },
+   "after": {
+    "n": 140,
+    "min": 0.052,
+    "mean": 29.215,
+    "p50": 14.633,
+    "p90": 78.625,
+    "max": 111.791
+   }
+  }
+ },
+ "midAbsXmm_frac05_longSubset": {
+  "posX": {
+   "before": {
+    "n": 131,
+    "min": 0.089,
+    "mean": 53.127,
+    "p50": 63.577,
+    "p90": 76.158,
+    "max": 87.96
+   },
+   "after": {
+    "n": 131,
+    "min": 0.089,
+    "mean": 53.127,
+    "p50": 63.577,
+    "p90": 76.158,
+    "max": 87.96
+   }
+  },
+  "negX": {
+   "before": {
+    "n": 140,
+    "min": 0.299,
+    "mean": 46.897,
+    "p50": 49.318,
+    "p90": 79.169,
+    "max": 84.917
+   },
+   "after": {
+    "n": 140,
+    "min": 0.907,
+    "mean": 53.742,
+    "p50": 66.433,
+    "p90": 91.76,
+    "max": 102.051
+   }
+  }
+ },
+ "byteIdentical": {
+  "nonSRowsExact": true,
+  "nonSRowsShaIn": "0cce75e83722118ccaca4a94990c54edac643a52acbd9c746430434a2f0d9692",
+  "nonSRowsShaOut": "0cce75e83722118ccaca4a94990c54edac643a52acbd9c746430434a2f0d9692",
+  "takeoffSamplesExact_S": true
+ },
+ "moveMm_S": {
+  "n": 140,
+  "min": 0.015,
+  "mean": 22.362,
+  "p50": 12.491,
+  "p90": 48.432,
+  "max": 143.334
+ },
+ "guard": {
+  "nScaledBack": 5,
+  "nReverted": 0,
+  "scales": {
+   "n": 140,
+   "min": 0.062,
+   "mean": 0.97,
+   "p50": 1.0,
+   "p90": 1.0,
+   "max": 1.0
+  },
+  "nNewViolationsMovedSamples": 852,
+  "hullOutsideRateMoved": {
+   "S_before": 0.1669,
+   "S_after": 0.3042,
+   "T_ref": 0.2877
+  }
+ },
+ "kinkDeg_S": {
+  "before": {
+   "n": 140,
+   "min": 12.29,
+   "mean": 31.727,
+   "p50": 31.989,
+   "p90": 45.77,
+   "max": 62.837
+  },
+  "after": {
+   "n": 140,
+   "min": 12.29,
+   "mean": 33.056,
+   "p50": 34.255,
+   "p90": 45.77,
+   "max": 69.282
+  }
+ },
+ "body": {
+  "samplesLtMargin": 5479,
+  "samplesInside0": 1647,
+  "marginMm": 1.5
+ },
+ "hull": {
+  "samplesOutsideHull": 38375
+ },
+ "guides": {
+  "input": 2707,
+  "output": 2707,
+  "deleted": 0,
+  "inputSha256": "d51f4ef118eaf6f74a80be50cb08274bfd2671c7b1965dae19e6e92e71e75c59",
+  "outputSha256": "3c517d0b1972a03abbcf62630ffc661b589e09230b8062189d894098ee866db9"
+ },
+ "seconds": 0.4
+}

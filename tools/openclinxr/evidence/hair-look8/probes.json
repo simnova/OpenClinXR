@@ -1,0 +1,1465 @@
+{
+  "schemaVersion": 1,
+  "resolution": 512,
+  "samples": 32,
+  "geometrySource": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-real1/cells/a1/strands.npz",
+  "materialSource": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-look7/best-params.json",
+  "look7Base": {
+    "directColorLinear": [
+      0.00947524186876787,
+      0.006922087345103819,
+      0.005410466879388128
+    ],
+    "reflection": 0.22099553516010836,
+    "secondaryReflection": 0.7574389105120084,
+    "roughness": 0.3953358169595746
+  },
+  "offsetParametrisation": "Offset(rad) = radians(2) + radians(A) * (NoiseFac - 0.5); noise coord (Random, Intercept*F, 0); Noise Scale 1.0 Detail 2.0 Roughness 0.5; Random Roughness 0 in every cell",
+  "backCrop1024": [
+    320,
+    280,
+    704,
+    664
+  ],
+  "earCrop1024": [
+    100,
+    240,
+    484,
+    624
+  ],
+  "splitGate": "back-crop bright component count >= 3x base AND back-crop column-luminance autocorrelation peak <= 0.3",
+  "cells": {
+    "base": {
+      "views": {
+        "front": {
+          "p50": 0.08959372549019606,
+          "p90": 0.15847843137254902,
+          "highlight": {
+            "hueDeg": 23.154566754747627,
+            "saturation": 0.22996794871794868,
+            "pixels": 2138
+          },
+          "maskPx": 21176
+        },
+        "three_quarter": {
+          "p50": 0.10781725490196079,
+          "p90": 0.14841725490196078,
+          "highlight": {
+            "hueDeg": 22.473586490556325,
+            "saturation": 0.18181818181818182,
+            "pixels": 2896
+          },
+          "maskPx": 28545
+        },
+        "profile_90": {
+          "p50": 0.12825882352941176,
+          "p90": 0.15570980392156863,
+          "highlight": {
+            "hueDeg": 20.91340442137948,
+            "saturation": 0.159090909090909,
+            "pixels": 4314
+          },
+          "maskPx": 40762
+        },
+        "back": {
+          "p50": 0.11226901960784313,
+          "p90": 0.14758352941176472,
+          "highlight": {
+            "hueDeg": 16.672448100073144,
+            "saturation": 0.16666666666666657,
+            "pixels": 6107
+          },
+          "maskPx": 60445
+        }
+      },
+      "faceCheekP50": 0.7328243137254902,
+      "faceMoveFractionVsBase": 0.0,
+      "faceMoveFractionVsLook5": 0.0011460056038818574,
+      "silhouette": {
+        "front": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "three_quarter": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "profile_90": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "back": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        }
+      },
+      "gates": {
+        "absDeltaIouAtMost001EachView": true,
+        "faceCheekWithin5Percent": true
+      },
+      "label": "look7 COLOR base; flat Offset 2deg; roughness 0.395",
+      "offsetNoise": {
+        "amplitudeDeg": 0.0,
+        "frequency": 0.0
+      },
+      "roughness": 0.3953358169595746,
+      "materialReadback": {
+        "model": "HUANG",
+        "parametrization": "COLOR",
+        "Color": [
+          0.009475241415202618,
+          0.006922087166458368,
+          0.005410466808825731,
+          1.0
+        ],
+        "Reflection": 0.22099553048610687,
+        "Secondary Reflection": 0.7574388980865479,
+        "Roughness": 0.3953358232975006,
+        "Random Roughness": 0.0,
+        "OffsetRad": 0.03490658503988659,
+        "offsetGraph": {
+          "mode": "flat",
+          "offsetDeg": 2.0
+        }
+      },
+      "renderSeconds": {
+        "front": 10.929072500002803,
+        "three_quarter": 12.725095040979795,
+        "profile_90": 13.82318508400931,
+        "back": 15.299690500018187
+      },
+      "bands": {
+        "backCrop": {
+          "crop1024": [
+            320,
+            280,
+            704,
+            664
+          ],
+          "cropAtResolution": [
+            160,
+            140,
+            352,
+            332
+          ],
+          "hairP90Luminance": 0.14394509803921568,
+          "brightComponents": {
+            "count": 66,
+            "meanAreaPx": 46.515151515151516,
+            "areasPx": [
+              11,
+              6,
+              431,
+              683,
+              107,
+              3,
+              16,
+              89,
+              46,
+              38,
+              6,
+              14,
+              265,
+              10,
+              2,
+              1,
+              6,
+              1,
+              29,
+              225,
+              9,
+              3,
+              7,
+              2,
+              4,
+              2,
+              1,
+              3,
+              2,
+              910,
+              7,
+              1,
+              1,
+              3,
+              3,
+              1,
+              1,
+              1,
+              1,
+              1,
+              3,
+              1,
+              1,
+              1,
+              1,
+              1,
+              3,
+              1,
+              1,
+              1,
+              2,
+              1,
+              1,
+              1,
+              1,
+              54,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              7,
+              1,
+              26,
+              4
+            ]
+          },
+          "columnLuminanceAutocorrelation": {
+            "peak": 0.2189828091006305,
+            "periodPx": 88,
+            "minimumLagPx": 6
+          }
+        },
+        "earCrop": {
+          "crop1024": [
+            100,
+            240,
+            484,
+            624
+          ],
+          "cropAtResolution": [
+            50,
+            120,
+            242,
+            312
+          ],
+          "hairP90Luminance": 0.176730431372549,
+          "brightComponents": {
+            "count": 34,
+            "meanAreaPx": 6.117647058823529,
+            "areasPx": [
+              140,
+              3,
+              1,
+              4,
+              1,
+              1,
+              1,
+              2,
+              1,
+              1,
+              3,
+              1,
+              3,
+              1,
+              1,
+              1,
+              3,
+              5,
+              2,
+              3,
+              1,
+              8,
+              1,
+              4,
+              1,
+              1,
+              1,
+              2,
+              1,
+              1,
+              2,
+              2,
+              3,
+              2
+            ]
+          },
+          "columnLuminanceAutocorrelation": {
+            "peak": 0.2833690237568052,
+            "periodPx": 94,
+            "minimumLagPx": 6
+          }
+        }
+      },
+      "fitness": 3.632294405437222,
+      "fitnessParts": {
+        "front": {
+          "p50Relative": 0.3561591794092504,
+          "p90Relative": 0.09293326509907429,
+          "hueOver30": 0.3051387823241356,
+          "saturationAbsolute": 0.0371968643805993,
+          "subtotal": 1.4760993846225294
+        },
+        "three_quarter": {
+          "p50Relative": 0.6121568213535986,
+          "p90Relative": 0.005649177069549041,
+          "hueOver30": 0.04025083890591361,
+          "saturationAbsolute": 0.011164274322169099,
+          "subtotal": 0.7720513381073958
+        },
+        "profile_90": {
+          "p50Relative": 0.3358002303526356,
+          "p90Relative": 0.027919229111990143,
+          "hueOver30": 0.08401720695668094,
+          "saturationAbsolute": 0.007575757575757652,
+          "subtotal": 0.6384983530619415
+        },
+        "back": {
+          "p50Relative": 0.0001816035594297114,
+          "p90Relative": 0.1647142381533679,
+          "hueOver30": 0.12810697216799555,
+          "saturationAbsolute": 0.0654761904761905,
+          "subtotal": 0.7456453296453557
+        },
+        "face": {
+          "moveFractionVsLook5": 0.0011460056038818574,
+          "penalty": 0.0
+        }
+      }
+    },
+    "o1": {
+      "views": {
+        "front": {
+          "p50": 0.08959372549019606,
+          "p90": 0.15879764705882352,
+          "highlight": {
+            "hueDeg": 23.11258511082447,
+            "saturation": 0.2291666666666666,
+            "pixels": 2130
+          },
+          "maskPx": 21176
+        },
+        "three_quarter": {
+          "p50": 0.10781725490196079,
+          "p90": 0.14870039215686273,
+          "highlight": {
+            "hueDeg": 22.601973133934088,
+            "saturation": 0.16666666666666657,
+            "pixels": 2879
+          },
+          "maskPx": 28545
+        },
+        "profile_90": {
+          "p50": 0.12825882352941176,
+          "p90": 0.15570980392156863,
+          "highlight": {
+            "hueDeg": 20.904700591520367,
+            "saturation": 0.159090909090909,
+            "pixels": 4332
+          },
+          "maskPx": 40762
+        },
+        "back": {
+          "p50": 0.11226901960784313,
+          "p90": 0.14758352941176472,
+          "highlight": {
+            "hueDeg": 16.643345911320218,
+            "saturation": 0.16666666666666657,
+            "pixels": 6156
+          },
+          "maskPx": 60445
+        }
+      },
+      "faceCheekP50": 0.7328243137254902,
+      "faceMoveFractionVsBase": 0.0,
+      "faceMoveFractionVsLook5": 0.0011460056038818574,
+      "silhouette": {
+        "front": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "three_quarter": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "profile_90": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "back": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        }
+      },
+      "gates": {
+        "absDeltaIouAtMost001EachView": true,
+        "faceCheekWithin5Percent": true
+      },
+      "label": "Offset noise A=4deg F=3 at roughness 0.395 (expected: no split)",
+      "offsetNoise": {
+        "amplitudeDeg": 4.0,
+        "frequency": 3.0
+      },
+      "roughness": 0.3953358169595746,
+      "materialReadback": {
+        "model": "HUANG",
+        "parametrization": "COLOR",
+        "Color": [
+          0.009475241415202618,
+          0.006922087166458368,
+          0.005410466808825731,
+          1.0
+        ],
+        "Reflection": 0.22099553048610687,
+        "Secondary Reflection": 0.7574388980865479,
+        "Roughness": 0.3953358232975006,
+        "Random Roughness": 0.0,
+        "OffsetRad": null,
+        "offsetGraph": {
+          "mode": "noise",
+          "offsetDeg": 2.0,
+          "amplitudeDeg": 4.0,
+          "frequency": 3.0,
+          "centredNoise": "NoiseFac-0.5 in [-0.5,0.5]",
+          "offsetSpanDeg": [
+            0.0,
+            4.0
+          ],
+          "noiseScale": 1.0,
+          "noiseDetail": 2.0,
+          "noiseRoughness": 0.5,
+          "coordinate": "(HairInfo.Random, HairInfo.Intercept*F, 0)"
+        }
+      },
+      "renderSeconds": {
+        "front": 11.017775250016712,
+        "three_quarter": 12.574551207973855,
+        "profile_90": 14.11764370801393,
+        "back": 16.81500670799869
+      },
+      "bands": {
+        "backCrop": {
+          "crop1024": [
+            320,
+            280,
+            704,
+            664
+          ],
+          "cropAtResolution": [
+            160,
+            140,
+            352,
+            332
+          ],
+          "hairP90Luminance": 0.1436619607843137,
+          "brightComponents": {
+            "count": 65,
+            "meanAreaPx": 54.61538461538461,
+            "areasPx": [
+              11,
+              6,
+              495,
+              705,
+              130,
+              13,
+              75,
+              46,
+              32,
+              2,
+              12,
+              268,
+              9,
+              2,
+              1,
+              1,
+              12,
+              29,
+              1,
+              281,
+              5,
+              1,
+              4,
+              2,
+              1,
+              1,
+              1204,
+              6,
+              1,
+              1,
+              4,
+              1,
+              2,
+              1,
+              3,
+              8,
+              3,
+              3,
+              1,
+              4,
+              3,
+              3,
+              1,
+              1,
+              2,
+              1,
+              13,
+              62,
+              5,
+              1,
+              1,
+              1,
+              1,
+              3,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              7,
+              1,
+              2,
+              33,
+              15
+            ]
+          },
+          "columnLuminanceAutocorrelation": {
+            "peak": 0.212764910224369,
+            "periodPx": 87,
+            "minimumLagPx": 6
+          }
+        },
+        "earCrop": {
+          "crop1024": [
+            100,
+            240,
+            484,
+            624
+          ],
+          "cropAtResolution": [
+            50,
+            120,
+            242,
+            312
+          ],
+          "hairP90Luminance": 0.17830988235294112,
+          "brightComponents": {
+            "count": 32,
+            "meanAreaPx": 6.5,
+            "areasPx": [
+              136,
+              3,
+              1,
+              4,
+              1,
+              1,
+              1,
+              2,
+              1,
+              1,
+              3,
+              1,
+              3,
+              1,
+              1,
+              1,
+              15,
+              3,
+              1,
+              7,
+              1,
+              4,
+              1,
+              1,
+              1,
+              2,
+              1,
+              1,
+              2,
+              2,
+              3,
+              2
+            ]
+          },
+          "columnLuminanceAutocorrelation": {
+            "peak": 0.26750249161216705,
+            "periodPx": 94,
+            "minimumLagPx": 6
+          }
+        }
+      },
+      "fitness": 3.6878576326458985,
+      "fitnessParts": {
+        "front": {
+          "p50Relative": 0.3561591794092504,
+          "p90Relative": 0.09110620303283329,
+          "hueOver30": 0.3037393941933639,
+          "saturationAbsolute": 0.03639558232931722,
+          "subtotal": 1.467670312010127
+        },
+        "three_quarter": {
+          "p50Relative": 0.6121568213535986,
+          "p90Relative": 0.007567665237100474,
+          "hueOver30": 0.044530393685172004,
+          "saturationAbsolute": 0.026315789473684348,
+          "subtotal": 0.8322630360672681
+        },
+        "profile_90": {
+          "p50Relative": 0.3358002303526356,
+          "p90Relative": 0.027919229111990143,
+          "hueOver30": 0.08430733461865145,
+          "saturationAbsolute": 0.007575757575757652,
+          "subtotal": 0.639368736047853
+        },
+        "back": {
+          "p50Relative": 0.0001816035594297114,
+          "p90Relative": 0.1647142381533679,
+          "hueOver30": 0.129077045126427,
+          "saturationAbsolute": 0.0654761904761905,
+          "subtotal": 0.7485555485206501
+        },
+        "face": {
+          "moveFractionVsLook5": 0.0011460056038818574,
+          "penalty": 0.0
+        }
+      }
+    },
+    "o2": {
+      "views": {
+        "front": {
+          "p50": 0.07222980392156862,
+          "p90": 0.15657960784313724,
+          "highlight": {
+            "hueDeg": 22.975299564120917,
+            "saturation": 0.20833333333333334,
+            "pixels": 2119
+          },
+          "maskPx": 21176
+        },
+        "three_quarter": {
+          "p50": 0.10389568627450979,
+          "p90": 0.16438666666666668,
+          "highlight": {
+            "hueDeg": 22.72920280870286,
+            "saturation": 0.16326530612244897,
+            "pixels": 2872
+          },
+          "maskPx": 28545
+        },
+        "profile_90": {
+          "p50": 0.1403066666666667,
+          "p90": 0.20695764705882352,
+          "highlight": {
+            "hueDeg": 22.54082227947029,
+            "saturation": 0.16129032258064516,
+            "pixels": 4107
+          },
+          "maskPx": 40762
+        },
+        "back": {
+          "p50": 0.11986509803921569,
+          "p90": 0.1806235294117647,
+          "highlight": {
+            "hueDeg": 17.504548859150223,
+            "saturation": 0.14999999999999994,
+            "pixels": 6053
+          },
+          "maskPx": 60445
+        }
+      },
+      "faceCheekP50": 0.7325819607843137,
+      "faceMoveFractionVsBase": 0.00033071083564955884,
+      "faceMoveFractionVsLook5": 0.0014763374430604972,
+      "silhouette": {
+        "front": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "three_quarter": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "profile_90": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "back": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        }
+      },
+      "gates": {
+        "absDeltaIouAtMost001EachView": true,
+        "faceCheekWithin5Percent": true
+      },
+      "label": "Offset noise A=4deg F=3 at roughness 0.15",
+      "offsetNoise": {
+        "amplitudeDeg": 4.0,
+        "frequency": 3.0
+      },
+      "roughness": 0.15,
+      "materialReadback": {
+        "model": "HUANG",
+        "parametrization": "COLOR",
+        "Color": [
+          0.009475241415202618,
+          0.006922087166458368,
+          0.005410466808825731,
+          1.0
+        ],
+        "Reflection": 0.22099553048610687,
+        "Secondary Reflection": 0.7574388980865479,
+        "Roughness": 0.15000000596046448,
+        "Random Roughness": 0.0,
+        "OffsetRad": null,
+        "offsetGraph": {
+          "mode": "noise",
+          "offsetDeg": 2.0,
+          "amplitudeDeg": 4.0,
+          "frequency": 3.0,
+          "centredNoise": "NoiseFac-0.5 in [-0.5,0.5]",
+          "offsetSpanDeg": [
+            0.0,
+            4.0
+          ],
+          "noiseScale": 1.0,
+          "noiseDetail": 2.0,
+          "noiseRoughness": 0.5,
+          "coordinate": "(HairInfo.Random, HairInfo.Intercept*F, 0)"
+        }
+      },
+      "renderSeconds": {
+        "front": 13.802714791992912,
+        "three_quarter": 18.555527542019263,
+        "profile_90": 21.10062470799312,
+        "back": 26.29335349999019
+      },
+      "bands": {
+        "backCrop": {
+          "crop1024": [
+            320,
+            280,
+            704,
+            664
+          ],
+          "cropAtResolution": [
+            160,
+            140,
+            352,
+            332
+          ],
+          "hairP90Luminance": 0.18287764705882353,
+          "brightComponents": {
+            "count": 47,
+            "meanAreaPx": 74.19148936170212,
+            "areasPx": [
+              10,
+              427,
+              703,
+              74,
+              28,
+              3,
+              9,
+              3,
+              145,
+              6,
+              2,
+              11,
+              5,
+              3,
+              2,
+              1,
+              1,
+              2,
+              5,
+              26,
+              30,
+              3,
+              2,
+              1504,
+              1,
+              2,
+              1,
+              1,
+              7,
+              6,
+              3,
+              9,
+              1,
+              1,
+              4,
+              1,
+              1,
+              1,
+              1,
+              1,
+              68,
+              2,
+              1,
+              27,
+              238,
+              104,
+              1
+            ]
+          },
+          "columnLuminanceAutocorrelation": {
+            "peak": 0.21489247690020324,
+            "periodPx": 161,
+            "minimumLagPx": 6
+          }
+        },
+        "earCrop": {
+          "crop1024": [
+            100,
+            240,
+            484,
+            624
+          ],
+          "cropAtResolution": [
+            50,
+            120,
+            242,
+            312
+          ],
+          "hairP90Luminance": 0.18429513725490193,
+          "brightComponents": {
+            "count": 37,
+            "meanAreaPx": 5.621621621621622,
+            "areasPx": [
+              83,
+              4,
+              1,
+              4,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              3,
+              1,
+              1,
+              3,
+              1,
+              1,
+              1,
+              1,
+              57,
+              13,
+              2,
+              1,
+              3,
+              4,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              2,
+              2,
+              3,
+              1
+            ]
+          },
+          "columnLuminanceAutocorrelation": {
+            "peak": 0.2741458875436911,
+            "periodPx": 95,
+            "minimumLagPx": 6
+          }
+        }
+      },
+      "fitness": 3.5401637671817276,
+      "fitnessParts": {
+        "front": {
+          "p50Relative": 0.09332557697787058,
+          "p90Relative": 0.10380136648081817,
+          "hueOver30": 0.299163209303245,
+          "saturationAbsolute": 0.015562248995983963,
+          "subtotal": 1.1413033183563757
+        },
+        "three_quarter": {
+          "p50Relative": 0.5535188638309348,
+          "p90Relative": 0.11385509834244743,
+          "hueOver30": 0.048771382844131496,
+          "saturationAbsolute": 0.029717150017901955,
+          "subtotal": 0.9028395607594826
+        },
+        "profile_90": {
+          "p50Relative": 0.461277068476814,
+          "p90Relative": 0.29201594265345304,
+          "hueOver30": 0.029769945020320657,
+          "saturationAbsolute": 0.005376344086021501,
+          "subtotal": 0.8587318784492934
+        },
+        "back": {
+          "p50Relative": 0.06746572232815774,
+          "p90Relative": 0.022283875263566916,
+          "hueOver30": 0.10037028019876004,
+          "saturationAbsolute": 0.08214285714285713,
+          "subtotal": 0.6372890096165762
+        },
+        "face": {
+          "moveFractionVsLook5": 0.0014763374430604972,
+          "penalty": 0.0
+        }
+      }
+    },
+    "o3": {
+      "views": {
+        "front": {
+          "p50": 0.07197254901960784,
+          "p90": 0.15595921568627452,
+          "highlight": {
+            "hueDeg": 22.884773727531332,
+            "saturation": 0.21276595744680848,
+            "pixels": 2118
+          },
+          "maskPx": 21176
+        },
+        "three_quarter": {
+          "p50": 0.10417882352941175,
+          "p90": 0.1641035294117647,
+          "highlight": {
+            "hueDeg": 22.71538402943847,
+            "saturation": 0.16326530612244897,
+            "pixels": 2875
+          },
+          "maskPx": 28545
+        },
+        "profile_90": {
+          "p50": 0.14275607843137253,
+          "p90": 0.20585647058823528,
+          "highlight": {
+            "hueDeg": 22.626381896371665,
+            "saturation": 0.16129032258064516,
+            "pixels": 4083
+          },
+          "maskPx": 40762
+        },
+        "back": {
+          "p50": 0.12041568627450981,
+          "p90": 0.18021176470588202,
+          "highlight": {
+            "hueDeg": 17.43587877392022,
+            "saturation": 0.1509433962264151,
+            "pixels": 6045
+          },
+          "maskPx": 60445
+        }
+      },
+      "faceCheekP50": 0.7326858823529412,
+      "faceMoveFractionVsBase": 0.00018890117311369845,
+      "faceMoveFractionVsLook5": 0.0013346902951925875,
+      "silhouette": {
+        "front": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "three_quarter": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "profile_90": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "back": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        }
+      },
+      "gates": {
+        "absDeltaIouAtMost001EachView": true,
+        "faceCheekWithin5Percent": true
+      },
+      "label": "Offset noise A=8deg F=6 at roughness 0.15",
+      "offsetNoise": {
+        "amplitudeDeg": 8.0,
+        "frequency": 6.0
+      },
+      "roughness": 0.15,
+      "materialReadback": {
+        "model": "HUANG",
+        "parametrization": "COLOR",
+        "Color": [
+          0.009475241415202618,
+          0.006922087166458368,
+          0.005410466808825731,
+          1.0
+        ],
+        "Reflection": 0.22099553048610687,
+        "Secondary Reflection": 0.7574388980865479,
+        "Roughness": 0.15000000596046448,
+        "Random Roughness": 0.0,
+        "OffsetRad": null,
+        "offsetGraph": {
+          "mode": "noise",
+          "offsetDeg": 2.0,
+          "amplitudeDeg": 8.0,
+          "frequency": 6.0,
+          "centredNoise": "NoiseFac-0.5 in [-0.5,0.5]",
+          "offsetSpanDeg": [
+            -2.0,
+            6.0
+          ],
+          "noiseScale": 1.0,
+          "noiseDetail": 2.0,
+          "noiseRoughness": 0.5,
+          "coordinate": "(HairInfo.Random, HairInfo.Intercept*F, 0)"
+        }
+      },
+      "renderSeconds": {
+        "front": 13.257612457993673,
+        "three_quarter": 11.36133504199097,
+        "profile_90": 10.787311583990231,
+        "back": 12.625477167021018
+      },
+      "bands": {
+        "backCrop": {
+          "crop1024": [
+            320,
+            280,
+            704,
+            664
+          ],
+          "cropAtResolution": [
+            160,
+            140,
+            352,
+            332
+          ],
+          "hairP90Luminance": 0.18287764705882353,
+          "brightComponents": {
+            "count": 51,
+            "meanAreaPx": 67.54901960784314,
+            "areasPx": [
+              10,
+              411,
+              694,
+              60,
+              5,
+              14,
+              2,
+              4,
+              4,
+              148,
+              6,
+              1,
+              20,
+              2,
+              2,
+              1,
+              1,
+              1,
+              1,
+              26,
+              20,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1513,
+              1,
+              7,
+              3,
+              1,
+              1,
+              2,
+              2,
+              4,
+              9,
+              12,
+              4,
+              1,
+              1,
+              1,
+              4,
+              3,
+              2,
+              1,
+              64,
+              39,
+              1,
+              237,
+              92
+            ]
+          },
+          "columnLuminanceAutocorrelation": {
+            "peak": 0.20933908686652197,
+            "periodPx": 161,
+            "minimumLagPx": 6
+          }
+        },
+        "earCrop": {
+          "crop1024": [
+            100,
+            240,
+            484,
+            624
+          ],
+          "cropAtResolution": [
+            50,
+            120,
+            242,
+            312
+          ],
+          "hairP90Luminance": 0.18449333333333331,
+          "brightComponents": {
+            "count": 38,
+            "meanAreaPx": 5.394736842105263,
+            "areasPx": [
+              83,
+              4,
+              1,
+              4,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              3,
+              1,
+              1,
+              3,
+              1,
+              1,
+              1,
+              2,
+              1,
+              55,
+              13,
+              2,
+              1,
+              2,
+              4,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              2,
+              2,
+              1,
+              1,
+              1
+            ]
+          },
+          "columnLuminanceAutocorrelation": {
+            "peak": 0.2606827825066706,
+            "periodPx": 95,
+            "minimumLagPx": 6
+          }
+        }
+      },
+      "fitness": 3.561688681761807,
+      "fitnessParts": {
+        "front": {
+          "p50Relative": 0.0894315699496628,
+          "p90Relative": 0.10735224140562563,
+          "hueOver30": 0.2961456814169253,
+          "saturationAbsolute": 0.019994873109459105,
+          "subtotal": 1.1452054749344418
+        },
+        "three_quarter": {
+          "p50Relative": 0.5577525243640712,
+          "p90Relative": 0.11193661017489581,
+          "hueOver30": 0.04831075686865158,
+          "saturationAbsolute": 0.029717150017901955,
+          "subtotal": 0.9037728551986277
+        },
+        "profile_90": {
+          "p50Relative": 0.4867873975870152,
+          "p90Relative": 0.2851414078107251,
+          "hueOver30": 0.026917957790274727,
+          "saturationAbsolute": 0.005376344086021501,
+          "subtotal": 0.868811711026629
+        },
+        "back": {
+          "p50Relative": 0.07236901843276143,
+          "p90Relative": 0.019953390300741766,
+          "hueOver30": 0.10265928303975992,
+          "saturationAbsolute": 0.08119946091644198,
+          "subtotal": 0.6438986406021089
+        },
+        "face": {
+          "moveFractionVsLook5": 0.0013346902951925875,
+          "penalty": 0.0
+        }
+      }
+    },
+    "o4": {
+      "views": {
+        "front": {
+          "p50": 0.07197254901960784,
+          "p90": 0.15709411764705886,
+          "highlight": {
+            "hueDeg": 22.889122850012427,
+            "saturation": 0.215686274509804,
+            "pixels": 2119
+          },
+          "maskPx": 21176
+        },
+        "three_quarter": {
+          "p50": 0.10417882352941175,
+          "p90": 0.1649372549019608,
+          "highlight": {
+            "hueDeg": 22.800532230885477,
+            "saturation": 0.16326530612244897,
+            "pixels": 2861
+          },
+          "maskPx": 28545
+        },
+        "profile_90": {
+          "p50": 0.14085725490196077,
+          "p90": 0.20695764705882352,
+          "highlight": {
+            "hueDeg": 22.514290635374277,
+            "saturation": 0.16129032258064516,
+            "pixels": 4091
+          },
+          "maskPx": 40762
+        },
+        "back": {
+          "p50": 0.11986509803921569,
+          "p90": 0.18034039215686276,
+          "highlight": {
+            "hueDeg": 17.441792210706215,
+            "saturation": 0.14999999999999994,
+            "pixels": 6050
+          },
+          "maskPx": 60445
+        }
+      },
+      "faceCheekP50": 0.7325639215686274,
+      "faceMoveFractionVsBase": 0.00035532685254264015,
+      "faceMoveFractionVsLook5": 0.001500925249860274,
+      "silhouette": {
+        "front": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "three_quarter": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "profile_90": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        },
+        "back": {
+          "iouVsBase": 1.0,
+          "deltaIou": 0.0
+        }
+      },
+      "gates": {
+        "absDeltaIouAtMost001EachView": true,
+        "faceCheekWithin5Percent": true
+      },
+      "label": "roughness 0.15 alone, flat Offset 2deg (control)",
+      "offsetNoise": {
+        "amplitudeDeg": 0.0,
+        "frequency": 0.0
+      },
+      "roughness": 0.15,
+      "materialReadback": {
+        "model": "HUANG",
+        "parametrization": "COLOR",
+        "Color": [
+          0.009475241415202618,
+          0.006922087166458368,
+          0.005410466808825731,
+          1.0
+        ],
+        "Reflection": 0.22099553048610687,
+        "Secondary Reflection": 0.7574388980865479,
+        "Roughness": 0.15000000596046448,
+        "Random Roughness": 0.0,
+        "OffsetRad": 0.03490658503988659,
+        "offsetGraph": {
+          "mode": "flat",
+          "offsetDeg": 2.0
+        }
+      },
+      "renderSeconds": {
+        "front": 6.909749708982417,
+        "three_quarter": 9.114963166997768,
+        "profile_90": 9.239748583000619,
+        "back": 10.498871957999654
+      },
+      "bands": {
+        "backCrop": {
+          "crop1024": [
+            320,
+            280,
+            704,
+            664
+          ],
+          "cropAtResolution": [
+            160,
+            140,
+            352,
+            332
+          ],
+          "hairP90Luminance": 0.18287764705882353,
+          "brightComponents": {
+            "count": 46,
+            "meanAreaPx": 76.04347826086956,
+            "areasPx": [
+              10,
+              432,
+              728,
+              68,
+              6,
+              4,
+              13,
+              2,
+              8,
+              4,
+              143,
+              5,
+              1,
+              17,
+              54,
+              1,
+              2,
+              8,
+              1,
+              1,
+              28,
+              2,
+              1501,
+              1,
+              1,
+              1,
+              1,
+              7,
+              6,
+              3,
+              3,
+              4,
+              1,
+              1,
+              1,
+              1,
+              1,
+              3,
+              3,
+              1,
+              63,
+              2,
+              33,
+              231,
+              90,
+              1
+            ]
+          },
+          "columnLuminanceAutocorrelation": {
+            "peak": 0.21124235620666276,
+            "periodPx": 161,
+            "minimumLagPx": 6
+          }
+        },
+        "earCrop": {
+          "crop1024": [
+            100,
+            240,
+            484,
+            624
+          ],
+          "cropAtResolution": [
+            50,
+            120,
+            242,
+            312
+          ],
+          "hairP90Luminance": 0.18112705882352942,
+          "brightComponents": {
+            "count": 38,
+            "meanAreaPx": 5.473684210526316,
+            "areasPx": [
+              83,
+              4,
+              1,
+              4,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              3,
+              1,
+              1,
+              3,
+              1,
+              1,
+              1,
+              1,
+              58,
+              1,
+              12,
+              2,
+              1,
+              2,
+              4,
+              2,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              1,
+              2,
+              2,
+              3,
+              1
+            ]
+          },
+          "columnLuminanceAutocorrelation": {
+            "peak": 0.2659524435818171,
+            "periodPx": 95,
+            "minimumLagPx": 6
+          }
+        }
+      },
+      "fitness": 3.574924010652036,
+      "fitnessParts": {
+        "front": {
+          "p50Relative": 0.0894315699496628,
+          "p90Relative": 0.10085651951410003,
+          "hueOver30": 0.29629065216629535,
+          "saturationAbsolute": 0.022915190172454608,
+          "subtotal": 1.1479056164800125
+        },
+        "three_quarter": {
+          "p50Relative": 0.5577525243640712,
+          "p90Relative": 0.11758578724444504,
+          "hueOver30": 0.05114903025021818,
+          "saturationAbsolute": 0.029717150017901955,
+          "subtotal": 0.9179368524128766
+        },
+        "profile_90": {
+          "p50Relative": 0.46701137876671484,
+          "p90Relative": 0.29201594265345304,
+          "hueOver30": 0.03065433315685482,
+          "saturationAbsolute": 0.005376344086021501,
+          "subtotal": 0.8671193531487968
+        },
+        "back": {
+          "p50Relative": 0.06746572232815774,
+          "p90Relative": 0.02068138941293997,
+          "hueOver30": 0.10246216848022698,
+          "saturationAbsolute": 0.08214285714285713,
+          "subtotal": 0.64196218861035
+        },
+        "face": {
+          "moveFractionVsLook5": 0.001500925249860274,
+          "penalty": 0.0
+        }
+      }
+    }
+  }
+}

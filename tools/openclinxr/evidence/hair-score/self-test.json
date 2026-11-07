@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "input": "hair-top1/cells/t1/strands.npz + hair-look5/cells/best/metrics.json#$.params",
+  "first": {
+    "front": 0.686925885126954,
+    "profile": 0.6815174867792478,
+    "back": 0.7839616782198362
+  },
+  "second": {
+    "front": 0.686925885126954,
+    "profile": 0.6815174867792478,
+    "back": 0.7839616782198362
+  },
+  "iouExactlyEqual": true,
+  "idPixelsExactlyEqual": {
+    "front": true,
+    "three_quarter": true,
+    "profile_90": true,
+    "back": true
+  }
+}

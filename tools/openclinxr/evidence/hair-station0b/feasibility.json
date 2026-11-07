@@ -1,0 +1,122 @@
+{
+  "collision": {
+    "all": {
+      "maxPenMm": 47.27,
+      "minSdfMm": -51.27,
+      "nViol": 114,
+      "tolMm": 4.0
+    },
+    "holdout-back": {
+      "maxPenMm": 47.98,
+      "minSdfMm": -51.98,
+      "nViol": 92,
+      "tolMm": 4.0
+    },
+    "holdout-front": {
+      "maxPenMm": 44.37,
+      "minSdfMm": -48.37,
+      "nViol": 132,
+      "tolMm": 4.0
+    },
+    "holdout-profile_90": {
+      "maxPenMm": 23.1,
+      "minSdfMm": -27.1,
+      "nViol": 117,
+      "tolMm": 4.0
+    }
+  },
+  "fixedPlane": {
+    "note": "descriptive only; not part of the verdict",
+    "spreadMedianHemZmm": 80.2,
+    "spreadMedianPosteriorYmm": 160.4,
+    "views": {
+      "back": {
+        "centralMinSdfMm": -76.6,
+        "medianHemZmm": 1321.0,
+        "medianPosteriorYmm": -50.5,
+        "nHemRays": 500
+      },
+      "front": {
+        "centralMinSdfMm": -51.9,
+        "medianHemZmm": 1401.2,
+        "medianPosteriorYmm": -1.5,
+        "nHemRays": 500
+      },
+      "profile_90": {
+        "centralMinSdfMm": 52.4,
+        "medianHemZmm": 1355.1,
+        "medianPosteriorYmm": 109.9,
+        "nHemRays": 500
+      }
+    }
+  },
+  "heldOut": {
+    "back": {
+      "nFitted": 1962,
+      "nTarget": 2003,
+      "p50mm": 30.13,
+      "p50px": 57.2,
+      "p95mm": 69.68,
+      "p95px": 132.29,
+      "pitchMmPx": 0.5267
+    },
+    "front": {
+      "nFitted": 2054,
+      "nTarget": 2615,
+      "p50mm": 20.11,
+      "p50px": 44.55,
+      "p95mm": 50.91,
+      "p95px": 112.76,
+      "pitchMmPx": 0.4514
+    },
+    "profile_90": {
+      "nFitted": 1678,
+      "nTarget": 1992,
+      "p50mm": 18.26,
+      "p50px": 37.34,
+      "p95mm": 57.68,
+      "p95px": 117.95,
+      "pitchMmPx": 0.4891
+    }
+  },
+  "reason": "front p95 112.8px > 12.0px; profile_90 p95 118.0px > 12.0px; back p95 132.3px > 12.0px; all collision 47.3mm; holdout-front collision 44.4mm; holdout-profile_90 saturated ['cap_top']; holdout-profile_90 collision 23.1mm; holdout-back saturated ['hem_drop']; holdout-back collision 48.0mm",
+  "regRmsPx": 0.0,
+  "saturation": {
+    "all": {
+      "minGapFrac": 0.0145,
+      "minGapParam": "cap_top",
+      "saturated": false,
+      "saturatedParams": []
+    },
+    "holdout-back": {
+      "minGapFrac": 0.0029,
+      "minGapParam": "hem_drop",
+      "saturated": true,
+      "saturatedParams": [
+        "hem_drop"
+      ]
+    },
+    "holdout-front": {
+      "minGapFrac": 0.0487,
+      "minGapParam": "cap_top",
+      "saturated": false,
+      "saturatedParams": []
+    },
+    "holdout-profile_90": {
+      "minGapFrac": 0.0008,
+      "minGapParam": "cap_top",
+      "saturated": true,
+      "saturatedParams": [
+        "cap_top"
+      ]
+    }
+  },
+  "specSha": "71f84b7f2eca97c8b8b7f40a514c0a94d9d21f6a12125be8e2107f4462c9e2d1",
+  "threeQuarter": {
+    "note": "VALIDATION display; no registration triple exists for three_quarter so no overlay and no score",
+    "target": "mask-three_quarter.png (display only, never in the loss)",
+    "targetSha256": "9d25c81aebd6a8fa5665a457b28c94ad4b13c0b562a02e2d6c147c348cad6fd3"
+  },
+  "thresholdPx": 12.0,
+  "verdict": "STOP"
+}

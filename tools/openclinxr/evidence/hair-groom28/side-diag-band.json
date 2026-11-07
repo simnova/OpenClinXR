@@ -1,0 +1,142 @@
+{
+ "posX": {
+  "nGuides": 253,
+  "bands": {
+   "root-takeoff": {
+    "nSamples": 1728,
+    "meanDeltaMm": [
+     -0.283,
+     -0.177,
+     0.184
+    ],
+    "normMm": 0.382
+   },
+   "upper-mid": {
+    "nSamples": 3521,
+    "meanDeltaMm": [
+     -0.938,
+     -3.289,
+     3.159
+    ],
+    "normMm": 4.656
+   },
+   "lower-mid": {
+    "nSamples": 3521,
+    "meanDeltaMm": [
+     0.962,
+     -6.287,
+     6.602
+    ],
+    "normMm": 9.168
+   },
+   "hem": {
+    "nSamples": 1603,
+    "meanDeltaMm": [
+     3.643,
+     -9.539,
+     8.402
+    ],
+    "normMm": 13.223
+   }
+  },
+  "hemDelta": {
+   "dx": {
+    "n": 253,
+    "min": -137.045,
+    "mean": 4.197,
+    "p50": 0.0,
+    "p90": 18.117,
+    "max": 43.588
+   },
+   "dy": {
+    "n": 253,
+    "min": -107.169,
+    "mean": -10.137,
+    "p50": 0.0,
+    "p90": 0.0,
+    "max": 3.006
+   },
+   "dz": {
+    "n": 253,
+    "min": -36.114,
+    "mean": 8.421,
+    "p50": 0.0,
+    "p90": 59.206,
+    "max": 91.303
+   }
+  },
+  "hemDzUp": 59,
+  "hemDzDown": 49,
+  "hemDxOut": 87
+ },
+ "negX": {
+  "nGuides": 271,
+  "bands": {
+   "root-takeoff": {
+    "nSamples": 1862,
+    "meanDeltaMm": [
+     0.136,
+     -0.118,
+     0.097
+    ],
+    "normMm": 0.205
+   },
+   "upper-mid": {
+    "nSamples": 3783,
+    "meanDeltaMm": [
+     0.186,
+     -2.775,
+     1.704
+    ],
+    "normMm": 3.262
+   },
+   "lower-mid": {
+    "nSamples": 3739,
+    "meanDeltaMm": [
+     -6.135,
+     -5.41,
+     2.15
+    ],
+    "normMm": 8.458
+   },
+   "hem": {
+    "nSamples": 1727,
+    "meanDeltaMm": [
+     -13.079,
+     -6.074,
+     2.314
+    ],
+    "normMm": 14.605
+   }
+  },
+  "hemDelta": {
+   "dx": {
+    "n": 271,
+    "min": -145.29,
+    "mean": -13.753,
+    "p50": -0.073,
+    "p90": 0.0,
+    "max": 0.19
+   },
+   "dy": {
+    "n": 271,
+    "min": -116.918,
+    "mean": -5.98,
+    "p50": 0.0,
+    "p90": 0.163,
+    "max": 18.839
+   },
+   "dz": {
+    "n": 271,
+    "min": -36.773,
+    "mean": 2.428,
+    "p50": 0.0,
+    "p90": 10.496,
+    "max": 121.712
+   }
+  },
+  "hemDzUp": 35,
+  "hemDzDown": 42,
+  "hemDxOut": 119
+ }
+}

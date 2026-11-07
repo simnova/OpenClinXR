@@ -1,0 +1,51 @@
+{
+ "fill_flat": {
+  "added": 4200,
+  "lengthMm": 45,
+  "heightMm": {
+   "p50": 0.37,
+   "max": 3.63
+  }
+ },
+ "flatten": {
+  "reshaped": 12892,
+  "lengthMm": 40,
+  "added": 0
+ },
+ "fill_long": {
+  "added": 4200,
+  "lengthMm": 90,
+  "heightMm": {
+   "p50": 0.33,
+   "max": 3.99
+  }
+ },
+ "combo": {
+  "added": 8400,
+  "reshaped": 12892,
+  "newTotal": 81628
+ },
+ "fill_flat_full": {
+  "added": 4200,
+  "newTotal": 77428
+ },
+ "fill_long_full": {
+  "added": 4200,
+  "newTotal": 77428
+ },
+ "side_fill": {
+  "added": 3000,
+  "lengthMm": 45,
+  "zone": "|x| in [25,45]mm, y in [-146,-122]mm"
+ },
+ "edge_fill": {
+  "added": 4000,
+  "lengthMm": 30,
+  "zone": "y in [-124,-110]mm, |x|>=2mm"
+ },
+ "combo2": {
+  "added": 7000,
+  "newTotal": 80228,
+  "note": "base+side_fill+edge_fill; no flatten, no centre fill"
+ }
+}

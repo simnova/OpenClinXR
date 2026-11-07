@@ -1,0 +1,1 @@
+DONE: four 512x32 COLOR probes, 16-evaluation bounded CMA-ES, canonical hair-score 1024x64 all-view+crown score, TS/base/best look sheet, RESULT, and reproducible source are present.

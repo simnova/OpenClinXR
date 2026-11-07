@@ -1,0 +1,10 @@
+hair-route1 DONE.
+spec 1fb058a377005c8834139fc935dc872069bb3a4c720715a002d329e39bc4e089
+(frozen before the run, asserted by relax/export/gates).
+344/359 guides relaxed (cubic B-spline 8-14 controls, root fixed,
+ends in-band); 15 fallbacks keep route0 curves (named in RESULT).
+E/paths.npz, E/guides.npz (+status), E/guides.png (4 views),
+E/guides-vs-route0.png, E/gates.json, E/RESULT.txt, E/GATES.txt.
+verdict MODEL_INADEQUATE (turn+lattice residuals on 15 named
+voxel-corner guides; flow gate unsatisfiable as specified).
+No *.blend. Ready for orchestrator grading + commit.

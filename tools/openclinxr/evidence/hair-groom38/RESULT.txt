@@ -1,0 +1,109 @@
+groom38 RESULT (2026-10-19): shape-preserving ear collide on groom36's
+children (THE PIVOT: collision against the inflated proxy as a final
+relaxation; no weight changes, no trims).
+
+VERDICT: PARTIAL (earlobe column cleared both sides, face-front new
+gate passes, zero image regressions; shell/length/concha/gt30/IoU/
+crossings still fail). Per card: shell gate still fails -> attribute
+and STOP. No further fix added. Do not promote; operator decides.
+
+PRIMARY GATE (lead):
+  child segs in 3 mm inflated shell +x | 1934 / 0 | FAIL (36: 2134)
+  child segs in 3 mm inflated shell -x | 1788 / 0 | FAIL (36: 2043)
+  provenance: gates-38full.json (gates34.segments_in_shell, pierce OR
+  midpoint-inside). Down 200/255 segs (~10%) vs 36, both sides.
+
+GATE TABLE (value | threshold | verdict | provenance):
+  earlobe column +x            | 0 / 0         | PASS | 36: 53 -> 0
+  earlobe column -x            | 0 / 0         | PASS | 36: 56 -> 0
+  face-front strands +x        | 2044 / <=2044 | PASS | NEW, 36 first
+  face-front strands -x        | 2062 / <=2062 | PASS | NEW, 36 first
+  sub-lobe loops +x / -x       | 124 / 120     | info | 36: 153/153
+  profile ear box +x (std)     | 0 px / 0      | PASS | imgStd
+  profile ear box -x (mirror)  | 0 px / 0      | PASS | imgMirror
+  3q ear box +x (std)          | 283 / <=842   | PASS | margin -559
+  3q ear box -x (mirror)       | 353 / <=842   | PASS | margin -489
+  concha +x                    | 0/0/0         | PASS | 36: 0/0/0
+  concha -x                    | 1/0/18        | FAIL | 36: 0/0/0 REGRESSION
+    (front/xneg=1, profile_90/xneg=18; strands pushed over the
+    -x concha rim by posterior-projected exits)
+  insideBody                   | 0 / 0         | PASS | nSge1Inside
+  strand length change max +x  | 12.15 / <=1mm | FAIL | over by 11.15mm
+  strand length change max -x  | 11.89 / <=1mm | FAIL | over by 10.89mm
+  strand length change mean    | 0.51/0.34mm   | info | 40 iters
+  bending deviation max        | 9.49/10.97mm | info | 2nd-neighbour rest
+  segments > 30 mm             | 2973 / <=2970 | FAIL | over by 3 (36: 2970)
+  +x IoU front                 | 0.7795/>=0.79 | FAIL | margin -0.0105 (36 -0.0106)
+  +x IoU 3q                    | 0.8488/>=0.83 | PASS | margin +0.0188
+  +x IoU profile               | 0.8325/>=0.84 | FAIL | margin -0.0075 (36 -0.0074)
+  back IoU                     | 0.8911        | info | 36: 0.8911, same
+  mirror IoU 3q / profile      | 0.9734/0.9718 | info | 36: 0.9731/0.9717
+  3D back crossings            | 1029 / <=935  | FAIL | guides-level, same as 36/37
+  gradAniso sigma 4            | 0.3471/<=0.70 | PASS | opt38 (36: 0.3470)
+  determinism                  | sha identical | PASS | 2f919fca05c2d5d7 x2 runs
+  calibration                  | delta 0 all   | PASS | all_within_0.02 true
+
+SEAM REPORT (operator decides; legitimate-contact candidates):
+  remaining shell segs within 3 mm of head skin AND posterior of the
+  pinna front (y > sides yfront): +x 34 segs (34 strands) /
+  -x 45 segs (45 strands). The other ~1900/1743 segs per side are NOT
+  seam contact.
+
+ATTRIBUTION (residual-38.json; gates34 predicate, mask-retained):
+  Remaining shell strands +x 1047: 742 moved-but-still-in + 305
+  never-moved (predicate gap: collide moveset used the residual35
+  shell_hits predicate; gates34 pierce-test catches ~190 more segs
+  on strands never touched). -x 928: 697 + 231.
+  Root proxy-dist p50 +x 40.4 / -x 40.6 mm (36: 40.3/39.0): near-root
+  offenders are fixed; remainder rides from far roots.
+  Top backbones +x: 1264(261) 541(153) 700(133) 422(63) 1302(53);
+  -x: 2639(249) 2075(104) 1916(88) 1797(77) 2677(51);
+  backboneRoutedFrac 0.83/0.82.
+  Blocker segs (overlap; a seg carries several labels) +x 1934:
+  anterior-exit 1212 (exit vector points anterior, posterior rule
+  projects to tangent -> anterior wall never pushed out),
+  flesh-trapped 1189 (body SDF < 0.5 mm at midpoint, flesh-halving
+  stalls the exit), near-pin (<30 mm arc) 19, seam 34.
+  -x 1788: anterior-exit 1135, flesh-trapped 1137, near-pin 44,
+  seam 45. Strand-level: anterior-exit 780/725, flesh 675/635.
+  violHist plateaus ~760/774 after iter ~6: the two blockers above
+  are the limit cycle (shell push <-> body push), not iteration
+  count. Pinned samples in shell 0/0, roots in shell 0/0: nothing
+  unfixable-by-construction remains; the failures are constraint
+  conflicts (posterior-only exits vs anterior-wall residence, and
+  the 3 mm shell wall standing inside flesh-clearance depth).
+
+MOVED-STRAND STATS: attempted 1159 +x / 1052 -x (shell-hit or
+  column); byte-differing vs groom36: 1675 total; unmoved 267805
+  byte-identical (maxAbsDiff 0.0); pinned samples of moved strands
+  unchanged (maxAbsDiff 0.0). 40 XPBD iters, pin = root + first
+  20 mm arc, no gravity.
+
+VISUAL READ (sheet.png rows target|36|38 + ear close-ups; ears.png
+native 1:1 36|38 both sides): 36 vs 38 nearly identical at sheet
+scale and at 1:1. No groom37-style curled strands in front of the
+forehead/nose/cheek on either side; no loops below/in front of the
+lobes. Both sides still show the same thin flyaway wisps crossing
+above/in front of the upper ear as 36 (the concha -x 18 projective
+crossings correspond to wisps over the -x upper ear, visible in the
+ear -x 1:1 crop). Column clearing (53/56 -> 0) is not eye-visible:
+those strands sat inside the 3D box behind the hair mass.
+
+SCOPE: new stage tools/openclinxr/hair-groom/strands/ear_collide.py
+  (imports gates34/children/residual35 primitives; default OFF
+  elsewhere). New evidence E/hair-groom38/: run_gates via gates34
+  CLI, residual38 (mask-retained attribution), facefront38 +
+  faceland38 + faceprobe38 (lashes outer corners per side,
+  chin-underside jaw slice), run_cross38, run_grad38, make_sheet38,
+  ears38 (thin 38 variants of the 37 drivers); iou via iou35 CLI;
+  calib via calibrate31 CLI cwd=E38. Store .npz in
+  /Volumes/files/openclinxr-assets/store/hair-groom38/ + SHA256SUMS.
+  Sheet rows target | groom36 | groom38 (3q, 3q -x flip, profile,
+  profile -x flip, ear +x, ear -x flip). ears.png native 1:1 both
+  sides (cols target-n/a | groom36 | groom38).
+NOT TESTED: wearer-side (Quest) views; VLM review of sheet/ears.
+REMAINING: shell segs 1934/1788, column done; length max 12.2/11.9mm
+  (constraint conflict, not iteration count); concha -x regression
+  (1/18); gt30 +3; front/profile IoU margins (-0.0105/-0.0075);
+  crossings 1029; anterior-wall residents vs posterior-only rule.
+GATES_PASS: false

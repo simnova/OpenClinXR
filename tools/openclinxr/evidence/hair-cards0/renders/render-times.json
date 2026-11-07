@@ -1,0 +1,25 @@
+{
+  "engine": "CYCLES-CPU",
+  "keySun": [
+    0.5,
+    -0.6,
+    0.9
+  ],
+  "relitNote": "front-relit: key azimuth +40 deg",
+  "seconds": {
+    "back": 22.3,
+    "back-id": 7.9,
+    "front": 19.6,
+    "front-id": 26.3,
+    "front-relit": 20.7,
+    "heldout_22p5": 17.0,
+    "profile_90": 25.7,
+    "profile_90-id": 12.0,
+    "three_quarter": 18.5,
+    "three_quarter-id": 20.9
+  },
+  "seed": 7,
+  "size": 1024,
+  "spp": 64,
+  "total": 192.1
+}

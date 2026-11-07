@@ -1,0 +1,68 @@
+{
+ "tag": "b",
+ "strands": "/Volumes/files/openclinxr-assets/store/hair-part1/build-b/strands.npz",
+ "strandsSha256": "d56f7eb69b6932ff",
+ "nStrands": 277020,
+ "crownTop": {
+  "definition": "crown_top ID alpha >=230/255; longitudinal extent is 10 mm behind our centre hairline through apex; part +/-3 mm; sides 7-24 mm; 0-10 tile excludes the intentional +/-3 mm slit",
+  "world": {
+   "hairlineY": -0.12157492339611053,
+   "startY": -0.11157492339611054,
+   "apexY": -0.053241077810525894
+  },
+  "tiles": {
+   "0-10": {
+    "effectiveDistanceMm": [
+     3.0,
+     10.0
+    ],
+    "pixels": 11502,
+    "skinFraction": 0.5499913058598505
+   },
+   "10-20": {
+    "effectiveDistanceMm": [
+     10.0,
+     20.0
+    ],
+    "pixels": 15800,
+    "skinFraction": 0.4170886075949367
+   },
+   "20-30": {
+    "effectiveDistanceMm": [
+     20.0,
+     30.0
+    ],
+    "pixels": 15590,
+    "skinFraction": 0.41815266196279666
+   },
+   "30-50": {
+    "effectiveDistanceMm": [
+     30.0,
+     50.0
+    ],
+    "pixels": 28300,
+    "skinFraction": 0.4637809187279152
+   }
+  },
+  "partLuminance": 0.24594092796581882,
+  "sideLuminance": 0.20917510374570375,
+  "partSide": 1.1757657749978299
+ },
+ "frontHonest": {
+  "definition": "front rows strictly above subject-specific centre hairline; part +/-3 mm; sides 7-24 mm",
+  "hairlineRow": 154,
+  "partSide": 0.9452173523123175
+ },
+ "TS": {
+  "definition": "front rows strictly above subject-specific centre hairline; part +/-3 mm; sides 7-24 mm",
+  "hairlineRow": 212,
+  "partSide": 1.0134721117253034
+ },
+ "renderSeconds": {
+  "front": 35.57378520886414,
+  "three_quarter": 55.705433457857,
+  "profile_90": 64.58156479219906,
+  "back": 142.67285820888355,
+  "crown_top": 78.63607187499292
+ }
+}

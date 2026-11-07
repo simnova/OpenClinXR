@@ -1,0 +1,6 @@
+DONE (hair-groom33): built store strands-33 (build-31 recipe minus --lobe-sweep-postcap,
+no settle), rendered 4 views, scored all gates. Sweep confirmed as sole cause of the
+groom32 collapse (segments 1789 = groom30; ear boxes 841/0 = groom30; 3q 0.8514; front
+face-mask back in gate). GATES_PASS: NO — profile IoU 0.8375 misses 0.84 by 0.0025
+(profile-bot hem miss depth; only gap). See E/RESULT.txt for every gate with value,
+threshold, margin, provenance.

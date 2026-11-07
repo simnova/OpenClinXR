@@ -1,0 +1,10 @@
+{
+  "stationHardcodeSource": "hair-look1/station.py lights(): OCLX_rim energy = SEARCH_BASE[rim_W]",
+  "stationHardcodedRim_W": 26.654435328323842,
+  "sentinelParamsRim_W": 1234.5,
+  "rimReadback_front": 26.654436111450195,
+  "rimReadback_back": 26.654436111450195,
+  "conclusion": "STOCK PATH IGNORES params rim_W: OCLX_rim keeps the hardcoded value on every view; only an explicit set delivers it.",
+  "sentinelReachesLight": false,
+  "note": "sentinelReachesLight=false is the EXPECTED proof the stock path ignores params rim_W (readback matches the station hardcode, not the 1234.5 sentinel)"
+}

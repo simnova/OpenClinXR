@@ -1,0 +1,236 @@
+{
+ "provenance": {
+  "combo": "hair-prof1/cells/combo/strands.npz (69181x32, rear 37647)",
+  "guides": "hair-guides16/final/guides16.npz (rear 286)",
+  "surface": "hair-guides16/v7f9/heightfields.npz max(Yh,Yt) bilinear (head+torso incl shirt)",
+  "style": "hair-guides16/final/style.json",
+  "where": "hair-prof1/where.json backEdgeSixHeights",
+  "method": "offset = strand_y - surface_y at (x,z); + = posterior standoff; points within +-8mm z; up to 20k sampled; halfwidth = p99(|x-median|)"
+ },
+ "surface_note": "Y from ray_cast (x,1.0,z)->(0,-1,0); posterior +y; field=max(head,torso); z_neck=1.4342",
+ "style_clearance": {
+  "c_back_min": 0.008,
+  "c_back_gain": 0.022,
+  "c_side_min": 0.004,
+  "c_side_gain": 0.016,
+  "clear_floor": 0.004,
+  "clear_taper_top": 0.1,
+  "liftoff_nz": -0.05,
+  "liftoff_depth_gain": 0.6,
+  "hem_head_fraction": 0.73,
+  "head_height": 0.2107
+ },
+ "heights": [
+  {
+   "row": 250,
+   "z_world": 1.6016481916461371,
+   "target_back_edge": {
+    "oursMm": 200.40582502837728,
+    "tsMm": 172.44222153604557,
+    "deltaMm": 27.963603492331714
+   },
+   "children_posterior_offset_mm": {
+    "median": 9.616938538762543,
+    "p10": 0.19273928948702862,
+    "p90": 23.76198858827764,
+    "n": 9945
+   },
+   "guides_posterior_offset_mm": {
+    "median": 10.92225658398781,
+    "p10": 3.3272607771958462,
+    "p90": 25.37394826981464,
+    "n": 208
+   },
+   "clearance_params": {
+    "c_back_min_mm": 8.0,
+    "c_back_gain_mm": 22.0,
+    "t_median": 0.4514991005387603,
+    "c_median_mm": 17.932980211852723,
+    "taper_clear_median_mm": 17.932980211852723,
+    "clear_floor_mm": 4.0,
+    "zhem_world": 1.2954059969558716,
+    "menton_world": 1.4492169969558715
+   },
+   "halfwidth_mm": {
+    "children_p99": 83.82363273762165,
+    "guides_p99": 71.10478675517665
+   }
+  },
+  {
+   "row": 340,
+   "z_world": 1.5596946518231283,
+   "target_back_edge": {
+    "oursMm": 206.46460578504917,
+    "tsMm": 183.62766293297827,
+    "deltaMm": 22.8369428520709
+   },
+   "children_posterior_offset_mm": {
+    "median": 18.65007482660897,
+    "p10": 0.7886900621790719,
+    "p90": 36.855708342045546,
+    "n": 13802
+   },
+   "guides_posterior_offset_mm": {
+    "median": 21.556848250491022,
+    "p10": 8.54306093836496,
+    "p90": 31.2789140036356,
+    "n": 336
+   },
+   "clearance_params": {
+    "c_back_min_mm": 8.0,
+    "c_back_gain_mm": 22.0,
+    "t_median": 0.4514991005387603,
+    "c_median_mm": 17.932980211852723,
+    "taper_clear_median_mm": 17.932980211852723,
+    "clear_floor_mm": 4.0,
+    "zhem_world": 1.2954059969558716,
+    "menton_world": 1.4492169969558715
+   },
+   "halfwidth_mm": {
+    "children_p99": 90.36222903174348,
+    "guides_p99": 72.80832110148681
+   }
+  },
+  {
+   "row": 430,
+   "z_world": 1.5177411120001194,
+   "target_back_edge": {
+    "oursMm": 211.59126642530998,
+    "tsMm": 189.2203836314446,
+    "deltaMm": 22.370882793865373
+   },
+   "children_posterior_offset_mm": {
+    "median": 42.460544744060286,
+    "p10": 8.133695298472801,
+    "p90": 67.87483523189002,
+    "n": 17493
+   },
+   "guides_posterior_offset_mm": {
+    "median": 46.84868293338519,
+    "p10": 10.757136721787619,
+    "p90": 72.64325242526174,
+    "n": 490
+   },
+   "clearance_params": {
+    "c_back_min_mm": 8.0,
+    "c_back_gain_mm": 22.0,
+    "t_median": 0.4514991005387603,
+    "c_median_mm": 17.932980211852723,
+    "taper_clear_median_mm": 17.932980211852723,
+    "clear_floor_mm": 4.0,
+    "zhem_world": 1.2954059969558716,
+    "menton_world": 1.4492169969558715
+   },
+   "halfwidth_mm": {
+    "children_p99": 95.58732996461912,
+    "guides_p99": 72.13425208252745
+   }
+  },
+  {
+   "row": 520,
+   "z_world": 1.4757875721771105,
+   "target_back_edge": {
+    "oursMm": 220.91246758942054,
+    "tsMm": 193.8809842134999,
+    "deltaMm": 27.031483375920658
+   },
+   "children_posterior_offset_mm": {
+    "median": 48.839264189474356,
+    "p10": 21.542460851773896,
+    "p90": 89.75859237834811,
+    "n": 10044
+   },
+   "guides_posterior_offset_mm": {
+    "median": 63.10666470523538,
+    "p10": 34.86629405942239,
+    "p90": 99.0015873793715,
+    "n": 290
+   },
+   "clearance_params": {
+    "c_back_min_mm": 8.0,
+    "c_back_gain_mm": 22.0,
+    "t_median": 0.4514991005387603,
+    "c_median_mm": 17.932980211852723,
+    "taper_clear_median_mm": 17.932980211852723,
+    "clear_floor_mm": 4.0,
+    "zhem_world": 1.2954059969558716,
+    "menton_world": 1.4492169969558715
+   },
+   "halfwidth_mm": {
+    "children_p99": 94.67004303587599,
+    "guides_p99": 72.13425208252745
+   }
+  },
+  {
+   "row": 610,
+   "z_world": 1.4316538031842452,
+   "target_back_edge": {
+    "oursMm": 225.57306817147582,
+    "tsMm": 198.07552473734964,
+    "deltaMm": 27.497543434126186
+   },
+   "children_posterior_offset_mm": {
+    "median": 37.96149036294625,
+    "p10": 22.570638580710444,
+    "p90": 57.50925284903417,
+    "n": 9736
+   },
+   "guides_posterior_offset_mm": {
+    "median": 49.35030968398769,
+    "p10": 31.70362556968727,
+    "p90": 64.20216607610739,
+    "n": 278
+   },
+   "clearance_params": {
+    "c_back_min_mm": 8.0,
+    "c_back_gain_mm": 22.0,
+    "t_median": 0.4514991005387603,
+    "c_median_mm": 17.932980211852723,
+    "taper_clear_median_mm": 17.932980211852723,
+    "clear_floor_mm": 4.0,
+    "zhem_world": 1.2954059969558716,
+    "menton_world": 1.4492169969558715
+   },
+   "halfwidth_mm": {
+    "children_p99": 96.26188929833006,
+    "guides_p99": 72.13425208252745
+   }
+  },
+  {
+   "row": 700,
+   "z_world": 1.3837541838070826,
+   "target_back_edge": {
+    "oursMm": 254.46879178021862,
+    "tsMm": 203.668245435816,
+    "deltaMm": 50.80054634440262
+   },
+   "children_posterior_offset_mm": {
+    "median": 12.509739104429276,
+    "p10": 8.311986245210468,
+    "p90": 20.39646844797321,
+    "n": 20000
+   },
+   "guides_posterior_offset_mm": {
+    "median": 21.48771549230399,
+    "p10": 13.24650261703465,
+    "p90": 31.831748875716997,
+    "n": 488
+   },
+   "clearance_params": {
+    "c_back_min_mm": 8.0,
+    "c_back_gain_mm": 22.0,
+    "t_median": 0.4514991005387603,
+    "c_median_mm": 17.932980211852723,
+    "taper_clear_median_mm": 17.932980211852723,
+    "clear_floor_mm": 4.0,
+    "zhem_world": 1.2954059969558716,
+    "menton_world": 1.4492169969558715
+   },
+   "halfwidth_mm": {
+    "children_p99": 95.74813152663417,
+    "guides_p99": 72.13425208252745
+   }
+  }
+ ],
+ "reading": "Rear sheet stands off surface by ~10mm at crown (z1.60), ~27mm children/30mm guides at z1.54, peaking ~49/64mm at neck hollow z1.48, ~33/43mm at z1.42, collapsing to ~3/19mm at shoulder z1.36-1.33 where shirt supports. Nominal generator clearance c_back(t_med)=17.9mm tapered to floor 4mm at hem; measured offsets exceed nominal at neck (hollow, no surface) and fall below at shoulder (shirt). Target back-edge gap 22-28mm rows250-610 +51mm row700 is same order as the standoff: halving clearance (~11-14mm) = d1, full gap (~22-28mm, 51 hem) = d2."
+}

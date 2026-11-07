@@ -1,0 +1,44 @@
+{
+  "schema": "openclinxr.hair-groom11.defect-boxes.v1",
+  "boxesAreNative1024RowCol": true,
+  "method": "same scorer-v3 cameras and four hair-groom10diag boxes; A=current coherent guides, B=nearest-guide raw interpolation, C=final bounded pipeline",
+  "defects": {
+    "back-knot": {
+      "view": "back",
+      "box": [150, 420, 512, 765],
+      "rawB": "gone: coherent near-parallel fall, no crossing/winding bundle",
+      "finalC": "original knot gone, but not gate-clean: registered final ID still has one enclosed hole in the knot read",
+      "goneInB": true,
+      "goneInC": false
+    },
+    "behind-ear-loops": {
+      "view": "profile_90",
+      "box": [270, 550, 250, 530],
+      "rawB": "gone: no looped return path; raw curtain falls past the ear",
+      "finalC": "original loops gone in-box, though global profile R-LOOP remains above threshold",
+      "goneInB": true,
+      "goneInC": true
+    },
+    "sideburn-tuft": {
+      "view": "three_quarter",
+      "box": [330, 610, 380, 660],
+      "rawB": "gone as a compact tuft; replaced by a continuous curtain edge",
+      "finalC": "compact tuft remains absent; curtain is still overly dense",
+      "goneInB": true,
+      "goneInC": true
+    },
+    "hairline-band": {
+      "view": "front",
+      "box": [98, 196, 291, 733],
+      "rawB": "continuous blunt band is gone; centre-part wisps remain",
+      "finalC": "blunt band remains gone, but face-mask hard gate still fails (front 4601 > 3424.9 allowance; 3q 4988 > 2127.3)",
+      "goneInB": true,
+      "goneInC": true
+    }
+  },
+  "falsifier": {
+    "triggered": false,
+    "reason": "the original back knot is absent in raw B; the remaining final enclosed-hole failure is downstream/coverage, not an orientation-field knot",
+    "fieldSlice": "renders/back-knot-a.png"
+  }
+}

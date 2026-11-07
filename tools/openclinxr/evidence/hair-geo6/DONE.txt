@@ -1,0 +1,1 @@
+DONE: diagnosis, f1 strands, collider/end audit, v6 judge, 1024 camera-relative renders, comparison sheet, and RESULT are present.

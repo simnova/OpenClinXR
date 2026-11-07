@@ -1,0 +1,24 @@
+{
+  "tag": "c_pf2",
+  "base": "tilt5 s5 (b9) repaired strands.npz",
+  "deform": {
+    "cell": "c_pf2",
+    "dy": 0.01,
+    "fadeArcMm": 250.0,
+    "note": "gentler retry of c_pf (front ori 1.18->target <1.0)"
+  },
+  "statsVsB9": {
+    "tangentRms": 1.1589019387153168,
+    "tangentP95": 3.20448428122867,
+    "tangentMax": 90.0,
+    "dispP50": 0.0,
+    "dispP95": 6.218065287140432,
+    "dispMax": 6.982488679584814
+  },
+  "endAngleDegPreRepair": {
+    "p50": 0.0,
+    "p95": 0.45619235836708305,
+    "max": 14.288915495912457
+  },
+  "partGapMm": 1.0999999940395355
+}

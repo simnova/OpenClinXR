@@ -1,0 +1,2 @@
+RESULT::hair-children-1
+STOP::control M3 failed x3 [{"att": 0, "mask": "oclx_ctl_mask", "part": true, "curves": 0, "pcs": []}, {"att": 1, "mask": null, "part": true, "curves": 0, "pcs": []}, {"att": 2, "mask": null, "part": false, "curves": 0, "pcs": []}]

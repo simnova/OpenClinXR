@@ -1,0 +1,71 @@
+HAIR TRANSPORT 2 — CURTAIN-ONLY AND RENORMALISED TRANSPORT
+
+Material for all scores: hair-look7 best-params.json (roughness 0.395).
+Scorer: hair-score/score.py schema v2 (IoU + Gabor orientation err/EMD + bands).
+Current baseline scores reused from the scored geo7 baseline (same scorer,
+same material, same committed a1 strands).
+
+STEP 1 — NARROW (narrow.json; back-id.png masks + strands, judge replicas):
+- Shoulder row (651): a1 283+285=568 px vs a_k5 261+257=518 px (narrower).
+- a1 hem row (796): a1 110+125=235 px vs a_k5 229+225=454 px (WIDER).
+- a_k5 hangs lower as thin spikes (robust lowest 864 vs 802; 18+44=62 px
+  wide at its own hem row 858).
+- Mean |lateral offset| of outer back children along arc: a1 11.0717 mm vs
+  a_k5 11.2911 mm (+0.22 mm, grows).
+- Verdict: REFUTED for "transport narrows the back by averaging offsets
+  inward". The narrowing is height-dependent redistribution (narrower at the
+  shoulder, wider lower, longer thin tail), not inward-averaged offsets;
+  consistent with tip-fade pulling transported mid-shaft offsets toward the
+  guide average plus the strict end clamp.
+
+STEP 2 — CELLS (children only, guides16.npz untouched; geo7 frame-transport
+replica for K=5 populations/frames/length-restore/tip-fade; existing
+repair_outside audit + strict end clamp via E/repair.py in Blender):
+- r1 = transport (K=5) for curtain-region children only (30368), rear
+  38813 bit-identical to a1 pre-audit. No renormalisation.
+- r2 = transport for ALL children + per-point lateral renormalisation
+  (post-blend post-fade: off_x(j) = sign * |root_x - guideblend_root_x|).
+- r3 = r1 + renormalisation for the transported (curtain) children.
+- Gates: inside 0 / part gap 1.10 mm / end p95 (r1 0.09, r2 0.46, r3 0.45
+  deg, all <= 10) PASS all cells. Eye/face openings vs current (judge
+  openings ours fractions; gate: |d| <= 0.01): r1 eye 0.5849 vs 0.6046
+  (|d| 0.0196) FAIL, jaw 0.4365 vs 0.4365 pass; r2/r3 eye 0.6002 (|d|
+  0.0044) + jaw pass. So r1 already trips the step-2 eye gate.
+
+STEP 3 — SCORES (look7 material, all views, crown_top):
+
+cell    | IoU f / p / b              | orient err f / 3q / p / b      | hist EMD f / 3q / p / b
+current | 0.6883 / 0.6810 / 0.7819   | 27.08 / 33.65 / 31.97 / 24.55  | 3.96 / 7.36 / 29.22 / 9.48
+a_k5    | 0.7014 / 0.6833 / 0.7538   | 26.51 / 35.79 / 33.45 / 23.84  | 4.60 / 10.13 / 28.22 / 8.59
+r1      | 0.7090 / 0.6933 / 0.7641   | 26.80 / 32.96 / 32.70 / 24.38  | 4.41 / 7.20 / 29.23 / 9.39
+r2      | 0.4040 / 0.5848 / 0.8020   | 29.82 / 33.36 / 32.68 / 18.20  | 9.15 / 10.74 / 33.21 / 8.23
+r3      | 0.6374 / 0.6194 / 0.8191   | 28.60 / 28.46 / 30.65 / 24.22  | 7.55 / 3.89 / 31.97 / 9.18
+
+bands back crop (ours vs TS 849 x 16.4 px): current 353x41.1; a_k5 435x32.7;
+r1 353x40.5; r2 393x31.0; r3 358x40.6.
+bands ear (ours vs TS 89 x 11.7 px): current 127x6.7; a_k5 93x11.6;
+r1 94x11.5 (closest); r2 59x21.0; r3 60x20.6.
+
+KEPT/REVERTED (rule: front IoU >= 0.698, back IoU >= 0.775, profile IoU not
+below current by > 0.01, orientation error not worse by > 1 deg in any view):
+- r1 REVERTED: front (+0.0207), profile (+0.0123) and orientation (worst
+  +0.73 profile) pass, but back IoU 0.7641 < 0.775 fails; eye gate already
+  failed in STEP 2. Best cell of the slice (best front/profile, closest ear
+  bands, used for the sheet).
+- r2 REVERTED: back IoU 0.8020 and back orient -6.35 are the best measured,
+  but front collapses (0.4040), profile -0.0962, front orient +2.74.
+  Renormalising rear children drags face-adjacent hair across the front.
+- r3 REVERTED: back IoU 0.8191 (best), 3q orient -5.19 and 3q EMD 3.89
+  (best), but front 0.6374 and profile 0.6194 fail, front orient +1.52.
+  Curtain-only renormalisation still costs the front curtain.
+- CURRENT KEPT by default (no change meets the keep rule).
+
+SAW::Against TS, the first wrong read is unchanged: the back curtain keeps
+thick smooth vertical bands (best 393 x 31 px vs TS 849 x 16 px) with a blunt
+cut, vs TS fine dense fibre and a soft irregular hem; renormalisation trades
+front-curtain correctness for back-sheet width (r3 back IoU 0.819 vs front
+0.637). The eye-opening shift under curtain transport (r1 -1.96pp) says the
+front curtain has no slack left for direction-field surgery.
+
+NOT TESTED::Physical Quest 3 / worn-headset evidence; clinical validity/
+scoring claims (out of scope per repo guardrails).

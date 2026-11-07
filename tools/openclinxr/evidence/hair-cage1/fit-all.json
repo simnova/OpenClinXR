@@ -1,0 +1,1119 @@
+{
+  "best": {
+    "cost": 758929.9425643911,
+    "start": "behind-shoulder",
+    "values": [
+      3.698,
+      25.089,
+      65.974,
+      38.146,
+      34.125,
+      190.9,
+      -49.795,
+      46.073,
+      50.298,
+      49.47,
+      243.07,
+      17.657,
+      73.123,
+      41.684,
+      311.66,
+      -110.033,
+      142.488,
+      152.295,
+      322.91,
+      -103.37,
+      72.917,
+      3.0
+    ]
+  },
+  "specSha": "51506271ed34794ce7fc78c7e54bd97d16edb0619c72f09ce22904e8da64d36a",
+  "starts": {
+    "behind-shoulder": {
+      "adequacy": {
+        "collision": {
+          "belowBallMaxMm": 21.75,
+          "crownBallMaxMm": 10.33,
+          "field": "exact",
+          "maxDepthMm": 21.75,
+          "perFamily": {
+            "back": {
+              "belowBallMaxMm": 0.48,
+              "belowBallViol": 5,
+              "maxDepthMm": 0.48,
+              "minSdfMm": -0.48,
+              "samples": 396,
+              "violating": 5
+            },
+            "nape": {
+              "belowBallMaxMm": 0.57,
+              "belowBallViol": 1,
+              "maxDepthMm": 0.57,
+              "minSdfMm": -0.57,
+              "samples": 282,
+              "violating": 1
+            },
+            "part_L": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 10.31,
+              "minSdfMm": -10.31,
+              "samples": 197,
+              "violating": 105
+            },
+            "part_R": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 10.33,
+              "minSdfMm": -10.33,
+              "samples": 135,
+              "violating": 78
+            },
+            "side_L": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 0.0,
+              "minSdfMm": 8.94,
+              "samples": 253,
+              "violating": 0
+            },
+            "side_R": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 0.0,
+              "minSdfMm": 8.94,
+              "samples": 253,
+              "violating": 0
+            },
+            "temple_L": {
+              "belowBallMaxMm": 21.75,
+              "belowBallViol": 50,
+              "maxDepthMm": 21.75,
+              "minSdfMm": -21.75,
+              "samples": 458,
+              "violating": 50
+            },
+            "temple_R": {
+              "belowBallMaxMm": 21.75,
+              "belowBallViol": 50,
+              "maxDepthMm": 21.75,
+              "minSdfMm": -21.75,
+              "samples": 458,
+              "violating": 50
+            }
+          },
+          "tolMm": 0.0,
+          "violating": 289
+        },
+        "guard": {
+          "back": {
+            "coveredPx": 0,
+            "guardPx": 0
+          },
+          "front": {
+            "coveredPx": 0,
+            "eyes": {
+              "coveredPx": 0,
+              "guardPx": 3087
+            },
+            "guardPx": 5712,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 2625
+            }
+          },
+          "profile_90": {
+            "coveredPx": 0,
+            "eyes": {
+              "coveredPx": 0,
+              "guardPx": 1368
+            },
+            "guardPx": 3024,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 1656
+            }
+          },
+          "totalCoveredPx": 0
+        },
+        "regional": {
+          "back": {
+            "crown": {
+              "excessMaxPx": 30.41,
+              "excessMeanPx": 16.43,
+              "excessN": 201,
+              "missMaxPx": 75.43,
+              "missMeanPx": 38.53,
+              "missN": 236,
+              "n": 437,
+              "p50": 22.36,
+              "p95": 68.08
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            },
+            "hem": {
+              "excessMaxPx": 21.4,
+              "excessMeanPx": 7.13,
+              "excessN": 115,
+              "missMaxPx": 49.0,
+              "missMeanPx": 9.7,
+              "missN": 338,
+              "n": 453,
+              "p50": 5.0,
+              "p95": 37.4
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 26.93,
+              "excessMeanPx": 17.59,
+              "excessN": 275,
+              "missMaxPx": 24.0,
+              "missMeanPx": 8.65,
+              "missN": 119,
+              "n": 394,
+              "p50": 17.59,
+              "p95": 25.5
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 36.69,
+              "excessMeanPx": 21.42,
+              "excessN": 230,
+              "missMaxPx": 29.43,
+              "missMeanPx": 15.35,
+              "missN": 35,
+              "n": 265,
+              "p50": 21.59,
+              "p95": 32.21
+            }
+          },
+          "front": {
+            "crown": {
+              "excessMaxPx": 14.76,
+              "excessMeanPx": 5.78,
+              "excessN": 187,
+              "missMaxPx": 55.58,
+              "missMeanPx": 15.69,
+              "missN": 139,
+              "n": 326,
+              "p50": 5.0,
+              "p95": 49.75
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 11.0,
+              "missMeanPx": 8.99,
+              "missN": 50,
+              "n": 50,
+              "p50": 9.0,
+              "p95": 10.33
+            },
+            "hem": {
+              "excessMaxPx": 11.0,
+              "excessMeanPx": 4.35,
+              "excessN": 100,
+              "missMaxPx": 42.05,
+              "missMeanPx": 13.36,
+              "missN": 392,
+              "n": 492,
+              "p50": 8.49,
+              "p95": 34.72
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 36.22,
+              "missMeanPx": 17.75,
+              "missN": 278,
+              "n": 278,
+              "p50": 14.56,
+              "p95": 35.0
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 40.2,
+              "missMeanPx": 22.01,
+              "missN": 233,
+              "n": 233,
+              "p50": 23.0,
+              "p95": 38.0
+            }
+          },
+          "profile_90": {
+            "crown": {
+              "excessMaxPx": 44.28,
+              "excessMeanPx": 9.78,
+              "excessN": 313,
+              "missMaxPx": 59.09,
+              "missMeanPx": 16.22,
+              "missN": 303,
+              "n": 616,
+              "p50": 6.0,
+              "p95": 50.63
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            },
+            "hem": {
+              "excessMaxPx": 27.2,
+              "excessMeanPx": 25.76,
+              "excessN": 23,
+              "missMaxPx": 48.85,
+              "missMeanPx": 33.93,
+              "missN": 172,
+              "n": 195,
+              "p50": 36.06,
+              "p95": 46.14
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 83.23,
+              "excessMeanPx": 31.9,
+              "excessN": 281,
+              "missMaxPx": 9.49,
+              "missMeanPx": 4.98,
+              "missN": 103,
+              "n": 384,
+              "p50": 14.02,
+              "p95": 77.17
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            }
+          }
+        },
+        "standoff": {
+          "inBand": false,
+          "maxMm": 17.68,
+          "minMm": -0.57,
+          "perFamily": {
+            "back": 1.07,
+            "nape": -0.57,
+            "part_L": 4.24,
+            "part_R": 4.24,
+            "side_L": 17.68,
+            "side_R": 17.68,
+            "temple_L": 1.32,
+            "temple_R": 1.33
+          }
+        }
+      },
+      "cost": 758929.9425643911,
+      "gateFails": [
+        "front/crown p50=5.0 p95=49.8",
+        "front/side_curtain_L p50=14.6 p95=35.0",
+        "front/side_curtain_R p50=23.0 p95=38.0",
+        "front/hem p50=8.5 p95=34.7",
+        "profile_90/crown p50=6.0 p95=50.6",
+        "profile_90/side_curtain_L p50=14.0 p95=77.2",
+        "profile_90/hem p50=36.1 p95=46.1",
+        "back/crown p50=22.4 p95=68.1",
+        "back/side_curtain_L p50=17.6 p95=25.5",
+        "back/side_curtain_R p50=21.6 p95=32.2",
+        "back/hem p50=5.0 p95=37.4",
+        "front/crown p50=5.0 p95=49.8",
+        "front/side_curtain_L p50=14.6 p95=35.0",
+        "front/side_curtain_R p50=23.0 p95=38.0",
+        "front/hem p50=8.5 p95=34.7",
+        "profile_90/crown p50=6.0 p95=50.6",
+        "profile_90/side_curtain_L p50=14.0 p95=77.2",
+        "profile_90/hem p50=36.1 p95=46.1",
+        "back/crown p50=22.4 p95=68.1",
+        "back/side_curtain_L p50=17.6 p95=25.5",
+        "back/side_curtain_R p50=21.6 p95=32.2",
+        "back/hem p50=5.0 p95=37.4",
+        "below-ball collision max=21.75mm viol=106",
+        "root nape standoff=-0.57mm",
+        "root part_L standoff=4.24mm",
+        "root part_R standoff=4.24mm",
+        "root side_L standoff=17.68mm",
+        "root side_R standoff=17.68mm"
+      ],
+      "message": "`xtol` termination condition is satisfied.",
+      "nfev": 21,
+      "njev": 7,
+      "optimality": 287041.0284746977,
+      "secs": 131.4,
+      "status": 3,
+      "terms": {
+        "guard": 0.0,
+        "penalty": 51079.4,
+        "regional": 707850.6
+      },
+      "values": [
+        3.698,
+        25.089,
+        65.974,
+        38.146,
+        34.125,
+        190.9,
+        -49.795,
+        46.073,
+        50.298,
+        49.47,
+        243.07,
+        17.657,
+        73.123,
+        41.684,
+        311.66,
+        -110.033,
+        142.488,
+        152.295,
+        322.91,
+        -103.37,
+        72.917,
+        3.0
+      ]
+    },
+    "long-back-short-front": {
+      "adequacy": {
+        "collision": {
+          "belowBallMaxMm": 17.84,
+          "crownBallMaxMm": 9.94,
+          "field": "exact",
+          "maxDepthMm": 17.84,
+          "perFamily": {
+            "back": {
+              "belowBallMaxMm": 13.43,
+              "belowBallViol": 122,
+              "maxDepthMm": 13.43,
+              "minSdfMm": -13.43,
+              "samples": 525,
+              "violating": 122
+            },
+            "nape": {
+              "belowBallMaxMm": 0.49,
+              "belowBallViol": 1,
+              "maxDepthMm": 0.49,
+              "minSdfMm": -0.49,
+              "samples": 402,
+              "violating": 1
+            },
+            "part_L": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 9.9,
+              "minSdfMm": -9.9,
+              "samples": 206,
+              "violating": 95
+            },
+            "part_R": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 9.94,
+              "minSdfMm": -9.94,
+              "samples": 140,
+              "violating": 62
+            },
+            "side_L": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 0.0,
+              "minSdfMm": 0.44,
+              "samples": 258,
+              "violating": 0
+            },
+            "side_R": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 0.0,
+              "minSdfMm": 0.44,
+              "samples": 258,
+              "violating": 0
+            },
+            "temple_L": {
+              "belowBallMaxMm": 17.84,
+              "belowBallViol": 36,
+              "maxDepthMm": 17.84,
+              "minSdfMm": -17.84,
+              "samples": 409,
+              "violating": 36
+            },
+            "temple_R": {
+              "belowBallMaxMm": 17.84,
+              "belowBallViol": 37,
+              "maxDepthMm": 17.84,
+              "minSdfMm": -17.84,
+              "samples": 409,
+              "violating": 37
+            }
+          },
+          "tolMm": 0.0,
+          "violating": 353
+        },
+        "guard": {
+          "back": {
+            "coveredPx": 0,
+            "guardPx": 0
+          },
+          "front": {
+            "coveredPx": 0,
+            "eyes": {
+              "coveredPx": 0,
+              "guardPx": 3087
+            },
+            "guardPx": 5712,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 2625
+            }
+          },
+          "profile_90": {
+            "coveredPx": 0,
+            "eyes": {
+              "coveredPx": 0,
+              "guardPx": 1368
+            },
+            "guardPx": 3024,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 1656
+            }
+          },
+          "totalCoveredPx": 0
+        },
+        "regional": {
+          "back": {
+            "crown": {
+              "excessMaxPx": 33.84,
+              "excessMeanPx": 20.6,
+              "excessN": 174,
+              "missMaxPx": 77.16,
+              "missMeanPx": 38.46,
+              "missN": 266,
+              "n": 440,
+              "p50": 25.35,
+              "p95": 70.28
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            },
+            "hem": {
+              "excessMaxPx": 190.44,
+              "excessMeanPx": 136.3,
+              "excessN": 745,
+              "missMaxPx": 87.92,
+              "missMeanPx": 53.85,
+              "missN": 242,
+              "n": 987,
+              "p50": 123.32,
+              "p95": 186.33
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 20.62,
+              "excessMeanPx": 10.57,
+              "excessN": 257,
+              "missMaxPx": 59.06,
+              "missMeanPx": 28.79,
+              "missN": 135,
+              "n": 392,
+              "p50": 13.04,
+              "p95": 51.95
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 14.87,
+              "excessMeanPx": 8.7,
+              "excessN": 291,
+              "missMaxPx": 29.83,
+              "missMeanPx": 10.67,
+              "missN": 62,
+              "n": 353,
+              "p50": 8.0,
+              "p95": 15.13
+            }
+          },
+          "front": {
+            "crown": {
+              "excessMaxPx": 13.89,
+              "excessMeanPx": 7.22,
+              "excessN": 221,
+              "missMaxPx": 55.08,
+              "missMeanPx": 17.88,
+              "missN": 115,
+              "n": 336,
+              "p50": 6.56,
+              "p95": 48.67
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 11.0,
+              "missMeanPx": 8.99,
+              "missN": 50,
+              "n": 50,
+              "p50": 9.0,
+              "p95": 10.33
+            },
+            "hem": {
+              "excessMaxPx": 10.05,
+              "excessMeanPx": 4.03,
+              "excessN": 118,
+              "missMaxPx": 47.76,
+              "missMeanPx": 14.78,
+              "missN": 391,
+              "n": 509,
+              "p50": 6.4,
+              "p95": 40.35
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 37.48,
+              "missMeanPx": 18.42,
+              "missN": 278,
+              "n": 278,
+              "p50": 17.19,
+              "p95": 36.22
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 39.46,
+              "missMeanPx": 22.75,
+              "missN": 233,
+              "n": 233,
+              "p50": 24.0,
+              "p95": 37.4
+            }
+          },
+          "profile_90": {
+            "crown": {
+              "excessMaxPx": 27.51,
+              "excessMeanPx": 10.2,
+              "excessN": 273,
+              "missMaxPx": 59.51,
+              "missMeanPx": 17.97,
+              "missN": 292,
+              "n": 565,
+              "p50": 9.22,
+              "p95": 51.17
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            },
+            "hem": {
+              "excessMaxPx": 142.79,
+              "excessMeanPx": 70.88,
+              "excessN": 286,
+              "missMaxPx": 36.06,
+              "missMeanPx": 21.66,
+              "missN": 170,
+              "n": 456,
+              "p50": 33.67,
+              "p95": 130.54
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 107.49,
+              "excessMeanPx": 41.01,
+              "excessN": 366,
+              "missMaxPx": 6.4,
+              "missMeanPx": 2.69,
+              "missN": 46,
+              "n": 412,
+              "p50": 24.19,
+              "p95": 98.8
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            }
+          }
+        },
+        "standoff": {
+          "inBand": false,
+          "maxMm": 8.41,
+          "minMm": -0.49,
+          "perFamily": {
+            "back": 1.01,
+            "nape": -0.49,
+            "part_L": 4.12,
+            "part_R": 4.12,
+            "side_L": 8.41,
+            "side_R": 8.41,
+            "temple_L": 1.29,
+            "temple_R": 1.3
+          }
+        }
+      },
+      "cost": 3119075.33853002,
+      "gateFails": [
+        "front/crown p50=6.6 p95=48.7",
+        "front/side_curtain_L p50=17.2 p95=36.2",
+        "front/side_curtain_R p50=24.0 p95=37.4",
+        "front/hem p50=6.4 p95=40.4",
+        "profile_90/crown p50=9.2 p95=51.2",
+        "profile_90/side_curtain_L p50=24.2 p95=98.8",
+        "profile_90/hem p50=33.7 p95=130.5",
+        "back/crown p50=25.4 p95=70.3",
+        "back/side_curtain_L p50=13.0 p95=52.0",
+        "back/hem p50=123.3 p95=186.3",
+        "front/crown p50=6.6 p95=48.7",
+        "front/side_curtain_L p50=17.2 p95=36.2",
+        "front/side_curtain_R p50=24.0 p95=37.4",
+        "front/hem p50=6.4 p95=40.4",
+        "profile_90/crown p50=9.2 p95=51.2",
+        "profile_90/side_curtain_L p50=24.2 p95=98.8",
+        "profile_90/hem p50=33.7 p95=130.5",
+        "back/crown p50=25.4 p95=70.3",
+        "back/side_curtain_L p50=13.0 p95=52.0",
+        "back/hem p50=123.3 p95=186.3",
+        "below-ball collision max=17.84mm viol=196",
+        "root nape standoff=-0.49mm",
+        "root part_L standoff=4.12mm",
+        "root part_R standoff=4.12mm",
+        "root side_L standoff=8.41mm",
+        "root side_R standoff=8.41mm"
+      ],
+      "message": "`xtol` termination condition is satisfied.",
+      "nfev": 20,
+      "njev": 4,
+      "optimality": 854368.0789141291,
+      "secs": 80.7,
+      "status": 3,
+      "terms": {
+        "guard": 0.0,
+        "penalty": 34470.9,
+        "regional": 3084604.5
+      },
+      "values": [
+        3.563,
+        25.207,
+        76.129,
+        35.524,
+        30.885,
+        217.846,
+        -49.568,
+        51.844,
+        42.506,
+        39.503,
+        245.014,
+        8.384,
+        68.823,
+        67.618,
+        399.914,
+        -85.464,
+        115.396,
+        165.899,
+        403.402,
+        -106.574,
+        87.11,
+        3.0
+      ]
+    },
+    "spec-default": {
+      "adequacy": {
+        "collision": {
+          "belowBallMaxMm": 22.6,
+          "crownBallMaxMm": 9.99,
+          "field": "exact",
+          "maxDepthMm": 22.6,
+          "perFamily": {
+            "back": {
+              "belowBallMaxMm": 22.6,
+              "belowBallViol": 199,
+              "maxDepthMm": 22.6,
+              "minSdfMm": -22.6,
+              "samples": 501,
+              "violating": 199
+            },
+            "nape": {
+              "belowBallMaxMm": 0.24,
+              "belowBallViol": 1,
+              "maxDepthMm": 0.24,
+              "minSdfMm": -0.24,
+              "samples": 291,
+              "violating": 1
+            },
+            "part_L": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 9.98,
+              "minSdfMm": -9.98,
+              "samples": 198,
+              "violating": 107
+            },
+            "part_R": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 9.99,
+              "minSdfMm": -9.99,
+              "samples": 135,
+              "violating": 78
+            },
+            "side_L": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 0.0,
+              "minSdfMm": 6.24,
+              "samples": 294,
+              "violating": 0
+            },
+            "side_R": {
+              "belowBallMaxMm": 0.0,
+              "belowBallViol": 0,
+              "maxDepthMm": 0.0,
+              "minSdfMm": 6.24,
+              "samples": 294,
+              "violating": 0
+            },
+            "temple_L": {
+              "belowBallMaxMm": 17.36,
+              "belowBallViol": 39,
+              "maxDepthMm": 17.36,
+              "minSdfMm": -17.36,
+              "samples": 359,
+              "violating": 39
+            },
+            "temple_R": {
+              "belowBallMaxMm": 17.36,
+              "belowBallViol": 39,
+              "maxDepthMm": 17.36,
+              "minSdfMm": -17.36,
+              "samples": 359,
+              "violating": 39
+            }
+          },
+          "tolMm": 0.0,
+          "violating": 463
+        },
+        "guard": {
+          "back": {
+            "coveredPx": 0,
+            "guardPx": 0
+          },
+          "front": {
+            "coveredPx": 0,
+            "eyes": {
+              "coveredPx": 0,
+              "guardPx": 3087
+            },
+            "guardPx": 5712,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 2625
+            }
+          },
+          "profile_90": {
+            "coveredPx": 0,
+            "eyes": {
+              "coveredPx": 0,
+              "guardPx": 1368
+            },
+            "guardPx": 3024,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 1656
+            }
+          },
+          "totalCoveredPx": 0
+        },
+        "regional": {
+          "back": {
+            "crown": {
+              "excessMaxPx": 31.83,
+              "excessMeanPx": 19.24,
+              "excessN": 164,
+              "missMaxPx": 75.96,
+              "missMeanPx": 38.12,
+              "missN": 266,
+              "n": 430,
+              "p50": 26.09,
+              "p95": 69.01
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            },
+            "hem": {
+              "excessMaxPx": 25.94,
+              "excessMeanPx": 12.08,
+              "excessN": 313,
+              "missMaxPx": 92.0,
+              "missMeanPx": 43.97,
+              "missN": 172,
+              "n": 485,
+              "p50": 14.0,
+              "p95": 80.0
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 19.92,
+              "excessMeanPx": 10.21,
+              "excessN": 307,
+              "missMaxPx": 67.0,
+              "missMeanPx": 34.98,
+              "missN": 147,
+              "n": 454,
+              "p50": 13.0,
+              "p95": 59.49
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 19.42,
+              "excessMeanPx": 8.57,
+              "excessN": 302,
+              "missMaxPx": 30.59,
+              "missMeanPx": 12.35,
+              "missN": 121,
+              "n": 423,
+              "p50": 9.0,
+              "p95": 21.01
+            }
+          },
+          "front": {
+            "crown": {
+              "excessMaxPx": 13.0,
+              "excessMeanPx": 6.33,
+              "excessN": 164,
+              "missMaxPx": 55.08,
+              "missMeanPx": 13.81,
+              "missN": 165,
+              "n": 329,
+              "p50": 5.66,
+              "p95": 49.02
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 11.0,
+              "missMeanPx": 8.99,
+              "missN": 50,
+              "n": 50,
+              "p50": 9.0,
+              "p95": 10.33
+            },
+            "hem": {
+              "excessMaxPx": 41.0,
+              "excessMeanPx": 19.28,
+              "excessN": 283,
+              "missMaxPx": 29.0,
+              "missMeanPx": 13.17,
+              "missN": 361,
+              "n": 644,
+              "p50": 14.23,
+              "p95": 35.05
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 39.62,
+              "missMeanPx": 21.18,
+              "missN": 278,
+              "n": 278,
+              "p50": 23.17,
+              "p95": 38.08
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 40.02,
+              "missMeanPx": 26.11,
+              "missN": 233,
+              "n": 233,
+              "p50": 27.29,
+              "p95": 37.91
+            }
+          },
+          "profile_90": {
+            "crown": {
+              "excessMaxPx": 24.7,
+              "excessMeanPx": 9.16,
+              "excessN": 313,
+              "missMaxPx": 62.13,
+              "missMeanPx": 16.29,
+              "missN": 294,
+              "n": 607,
+              "p50": 5.83,
+              "p95": 51.69
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            },
+            "hem": {
+              "excessMaxPx": 31.95,
+              "excessMeanPx": 25.58,
+              "excessN": 63,
+              "missMaxPx": 86.33,
+              "missMeanPx": 56.61,
+              "missN": 172,
+              "n": 235,
+              "p50": 38.47,
+              "p95": 82.7
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 122.44,
+              "excessMeanPx": 46.06,
+              "excessN": 334,
+              "missMaxPx": 9.06,
+              "missMeanPx": 4.24,
+              "missN": 96,
+              "n": 430,
+              "p50": 16.22,
+              "p95": 114.97
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            }
+          }
+        },
+        "standoff": {
+          "inBand": false,
+          "maxMm": 14.65,
+          "minMm": -0.24,
+          "perFamily": {
+            "back": 0.82,
+            "nape": -0.24,
+            "part_L": 3.72,
+            "part_R": 3.72,
+            "side_L": 14.65,
+            "side_R": 14.65,
+            "temple_L": 1.19,
+            "temple_R": 1.19
+          }
+        }
+      },
+      "cost": 1370041.7231809534,
+      "gateFails": [
+        "front/crown p50=5.7 p95=49.0",
+        "front/side_curtain_L p50=23.2 p95=38.1",
+        "front/side_curtain_R p50=27.3 p95=37.9",
+        "front/hem p50=14.2 p95=35.0",
+        "profile_90/crown p50=5.8 p95=51.7",
+        "profile_90/side_curtain_L p50=16.2 p95=115.0",
+        "profile_90/hem p50=38.5 p95=82.7",
+        "back/crown p50=26.1 p95=69.0",
+        "back/side_curtain_L p50=13.0 p95=59.5",
+        "back/hem p50=14.0 p95=80.0",
+        "front/crown p50=5.7 p95=49.0",
+        "front/side_curtain_L p50=23.2 p95=38.1",
+        "front/side_curtain_R p50=27.3 p95=37.9",
+        "front/hem p50=14.2 p95=35.0",
+        "profile_90/crown p50=5.8 p95=51.7",
+        "profile_90/side_curtain_L p50=16.2 p95=115.0",
+        "profile_90/hem p50=38.5 p95=82.7",
+        "back/crown p50=26.1 p95=69.0",
+        "back/side_curtain_L p50=13.0 p95=59.5",
+        "back/hem p50=14.0 p95=80.0",
+        "below-ball collision max=22.60mm viol=278",
+        "root back standoff=0.82mm",
+        "root nape standoff=-0.24mm",
+        "root part_L standoff=3.72mm",
+        "root part_R standoff=3.72mm",
+        "root side_L standoff=14.65mm",
+        "root side_R standoff=14.65mm"
+      ],
+      "message": "`xtol` termination condition is satisfied.",
+      "nfev": 21,
+      "njev": 7,
+      "optimality": 285774.47226267017,
+      "secs": 136.0,
+      "status": 3,
+      "terms": {
+        "guard": 0.0,
+        "penalty": 50784.3,
+        "regional": 1319257.4
+      },
+      "values": [
+        3.13,
+        22.614,
+        69.69,
+        38.2,
+        34.95,
+        265.214,
+        -36.154,
+        46.597,
+        40.208,
+        35.282,
+        259.691,
+        14.622,
+        67.624,
+        44.167,
+        383.876,
+        -74.789,
+        96.715,
+        144.363,
+        323.127,
+        -122.427,
+        113.907,
+        3.0
+      ]
+    }
+  }
+}

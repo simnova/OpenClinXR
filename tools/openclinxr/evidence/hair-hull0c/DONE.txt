@@ -1,0 +1,20 @@
+DONE hair-hull0c (2026-10-15, Apple M1 Max, single host)
+- S6/hull0c.py (new; hull.py + render_hull.py untouched): step-1 scalp-poke
+  measurement (backface-culled scalp raster warped to target, above
+  hairline/ear line) + scalp shell (t(z)=6+4*clip((z-1560)/60,0,1) mm,
+  SDF>2mm) + carve UNION shell + full hull0b diagnostics re-run with
+  carve/unavoidable/shellOther excess split + sensitivity + export stages.
+- Carve reproduced hull0b exactly (262,532 vox); shell 54,786 vox
+  (33,477 outside carve, 26,610-vox cranium cap above z1580); union
+  296,009 vox = 2,368,072 mm3, single scalp-connected component.
+- E/hull.npz (196,797 B, in-E; occupancy+viscount 0-4+states+shell meta),
+  E/hull.png (5 light-material renders + 3q display), E/slices.png,
+  E/mismatch.png (step-1 overlay), E/RESULT.txt, E/inputs-opened.txt,
+  E/blender-opened.txt, WS/baseline_kept.npz + union_kept.npz +
+  mismatch.json + diag_union.json + sens_union.json + hull_surface.obj
+  (221,752 tris) + splats.
+- git scope: tools/openclinxr/hair-groom/hull + tools/openclinxr/evidence/hair-hull0c only.
+- GATES_PASS=yes (carve excess p95 2.0 x3 <= 4 px; roots 100.0% >= 95%;
+  scalp-connected; sensitivity max delta 4.7 px; bans clean).
+- Hands to hull1: E/hull.npz occupancy with shell as minimum layer (roots
+  max 4.5 mm inside); shellOther overhang is head-driven, not a target.

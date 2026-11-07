@@ -1,0 +1,24 @@
+RESULT::hair-flow-4
+G1::632.8 | [550,750]+2% PASS
+G2::101 | 101 PASS
+G3::2.79 | <=3 PASS
+G4::19.33 | slitmin>=30+allpos+xoff<=10 MISS
+G5::0.2466 | <=0.2 MISS
+G6::67.42 | >=95 MISS
+G7::93.01 | >=95 MISS
+G8::0 | 0 PASS
+G9::0.0002384 | <=5 PASS
+G10::100 | 100 PASS
+G11::42.64 | EXIT|az|>=20+forehas0 PASS
+G13::68.1 | >=90 MISS
+STEPS::coarse-select v=566 f=974 area=631.5cm2 comp=1; remove_doubles-1e-5 v=549 f=974 area=631.5cm2 comp=1; subdiv-1 v=2095 f=3896 area=631.5cm2 comp=1; subdiv-2 v=8109 f=15584 area=631.5cm2 comp=1; subdiv-3 v=31825 f=62336 area=631.5cm2 comp=1; triangulate+weld v=31825 f=62336 area=631.5cm2 comp=1
+WELD::dist=0.0000 comp=1 v=31825 f=62336
+D1::COMP 0 faces=62336 area=631.47cm2 bbox=[-0.0755,-0.1483,1.4734]x[0.0755,0.0389,1.6599]
+D1::BRIDGES=0 SKIPPED_NEAR_SLIT=0
+M14::EXIT=891 az=[-180.0,179.7] FOREHEAD=82 az=[-42.1,42.1] SLIT=211 az=[-180.0,179.9] temples_az=[42.1,-42.1] arc_contains0=True minexit_absaz=42.6 disjoint=True corners=[5925, 18717] slit_phi_min_mm=19.3 slit_allpos=True
+PHICOL::front_hairline=0.08 part_slit=0.33 above_ear=0.30 nape=0.15 unreachable=0 black_regions=see-SAW
+SAW::TBD-view
+CAUSE(D1)::withheld: gates MISS
+COMMIT::pending
+STILL::guides/children/hair renders (later cards)
+HARM::none

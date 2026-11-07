@@ -1,0 +1,17 @@
+RESULT::hair-flow-9 attempt-5-final
+P1::ear_y=-0.038943 bnd=1875 front=1282 sbback=142 front_y=[-0.1238,-0.0391] front_z=[1.5351,1.6599]
+P2::flow8 no-forward lines=[201, 215, 216, 218, 221, 248, 277] (def no_forward + front-of-ear clamp, kept)
+HIST-OLD-800::front=333 above-ear=0 behind-ear=319 nape=147 never-left=1
+HIST-NEW-800::front=63 above-ear=0 behind-ear=586 nape=150 never-left=1
+G1::front_exits=63/800 MISS
+G2::n30=395 bad=27 worst_dy=-0.7073mm MISS
+G3::behind_n=11475 p95=0.000deg<=1 PASS
+G4::sym95=0.071deg<=1 PASS
+G5::never=1 cross=0 smooth95=11.21<=25 MISS
+G6::above_behind=145/200 strict_nosb=143 sb_nonroot_exits=[] MISS
+SAW::pending-visual
+CAUSE::see row-flow9.json
+COMMIT::uncommitted
+STILL::guides/children/hair renders (later cards)
+BRIEF_MISSING::none
+HARM::none

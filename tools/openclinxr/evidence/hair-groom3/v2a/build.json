@@ -1,0 +1,122 @@
+{
+ "inputs": {
+  "guides": "tools/openclinxr/evidence/hair-groom2/guides.npz",
+  "roots": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "sdf": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz"
+ },
+ "counts": {
+  "roots": 14155,
+  "guides": 567,
+  "pointsPer": 32,
+  "childrenPerRoot": 7,
+  "children": 99085
+ },
+ "part": {
+  "partX": 0.0001401995879485164,
+  "crownBandN": 4184
+ },
+ "vertex": {
+  "yVertexM": 0.0342,
+  "nBelowVertexRoots": 335,
+  "note": "no side restriction at/below vertex"
+ },
+ "earKeepout": {
+  "keepMm": 4.0,
+  "nPushed": 703,
+  "maxPushMm": 2.9945,
+  "minDistAfterMm": 4.001,
+  "fracLt3mmAfter": 0.0
+ },
+ "earTuck": {
+  "nStrands": 0,
+  "note": "positional tuck removed"
+ },
+ "conchaTrim": {
+  "nStrands": 1902,
+  "nSamples": 5587
+ },
+ "blend": {
+  "kernel": "1/(duv+0.03)^4, cutoff 1.0 rad, nearest-alone fallback",
+  "meanWeight0": 0.8189,
+  "nearestAloneFrac": 0.3347,
+  "nAlone": 0,
+  "gapGate": {
+   "gateMm": 15.0,
+   "off": false,
+   "nFallbackRows": 1056,
+   "nDroppedWeights": 2808,
+   "maxGapMm": 160.3
+  },
+  "earSpanAlone": {
+   "nEarSpanAlone": 2355
+  },
+  "rootExactnessMmMax": 0.0
+ },
+ "subRoots": {
+  "perRoot": 7,
+  "seed": 11,
+  "cellFrac": 0.45,
+  "cellRmmP50": 0.753,
+  "cellRmmMax": 1.413,
+  "jitMmMax": 1.386
+ },
+ "dotGuides": {
+  "floorMm": 20.0,
+  "nDot": 102,
+  "nPool": 465
+ },
+ "tuckRoute": {
+  "k": 20.0,
+  "nTuckRows": 3647,
+  "box": [
+   0.045,
+   0.085,
+   -0.135,
+   -0.04
+  ],
+  "maxGapMm": 41.46
+ },
+ "clump": {
+  "coarseMm": 20.0,
+  "coarsePullTip": 0.4,
+  "coarseCells": {
+   "nCells": 252,
+   "cellMin": 1,
+   "cellMax": 970,
+   "cellMean": 393.19
+  },
+  "fineMm": 4.5,
+  "finePullTip": 0.25,
+  "fineCells": {
+   "nCells": 3860,
+   "cellMin": 1,
+   "cellMax": 62,
+   "cellMean": 25.67
+  },
+  "profile": "t^2 root->tip, zero at root"
+ },
+ "lengthJitter": {
+  "sigma": 0.04,
+  "seed": 7,
+  "truncSigma": 1.5,
+  "truncLoSigma": 3.0,
+  "scaleMin": 0.88,
+  "scaleMax": 1.06
+ },
+ "projection": {
+  "nPushed": 407802,
+  "maxPushMm": 76.2397,
+  "minSdfAfter": 0.3,
+  "nInsideAfter": 0,
+  "nRounds": 13,
+  "outsideGrid": 0
+ },
+ "coverPostSDFsub": 516,
+ "radiiMm": {
+  "root": 0.05,
+  "tip": 0.015000000000000001,
+  "profile": "linear in t^1.5"
+ },
+ "sha256": "c3508619078f605342ec0fc557e69ad2509ebe5b6aeb2798ef555fe57514ad90",
+ "bytes": 36083862
+}

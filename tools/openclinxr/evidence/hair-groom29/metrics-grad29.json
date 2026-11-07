@@ -1,0 +1,122 @@
+{
+ "registration": {
+  "scale": 1.0403225806451613,
+  "tx": -19.645161290322562,
+  "ty": -31.25,
+  "renderTriple": [
+   155.0,
+   651.0,
+   512.0
+  ],
+  "targetTriple": [
+   130.0,
+   646.0,
+   513.0
+  ]
+ },
+ "targetBox": [
+  124,
+  406,
+  513,
+  777
+ ],
+ "boxNote": "groom10diag back-knot box rows 150-420 cols 512-765 mapped render->target with scorer judge-v6",
+ "sigmas": [
+  2.0,
+  4.0
+ ],
+ "strandRadiiMm": {
+  "root": 0.05,
+  "tip": 0.015,
+  "note": "interp_children defaults R_ROOT_M=5e-5 R_TIP_M=1.5e-5, linear in t^1.5 (build.json radiiMm)"
+ },
+ "target": {
+  "2.0": {
+   "gradAniso_gyOvergx": 0.5302,
+   "darkComp_meanAreaPx": 56.38,
+   "darkComp_count": 65,
+   "darkComp_bigFrac": 0.0915,
+   "darkComp_p10": 0.0843
+  },
+  "4.0": {
+   "gradAniso_gyOvergx": 0.6046,
+   "darkComp_meanAreaPx": 56.38,
+   "darkComp_count": 65,
+   "darkComp_bigFrac": 0.0915,
+   "darkComp_p10": 0.0843
+  },
+  "nHairPx": 36408
+ },
+ "ctrl": {
+  "2.0": {
+   "gradAniso_gyOvergx": 1.0162,
+   "darkComp_meanAreaPx": 93.67,
+   "darkComp_count": 39,
+   "darkComp_bigFrac": 0.052,
+   "darkComp_p10": 0.0941
+  },
+  "4.0": {
+   "gradAniso_gyOvergx": 0.9876,
+   "darkComp_meanAreaPx": 93.67,
+   "darkComp_count": 39,
+   "darkComp_bigFrac": 0.052,
+   "darkComp_p10": 0.0941
+  },
+  "nHairPx": 36408,
+  "renderSha": "ea076717a32aa1e62bae7c0c246fcb31d706bd865b6cc0ccf728aea388b7c493"
+ },
+ "groom19": {
+  "2.0": {
+   "gradAniso_gyOvergx": 1.0228,
+   "darkComp_meanAreaPx": 91.6,
+   "darkComp_count": 40,
+   "darkComp_bigFrac": 0.052,
+   "darkComp_p10": 0.0941
+  },
+  "4.0": {
+   "gradAniso_gyOvergx": 0.9899,
+   "darkComp_meanAreaPx": 91.6,
+   "darkComp_count": 40,
+   "darkComp_bigFrac": 0.052,
+   "darkComp_p10": 0.0941
+  },
+  "nHairPx": 36408,
+  "renderSha": "31a4a7d26d8fef5bf1e59dacaaa7fe127f707a5e514ad4f5ce807cf977f13aee"
+ },
+ "groom26": {
+  "2.0": {
+   "gradAniso_gyOvergx": 0.6253,
+   "darkComp_meanAreaPx": 95.49,
+   "darkComp_count": 39,
+   "darkComp_bigFrac": 0.0651,
+   "darkComp_p10": 0.0988
+  },
+  "4.0": {
+   "gradAniso_gyOvergx": 0.5301,
+   "darkComp_meanAreaPx": 95.49,
+   "darkComp_count": 39,
+   "darkComp_bigFrac": 0.0651,
+   "darkComp_p10": 0.0988
+  },
+  "nHairPx": 36408,
+  "renderSha": "d26e301cf138cd8fe7e298aba2be0fe1e38456769a0ac3d32641920647072f99"
+ },
+ "groom29": {
+  "2.0": {
+   "gradAniso_gyOvergx": 0.6263,
+   "darkComp_meanAreaPx": 94.9,
+   "darkComp_count": 39,
+   "darkComp_bigFrac": 0.065,
+   "darkComp_p10": 0.0983
+  },
+  "4.0": {
+   "gradAniso_gyOvergx": 0.5312,
+   "darkComp_meanAreaPx": 94.9,
+   "darkComp_count": 39,
+   "darkComp_bigFrac": 0.065,
+   "darkComp_p10": 0.0983
+  },
+  "nHairPx": 36408,
+  "renderSha": "7502cee63506ff55aa45712f647f3bd8c076ee954d0228eca5ccbfc2cddcb979"
+ }
+}

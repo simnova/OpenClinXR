@@ -1,0 +1,88 @@
+HAIR PROF 1 — PROFILE AND FRONT SILHOUETTE BY REGION
+Base b9 = tilt5 cells/s5/strands.npz. Scorer hair-score/score.py schema v2.
+Material hair-look7 best-params.json. b9 bars: IoU f/p/b =
+0.6947/0.6807/0.7696 (bars 0.80/0.70/0.70); ori f/3q/p/b =
+24.34/32.03/29.97/21.03; back bands 713x20.8 vs TS 849x16.4;
+eye/jaw openings 0.6024/0.4365; honest part/side 0.9824.
+
+STEP 1 where.json (MEASURE; IoU recomputed == score.json to 4 dp all views).
+Ruler: target-frame H px / world mm (front skull 458.17px/210.66mm =
+2.1749 px/mm; profile skull 452px = 2.1456; back crown-shoulder 516px /
+254.9mm = 2.0243). curtain4 used render-frame H (4.7% coarse); this
+corrects it (rulerFix 1.0474 applied to its RAW targets).
+PROFILE regions (FN,FP,cost=(FN+FP)/union):
+  back_edge 591,35765,0.1724 | front_edge 3106,9246,0.0586 |
+  crown_top 310,6371,0.0317 | nape 6233,0,0.0296 |
+  behind_ear 4329,0,0.0205 | hem 1390,0,0.0066.
+  TOP TWO: back_edge (ours +22..+28mm beyond TS rows 250-610, +51 row 700),
+  front_edge (ours anterior of TS +9..+19mm rows 240-600).
+FRONT bands: lower_outer 8332,1,0.0754 | eye_cheek 7008,1136,0.0737 |
+  upper_inner 6379,1740,0.0735 | part_crown 517,3553,0.0368 | hem 2795,712,0.0317.
+  TOP TWO: lower_outer (ours outer -7..-13mm/side rows 513-567),
+  eye_cheek (ours inner +1.3..+5.3mm rows 298-459 vs curtain4 rel targets).
+  Eye row 356 gate (±2.1mm total) freezes direct closure: TS gap is 29mm/side
+  wider than allowed movement, so eye_cheek is gate-capped by construction.
+
+STEP 2 cells (rule: outline error w/ fill present -> guide-equivalent surface
+shift; edge fill deficit -> children-equivalent extension; targets from step 1):
+  c_pb  rear sheet -25mm anterior (back_edge six-height deltas)
+  c_pf  anterior curtain +10mm posterior (front-edge deltas; 150mm fade)
+  c_fo  outer curtain |root_x|>55mm +10mm lateral below z1.51 (outer table)
+  c_fc  inner edge gaussian-62mm -3mm medial, cheek band (inner table)
+  c_pf2 c_pf gentler (250mm fade, wide tapers; front ori 1.18-><1.0 attempt)
+  c_fo2 c_fo rear-coverage-gated (poke <= rear-5mm; back-safe by construction)
+  c_fc2 c_fc at 2x + plateau (gain attempt, eye/jaw verified 0-impact on c_fc)
+  c_fo3 c_fo band extended down, poke <= rear+2mm
+  c_fc3 c_fc root-selected locks (40-80mm) 5mm, plateau 1.495-1.535
+  c_cr1 cap zone z>1.60 down 7mm (crown_top FP 6371 + part_crown FP 3553,
+        cross-view bonus, not a top-two region)
+  c_fo4 c_fo3 zero-poke cap (rear+0mm)
+  combo c_cr1 then c_fo4 sequentially on b9 (zones disjoint: z>1.60 vs z<1.53)
+Gates (inside 0; part <=3mm; eye/jaw within 1pp of b9; end p95 <=10):
+  all PASS post-repair (c_pb needed refinish clamp: repair tilted hem tips
+  endP95 13.59 -> 3.29, inside re-verified 0 on identical points).
+
+STEP 3 SCORES (dIoU f/p/b vs b9; dOri f/3q/p/b; back bands; eye/jaw):
+  c_pb:  d +0.0027/+0.0771/-0.1287; ori +0.59/+2.42/-0.87/+0.10; bands 497x28.9
+  c_pf:  d -0.0014/+0.0120/-0.0000; ori +1.18/-0.72/-0.41/+0.07; bands 724; eye 0.6089
+  c_fo:  d +0.0179/-0.0003/-0.0239; ori -0.47/-1.88/-0.68/+0.09; bands 718
+  c_fc:  d +0.0044/-0.0001/-0.0000; ori -0.09/-0.12/-0.02/+0.07; bands 723
+  c_pf2: d +0.0036/+0.0053/-0.0000; ori +0.63/-0.54/-0.25/+0.08; bands 722
+  c_fo2: d +0.0036/-0.0008/-0.0005; ori -0.31/-0.85/-0.13/+0.08; bands 722
+  c_fc2: d +0.0046/-0.0004/-0.0000; ori -0.06/-0.25/-0.14/+0.09; bands 722
+  c_fo3: d +0.0234/-0.0002/-0.0127; ori -0.49/-1.58/-0.48/+0.09; bands 726
+  c_fc3: d -0.0020/+0.0011/+0.0003; ori -0.05/-0.53/-0.40/+0.08; bands 727
+  c_cr1: d -0.0015/+0.0146/+0.0098; ori +0.03/-0.56/+0.52/-0.02; bands 711x20.8
+  c_fo4: d +0.0211/-0.0002/-0.0095; ori -0.50/-1.62/-0.35/+0.08; bands 723x20.3
+  combo: d +0.0200/+0.0145/+0.0001; ori -0.42/-2.13/-0.08/-0.02; bands 712x20.7
+  (eye/jaw 0.6024/0.4365 all except c_pf eye 0.6089 (+0.65pp, gate-pass) and
+  c_pb eye 0.6046 (+0.22pp, gate-pass). combo honest part/side 1.035 vs b9
+  0.9824, within tilt5 0.1 tolerance.)
+KEEP (target +>=0.01; no other view >0.01 down; ori not >1 worse; bands >=650):
+  KEPT c_cr1, c_fo4. REVERTED c_pb (back/3q-ori/bands), c_pf (front ori +1.18),
+  c_fo/c_fo3 (back), c_fc/c_fc2/c_pf2/c_fo2 (gain <0.01), c_fc3 (front -0.002).
+  Combination of keepers = combo (disjoint zones sum almost additively:
+  front +0.020 ~= fo4, profile +0.0145 ~= cr1, back +0.0001 cancels).
+  Best cell = combo: IoU f/p/b = 0.7147/0.6952/0.7698.
+  Strands: tools/openclinxr/evidence/hair-prof1/cells/combo/strands.npz
+  (repaired; waved pre-repair at cells/combo/strands_waved.npz; meta at
+  cells/combo/deform_meta.json; score at scores/combo/score.json).
+  Look-sheet: E/look-sheet.png rows TS | b9 | best-combo; cols front,
+  profile_90, back, profile-overlay, front-overlay (combo red, TS green).
+
+KEPT/REVERTED: KEPT c_cr1, c_fo4, combo(BEST). REVERTED c_pb, c_pf, c_pf2,
+c_fo, c_fo2, c_fo3, c_fc, c_fc2, c_fc3.
+
+SAW: The profile back_edge (cost 0.17, half the total profile deficit) is
+structurally unfixable by strand shifts: c_pb proved moving the rear sheet
+anterior trades profile +0.077 for back -0.129 (1:1.7), thins mid-back
+cover, and collapses highlight bands 713->497 — the rear sheet IS the back
+cover, and the upper back edge is set by midline (not corner) fibres, so no
+lateral tuck can substitute. It needs a guide re-drape, not a strand nudge;
+next slice. The eye_cheek inner deficit is gate-frozen (eye opening within
+1pp of b9 allows ~2mm of the ~29mm/side needed) — the whole c_fc line
+(v1/v2/v3: +0.004/+0.005/-0.002) confirms shifts saturate; that region needs
+denser locks (children count), recorded. What DID move: crown height
+(c_cr1 triple-view +0.015/+0.010/-0.002) and rear-occluded lower-curtain
+width (c_fo4 zero-poke cap: front +0.021 at back cost -0.0095, inside bar).
+Profile now 0.6952 (0.005 under bar); front 0.7147 (0.085 under, was 0.105).

@@ -1,0 +1,26 @@
+{
+ "tag": "35step2",
+ "renders": "tools/openclinxr/evidence/hair-groom35/renders-35step2",
+ "iou": {
+  "front": {
+   "iou": 0.7947,
+   "missPx": 11161,
+   "excessPx": 6298
+  },
+  "three_quarter": {
+   "iou": 0.8501,
+   "missPx": 10654,
+   "excessPx": 5776
+  },
+  "profile_90": {
+   "iou": 0.8259,
+   "missPx": 5869,
+   "excessPx": 24324
+  },
+  "back": {
+   "iou": 0.8935,
+   "missPx": 23967,
+   "excessPx": 13188
+  }
+ }
+}

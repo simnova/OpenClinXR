@@ -1,0 +1,42 @@
+{
+  "source": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-real1/cells/a1/strands.npz",
+  "seed": 20261620,
+  "nearPartWithin3mm": 6355,
+  "selectedCrossings": 254,
+  "selectedFraction": 0.03996852871754524,
+  "crossedAt20mmAfterRepair": 253,
+  "crossedFractionOfNearPart": 0.03981117230527144,
+  "flow": "selected strands mirror lateral displacement about their root through 20mm, smooth rejoin by 30mm",
+  "rootLeanDeg": {
+    "population": "roots within 3mm of part",
+    "min": -14.996996412774067,
+    "max": 14.992393056851427,
+    "p50Abs": 7.481086824342837
+  },
+  "collider": {
+    "colliders": [
+      "OCLX_Aisha_head",
+      "makeclothes_library_toigo_t_shirt",
+      "makeclothes_library_female_tight_jeans_pants",
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+    ],
+    "first_pass_inside": {
+      "OCLX_Aisha_head": 1691,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "post_inside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "post_inside_total": 0,
+    "moved_points": 1691,
+    "max_single_projection_mm": 3.9672431496935547,
+    "clearance_mm": 0.2,
+    "passes": 3,
+    "audit_relocated_points": 0
+  }
+}

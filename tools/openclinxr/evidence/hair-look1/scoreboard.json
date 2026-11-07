@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 1,
+  "baseline": "b6 == hair-curtain5/e4",
+  "cells": [
+    {
+      "tag": "b6",
+      "decision": "BASE",
+      "why": "accepted curtain5/e4",
+      "iou": {
+        "front": 0.6767707954958228,
+        "profile": 0.6871786513357733,
+        "back": 0.7740856213986863
+      },
+      "deltaIoU": {
+        "front": 0.0,
+        "profile": 0.0,
+        "back": 0.0
+      },
+      "directionStdDeg": 6.097163350201632,
+      "spacingStdMm": 1.1766747820284154,
+      "highpassMedian": 0.10667981895659791,
+      "highpassXB6": 1.0,
+      "highpassXTS": 1.178517591341524,
+      "sheenMedianPx": 1.0,
+      "endP95Deg": 41.48236042918679,
+      "p50": 0.14085725490196077,
+      "partSide": 1.3275573539804273,
+      "faceP50": 0.7314627450980392,
+      "inside": 0,
+      "overEye": 0,
+      "faceOpening": 0,
+      "eyeGapDeltaMax": 0.0,
+      "showThrough": 0.011920999508974848,
+      "standing": false,
+      "landmarkSource": "projected:landmarks.json",
+      "clumpWeight": 0
+    },
+    {
+      "tag": "g1",
+      "decision": "KEPT",
+      "why": "end p95 and constraints pass",
+      "iou": {
+        "front": 0.6725466970387244,
+        "profile": 0.6824030926965317,
+        "back": 0.7712184859265679
+      },
+      "deltaIoU": {
+        "front": -0.004224098457098369,
+        "profile": -0.004775558639241617,
+        "back": -0.002867135472118365
+      },
+      "directionStdDeg": 5.690520501031692,
+      "spacingStdMm": 1.1578507822409896,
+      "highpassMedian": 0.10907013763017381,
+      "highpassXB6": 1.02240647478553,
+      "highpassXTS": 1.2049240160362213,
+      "sheenMedianPx": 1.0,
+      "endP95Deg": 3.590229341076422,
+      "p50": 0.14390901960784314,
+      "partSide": 1.3537143994083263,
+      "faceP50": 0.7314470588235293,
+      "inside": 0,
+      "overEye": 0,
+      "faceOpening": 0,
+      "eyeGapDeltaMax": 0.0,
+      "showThrough": 0.018311905479865127,
+      "standing": false,
+      "landmarkSource": "projected:landmarks.json",
+      "clumpWeight": 0
+    },
+    {
+      "tag": "g2",
+      "decision": "REVERTED",
+      "why": "high-pass moved down",
+      "iou": {
+        "front": 0.6796956070563819,
+        "profile": 0.6829437298000921,
+        "back": 0.770233519408748
+      },
+      "deltaIoU": {
+        "front": 0.0029248115605591263,
+        "profile": -0.004234921535681169,
+        "back": -0.00385210198993835
+      },
+      "directionStdDeg": 6.066352966695444,
+      "spacingStdMm": 1.1194974142720746,
+      "highpassMedian": 0.08631822390364477,
+      "highpassXB6": 0.8091335807268557,
+      "highpassXTS": 0.9535781586317567,
+      "sheenMedianPx": 1.0,
+      "endP95Deg": 5.629722361479737,
+      "p50": 0.14464470588235295,
+      "partSide": 1.3475429129376926,
+      "faceP50": 0.7314627450980392,
+      "inside": 0,
+      "overEye": 0,
+      "faceOpening": 0,
+      "eyeGapDeltaMax": 0.0,
+      "showThrough": 0.019574213220080582,
+      "standing": false,
+      "landmarkSource": "projected:landmarks.json",
+      "clumpWeight": 0
+    },
+    {
+      "tag": "g3",
+      "decision": "REVERTED",
+      "why": "high-pass moved down",
+      "iou": {
+        "front": 0.6719689515688204,
+        "profile": 0.6847351962873703,
+        "back": 0.771477056034709
+      },
+      "deltaIoU": {
+        "front": -0.004801843927002336,
+        "profile": -0.0024434550484029316,
+        "back": -0.0026085653639773554
+      },
+      "directionStdDeg": 5.7055487775224805,
+      "spacingStdMm": 1.1619217159112638,
+      "highpassMedian": 0.10693539462068244,
+      "highpassXB6": 1.0023957264512091,
+      "highpassXTS": 1.1813409971083162,
+      "sheenMedianPx": 1.0,
+      "endP95Deg": 3.7189689080469073,
+      "p50": 0.14358980392156862,
+      "partSide": 1.3608687567976319,
+      "faceP50": 0.7314627450980392,
+      "inside": 0,
+      "overEye": 0,
+      "faceOpening": 0,
+      "eyeGapDeltaMax": 0.008928571428571397,
+      "showThrough": 0.019172993936745507,
+      "standing": false,
+      "landmarkSource": "projected:landmarks.json",
+      "clumpWeight": 0.5
+    },
+    {
+      "tag": "g4",
+      "decision": "REVERTED",
+      "why": "end p95 failed after shortening/audit",
+      "iou": {
+        "front": 0.6758500483656075,
+        "profile": 0.6881174966791148,
+        "back": 0.7711152465298657
+      },
+      "deltaIoU": {
+        "front": -0.0009207471302152825,
+        "profile": 0.0009388453433415433,
+        "back": -0.002970374868820569
+      },
+      "directionStdDeg": 6.322765713989362,
+      "spacingStdMm": 1.1178577621540513,
+      "highpassMedian": 0.10890330591964452,
+      "highpassXB6": 1.0208426203268233,
+      "highpassXTS": 1.2030809860463376,
+      "sheenMedianPx": 1.0,
+      "endP95Deg": 31.61116243106284,
+      "p50": 0.14609098039215687,
+      "partSide": 1.35245774599649,
+      "faceP50": 0.7314627450980392,
+      "inside": 0,
+      "overEye": 0,
+      "faceOpening": 0,
+      "eyeGapDeltaMax": 0.0,
+      "showThrough": 0.01854798880535587,
+      "standing": false,
+      "landmarkSource": "projected:landmarks.json",
+      "clumpWeight": 0
+    },
+    {
+      "tag": "g5",
+      "decision": "REVERTED",
+      "why": "high-pass moved down",
+      "iou": {
+        "front": 0.6719787879616215,
+        "profile": 0.6855332734710167,
+        "back": 0.7718654930720744
+      },
+      "deltaIoU": {
+        "front": -0.004792007534201281,
+        "profile": -0.001645377864756603,
+        "back": -0.002220128326611892
+      },
+      "directionStdDeg": 6.491183715737193,
+      "spacingStdMm": 1.1555508929133675,
+      "highpassMedian": 0.1049816385995977,
+      "highpassXB6": 0.9840815219447353,
+      "highpassXTS": 1.1597573849260105,
+      "sheenMedianPx": 1.0,
+      "endP95Deg": 0.8838349571696758,
+      "p50": 0.14437176470588237,
+      "partSide": 1.3560873569195357,
+      "faceP50": 0.7314533333333333,
+      "inside": 0,
+      "overEye": 0,
+      "faceOpening": 0,
+      "eyeGapDeltaMax": 0.00952380952380949,
+      "showThrough": 0.018520040546834333,
+      "standing": false,
+      "landmarkSource": "projected:landmarks.json",
+      "clumpWeight": 0
+    },
+    {
+      "tag": "g6",
+      "decision": "KEPT",
+      "why": "light re-solve on unchanged g1 geometry",
+      "iou": {
+        "front": 0.6832848635923002,
+        "profile": 0.6944576413387379,
+        "back": 0.7798881768709416
+      },
+      "deltaIoU": {
+        "front": 0.006514068096477477,
+        "profile": 0.007278990002964614,
+        "back": 0.0058025554722552775
+      },
+      "directionStdDeg": 5.690520501031692,
+      "spacingStdMm": 1.1578507822409896,
+      "highpassMedian": 0.12760007244532898,
+      "highpassXB6": 1.1961031963997086,
+      "highpassXTS": 1.4096286580168824,
+      "sheenMedianPx": 1.0,
+      "endP95Deg": 3.590229341076422,
+      "p50": 0.09906823529411764,
+      "partSide": 1.468845229434774,
+      "faceP50": 0.7278243137254902,
+      "inside": 0,
+      "overEye": 0,
+      "faceOpening": 0,
+      "eyeGapDeltaMax": 0.01904761904761898,
+      "showThrough": 0.017480409885473176,
+      "standing": false,
+      "landmarkSource": "projected:landmarks.json",
+      "clumpWeight": 0
+    }
+  ],
+  "gates": {
+    "G1": "PASS diagnosis precedes cells; D1 REFUTED and D2 SUPPORTED by measured rules",
+    "G2": "PASS kept g1/g6 constraints",
+    "G3": "FAIL high-pass 2x, sheen 0.5x, and g6 p50 within 25% TS are unmet",
+    "G4": "pending self-test",
+    "G5": "PASS scoped tree/no blend"
+  },
+  "bestG": "g1",
+  "final": "g6",
+  "targetHighpassMedian": 0.09052034499982532
+}

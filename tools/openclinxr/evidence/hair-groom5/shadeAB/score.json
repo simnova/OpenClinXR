@@ -1,0 +1,56 @@
+{
+ "target": {
+  "glossFrac": 0.0,
+  "lumP50": 35.1,
+  "satMean": 0.323,
+  "streak": {
+   "median": 4.0,
+   "p75": 5.0,
+   "n": 550
+  }
+ },
+ "A1-huang-r15": {
+  "streak": {
+   "median": 6.0,
+   "p75": 9.0,
+   "n": 403
+  },
+  "glossFrac": 0.0001,
+  "lumP50": 43.5,
+  "satMean": 0.285,
+  "nHairPx": 73288
+ },
+ "A2-huang-r35": {
+  "streak": {
+   "median": 6.0,
+   "p75": 9.0,
+   "n": 389
+  },
+  "glossFrac": 0.0,
+  "lumP50": 40.6,
+  "satMean": 0.273,
+  "nHairPx": 73288
+ },
+ "B1-chiang-r15": {
+  "streak": {
+   "median": 6.0,
+   "p75": 9.0,
+   "n": 409
+  },
+  "glossFrac": 0.0025,
+  "lumP50": 50.7,
+  "satMean": 0.413,
+  "nHairPx": 73288
+ },
+ "B2-chiang-r35": {
+  "streak": {
+   "median": 6.0,
+   "p75": 8.0,
+   "n": 410
+  },
+  "glossFrac": 0.002,
+  "lumP50": 57.0,
+  "satMean": 0.404,
+  "nHairPx": 73288
+ }
+}

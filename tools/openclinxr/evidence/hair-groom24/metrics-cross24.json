@@ -1,0 +1,174 @@
+{
+ "crossing3D": {
+  "guides-19": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom19/build/guides-19.npz",
+   "sha256": "95a471531b95bde349d9b678902bf9b7c020745f16ec15db22213146ac7981e3",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 9715,
+   "cross3D_le3mm": 1827,
+   "frac3Dof2D": 0.1881,
+   "d3mm_at_2Dcross": {
+    "n": 9715,
+    "p10": 1.494,
+    "p25": 4.166,
+    "p50": 14.957,
+    "p75": 152.254,
+    "p90": 157.044,
+    "p99": 163.709,
+    "min": 0.0,
+    "max": 169.839
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 696
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 563
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 568
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 1017
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1596
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 578
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 315
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4382
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 9715,
+    "p10": 0.481,
+    "p25": 1.367,
+    "p50": 3.294,
+    "p75": 5.523,
+    "p90": 8.064,
+    "p99": 17.159,
+    "min": 0.0,
+    "max": 43.399
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 9715,
+    "p10": 0.21,
+    "p25": 0.64,
+    "p50": 1.632,
+    "p75": 2.72,
+    "p90": 3.628,
+    "p99": 5.999,
+    "min": 0.0,
+    "max": 11.104
+   }
+  },
+  "guides-21": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom21/build/guides-21.npz",
+   "sha256": "ee55481f4dc55eb4992aadbfa7f89842956db3fc5ddaa132b9ab2f9f0c99d8c0",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 7417,
+   "cross3D_le3mm": 753,
+   "frac3Dof2D": 0.1015,
+   "d3mm_at_2Dcross": {
+    "n": 7417,
+    "p10": 2.946,
+    "p25": 8.826,
+    "p50": 138.832,
+    "p75": 149.631,
+    "p90": 156.906,
+    "p99": 170.141,
+    "min": 0.007,
+    "max": 176.067
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 272
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 253
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 228
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 482
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 763
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 706
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 473
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4240
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 7417,
+    "p10": 0.806,
+    "p25": 2.119,
+    "p50": 4.73,
+    "p75": 9.047,
+    "p90": 14.002,
+    "p99": 23.399,
+    "min": 0.001,
+    "max": 43.664
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 7417,
+    "p10": 0.227,
+    "p25": 0.62,
+    "p50": 1.315,
+    "p75": 2.17,
+    "p90": 3.028,
+    "p99": 5.243,
+    "min": 0.0,
+    "max": 8.988
+   }
+  }
+ }
+}

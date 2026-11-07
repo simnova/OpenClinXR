@@ -1,0 +1,33 @@
+RESULT::hair-guides-6
+G1::n=596 pts=32 nan=0 | [536,656] PASS
+G2::inside=223 min=0.01mm | 0 MISS
+G3::eye=0.402 jaw=0.402 | eye [0.32,0.40] MISS, jaw [0.38,0.50] PASS
+G4::earSkinL=235 earSkinR=12 | 0 both sides MISS
+G5::halfwidth=85.2mm | 86.3mm ±10% PASS
+G6::p95=21.38 max=773.63 short=138 | p95<=10 ∧ max<=40 ∧ 0 MISS
+G7::max=9.54mm | <=9.6mm PASS
+G8::hairPx=14 | 0 MISS
+X1::IoU 0.5501 | 0.6218 | >=0.80
+X1::eroded-IoU 0.4250 | 0.5365 | >=0.80
+X1::width_rms 0.1953 | 0.2211 | <=0.10
+X1::below_chin 0.5599 vs 0.5512 | 0.5796 vs 0.5512 | |d|<=0.10 (d=0.028 clause-PASS)
+X1::part_px 47 vs 22 | 47 vs 22 | tgt 22
+X1::show-through 0.0000 PASS | 0.0014 PASS | <=0.03
+X1::standing_hair FLAG 15px | FLAG 15px vs 14.4 | no-flag
+X1::score n/a | 0.9284 | lower-better
+X2::crown-row width ours 153px vs target 144px (diff +9; blend-1 on guides3 was +103)
+X2::top show-through total 0.1526 incl part band 0.0455 rest 0.1071
+SAW::front: narrow gap 0.402H; curtains fall from the part straight down over the temples, in front of the ears, covering the face sides; inner edges just lateral to the outer eye corners, eyes fully clear; right ear covered, left helix sliver exposed (235px); blunt hem at chest resting on the shirt; flyaway frizz at the left cheek; pink tongue strip under the chin (pre-existing scene artifact, also in the BEFORE render).
+SAW::three_quarter: front curtain falls straight in front of the ear to the chest; temples covered; no wing or shelf at ear level; face clear in this aspect.
+SAW::profile: front curtain hangs down the cheek in front of the ear to chest level; pinna visible; back mass straight to mid-back; no shelf bulge (BEFORE had a shelf bulge behind the jaw); hem at shoulder-back.
+SAW::back: full coverage to mid-back; center part line visible down the back of the crown; both pinnae peek at the silhouette sides; blunt straight hem across mid-back; faint reddish sheen bands.
+SAW::crown_top: dense continuous canopy; clean full-length part line; copper scalp strip along the part; no lane gutters; ear tips at the sides.
+CAUSE::G2 MISS (223, was 1457 vs full visible set incl low-poly Human backing): surface points at body+3mm sit inside the shirt solid where the shirt hugs the body (86 shirt) + nearest-surface snaps at pinna folds (137 head); M3 freeze forbids post-hoc rescue; same family as the guides3 shirt-pinch cause.
+CAUSE::G3 eye MISS by 1px (193 vs 192 at alpha 0.5; 212 at 0.9; judge 200): x_face 48mm sets the line, children jitter + curtain fringe widen it slightly; jaw 0.402 PASS.
+CAUSE::G4 MISS: left front curtain hangs just medial to the pinna leaving the helix exposed (235px); right covers except a 12px peek; needs an asymmetric line nudge, out of scope after 3 attempts.
+CAUSE::G6 MISS after 3 honest M1-M4 runs (p95 21.38, max 773, 138 shorts; guides3 was 40.26/442): slide-branch transitions on the shoulder dome + shirt-pinch snaps; freeze removed the clearance-snap family (442->138) but slide kinks remain; input-flow family per BL/RESULT2.txt CAUSE G9.
+CAUSE::G8 MISS (14px): curtain upper-inner fringe at the box top corners (rows 294-307); the eye row itself is clear.
+COMMIT::73c3f13b4
+STILL::G2/G3-eye/G4/G6/G8 MISS (causes above); standing_hair FLAG (15 vs 14.4, same as blend-1); width_rms 0.221 above blend-1 0.195 (wider low curtain); pink tongue strip under chin (pre-existing, both renders); blunt hem (guide-inherited); back part line visible from behind.
+BRIEF_MISSING::(1) fall_phase face-zone outward redirect removed as part of M1 (unnamed, required by the face-line goal). (2) fall free-flight threshold kept 4mm with 3mm projection: both-3mm measured worse (attempt 2: shorts 138->168, gap 78.0->83.9). (3) G3/G5/G8/X2 rows in render frame (skull crown 103 chin 583 centre 512 H 480): eye 319, jaw 477 (frac 0.779), ear 343, eye box rows 294-344 cols 441-583. (4) G4 ear-skin = skin px (R>G+8,R>B+8) lateral to the outer hair edge, rows 330-420, per side. (5) X2 crown rows 103 (ours front-id) / 150 (target frame) with target mask x2 scale. (6) BL/blend.py ran unmodified (--guides E/guides6.npz --out E/blend), so no E/blend6.py per R2.
+HARM::none (local Blender renders + numpy only; no external calls; no push; no clinical/Quest claims)

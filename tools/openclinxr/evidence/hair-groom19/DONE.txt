@@ -1,0 +1,8 @@
+DONE hair-groom19: tangent fairing of guides after take-off; station children
+GATES_PASS=no (6/13: calibration, takeoff, knotHole, concha, insideBody, determinism pass)
+FRONT IoU 0.7913 BEATS groom8a 0.7446 (+0.0467); 3Q 0.8406 beats 0.8261 (+0.0145).
+BACK KNOT HOLE 0 (gone). Profile 0.8156 (-0.039) / back 0.7965 (-0.061) miss -0.02 gate.
+Coherence 318.8/452.0 FAIL (verbatim take-off floor 95.3 mm p90 at 40 mm -- gate needs redefinition); R-LOOP 85140/95615 FAIL.
+Store: /Volumes/files/openclinxr-assets/store/hair-groom19/ (guides-19.npz, strands.npz, SHA256SUMS) -- no .npz in git.
+Sheet: tools/openclinxr/evidence/hair-groom19/sheet.png (target|groom8a|groom8b|groom19).
+Full record: E/RESULT.txt.

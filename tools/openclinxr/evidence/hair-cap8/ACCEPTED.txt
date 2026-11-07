@@ -1,0 +1,1 @@
+ORCHESTRATOR 2026-10-13: cap-v8.npz + flow-b-v10.npz are ACCEPTED as the working cap and flow (notch gone, front exits 3/800, destinations 193/200). Residual misses recorded in RESULT.txt: 21 forward steps, 7 never-left near the low temple/ear. Use them for final guide runs.

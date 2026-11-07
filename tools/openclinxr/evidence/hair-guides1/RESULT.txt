@@ -1,0 +1,206 @@
+hair-guides1: guide field v2 on real roots, shoulder routing — RESULT
+=============================================================
+VERDICT: MODEL_INADEQUATE (regions named below; LOO skipped by the card's
+decision tree, which runs LOO only "if adequate").
+
+WRITE ROOTS: S4 = tools/openclinxr/hair-groom/guides (grow.py,
+fit_guides.py, sample_scalp1.py, export_results.py, render_guides.py),
+E = tools/openclinxr/evidence/hair-guides1. hair-groom/scalp/ and
+hair-groom/cards/ untouched. No *.blend anywhere (verified: find returns 0).
+
+SPEC v1 -> v2 DIFF (frozen and sha-recorded before any fit; E/guide-spec.json
+schemaVersion openclinxr.guide-spec.v2; 21 -> 28 params, card allows 20-32):
+  1. Roots: scalp1 real roots (hair-scalp1/roots.npz, 14,155 roots, world-m
+     xyz + world normals) converted to head-frame mm and greedy-Poisson
+     subsampled (lexsort order, same algorithm as make_roots.py) at
+     11.0 mm spacing -> E/roots-v2.npz N=423 (X -70.9..70.7, U -90.9..80.6,
+     D 0.1..154.7); alt spacing 10.5 mm -> E/roots-v2-alt.npz N=459 for
+     the swap test. File swap only; grow takes the npz path.
+  2. Side assignment: side = sign of root X; departure pushes |azimuth|
+     toward 90 deg (|dep| = |a| + part front half / |a| - part back half,
+     continuous at |a| = 90, always inside (0,180) for part in (0,90) so
+     sin(dep) keeps the root's sign by construction). The v1 rule
+     (dep = a + side*part) crossed the part plane for back-midline roots
+     (self-test caught n=82 crossings on the v2 default); the v2 rule
+     gives crossing count 0. Gate: crossing count = 0.
+  3. Release-U field (NEW relu_c0/c1/s1, mm-U, c0 in [-60,40] init -20):
+     release U = shell U + relu(az). Ear-front plane U = +12 mm
+     (most-anterior body-mesh vertex with 70 < |X| < 110 mm, z in
+     [1.50, 1.58] m reads U = +11.7 mm, rounded to +12); default side
+     release shell U ~ -49 mm plus relu_c0 -20 = ~ -69 mm, behind the
+     plane with 81 mm of bound range to spare.
+  4. Shoulder waypoint (REPLACES sho_c0/c1/s1): at drop 255 mm (= the
+     1.405 m shoulder plane: crown 1.6599 - 0.255 = 1.4049), lateral
+     magnitude wpx(az) = side*(wpx_c0 + wpx_c1*cos), c0 in [40,200]
+     init 110; posterior position wpu(az) = wpu_c0 + c1*cos + s1*sin,
+     c0 in [-120,20] init -60. Acromion point per side = body-mesh vertex
+     maximizing |X| among verts with drop D in [225,290] mm (z 1.370-1.435
+     m): R (+171.3, U -16.9), L (-171.3, U -16.9) mm, from
+     hair-station0b/body-verts.npz. Side-sector guides (|az| in [45,135])
+     must pass posterior to the acromion U (U_wp < -16.9); default
+     (-60) passes by construction. Fall routes release -> waypoint
+     (smoothstep) -> straight fall with spread + drift below.
+  5. Shell lateral term (NEW sh_c2 in [-6,6] init 0): shell_h gains
+     sh_c2*cos(2*az) (cos2 = -1 at the sides, so the crown can narrow).
+  6. Hem-shape term (NEW hem_u in [0,120] init 30): end gains
+     hem_u*(1-cos(az))/2 — smooth back-U lengthening without cos2 steps.
+  SPEC_SHA a742ce6f6b73c5802ae9f38ed3901134d9b5aa4189495498577e127ab68bde4c
+  (E/spec-sha-before-fit.txt; re-verified identical after all fitting —
+  export_results.py asserts it before writing artifacts). Process note:
+  one earlier sha (e180e6f5...) was superseded BEFORE any optimizer ran
+  (v1 departure rule replaced after the self-test caught 82 part-plane
+  crossings; spec growth text updated to the |az|-toward-90 rule).
+
+STEP 1 — self-tests (S4/grow.py --selftest on the default, all PASS):
+  determinism (identical hashes); zero-lift shell (worst 0.000 mm vs the
+  offset section ellipse over all 423 guides on pure growth math);
+  roots swap (alt npz runs, N=459, no code change); part-crossing count 0
+  on the default (gate); side-sector guides (n=214) all pass behind the
+  acromion on the default (0 violations). The self-test caught one real
+  bug pre-fit: the v1 departure rule crossed the part plane (82 guides).
+
+STEP 2 — fit (S4/fit_guides.py, scipy least_squares trf, bounded,
+  x_scale = bound range, diff_step = 5% of range, 2-pass polish;
+  occluded tube raster throughout: resampled discs depth-tested against
+  hair-cage1/body-depth.npz, warped to target frame by
+  instruments.occluded_union — front hem occlusion edge respected)
+  Objective: per (view, region, excess/miss) 150 sampled Huber-3px
+  contour residuals + depth-aware guard (front x3.0, profile x0.5, the
+  exact instruments.face_guard_depth scorer) + exact collision x8.0 +
+  fall-projection excess over 10 mm x8.0 and mean x2.0 + per-guide
+  part-crossing indicator x60.0 + per-guide side-sector acromion hinge
+  x3.0/mm + curvature / neighbour (release/end/waypoint) /
+  mirror-symmetry regularizers (0.02/0.10/0.10).
+  THREE named starts (max_nfev 80, all converged, ~650-800 evals each):
+    spec-default ......... cost 734691.5 (regional 728718.4, guard 0.0,
+      penalty 5972.2, regularizer 0.860), 11 fails <- BEST
+    behind-shoulder ...... cost 1493939.5 (regional 1469685.2, guard 0.0,
+      penalty 24253.5, regularizer 0.776), 11 fails
+    long-back-short-front  cost 1612809.4 (regional 1587465.5, guard 0.0,
+      penalty 25340.7, regularizer 3.154), 13 fails
+  Best values (spec-default): part_angle 33.244, lift 2.125,
+    sh_base 3.471, sh_elev 1.598, sh_cos 1.661, sh_sin -1.447,
+    sh_c2 2.500, rel_c0 111.609, rel_c1 -29.973, rel_s1 -2.228,
+    relu_c0 -42.357, relu_c1 4.134, relu_s1 6.481, spread0 3.702,
+    spread1 -0.644, wpu_c0 -82.348, wpu_c1 -10.986, wpu_s1 0.323,
+    wpx_c0 64.505, wpx_c1 14.398, drift -21.316, sway -1.978,
+    end_c0 283.113, end_c1 -7.933, end_s1 0.678, end_c2 7.130,
+    hem_u 31.340, tube_r 5.212. No field parameter on its bound
+    (all 28 checked; nearest: drift -21.3 in [-30, 20]).
+  ADEQUACY GATE on the best fit (11 FAILS):
+    regional: front/face_opening 22.8/36.4 (excess 28.1/38, n=135),
+      front/side_curtain_L 9.1/26.2, front/side_curtain_R 12.5/25.8,
+      front/hem 19.1/90.6 (miss 41.0/96), profile/crown 21.1/33.3
+      (excess only), profile/side_curtain_L 15.9/60.8 (excess 26.1/69,
+      n=544), profile/hem 17.3/34.0 (miss 19.4/36), back/crown 22.0/25.5
+      (excess), back/side_curtain_R 14.6/28.4, back/hem 30.3/91.7
+      (excess 14.3/27 + miss 43.9/105, n=504) (p50/p95)
+    front face guard 0 px (PASS); profile guard 0 px (PASS — newly gated
+      v2, passes); exact collision inside = 0 (PASS); fall projection max
+      23.64 mm > 10 mm (FAIL: 3460 fall + 1317 shell points needed
+      projection; min_sdf 2.70 mm — clearance holds, routing does not);
+      crossing count 0 (PASS); no parameter on its bound (PASS).
+    Passing regions: front crown (7.1/14.9), profile face_opening (0/0 —
+      v0's worst region is fixed), profile/hem excess 0, back curtains L
+      (8.5/21.2).
+
+STEP 3 — verdict MODEL_INADEQUATE, naming regions
+  Failing regions: front face_opening + side_curtains + hem, profile
+  crown + side_curtain + hem, back crown + side_curtain_R + hem, fall
+  projection > 10 mm.
+  What v2 fixed (measured): profile face_opening 64.8/73.5 -> 0/0;
+  profile guard 407 px (reported, ungated v0) -> 0 px (gated, PASS);
+  part-plane crossings 82 (v1 rule) -> 0 by construction + gate;
+  acromion violations 0/214 side guides (gate-ready, reported).
+  What still fails and the measured mechanism: the optimizer moved the
+  wall rather than breaking it — posterior routing cleared the profile
+  face box but the curtains now cover the front face box (front
+  face_opening excess 28 px, new fail; v0 passed it 9.0/10.3). The fitted
+  waypoint (|X| = 64.5, U = -82.3) sits MEDIAL to the torso half-width
+  (~83 mm at drop 255), i.e. inside the shoulder mass: the fit drags the
+  waypoint in to satisfy silhouette widths and the SDF projection pushes
+  the guides back out (max 23.6 mm), the same through-not-around routing
+  v0 named. Cross-start consistency (profile crown p95 31.6-33.3, back
+  crown 24.1-26.9, front hem p95 90-142, back hem 91-109, projection
+  23.6/37.5/38.1 mm across starts; long-back-short-front additionally
+  fails exact collision inside=2) shows basin-independent walls, not bad
+  starts. LOO skipped per the card's decision tree.
+  E/fit-start-*.json (per-start payloads) + E/fit-all.json (best +
+  adequacy tables) preserve everything for the next model.
+
+STEP 4 — artifacts
+  E/fit.png (per view: blue target outline, amber occluded raster,
+    green region boxes): front shows amber covering the face-box sides
+    and falling short/wide at the hem; profile shows the release-to-
+    waypoint shelf at cheek height plus crown excess; back shows amber
+    columns short and narrow in the middle with hem excess at the sides.
+  E/guides.png (+ per-view guides-{front,profile_90,back,three_quarter}
+  .png): Workbench render of the 423 fitted guides as 5.2 mm tubes on
+  Aisha, library topper excluded (removed
+  makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh,
+  brow/lash kept): crown covered, centre part visible, curtains fall
+  past the chin in front; profile shows the horizontal waypoint shelf;
+  back shows two separated curtain columns with a center gap.
+  E/guides.npz (guide curves head-mm (423,41,3) + az/side/d_rel/d_end +
+  params + spec sha a742ce6f...; hash
+  9b7b006337f8ced77a4969bc12374d63435937d787727e97ca0ba4ea49cecaf2;
+  honest label: best INADEQUATE fit, not a shippable asset).
+  E/heights.json: endZ vs shoulder (1405.0) and chin (1449.3) per az bin
+  (full table below).
+  Verdict line: VERDICT: MODEL_INADEQUATE (front face/curtains/hem,
+  profile/back crowns, side curtains, hems, projection>10mm).
+  E/DONE.txt: this card's completion record.
+
+END HEIGHTS vs shoulder plane (z = 1.405 m) and chin (menton z = 1449.3
+mm) per azimuth bin, best fit (E/heights.json; crown z = 1659.9):
+  az -180..-150: end z 1336.2, -68.8 vs shoulder, -113.1 vs chin (n=48)
+  az -150..-120: end z 1352.1, -52.9 vs shoulder, -97.2 vs chin (n=52)
+  az -120..-90:  end z 1366.9, -38.1 vs shoulder, -82.4 vs chin (n=29)
+  az -90..-60:   end z 1375.8, -29.2 vs shoulder, -73.5 vs chin (n=39)
+  az -60..-30:   end z 1378.2, -26.8 vs shoulder, -71.1 vs chin (n=24)
+  az -30..0:     end z 1377.9, -27.1 vs shoulder, -71.3 vs chin (n=20)
+  az 0..30:      end z 1377.6, -27.4 vs shoulder, -71.6 vs chin (n=21)
+  az 30..60:     end z 1377.3, -27.7 vs shoulder, -72.0 vs chin (n=24)
+  az 60..90:     end z 1375.1, -29.9 vs shoulder, -74.2 vs chin (n=33)
+  az 90..120:    end z 1366.1, -38.9 vs shoulder, -83.1 vs chin (n=35)
+  az 120..150:   end z 1351.2, -53.8 vs shoulder, -98.0 vs chin (n=47)
+  az 150..180:   end z 1336.2, -68.8 vs shoulder, -113.1 vs chin (n=51)
+  (end_c0 = 283.1 mm drop + hem_u 31.3 mm smooth back-U; all ends 27-69
+  mm below the shoulder plane, 71-113 mm below the chin — the fit keeps
+  every end below the shoulder, consistent with occl0's 55-115 mm
+  below-shoulder back-hem finding; the back-U term restores the
+  back-longer shape without cos2 steps.)
+
+GREP + INPUTS-OPENED
+  Import/path ban check (S4 .py sources import only argparse/hashlib/
+  json/sys/time/pathlib + numpy/scipy/PIL/matplotlib + hair-groom
+  modules envelope/register-via-instruments/exact/grow; sys.path
+  insertions point only at S4, hair-groom/cage, hair-groom; no imports
+  from scalp/, cards/, evidence dirs, or look-card paths):
+    grow.py: sys.path -> hair-groom/cage only; imports exact (SDF)
+    fit_guides.py: sys.path -> S4, hair-groom/cage, hair-groom; imports
+      grow/instruments/exact/envelope (the card-mandated reuse set)
+    sample_scalp1.py: stdlib + numpy only (no sys.path insertions)
+    export_results.py/render_guides.py(Blender): as above + bpy/PIL
+  Runtime file reads outside S4/E are manifest-pinned or card-mandated
+  and all 17 are logged in E/inputs-opened.txt: cameras-scorer-v3.json,
+  cage-spec.json (anchors+crown), body-depth.npz, body-exact-sdf.npz,
+  body-verts.npz (acromion + ear-front measurement), station-frame.npz
+  (/tmp/station0b-run), landmarks.json + 3 target masks (hair-judge
+  target-set-back, sha-verified), scalp1 roots.npz, guide-spec.json,
+  roots-v2 + alt, 5 S4 scripts. Blender reads (guides.npz, Aisha GLB,
+  cameras) in E/blender-opened.txt.
+
+SAW: crown covered by construction (423 scalp1 roots tile the cap; front
+  crown passes 7.1/14.9); both face guards 0 by construction+gating;
+  part pinning holds by construction (crossing 0, departure proof in
+  grow.departure); clearance holds everywhere (inside = 0 on the best
+  start, min_sdf 2.70 mm) with projection doing the documented work
+  (3460 fall points moved, max 23.6 mm); Blender tubes read as coherent
+  long hair with a centre part in front, with the documented shelf/gap
+  defects in profile/back.
+  NOT TESTED: Quest/worn-headset rendering; IWSDK sidecar; MongoDB
+  persistence (no records written); cross-machine determinism (single
+  Apple M1 Max host); leave-one-view-out (skipped: gate not met);
+  denser root sets (423 of 14,155 used; swap path proven only);
+  hair-volume thickness beyond the 5.2 mm tube raster.

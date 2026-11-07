@@ -1,0 +1,19 @@
+{
+  "crown_top": {
+    "frac": 0.0,
+    "yellowPx": 0
+  },
+  "front": {
+    "frac": 0.0,
+    "yellowPx": 0
+  },
+  "gate": true,
+  "profile_90": {
+    "frac": 0.0,
+    "yellowPx": 0
+  },
+  "three_quarter": {
+    "frac": 0.0,
+    "yellowPx": 0
+  }
+}

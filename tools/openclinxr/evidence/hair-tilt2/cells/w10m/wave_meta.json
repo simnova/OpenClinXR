@@ -1,0 +1,51 @@
+{
+  "tag": "w10m",
+  "op": "zero-mean per-fibre wave (no root rotation)",
+  "params": {
+    "targetDeg": 10.0,
+    "weightsInOut": [
+      0.3,
+      0.7
+    ],
+    "waveLenMm": 80.0,
+    "secondLenMm": 34.78260869565218,
+    "seed": 2026101731,
+    "phaseFieldMm": 5.0,
+    "partProtectMm": 3.0,
+    "fadeInMm": 15.0,
+    "fadeOutMm": 20.0,
+    "source": "hair-real1 a1"
+  },
+  "wave": {
+    "targetDeg": 10.0,
+    "weights": {
+      "in": 0.3,
+      "out": 0.7,
+      "dirNorm": 0.7615773105863908
+    },
+    "amplitudesMm": {
+      "A1": 1.3711230535900996,
+      "A2": 0.6855615267950498,
+      "peakOutMm": 1.4396792062696044
+    },
+    "tangentDevDeg": {
+      "rms": 3.380028512180934,
+      "p95": 6.622098663297729,
+      "max": 167.11371012238476
+    },
+    "maxDispMm": {
+      "p50": 1.5052884553439414,
+      "p95": 1.56124874924423,
+      "max": 1.5663239483365945
+    },
+    "protectedFibres": 8949,
+    "seed": 2026101731,
+    "waveLenMm": 80.0
+  },
+  "endAngleDegPreRepair": {
+    "p50": 1.3218065283762925,
+    "p95": 4.722518441776912,
+    "max": 7.925031470000037
+  },
+  "partGapMm": 1.0999999940395355
+}

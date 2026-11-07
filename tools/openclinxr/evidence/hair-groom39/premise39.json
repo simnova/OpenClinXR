@@ -1,0 +1,64 @@
+{
+ "bandMm": 135.0,
+ "planes": {
+  "YF": -0.0462533,
+  "YB": -0.0907587,
+  "ZT": 1.5532659,
+  "ZL": 1.5082972,
+  "FRONT": "exists sample z in [ZL,ZT] with y > YF (anterior of ear front plane at ear height)",
+  "BEHIND": "exists sample z in [ZL,ZT] with y < YB (posterior of pinna back plane at ear height)",
+  "OVER": "no ear-height sample outside [YB,YF], and samples with y in [YB,YF] exist and all have z > ZT (above ear top across y span)",
+  "NONE": "no sample z in [ZL,ZT] (never reaches ear height)",
+  "OTHER": "escape, reason per guide"
+ },
+ "pairMaxDevMm": 0.0,
+ "directTransferAgree": "1366/1366",
+ "xpos": {
+  "childrenTotal": 134749,
+  "inBandChildren": 134749,
+  "mixedChildren": 34031,
+  "singleChildren": 100718,
+  "shellSegs": 2134,
+  "shellStrands": 1136,
+  "shellStrandsMixed": 423,
+  "shellStrandsSingle": 713,
+  "shellStrandsOutOfBand": 0
+ },
+ "xneg": {
+  "childrenTotal": 134731,
+  "inBandChildren": 134731,
+  "mixedChildren": 33996,
+  "singleChildren": 100735,
+  "shellSegs": 2043,
+  "shellStrands": 1036,
+  "shellStrandsMixed": 421,
+  "shellStrandsSingle": 615,
+  "shellStrandsOutOfBand": 3
+ },
+ "guideClasses": {
+  "FRONT": 1724,
+  "OVER": 302,
+  "NONE": 690,
+  "OTHER": 16
+ },
+ "otherGuides": {
+  "240": "ear-height samples inside shell x-range without segment hit (grazing)",
+  "291": "ear-height samples in-span but lateral of shell xmax (hugs outer ear)",
+  "375": "ear-height samples inside shell x-range without segment hit (grazing)",
+  "390": "ear-height samples inside shell x-range without segment hit (grazing)",
+  "754": "ear-height samples in-span but lateral of shell xmax (hugs outer ear)",
+  "758": "ear-height samples in-span but lateral of shell xmax (hugs outer ear)",
+  "1342": "ear-height samples inside shell x-range without segment hit (grazing)",
+  "1350": "ear-height samples inside shell x-range without segment hit (grazing)",
+  "1615": "ear-height samples inside shell x-range without segment hit (grazing)",
+  "1666": "ear-height samples in-span but lateral of shell xmax (hugs outer ear)",
+  "1750": "ear-height samples inside shell x-range without segment hit (grazing)",
+  "1765": "ear-height samples inside shell x-range without segment hit (grazing)",
+  "2129": "ear-height samples in-span but lateral of shell xmax (hugs outer ear)",
+  "2133": "ear-height samples in-span but lateral of shell xmax (hugs outer ear)",
+  "2717": "ear-height samples inside shell x-range without segment hit (grazing)",
+  "2725": "ear-height samples inside shell x-range without segment hit (grazing)"
+ },
+ "note": "xneg counts corrected by breakdown39 (midline guides classified via classify39; premise run left them UNCLASSIFIED). breakdown39.json authoritative.",
+ "verdictDraft": "PREMISE FALSE (see RESULT.txt)"
+}

@@ -1,0 +1,28 @@
+{
+ "method": "continuous relaxation of route2 discrete voxel paths: one cubic clamped B-spline per guide, least-squares fit to its own routed path with decaying data weight + curvature + eroded-hull + body-clearance penalties (route1 method, unchanged; route1 RESULT recommends no relax-spec change)",
+ "input": "hair-route2/relax-in/paths.npz (307 smooth-routed guides, route2 spec sha 33f3f9f0ebd13fe95db91b08d5c573bc2941cc8e0f4ff7b3a8b4bdcfe5038a1c). Carried without relaxation, route1-carry precedent (counted openly): 2 route-stage fallbacks (keep routed curve) + 50 unreachable (no curve; hull3 thin-shell/air-gap mechanism, see RESULT). Relax code path itself is route1-verbatim (input all-smooth assert holds).",
+ "spline": "cubic clamped uniform-knot B-spline; per-guide model selection inside 8-14 control points (length-based n = clip(round(L/30),8,14), then 14 on failure); root control point fixed at the scalp root; end free but accepted only inside its endpoint band",
+ "ladder": "per guide, first candidate passing BOTH max-turn 5mm <= 15 deg AND containment wins: (a) warm fit at w_curv=0.2, (b) curvature escalation 0.5/1.0/2.0/4.0/8.0, (c) cold restart from the routed init at 4x hull/body penalties, (d) escalation again; (c)-(d) repeat at nc=14",
+ "samples": "M=200 arc-uniform samples per guide",
+ "objective": "J = w_curv*sum||d2C||^2 + w_data*mean||S-R||^2 + w_end*||S_end-R_end||^2 + w_hull*mean(relu(3-hullSDF)^2) + w_rind*mean(relu(5-hullSDF)^2) + w_body*mean(relu(3-bodySDF)^2); penalties beyond the root leader only (first 3% of samples)",
+ "weights": {
+  "w_curv": 0.2,
+  "w_data_stages": [
+   50.0,
+   20.0,
+   8.0
+  ],
+  "w_end": 200.0,
+  "w_end_retry_scale": 10.0,
+  "w_hull": 10000.0,
+  "w_rind": 2000.0,
+  "w_body": 100000.0,
+  "hull_margin_mm": 3.0,
+  "rind_margin_mm": 5.0,
+  "body_margin_mm": 3.0,
+  "lbfgs_maxiter_per_stage": 120,
+  "penalty_retry_scale": 4.0
+ },
+ "accept": "route0 containment unchanged (routed arc beyond the first 8 mm inside hull occupancy, exact-SDF > 0, hullSDF >= 3.0 arc fraction >= 0.95, leader exact-SDF > -1 mm) plus root fixed and end inside its endpoint band (same x-sign rule with 2 mm excursion tolerance, z within [zmin-5, zmin+25], displacement <= 15 mm). Guides that fail after escalation keep the routed curve with status fallback (counted openly)",
+ "tube_r_mm": 3.0
+}

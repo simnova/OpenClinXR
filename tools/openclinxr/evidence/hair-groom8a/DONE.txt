@@ -1,0 +1,1 @@
+DONE hair-groom8a: guides-8a.npz + strands.npz + sheet.png + crops.png + RESULT.txt + honest GATES_PASS.txt; renders/score/gates/baseline on disk.

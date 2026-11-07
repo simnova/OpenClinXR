@@ -1,0 +1,66 @@
+hair-occl0: front-hem occlusion test — RESULT
+=====================================================
+Hypothesis: split0's INCONSISTENT verdict compares the FRONT mask's flat
+curtain hems (rows 666/675, shoulder height) with the profile/back hems
+(55-105 mm lower). Hair continuing down BEHIND the shoulders is hidden by
+the body in the front view, so the flat front "hem" is the body-occlusion
+edge, not where the hair ends.
+
+Method: 96 candidate 3D points projected with the pinned scorer-v3 front
+camera into hair-cage1/body-depth.npz (station0b bare body + garment,
+library topper excluded; render frame 1024). Point visible iff its
+camera-depth is >5 mm in front of the body-depth patch median (±2 px);
+else occluded. Occluder surface from unprojected hit point: neck
+(|x|<=0.06, z>=1.40), shoulder (z>=1.315), else chest.
+
+STEP 1 — per-point visibility from the front camera:
+  H1 profile-ray-side hems: L (-0.0772,0.0678,1.2908) OCCLUDED shoulder
+    (body 164.0 mm in front, projects rowT 857.5); R (0.1184,0.0508,1.3418)
+    OCCLUDED shoulder (112.9 mm, rowT 774.4).
+  Back-ray-side points: backR (-0.0357,0.1267,1.3535) OCCLUDED shoulder
+    (196.3 mm, rowT 730.5); backL (0.0373,0.1079,1.3505) OCCLUDED shoulder
+    (178.2 mm, rowT 740.8); backC L (-0.0029,0.1320,1.3528) OCCLUDED
+    shoulder (204.6 mm, rowT 730.2); backC R (-0.0030,0.1182,1.3494)
+    OCCLUDED shoulder (191.3 mm, rowT 739.6). All six deep inside the
+    torso silhouette (rows 730-858).
+  Sweep (hem X,Y down to z 1.25, dy -40/0/+40 mm; 90 pts): on-curtain
+  (dy=0) columns occlude within 10 mm below the hem on both sides —
+    L deepest-visible z 1.3991 -> rowT 666.0 (== hem row 666);
+      shallowest-occluded z 1.3891 -> rowT 683.3;
+    R deepest-visible z 1.3962 -> rowT 674.9 (== hem row 675);
+      shallowest-occluded z 1.3862 -> rowT 692.7.
+  Below-hem set (90 pts: 84 sweep + 6 H-positions): 89 occluded, 1 visible:
+    sweepL_dy+40_z1.389 (-0.1046,0.1173,1.3891) VISIBLE — no body along
+    ray, projects (colT 339.9, rowT 674.5). It sits 40 mm BEHIND the
+    curtain plane and peeks over the shoulder slope.
+
+STEP 2 — verdict + silhouette crossings:
+  VERDICT: NOT_EXPLAINED (rule: every below-hem point occluded; 89/90,
+    one visible listed above).
+  Materiality (for the orchestrator): the single exception is an
+  off-curtain-plane robustness probe (+40 mm, outside plausible curtain
+  thickness), 10 mm below hem level. On-plane, the occlusion edge
+  coincides EXACTLY with the hem rows (666.0 / 674.9), and every
+  profile/back-consistent position is buried 113-205 mm behind the
+  shoulder. Occlusion explains the front hem to within 10 mm / one
+  off-plane probe.
+  Body-silhouette torso-top rows at the curtain columns (target frame):
+    L col 331: spans [[682,1023]], torso-top 682 vs hem 666 (+16 rows);
+    R col 700: spans [[684,1023]], torso-top 684 vs hem 675 (+9 rows).
+  SDF cross-check (body-exact-sdf.npz ray-march, 2 mm steps): dy+40/z1.389
+  ray min +2.2 mm (genuine miss, not a raster gap); dy=0/z1.389 min
+  -0.4 mm (graze inside); hem points clear by 8-10 mm. Depth-buffer and
+  SDF agree on all 6 probed rays.
+
+INPUTS-OPENED (abspaths in E/occl.json "inputs"): split.json,
+cameras-scorer-v3.json, instruments.py, envelope.py, body-depth.npz,
+body-verts.npz, mask-front-v2.png. Hair-groom used read-only. No *.blend.
+
+SAW: all 6 profile/back hem positions occluded by the shoulder (113-205
+  mm of body in front); dy=0 occlusion edge projects exactly onto the
+  target hem rows (666.0/674.9 vs 666/675); torso-top silhouette sits
+  9-16 rows below the hem rows; SDF ray-march confirms the buffers.
+  NOT TESTED: Quest/worn-headset rendering; IWSDK sidecar; MongoDB
+  persistence (no records written); cross-machine determinism (single
+  Apple M1 Max host); fitted-cage rendering (target + body geometry
+  only); hair-volume thickness (curtain treated as columns + offsets).

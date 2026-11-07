@@ -1,0 +1,160 @@
+{
+ "cell": "B",
+ "stem": "guides13",
+ "brief": "hair-guides-13",
+ "gates": [
+  {
+   "gate": "G1",
+   "measured": "p95=0.0000 max=0.0000",
+   "bar": "mirror path p95<=0.5mm max<=2mm",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G2",
+   "measured": "n=588 roots=600 pts32=True nan=0 short=0 zero=0",
+   "bar": "guides>=95% roots and 32pts and 0NaN and 0 segs<2.5mm and 0 zero-length",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G3",
+   "measured": "behind-viol=0 front=0 tot=5625",
+   "bar": "0 pts in front of back surface below shoulder top and 0 in front of shoulder",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G4",
+   "measured": "inside=1 min=0.53mm",
+   "bar": "0 inside and min>=2mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G5",
+   "measured": "medz=1554.6mm (bar 1509.9..1599.9) nape=0.0102",
+   "bar": "lift-off median of back strands in crown-0.15..crown-0.06 and nape-edge<=10%",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G6",
+   "measured": "coverL=0.995 coverR=1.000 hull=40",
+   "bar": "pinna cover>=0.90 both and 0 guide points inside the ear hull",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G7",
+   "measured": "zig=447 (0.7602) p95=40.28 max=225.78",
+   "bar": "zigzag guides<=1% and turn p95<=20 deg/cm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G8",
+   "measured": "hembad=0/588 tipstd=3.48mm",
+   "bar": "tip z within 8mm of z_hem+jitter for 100% of non-dropped guides",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G9",
+   "measured": "face=0 forehead=76",
+   "bar": "0 points in front of the face and <=10 over forehead skin",
+   "verdict": "MISS"
+  }
+ ],
+ "z_hem": 1.2954059969558716,
+ "menton_z": 1.4492169969558715,
+ "crown_z": 1.6599169969558716,
+ "brow_z": 1.5716520547866821,
+ "nasion_z": 1.548233985900879,
+ "count": 588,
+ "n_roots": 600,
+ "dropped": 12,
+ "drop_face": {
+  "drop-short:nape": 2
+ },
+ "regs": {
+  "behind_ear": 239,
+  "above_ear": 108,
+  "forehead_temple": 181,
+  "nape": 60
+ },
+ "stops": {
+  "normal": 466,
+  "edge": 120,
+  "widest": 2
+ },
+ "p2": {
+  "nape": 372,
+  "above_ear": 62,
+  "forehead_temple": 155,
+  "trace-fail": 11
+ },
+ "c_mm": {
+  "min": 4.018565641095958,
+  "p50": 10.16692693125453,
+  "max": 19.987848227478374
+ },
+ "g1": {
+  "p50_mm": 1.8540288711020405e-06,
+  "p95_mm": 2.353734241475208e-06,
+  "max_mm": 3.441426823683114e-06,
+  "n_a": 588,
+  "n_b": 588,
+  "n_pair": 588
+ },
+ "g2": {
+  "short": 0,
+  "zero": 0,
+  "nan": 0,
+  "pts32": true
+ },
+ "g3": {
+  "behind_viol": 0,
+  "front": 0,
+  "tot": 5625
+ },
+ "g4": {
+  "inside": 1,
+  "min_mm": 0.525866747437617
+ },
+ "g5": {
+  "liftoff_med_z": 1.5546395106528699,
+  "nape_edge_frac": 0.01020408163265306
+ },
+ "g6": {
+  "cover": {
+   "L": 0.9950869236583523,
+   "R": 1.0
+  },
+  "hull_inside": 40
+ },
+ "g7": {
+  "zig": 447,
+  "zig_frac": 0.7602040816326531,
+  "p95": 40.284259886801856,
+  "max": 225.78092050321183
+ },
+ "g8": {
+  "hem_bad": 0,
+  "tipstd_mm": 3.4808388856196304
+ },
+ "g9": {
+  "face": 0,
+  "forehead": 76,
+  "canthus_x": 0.06045817655867047
+ },
+ "x1": {
+  "angle_ours": 33.178129044778785,
+  "angle_ts": 21.4,
+  "depth_mm": 58.31587535124407,
+  "depth_hh": 0.27677207095986744
+ },
+ "x2": {
+  "ratio_ours": 1.2443863342674248,
+  "ratio_ts": 1.26
+ },
+ "x3": {
+  "outer_ear_hh": 0.5177691000348036,
+  "gapL_hh": 0.08009894267312108,
+  "gapR_hh": 0.08057698308399366,
+  "gapL_ts": 0.2266,
+  "gapR_ts": 0.21
+ }
+}

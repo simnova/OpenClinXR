@@ -1,0 +1,33 @@
+{
+  "tag": "combo",
+  "base": "b9",
+  "chain": [
+    {
+      "cell": "c_cr1",
+      "dz": -0.007,
+      "zone": "0 at z<=1.60, full above 1.62"
+    },
+    {
+      "cell": "c_fo4",
+      "dxMax": 0.01,
+      "rootSelMm": 55.0,
+      "capRule": "min(10*band, rearMaxX(z)+0mm-|x|), floor 0",
+      "appliedP50Mm": 7.277816534042358,
+      "appliedP95Mm": 10.0
+    }
+  ],
+  "statsVsB9": {
+    "tangentRms": 2.557282268118752,
+    "tangentP95": 5.730481762586461,
+    "tangentMax": 90.0,
+    "dispP50": 6.999999999999895,
+    "dispP95": 9.999999999999995,
+    "dispMax": 9.999999999999995
+  },
+  "endAngleDegPreRepair": {
+    "p50": 0.0,
+    "p95": 6.857742235473743,
+    "max": 16.1554505967957
+  },
+  "partGapMm": 1.0999999940395355
+}

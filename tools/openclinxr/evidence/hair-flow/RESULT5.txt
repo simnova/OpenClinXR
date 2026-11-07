@@ -1,0 +1,17 @@
+RESULT::hair-flow-5
+CARRY::G1 632.8 [550,750]+2% PASS | G2 101 101 PASS | G3 2.79 <=3 PASS | G9 0.00 <=5 PASS | G10 100 100 PASS
+G5::A 68.20% | B 41.97% | fwd<=0.05:100% MISS(B)
+G6::A 67.42% | B 77.40% | >=95 MISS(B)
+G7::A 93.01% | B 99.78% | >=95 PASS
+G13::A 68.10% | B 99.07% | >=90 PASS
+G14::A fore=1 never=5/300 cross=0 | B fore=2 never=0/300 cross=0 | fore0+never<=2%+cross0 MISS(B)
+G15::A 18.36deg | B 8.33deg | p95<=25 PASS
+HIST-A::forehead=1 temple-to-ear=231 behind-ear=15 nape=48 never-left=5 turn_med=188.4 turn_p95=332.9
+HIST-B::forehead=2 temple-to-ear=124 behind-ear=111 nape=63 never-left=0 turn_med=131.8 turn_p95=381.0
+W::wmean=0.305 wmin=0.000 wmax=1.000
+SAW::TBD-view
+CAUSE(D1)::mode A flow=-grad(phi) points along true geodesics to the nearest side/nape EXIT; the front crown's nearest exit is the front-side hairline, so the field runs diagonally forward (G13 68.1%%, G6 67.4%%). Fault of the radial-exit construction, not of the solver. Mode B replaces the construction with lateral+gravity blend + no-forward rule.
+COMMIT::pending
+STILL::guides/children/hair renders (later cards)
+BRIEF_MISSING::none
+HARM::none

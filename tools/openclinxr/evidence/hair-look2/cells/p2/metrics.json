@@ -1,0 +1,122 @@
+{
+  "tag": "p2",
+  "params": {
+    "roughness": 0.3,
+    "melanin": 0.94,
+    "redness": 0.15,
+    "key_elev_deg": 40.161821774411294,
+    "key_azimuth_delta_deg": -31.689290105080133,
+    "key_energy": 121.20520887976956,
+    "key_size_m": 1.6326859138340684,
+    "fill_W": 83.34681733694208,
+    "fill_elev_deg": 15.0,
+    "root_dark": 0.05
+  },
+  "radiusMm": 0.05,
+  "densityFactor": 1,
+  "lightMode": "base",
+  "curveShape": {
+    "requested": null,
+    "changes": [],
+    "before": {
+      "scene.cycles.debug_use_hair_bvh": true,
+      "scene.cycles.filter_width": 1.5,
+      "scene.cycles.max_subdivisions": 12,
+      "scene.render.hair_subdiv": 0,
+      "scene.render.hair_type": "STRAND",
+      "scene.render.simplify_subdivision": 6,
+      "scene.render.simplify_subdivision_render": 6
+    },
+    "after": {
+      "scene.cycles.debug_use_hair_bvh": true,
+      "scene.cycles.filter_width": 1.5,
+      "scene.cycles.max_subdivisions": 12,
+      "scene.render.hair_subdiv": 0,
+      "scene.render.hair_type": "STRAND",
+      "scene.render.simplify_subdivision": 6,
+      "scene.render.simplify_subdivision_render": 6
+    }
+  },
+  "renders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p2/front.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p2/front-id.png"
+    },
+    "three_quarter": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p2/three_quarter.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p2/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p2/profile_90.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p2/profile_90-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p2/back.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p2/back-id.png"
+    }
+  },
+  "views": {
+    "front": {
+      "p50": 0.12738901960784313,
+      "p90": 0.2470227450980392,
+      "highlight": {
+        "hueDeg": 11.552351891170401,
+        "saturation": 0.08955223880597014,
+        "pixels": 8292
+      },
+      "iou": 0.45172529890304347,
+      "maskPx": 82907,
+      "partSide": 1.5367277478394696,
+      "faceP50": 0.7275615686274509
+    },
+    "three_quarter": {
+      "p50": 0.1856980392156863,
+      "p90": 0.269718431372549,
+      "highlight": {
+        "hueDeg": 10.638985349505264,
+        "saturation": 0.06493506493506489,
+        "pixels": 11499
+      },
+      "iou": 0.33166875869321844,
+      "maskPx": 113374
+    },
+    "profile_90": {
+      "p50": 0.20166745098039218,
+      "p90": 0.24563843137254898,
+      "highlight": {
+        "hueDeg": 11.28523393542502,
+        "saturation": 0.043478260869565064,
+        "pixels": 16451
+      },
+      "iou": 0.3543130140197772,
+      "maskPx": 161093
+    },
+    "back": {
+      "p50": 0.09466823529411764,
+      "p90": 0.25257568627450977,
+      "highlight": {
+        "hueDeg": 11.26852799908835,
+        "saturation": 0.19753086419753088,
+        "pixels": 24816
+      },
+      "iou": 0.8191679831490258,
+      "maskPx": 247784,
+      "backProfile": {
+        "bins": [
+          0.1612013572928951,
+          0.18346372104472294,
+          0.127128774434505,
+          0.10466953828440731,
+          0.0898527028004675,
+          0.07710260411483941,
+          0.057374581568164454,
+          0.03376616356192827,
+          0.03825324286171345,
+          0.035834474095238884
+        ],
+        "topMinusHemOverMean": 1.379709184250707,
+        "pixels": 140288
+      }
+    }
+  }
+}

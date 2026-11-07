@@ -1,0 +1,324 @@
+{
+  "areasPx": {
+    "back": 276720,
+    "front": 252096,
+    "profile_90": 157397
+  },
+  "collision": {
+    "belowBallMaxMm": 6.89,
+    "crownBallMaxMm": 21.07,
+    "maxDepthMm": 21.07,
+    "perFamily": {
+      "back": {
+        "belowBallMaxMm": 6.89,
+        "belowBallViol": 19,
+        "maxDepthMm": 6.91,
+        "minSdfMm": -10.91,
+        "samples": 504,
+        "violating": 25
+      },
+      "nape": {
+        "belowBallMaxMm": 0.0,
+        "belowBallViol": 0,
+        "maxDepthMm": 0.0,
+        "minSdfMm": 0.33,
+        "samples": 315,
+        "violating": 0
+      },
+      "part_L": {
+        "belowBallMaxMm": 0.0,
+        "belowBallViol": 0,
+        "maxDepthMm": 21.07,
+        "minSdfMm": -25.07,
+        "samples": 139,
+        "violating": 139
+      },
+      "part_R": {
+        "belowBallMaxMm": 0.0,
+        "belowBallViol": 0,
+        "maxDepthMm": 21.07,
+        "minSdfMm": -25.07,
+        "samples": 139,
+        "violating": 139
+      },
+      "side_L": {
+        "belowBallMaxMm": 4.62,
+        "belowBallViol": 19,
+        "maxDepthMm": 4.62,
+        "minSdfMm": -8.62,
+        "samples": 278,
+        "violating": 19
+      },
+      "side_R": {
+        "belowBallMaxMm": 4.62,
+        "belowBallViol": 19,
+        "maxDepthMm": 4.62,
+        "minSdfMm": -8.62,
+        "samples": 278,
+        "violating": 19
+      },
+      "temple_L": {
+        "belowBallMaxMm": 0.0,
+        "belowBallViol": 0,
+        "maxDepthMm": 0.0,
+        "minSdfMm": -2.48,
+        "samples": 400,
+        "violating": 0
+      },
+      "temple_R": {
+        "belowBallMaxMm": 0.0,
+        "belowBallViol": 0,
+        "maxDepthMm": 0.0,
+        "minSdfMm": -2.48,
+        "samples": 400,
+        "violating": 0
+      }
+    },
+    "tolMm": 4.0,
+    "violating": 341
+  },
+  "faceGuard": {
+    "back": {
+      "coveredPx": 0,
+      "guardPx": 0
+    },
+    "front": {
+      "coveredPx": 0,
+      "eyes": {
+        "coveredPx": 0,
+        "guardPx": 3087
+      },
+      "guardPx": 5712,
+      "mouth": {
+        "coveredPx": 0,
+        "guardPx": 2625
+      }
+    },
+    "profile_90": {
+      "coveredPx": 220,
+      "eyes": {
+        "coveredPx": 220,
+        "guardPx": 1368
+      },
+      "guardPx": 3024,
+      "mouth": {
+        "coveredPx": 0,
+        "guardPx": 1656
+      }
+    },
+    "totalCoveredPx": 220
+  },
+  "regional": {
+    "back": {
+      "crown": {
+        "excessMaxPx": 7.81,
+        "excessMeanPx": 4.04,
+        "excessN": 64,
+        "missMaxPx": 38.08,
+        "missMeanPx": 20.06,
+        "missN": 237
+      },
+      "face_opening": {
+        "excessMaxPx": 0.0,
+        "excessMeanPx": 0.0,
+        "excessN": 0,
+        "missMaxPx": 0.0,
+        "missMeanPx": 0.0,
+        "missN": 0
+      },
+      "hem": {
+        "excessMaxPx": 163.53,
+        "excessMeanPx": 112.6,
+        "excessN": 689,
+        "missMaxPx": 49.24,
+        "missMeanPx": 26.37,
+        "missN": 112
+      },
+      "side_curtain_L": {
+        "excessMaxPx": 33.24,
+        "excessMeanPx": 16.22,
+        "excessN": 287,
+        "missMaxPx": 25.0,
+        "missMeanPx": 6.85,
+        "missN": 193
+      },
+      "side_curtain_R": {
+        "excessMaxPx": 31.32,
+        "excessMeanPx": 19.47,
+        "excessN": 204,
+        "missMaxPx": 18.0,
+        "missMeanPx": 6.01,
+        "missN": 215
+      }
+    },
+    "front": {
+      "crown": {
+        "excessMaxPx": 0.0,
+        "excessMeanPx": 0.0,
+        "excessN": 0,
+        "missMaxPx": 40.0,
+        "missMeanPx": 27.92,
+        "missN": 314
+      },
+      "face_opening": {
+        "excessMaxPx": 0.0,
+        "excessMeanPx": 0.0,
+        "excessN": 0,
+        "missMaxPx": 0.0,
+        "missMeanPx": 0.0,
+        "missN": 0
+      },
+      "hem": {
+        "excessMaxPx": 243.42,
+        "excessMeanPx": 115.91,
+        "excessN": 1749,
+        "missMaxPx": 17.12,
+        "missMeanPx": 7.43,
+        "missN": 190
+      },
+      "side_curtain_L": {
+        "excessMaxPx": 13.0,
+        "excessMeanPx": 7.39,
+        "excessN": 177,
+        "missMaxPx": 13.0,
+        "missMeanPx": 7.66,
+        "missN": 180
+      },
+      "side_curtain_R": {
+        "excessMaxPx": 17.0,
+        "excessMeanPx": 9.16,
+        "excessN": 136,
+        "missMaxPx": 17.0,
+        "missMeanPx": 9.69,
+        "missN": 140
+      }
+    },
+    "profile_90": {
+      "crown": {
+        "excessMaxPx": 0.0,
+        "excessMeanPx": 0.0,
+        "excessN": 0,
+        "missMaxPx": 53.15,
+        "missMeanPx": 21.03,
+        "missN": 328
+      },
+      "face_opening": {
+        "excessMaxPx": 104.12,
+        "excessMeanPx": 78.48,
+        "excessN": 205,
+        "missMaxPx": 0.0,
+        "missMeanPx": 0.0,
+        "missN": 0
+      },
+      "hem": {
+        "excessMaxPx": 345.06,
+        "excessMeanPx": 145.52,
+        "excessN": 486,
+        "missMaxPx": 46.69,
+        "missMeanPx": 32.44,
+        "missN": 107
+      },
+      "side_curtain_L": {
+        "excessMaxPx": 252.03,
+        "excessMeanPx": 155.59,
+        "excessN": 411,
+        "missMaxPx": 0.0,
+        "missMeanPx": 0.0,
+        "missN": 0
+      },
+      "side_curtain_R": {
+        "excessMaxPx": 0.0,
+        "excessMeanPx": 0.0,
+        "excessN": 0,
+        "missMaxPx": 0.0,
+        "missMeanPx": 0.0,
+        "missN": 0
+      }
+    }
+  },
+  "specSha": "d5aa424b25dfcfc52ed7793c048211f5c67d3270cb6347daaf0fc03d99f92a09",
+  "splitHem": {
+    "back": {
+      "cageEndHeightMm": 1279.9,
+      "cageEndM": [
+        0.0,
+        0.0768,
+        1.2799
+      ],
+      "cageEndUMm": -130.0,
+      "hemPixel": [
+        870.0,
+        792.0
+      ],
+      "nBandPx": 2559,
+      "rayDir": [
+        -0.96423,
+        0.08411,
+        -0.25138
+      ],
+      "rayOriginM": [
+        0.7006,
+        0.0,
+        1.4936
+      ],
+      "rayToEndMm": 33.5
+    },
+    "curtain": {
+      "cageEndHeightMm": 1339.9,
+      "cageEndM": [
+        -0.1006,
+        -0.1142,
+        1.3399
+      ],
+      "cageEndUMm": 61.0,
+      "hemPixel": [
+        344.0,
+        414.5
+      ],
+      "nBandPx": 3512,
+      "rayDir": [
+        -0.98251,
+        -0.16249,
+        0.09091
+      ],
+      "rayOriginM": [
+        0.7006,
+        0.0,
+        1.4936
+      ],
+      "rayToEndMm": 227.3
+    },
+    "mentonCol": 375.2,
+    "postHeadCol": 826.3,
+    "rule": "anterior band [menton_col-120, menton_col+40], posterior band [posthead_col-40, posthead_col+120]; hem = median col of mask px in lowest 5 band rows"
+  },
+  "targetAreasPx": {
+    "back": 235860,
+    "front": 102503,
+    "profile_90": 159523
+  },
+  "values": {
+    "back_hem_drop": 380.0,
+    "back_post_sh": -110.0,
+    "back_w_hem": 150.0,
+    "back_w_top": 110.0,
+    "cap_span": 60.0,
+    "crown_lift": 10.0,
+    "curtain_ear_u": 60.0,
+    "curtain_front_sh": 46.0,
+    "curtain_hem_drop": 320.0,
+    "curtain_w_hem": 40.0,
+    "curtain_w_top": 44.0,
+    "nape_hem_drop": 340.0,
+    "nape_post_sh": -115.0,
+    "nape_width": 80.0,
+    "part_angle": 25.0,
+    "part_w_hem": 20.0,
+    "part_w_top": 24.0,
+    "side_hem_drop": 250.0,
+    "side_out_sh": 10.0,
+    "side_w_hem": 80.0,
+    "side_w_top": 70.0,
+    "thickness": 3.0
+  }
+}

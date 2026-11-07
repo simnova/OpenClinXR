@@ -1,0 +1,243 @@
+{
+ "tag": "nomask-mirror-v2",
+ "strands": "/Volumes/files/openclinxr-assets/store/hair-groom34/build-nomask/strands.npz",
+ "strandsSha256": "3e0f8b31f23da85e",
+ "sidesM": {
+  "xpos": {
+   "zmin": 1.5082972049713135,
+   "yfront": -0.04625330865383148,
+   "yback": -0.09075874090194702,
+   "xmin": 0.06155284866690636,
+   "xmax": 0.0807812511920929,
+   "nPinnaVerts": 168,
+   "provenance": "idx_earXpos mirrored across x=0; idx_earXneg ignored",
+   "sgn": 1.0
+  },
+  "xneg": {
+   "zmin": 1.5082972049713135,
+   "yfront": -0.04625330865383148,
+   "yback": -0.09075874090194702,
+   "xmin": 0.06155284866690636,
+   "xmax": 0.0807812511920929,
+   "nPinnaVerts": 168,
+   "provenance": "idx_earXpos mirrored across x=0; idx_earXneg ignored",
+   "sgn": -1.0
+  }
+ },
+ "perSide": {
+  "xpos": {
+   "shell": {
+    "nSegments": 70992,
+    "nStrands": 6881,
+    "exStrands": [
+     880,
+     886,
+     887,
+     888,
+     890,
+     895,
+     897,
+     898,
+     1420,
+     1421
+    ]
+   },
+   "column": {
+    "strands": 35,
+    "samples": 37,
+    "tips": 0,
+    "strands25mm": 35,
+    "samples25mm": 37,
+    "tips25mm": 0
+   }
+  },
+  "xneg": {
+   "shell": {
+    "nSegments": 64632,
+    "nStrands": 9942,
+    "exStrands": [
+     160,
+     161,
+     162,
+     163,
+     164,
+     165,
+     167,
+     168,
+     169,
+     171
+    ]
+   },
+   "column": {
+    "strands": 1907,
+    "samples": 12091,
+    "tips": 628,
+    "strands25mm": 1907,
+    "samples25mm": 12014,
+    "tips25mm": 628
+   }
+  }
+ },
+ "concha34": {
+  "front/xpos": 0,
+  "front/xneg": 8613,
+  "three_quarter/xpos": 0,
+  "three_quarter/xneg": 215,
+  "profile_90/xpos": 0,
+  "profile_90/xneg": 13329
+ },
+ "segmentsGt30": {
+  "nGt30mm": 2629,
+  "nNearHorizontal": 304,
+  "maxMm": 95.41
+ },
+ "insideBody": {
+  "nSge1Inside": 0
+ },
+ "boxesStd": {
+  "front/xpos": {
+   "rows": [
+    437.0,
+    495.4
+   ],
+   "cols": [
+    666.7,
+    678.2
+   ],
+   "intRows": [
+    437,
+    496
+   ],
+   "intCols": [
+    666,
+    679
+   ]
+  },
+  "front/xneg": {
+   "rows": [
+    437.0,
+    495.4
+   ],
+   "cols": [
+    345.8,
+    357.3
+   ],
+   "intRows": [
+    437,
+    496
+   ],
+   "intCols": [
+    345,
+    358
+   ]
+  },
+  "three_quarter/xpos": {
+   "rows": [
+    439.6,
+    500.3
+   ],
+   "cols": [
+    478.3,
+    552.6
+   ],
+   "intRows": [
+    439,
+    501
+   ],
+   "intCols": [
+    478,
+    553
+   ]
+  },
+  "three_quarter/xneg": {
+   "rows": [
+    441.3,
+    493.1
+   ],
+   "cols": [
+    274.5,
+    347.6
+   ],
+   "intRows": [
+    441,
+    494
+   ],
+   "intCols": [
+    274,
+    348
+   ]
+  },
+  "profile_90/xpos": {
+   "rows": [
+    438.1,
+    494.7
+   ],
+   "cols": [
+    306.7,
+    407.5
+   ],
+   "intRows": [
+    438,
+    495
+   ],
+   "intCols": [
+    306,
+    408
+   ]
+  },
+  "profile_90/xneg": {
+   "rows": [
+    444.2,
+    490.4
+   ],
+   "cols": [
+    344.6,
+    426.8
+   ],
+   "intRows": [
+    444,
+    491
+   ],
+   "intCols": [
+    344,
+    427
+   ]
+  },
+  "back/xpos": {
+   "rows": [
+    443.4,
+    491.0
+   ],
+   "cols": [
+    376.4,
+    384.1
+   ],
+   "intRows": [
+    443,
+    492
+   ],
+   "intCols": [
+    376,
+    385
+   ]
+  },
+  "back/xneg": {
+   "rows": [
+    443.4,
+    491.0
+   ],
+   "cols": [
+    639.9,
+    647.6
+   ],
+   "intRows": [
+    443,
+    492
+   ],
+   "intCols": [
+    639,
+    648
+   ]
+  }
+ }
+}

@@ -1,0 +1,81 @@
+HAIR CROWN 1 — CROWN SCALP EXPOSURE (part/crown orange lattice)
+Base = prof1 combo strands (69181) + look7 best COLOR params + rig1 rig block
++ Transmission 0.5 via score_tt adapter; score.py v3, 1024/64 + crown_top.
+Base reproduces count2 tt05 exactly (IoU f/p/b 0.7147/0.6952/0.7698).
+
+STEP 1 DIAGNOSIS (E/diagnose.png crops + E/diagnosis.json; stats E/diag_region_stats.json)
+Lattice regions from base pixels (lum>0.45, R-B>0.12, R>0.4 clustering):
+  FRONT rows 103-269 cols 399-623 (dense core rows 181-269); BACK rows 155-281 cols 475-547.
+Base ID over region: FRONT bare 52.0% / partial 12.3% / covered 35.7%;
+BACK bare 5.5% / partial 59.6% / covered 34.9%.
+Variants (geometry-identical; region orange fraction):
+  base 0.521/0.197 (front/back) | green-scalp 0.000/0.000 (green 0.645/0.805 in its place)
+  | hair-only 0.000/0.000 (region falls to background-dark 0.163/0.152)
+  | rim-off 0.519/0.177 (persists).
+VERDICT: SCALP, not lit roots. Green removes it, hair-only removes it, rim-off keeps it.
+Front = bare scalp between diverging part roots; back = thin hair over scalp (60% partial).
+hair-top1 BARE<=2% missed it because those strips are top-down crown_top projections near
+the apex; the lattice sits on the part/crown slope seen obliquely in front/back
+(front rows 103-269, back rows 155-281), outside the strips.
+
+STEP 2 CELLS (one change each; E/cells/*.npz; meta E/cell_meta.json; scores E/scores/*)
+  c_den   +50% duplicates (3583; 72764 total) in part band |x|<=4mm y<=apex+20mm, +40um x outward.
+          Needed repair: 2 shirt points projected (14um). Inside now 0.
+  c_slit  6571 near-part roots lean over slit, 1.2mm at root fading over first 12 pts.
+          Needed repair: 7589 root-segment points inside head projected out (max 0.69mm;
+          raw kept at cells/c_slit_raw.npz). Inside now 0.
+  c_lift  7166 part-band strands points[1:7].z 25% toward root z. Inside 0, no repair needed.
+  c_liner combo strands + dark cap liner at render time (E/score_liner.py; int1 scalp_patch
+          precedent: +20um cap copy, 0.022/0.009/0.005 diffuse, rough 0.72; R4-pass name
+          OCLX_body_mesh_scalp_liner; hidden during ID so ID stays hair-vs-scalp truth).
+End-angle p95: c_den 0.051, c_slit 0.040, c_lift 0.040 deg (ends untouched).
+
+STEP 2 SCORES (delta vs base; base IoU f/p/b 0.7147/0.6952/0.7698;
+ori f/3q/p/b 24.81/32.20/31.45/24.15; bands back 580x28.1; eye 0.6024 jaw 0.4365):
+  c_den:   dIoU +0.0012/-0.0002/-0.0019; dOri -0.24/+0.19/+0.04/+0.02; bands 580; eye 0.6024
+  c_slit:  dIoU +0.0008/-0.0003/+0.0000; dOri +0.50/-0.23/+0.07/+0.01; bands 580; eye 0.6046
+  c_lift:  dIoU -0.0028/-0.0011/-0.0004; dOri -0.17/+0.54/-0.38/+0.02; bands 579; eye 0.6024
+  c_liner: dIoU +0.0000/+0.0000/+0.0000; dOri +0.12/-0.10/-0.08/-0.22; bands 558; eye 0.6024
+Lattice-region lum/hue vs target (FRONT tgt 0.3219/25.9deg; BACK tgt 0.0790/30.9deg;
+target back bbox verified 100% hair by target mask — gap is real, not framing):
+  base front 0.5528/31.4 (+71.7%/+21%); back 0.3003/22.4 (+280%/-27%)
+  c_den front 0.5512 (+71.2%); back 0.3003 (unchanged — band misses back-crown roots)
+  c_slit front 0.5501 (+70.9%); back 0.3003 (same miss)
+  c_lift front 0.5526 (+71.6%); back 0.3003 (same miss)
+  c_liner front 0.4013/26.6 (+24.7%/+2.7%); back 0.1636/19.5 (+107%/-37%)
+  (front per-class lum: hair-covered 0.15, liner-scalp 0.63 vs bare-scalp 0.86;
+  back per-class: covered 0.13, partial-over-liner 0.17, liner-scalp 0.30 vs 0.70.)
+Crown-top cover 0-10/10-20/20-30/30-50: base .604/.506/.529/.795; c_den .613/.512/.534/.795;
+c_slit .483/.436/.514/.802 (cover DOWN — lean+repair spread strands off the strip);
+c_lift .748/.556/.581/.795 (cover UP but partSide 1.28->1.58, slit opened from top);
+c_liner same cover (liner hidden in ID), partSide 1.28->1.92 (sides darkened).
+
+STEP 3 KEEP (all-at-once rule):
+  (1) region lum+hue within 15% of target, both views: ALL FAIL.
+      Closest is c_liner front (+24.7% lum, +2.7% hue) but its back is +107%/-37%.
+      Strand cells move front region <=0.003 and back not at all.
+  (2) IoU not down >0.01: ALL PASS. (3) ori not worse >1deg: ALL PASS (worst +0.54).
+  (4) back comps >=493 (85% of 580): ALL PASS (558-580). (5) eye within 1pp: ALL PASS.
+  (6) inside 0: ALL PASS (Blender collider audit E/collider_audit.json + E/repair.json, verify 0).
+KEPT: none. REVERTED: c_den, c_slit, c_lift, c_liner.
+best = base by empty combination (E/best/ copies E/base/ bit-for-bit; provenance E/best_meta.json;
+no re-render: seeded deterministic renderer).
+  Best strands: tools/openclinxr/evidence/hair-prof1/cells/combo/strands.npz
+  Best material/rig: tools/openclinxr/evidence/hair-crown1/base_params.json
+  (look7 COLOR + rig1 camera-relative rig + lobe_T 0.5; score via score_tt, no liner)
+
+SAW: The orange is exposed scalp between part/crown roots — but scalp coverage alone
+cannot close this slice's 15% band. Two measured blockers: (a) the +40um duplicate
+offsets are subpixel (~0.08px at 2px/mm) so c_den covers nothing new — real density
+needs 0.3-1mm root spreads (int1 probe-B scale), and the part band must extend behind
+the apex to touch the back lattice; (b) the back 15% band is unreachable by coverage at
+all: even the covered-hair floor there (0.13) exceeds the band cap (0.091) against a
+0.079 dense-dark target — back-crown hair itself must go darker (lighting/material),
+which front photometrics (p50 on target) forbid globally. Productive next step the
+numbers point to: liner shade x0.75 (predicts front region ~0.31, in-band) + wide-spread
+front-band density, with back-crown darkness as a separate lighting/material slice.
+Look-sheet: E/look-sheet.png rows TS|base|best(=base); cols front, back, crown crops, crown_top.
+
+NOT TESTED: liner shades other than int1's (x0.75 prediction is arithmetic, no render);
+density spreads wider than 40um; back-crown root bands (y>apex); part-slit widths other
+than 1.2mm; perceptual (VLM) grading of the lattice; Quest/WebXR runtime appearance.

@@ -1,0 +1,955 @@
+{
+  "schemaVersion": 1,
+  "slice": "hair-scalp-1",
+  "guides": "tools/openclinxr/evidence/hair-guides6/guides6.npz",
+  "cap": "tools/openclinxr/evidence/hair-flow/cap-v4.npz",
+  "station": "tools/openclinxr/evidence/hair-scalp/scalp.py",
+  "landmarks": "103,583,512",
+  "ptC3Sha256": "ba151b15262cf983058c8a89b63c672eb0daab25708bfd00711f75c7abdd4a3b",
+  "shadeSteps": [
+    {
+      "melanin": 0.9,
+      "redness": 0.8,
+      "roughness": 0.25,
+      "radial": 0.3,
+      "coat": 0.0
+    },
+    {
+      "melanin": 0.93,
+      "redness": 0.8,
+      "roughness": 0.32,
+      "radial": 0.35,
+      "coat": 0.0
+    },
+    {
+      "melanin": 0.96,
+      "redness": 0.8,
+      "roughness": 0.4,
+      "radial": 0.35,
+      "coat": 0.0
+    }
+  ],
+  "shadeSearch": {
+    "base": {
+      "melanin": 0.8513293862342834,
+      "redness": 0.840287983417511,
+      "roughness": 0.14088048040866852,
+      "radial": 0.20000000298023224,
+      "coat": 0.0
+    },
+    "undertone": {
+      "attr": "OCLX_scalp_mask",
+      "mix": 0.65,
+      "rough": 0.9,
+      "rootColour": [
+        0.01751299947500229,
+        0.005762999877333641,
+        0.002059000078588724
+      ],
+      "skinMaterial": "mpfb_skin_peds_anxious_parent",
+      "footFaces": 984,
+      "footAreaCm2": 617.5540267363372,
+      "maskMean": 0.040806271459956626
+    },
+    "sha_is_pt_c3": true,
+    "steps": [
+      {
+        "step": 0,
+        "requested": {
+          "melanin": 0.9,
+          "redness": 0.8,
+          "roughness": 0.25,
+          "radial": 0.3,
+          "coat": 0.0
+        },
+        "readback": {
+          "melanin": 0.8999999761581421,
+          "redness": 0.800000011920929,
+          "roughness": 0.25,
+          "radial": 0.30000001192092896,
+          "coat": 0.0
+        },
+        "png": "tools/openclinxr/evidence/hair-scalp/shade-S0-front.png",
+        "id_png": "tools/openclinxr/evidence/hair-scalp/shade-S0-front-id.png",
+        "photo": {
+          "p10": 0.08873960784313725,
+          "p50": 0.16800470588235294,
+          "p90": 0.2904070588235294,
+          "RB": 1.3010414614323713,
+          "redness": 0.049349096719039726,
+          "partBand": 0.5004946790211685,
+          "partBandRatio": 2.9790515473515673,
+          "faceTopRow": 264,
+          "faceSkin": 0.6447900740921857,
+          "bgMean": 0.4846436176662071,
+          "forehead": 0.7929410788696999,
+          "hairPx": 155416
+        }
+      },
+      {
+        "step": 1,
+        "requested": {
+          "melanin": 0.93,
+          "redness": 0.8,
+          "roughness": 0.32,
+          "radial": 0.35,
+          "coat": 0.0
+        },
+        "readback": {
+          "melanin": 0.9300000071525574,
+          "redness": 0.800000011920929,
+          "roughness": 0.3199999928474426,
+          "radial": 0.3499999940395355,
+          "coat": 0.0
+        },
+        "png": "tools/openclinxr/evidence/hair-scalp/shade-S1-front.png",
+        "id_png": "tools/openclinxr/evidence/hair-scalp/shade-S1-front-id.png",
+        "photo": {
+          "p10": 0.10414274509803921,
+          "p50": 0.17726823529411762,
+          "p90": 0.27864235294117645,
+          "RB": 1.222137466646617,
+          "redness": 0.038477954947884446,
+          "partBand": 0.5005340448672136,
+          "partBandRatio": 2.82359692945972,
+          "faceTopRow": 264,
+          "faceSkin": 0.6442421564291668,
+          "bgMean": 0.484605775658701,
+          "forehead": 0.7931918325005114,
+          "hairPx": 155373
+        }
+      },
+      {
+        "step": 2,
+        "requested": {
+          "melanin": 0.96,
+          "redness": 0.8,
+          "roughness": 0.4,
+          "radial": 0.35,
+          "coat": 0.0
+        },
+        "readback": {
+          "melanin": 0.9599999785423279,
+          "redness": 0.800000011920929,
+          "roughness": 0.4000000059604645,
+          "radial": 0.3499999940395355,
+          "coat": 0.0
+        },
+        "png": "tools/openclinxr/evidence/hair-scalp/shade-S2-front.png",
+        "id_png": "tools/openclinxr/evidence/hair-scalp/shade-S2-front-id.png",
+        "photo": {
+          "p10": 0.11706039215686273,
+          "p50": 0.18202352941176472,
+          "p90": 0.2652101960784314,
+          "RB": 1.143832120073603,
+          "redness": 0.025859846446320667,
+          "partBand": 0.5003409362806706,
+          "partBandRatio": 2.748770655626745,
+          "faceTopRow": 264,
+          "faceSkin": 0.6440330623130082,
+          "bgMean": 0.4845858385799632,
+          "forehead": 0.793558840478069,
+          "hairPx": 155319
+        }
+      }
+    ]
+  },
+  "keySearch": {
+    "e0": 150.0,
+    "k0face": 0.6457419620101096,
+    "mix": 0.7,
+    "hair": {
+      "melanin": 0.93,
+      "redness": 0.85,
+      "roughness": 0.3,
+      "radial": 0.35,
+      "coat": 0.0
+    },
+    "evals": [
+      {
+        "elev": 30.0,
+        "efac": 0.6,
+        "energy": 90.0,
+        "p50": 0.16016156862745098,
+        "p90": 0.2511913725490196,
+        "faceSkin": 0.6039049836098708,
+        "obj": 1.1767851697926381,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e30-f0.6-front.png"
+      },
+      {
+        "elev": 30.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.1657866666666667,
+        "p90": 0.26270901960784315,
+        "faceSkin": 0.6259807857676796,
+        "obj": 1.256135822736638,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e30-f0.7-front.png"
+      },
+      {
+        "elev": 30.0,
+        "efac": 0.8,
+        "energy": 120.0,
+        "p50": 0.1719262745098039,
+        "p90": 0.27447372549019605,
+        "faceSkin": 0.6464694546604317,
+        "obj": 1.3363082581059578,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e30-f0.8-front.png"
+      },
+      {
+        "elev": 35.0,
+        "efac": 0.6,
+        "energy": 90.0,
+        "p50": 0.15457254901960782,
+        "p90": 0.24389882352941178,
+        "faceSkin": 0.579020089845887,
+        "obj": 1.1118040117881431,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f0.6-front.png"
+      },
+      {
+        "elev": 35.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.16074823529411764,
+        "p90": 0.2537286274509804,
+        "faceSkin": 0.5993872246501585,
+        "obj": 1.190491656209591,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f0.7-front.png"
+      },
+      {
+        "elev": 35.0,
+        "efac": 0.8,
+        "energy": 120.0,
+        "p50": 0.16550352941176472,
+        "p90": 0.2635427450980392,
+        "faceSkin": 0.6181839108341802,
+        "obj": 1.2575950667417621,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f0.8-front.png"
+      },
+      {
+        "elev": 40.0,
+        "efac": 0.6,
+        "energy": 90.0,
+        "p50": 0.1498172549019608,
+        "p90": 0.2372086274509804,
+        "faceSkin": 0.552029440170487,
+        "obj": 1.0527432603164488,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.6-front.png",
+        "allFeasible": true
+      },
+      {
+        "elev": 40.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.15457254901960782,
+        "p90": 0.24560235294117644,
+        "faceSkin": 0.5705659597446552,
+        "obj": 1.1187643067620283,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.7-front.png"
+      },
+      {
+        "elev": 40.0,
+        "efac": 0.8,
+        "energy": 120.0,
+        "p50": 0.16074823529411764,
+        "p90": 0.255076862745098,
+        "faceSkin": 0.587609422617538,
+        "obj": 1.1957912784646134,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.8-front.png"
+      },
+      {
+        "elev": 45.0,
+        "efac": 0.6,
+        "energy": 90.0,
+        "p50": 0.14392470588235295,
+        "p90": 0.2332870588235294,
+        "faceSkin": 0.5243253308140091,
+        "obj": 0.9959469654816395,
+        "feasible": false,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f0.6-front.png"
+      },
+      {
+        "elev": 45.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.1489835294117647,
+        "p90": 0.23992313725490194,
+        "faceSkin": 0.5401622705727895,
+        "obj": 1.0585413406743414,
+        "feasible": false,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f0.7-front.png"
+      },
+      {
+        "elev": 45.0,
+        "efac": 0.8,
+        "energy": 120.0,
+        "p50": 0.1534149019607843,
+        "p90": 0.2470227450980392,
+        "faceSkin": 0.554605015544123,
+        "obj": 1.1170134175746966,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f0.8-front.png"
+      }
+    ],
+    "best": {
+      "elev": 40.0,
+      "efac": 0.6,
+      "energy": 90.0,
+      "p50": 0.1498172549019608,
+      "p90": 0.2372086274509804,
+      "faceSkin": 0.552029440170487,
+      "obj": 1.0527432603164488,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.6-front.png",
+      "allFeasible": true
+    }
+  },
+  "keySearchAttempt1": {
+    "e0": 150.0,
+    "k0face": 0.6457419620101096,
+    "evals": [
+      {
+        "elev": 25.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.16717098039215686,
+        "p90": 0.2861662745098039,
+        "faceSkin": 0.6496654024017122,
+        "obj": 1.3499771157184715,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e25-f0.7-front.png"
+      },
+      {
+        "elev": 25.0,
+        "efac": 1.0,
+        "energy": 150.0,
+        "p50": 0.18369098039215687,
+        "p90": 0.319278431372549,
+        "faceSkin": 0.7088509831435857,
+        "obj": 1.553705410157531,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e25-f1-front.png"
+      },
+      {
+        "elev": 25.0,
+        "efac": 1.3,
+        "energy": 195.0,
+        "p50": 0.19850745098039216,
+        "p90": 0.34894745098039215,
+        "faceSkin": 0.7515433224968275,
+        "obj": 1.7201349475469292,
+        "feasible": false,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e25-f1.3-front.png"
+      },
+      {
+        "elev": 35.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.1554062745098039,
+        "p90": 0.2646235294117647,
+        "faceSkin": 0.6000333075194518,
+        "obj": 1.1987379569055614,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f0.7-front.png",
+        "allFeasible": true
+      },
+      {
+        "elev": 35.0,
+        "efac": 1.0,
+        "energy": 150.0,
+        "p50": 0.1691419607843137,
+        "p90": 0.29400941176470585,
+        "faceSkin": 0.6520477865775502,
+        "obj": 1.388737117679113,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f1-front.png"
+      },
+      {
+        "elev": 35.0,
+        "efac": 1.3,
+        "energy": 195.0,
+        "p50": 0.18035607843137255,
+        "p90": 0.31892313725490196,
+        "faceSkin": 0.6935345827106145,
+        "obj": 1.5342702061080808,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f1.3-front.png"
+      },
+      {
+        "elev": 45.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.14419215686274509,
+        "p90": 0.2506250980392156,
+        "faceSkin": 0.5404140960220125,
+        "obj": 1.0694919930131563,
+        "feasible": false,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f0.7-front.png"
+      },
+      {
+        "elev": 45.0,
+        "efac": 1.0,
+        "energy": 150.0,
+        "p50": 0.15624,
+        "p90": 0.2744376470588235,
+        "faceSkin": 0.5822809440728492,
+        "obj": 1.240504341835819,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f1-front.png"
+      },
+      {
+        "elev": 45.0,
+        "efac": 1.3,
+        "energy": 195.0,
+        "p50": 0.16633725490196077,
+        "p90": 0.297640627450981,
+        "faceSkin": 0.6170685814444097,
+        "obj": 1.3842911650742828,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f1.3-front.png"
+      },
+      {
+        "elev": 55.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.13271058823529414,
+        "p90": 0.23688941176470588,
+        "faceSkin": 0.481055540789443,
+        "obj": 0.9301511152250634,
+        "feasible": false,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e55-f0.7-front.png"
+      },
+      {
+        "elev": 55.0,
+        "efac": 1.0,
+        "energy": 150.0,
+        "p50": 0.14169098039215686,
+        "p90": 0.25316235294117645,
+        "faceSkin": 0.5083998461738168,
+        "obj": 1.0620664570668106,
+        "feasible": false,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e55-f1-front.png"
+      },
+      {
+        "elev": 55.0,
+        "efac": 1.3,
+        "energy": 195.0,
+        "p50": 0.14953411764705882,
+        "p90": 0.2716690196078431,
+        "faceSkin": 0.5323986218134875,
+        "obj": 1.1864960352390148,
+        "feasible": false,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e55-f1.3-front.png"
+      }
+    ],
+    "best": {
+      "elev": 35.0,
+      "efac": 0.7,
+      "energy": 105.0,
+      "p50": 0.1554062745098039,
+      "p90": 0.2646235294117647,
+      "faceSkin": 0.6000333075194518,
+      "obj": 1.1987379569055614,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f0.7-front.png",
+      "allFeasible": true
+    }
+  },
+  "keySearchAttempt2": {
+    "e0": 150.0,
+    "k0face": 0.6457419620101096,
+    "mix": 0.7,
+    "hair": {
+      "melanin": 0.93,
+      "redness": 0.85,
+      "roughness": 0.3,
+      "radial": 0.35,
+      "coat": 0.0
+    },
+    "evals": [
+      {
+        "elev": 30.0,
+        "efac": 0.6,
+        "energy": 90.0,
+        "p50": 0.16016156862745098,
+        "p90": 0.2511913725490196,
+        "faceSkin": 0.6039049836098708,
+        "obj": 1.1767851697926381,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e30-f0.6-front.png"
+      },
+      {
+        "elev": 30.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.1657866666666667,
+        "p90": 0.26270901960784315,
+        "faceSkin": 0.6259807857676796,
+        "obj": 1.256135822736638,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e30-f0.7-front.png"
+      },
+      {
+        "elev": 30.0,
+        "efac": 0.8,
+        "energy": 120.0,
+        "p50": 0.1719262745098039,
+        "p90": 0.27447372549019605,
+        "faceSkin": 0.6464694546604317,
+        "obj": 1.3363082581059578,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e30-f0.8-front.png"
+      },
+      {
+        "elev": 35.0,
+        "efac": 0.6,
+        "energy": 90.0,
+        "p50": 0.15457254901960782,
+        "p90": 0.24389882352941178,
+        "faceSkin": 0.579020089845887,
+        "obj": 1.1118040117881431,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f0.6-front.png"
+      },
+      {
+        "elev": 35.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.16074823529411764,
+        "p90": 0.2537286274509804,
+        "faceSkin": 0.5993872246501585,
+        "obj": 1.190491656209591,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f0.7-front.png"
+      },
+      {
+        "elev": 35.0,
+        "efac": 0.8,
+        "energy": 120.0,
+        "p50": 0.16550352941176472,
+        "p90": 0.2635427450980392,
+        "faceSkin": 0.6181839108341802,
+        "obj": 1.2575950667417621,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e35-f0.8-front.png"
+      },
+      {
+        "elev": 40.0,
+        "efac": 0.6,
+        "energy": 90.0,
+        "p50": 0.1498172549019608,
+        "p90": 0.2372086274509804,
+        "faceSkin": 0.552029440170487,
+        "obj": 1.0527432603164488,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.6-front.png",
+        "allFeasible": true
+      },
+      {
+        "elev": 40.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.15457254901960782,
+        "p90": 0.24560235294117644,
+        "faceSkin": 0.5705659597446552,
+        "obj": 1.1187643067620283,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.7-front.png"
+      },
+      {
+        "elev": 40.0,
+        "efac": 0.8,
+        "energy": 120.0,
+        "p50": 0.16074823529411764,
+        "p90": 0.255076862745098,
+        "faceSkin": 0.587609422617538,
+        "obj": 1.1957912784646134,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.8-front.png"
+      },
+      {
+        "elev": 45.0,
+        "efac": 0.6,
+        "energy": 90.0,
+        "p50": 0.14392470588235295,
+        "p90": 0.2332870588235294,
+        "faceSkin": 0.5243253308140091,
+        "obj": 0.9959469654816395,
+        "feasible": false,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f0.6-front.png"
+      },
+      {
+        "elev": 45.0,
+        "efac": 0.7,
+        "energy": 105.0,
+        "p50": 0.1489835294117647,
+        "p90": 0.23992313725490194,
+        "faceSkin": 0.5401622705727895,
+        "obj": 1.0585413406743414,
+        "feasible": false,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f0.7-front.png"
+      },
+      {
+        "elev": 45.0,
+        "efac": 0.8,
+        "energy": 120.0,
+        "p50": 0.1534149019607843,
+        "p90": 0.2470227450980392,
+        "faceSkin": 0.554605015544123,
+        "obj": 1.1170134175746966,
+        "feasible": true,
+        "png": "tools/openclinxr/evidence/hair-scalp/key-e45-f0.8-front.png"
+      }
+    ],
+    "best": {
+      "elev": 40.0,
+      "efac": 0.6,
+      "energy": 90.0,
+      "p50": 0.1498172549019608,
+      "p90": 0.2372086274509804,
+      "faceSkin": 0.552029440170487,
+      "obj": 1.0527432603164488,
+      "feasible": true,
+      "png": "tools/openclinxr/evidence/hair-scalp/key-e40-f0.6-front.png",
+      "allFeasible": true
+    }
+  },
+  "cells": {
+    "K0": {
+      "undertone": false,
+      "hair": {
+        "melanin": 0.8513293862342834,
+        "redness": 0.840287983417511,
+        "roughness": 0.14088048040866852,
+        "radial": 0.20000000298023224,
+        "coat": 0.0
+      },
+      "hairRequested": {},
+      "undertoneRec": null,
+      "key": null,
+      "keyRequested": {},
+      "requested": 50000,
+      "evaluatedCurveCount": 50570,
+      "pointsPerCurve": 32,
+      "nanCount": 0,
+      "sha256": "ba151b15262cf983058c8a89b63c672eb0daab25708bfd00711f75c7abdd4a3b",
+      "sha256_twice_equal": true,
+      "crossings": 0,
+      "partPx": 27,
+      "iou": 0.6183327436518521,
+      "widthRms": 0.22190882595504768,
+      "judgeShow": 0.0009458749343142406,
+      "idShow": 0.02869084875343933,
+      "idShowRegion": 47611,
+      "photo": {
+        "p10": 0.0674643137254902,
+        "p50": 0.14891137254901962,
+        "p90": 0.31500156862745093,
+        "RB": 1.4738068603776955,
+        "redness": 0.07039830860021981,
+        "partBand": 0.7213584855877834,
+        "partBandRatio": 4.844213529428868,
+        "faceTopRow": 264,
+        "faceSkin": 0.6457419620101096,
+        "bgMean": 0.4846486424823836,
+        "forehead": 0.7944600800677948,
+        "hairPx": 155416
+      },
+      "renders": {
+        "front": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK0/front.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK0/front-id.png"
+        },
+        "three_quarter": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK0/three_quarter.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK0/three_quarter-id.png"
+        },
+        "profile_90": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK0/profile_90.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK0/profile_90-id.png"
+        },
+        "crown_top": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK0/crown_top.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK0/crown_top-id.png"
+        }
+      }
+    },
+    "K1": {
+      "undertone": true,
+      "hair": {
+        "melanin": 0.8513293862342834,
+        "redness": 0.840287983417511,
+        "roughness": 0.14088048040866852,
+        "radial": 0.20000000298023224,
+        "coat": 0.0
+      },
+      "hairRequested": {},
+      "undertoneRec": {
+        "attr": "OCLX_scalp_mask",
+        "mix": 0.65,
+        "rough": 0.9,
+        "rootColour": [
+          0.01751299947500229,
+          0.005762999877333641,
+          0.002059000078588724
+        ],
+        "skinMaterial": "mpfb_skin_peds_anxious_parent",
+        "footFaces": 984,
+        "footAreaCm2": 617.5540267363372,
+        "maskMean": 0.040806271459956626
+      },
+      "key": null,
+      "keyRequested": {},
+      "requested": 50000,
+      "evaluatedCurveCount": 50570,
+      "pointsPerCurve": 32,
+      "nanCount": 0,
+      "sha256": "ba151b15262cf983058c8a89b63c672eb0daab25708bfd00711f75c7abdd4a3b",
+      "sha256_twice_equal": true,
+      "crossings": 0,
+      "partPx": 27,
+      "iou": 0.6183327436518521,
+      "widthRms": 0.22190882595504768,
+      "judgeShow": 0.0009458749343142406,
+      "idShow": 0.02869084875343933,
+      "idShowRegion": 47611,
+      "photo": {
+        "p10": 0.0674643137254902,
+        "p50": 0.14644627450980394,
+        "p90": 0.3116823529411764,
+        "RB": 1.4589352121799446,
+        "redness": 0.06786209207520968,
+        "partBand": 0.49877870458447304,
+        "partBandRatio": 3.4058818242664275,
+        "faceTopRow": 264,
+        "faceSkin": 0.6454218992858762,
+        "bgMean": 0.48464971595435047,
+        "forehead": 0.7932863247713392,
+        "hairPx": 155416
+      },
+      "renders": {
+        "front": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK1/front.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK1/front-id.png"
+        },
+        "three_quarter": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK1/three_quarter.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK1/three_quarter-id.png"
+        },
+        "profile_90": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK1/profile_90.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK1/profile_90-id.png"
+        },
+        "crown_top": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK1/crown_top.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK1/crown_top-id.png"
+        }
+      }
+    },
+    "K2": {
+      "undertone": true,
+      "hair": {
+        "melanin": 0.8999999761581421,
+        "redness": 0.800000011920929,
+        "roughness": 0.25,
+        "radial": 0.30000001192092896,
+        "coat": 0.0
+      },
+      "hairRequested": {
+        "melanin": 0.9,
+        "redness": 0.8,
+        "roughness": 0.25,
+        "radial": 0.3,
+        "coat": 0.0
+      },
+      "undertoneRec": {
+        "attr": "OCLX_scalp_mask",
+        "mix": 0.65,
+        "rough": 0.9,
+        "rootColour": [
+          0.01751299947500229,
+          0.005762999877333641,
+          0.002059000078588724
+        ],
+        "skinMaterial": "mpfb_skin_peds_anxious_parent",
+        "footFaces": 984,
+        "footAreaCm2": 617.5540267363372,
+        "maskMean": 0.040806271459956626
+      },
+      "key": null,
+      "keyRequested": {},
+      "requested": 50000,
+      "evaluatedCurveCount": 50570,
+      "pointsPerCurve": 32,
+      "nanCount": 0,
+      "sha256": "ba151b15262cf983058c8a89b63c672eb0daab25708bfd00711f75c7abdd4a3b",
+      "sha256_twice_equal": true,
+      "crossings": 0,
+      "partPx": 27,
+      "iou": 0.6183327436518521,
+      "widthRms": 0.22190882595504768,
+      "judgeShow": 0.0009458749343142406,
+      "idShow": 0.02869084875343933,
+      "idShowRegion": 47611,
+      "photo": {
+        "p10": 0.08873960784313725,
+        "p50": 0.16800470588235294,
+        "p90": 0.2904070588235294,
+        "RB": 1.301043171131877,
+        "redness": 0.04934932381353219,
+        "partBand": 0.5004961439825197,
+        "partBandRatio": 2.979060267115359,
+        "faceTopRow": 264,
+        "faceSkin": 0.6447901707605314,
+        "bgMean": 0.48464370660998785,
+        "forehead": 0.7929410788696999,
+        "hairPx": 155416
+      },
+      "renders": {
+        "front": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK2/front.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK2/front-id.png"
+        },
+        "three_quarter": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK2/three_quarter.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK2/three_quarter-id.png"
+        },
+        "profile_90": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK2/profile_90.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK2/profile_90-id.png"
+        },
+        "crown_top": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK2/crown_top.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK2/crown_top-id.png"
+        }
+      }
+    },
+    "K3": {
+      "undertone": true,
+      "hair": {
+        "melanin": 0.8999999761581421,
+        "redness": 0.800000011920929,
+        "roughness": 0.25,
+        "radial": 0.30000001192092896,
+        "coat": 0.0
+      },
+      "hairRequested": {
+        "melanin": 0.9,
+        "redness": 0.8,
+        "roughness": 0.25,
+        "radial": 0.3,
+        "coat": 0.0
+      },
+      "undertoneRec": {
+        "attr": "OCLX_scalp_mask",
+        "mix": 0.7,
+        "rough": 0.9,
+        "rootColour": [
+          0.01751299947500229,
+          0.005762999877333641,
+          0.002059000078588724
+        ],
+        "skinMaterial": "mpfb_skin_peds_anxious_parent",
+        "footFaces": 984,
+        "footAreaCm2": 617.5540267363372,
+        "maskMean": 0.040806271459956626
+      },
+      "key": {
+        "elev_deg": 35.0,
+        "energy": 100.0,
+        "key_z": 2.8186395168304443
+      },
+      "keyRequested": {
+        "elev_deg": 35.0,
+        "energy": 100.0
+      },
+      "requested": 50000,
+      "evaluatedCurveCount": 50570,
+      "pointsPerCurve": 32,
+      "nanCount": 0,
+      "sha256": "ba151b15262cf983058c8a89b63c672eb0daab25708bfd00711f75c7abdd4a3b",
+      "sha256_twice_equal": true,
+      "crossings": 0,
+      "partPx": 27,
+      "iou": 0.6183327436518521,
+      "widthRms": 0.22190882595504768,
+      "judgeShow": 0.0009458749343142406,
+      "idShow": 0.02869084875343933,
+      "idShowRegion": 47611,
+      "photo": {
+        "p10": 0.08256392156862745,
+        "p50": 0.1540219607843137,
+        "p90": 0.2604549019607843,
+        "RB": 1.3079207469334166,
+        "redness": 0.04617784829482313,
+        "partBand": 0.42265200949588044,
+        "partBandRatio": 2.7441022523258596,
+        "faceTopRow": 264,
+        "faceSkin": 0.5936261832075751,
+        "bgMean": 0.46799599789368884,
+        "forehead": 0.7280225183366938,
+        "hairPx": 155416
+      },
+      "renders": {
+        "front": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK3/front.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK3/front-id.png"
+        },
+        "three_quarter": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK3/three_quarter.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK3/three_quarter-id.png"
+        },
+        "profile_90": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK3/profile_90.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK3/profile_90-id.png"
+        },
+        "crown_top": {
+          "png": "tools/openclinxr/evidence/hair-scalp/cellK3/crown_top.png",
+          "id_png": "tools/openclinxr/evidence/hair-scalp/cellK3/crown_top-id.png"
+        }
+      }
+    }
+  },
+  "bestCell": "K3",
+  "gates": {
+    "G1": {
+      "measured": "K0:match K1:match K2:match K3:match",
+      "bar": "child-array sha256 equals PT C3 in every cell",
+      "status": "PASS"
+    },
+    "G2": {
+      "measured": "band ratio 2.744 part 27 px",
+      "bar": "part band <= 1.6 x hair p50 and part px <= 27",
+      "status": "MISS"
+    },
+    "G3": {
+      "measured": "p50 0.1540 p90 0.2605 RB 1.308 red 0.04618 (K0 red 0.07040)",
+      "bar": "p50 in [0.06,0.10], p90 in [0.11,0.20], RB in [1.3,1.7], red <= 0.6xK0",
+      "status": "MISS"
+    },
+    "G4": {
+      "measured": "face 0.5936 vs K0 0.6457 bg 0.4680 vs K0 0.4846",
+      "bar": "face within +-15% of K0, bg within +-10% of K0",
+      "status": "PASS"
+    },
+    "G5": {
+      "measured": "IoU 0.6183 ID show 0.0287",
+      "bar": "IoU >= 0.608, ID show-through <= 3.2%",
+      "status": "PASS"
+    },
+    "G6": {
+      "measured": "forehead 0.7280 vs K0 0.7945",
+      "bar": "forehead 5-15mm outside hairline within +-10% of K0",
+      "status": "PASS"
+    }
+  }
+}

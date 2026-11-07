@@ -1,0 +1,27 @@
+{
+ "box": "groom10diag back-knot rows 150-420 cols 512-765 render->target judge-v6",
+ "targetBox": [
+  124,
+  406,
+  513,
+  777
+ ],
+ "r05": {
+  "sigma2": 0.5185,
+  "sigma4": 0.4332,
+  "nHairPx": 35631,
+  "renderSha": "08d17e8d1001982c0d507f4ca221df7685a8d6f177ce4654e8b66be841e17c74"
+ },
+ "r10": {
+  "sigma2": 0.5456,
+  "sigma4": 0.4435,
+  "nHairPx": 36383,
+  "renderSha": "6daba1ce9fe7b68c50b873eff7969bbafe81fe4eb13a06f477b6764ff1990889"
+ },
+ "r20": {
+  "sigma2": 0.5813,
+  "sigma4": 0.4706,
+  "nHairPx": 36408,
+  "renderSha": "89d507a13a067b2d6562d6fe8da9af4a21711421d0f84148aca93d981fd48ecc"
+ }
+}

@@ -1,0 +1,3 @@
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-cage0/default-cage.npz
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json

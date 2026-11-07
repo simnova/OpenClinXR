@@ -1,0 +1,29 @@
+{
+ "method": "continuous relaxation of route0 discrete voxel paths: one cubic clamped B-spline per guide, least-squares fit to its own routed path with decaying data weight (guides, not pins) + curvature + eroded-hull + body-clearance penalties",
+ "input": "hair-route0/paths.npz (359 routed voxel paths, route0 spec sha db7706df6109a5b3895828bcf84625cfed7ada0f1f424d395ba20d82bf04a9de)",
+ "spline": "cubic clamped uniform-knot B-spline; per-guide model selection inside 8-14 control points (length-based n = clip(round(L/30),8,14), then 14 on failure); root control point fixed at the scalp root; end control point free but accepted only inside its endpoint band (same x-sign rule as route0, z within [zmin-5, zmin+25] of its sector band, end displacement <= 15 mm from the routed end)",
+ "ladder": "per guide, first candidate passing BOTH max-turn 5mm <= 15 deg AND containment wins: (a) warm fit at w_curv=0.2, (b) curvature escalation 0.5/1.0/2.0/4.0/8.0, (c) cold restart from the routed init at 4x hull/body penalties, (d) escalation again; (c)-(d) repeat at nc=14. Stiffer fits land in smoother basins that thread narrow corridors (measured: guide 23 fails warm at hull-frac 0.944-0.949 and passes cold4x/nc14/wc2.0 with turn 5.4; guide 8 root-overshoot kink needs wc4.0 for turn 13.6).",
+ "samples": "M=200 arc-uniform samples per guide for data + penalty evaluation",
+ "objective": "J = w_curv*sum||d2C||^2 + w_data*mean||S-R||^2 + w_end*||S_end-R_end||^2 + w_hull*mean(relu(3-hullSDF)^2) + w_rind*mean(relu(5-hullSDF)^2) + w_body*mean(relu(3-bodySDF)^2); d2C = second differences of free control points (integrated squared curvature proxy); hullSDF = occupancy distance-transform inside-minus-outside (2 mm grid, trilinear); bodySDF = cage exact SDF (trilinear); hull/body penalties evaluated beyond the root leader only (first 3% of samples); the end anchor keeps the free end control point inside its endpoint band; the rind term (same field, margin 5, small weight) is route0's bndterm carried into continuous form: it enters at the cold retry (not the base fit: in the base fit it cost easy guides 2-4 deg of turn margin) and steers corner-cutting inward before the hard 3 mm floor is reached",
+ "weights": {
+  "w_curv": 0.2,
+  "w_data_stages": [
+   50.0,
+   20.0,
+   8.0
+  ],
+  "w_end": 200.0,
+  "w_end_retry_scale": 10.0,
+  "w_hull": 10000.0,
+  "w_rind": 2000.0,
+  "w_body": 100000.0,
+  "hull_margin_mm": 3.0,
+  "rind_margin_mm": 5.0,
+  "body_margin_mm": 3.0,
+  "lbfgs_maxiter_per_stage": 120,
+  "penalty_retry_scale": 4.0
+ },
+ "weight_note": "w_data decays 50 -> 20 -> 8 across three warm-started L-BFGS-B stages (maxiter 120 each): early stages pull the spline onto the routed corridor, the final stage (w_data=8) lets curvature + clearance shape the path. w_curv starts 0.2 and escalates per guide (0.5, 1.0, 2.0) only while max-turn-5mm > 15 deg. w_body 10x w_hull because body penetration is the hard veto. Calibration: w_hull=500 / w_body=5000 gave 39% marginal containment fallbacks; 2000/20000 still left hull-frac 0.91-0.94, body-min 2.7-2.9, plus free-end drift (end-sign flips, end-z slab exits). So penalties went to 10000/100000 (mean-diluted local dips of 0.1-0.5 mm need stiffness, not guidance), a w_end=200 tip anchor was added to hold ends in-band, and failing guides are refit once at 4x penalties. Two stronger repairs were tried and dropped: post-hoc local re-pinning of violating spans reintroduced kinks (turn 19-45 deg), corridor-aware pre-masking (x30 data weight where the routed path runs within 4 mm of a margin) traded smoothness for containment globally (turn up to 43 deg), entry data taper freed the attachment kink but cut through the rind, leader reconstruction (straight root-to-mouth entry) ran away (deviation 19-28 mm), and raising final data 8->16 ate the smooth- ness margin of easy guides (turn 13.8-14.6) while fixing 1/5 hard ones. The ladder above replaces all of them: model selection over (nc, penalty scale, w_curv) with the dual pass criterion, plus a w_rind term (margin 5, route0 bndterm in continuous form) that fixed boundary-grazer exits at warm level (guides 16/67 pass with turn ~11), plus a x10 end-anchor retry for end-sign/slab exits. The >= 3 mm body margin therefore lives in the penalty + report; accept keeps route0 thresholds. Weights frozen in this spec before the run; sha asserted by every step.",
+ "accept": "route0 containment unchanged (routed arc beyond the first 8 mm inside hull occupancy, exact-SDF > 0, hullSDF >= 3.0 arc fraction >= 0.95, leader exact-SDF > -1 mm) plus root fixed and end inside its endpoint band (same x-sign rule with route0's 2 mm excursion tolerance: opposite-side tip excursions <= 2 mm are midline-voxel dust, not part crossings; all five route0 midline-tip guides route to x=0.00 voxels, z within [zmin-5, zmin+25], displacement <= 15 mm). The 3.0 mm body margin lives in the penalty and in the reported body-clearance distribution, not in accept: calibration showed strict min-body >= 3.0 forcing either containment zigzags or smoothness loss in narrow corridors, while the card gates GATES_PASS on smoothness + flow + route0 routing gates. Guides that fail after escalation keep the route0 curve with status fallback (counted, breaks smoothness gates openly rather than silently)",
+ "tube_r_mm": 3.0
+}

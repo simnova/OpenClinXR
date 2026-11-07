@@ -1,0 +1,1374 @@
+{
+  "schemaVersion": 1,
+  "landmarks": "landmarks.json",
+  "best": "e4",
+  "rows": [
+    {
+      "tag": "b5",
+      "front": 0.6612757573269846,
+      "eroded": 0.48485703062838037,
+      "profile": 0.6868413218219708,
+      "back": 0.7405915815816868,
+      "frontTable": [
+        {
+          "row": 190,
+          "rawTsMm": 2.65,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 3.1074108818011257,
+          "ours": {
+            "innerL": 8.779166666666667,
+            "innerR": 8.779166666666667,
+            "outerL": 65.40479166666667,
+            "outerR": 65.84375
+          },
+          "target": {
+            "innerL": 2.63375,
+            "innerR": 2.63375,
+            "outerL": 54.43083333333333,
+            "outerR": 55.30875
+          }
+        },
+        {
+          "row": 244,
+          "rawTsMm": 34.6,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 40.572232645403375,
+          "ours": {
+            "innerL": 39.06729166666667,
+            "innerR": 39.06729166666667,
+            "outerL": 74.62291666666667,
+            "outerR": 75.50083333333333
+          },
+          "target": {
+            "innerL": 33.36083333333333,
+            "innerR": 35.99458333333334,
+            "outerL": 68.03854166666667,
+            "outerR": 69.35541666666667
+          }
+        },
+        {
+          "row": 298,
+          "rawTsMm": 44.25,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 51.88789868667917,
+          "ours": {
+            "innerL": 53.55291666666667,
+            "innerR": 53.113958333333336,
+            "outerL": 79.0125,
+            "outerR": 79.45145833333333
+          },
+          "target": {
+            "innerL": 43.456875,
+            "innerR": 45.21270833333333,
+            "outerL": 75.93979166666668,
+            "outerR": 77.695625
+          }
+        },
+        {
+          "row": 352,
+          "rawTsMm": 47.55,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 55.75750469043152,
+          "ours": {
+            "innerL": 60.13729166666667,
+            "innerR": 60.13729166666667,
+            "outerL": 81.64625000000001,
+            "outerR": 82.52416666666666
+          },
+          "target": {
+            "innerL": 48.724375,
+            "innerR": 46.529583333333335,
+            "outerL": 81.20729166666666,
+            "outerR": 83.40208333333334
+          }
+        },
+        {
+          "row": 406,
+          "rawTsMm": 53.2,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 62.38273921200751,
+          "ours": {
+            "innerL": 62.77104166666667,
+            "innerR": 63.21,
+            "outerL": 93.498125,
+            "outerR": 90.864375
+          },
+          "target": {
+            "innerL": 51.79708333333333,
+            "innerR": 54.869791666666664,
+            "outerL": 84.71895833333333,
+            "outerR": 87.35270833333334
+          }
+        },
+        {
+          "row": 459,
+          "rawTsMm": 52.75,
+          "faceWidthRatio": 1.150407897089384,
+          "targetInnerRelMm": 60.68401657146501,
+          "ours": {
+            "innerL": 62.33208333333334,
+            "innerR": 62.33208333333334,
+            "outerL": 86.91375,
+            "outerR": 87.35270833333334
+          },
+          "target": {
+            "innerL": 53.113958333333336,
+            "innerR": 52.675,
+            "outerL": 87.35270833333334,
+            "outerR": 90.864375
+          }
+        },
+        {
+          "row": 513,
+          "rawTsMm": 49.95,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 56.333062880324555,
+          "ours": {
+            "innerL": 54.869791666666664,
+            "innerR": 55.30875,
+            "outerL": 85.596875,
+            "outerR": 85.596875
+          },
+          "target": {
+            "innerL": 50.48020833333333,
+            "innerR": 49.602291666666666,
+            "outerL": 90.42541666666666,
+            "outerR": 94.37604166666668
+          }
+        },
+        {
+          "row": 567,
+          "rawTsMm": 39.0,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 43.98377281947262,
+          "ours": {
+            "innerL": 41.70104166666667,
+            "innerR": 42.14,
+            "outerL": 83.40208333333334,
+            "outerR": 83.40208333333334
+          },
+          "target": {
+            "innerL": 39.50625,
+            "innerR": 38.62833333333334,
+            "outerL": 93.05916666666667,
+            "outerR": 97.88770833333334
+          }
+        },
+        {
+          "row": 621,
+          "rawTsMm": 42.7,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 48.15659229208926,
+          "ours": {
+            "innerL": 43.456875,
+            "innerR": 43.895833333333336,
+            "outerL": 93.498125,
+            "outerR": 93.498125
+          },
+          "target": {
+            "innerL": 44.33479166666667,
+            "innerR": 41.26208333333333,
+            "outerL": 97.00979166666666,
+            "outerR": 103.15520833333333
+          }
+        }
+      ],
+      "eyeGapL": 1.2589285714285714,
+      "eyeGapR": 1.3333333333333333,
+      "standing": false,
+      "stripe": 0.4403586765064133,
+      "inside": 0,
+      "projectedPoints": 5735,
+      "projectedMaxMm": 15.199475361914955,
+      "overEye": 0,
+      "faceOpening": 0,
+      "seamDensity": [
+        {
+          "row": 300,
+          "center": 220,
+          "neighbourMean": 252.0,
+          "ratio": 0.873015873015873
+        },
+        {
+          "row": 430,
+          "center": 251,
+          "neighbourMean": 252.0,
+          "ratio": 0.996031746031746
+        },
+        {
+          "row": 560,
+          "center": 130,
+          "neighbourMean": 252.0,
+          "ratio": 0.5158730158730159
+        },
+        {
+          "row": 690,
+          "center": 128,
+          "neighbourMean": 252.0,
+          "ratio": 0.5079365079365079
+        }
+      ],
+      "seamDensityMin": 0.5079365079365079,
+      "guideDiff": {
+        "points": 0,
+        "roots": 0,
+        "phases": 0,
+        "liftoff": 0,
+        "t": 0,
+        "class": 0,
+        "clearance": 0,
+        "z_hem": 0,
+        "menton_z": 0,
+        "crown_z": 0,
+        "frontal_drape": 0
+      },
+      "guideDiffTotal": 0,
+      "generated": 51350,
+      "flareCappedPoints": 0
+    },
+    {
+      "tag": "e1",
+      "front": 0.6729149172467969,
+      "eroded": 0.48923818610957664,
+      "profile": 0.6833116597360601,
+      "back": 0.7619314259955767,
+      "frontTable": [
+        {
+          "row": 190,
+          "rawTsMm": 2.65,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 3.1074108818011257,
+          "ours": {
+            "innerL": 0.43895833333333334,
+            "innerR": 0.43895833333333334,
+            "outerL": 66.28270833333333,
+            "outerR": 66.72166666666666
+          },
+          "target": {
+            "innerL": 2.63375,
+            "innerR": 2.63375,
+            "outerL": 54.43083333333333,
+            "outerR": 55.30875
+          }
+        },
+        {
+          "row": 244,
+          "rawTsMm": 34.6,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 40.572232645403375,
+          "ours": {
+            "innerL": 40.823125000000005,
+            "innerR": 41.26208333333333,
+            "outerL": 73.745,
+            "outerR": 74.62291666666667
+          },
+          "target": {
+            "innerL": 33.36083333333333,
+            "innerR": 35.99458333333334,
+            "outerL": 68.03854166666667,
+            "outerR": 69.35541666666667
+          }
+        },
+        {
+          "row": 298,
+          "rawTsMm": 44.25,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 51.88789868667917,
+          "ours": {
+            "innerL": 54.43083333333333,
+            "innerR": 54.869791666666664,
+            "outerL": 79.45145833333333,
+            "outerR": 80.329375
+          },
+          "target": {
+            "innerL": 43.456875,
+            "innerR": 45.21270833333333,
+            "outerL": 75.93979166666668,
+            "outerR": 77.695625
+          }
+        },
+        {
+          "row": 352,
+          "rawTsMm": 47.55,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 55.75750469043152,
+          "ours": {
+            "innerL": 59.259375000000006,
+            "innerR": 59.69833333333333,
+            "outerL": 80.329375,
+            "outerR": 81.64625000000001
+          },
+          "target": {
+            "innerL": 48.724375,
+            "innerR": 46.529583333333335,
+            "outerL": 81.20729166666666,
+            "outerR": 83.40208333333334
+          }
+        },
+        {
+          "row": 406,
+          "rawTsMm": 53.2,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 62.38273921200751,
+          "ours": {
+            "innerL": 62.77104166666667,
+            "innerR": 63.21,
+            "outerL": 93.498125,
+            "outerR": 91.74229166666667
+          },
+          "target": {
+            "innerL": 51.79708333333333,
+            "innerR": 54.869791666666664,
+            "outerL": 84.71895833333333,
+            "outerR": 87.35270833333334
+          }
+        },
+        {
+          "row": 459,
+          "rawTsMm": 52.75,
+          "faceWidthRatio": 1.150407897089384,
+          "targetInnerRelMm": 60.68401657146501,
+          "ours": {
+            "innerL": 61.893125,
+            "innerR": 61.893125,
+            "outerL": 86.47479166666666,
+            "outerR": 86.91375
+          },
+          "target": {
+            "innerL": 53.113958333333336,
+            "innerR": 52.675,
+            "outerL": 87.35270833333334,
+            "outerR": 90.864375
+          }
+        },
+        {
+          "row": 513,
+          "rawTsMm": 49.95,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 56.333062880324555,
+          "ours": {
+            "innerL": 54.869791666666664,
+            "innerR": 55.30875,
+            "outerL": 84.71895833333333,
+            "outerR": 85.15791666666667
+          },
+          "target": {
+            "innerL": 50.48020833333333,
+            "innerR": 49.602291666666666,
+            "outerL": 90.42541666666666,
+            "outerR": 94.37604166666668
+          }
+        },
+        {
+          "row": 567,
+          "rawTsMm": 39.0,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 43.98377281947262,
+          "ours": {
+            "innerL": 41.70104166666667,
+            "innerR": 42.14,
+            "outerL": 82.963125,
+            "outerR": 83.40208333333334
+          },
+          "target": {
+            "innerL": 39.50625,
+            "innerR": 38.62833333333334,
+            "outerL": 93.05916666666667,
+            "outerR": 97.88770833333334
+          }
+        },
+        {
+          "row": 621,
+          "rawTsMm": 42.7,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 48.15659229208926,
+          "ours": {
+            "innerL": 43.456875,
+            "innerR": 43.895833333333336,
+            "outerL": 98.765625,
+            "outerR": 99.64354166666666
+          },
+          "target": {
+            "innerL": 44.33479166666667,
+            "innerR": 41.26208333333333,
+            "outerL": 97.00979166666666,
+            "outerR": 103.15520833333333
+          }
+        }
+      ],
+      "eyeGapL": 1.2321428571428572,
+      "eyeGapR": 1.3047619047619048,
+      "standing": true,
+      "stripe": 0.46088903348527754,
+      "inside": 3,
+      "projectedPoints": 3,
+      "projectedMaxMm": 0.38996669384710086,
+      "overEye": 0,
+      "faceOpening": 0,
+      "seamDensity": [
+        {
+          "row": 300,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 430,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 560,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 690,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        }
+      ],
+      "seamDensityMin": 1.0,
+      "guideDiff": {
+        "points": 0,
+        "roots": 0,
+        "phases": 0,
+        "liftoff": 0,
+        "t": 0,
+        "class": 0,
+        "clearance": 0,
+        "z_hem": 0,
+        "menton_z": 0,
+        "crown_z": 0,
+        "frontal_drape": 0
+      },
+      "guideDiffTotal": 0,
+      "generated": 51350,
+      "flareCappedPoints": 0
+    },
+    {
+      "tag": "e2",
+      "front": 0.6729149172467969,
+      "eroded": 0.48923818610957664,
+      "profile": 0.6811003515939581,
+      "back": 0.7807025566702782,
+      "frontTable": [
+        {
+          "row": 190,
+          "rawTsMm": 2.65,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 3.1074108818011257,
+          "ours": {
+            "innerL": 0.43895833333333334,
+            "innerR": 0.43895833333333334,
+            "outerL": 66.28270833333333,
+            "outerR": 66.72166666666666
+          },
+          "target": {
+            "innerL": 2.63375,
+            "innerR": 2.63375,
+            "outerL": 54.43083333333333,
+            "outerR": 55.30875
+          }
+        },
+        {
+          "row": 244,
+          "rawTsMm": 34.6,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 40.572232645403375,
+          "ours": {
+            "innerL": 40.823125000000005,
+            "innerR": 41.26208333333333,
+            "outerL": 73.745,
+            "outerR": 74.62291666666667
+          },
+          "target": {
+            "innerL": 33.36083333333333,
+            "innerR": 35.99458333333334,
+            "outerL": 68.03854166666667,
+            "outerR": 69.35541666666667
+          }
+        },
+        {
+          "row": 298,
+          "rawTsMm": 44.25,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 51.88789868667917,
+          "ours": {
+            "innerL": 54.43083333333333,
+            "innerR": 54.869791666666664,
+            "outerL": 79.45145833333333,
+            "outerR": 80.329375
+          },
+          "target": {
+            "innerL": 43.456875,
+            "innerR": 45.21270833333333,
+            "outerL": 75.93979166666668,
+            "outerR": 77.695625
+          }
+        },
+        {
+          "row": 352,
+          "rawTsMm": 47.55,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 55.75750469043152,
+          "ours": {
+            "innerL": 59.259375000000006,
+            "innerR": 59.69833333333333,
+            "outerL": 80.329375,
+            "outerR": 81.64625000000001
+          },
+          "target": {
+            "innerL": 48.724375,
+            "innerR": 46.529583333333335,
+            "outerL": 81.20729166666666,
+            "outerR": 83.40208333333334
+          }
+        },
+        {
+          "row": 406,
+          "rawTsMm": 53.2,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 62.38273921200751,
+          "ours": {
+            "innerL": 62.77104166666667,
+            "innerR": 63.21,
+            "outerL": 93.498125,
+            "outerR": 91.74229166666667
+          },
+          "target": {
+            "innerL": 51.79708333333333,
+            "innerR": 54.869791666666664,
+            "outerL": 84.71895833333333,
+            "outerR": 87.35270833333334
+          }
+        },
+        {
+          "row": 459,
+          "rawTsMm": 52.75,
+          "faceWidthRatio": 1.150407897089384,
+          "targetInnerRelMm": 60.68401657146501,
+          "ours": {
+            "innerL": 61.893125,
+            "innerR": 61.893125,
+            "outerL": 86.47479166666666,
+            "outerR": 86.91375
+          },
+          "target": {
+            "innerL": 53.113958333333336,
+            "innerR": 52.675,
+            "outerL": 87.35270833333334,
+            "outerR": 90.864375
+          }
+        },
+        {
+          "row": 513,
+          "rawTsMm": 49.95,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 56.333062880324555,
+          "ours": {
+            "innerL": 54.869791666666664,
+            "innerR": 55.30875,
+            "outerL": 84.71895833333333,
+            "outerR": 85.15791666666667
+          },
+          "target": {
+            "innerL": 50.48020833333333,
+            "innerR": 49.602291666666666,
+            "outerL": 90.42541666666666,
+            "outerR": 94.37604166666668
+          }
+        },
+        {
+          "row": 567,
+          "rawTsMm": 39.0,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 43.98377281947262,
+          "ours": {
+            "innerL": 41.70104166666667,
+            "innerR": 42.14,
+            "outerL": 82.963125,
+            "outerR": 83.40208333333334
+          },
+          "target": {
+            "innerL": 39.50625,
+            "innerR": 38.62833333333334,
+            "outerL": 93.05916666666667,
+            "outerR": 97.88770833333334
+          }
+        },
+        {
+          "row": 621,
+          "rawTsMm": 42.7,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 48.15659229208926,
+          "ours": {
+            "innerL": 43.456875,
+            "innerR": 43.895833333333336,
+            "outerL": 98.765625,
+            "outerR": 99.64354166666666
+          },
+          "target": {
+            "innerL": 44.33479166666667,
+            "innerR": 41.26208333333333,
+            "outerL": 97.00979166666666,
+            "outerR": 103.15520833333333
+          }
+        }
+      ],
+      "eyeGapL": 1.2321428571428572,
+      "eyeGapR": 1.3047619047619048,
+      "standing": true,
+      "stripe": 0.4610356932533361,
+      "inside": 3,
+      "projectedPoints": 3,
+      "projectedMaxMm": 0.38996669384710086,
+      "overEye": 0,
+      "faceOpening": 0,
+      "seamDensity": [
+        {
+          "row": 300,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 430,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 560,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 690,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        }
+      ],
+      "seamDensityMin": 1.0,
+      "guideDiff": {
+        "points": 0,
+        "roots": 0,
+        "phases": 0,
+        "liftoff": 0,
+        "t": 0,
+        "class": 0,
+        "clearance": 0,
+        "z_hem": 0,
+        "menton_z": 0,
+        "crown_z": 0,
+        "frontal_drape": 0
+      },
+      "guideDiffTotal": 0,
+      "generated": 54529,
+      "flareCappedPoints": 0
+    },
+    {
+      "tag": "e3",
+      "front": 0.6723596033308646,
+      "eroded": 0.4898469510725476,
+      "profile": 0.6844644405897659,
+      "back": 0.7749188687992582,
+      "frontTable": [
+        {
+          "row": 190,
+          "rawTsMm": 2.65,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 3.1074108818011257,
+          "ours": {
+            "innerL": 0.43895833333333334,
+            "innerR": 0.43895833333333334,
+            "outerL": 66.28270833333333,
+            "outerR": 66.72166666666666
+          },
+          "target": {
+            "innerL": 2.63375,
+            "innerR": 2.63375,
+            "outerL": 54.43083333333333,
+            "outerR": 55.30875
+          }
+        },
+        {
+          "row": 244,
+          "rawTsMm": 34.6,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 40.572232645403375,
+          "ours": {
+            "innerL": 40.823125000000005,
+            "innerR": 41.26208333333333,
+            "outerL": 73.745,
+            "outerR": 74.62291666666667
+          },
+          "target": {
+            "innerL": 33.36083333333333,
+            "innerR": 35.99458333333334,
+            "outerL": 68.03854166666667,
+            "outerR": 69.35541666666667
+          }
+        },
+        {
+          "row": 298,
+          "rawTsMm": 44.25,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 51.88789868667917,
+          "ours": {
+            "innerL": 54.43083333333333,
+            "innerR": 54.869791666666664,
+            "outerL": 79.45145833333333,
+            "outerR": 80.329375
+          },
+          "target": {
+            "innerL": 43.456875,
+            "innerR": 45.21270833333333,
+            "outerL": 75.93979166666668,
+            "outerR": 77.695625
+          }
+        },
+        {
+          "row": 352,
+          "rawTsMm": 47.55,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 55.75750469043152,
+          "ours": {
+            "innerL": 59.259375000000006,
+            "innerR": 59.69833333333333,
+            "outerL": 80.329375,
+            "outerR": 81.64625000000001
+          },
+          "target": {
+            "innerL": 48.724375,
+            "innerR": 46.529583333333335,
+            "outerL": 81.20729166666666,
+            "outerR": 83.40208333333334
+          }
+        },
+        {
+          "row": 406,
+          "rawTsMm": 53.2,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 62.38273921200751,
+          "ours": {
+            "innerL": 62.77104166666667,
+            "innerR": 63.21,
+            "outerL": 93.498125,
+            "outerR": 91.74229166666667
+          },
+          "target": {
+            "innerL": 51.79708333333333,
+            "innerR": 54.869791666666664,
+            "outerL": 84.71895833333333,
+            "outerR": 87.35270833333334
+          }
+        },
+        {
+          "row": 459,
+          "rawTsMm": 52.75,
+          "faceWidthRatio": 1.150407897089384,
+          "targetInnerRelMm": 60.68401657146501,
+          "ours": {
+            "innerL": 61.893125,
+            "innerR": 61.893125,
+            "outerL": 86.47479166666666,
+            "outerR": 86.91375
+          },
+          "target": {
+            "innerL": 53.113958333333336,
+            "innerR": 52.675,
+            "outerL": 87.35270833333334,
+            "outerR": 90.864375
+          }
+        },
+        {
+          "row": 513,
+          "rawTsMm": 49.95,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 56.333062880324555,
+          "ours": {
+            "innerL": 54.869791666666664,
+            "innerR": 55.30875,
+            "outerL": 84.71895833333333,
+            "outerR": 85.15791666666667
+          },
+          "target": {
+            "innerL": 50.48020833333333,
+            "innerR": 49.602291666666666,
+            "outerL": 90.42541666666666,
+            "outerR": 94.37604166666668
+          }
+        },
+        {
+          "row": 567,
+          "rawTsMm": 39.0,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 43.98377281947262,
+          "ours": {
+            "innerL": 41.70104166666667,
+            "innerR": 42.14,
+            "outerL": 82.963125,
+            "outerR": 83.40208333333334
+          },
+          "target": {
+            "innerL": 39.50625,
+            "innerR": 38.62833333333334,
+            "outerL": 93.05916666666667,
+            "outerR": 97.88770833333334
+          }
+        },
+        {
+          "row": 621,
+          "rawTsMm": 42.7,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 48.15659229208926,
+          "ours": {
+            "innerL": 43.456875,
+            "innerR": 43.895833333333336,
+            "outerL": 98.765625,
+            "outerR": 99.64354166666666
+          },
+          "target": {
+            "innerL": 44.33479166666667,
+            "innerR": 41.26208333333333,
+            "outerL": 97.00979166666666,
+            "outerR": 103.15520833333333
+          }
+        }
+      ],
+      "eyeGapL": 1.2321428571428572,
+      "eyeGapR": 1.3047619047619048,
+      "standing": true,
+      "stripe": 0.4562166978486564,
+      "inside": 10,
+      "projectedPoints": 71,
+      "projectedMaxMm": 12.964792322154851,
+      "overEye": 0,
+      "faceOpening": 0,
+      "seamDensity": [
+        {
+          "row": 300,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 430,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 560,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 690,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        }
+      ],
+      "seamDensityMin": 1.0,
+      "guideDiff": {
+        "points": 0,
+        "roots": 0,
+        "phases": 0,
+        "liftoff": 0,
+        "t": 0,
+        "class": 0,
+        "clearance": 0,
+        "z_hem": 0,
+        "menton_z": 0,
+        "crown_z": 0,
+        "frontal_drape": 0
+      },
+      "guideDiffTotal": 0,
+      "generated": 54529,
+      "flareCappedPoints": 0
+    },
+    {
+      "tag": "e4",
+      "front": 0.6767707954958228,
+      "eroded": 0.49322375718463246,
+      "profile": 0.6871786513357733,
+      "back": 0.7740856213986863,
+      "frontTable": [
+        {
+          "row": 190,
+          "rawTsMm": 2.65,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 3.1074108818011257,
+          "ours": {
+            "innerL": 0.43895833333333334,
+            "innerR": 0.43895833333333334,
+            "outerL": 66.28270833333333,
+            "outerR": 66.72166666666666
+          },
+          "target": {
+            "innerL": 2.63375,
+            "innerR": 2.63375,
+            "outerL": 54.43083333333333,
+            "outerR": 55.30875
+          }
+        },
+        {
+          "row": 244,
+          "rawTsMm": 34.6,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 40.572232645403375,
+          "ours": {
+            "innerL": 40.823125000000005,
+            "innerR": 41.26208333333333,
+            "outerL": 73.745,
+            "outerR": 74.62291666666667
+          },
+          "target": {
+            "innerL": 33.36083333333333,
+            "innerR": 35.99458333333334,
+            "outerL": 68.03854166666667,
+            "outerR": 69.35541666666667
+          }
+        },
+        {
+          "row": 298,
+          "rawTsMm": 44.25,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 51.88789868667917,
+          "ours": {
+            "innerL": 54.43083333333333,
+            "innerR": 54.869791666666664,
+            "outerL": 79.45145833333333,
+            "outerR": 80.329375
+          },
+          "target": {
+            "innerL": 43.456875,
+            "innerR": 45.21270833333333,
+            "outerL": 75.93979166666668,
+            "outerR": 77.695625
+          }
+        },
+        {
+          "row": 352,
+          "rawTsMm": 47.55,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 55.75750469043152,
+          "ours": {
+            "innerL": 59.259375000000006,
+            "innerR": 59.69833333333333,
+            "outerL": 80.329375,
+            "outerR": 81.64625000000001
+          },
+          "target": {
+            "innerL": 48.724375,
+            "innerR": 46.529583333333335,
+            "outerL": 81.20729166666666,
+            "outerR": 83.40208333333334
+          }
+        },
+        {
+          "row": 406,
+          "rawTsMm": 53.2,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 62.38273921200751,
+          "ours": {
+            "innerL": 62.77104166666667,
+            "innerR": 63.21,
+            "outerL": 93.498125,
+            "outerR": 91.74229166666667
+          },
+          "target": {
+            "innerL": 51.79708333333333,
+            "innerR": 54.869791666666664,
+            "outerL": 84.71895833333333,
+            "outerR": 87.35270833333334
+          }
+        },
+        {
+          "row": 459,
+          "rawTsMm": 52.75,
+          "faceWidthRatio": 1.150407897089384,
+          "targetInnerRelMm": 60.68401657146501,
+          "ours": {
+            "innerL": 61.893125,
+            "innerR": 61.893125,
+            "outerL": 86.47479166666666,
+            "outerR": 86.91375
+          },
+          "target": {
+            "innerL": 53.113958333333336,
+            "innerR": 52.675,
+            "outerL": 87.35270833333334,
+            "outerR": 90.864375
+          }
+        },
+        {
+          "row": 513,
+          "rawTsMm": 49.95,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 56.333062880324555,
+          "ours": {
+            "innerL": 54.869791666666664,
+            "innerR": 55.30875,
+            "outerL": 84.71895833333333,
+            "outerR": 85.15791666666667
+          },
+          "target": {
+            "innerL": 50.48020833333333,
+            "innerR": 49.602291666666666,
+            "outerL": 90.42541666666666,
+            "outerR": 94.37604166666668
+          }
+        },
+        {
+          "row": 567,
+          "rawTsMm": 39.0,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 43.98377281947262,
+          "ours": {
+            "innerL": 41.70104166666667,
+            "innerR": 42.14,
+            "outerL": 82.963125,
+            "outerR": 83.40208333333334
+          },
+          "target": {
+            "innerL": 39.50625,
+            "innerR": 38.62833333333334,
+            "outerL": 93.05916666666667,
+            "outerR": 97.88770833333334
+          }
+        },
+        {
+          "row": 621,
+          "rawTsMm": 42.7,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 48.15659229208926,
+          "ours": {
+            "innerL": 43.456875,
+            "innerR": 43.895833333333336,
+            "outerL": 100.08250000000001,
+            "outerR": 100.96041666666666
+          },
+          "target": {
+            "innerL": 44.33479166666667,
+            "innerR": 41.26208333333333,
+            "outerL": 97.00979166666666,
+            "outerR": 103.15520833333333
+          }
+        }
+      ],
+      "eyeGapL": 1.2321428571428572,
+      "eyeGapR": 1.3047619047619048,
+      "standing": false,
+      "stripe": 0.4623618853491308,
+      "inside": 0,
+      "projectedPoints": 2843,
+      "projectedMaxMm": 12.984395730170295,
+      "overEye": 0,
+      "faceOpening": 0,
+      "seamDensity": [
+        {
+          "row": 300,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 430,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 560,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 690,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        }
+      ],
+      "seamDensityMin": 1.0,
+      "guideDiff": {
+        "points": 0,
+        "roots": 0,
+        "phases": 0,
+        "liftoff": 0,
+        "t": 0,
+        "class": 0,
+        "clearance": 0,
+        "z_hem": 0,
+        "menton_z": 0,
+        "crown_z": 0,
+        "frontal_drape": 0
+      },
+      "guideDiffTotal": 0,
+      "generated": 54529,
+      "flareCappedPoints": 0
+    },
+    {
+      "tag": "e5",
+      "front": 0.6618012113990667,
+      "eroded": 0.4961285463218679,
+      "profile": 0.6851334781131351,
+      "back": 0.7766951344389668,
+      "frontTable": [
+        {
+          "row": 190,
+          "rawTsMm": 2.65,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 3.1074108818011257,
+          "ours": {
+            "innerL": 0.43895833333333334,
+            "innerR": 0.43895833333333334,
+            "outerL": 66.28270833333333,
+            "outerR": 66.72166666666666
+          },
+          "target": {
+            "innerL": 2.63375,
+            "innerR": 2.63375,
+            "outerL": 54.43083333333333,
+            "outerR": 55.30875
+          }
+        },
+        {
+          "row": 244,
+          "rawTsMm": 34.6,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 40.572232645403375,
+          "ours": {
+            "innerL": 40.823125000000005,
+            "innerR": 41.26208333333333,
+            "outerL": 73.745,
+            "outerR": 74.62291666666667
+          },
+          "target": {
+            "innerL": 33.36083333333333,
+            "innerR": 35.99458333333334,
+            "outerL": 68.03854166666667,
+            "outerR": 69.35541666666667
+          }
+        },
+        {
+          "row": 298,
+          "rawTsMm": 44.25,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 51.88789868667917,
+          "ours": {
+            "innerL": 54.43083333333333,
+            "innerR": 54.869791666666664,
+            "outerL": 79.45145833333333,
+            "outerR": 80.329375
+          },
+          "target": {
+            "innerL": 43.456875,
+            "innerR": 45.21270833333333,
+            "outerL": 75.93979166666668,
+            "outerR": 77.695625
+          }
+        },
+        {
+          "row": 352,
+          "rawTsMm": 47.55,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 55.75750469043152,
+          "ours": {
+            "innerL": 59.259375000000006,
+            "innerR": 59.69833333333333,
+            "outerL": 80.329375,
+            "outerR": 81.64625000000001
+          },
+          "target": {
+            "innerL": 48.724375,
+            "innerR": 46.529583333333335,
+            "outerL": 81.20729166666666,
+            "outerR": 83.40208333333334
+          }
+        },
+        {
+          "row": 406,
+          "rawTsMm": 53.2,
+          "faceWidthRatio": 1.172607879924953,
+          "targetInnerRelMm": 62.38273921200751,
+          "ours": {
+            "innerL": 62.77104166666667,
+            "innerR": 63.21,
+            "outerL": 93.498125,
+            "outerR": 91.74229166666667
+          },
+          "target": {
+            "innerL": 51.79708333333333,
+            "innerR": 54.869791666666664,
+            "outerL": 84.71895833333333,
+            "outerR": 87.35270833333334
+          }
+        },
+        {
+          "row": 459,
+          "rawTsMm": 52.75,
+          "faceWidthRatio": 1.150407897089384,
+          "targetInnerRelMm": 60.68401657146501,
+          "ours": {
+            "innerL": 61.893125,
+            "innerR": 61.893125,
+            "outerL": 86.47479166666666,
+            "outerR": 86.91375
+          },
+          "target": {
+            "innerL": 53.113958333333336,
+            "innerR": 52.675,
+            "outerL": 87.35270833333334,
+            "outerR": 90.864375
+          }
+        },
+        {
+          "row": 513,
+          "rawTsMm": 49.95,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 56.333062880324555,
+          "ours": {
+            "innerL": 54.869791666666664,
+            "innerR": 55.30875,
+            "outerL": 84.71895833333333,
+            "outerR": 85.15791666666667
+          },
+          "target": {
+            "innerL": 50.48020833333333,
+            "innerR": 49.602291666666666,
+            "outerL": 90.42541666666666,
+            "outerR": 94.37604166666668
+          }
+        },
+        {
+          "row": 567,
+          "rawTsMm": 39.0,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 43.98377281947262,
+          "ours": {
+            "innerL": 41.70104166666667,
+            "innerR": 42.14,
+            "outerL": 82.52416666666666,
+            "outerR": 82.963125
+          },
+          "target": {
+            "innerL": 39.50625,
+            "innerR": 38.62833333333334,
+            "outerL": 93.05916666666667,
+            "outerR": 97.88770833333334
+          }
+        },
+        {
+          "row": 621,
+          "rawTsMm": 42.7,
+          "faceWidthRatio": 1.1277890466531442,
+          "targetInnerRelMm": 48.15659229208926,
+          "ours": {
+            "innerL": 43.456875,
+            "innerR": 43.895833333333336,
+            "outerL": 86.03583333333334,
+            "outerR": 86.47479166666666
+          },
+          "target": {
+            "innerL": 44.33479166666667,
+            "innerR": 41.26208333333333,
+            "outerL": 97.00979166666666,
+            "outerR": 103.15520833333333
+          }
+        }
+      ],
+      "eyeGapL": 1.2321428571428572,
+      "eyeGapR": 1.3047619047619048,
+      "standing": true,
+      "stripe": 0.48923790100934633,
+      "inside": 5,
+      "projectedPoints": 67,
+      "projectedMaxMm": 12.984395730170295,
+      "overEye": 0,
+      "faceOpening": 0,
+      "seamDensity": [
+        {
+          "row": 300,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 430,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 560,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        },
+        {
+          "row": 690,
+          "center": 252,
+          "neighbourMean": 252.0,
+          "ratio": 1.0
+        }
+      ],
+      "seamDensityMin": 1.0,
+      "guideDiff": {
+        "points": 0,
+        "roots": 0,
+        "phases": 0,
+        "liftoff": 0,
+        "t": 0,
+        "class": 0,
+        "clearance": 0,
+        "z_hem": 0,
+        "menton_z": 0,
+        "crown_z": 0,
+        "frontal_drape": 0
+      },
+      "guideDiffTotal": 0,
+      "generated": 54529,
+      "flareCappedPoints": 1713
+    }
+  ],
+  "decisions": {
+    "e1": "KEEP front +0.0116 profile -0.0035 back +0.0213",
+    "e2": "KEEP front +0.0000 profile -0.0022 back +0.0188",
+    "e3": "KEEP front -0.0006 profile +0.0034 back -0.0058",
+    "e4": "KEEP front +0.0044 profile +0.0027 back -0.0008",
+    "e5": "REVERT front -0.0150 back +0.0026; gain is not >2x loss",
+    "e4_original_10_5": "REVERT front +0.0133 back -0.0268; gain is not >2x loss"
+  },
+  "relativeTarget": {
+    "rawTsMm": {
+      "190": 2.65,
+      "244": 34.6,
+      "298": 44.25,
+      "352": 47.55,
+      "406": 53.2,
+      "459": 52.75,
+      "513": 49.95,
+      "567": 39.0,
+      "621": 42.7
+    },
+    "ratioRule": "cheek 0.625/0.533; mouth 0.556/0.493; nearest/interpolated"
+  },
+  "gates": {
+    "G1": "PASS diagnosis precedes construction and separates all seam candidates",
+    "G2": "PASS",
+    "G3": "FAIL",
+    "G4": "PASS planted seam/hardcoded/style reject; honest e4 passes",
+    "G5": "PASS scoped git audit; no blend files"
+  }
+}

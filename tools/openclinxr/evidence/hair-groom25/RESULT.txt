@@ -1,0 +1,198 @@
+RESULT hair-groom25: bounded back fairing that keeps the drape outline
+===============================================================================
+Groom25 = opt 25b: s11_back_coherent anchor 0.6 (ONE pass, 20 mm graph,
+verbatim 40 mm take-off, 25 mm boundary weight; new --cap-mm/--pin-hem
+flags added to the station, default off = groom21 behaviour), from
+guides-19; children via interp_children.py with the groom24 flags PLUS
+--pool-ref guides-8a.npz so --pool-max-move-mm 60 is active.
+Evidence: tools/openclinxr/evidence/hair-groom25/ (this dir).
+Date: 2026-10-18. Branch: hair-tgt2. Blender 5.1.1, CYCLES-CPU, 1024/64spp, seed 7.
+
+VERDICT: GATES_PASS = no. Picked 25b (anchor 0.6) by measurement: it is the
+only option that keeps BOTH lock metrics within gates (3D crossings 865 <=
+900, gradAniso 0.615 <= 0.70) while passing 6/7 silhouette+safety gates;
+profile recovers to a pass (0.8113, margin +0.0013). Back does NOT recover
+(0.7772 vs groom24 0.7778, gate >= 0.80, miss 0.0228) -- and the control
+(guides-19 + pool flags) itself scores back 0.7959, i.e. the back gate was
+already failed by the unfaired lineage. Back needs re-drape/re-cover work
+on top of faired guides, not a different fairing knob (sect 7).
+
+1. MISS DIAGNOSIS (E/miss-map-back.png, E/miss-map-profile.png, E/displacement.png, E/miss-diag.json)
+--------------------------------------------------------------------------------
+Same registration (identical studio rig/cameras): red = target-minus-ours
+(miss), cyan = ours-minus-target (excess); panels 19 MISS | 19 EXCESS | 24
+MISS | 24 EXCESS, using published groom19 renders-studio vs groom24 renders-24.
+BACK (target bbox rows 150-1023, cols 261-765; bands top 150-441 / mid
+441-732 / bot 732-1023): 19->24 miss delta +6656 px, excess delta +36.
+The lost area is IMAGE-RIGHT (= world -x; back-camera image-right is -x
+from cameras-scorer-v3 matrixWorld) MID + BOTTOM: mid band +2110 (right
++2113, left -3), bot band +4544 (right +4550, left -6); top band +2; left
+half -9 total. I.e. the right hem + right mid drape lost cover; the
+excess outline barely moved. Which guides moved there: per-guide max
+displacement guides-19->21 (E/displacement.png, world mm) -- the top-20
+movers are back non-tuck guides rooted crown-centre to world -x
+(1079: x -41.3 z 1612.5, 229.5 mm; 2207: x -51.9, 137.3; 754/752/748/749
+near x -24..0, z 1629-1630, 144-211 mm; plus crown-centre x -20..+24,
+z 1626-1653). For ALL top-20, max move == hem move: the fairing moved the
+TIPS most (back displacement p90 86.4 mm, max 229.5 mm, groom21 record).
+PROFILE: miss delta -149 (slightly fewer misses), excess delta +1952,
+concentrated image-left (= posterior, -y side) mid rows 421-722 (+1532)
+and top rows 120-421 (+690); bot rows unchanged. So the profile loss is
+over-cover on the posterior side: the faired drape columns shifted
+posteriorly/inferiorly, losing back-right cover while adding posterior
+fringe.
+
+2. OPTION TABLE (all measured; provenance in parentheses)
+-----------------------------------------------------------
+Guides from guides-19 via s11 (E/build-25{a,b,c}/guides-25{fairing}.json);
+children 283100 each with --region-weight --uv-cutoff 0.15
+--pool-max-move-mm 60 --pool-ref guides-8a.npz (E/build-*/build.json);
+pool-drop nDropped: ctrl 6 / 25a 6 / 25b 67 / 25c 83.
+Renders studio 1024/64 (E/renders-{ctrl,25a,25b,25c}, render-times.json).
+IoU: calibrated scorer E/score25.py (copy of groom24 score24, REF/TEST
+generalised) vs ctrl; calibration E/groom25cal-calib.json reproduces
+groom8a exactly (all deltas 0.0). Crossings: diag23 step A verbatim on
+GUIDES (E/cross25.py, E/metrics-cross25.json). gradAniso: diag23 step-B
+_aniso_darkstats verbatim incl. judge-v6 registration (E/grad25.py,
+E/metrics-grad25.json).
+
+opt | 3D cross (<=900) | gradAniso (<=0.70) | back (>=0.80) | profile (>=0.81)
+    | front (+-0.01 of 0.7913) | 3q (>=0.83) | back move p90/max mm
+ctrl| 1827 FAIL (ref)  | 1.0162 FAIL (ref)   | 0.7959 FAIL (-0.0041) | 0.8156 PASS (+0.0056)
+    | 0.7915 PASS (+0.0002) | 0.8406 PASS | 0 / 0 (unfaired)
+25a | 1157 FAIL (+257) | 0.6111 PASS         | 0.7862 FAIL (-0.0138) | 0.8132 PASS (+0.0032)
+  cap30 | 0.7962 PASS (+0.0049) | 0.8393 PASS | 30.0 / 30.0 (256 guides capped)
+25b | 865 PASS (-35)   | 0.6149 PASS         | 0.7772 FAIL (-0.0228) | 0.8113 PASS (+0.0013)
+  anchor0.6 | 0.7999 PASS (+0.0086) | 0.8412 PASS | 70.5 / 191.3
+25c | 806 PASS (-94)   | 0.6149 PASS         | 0.7787 FAIL (-0.0213) | 0.8095 FAIL (-0.0005)
+  pin-hem | 0.7873 PASS (-0.0040) | 0.8276 FAIL (-0.0024) | 83.0 / 224.0 (524 hems pinned)
+
+Safety (all from E/score25-*.json gates25): concha 0/0/0 all four builds
+PASS; insideBody 0 all PASS; faceMask front PASS for ctrl (3021), 25a
+(3218), 25b (3195, margin 230 px), FAIL for 25c (3518 > 3424.9); 3q face
+FAILs for all incl. ctrl (report-only, groom19 lineage FAILs it too);
+knotHole 0 enclosed everywhere; colour ratio 1.04-1.05 PASS; R-LOOP
+profile/back: ctrl 85k/96k (= groom19 to the digit), 25a 82k/93k,
+25b 91k/102k, 25c 106k/117k (fairing still adds winding; report-only).
+PICK: 25b. Only option with both lock gates green and 6/7 hard gates
+green; profile back to PASS; back no worse than groom24 (-0.0006).
+
+3. EVERY GATE, WINNER 25b (brief thresholds; provenance in parentheses)
+-------------------------------------------------------------------------
+frontIoU   0.7999 vs groom19 0.7913, delta +0.0086  PASS (+-0.01) (score25-25b)
+3q         0.8412 vs >= 0.83                       PASS (+0.0112)
+profile    0.8113 vs >= 0.81                       PASS (+0.0013)
+back       0.7772 vs >= 0.80                       FAIL (miss 0.0228)
+concha     0 / 0 / 0                               PASS
+insideBody 0                                       PASS
+faceMask   front 3195 <= 3424.9                    PASS (margin 230 px)
+3D cross   865 <= 900 (guides; diag23-A)           PASS (margin 35; 19: 1827, 21: 753)
+gradAniso  0.6149 <= 0.70 (back-knot; diag23-B)     PASS (target 0.530, 19: 1.023, 24: 0.612)
+front/temple byte-identical guides-19              PASS (fairing.json frontIdentical + wZeroIdentical)
+fairing determinism (s11 rerun 25b)                PASS (sha a97e76fe... identical)
+store identity (store sha == build.json sha, x4)   PASS
+children rebuild determinism                       NOT RUN (round cut; sect 6)
+calibration all_within_0.02                        PASS (exact 0.0)
+GATES_PASS = no (back fails; rebuild-determinism unproven).
+
+4. EVIDENCE, NOT GATES (winner 25b vs ctrl; provenance in parentheses)
+-------------------------------------------------------------------------
+Back miss +6702 px (50700 -> 57402), excess -12 (22369 -> 22357): the back
+drop is pure miss, same signature as groom24 (+6656). Profile excess +961
+(28421 -> 29382), miss -29: posterior over-cover persists but smaller than
+groom24's +1952 (anchor 0.6 + pool-drop moved the fringe). Knot-box native
+read (E/crops.png row 1, cols target|19|24|25): 25 reads like 24 -- flow
+vertical/downward through the box, horizontal bundle gone, soft diagonal
+texture upper area + rope-like clump at right edge; no crisp centre
+lattice. back-hem-R crop: 25 cover as thin as 24 on the image-right hem
+(pink backdrop shows through), consistent with the +4550 bot-right miss.
+back-crown-part: part present in all; 25 keeps it. 3q-ear/profile-ear:
+ear reads unchanged. front curtains + hairline band: unchanged (front
+guides byte-identical).
+
+5. FILE MANIFEST
+------------------
+E/sheet.png (target | groom19 | groom24 | groom25=25b, 4 views)
+E/crops.png (back-knot NATIVE + 9 regional rows, same column order)
+E/score25-{25a,25b,25c}.json (full scorer output per option vs ctrl)
+E/build/gates25.json (gate assembly; rebuild-determinism marked NOT RUN)
+E/groom25cal-calib.json (calibration re-run, exact)
+E/metrics-cross25.json (3D crossings incl. all three options)
+E/metrics-grad25.json (gradAniso ctrl + all options)
+E/miss-map-back.png, E/miss-map-profile.png, E/displacement.png,
+E/miss-diag.json (step-1 diagnosis)
+E/build-{ctrl,25a,25b,25c}/build.json + inputs-opened.txt (+ fairing
+records in build-25{a,b,c}/guides-25*-fairing.json; build-25*
+/build-stdout.log for the option children builds)
+E/renders-{ctrl,25a,25b,25c}/ (studio 1024/64 beauty + IDs + opened.txt +
+render-times.json) + renders-*.log
+E/{calibrate25,diag25_miss,cross25,grad25,score25,gates25,det_rebuild,
+make_sheet25}.py (all committed; station-frame/guide-depth/rulers read
+from groom19, not copied)
+STORE: /Volumes/files/openclinxr-assets/store/hair-groom25/
+strands-{ctrl,25a,25b,25c}.npz + SHA256SUMS (NOT in git, per no-.npz rule)
+Committed station change: orient/s11_back_coherent.py --cap-mm/--pin-hem
+(defaults off; groom21 behaviour preserved).
+
+6. SCOPE
+----------
+Local Blender lane only (Cycles studio 1024/64spp/seed7, scorer-v3
+cameras, skull registration, aisha-v3 masks). Guide inputs unchanged
+except the three bounded variants from guides-19. No .npz in git
+(store + SHA256SUMS). Score scripts adapted from groom24 (REF/TEST
+generalisation; scorer math untouched); calibration re-run. Children
+recipes identical except guides + prescribed pool-ref (pool-drop on for
+all four: 6/6/67/83 dropped). Noessler step: none (no new fairing after
+the three options; no combinations tried -- out of the card's scope).
+
+7. PROMOTION RECOMMENDATION
+-----------------------------
+Promote 25b as the lock-fix lineage carrier (replacing guides-21):
+identical lock fix by both metrics (865 vs 753 3D; 0.615 vs 0.612
+gradAniso), profile recovered to PASS, front/3q/safety green. Do NOT
+present it as gate-passing (back 0.7772). Next work (not this card):
+region-targeted re-drape of the image-right mid+bot drape (rows
+441-1023, world -x) on 25b guides -- e.g. fair only 3D-crossing-involved
+guides, or hem/mid cover regrowth -- then re-measure; the back gate
+(0.80) already exceeds the unfaired control (0.7959), so cover must be
+ADDED, not just preserved.
+
+8. NOT TESTED
+---------------
+Children rebuild determinism (round cut inside gates25.py rebuild loop;
+4 x ~6 min rebuilds + hash compare). Physical Quest 3 / worn-headset
+evidence; EEVEE/Quest material response; other bodies/seeds; animation/
+combing dynamics; relit/held-out R1 rows; clinical validity, licensure,
+or scoring claims. gradAniso lock-vs-fineness disentangling (strand-
+width-matched synthetic-lock injection) not attempted. guides-22 family
+not re-run. Fairing combinations (cap+pin, cap60, targeted subsets)
+not tried -- outside this card's option list.
+
+9. REMAINING (report-only)
+----------------------------
+- Back silhouette on faired guides: miss +6702 px, image-right mid+bot
+  (needs cover-adding re-drape, sect 7; fairing choice alone cannot
+  reach 0.80 since ctrl = 0.7959).
+- Profile posterior fringe +961 excess px (smaller than groom24's
+  +1952 but still the over-cover signature).
+- R-LOOP +7%/+7% vs ctrl (25b 91k/102k vs 85k/96k): fairing still adds
+  winding; needs guide-side unwind (same prescription as groom19's).
+- Face-mask front margin 230 px on 25b (watch; 3q face FAIL persists in
+  all builds incl. control).
+- Station: children rebuild-determinism harness (E/det_rebuild.py,
+  E/gates25.py) still needs one uninterrupted ~30 min run.
+
+GATES_PASS: no.
+
+VISUAL READ (E/crops.png, cols target | groom19 | groom24 | groom25=25b)
+-------------------------------------------------------------------------
+back-knot-NATIVE: 25 flows vertical/downward like 24 (locks absent as
+crisp lattice; soft diagonal texture upper area + vertical rope clump at
+right edge persist). back-crown-part: part line present, same as 24.
+back-hem-R: 25 as thin as 24, backdrop shows through mid-lengths (the
+measured miss). back-hem-L: full in all. nape: vertical flow, no
+change. 3q-ear / profile-ear: ear + side drape read same as 24.
+front-curtain-L/R + front-hairline-band: unchanged vs 19/24 (front
+byte-identical). Sheet (E/sheet.png) four views confirm: 25 back view
+matches 24's outline (thinner right hem than target), other views
+match 19/24.

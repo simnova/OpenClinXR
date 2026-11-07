@@ -1,0 +1,404 @@
+{
+ "inputs": {
+  "guides": "tools/openclinxr/evidence/hair-groom4/tucked/guides-tucked.npz",
+  "roots": "tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "sdf": "tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz"
+ },
+ "counts": {
+  "roots": 14155,
+  "guides": 567,
+  "pointsPer": 32,
+  "childrenPerRoot": 13,
+  "children": 306001
+ },
+ "part": {
+  "partX": 0.0001401995879485164,
+  "crownBandN": 4184
+ },
+ "vertex": {
+  "yVertexM": 0.0342,
+  "nBelowVertexRoots": 335,
+  "note": "no side restriction at/below vertex"
+ },
+ "earKeepout": {
+  "keepMm": 4.0,
+  "nPushed": 2046,
+  "maxPushMm": 2.6798,
+  "minDistAfterMm": 0.018,
+  "fracLt3mmAfter": 0.00389
+ },
+ "earTuck": {
+  "nStrands": 0,
+  "note": "positional tuck removed"
+ },
+ "earWrap": {
+  "on": 1,
+  "sides": {
+   "xpos": {
+    "xEar": 71.2,
+    "yBack": -49.3,
+    "zMin": 1508.3
+   },
+   "xneg": {
+    "xEar": -68.1,
+    "yBack": -56.1,
+    "zMin": 1503.1
+   }
+  },
+  "nStrands": 25797,
+  "maxPushMm": 48.0,
+  "nInsideAfterSnap": 51548,
+  "nCapped": 0,
+  "nRimDrop": 131104
+ },
+ "partStyle": {
+  "on": 1,
+  "bandMm": 12.0,
+  "nPartRows": 834,
+  "nSkippedTop": 5280,
+  "doneRows": 11400
+ },
+ "curtainWiden": {
+  "widenMm": 11.0,
+  "nRows": 4608
+ },
+ "conchaTrim": {
+  "nStrands": 13237,
+  "nSamples": 150574,
+  "lobeFrontSamples": 27060,
+  "rimExtraSamples": 31662,
+  "projConchaSamples": 671,
+  "pinFinalSamples": 10
+ },
+ "blend": {
+  "kernel": "1/(duv+0.03)^4, cutoff 1.0 rad, nearest-alone fallback",
+  "meanWeight0": 0.8315,
+  "nearestAloneFrac": 0.3828,
+  "nAlone": 0,
+  "gapGate": {
+   "gateMm": 15.0,
+   "off": false,
+   "nFallbackRows": 1682,
+   "nDroppedWeights": 7428,
+   "maxGapMm": 160.3
+  },
+  "earSpanAlone": {
+   "nEarSpanAlone": 2366
+  },
+  "rootExactnessMmMax": 0.0
+ },
+ "tuckBlend": {
+  "on": 1,
+  "nTuckRoots": 481,
+  "nTuckGuides": 57,
+  "earFrame": "tools/openclinxr/evidence/hair-groom4/tucked/earframe.json",
+  "active": true
+ },
+ "cheekTrim": {
+  "on": 0,
+  "earFrame": true,
+  "nRoots": 65,
+  "nStrands": 0,
+  "nSamples": 0
+ },
+ "bandTrim": {
+  "on": 0,
+  "nRoots": 0,
+  "nStrands": 0,
+  "nSamples": 0
+ },
+ "degenerateTrim": {
+  "on": 1,
+  "capMm": 30.0,
+  "nStrands": 3887,
+  "maxMm": 49.9,
+  "nStrandsApplied": 1021
+ },
+ "rimSet": {
+  "pushMm": 0.0,
+  "nStrands": 0
+ },
+ "curtainThin": {
+  "on": 0,
+  "nRoots": 0,
+  "nStrands": 0
+ },
+ "haloTrim": {
+  "on": 0,
+  "nSamples": 0
+ },
+ "subRoots": {
+  "perRoot": 13,
+  "seed": 11,
+  "cellFrac": 0.45,
+  "cellRmmP50": 0.753,
+  "cellRmmMax": 1.413,
+  "jitMmMax": 1.374
+ },
+ "dotGuides": {
+  "floorMm": 20.0,
+  "nDot": 175,
+  "nPool": 392
+ },
+ "kinkGuard": {
+  "on": 1,
+  "nKink": 76,
+  "nKeptTucked": 5,
+  "nDropped": 71,
+  "droppedIdx": [
+   6,
+   7,
+   23,
+   24,
+   36,
+   47,
+   62,
+   64,
+   70,
+   94,
+   113,
+   123,
+   127,
+   175,
+   192,
+   199,
+   223,
+   234,
+   238,
+   250,
+   261,
+   265,
+   275,
+   281,
+   288,
+   289,
+   317,
+   318,
+   323,
+   324,
+   334,
+   336,
+   343,
+   345,
+   354,
+   362,
+   365,
+   374,
+   376,
+   381,
+   383,
+   386,
+   391,
+   405,
+   407,
+   412,
+   413,
+   419,
+   422,
+   423,
+   424,
+   428,
+   429,
+   433,
+   435,
+   436,
+   441,
+   443,
+   444,
+   448,
+   449,
+   450,
+   457,
+   458,
+   459,
+   464,
+   466,
+   471,
+   492,
+   519,
+   563
+  ]
+ },
+ "hemTaper": {
+  "on": 1,
+  "nChildren": 172295,
+  "scaleMin": 0.85,
+  "scaleMax": 1.0,
+  "tipThin": "x1.0 -> x0.25 over last 45% of arc"
+ },
+ "tuckRoute": {
+  "k": 20.0,
+  "nTuckRows": 3647,
+  "box": [
+   0.045,
+   0.085,
+   -0.135,
+   -0.04
+  ],
+  "maxGapMm": 49.27,
+  "templeTuckAloneRows": 0
+ },
+ "sideburnShort": {
+  "on": 1,
+  "nStrands": 3809,
+  "targetMm": [
+   12.0,
+   24.0
+  ]
+ },
+ "sideburnClamp": {
+  "on": 1,
+  "nClamped": 1935,
+  "maxBeforeMm": 205.0,
+  "maxAfterMm": 44.2,
+  "rounds": 2,
+  "reproj": {
+   "nPushed": 14704,
+   "maxPushMm": 15.6075,
+   "minSdfAfter": 0.3,
+   "nInsideAfter": 0,
+   "nRounds": 20
+  }
+ },
+ "sideburnRoots": {
+  "on": 1,
+  "nRoots": 293,
+  "ztMarginMm": 3.0,
+  "tuckBehind": 1
+ },
+ "sideburnHug": {
+  "on": 1,
+  "hugMm": 2.0,
+  "nPushed": 7612,
+  "maxPullMm": 6.0,
+  "reproj": {
+   "nPushed": 3471,
+   "maxPushMm": 19.223,
+   "minSdfAfter": 0.2694,
+   "nInsideAfter": 0,
+   "nRounds": 20
+  }
+ },
+ "rootDots": {
+  "on": 1,
+  "nStrands": 4312
+ },
+ "hemEdgeExtra": {
+  "extraPerRoot": 22,
+  "nEdgeRoots": 2531,
+  "nExtra": 55682
+ },
+ "hemEdgeSpread": {
+  "spreadMm": 9.0,
+  "nChildren": 124019,
+  "fan": "none (uniform)",
+  "clumpRelax": 0.3,
+  "clumpRelaxedChildren": 124058
+ },
+ "hemLenBoost": {
+  "boost": 1.0,
+  "nChildren": 0,
+  "side": 0.0
+ },
+ "hemTipTrim": {
+  "on": 1,
+  "nSamples": 39,
+  "cols": [
+   266.0,
+   761.0
+  ],
+  "marginPx": 12.0
+ },
+ "spikeTrim": {
+  "on": 1,
+  "nSamples": 496856
+ },
+ "lobeTrim": {
+  "on": 0,
+  "nSamples": 0
+ },
+ "curtainExtra": {
+  "extraPerRoot": 14,
+  "nCurtainRoots": 4319,
+  "nExtra": 60466
+ },
+ "partCrisp": {
+  "on": 1,
+  "nPartBandChildren": 16680
+ },
+ "partClamp": {
+  "on": 1,
+  "arcMm": 40.0,
+  "nSamples": 3901,
+  "nStrands": 1540
+ },
+ "partClampFinal": {
+  "on": 1,
+  "nSamples": 817,
+  "nStrands": 457,
+  "nFeather": 6548,
+  "rounds": 2
+ },
+ "partSetback": {
+  "on": 1,
+  "setbackMm": 2.0,
+  "nSnapped": 3990,
+  "nSkippedTop": 264
+ },
+ "earClumpCap": {
+  "on": 1,
+  "capMm": 30.0,
+  "capW": 0.3,
+  "nNearChildren": 30747,
+  "capFactor": 1.0
+ },
+ "partExtra": {
+  "extraPerPartRoot": 7,
+  "nPartRoots": 834,
+  "nExtra": 5838
+ },
+ "clump": {
+  "coarseMm": 20.0,
+  "coarsePullTip": 0.2,
+  "coarseCells": {
+   "nCells": 268,
+   "cellMin": 1,
+   "cellMax": 5455,
+   "cellMean": 1141.79
+  },
+  "fineMm": 4.5,
+  "finePullTip": 0.15,
+  "fineCells": {
+   "nCells": 4040,
+   "cellMin": 1,
+   "cellMax": 377,
+   "cellMean": 75.74
+  },
+  "pow": 2.0,
+  "profile": "t^2.0 root->tip, zero at root"
+ },
+ "lengthJitter": {
+  "sigma": 0.04,
+  "seed": 7,
+  "truncSigma": 1.0,
+  "truncLoSigma": 2.0,
+  "scaleMin": 0.92,
+  "scaleMax": 1.04
+ },
+ "projection": {
+  "nPushed": 1501528,
+  "maxPushMm": 80.5279,
+  "minSdfAfter": 0.3,
+  "nInsideAfter": 0,
+  "nRounds": 17,
+  "outsideGrid": 0
+ },
+ "coverPostSDFsub": 10013,
+ "radiiMm": {
+  "root": 0.04,
+  "tip": 0.04,
+  "profile": "linear in t^1.5"
+ },
+ "sha256": "0548522cfecba9be5aeaec5bbe3cb074df1d10aff2d0038022dcfa31904996e1",
+ "bytes": 110301328
+}

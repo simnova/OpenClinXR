@@ -1,0 +1,14 @@
+hair-groom34 DONE (worker, foreground). 2026-10-19.
+VERDICT: FAIL (measured). Candidate groom34 = mask20 (R=20 mm, best of sweep).
+- E/before.json (groom33 before-column) E/sheet.png (target|groom33|groom34)
+  E/ears.png (1:1 ear crops both sides, groom33 vs mask20) E/RESULT.txt (all
+  gates per side with value/threshold/margin/provenance) present.
+- No R in {10,15,20} passes: shell segs R20 4914/12191 (gate 0), column 22/553
+  (gate 0), concha-xneg 7702/195/10584, 3q-xneg box 1146 px (<= 842),
+  profile-xneg box 12 px (0), gt30 2094 (<= 1789), front IoU 0.7838 (0.79),
+  profile IoU 0.8265 (0.84), crossings 941 (935). PASS: gradAniso 0.3712,
+  insideBody 0, determinism (bit-exact rebuild sha match), 3q IoU 0.8501.
+- Diagnosis on disk (E/residual34.py): far-root guide ROUTING across the shell
+  (hits from roots 48-98 mm away); mask works at its boundary (19.9 mm).
+  Fix belongs in guide routing / root class, not R, trims, or render tricks.
+- Commit: feat(hair-groom) symmetric ear proxy, per-side gates, mirrored build.

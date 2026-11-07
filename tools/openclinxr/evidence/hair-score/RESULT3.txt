@@ -1,0 +1,40 @@
+HAIR SCORE V3 — COLOR MATERIAL, STRICT PARAMS, LIGHT READBACK
+
+DEFECT (confirmed before fix): score.py had no COLOR path, so every
+"scored with look7 material" card rendered the older melanin material.
+s5 + look7 params through the rig1 COLOR adapter read back highlights
+442 x 35.4 px and front p50 0.096; the same inputs through stock score.py
+read 713 x 20.8 px and 0.075. All look7-era band/photometric numbers were
+melanin numbers.
+
+FIX (score.py schema openclinxr.hair-score.v3, one implementation):
+- build_hair_scored: melanin stock builder, then COLOR configure
+  (parametrisation COLOR, directColorLinear/reflection/
+  secondaryReflection/roughness) whenever directColorLinear is present.
+  Semantics from hair-look7/run.py + hair-rig1/rig.py; adapters deleted
+  by absorption, not by duplication.
+- Strict params: any params key outside the known material/provenance/
+  rig sets fails the run with the offending keys listed. Unknown-key
+  probe fails as required (E/self-test3.json).
+- score.json now records the material actually built (node readback:
+  model HUANG, parametrisation COLOR, Color, R/TRT lobes, Roughness) and
+  per-view light readbacks. Stock rig reports the hardcode
+  (OCLX_rim = SEARCH_BASE rim_W = 26.654 on the light vs params rim_W
+  0.084 ignored); a top-level "rig" block switches to camera-relative
+  all-7 placement (rim 12.052 delivered on all views).
+
+SELF-TESTS (E/self-test3.json):
+(a) unknown key fails with the key named. PASS.
+(b) look7 params reproduce rig1 base to the digit: front p50 0.0960525,
+    back bands 442 x 35.4434, IoU f/p/b 0.6947/0.6807/0.7696. PASS.
+(c) repeat run: IoU/p50/band-count identical; PNG bytes differ by 1-2
+    LSB thread noise, band area within 0.006%. Identical within render
+    noise (byte-identity not achievable under multithreaded Cycles). PASS.
+
+RESCORE (E/rescore3.md; 4 cells x stock/rigged, look7 COLOR throughout):
+Back bands (TS 849 x 16.4): a1 169 -> b8 308 -> s5 442 (stock);
+222 -> 393 -> 520 (rigged). Back orientation error: 30.9 -> 25.2 ->
+24.1 (stock). Front IoU: 0.6883 -> 0.6944 -> 0.6947 (rig-invariant).
+KEEP decisions a1 -> b8 -> s5 (and s5 over h75) HOLD under the true
+material under both rigs; no pair reorders. Old melanin-era tilt numbers
+are superseded.

@@ -1,0 +1,98 @@
+Hair rulers v4b: one registration (FIX A), R4 translucency (FIX B),
+R2 root setback, R6 shoulder-relative posterior gap, R3 hairline.
+
+RULERS (probes): PASS 71/71 (analytic 18, planted 19, monotonicity 7,
+parity 7, agreement 18, validation 2). probes.json. All 32 rulers4a probes
+kept verbatim under raw registration (frozen); 39 new probes added.
+Target-vs-itself is the REFERENCE (1.0/0.0 by construction), not a probe;
+R2 has no target (geometry); R3-3q and R4-skin have no target (no target
+beauty / no 3q target).
+  Registration: --registration raw|skull (default skull), register_view
+  imported from hair-judge hair_judge.py (no bpy; hair-score/score.py never
+  imported). Skull = scorer orientation (front target crown +22.833 px for
+  +10 mm hair-over-skull, scale 0.9545; profile/back keep the raw triple).
+  Skull mode reproduces ALL THREE score.json orientation transforms within
+  1e-6 (9 probes A-skull-*: front bit-identical 0.9545143883864126 /
+  24.28863314615677 / 51.51811157072147; profile/back via the shared raw
+  triple). Profile/back skull-raw deltas are exactly 0.
+  ID thresholds: R1/R5 alpha>=230 (judge alpha>=0.9 encoding); R4 128
+  bracketed by 30/230 (FIX B); R3/R6 128 (visible-hair edge, stated).
+  Local mm 0.4599 mm/px (unchanged physical scale).
+
+REGISTRATION DELTA (current, skull - raw; reg-delta.json; previous identical
+in structure):
+  transforms: front scale -0.047569, tx +24.3553, ty +27.732695;
+    profile/back 0/0/0 exactly.
+  R1 front above IoU +0.1252 (0.5942 -> 0.7194), below -0.0531;
+    front above absP95 -5.76 px, below +1.85 px. Profile/back rows delta 0.
+  R5 front yBottom -12.58 px (46.60 -> 34.02), width +4.96 px.
+  Verdict: the registration choice moves front IoU by 0.13 and front hem by
+  12.6 px. The battery now uses ONE registration (skull, matching the
+  scorer/station alignment); raw rows are kept frozen for continuity.
+  Which mode reproduces score.json: SKULL (front exactly; profile/back by
+  sharing the raw triple; 9/9 agreement probes within 1e-6).
+
+NUMBERS (skull rows; full table: table.md/table.json; subjects:
+subject-{target,current,previous}-{skull,raw}.json; overlays: overlays.png).
+  R1 (skull): front above/below IoU 0.72/0.67, tails 29.1/21.6 px;
+    profile 0.82/0.50, tails 115.9/100.8 px; back 0.75/0.88, tails 128.1/44 px.
+  R5 (skull): yBottom front 34.0 px (15.6 mm), profile 32.9, back 4.7 px
+    (2.2 mm, PASS); width front 17.3, profile 38.5, back 42.5 px.
+  R4 (ADVISORY): profile pinna coverage @30/128/230 = 1.0/1.0/0.9516
+    (previous 1.0/1.0/0.951): the 4.8% fringe between alpha 128 and 230 is
+    the translucency R4-128 was blind to. Beauty skin-visible fraction in
+    hair inside the pinna region = 0.0 (both grooms; refs skin
+    [255,193,152] hair [34,31,29] stated per subject; 3q 9/17380 px = 0.0005).
+    The curtain over the projected pinna hull is opaque; no current-vs-target
+    separation exists (target has no beauty), so R4 stays ADVISORY.
+  R2 (HARD_GATE, station): cap-v7 + lineage strands midline p50 0.20 mm
+    (gap -0.5 mm), temples 0.32/0.20 mm: PASS (<=5/10 mm). Current and
+    previous are IDENTICAL because hem2 c_curve kept hem1 c_best8 roots
+    bit-identically (verified np.array_equal on 99945x3) -- R2 cannot
+    separate these two grooms by construction. Parity: midline firstRootYmm
+    -121.9 mm reproduces crown4 within 1 mm (PASS); capFrontYmm measures
+    -121.8 mm vs crown4's -148.2 mm, recorded as VALIDATION (not a gate):
+    -148.2 mm belongs to crown3 cap_live.npz, a different cap file whose
+    front edge sits 26.4 mm lower than cap-v8's by construction.
+  R6 (HARD_GATE): common shoulder row 671 (render 650.73 registered):
+    target 151 px / 69.4 mm, current 276 px / 126.9 mm (|d|=125 FAIL),
+    previous 246 px / 113.1 mm (|d|=95 FAIL). Own-hem rows differ
+    (tgt 870 / cur 832 / prev 823): gaps -10 / +10 / +19 px (both FAIL
+    the <=5 px bar, but an order of magnitude closer than at the shoulder).
+    The current groom's curtain sticks ~57 mm further behind the body at
+    shoulder height than the target's.
+  R3 (HARD_GATE): ROI crown 150 / brow 308, centre 513, bands 50/130/200
+    (overlay panel 1). Midline p50 +11.0 px (n=101) FAIL; brow_L -9.0 px
+    (n=52, absP95 46.9) FAIL; brow_R -1.0 px (n=51, absP95 37.0) FAIL on the
+    tail guard; temples UNOBSERVED in target AND current (curtain reaches
+    the brow; 70/69 cols; never zero error, non-blocking). Current and
+    previous hairlines are PIXEL-IDENTICAL in the ROI (masks differ only in
+    rows 527-659, below the chin): hem2 never touched the forehead hair.
+    3q ours-only: 173/400 cols observed, p50 row 209 (ADVISORY).
+
+CLASSES: 45 blocking HARD_GATE (R1 24 + R5 12 + R2 4 + R6 2 + R3 3), of which
+6 PASS (R5-back yBottom raw+skull, all 4 R2 rows); 2 UNOBSERVED
+non-blocking (R3 temples); 4 ADVISORY (3 R4 + R3-3q). Thresholds from target
+value + probe noise only (see table.md header), never fitted to either groom.
+
+GATES_PASS=no. Reason: the current groom fails 39 of 45 blocking HARD_GATE
+rows (passes: R5-back yBottom x2, R2 x4); the rulers themselves are valid
+(71/71 probes). The rebuilt groom (hair-p7) is judged against these gates;
+its station-side numbers to beat are R2 midline <=5 mm (roots at the
+boundary, already true of the lineage roots) plus the image gates above.
+
+SAW: Killing the second registration moved front above-chin IoU 0.59 -> 0.72
+without changing a pixel -- the raw triple was punishing the groom for the
+judge's own skull assumption. The three genuinely new findings are all in
+profile/front detail the whole-mask IoU hid: (1) the curtain carries a 4.8%
+translucent fringe over the ear while reading fully opaque at 128; (2) at
+shoulder height the hair mass sits 125 px behind where the target's sits;
+(3) the front hairline is 11 px low at midline with 37-47 px tails at the
+brows, and hem2 left the entire forehead hair pixel-identical to hem1.
+
+NOT TESTED: Quest/worn-headset; clinical validity/scoring claims;
+three_quarter target registration (no target); R4 on a groom that exposes
+ears; skinfrac sensitivity to partial (blended) translucency -- the metric
+flags skin-dominant pixels only, the alpha 30/230 bracket carries the fringe;
+R6 at rows other than shoulder/own-hem; R2 on the station's own cap file
+(hair-p7; measured here on cap-v7/cap-v8 only); R7-R10 (deferred).

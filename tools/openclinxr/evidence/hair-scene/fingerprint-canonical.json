@@ -1,0 +1,87 @@
+{
+  "headObjectName": "OCLX_Aisha_head",
+  "headVertexCount": 15949,
+  "hairObjectName": "OCLX_canonical_hair",
+  "editableGeometry": {
+    "curveCount": 10053,
+    "pointsPerCurveMode": 61
+  },
+  "evaluatedGeometry": {
+    "curveCount": 50265,
+    "pointsPerCurveMode": 61
+  },
+  "modifierStack": [
+    "OCLX_hair_profile",
+    "OCLX_dup_children"
+  ],
+  "lights": [
+    {
+      "name": "OCLX_key",
+      "energy": 150.0
+    },
+    {
+      "name": "OCLX_fill",
+      "energy": 60.47725296020508
+    },
+    {
+      "name": "OCLX_rim",
+      "energy": 26.654436111450195
+    }
+  ],
+  "cameraMatrixWorld": [
+    [
+      1.0,
+      0.0,
+      0.0,
+      0.0
+    ],
+    [
+      0.0,
+      0.028559571132063866,
+      -0.9995920658111572,
+      -0.699999988079071
+    ],
+    [
+      0.0,
+      0.9995920658111572,
+      0.028559571132063866,
+      1.4935846328735352
+    ],
+    [
+      0.0,
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "cameraFocalLength": 50.0,
+  "worldStrength": 0.4190624952316284,
+  "viewTransform": "Standard",
+  "exposure": -0.375,
+  "materialNames": [
+    "Dots Stroke",
+    "Material",
+    "Material.001",
+    "OCLX_hair_dark",
+    "mat_makeclothes_library_eyes_peds_anxious_parent",
+    "mat_makeclothes_library_female_tight_jeans_pants",
+    "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+    "mat_makeclothes_library_toigo_t_shirt",
+    "mat_openclinxr_fitted_teeth_mpfb_peds_anxious_parent_mesh",
+    "mat_openclinxr_fitted_tongue_mpfb_peds_anxious_parent_mesh",
+    "mpfb_skin_peds_anxious_parent",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mat",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mat",
+    "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat",
+    "openclinxr_hidden_foot_mpfb_parent_tara_johnson_v1_body_mesh",
+    "openclinxr_hidden_foot_mpfb_parent_tara_johnson_v1_body_mesh.001",
+    "openclinxr_hidden_lower_mpfb_parent_tara_johnson_v1_body_mesh",
+    "openclinxr_hidden_lower_mpfb_parent_tara_johnson_v1_body_mesh.001",
+    "openclinxr_hidden_orphan_mpfb_parent_tara_johnson_v1_body_mesh",
+    "openclinxr_hidden_upper_mpfb_parent_tara_johnson_v1_body_mesh",
+    "openclinxr_hidden_upper_mpfb_parent_tara_johnson_v1_body_mesh.001",
+    "straight_hair_to_shoulder"
+  ],
+  "moduleGitSha": "d238aacf59f44e8536e358a2445c49cad4f343e5",
+  "bestParamsSha256": "9e19254e2151f0746a25adccdecc3e869d64ff00f8f637cd94d13ea7f107f58c"
+}

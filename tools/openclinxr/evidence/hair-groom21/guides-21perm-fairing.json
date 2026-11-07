@@ -1,0 +1,127 @@
+{
+ "schema": "openclinxr.hair-guide-back-position-coherent.v1",
+ "method": "BACK-region root-relative cylindrical-offset position smoothing over BACK non-tuck 20mm root graph, anchor 0.50, ONE pass, boundary weight w (25mm smoothstep), verbatim 40mm take-off; FRONT + tuck byte-identical",
+ "parameters": {
+  "anchor": 0.5,
+  "kernelMm": 20.0,
+  "verbatimMm": 40.0,
+  "passes": 1,
+  "permuteSeed": 11,
+  "permuted": true,
+  "marginMm": 1.5,
+  "gateRootMm": 6.0,
+  "P": 41,
+  "yEarM": -0.0635,
+  "zNapeM": 1.51,
+  "boundaryWidthMm": 25.0,
+  "arcLoMm": 40.0,
+  "arcHiMm": 200.0
+ },
+ "regionSplit": {
+  "BACK": 563,
+  "FRONT": 2144,
+  "total": 2707,
+  "backNonTuck": 524,
+  "tuckTotal": 57,
+  "wZeroRows": 2183,
+  "wOneRows": 313
+ },
+ "guides": {
+  "input": 2707,
+  "output": 2707,
+  "deleted": 0,
+  "inputSha256": "d51f4ef118eaf6f74a80be50cb08274bfd2671c7b1965dae19e6e92e71e75c59",
+  "outputSha256": "ea87bb4eb8461d19e8230ab917046037dc3249de1aabec6d3787d1ff7032a9b9"
+ },
+ "guideMaxMoveMm": {
+  "n": 2707,
+  "min": 0.0,
+  "p50": 0.0,
+  "p90": 0.012,
+  "p99": 140.475,
+  "max": 227.244
+ },
+ "guideMaxMoveMmBACK": {
+  "n": 563,
+  "min": 0.0,
+  "p50": 0.0,
+  "p90": 103.065,
+  "p99": 176.622,
+  "max": 227.244
+ },
+ "guideMaxMoveMmBACKNonTuck": {
+  "n": 524,
+  "min": 0.0,
+  "p50": 0.715,
+  "p90": 107.619,
+  "p99": 177.902,
+  "max": 227.244
+ },
+ "guideMaxMoveMmFRONT": {
+  "n": 2144,
+  "min": 0.0,
+  "p50": 0.0,
+  "p90": 0.0,
+  "p99": 0.0,
+  "max": 0.0
+ },
+ "backPairs": {
+  "n": 1014
+ },
+ "nearRootPairFullPathSeparationMmBeforeBACK": {
+  "n": 1014,
+  "min": 1.631,
+  "p50": 22.443,
+  "p90": 284.653,
+  "p99": 364.115,
+  "max": 441.125
+ },
+ "nearRootPairFullPathSeparationMmAfterBACK": {
+  "n": 1014,
+  "min": 1.631,
+  "p50": 26.054,
+  "p90": 192.916,
+  "p99": 338.82,
+  "max": 414.241
+ },
+ "crossingBACKNonTuck": {
+  "input": {
+   "nCrossPairs": 9715,
+   "nGuides": 266,
+   "nPairs": 35245
+  },
+  "output": {
+   "nCrossPairs": 8279,
+   "nGuides": 266,
+   "nPairs": 35245
+  },
+  "ratio": 0.8522
+ },
+ "takeoff": {
+  "verbatimMm": 40.0,
+  "verbatimSamples": 46123,
+  "byteIdentical": true,
+  "maxAbsDiffHeadMm": 0.0,
+  "pass": true
+ },
+ "frontIdentical": {
+  "samples": 87904,
+  "byteIdentical": true,
+  "maxAbsDiffHeadMm": 0.0,
+  "pass": true
+ },
+ "wZeroIdentical": {
+  "rows": 2183,
+  "samples": 89503,
+  "byteIdentical": true,
+  "pass": true
+ },
+ "body": {
+  "samplesLtMargin": 8438,
+  "samplesInside0": 4123,
+  "marginMm": 1.5
+ },
+ "hull": {
+  "samplesOutsideHull": 39715
+ }
+}

@@ -1,0 +1,63 @@
+hair-part1 RESULT (2026-11-06): licence-clean parting probe on groom36.
+No HairDeck code or weights. One variable per variant, each = groom36's
+exact build-36 command + only its own flags (run_variant.sh, run_all.sh).
+
+VERDICT: NO FIX. No variant moves the part metric outside its noise;
+b moves front +0.025 (noise 0.019) and its combination d gives it back.
+All four look like groom36 at native resolution (crown-crops-all.png).
+
+CODE (default off, legacy arrays byte-identical):
+- hair-groom/strands/part_line.py: seeded jittered line x = part_x + j(y).
+- interp_children.py: every part-side test/clamp reads pline(y);
+  --part-jitter-mm/--part-jitter-seed (a), --flow-bias-deg/-side (c).
+- E/make_roots.py (b): midpoint roots 0.75-8 mm from the line,
+  377 added (edge density x1.77), roots-b.json / roots-d.json.
+- Jitter record: part-jitter-record.json (amp 3 mm, seed 20261106).
+- Flow bias: +2 deg yaw about root normal, +x side, 40 mm band;
+  37740 strands, max move 1.40 mm (build-c build.json flowBias).
+
+INSTRUMENTS (imports, no new instrument):
+- part/side: hair-top1/metric.py crown_metrics + front_part_side via
+  part1_metric.py (render in hair-top1 view order, measure fresh state).
+  Calibration on hair-top1 t1 strands: crown 1.0742 vs recorded 1.0681
+  (+0.006), front 0.9068 vs 0.9259 (-0.019). That is the noise floor.
+  TS 1.0135 reproduced exactly. TS is a front-view target; no target
+  top view exists, so crown_top has no target number.
+- shell/column/gt30/insideBody: gates34 via hair-groom36/run_gates36.py.
+- IoU: hair-groom35/iou35.py on render_studio std renders (aisha-v3).
+- crossings: diag23 step A (run_cross_part1.py): 1029 for every variant,
+  guides-36 unchanged by construction, so this gate cannot see a/b/c/d.
+
+IDENTITY: build-id (flags off) = groom36 build-36 in all 8 arrays
+(max diff 0); file sha differs only by HEAD's extra `rerouted` array
+(groom37 code, all zeros). gates-id and iou-id equal groom36 exactly.
+
+TABLE (part/side crown_top, front | shell segs +x/-x | column +x/-x |
+IoU front/3q/profile | gt30):
+  groom36  1.1763 0.9199 | 2134/2043 | 53/56 | .7794/.8489/.8326 | 2970
+  a        1.1765 0.9173 | 2134/2049 | 53/57 | .7790/.8505/.8328 | 2984
+  b        1.1758 0.9452 | 2232/2073 | 38/33 | .7812/.8466/.8300 | 2881
+  c        1.1763 0.9199 | 2134/2043 | 53/56 | .7793/.8489/.8328 | 2976
+  d        1.1819 0.9165 | 2231/2082 | 38/38 | .7806/.8493/.8295 | 2866
+  target          1.0135 (set-back front)
+REGRESSIONS vs groom36: a shell -x +6, column -x +1, gt30 +14, IoU front
+-0.0004. b shell +98/+30 (277020 children vs 269480), IoU 3q -0.0023,
+profile -0.0026. c gt30 +6, IoU front -0.0001. d shell +97/+39,
+IoU profile -0.0031. Improvements: b/d column 38/33, 38/38; b/d gt30
+2881/2866. insideBody 0 all. Source: table.json.
+
+DETERMINISM: adet == a (283db3b331438160), ddet == d (bcd83b5ce47f863d).
+
+MY GRADE (native 1:1 crops, crown-crops-all.png, sheet.png): groom36's
+crown seam is a skin diamond at the vertex plus a herringbone gap
+toward the front. Jitter adds one small kink; density, flow bias and the
+combination do not change the shape. The target's part is a thin light
+line to the front hairline; ours does not reach the hairline in the
+front view (front 0.92 < 1.01 = part darker than the target's).
+The seam shape is set upstream of the child stage (guides-36 flow +
+part sweep + clamps), so child-level edits cannot open or close it.
+
+RENDERS: E/sheet.png (groom36 | b | target), E/crown-crops-all.png,
+E/cells/T/{crown_top,front}. Full std renders and other rig views:
+/Volumes/files/openclinxr-assets/store/hair-part1/renders/.
+Builds: /Volumes/files/openclinxr-assets/store/hair-part1/build-*/.

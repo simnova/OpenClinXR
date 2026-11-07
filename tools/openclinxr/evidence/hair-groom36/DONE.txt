@@ -1,0 +1,13 @@
+# groom36 DONE
+
+VERDICT: FAIL (child-level zero-gates fail; see RESULT.txt).
+Guide gates pass: STEP1/STEP2 guide segs in shell 0/0; exact-mirror
+construction deviation 0.0 mm all 1366 guide + 6752 root pairs.
+Determinism, gradAniso, calibration, concha, insideBody, ear boxes pass.
+Failures: child shell segs 2134/2043, column 53/56, gt30 2970,
+crossings 1029, front/profile IoU margins -0.0106/-0.0074.
+Residual: STEP1-routed guides' children blend with unrouted neighbours
+and cut the shell (routedFrac 0.85/0.84). No new fix per card.
+Evidence: RESULT.txt, sheet.png, ears.png, gates-36full.json,
+residual-36.json, metrics-cross36.json, iou-36.json, metrics-grad31.json,
+groom8a-calc36-calib.json, renders-36/{,neg,ear}.

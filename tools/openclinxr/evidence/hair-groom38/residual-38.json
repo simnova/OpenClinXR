@@ -1,0 +1,155 @@
+{
+ "tag": "38",
+ "strands": "/Volumes/files/openclinxr-assets/store/hair-groom38/build-38/strands.npz",
+ "strandsSha256": "2f919fca05c2d5d7",
+ "nMoved": 1675,
+ "predicate": "gates34.segments_in_shell (pierce OR midpoint-inside), mask-retained",
+ "xpos": {
+  "shellSegs": 1934,
+  "shellStrands": 1047,
+  "shellStrandsMoved": 742,
+  "shellStrandsNeverMoved": 305,
+  "rootProxyDistMm": {
+   "min": 19.9,
+   "p10": 24.6,
+   "p50": 40.4,
+   "p90": 99.1,
+   "max": 109.3
+  },
+  "topBackbones": [
+   {
+    "guide": 1264,
+    "n": 261
+   },
+   {
+    "guide": 541,
+    "n": 153
+   },
+   {
+    "guide": 700,
+    "n": 133
+   },
+   {
+    "guide": 422,
+    "n": 63
+   },
+   {
+    "guide": 1302,
+    "n": 53
+   },
+   {
+    "guide": 1144,
+    "n": 38
+   },
+   {
+    "guide": 332,
+    "n": 37
+   },
+   {
+    "guide": 318,
+    "n": 31
+   }
+  ],
+  "backboneRoutedFrac": 0.8348,
+  "blockers": {
+   "nearPin30mm": 19,
+   "anteriorExit": 1212,
+   "fleshTrapped05mm": 1189,
+   "seam3mm": 34,
+   "nSegs": 1934
+  },
+  "blockerStrands": {
+   "nearPin30mm": 19,
+   "anteriorExit": 780,
+   "fleshTrapped05mm": 675,
+   "seam3mm": 34
+  },
+  "entryMidYmM": [
+   -67.2,
+   -53.1,
+   -48.4
+  ],
+  "column": {
+   "strands": 0,
+   "samples": 0,
+   "tips": 0,
+   "strands25mm": 0,
+   "samples25mm": 0,
+   "tips25mm": 0
+  }
+ },
+ "xneg": {
+  "shellSegs": 1788,
+  "shellStrands": 928,
+  "shellStrandsMoved": 697,
+  "shellStrandsNeverMoved": 231,
+  "rootProxyDistMm": {
+   "min": 20.0,
+   "p10": 24.6,
+   "p50": 40.6,
+   "p90": 97.4,
+   "max": 132.4
+  },
+  "topBackbones": [
+   {
+    "guide": 2639,
+    "n": 249
+   },
+   {
+    "guide": 2075,
+    "n": 104
+   },
+   {
+    "guide": 1916,
+    "n": 88
+   },
+   {
+    "guide": 1797,
+    "n": 77
+   },
+   {
+    "guide": 2677,
+    "n": 51
+   },
+   {
+    "guide": 1707,
+    "n": 31
+   },
+   {
+    "guide": 1734,
+    "n": 25
+   },
+   {
+    "guide": 2519,
+    "n": 24
+   }
+  ],
+  "backboneRoutedFrac": 0.8244,
+  "blockers": {
+   "nearPin30mm": 44,
+   "anteriorExit": 1135,
+   "fleshTrapped05mm": 1137,
+   "seam3mm": 45,
+   "nSegs": 1788
+  },
+  "blockerStrands": {
+   "nearPin30mm": 44,
+   "anteriorExit": 725,
+   "fleshTrapped05mm": 635,
+   "seam3mm": 45
+  },
+  "entryMidYmM": [
+   -66.6,
+   -53.3,
+   -48.4
+  ],
+  "column": {
+   "strands": 0,
+   "samples": 0,
+   "tips": 0,
+   "strands25mm": 0,
+   "samples25mm": 0,
+   "tips25mm": 0
+  }
+ }
+}

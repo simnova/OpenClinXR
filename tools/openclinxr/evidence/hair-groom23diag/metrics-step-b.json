@@ -1,0 +1,307 @@
+{
+ "imageLock": {
+  "registration": {
+   "scale": 1.0403225806451613,
+   "tx": -19.645161290322562,
+   "ty": -31.25,
+   "renderTriple": [
+    155.0,
+    651.0,
+    512.0
+   ],
+   "targetTriple": [
+    130.0,
+    646.0,
+    513.0
+   ]
+  },
+  "targetBox": [
+   124,
+   406,
+   513,
+   777
+  ],
+  "targetIntrinsic": {
+   "dispersionFracGt25": 0.1025,
+   "dispersionMean": 9.576,
+   "structCohMean": 0.8791,
+   "structFracCohLt05": 0.026,
+   "crossScale": {
+    "fracGt25": 0.0082,
+    "mean": 2.467,
+    "nBig": 0,
+    "bigFrac": 0.0,
+    "largestPx": 279
+   },
+   "gradAniso_gyOvergx": 0.5302,
+   "darkComp_meanAreaPx": 56.38,
+   "darkComp_count": 65,
+   "darkComp_bigFrac": 0.0915,
+   "darkComp_p10": 0.0843
+  },
+  "8a": {
+   "render": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8a/renders-studio/back.png",
+   "sha256": "6c03cb20d28fa64138d0ca2dbe54eed294dfbfcc87ebc4e3088cc7e74ba83707",
+   "transform": {
+    "scale": 1.0403,
+    "tx": -19.6452,
+    "ty": -31.25
+   },
+   "nHairPx": 36404,
+   "gabor_fracDevGt25": 0.7107,
+   "gabor_meanAbsErr": 46.269,
+   "gabor_confWtMeanAbsErr": 46.467,
+   "struct_fracDevGt25": 0.7081,
+   "struct_meanAbsErr": 46.056,
+   "gabor_fracDevGt45": 0.5296,
+   "gabor_fracDevGt60": 0.3711,
+   "gabor_devP90": 82.0,
+   "intrinsic_dispersionFracGt25": 0.2156,
+   "intrinsic_dispersionMean": 17.615,
+   "struct_cohMean": 0.7989,
+   "struct_fracCohLt05": 0.1063,
+   "lock_coherentDev45": 0.5326,
+   "lock_bigCompFrac": 0.4656,
+   "lock_nBigComp": 2,
+   "lock_largestCompPx": 16185,
+   "crossScale": {
+    "fracGt25": 0.1641,
+    "mean": 14.258,
+    "nBig": 4,
+    "bigFrac": 0.1163,
+    "largestPx": 1910
+   },
+   "upperHalf": {
+    "nHairPx": 13115,
+    "gabor_fracDevGt25": 0.5809,
+    "gabor_fracDevGt45": 0.3168,
+    "gabor_meanAbsErr": 34.934,
+    "lock_coherentDev45": 0.2415,
+    "crossScale": {
+     "fracGt25": 0.0928,
+     "mean": 10.265,
+     "nBig": 1,
+     "bigFrac": 0.0409,
+     "largestPx": 537
+    },
+    "flow": {
+     "gabor_fracDevGt25": 0.5498,
+     "gabor_fracDevGt45": 0.51,
+     "gabor_meanAbsErr": 46.46,
+     "lock_coherentDev45": 0.5875,
+     "lock_bigCompFrac": 0.4699,
+     "lock_nBigComp": 1,
+     "lock_largestCompPx": 6163
+    },
+    "histEMD_vsTarget": 15.343,
+    "histPeakBin_render": 11,
+    "histPeakBin_target": 15,
+    "histPeakMass_render": 0.147,
+    "histPeakMass_target": 0.1846
+   },
+   "gradAniso_gyOvergx": 1.2729,
+   "darkComp_meanAreaPx": 67.13,
+   "darkComp_count": 55,
+   "darkComp_bigFrac": 0.047,
+   "darkComp_p10": 0.0818
+  },
+  "8b": {
+   "render": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8b/renders-studio/back.png",
+   "sha256": "b541c2af8d717d1d7557fab7e772a4be5b5d0273d0c0324d20d8d6c6ae8c4efa",
+   "transform": {
+    "scale": 1.0403,
+    "tx": -19.6452,
+    "ty": -31.25
+   },
+   "nHairPx": 36077,
+   "gabor_fracDevGt25": 0.6449,
+   "gabor_meanAbsErr": 42.215,
+   "gabor_confWtMeanAbsErr": 41.839,
+   "struct_fracDevGt25": 0.6329,
+   "struct_meanAbsErr": 41.306,
+   "gabor_fracDevGt45": 0.4597,
+   "gabor_fracDevGt60": 0.3116,
+   "gabor_devP90": 83.0,
+   "intrinsic_dispersionFracGt25": 0.2722,
+   "intrinsic_dispersionMean": 20.86,
+   "struct_cohMean": 0.7749,
+   "struct_fracCohLt05": 0.1243,
+   "lock_coherentDev45": 0.4335,
+   "lock_bigCompFrac": 0.3437,
+   "lock_nBigComp": 2,
+   "lock_largestCompPx": 10546,
+   "crossScale": {
+    "fracGt25": 0.2193,
+    "mean": 18.193,
+    "nBig": 5,
+    "bigFrac": 0.1409,
+    "largestPx": 1172
+   },
+   "upperHalf": {
+    "nHairPx": 12800,
+    "gabor_fracDevGt25": 0.5954,
+    "gabor_fracDevGt45": 0.3346,
+    "gabor_meanAbsErr": 35.29,
+    "lock_coherentDev45": 0.1976,
+    "crossScale": {
+     "fracGt25": 0.1249,
+     "mean": 12.87,
+     "nBig": 0,
+     "bigFrac": 0.0,
+     "largestPx": 455
+    },
+    "flow": {
+     "gabor_fracDevGt25": 0.5237,
+     "gabor_fracDevGt45": 0.4813,
+     "gabor_meanAbsErr": 44.2,
+     "lock_coherentDev45": 0.4866,
+     "lock_bigCompFrac": 0.3904,
+     "lock_nBigComp": 2,
+     "lock_largestCompPx": 2844
+    },
+    "histEMD_vsTarget": 18.452,
+    "histPeakBin_render": 11,
+    "histPeakBin_target": 15,
+    "histPeakMass_render": 0.1495,
+    "histPeakMass_target": 0.1872
+   },
+   "gradAniso_gyOvergx": 0.849,
+   "darkComp_meanAreaPx": 65.84,
+   "darkComp_count": 55,
+   "darkComp_bigFrac": 0.047,
+   "darkComp_p10": 0.0972
+  },
+  "12": {
+   "render": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom12/renders-studio-8a/back.png",
+   "sha256": "6daba1ce9fe7b68c50b873eff7969bbafe81fe4eb13a06f477b6764ff1990889",
+   "transform": {
+    "scale": 1.0403,
+    "tx": -19.6452,
+    "ty": -31.25
+   },
+   "nHairPx": 36383,
+   "gabor_fracDevGt25": 0.6677,
+   "gabor_meanAbsErr": 43.676,
+   "gabor_confWtMeanAbsErr": 43.618,
+   "struct_fracDevGt25": 0.6313,
+   "struct_meanAbsErr": 43.196,
+   "gabor_fracDevGt45": 0.4869,
+   "gabor_fracDevGt60": 0.3324,
+   "gabor_devP90": 83.0,
+   "intrinsic_dispersionFracGt25": 0.3388,
+   "intrinsic_dispersionMean": 24.4,
+   "struct_cohMean": 0.7051,
+   "struct_fracCohLt05": 0.1926,
+   "lock_coherentDev45": 0.4647,
+   "lock_bigCompFrac": 0.3744,
+   "lock_nBigComp": 1,
+   "lock_largestCompPx": 13622,
+   "crossScale": {
+    "fracGt25": 0.1911,
+    "mean": 13.432,
+    "nBig": 2,
+    "bigFrac": 0.1131,
+    "largestPx": 2205
+   },
+   "upperHalf": {
+    "nHairPx": 13092,
+    "gabor_fracDevGt25": 0.6227,
+    "gabor_fracDevGt45": 0.363,
+    "gabor_meanAbsErr": 37.09,
+    "lock_coherentDev45": 0.1858,
+    "crossScale": {
+     "fracGt25": 0.3058,
+     "mean": 17.598,
+     "nBig": 2,
+     "bigFrac": 0.2101,
+     "largestPx": 1786
+    },
+    "flow": {
+     "gabor_fracDevGt25": 0.5223,
+     "gabor_fracDevGt45": 0.4786,
+     "gabor_meanAbsErr": 44.183,
+     "lock_coherentDev45": 0.521,
+     "lock_bigCompFrac": 0.3959,
+     "lock_nBigComp": 1,
+     "lock_largestCompPx": 5183
+    },
+    "histEMD_vsTarget": 28.676,
+    "histPeakBin_render": 9,
+    "histPeakBin_target": 15,
+    "histPeakMass_render": 0.164,
+    "histPeakMass_target": 0.1847
+   },
+   "gradAniso_gyOvergx": 0.5456,
+   "darkComp_meanAreaPx": 68.09,
+   "darkComp_count": 54,
+   "darkComp_bigFrac": 0.0595,
+   "darkComp_p10": 0.1257
+  },
+  "19": {
+   "render": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom19/renders-studio/back.png",
+   "sha256": "31a4a7d26d8fef5bf1e59dacaaa7fe127f707a5e514ad4f5ce807cf977f13aee",
+   "transform": {
+    "scale": 1.0403,
+    "tx": -19.6452,
+    "ty": -31.25
+   },
+   "nHairPx": 36408,
+   "gabor_fracDevGt25": 0.6284,
+   "gabor_meanAbsErr": 41.794,
+   "gabor_confWtMeanAbsErr": 41.508,
+   "struct_fracDevGt25": 0.6079,
+   "struct_meanAbsErr": 40.636,
+   "gabor_fracDevGt45": 0.4544,
+   "gabor_fracDevGt60": 0.314,
+   "gabor_devP90": 83.0,
+   "intrinsic_dispersionFracGt25": 0.2474,
+   "intrinsic_dispersionMean": 20.419,
+   "struct_cohMean": 0.8011,
+   "struct_fracCohLt05": 0.0931,
+   "lock_coherentDev45": 0.4174,
+   "lock_bigCompFrac": 0.3687,
+   "lock_nBigComp": 2,
+   "lock_largestCompPx": 12824,
+   "crossScale": {
+    "fracGt25": 0.1809,
+    "mean": 15.633,
+    "nBig": 5,
+    "bigFrac": 0.1358,
+    "largestPx": 1746
+   },
+   "upperHalf": {
+    "nHairPx": 13115,
+    "gabor_fracDevGt25": 0.599,
+    "gabor_fracDevGt45": 0.353,
+    "gabor_meanAbsErr": 36.029,
+    "lock_coherentDev45": 0.2449,
+    "crossScale": {
+     "fracGt25": 0.0445,
+     "mean": 7.895,
+     "nBig": 0,
+     "bigFrac": 0.0,
+     "largestPx": 448
+    },
+    "flow": {
+     "gabor_fracDevGt25": 0.5299,
+     "gabor_fracDevGt45": 0.4905,
+     "gabor_meanAbsErr": 44.969,
+     "lock_coherentDev45": 0.5021,
+     "lock_bigCompFrac": 0.4462,
+     "lock_nBigComp": 2,
+     "lock_largestCompPx": 5220
+    },
+    "histEMD_vsTarget": 15.149,
+    "histPeakBin_render": 9,
+    "histPeakBin_target": 15,
+    "histPeakMass_render": 0.1415,
+    "histPeakMass_target": 0.1846
+   },
+   "gradAniso_gyOvergx": 1.0228,
+   "darkComp_meanAreaPx": 91.6,
+   "darkComp_count": 40,
+   "darkComp_bigFrac": 0.052,
+   "darkComp_p10": 0.0941
+  }
+ }
+}

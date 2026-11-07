@@ -1,0 +1,238 @@
+{
+ "p1": {
+  "face_cx": 513,
+  "hair_top_row": 127,
+  "skull_crown_row": 150,
+  "chin_row": 608,
+  "H_px": 458,
+  "method": "vertical gradient + 2D temple line-fit; centre part-tip +-5px, outer +-6px",
+  "rows_LR": {
+   "0": [
+    208,
+    208
+   ],
+   "20": [
+    211,
+    211
+   ],
+   "40": [
+    212,
+    213
+   ],
+   "60": [
+    224,
+    219
+   ],
+   "80": [
+    245,
+    238
+   ],
+   "100": [
+    303,
+    284
+   ]
+  },
+  "h_frac_avg": [
+   0.87336,
+   0.86681,
+   0.86354,
+   0.84389,
+   0.80022,
+   0.68668
+  ],
+  "dx_over_H": [
+   0.0,
+   0.04367,
+   0.08734,
+   0.131,
+   0.17467,
+   0.21834
+  ]
+ },
+ "p2_v4_centre": {
+  "z": 1.58066,
+  "h_over_H": 0.6239
+ },
+ "p3": {
+  "profile_H": 452,
+  "rows": [
+   220,
+   240,
+   260,
+   280,
+   300
+  ],
+  "hair_front_col": [
+   390,
+   395,
+   400,
+   403,
+   406
+  ],
+  "eye_outer_col": 347,
+  "eye_row": 348,
+  "offsets_H": [
+   0.095,
+   0.106,
+   0.117,
+   0.124,
+   0.131
+  ],
+  "note": "offsets behind eye outer corner; ear covered by hair; sideburn descends at ~0.18-0.21H behind eye"
+ },
+ "p4": {
+  "brow_id": 227,
+  "brow_z": 1.57165,
+  "nasion_id": 1026,
+  "nasion_z": 1.54823,
+  "menton_z": 1.44922,
+  "note": "old brow_z=1.5303 was nasal bone; true brow ridge is the most anterior midline vert above the nasion"
+ },
+ "gates": {
+  "g1": {
+   "area_cm2": 585.0,
+   "removed_cm2": 47.76,
+   "added_cm2": 0.0,
+   "ncomp": 1,
+   "step_mm": 11.322,
+   "pass": false
+  },
+  "g2": {
+   "maxerr_H": 0.05262,
+   "mirror_mm": 0.0,
+   "pass": false,
+   "cols": [
+    {
+     "dx": 0,
+     "side": "C",
+     "hT": 0.8734,
+     "h4": 0.6239,
+     "h5": 0.8717
+    },
+    {
+     "dx": 20,
+     "side": "L",
+     "hT": 0.8668,
+     "h4": 0.63,
+     "h5": 0.8669
+    },
+    {
+     "dx": 20,
+     "side": "R",
+     "hT": 0.8668,
+     "h4": 0.63,
+     "h5": 0.8669
+    },
+    {
+     "dx": 40,
+     "side": "L",
+     "hT": 0.8635,
+     "h4": 0.6579,
+     "h5": 0.8324
+    },
+    {
+     "dx": 40,
+     "side": "R",
+     "hT": 0.8635,
+     "h4": 0.6579,
+     "h5": 0.8324
+    },
+    {
+     "dx": 60,
+     "side": "L",
+     "hT": 0.8439,
+     "h4": 0.6671,
+     "h5": 0.7913
+    },
+    {
+     "dx": 60,
+     "side": "R",
+     "hT": 0.8439,
+     "h4": 0.6671,
+     "h5": 0.7913
+    },
+    {
+     "dx": 80,
+     "side": "L",
+     "hT": 0.8002,
+     "h4": 0.6671,
+     "h5": 0.7501
+    },
+    {
+     "dx": 80,
+     "side": "R",
+     "hT": 0.8002,
+     "h4": 0.6671,
+     "h5": 0.7501
+    },
+    {
+     "dx": 100,
+     "side": "L",
+     "hT": 0.6867,
+     "h4": 0.6671,
+     "h5": 0.6884
+    },
+    {
+     "dx": 100,
+     "side": "R",
+     "hT": 0.6867,
+     "h4": 0.6671,
+     "h5": 0.6884
+    }
+   ]
+  },
+  "g3": {
+   "g13": 1.0,
+   "g7": 1.0,
+   "g15": 7.22,
+   "cross": 0,
+   "sinks": 1,
+   "fore_pct": 0.0,
+   "pass": false
+  },
+  "g4": {
+   "hausdorff_mm": 7.3069,
+   "pass": false
+  }
+ },
+ "acct": {
+  "removed_forehead_cm2": 47.76,
+  "removed_coarse_cm2": 55.98,
+  "added_cm2": 0.0,
+  "added_where": "none (face subset of v4)",
+  "removed_where": "front y<=ear_front_y ax<=join below-curve (forehead strip + 46mm nip + sideburn-tongue sliver)",
+  "blend_arc_mm": 49.1
+ },
+ "sink": {
+  "count": 1,
+  "roots": [
+   151
+  ]
+ },
+ "flow_b": {
+  "hist": {
+   "forehead": 0,
+   "temple-to-ear": 114,
+   "behind-ear": 112,
+   "nape": 73,
+   "never-left": 1
+  },
+  "g5B": 0.9927,
+  "g6B": 0.7565
+ },
+ "files": [
+  "flow6.py",
+  "cap-v5.npz",
+  "flow-b-v5.npz",
+  "hairline-compare.png",
+  "hairline-compare-profile.png",
+  "cap5-debug.png",
+  "target-hairline-overlay.png",
+  "compare-head.png",
+  "compare-profile.png",
+  "flow-debug.png",
+  "row-cap5.json",
+  "check-cap5.mjs",
+  "RESULT.txt"
+ ]
+}

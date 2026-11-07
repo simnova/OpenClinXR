@@ -1,0 +1,1 @@
+DONE hair-groom5: behind-ear tuck routing, coverage, clump ribbons; sheet.png + crops.png + RESULT.txt + GATES_PASS.txt; renders/score/gates/baseline/shading on disk; strands.npz in the asset store.

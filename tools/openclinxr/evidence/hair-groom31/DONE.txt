@@ -1,0 +1,4 @@
+DONE (with GATES_PASS: NO — reported honestly, no new fixes per orchestrator).
+STEP 0: shirt inference CONFIRMED for shoulders/back-mid, NOT nape/hem.
+Settled build rendered+scored: insideBody 0 PASS; crossings 935 PASS;
+gradAniso 0.4886 PASS; everything silhouette/ear/concha FAIL (see RESULT.txt).

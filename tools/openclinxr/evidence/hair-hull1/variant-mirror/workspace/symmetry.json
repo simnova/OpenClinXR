@@ -1,0 +1,45 @@
+{
+ "symmetry": {
+  "front": {
+   "mirrorIoU": 0.9434,
+   "axisCol": 513,
+   "axisOffsetFromCentre": 1.5,
+   "pass09": true,
+   "xorPx": 13896,
+   "xorFracOfMask": 0.0583,
+   "xorBbox": [
+    82,
+    1023,
+    195,
+    831
+   ],
+   "xorRowBands": {
+    "rows0_256": 1512,
+    "rows256_512": 1504,
+    "rows512_768": 4500,
+    "rows768_1024": 6380
+   }
+  },
+  "back": {
+   "mirrorIoU": 0.9868,
+   "axisCol": 512,
+   "axisOffsetFromCentre": 0.5,
+   "pass09": true,
+   "xorPx": 4460,
+   "xorFracOfMask": 0.0133,
+   "xorBbox": [
+    150,
+    1023,
+    259,
+    765
+   ],
+   "xorRowBands": {
+    "rows0_256": 176,
+    "rows256_512": 436,
+    "rows512_768": 1016,
+    "rows768_1024": 2832
+   }
+  }
+ },
+ "assumption": "target hairstyle bilaterally symmetric about the head midsagittal plane x = 0 (centre part, straight hair per style manifest part=centre)"
+}

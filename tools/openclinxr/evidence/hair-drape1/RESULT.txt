@@ -1,0 +1,72 @@
+HAIR DRAPE 1 — REAR SHEET DEPTH RE-DRAPE (guide clearance, width kept)
+Base = hair-prof1 cells/combo/strands.npz. Scorer hair-score/score.py schema v3
+(COLOR direct, strict keys, camera-relative all-7 rig). Params E/base/params.json
+= look7 best-params.json + rig1 search_best.json rig block. IoU light-independent.
+
+STEP 0 BASE RE-SCORE (E/base/score.json):
+ IoU f/p/b = 0.7147/0.6952/0.7698 (0.71468/0.69518/0.76976; matches prof1 v2).
+ Ori err f/3q/p/b = 24.83/32.57/32.32/24.66 deg.
+ Back bands 501x29.8 px vs TS 849x16.4; ear 84x10.2 vs TS 89x11.7.
+ Eye/jaw openings 0.6024/0.4365; honest part/side 0.9632; part gap 1.1 mm.
+ Material COLOR HUANG readback directColorLinear [0.00948,0.00692,0.00541];
+ lights rig mode camera_relative_all7 (rim 12.052 all views).
+
+STEP 1 DEPTH (E/depth.json; offset = strand_y - surface_y, + = posterior
+standoff; surface = max(head,torso incl shirt) bilinear; +-8mm z; halfwidth =
+p99(|x-median|); rows->z via crown125/men577/hem866 anchors):
+ row | z_w | gap TS-ours | child off med/p10/p90 | guide off med | child hw | guide hw
+ 250 | 1.602 | +28.0 | 9.6/0.5/23.4 | 10.9 | 83.8 | 70.9
+ 340 | 1.560 | +22.8 | 18.7/6.1/38.2 | 21.6 | 90.4 | 71.5
+ 430 | 1.518 | +22.4 | 42.5/18.9/92.1 | 46.8 | 95.6 | 72.0
+ 520 | 1.476 | +27.0 | 48.8/20.1/99.3 | 63.1 | 94.7 | 72.2
+ 610 | 1.432 | +27.5 | 38.0/19.4/58.6 | 49.4 | 96.3 | 72.0
+ 700 | 1.384 | +50.8 | 12.5/1.1/28.7 | 21.5 | 95.7 | 72.1
+ Generator clearance: c_back(t)=8+22*t mm, t_med 0.451 -> c_med 17.9 mm,
+ taper_clear to floor 4 mm at hem (zhem 1.295, top 1.349); c_side 4+16*t.
+ Reading: standoff 10-49 mm (neck hollow peak) same order as TS gap 22-28
+ (+51 hem); halving = ~11-14 mm (25 hem) = d1; full = 22-28 (51 hem) = d2.
+
+STEP 2 CELLS (generator copy E/guides16_drape.py; rear-only y-shift anterior
+k*gap(z) interp six anchors, 150 mm arc fade, curtain bitwise; d3 = d2 +
+per-10mm-bin x-rescale to base halfwidth, ratio 1.000 all bins = identity
+pre-repair, i.e. y-shift preserves width by construction):
+ d1 k=0.5 (tips -25.4 mm); d2 k=1.0 (tips -50.8 mm); d3 = d2 + widen (no-op).
+ Repair (Blender base_children.repair_outside + tilt5 clamp_ends_vertical):
+  d1 inside 0 PASS, part 1.1 PASS, end p95 13.17 FAIL (pre 6.78; refinish clamp
+   13.17->3.35 but re-induced 59k head/141k shirt inside, so restored repaired
+   version and kept FAIL honest; strands_repair.npz retained).
+  d2 inside 0 PASS, part 1.1 PASS, end 1.40 PASS.
+  d3 inside 0 PASS, part 1.1 PASS, end 1.40 PASS.
+ Eye/jaw from v3 judge (within 1 pp of base 0.6024/0.4365): all 0.6046/0.4365
+  (+0.22 pp eye, 0 jaw) PASS. Back components >=85% base (426): d1 459 PASS,
+  d2/d3 424 FAIL (84.6%).
+
+STEP 3 SCORES (v3 + rig1; dIoU/dOri vs base; bands back ours):
+ d1: IoU 0.7118/0.7392/0.6655; d -0.0029/+0.0440/-0.1043;
+     ori 24.79/34.36/31.86/24.45 (d -0.04/+1.78/-0.46/-0.21);
+     back 459x32.1; ear 91x9.6; eye/jaw 0.6046/0.4365.
+ d2: IoU 0.7057/0.7681/0.5891; d -0.0090/+0.0729/-0.1807;
+     ori 25.53/33.87/30.97/25.77 (d +0.70/+1.30/-1.35/+1.11);
+     back 424x36.1; ear 178x5.4; eye/jaw 0.6046/0.4365.
+ d3: identical to d2 (bitwise; widen ratio 1.0).
+ KEEP (profile +>=0.01; front/back not down >0.01; ori not worse >1 deg any):
+  d1 profile PASS but back FAIL + 3q-ori FAIL (+1.78) + end-gate FAIL + bands PASS.
+  d2 profile PASS, front PASS (-0.009), back FAIL, 3q/back-ori FAIL, bands-gate FAIL.
+  d3 same as d2.
+ KEPT: none. REVERTED: d1, d2, d3. Best KEPT = base.
+ Best cell strands path = tools/openclinxr/evidence/hair-prof1/cells/combo/strands.npz
+ (base retained; no drape cell kept).
+ Look-sheet E/look-sheet.png rows TS | combo | best-d1-REV; cols front,
+ profile_90, back, profile overlay (ours red, TS green), back crop (320,280,704,664).
+
+SAW: Depth re-drape reproduces the c_pb trade almost exactly: profile
++0.044/+0.073 for back -0.104/-0.181 (1:2.4-2.5 vs c_pb 1:1.7), 3q ori
++1.3/+1.8, back bands 459/424 (d2 below the 85% gate by 2 components).
+d3 proves the loss is not lateral width (y-shift preserves x; rescale ratio
+1.000): the back needs the sheet's posterior cover/thickness for mid-back
+density and highlight fragmentation, while the profile needs less depth.
+Uniform anterior shift thins the mid-back and collapses bands even with width
+held. Next is not a shift but a shoulder-surface solve (curtain5 NEXT: guide-
+level shoulder surface + rebuild without post-depth correction) or per-region
+sigma scheduling; hem row700 (+51 mm) must not move with the mid-sheet.
+NOT TESTED: Quest/worn-headset; clinical validity/scoring claims.

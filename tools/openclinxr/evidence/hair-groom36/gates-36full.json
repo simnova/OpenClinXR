@@ -1,0 +1,443 @@
+{
+ "tag": "36full",
+ "strands": "/Volumes/files/openclinxr-assets/store/hair-groom36/build-36/strands.npz",
+ "strandsSha256": "dc1e2df2b719c98d",
+ "sidesM": {
+  "xpos": {
+   "zmin": 1.5082972049713135,
+   "yfront": -0.04625330865383148,
+   "yback": -0.09075874090194702,
+   "xmin": 0.06155284866690636,
+   "xmax": 0.0807812511920929,
+   "nPinnaVerts": 168,
+   "provenance": "idx_earXpos mirrored across x=0; idx_earXneg ignored",
+   "sgn": 1.0
+  },
+  "xneg": {
+   "zmin": 1.5082972049713135,
+   "yfront": -0.04625330865383148,
+   "yback": -0.09075874090194702,
+   "xmin": 0.06155284866690636,
+   "xmax": 0.0807812511920929,
+   "nPinnaVerts": 168,
+   "provenance": "idx_earXpos mirrored across x=0; idx_earXneg ignored",
+   "sgn": -1.0
+  }
+ },
+ "perSide": {
+  "xpos": {
+   "shell": {
+    "nSegments": 2134,
+    "nStrands": 1136,
+    "exStrands": [
+     904,
+     2124,
+     2525,
+     2526,
+     2527,
+     2529,
+     2530,
+     2531,
+     2534,
+     2539
+    ]
+   },
+   "column": {
+    "strands": 53,
+    "samples": 55,
+    "tips": 4,
+    "strands25mm": 53,
+    "samples25mm": 55,
+    "tips25mm": 4
+   }
+  },
+  "xneg": {
+   "shell": {
+    "nSegments": 2043,
+    "nStrands": 1036,
+    "exStrands": [
+     103088,
+     103092,
+     103096,
+     135882,
+     137106,
+     137111,
+     137115,
+     137116,
+     137119,
+     137500
+    ]
+   },
+   "column": {
+    "strands": 56,
+    "samples": 58,
+    "tips": 3,
+    "strands25mm": 56,
+    "samples25mm": 58,
+    "tips25mm": 3
+   }
+  }
+ },
+ "concha34": {
+  "front/xpos": 0,
+  "front/xneg": 0,
+  "three_quarter/xpos": 0,
+  "three_quarter/xneg": 0,
+  "profile_90/xpos": 0,
+  "profile_90/xneg": 0
+ },
+ "segmentsGt30": {
+  "nGt30mm": 2970,
+  "nNearHorizontal": 324,
+  "maxMm": 119.52
+ },
+ "insideBody": {
+  "nSge1Inside": 0
+ },
+ "boxesStd": {
+  "front/xpos": {
+   "rows": [
+    437.0,
+    495.4
+   ],
+   "cols": [
+    666.7,
+    678.2
+   ],
+   "intRows": [
+    437,
+    496
+   ],
+   "intCols": [
+    666,
+    679
+   ]
+  },
+  "front/xneg": {
+   "rows": [
+    437.0,
+    495.4
+   ],
+   "cols": [
+    345.8,
+    357.3
+   ],
+   "intRows": [
+    437,
+    496
+   ],
+   "intCols": [
+    345,
+    358
+   ]
+  },
+  "three_quarter/xpos": {
+   "rows": [
+    439.6,
+    500.3
+   ],
+   "cols": [
+    478.3,
+    552.6
+   ],
+   "intRows": [
+    439,
+    501
+   ],
+   "intCols": [
+    478,
+    553
+   ]
+  },
+  "three_quarter/xneg": {
+   "rows": [
+    441.3,
+    493.1
+   ],
+   "cols": [
+    274.5,
+    347.6
+   ],
+   "intRows": [
+    441,
+    494
+   ],
+   "intCols": [
+    274,
+    348
+   ]
+  },
+  "profile_90/xpos": {
+   "rows": [
+    438.1,
+    494.7
+   ],
+   "cols": [
+    306.7,
+    407.5
+   ],
+   "intRows": [
+    438,
+    495
+   ],
+   "intCols": [
+    306,
+    408
+   ]
+  },
+  "profile_90/xneg": {
+   "rows": [
+    444.2,
+    490.4
+   ],
+   "cols": [
+    344.6,
+    426.8
+   ],
+   "intRows": [
+    444,
+    491
+   ],
+   "intCols": [
+    344,
+    427
+   ]
+  },
+  "back/xpos": {
+   "rows": [
+    443.4,
+    491.0
+   ],
+   "cols": [
+    376.4,
+    384.1
+   ],
+   "intRows": [
+    443,
+    492
+   ],
+   "intCols": [
+    376,
+    385
+   ]
+  },
+  "back/xneg": {
+   "rows": [
+    443.4,
+    491.0
+   ],
+   "cols": [
+    639.9,
+    647.6
+   ],
+   "intRows": [
+    443,
+    492
+   ],
+   "intCols": [
+    639,
+    648
+   ]
+  }
+ },
+ "imgStd": {
+  "front/xpos": {
+   "box": [
+    437,
+    496,
+    666,
+    679
+   ],
+   "hairIDpx": 629
+  },
+  "front/xneg": {
+   "box": [
+    437,
+    496,
+    345,
+    358
+   ],
+   "hairIDpx": 628
+  },
+  "three_quarter/xpos": {
+   "box": [
+    439,
+    501,
+    478,
+    553
+   ],
+   "hairIDpx": 281
+  },
+  "three_quarter/xneg": {
+   "box": [
+    441,
+    494,
+    274,
+    348
+   ],
+   "hairIDpx": 0
+  },
+  "profile_90/xpos": {
+   "box": [
+    438,
+    495,
+    306,
+    408
+   ],
+   "hairIDpx": 0
+  },
+  "profile_90/xneg": {
+   "box": [
+    444,
+    491,
+    344,
+    427
+   ],
+   "hairIDpx": 5
+  },
+  "back/xpos": {
+   "box": [
+    443,
+    492,
+    376,
+    385
+   ],
+   "hairIDpx": 441
+  },
+  "back/xneg": {
+   "box": [
+    443,
+    492,
+    639,
+    648
+   ],
+   "hairIDpx": 441
+  }
+ },
+ "boxesMirror": {
+  "three_quarter/xpos": {
+   "rows": [
+    441.3,
+    493.1
+   ],
+   "cols": [
+    676.4,
+    749.5
+   ],
+   "intRows": [
+    441,
+    494
+   ],
+   "intCols": [
+    676,
+    750
+   ]
+  },
+  "three_quarter/xneg": {
+   "rows": [
+    439.6,
+    500.3
+   ],
+   "cols": [
+    471.4,
+    545.7
+   ],
+   "intRows": [
+    439,
+    501
+   ],
+   "intCols": [
+    471,
+    546
+   ]
+  },
+  "profile_90/xpos": {
+   "rows": [
+    444.2,
+    490.4
+   ],
+   "cols": [
+    597.2,
+    679.4
+   ],
+   "intRows": [
+    444,
+    491
+   ],
+   "intCols": [
+    597,
+    680
+   ]
+  },
+  "profile_90/xneg": {
+   "rows": [
+    438.1,
+    494.7
+   ],
+   "cols": [
+    616.5,
+    717.3
+   ],
+   "intRows": [
+    438,
+    495
+   ],
+   "intCols": [
+    616,
+    718
+   ]
+  }
+ },
+ "imgMirror": {
+  "three_quarter/xpos": {
+   "box": [
+    441,
+    494,
+    676,
+    750
+   ],
+   "hairIDpx": 0
+  },
+  "three_quarter/xneg": {
+   "box": [
+    439,
+    501,
+    471,
+    546
+   ],
+   "hairIDpx": 357
+  },
+  "profile_90/xpos": {
+   "box": [
+    444,
+    491,
+    597,
+    680
+   ],
+   "hairIDpx": 11
+  },
+  "profile_90/xneg": {
+   "box": [
+    438,
+    495,
+    616,
+    718
+   ],
+   "hairIDpx": 0
+  }
+ },
+ "mirrorIou": {
+  "three_quarter": {
+   "iou": 0.9731,
+   "interPx": 98507,
+   "unionPx": 101231,
+   "note": "flipped -x ID vs +x ID (no target on -x)"
+  },
+  "profile_90": {
+   "iou": 0.9717,
+   "interPx": 164038,
+   "unionPx": 168822,
+   "note": "flipped -x ID vs +x ID (no target on -x)"
+  }
+ }
+}

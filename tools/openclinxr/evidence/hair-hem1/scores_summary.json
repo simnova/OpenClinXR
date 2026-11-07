@@ -1,0 +1,389 @@
+{
+  "base": {
+    "iouF": 0.7364803646114564,
+    "iouP": 0.7308257856243084,
+    "iouB": 0.7599817002162702,
+    "oriF": 24.090485054234193,
+    "ori3": 33.051492794260746,
+    "oriP": 31.372454736272772,
+    "oriB": 24.414790905092516,
+    "backCount": 563,
+    "eye": 0.6024005578082756,
+    "jaw": 0.4365221433393302,
+    "holes": {
+      "holeComponents": 783,
+      "holePixels": 1772,
+      "hairPixels": 182719,
+      "holePctOfHair": 0.9697951499296734,
+      "largestHolePx": 39
+    },
+    "rails": {
+      "back": {
+        "railComponents": 233,
+        "railAreaPx": 2399
+      },
+      "front": {
+        "railComponents": 16,
+        "railAreaPx": 553
+      },
+      "profile_90": {
+        "railComponents": 92,
+        "railAreaPx": 270
+      }
+    },
+    "inside": null,
+    "n": 98549
+  },
+  "cells": {
+    "c_absorb": {
+      "iouF": 0.7180116346392434,
+      "iouP": 0.7389688783815208,
+      "iouB": 0.7800946181481877,
+      "oriF": 23.82433693888401,
+      "ori3": 32.7671102699665,
+      "oriP": 31.538928998979447,
+      "oriB": 24.546036564426988,
+      "backCount": 562,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 721,
+        "holePixels": 2438,
+        "hairPixels": 180538,
+        "holePctOfHair": 1.350408224307348,
+        "largestHolePx": 687
+      },
+      "rails": {
+        "back": {
+          "railComponents": 110,
+          "railAreaPx": 708
+        },
+        "front": {
+          "railComponents": 18,
+          "railAreaPx": 533
+        },
+        "profile_90": {
+          "railComponents": 85,
+          "railAreaPx": 232
+        }
+      },
+      "inside": 0,
+      "n": 98549
+    },
+    "c_blunt": {
+      "iouF": 0.7261927660081151,
+      "iouP": 0.7316797491246296,
+      "iouB": 0.7718432418922772,
+      "oriF": 24.11918487962906,
+      "ori3": 33.37616713851172,
+      "oriP": 31.848503708195576,
+      "oriB": 24.55140032571376,
+      "backCount": 564,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 774,
+        "holePixels": 1754,
+        "hairPixels": 181493,
+        "holePctOfHair": 0.9664284572958737,
+        "largestHolePx": 39
+      },
+      "rails": {
+        "back": {
+          "railComponents": 149,
+          "railAreaPx": 1004
+        },
+        "front": {
+          "railComponents": 25,
+          "railAreaPx": 578
+        },
+        "profile_90": {
+          "railComponents": 70,
+          "railAreaPx": 167
+        }
+      },
+      "inside": 0,
+      "n": 98549
+    },
+    "c_widen": {
+      "iouF": 0.7163879965955577,
+      "iouP": 0.734468322098673,
+      "iouB": 0.7723145095387043,
+      "oriF": 24.34327836817877,
+      "ori3": 32.57229721270026,
+      "oriP": 31.310133089754657,
+      "oriB": 24.46196397352325,
+      "backCount": 567,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 621,
+        "holePixels": 1375,
+        "hairPixels": 182626,
+        "holePctOfHair": 0.7529048437790895,
+        "largestHolePx": 37
+      },
+      "rails": {
+        "back": {
+          "railComponents": 99,
+          "railAreaPx": 880
+        },
+        "front": {
+          "railComponents": 18,
+          "railAreaPx": 444
+        },
+        "profile_90": {
+          "railComponents": 83,
+          "railAreaPx": 271
+        }
+      },
+      "inside": 0,
+      "n": 106549
+    },
+    "c_best": {
+      "iouF": 0.7227417166686394,
+      "iouP": 0.7314445388681636,
+      "iouB": 0.7715844802837118,
+      "oriF": 24.73267506571815,
+      "ori3": 33.54254050688314,
+      "oriP": 31.478479600246484,
+      "oriB": 24.60137235748998,
+      "backCount": 559,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 708,
+        "holePixels": 1639,
+        "hairPixels": 182042,
+        "holePctOfHair": 0.9003416793926676,
+        "largestHolePx": 53
+      },
+      "rails": {
+        "back": {
+          "railComponents": 145,
+          "railAreaPx": 1020
+        },
+        "front": {
+          "railComponents": 25,
+          "railAreaPx": 578
+        },
+        "profile_90": {
+          "railComponents": 64,
+          "railAreaPx": 148
+        }
+      },
+      "inside": 0,
+      "n": 106549
+    },
+    "c_best2": {
+      "iouF": 0.7327886601220965,
+      "iouP": 0.7313238039029399,
+      "iouB": 0.7667476619176645,
+      "oriF": 24.801911039254602,
+      "ori3": 33.420091668277074,
+      "oriP": 31.496610851335234,
+      "oriB": 24.595242563999413,
+      "backCount": 557,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 704,
+        "holePixels": 1574,
+        "hairPixels": 182222,
+        "holePctOfHair": 0.8637815411970015,
+        "largestHolePx": 33
+      },
+      "rails": {
+        "back": {
+          "railComponents": 183,
+          "railAreaPx": 1946
+        },
+        "front": {
+          "railComponents": 16,
+          "railAreaPx": 606
+        },
+        "profile_90": {
+          "railComponents": 79,
+          "railAreaPx": 210
+        }
+      },
+      "inside": 0,
+      "n": 106549
+    },
+    "c_best3": {
+      "iouF": 0.7333648719954875,
+      "iouP": 0.7303994525294194,
+      "iouB": 0.7554579695554823,
+      "oriF": 24.80746017461079,
+      "ori3": 33.381351209752864,
+      "oriP": 31.407415297783444,
+      "oriB": 24.666756763154385,
+      "backCount": 558,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 705,
+        "holePixels": 1608,
+        "hairPixels": 182932,
+        "holePctOfHair": 0.8790151531716703,
+        "largestHolePx": 33
+      },
+      "rails": {
+        "back": {
+          "railComponents": 178,
+          "railAreaPx": 2235
+        },
+        "front": {
+          "railComponents": 15,
+          "railAreaPx": 556
+        },
+        "profile_90": {
+          "railComponents": 93,
+          "railAreaPx": 395
+        }
+      },
+      "inside": 0,
+      "n": 106549
+    },
+    "c_best5": {
+      "iouF": 0.7221146645723365,
+      "iouP": 0.7410015192240271,
+      "iouB": 0.7837837837837838,
+      "oriF": 24.671988183415326,
+      "ori3": 33.457745284304046,
+      "oriP": 31.694439114381144,
+      "oriB": 24.641044113832777,
+      "backCount": 559,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 680,
+        "holePixels": 1730,
+        "hairPixels": 179259,
+        "holePctOfHair": 0.9650840404108022,
+        "largestHolePx": 40
+      },
+      "rails": {
+        "back": {
+          "railComponents": 129,
+          "railAreaPx": 394
+        },
+        "front": {
+          "railComponents": 24,
+          "railAreaPx": 465
+        },
+        "profile_90": {
+          "railComponents": 102,
+          "railAreaPx": 215
+        }
+      },
+      "inside": 0,
+      "n": 106549
+    },
+    "c_best6": {
+      "iouF": 0.7316240405714234,
+      "iouP": 0.7365414173441472,
+      "iouB": 0.7762314983259126,
+      "oriF": 24.64746204338941,
+      "ori3": 33.46088142506153,
+      "oriP": 31.496578824843432,
+      "oriB": 24.65486736003181,
+      "backCount": 557,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 662,
+        "holePixels": 1598,
+        "hairPixels": 180844,
+        "holePctOfHair": 0.883634513724536,
+        "largestHolePx": 40
+      },
+      "rails": {
+        "back": {
+          "railComponents": 195,
+          "railAreaPx": 941
+        },
+        "front": {
+          "railComponents": 62,
+          "railAreaPx": 622
+        },
+        "profile_90": {
+          "railComponents": 86,
+          "railAreaPx": 256
+        }
+      },
+      "inside": 0,
+      "n": 106549
+    },
+    "c_best7": {
+      "iouF": 0.7153216740688867,
+      "iouP": 0.7499370448092828,
+      "iouB": 0.7805724166630792,
+      "oriF": 24.249303685385936,
+      "ori3": 33.06668429917533,
+      "oriP": 31.035566872349143,
+      "oriB": 24.650819130805612,
+      "backCount": 551,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 620,
+        "holePixels": 1740,
+        "hairPixels": 176373,
+        "holePctOfHair": 0.9865455596945111,
+        "largestHolePx": 74
+      },
+      "rails": {
+        "back": {
+          "railComponents": 34,
+          "railAreaPx": 533
+        },
+        "front": {
+          "railComponents": 21,
+          "railAreaPx": 549
+        },
+        "profile_90": {
+          "railComponents": 74,
+          "railAreaPx": 176
+        }
+      },
+      "inside": 0,
+      "n": 99945
+    },
+    "c_best8": {
+      "iouF": 0.7268881675142308,
+      "iouP": 0.7495002936545931,
+      "iouB": 0.7613471368443886,
+      "oriF": 24.63620598288501,
+      "ori3": 33.59060118913935,
+      "oriP": 31.330206027024243,
+      "oriB": 24.682906219375372,
+      "backCount": 562,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 663,
+        "holePixels": 1825,
+        "hairPixels": 176460,
+        "holePctOfHair": 1.03422872038989,
+        "largestHolePx": 55
+      },
+      "rails": {
+        "back": {
+          "railComponents": 51,
+          "railAreaPx": 338
+        },
+        "front": {
+          "railComponents": 18,
+          "railAreaPx": 431
+        },
+        "profile_90": {
+          "railComponents": 69,
+          "railAreaPx": 165
+        }
+      },
+      "inside": 0,
+      "n": 99945
+    }
+  }
+}

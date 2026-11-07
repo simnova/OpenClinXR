@@ -1,0 +1,15 @@
+{
+  "K": 5,
+  "variant": "r2",
+  "curtainOnly": false,
+  "renormalised": true,
+  "method": "frame-transport loft + IDW blend + length-restore (geo7 replica)",
+  "renorm": "post-blend post-fade lateral reset: off_x(j) = sign * |root_x - guideblend_root_x|",
+  "untouchedPopulation": null,
+  "curtainChildren": 30368,
+  "rearChildren": 38813,
+  "transportedChildren": 69181,
+  "lengthRestore": "per-strand scale to a1 arc length about the root (transported only)",
+  "endTreatment": "strict clamp_ends_vertical on transported children only",
+  "guides": "guides16.npz untouched"
+}

@@ -1,0 +1,54 @@
+{
+ "count": {
+  "n": 99085,
+  "pointsPer": 32,
+  "expect": 99085,
+  "pass": true,
+  "hard": true
+ },
+ "partCrossings": {
+  "nAssignAcross": 0,
+  "pass": true,
+  "hard": true,
+  "nAssignAcrossBelowVertexAllowed": 175,
+  "tipDriftAcross": 154,
+  "tipOvershootMmP50": 1.63,
+  "tipOvershootMmMax": 84.72,
+  "guideTipCross": 17,
+  "note": "assignment never crosses (HARD); tip drift calibrated vs guide shape (advisory)"
+ },
+ "insideBody": {
+  "nSge1Inside": 0,
+  "pass": true,
+  "hard": true
+ },
+ "determinism": {
+  "hashA": "e40885c76f403a0298b2182c2c5d35ac5307aa5c12e98a65d1212a55eca52472",
+  "hashB": "e40885c76f403a0298b2182c2c5d35ac5307aa5c12e98a65d1212a55eca52472",
+  "pass": true,
+  "hard": true
+ },
+ "lane": {
+  "nBackStrands": 89448,
+  "guideSpacingMm": 1.06,
+  "lagBins": 2,
+  "peakRatio": 0.998,
+  "shear": {
+   "oursTangentRmsDeg": 3.75,
+   "nGroups": 484,
+   "controlTangentRmsDeg": 7.41
+  },
+  "pass": true,
+  "hard": true
+ },
+ "framesSelfTest": {
+  "spinPer100mmDeg": 0.0,
+  "spinTotalDeg": 3e-06,
+  "lengthMm": 630.4,
+  "frenetContrastPer100mmDeg": 64.7,
+  "orthoMax": 1.249000902703301e-16,
+  "normMax": 1.1102230246251565e-16,
+  "pass": true
+ },
+ "pass": true
+}

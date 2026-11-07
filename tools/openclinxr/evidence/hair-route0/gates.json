@@ -1,0 +1,423 @@
+{
+ "nGuides": 359,
+ "unreachable": 0,
+ "specSha": "db7706df6109a5b3895828bcf84625cfed7ada0f1f424d395ba20d82bf04a9de",
+ "endpointCoverage": {
+  "CL": {
+   "n": 43,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.0,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 0.814
+  },
+  "CR": {
+   "n": 42,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.0,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 0.857
+  },
+  "BKL": {
+   "n": 136,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.0,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 0.949
+  },
+  "BKR": {
+   "n": 138,
+   "nnMinMm": 2.0,
+   "nnP50Mm": 2.0,
+   "fracNNunder2mm": 0.0,
+   "fracNNunder4mm": 0.928
+  }
+ },
+ "boundaryFrac4mm": 0.0663,
+ "crownTangent": {
+  "mean": 0.5966,
+  "n": 10235
+ },
+ "crownAzimuth": {
+  "mean": 0.4701,
+  "n": 10235
+ },
+ "crownTangentGuides0": {
+  "mean": 0.6436,
+  "n": 3169
+ },
+ "crownBandMm": [
+  1570.0,
+  1640.0
+ ],
+ "crownTangentGate": 0.45,
+ "partCrossings": {
+  "rawFlips": 16,
+  "crossingsOver2mm": 0,
+  "maxExcursionMm": 0.14
+ },
+ "backCentreGap": {
+  "n": 268,
+  "maxGapMm": 6.0
+ },
+ "backCentreGapGateMm": 20.0,
+ "leaderMm": {
+  "max": 18.74,
+  "p95": 6.23,
+  "p50": 5.13,
+  "nOver8mm": 12
+ },
+ "yEarMm": -76.90242677927017,
+ "pokePx": {
+  "front": 1775,
+  "profile_90": 5474,
+  "back": 2389
+ },
+ "regional": {
+  "front": {
+   "crown": {
+    "excessN": 358,
+    "excessP50": 8.0,
+    "excessP95": 11.0,
+    "missN": 72,
+    "missP50": 4.0,
+    "missP95": 12.3,
+    "excessN_poke": 20,
+    "excessN_nonpoke": 338,
+    "excessP50_nonpoke": 8.1,
+    "excessP95_nonpoke": 11.2
+   },
+   "side_curtain_L": {
+    "excessN": 63,
+    "excessP50": 1.0,
+    "excessP95": 2.0,
+    "missN": 518,
+    "missP50": 15.2,
+    "missP95": 34.1,
+    "excessN_poke": 0,
+    "excessN_nonpoke": 63,
+    "excessP50_nonpoke": 1.0,
+    "excessP95_nonpoke": 2.0
+   },
+   "side_curtain_R": {
+    "excessN": 51,
+    "excessP50": 1.4,
+    "excessP95": 3.4,
+    "missN": 466,
+    "missP50": 18.8,
+    "missP95": 36.3,
+    "excessN_poke": 0,
+    "excessN_nonpoke": 51,
+    "excessP50_nonpoke": 1.4,
+    "excessP95_nonpoke": 3.4
+   },
+   "hem": {
+    "excessN": 95,
+    "excessP50": 2.0,
+    "excessP95": 3.0,
+    "missN": 509,
+    "missP50": 28.7,
+    "missP95": 69.4,
+    "excessN_poke": 0,
+    "excessN_nonpoke": 95,
+    "excessP50_nonpoke": 2.0,
+    "excessP95_nonpoke": 3.0
+   },
+   "face_opening": {
+    "excessN": 0,
+    "excessP50": 0.0,
+    "excessP95": 0.0,
+    "missN": 93,
+    "missP50": 840.1,
+    "missP95": 855.2,
+    "excessN_poke": 0,
+    "excessN_nonpoke": 0,
+    "excessP50_nonpoke": 0.0,
+    "excessP95_nonpoke": 0.0
+   }
+  },
+  "profile_90": {
+   "crown": {
+    "excessN": 530,
+    "excessP50": 24.0,
+    "excessP95": 36.4,
+    "missN": 59,
+    "missP50": 3.6,
+    "missP95": 10.8,
+    "excessN_poke": 55,
+    "excessN_nonpoke": 475,
+    "excessP50_nonpoke": 24.3,
+    "excessP95_nonpoke": 37.2
+   },
+   "side_curtain_L": {
+    "excessN": 152,
+    "excessP50": 2.0,
+    "excessP95": 3.1,
+    "missN": 194,
+    "missP50": 5.7,
+    "missP95": 13.7,
+    "excessN_poke": 0,
+    "excessN_nonpoke": 152,
+    "excessP50_nonpoke": 2.0,
+    "excessP95_nonpoke": 3.1
+   },
+   "side_curtain_R": {
+    "excessN": 0,
+    "excessP50": 0.0,
+    "excessP95": 0.0,
+    "missN": 0,
+    "missP50": 0.0,
+    "missP95": 0.0,
+    "excessN_poke": 0,
+    "excessN_nonpoke": 0,
+    "excessP50_nonpoke": 0.0,
+    "excessP95_nonpoke": 0.0
+   },
+   "hem": {
+    "excessN": 17,
+    "excessP50": 2.0,
+    "excessP95": 2.4,
+    "missN": 184,
+    "missP50": 28.6,
+    "missP95": 34.5,
+    "excessN_poke": 0,
+    "excessN_nonpoke": 17,
+    "excessP50_nonpoke": 2.0,
+    "excessP95_nonpoke": 2.4
+   },
+   "face_opening": {
+    "excessN": 0,
+    "excessP50": 0.0,
+    "excessP95": 0.0,
+    "missN": 0,
+    "missP50": 0.0,
+    "missP95": 0.0,
+    "excessN_poke": 0,
+    "excessN_nonpoke": 0,
+    "excessP50_nonpoke": 0.0,
+    "excessP95_nonpoke": 0.0
+   }
+  },
+  "back": {
+   "crown": {
+    "excessN": 458,
+    "excessP50": 25.3,
+    "excessP95": 29.0,
+    "missN": 39,
+    "missP50": 2.8,
+    "missP95": 4.0,
+    "excessN_poke": 55,
+    "excessN_nonpoke": 403,
+    "excessP50_nonpoke": 26.0,
+    "excessP95_nonpoke": 29.1
+   },
+   "side_curtain_L": {
+    "excessN": 363,
+    "excessP50": 2.0,
+    "excessP95": 18.4,
+    "missN": 333,
+    "missP50": 4.0,
+    "missP95": 15.0,
+    "excessN_poke": 3,
+    "excessN_nonpoke": 360,
+    "excessP50_nonpoke": 2.0,
+    "excessP95_nonpoke": 18.4
+   },
+   "side_curtain_R": {
+    "excessN": 362,
+    "excessP50": 2.0,
+    "excessP95": 18.8,
+    "missN": 106,
+    "missP50": 5.8,
+    "missP95": 14.4,
+    "excessN_poke": 4,
+    "excessN_nonpoke": 358,
+    "excessP50_nonpoke": 2.0,
+    "excessP95_nonpoke": 18.8
+   },
+   "hem": {
+    "excessN": 390,
+    "excessP50": 2.2,
+    "excessP95": 3.0,
+    "missN": 44,
+    "missP50": 4.2,
+    "missP95": 12.5,
+    "excessN_poke": 0,
+    "excessN_nonpoke": 390,
+    "excessP50_nonpoke": 2.2,
+    "excessP95_nonpoke": 3.0
+   },
+   "face_opening": {
+    "excessN": 0,
+    "excessP50": 0.0,
+    "excessP95": 0.0,
+    "missN": 0,
+    "missP50": 0.0,
+    "missP95": 0.0,
+    "excessN_poke": 0,
+    "excessN_nonpoke": 0,
+    "excessP50_nonpoke": 0.0,
+    "excessP95_nonpoke": 0.0
+   }
+  }
+ },
+ "regionalDenseProxy": {
+  "front": {
+   "crown": {
+    "missN": 44,
+    "missP50": 2.0,
+    "missP95": 10.1,
+    "missP50_dil11": 2.2,
+    "missP95_dil11": 3.6
+   },
+   "side_curtain_L": {
+    "missN": 447,
+    "missP50": 16.3,
+    "missP95": 31.5,
+    "missP50_dil11": 10.6,
+    "missP95_dil11": 25.1
+   },
+   "side_curtain_R": {
+    "missN": 452,
+    "missP50": 16.0,
+    "missP95": 33.5,
+    "missP50_dil11": 10.2,
+    "missP95_dil11": 26.6
+   },
+   "hem": {
+    "missN": 445,
+    "missP50": 33.0,
+    "missP95": 67.0,
+    "missP50_dil11": 36.1,
+    "missP95_dil11": 59.8
+   },
+   "face_opening": {
+    "missN": 93,
+    "missP50": 840.1,
+    "missP95": 855.2,
+    "missP50_dil11": 0.0,
+    "missP95_dil11": 0.0
+   }
+  },
+  "profile_90": {
+   "crown": {
+    "missN": 34,
+    "missP50": 4.6,
+    "missP95": 8.5,
+    "missP50_dil11": 1.0,
+    "missP95_dil11": 1.4
+   },
+   "side_curtain_L": {
+    "missN": 123,
+    "missP50": 6.7,
+    "missP95": 12.0,
+    "missP50_dil11": 2.2,
+    "missP95_dil11": 5.9
+   },
+   "side_curtain_R": {
+    "missN": 0,
+    "missP50": 0.0,
+    "missP95": 0.0,
+    "missP50_dil11": 0.0,
+    "missP95_dil11": 0.0
+   },
+   "hem": {
+    "missN": 178,
+    "missP50": 26.0,
+    "missP95": 31.9,
+    "missP50_dil11": 19.1,
+    "missP95_dil11": 25.4
+   },
+   "face_opening": {
+    "missN": 0,
+    "missP50": 0.0,
+    "missP95": 0.0,
+    "missP50_dil11": 0.0,
+    "missP95_dil11": 0.0
+   }
+  },
+  "back": {
+   "crown": {
+    "missN": 10,
+    "missP50": 1.0,
+    "missP95": 1.4,
+    "missP50_dil11": 0.0,
+    "missP95_dil11": 0.0
+   },
+   "side_curtain_L": {
+    "missN": 236,
+    "missP50": 2.0,
+    "missP95": 12.7,
+    "missP50_dil11": 4.0,
+    "missP95_dil11": 9.2
+   },
+   "side_curtain_R": {
+    "missN": 71,
+    "missP50": 5.0,
+    "missP95": 12.8,
+    "missP50_dil11": 4.2,
+    "missP95_dil11": 7.8
+   },
+   "hem": {
+    "missN": 25,
+    "missP50": 5.7,
+    "missP95": 10.2,
+    "missP50_dil11": 2.8,
+    "missP95_dil11": 4.0
+   },
+   "face_opening": {
+    "missN": 0,
+    "missP50": 0.0,
+    "missP95": 0.0,
+    "missP50_dil11": 0.0,
+    "missP95_dil11": 0.0
+   }
+  }
+ },
+ "faceGuards": {
+  "front": {
+   "coveredPx": 0,
+   "guardPx": 5712,
+   "eyes": {
+    "coveredPx": 0,
+    "guardPx": 3087
+   },
+   "mouth": {
+    "coveredPx": 0,
+    "guardPx": 2625
+   }
+  },
+  "profile_90": {
+   "coveredPx": 0,
+   "guardPx": 3024,
+   "eyes": {
+    "coveredPx": 0,
+    "guardPx": 1368
+   },
+   "mouth": {
+    "coveredPx": 0,
+    "guardPx": 1656
+   }
+  },
+  "back": {
+   "coveredPx": 0,
+   "guardPx": 0
+  },
+  "totalCoveredPx": 0
+ },
+ "verdict": "MODEL_INADEQUATE",
+ "regionalFails": [
+  "front/side_curtain_L missP50=15.2",
+  "front/side_curtain_L missP95=34.1",
+  "front/side_curtain_R missP50=18.8",
+  "front/side_curtain_R missP95=36.3",
+  "front/hem missP50=28.7",
+  "front/hem missP95=69.4",
+  "profile_90/crown excessP50=24.0",
+  "profile_90/crown excessP95=36.4",
+  "profile_90/hem missP50=28.6",
+  "profile_90/hem missP95=34.5",
+  "back/crown excessP50=25.3",
+  "back/crown excessP95=29.0"
+ ],
+ "crownTangentFail": true
+}

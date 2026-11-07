@@ -1,0 +1,168 @@
+hair-hull0b: symmetric hull carve with mirrored profile — RESULT
+===============================================================================
+Card: fix hull0's far-side phantom (23.3% of hull0 constrained by ONE view,
+3.5% by none, lump behind the head in profile) by adding a MIRRORED PROFILE
+view. CARVE ONLY, no guides.
+WRITE ROOTS: S6 = tools/openclinxr/hair-groom/hull (hull.py gains
+--mirror-profile, default on; render_hull.py gains the mirrored tile + a
+light hull material), E = tools/openclinxr/evidence/hair-hull0b.
+hair-groom/cards/ and scalp/ untouched. No *.blend anywhere.
+hull0 rerun from this S6: --evidence-dir tools/openclinxr/evidence/hair-hull0
+--no-mirror-profile.
+
+STEP 0 — symmetry check + virtual camera (WS/symmetry.json)
+  Assumption (stated): the target hairstyle is bilaterally symmetric about
+  the head's midsagittal plane, x = 0 in the head frame = world mm
+  (station0b point3d crown/menton/brow x are ~1e-9 m; front/back cameras
+  centred on x = 0; style manifest part = centre, straight hair).
+  Mirror IoU of each target mask vs its own left-right mirror, best axis
+  over cols 472..552:
+    front mask-front-v2: mirror IoU 0.8992 at axis col 514 (+2.5 off
+      centre) — BELOW 0.9, FLAGGED, proceeding anyway. Asymmetric regions
+      (xor vs mirror = 10,882 px, 10.6% of mask, bbox rows 130..675 cols
+      266..762): concentrated in the lower curtain/hem band rows 512..768
+      (6,432 of 10,882 xor px; rows 768..1024 contribute 0). The top/crown
+      rows 0..256 contribute only 1,060 px. So the asymmetry lives at the
+      hem, not the part/crown the mirror assumption rests on.
+    back mask-back-v3: mirror IoU 0.9548 at axis col 514 (+2.5) — PASS.
+    (profile mask, info only: IoU 0.4505 at col 551 — expected, a profile
+    is face-vs-occiput by construction; never a symmetry candidate.)
+  Virtual far-side camera: pinned profile_90 mirrored across x = 0
+  (location [0.700571, 0, 1.493585] -> [-0.700571, 0, 1.493585] m,
+  rotation R' = F R F with F = diag(-1,1,1), same 50 mm lens / 36 mm
+  sensor). Its mask = registered profile mask mirrored left-right; its
+  body-depth maps = profile cover+depth mirrored left-right (exact for a
+  symmetric body; the real body is symmetric to ~mm — stated approx).
+  Evaluated by the exact equivalence state_mirror(x,y,z) =
+  state_profile(-x,y,z) through the unchanged profile pipeline (a naive
+  explicit flipped-mask lookup carries a systematic 1 px shift: continuous
+  mirror u' = W - u vs discrete flip j' = W - 1 - j; the equivalence
+  sidesteps it by construction).
+  mirrorVerify (20,000 kept-voxel samples, carve_stats.json): explicit
+  mirrored-camera projection vs W - u identity max err 0.0 px (u and v),
+  depth max err 0.0 m; carve plumbing (mirror column vs independent
+  profile-pipeline recompute) agreement 1.000000.
+
+STEP 1 — carve (2 mm grid over the hull0 crop, 4 views)
+  Same crop (12,831,543 voxels), same 2 px dilation (sha identical to
+  hull0: front deb150fb…, profile 78718ed5…, back 6d182281…), same occl0
+  5 mm patch rule, same exact-SDF 2 mm body removal, same 4.0 mm scalp
+  contact + dominant-component filter. Reject on any VISIBLE_OUTSIDE over
+  all 4 views (closing-added voxels scored identically).
+  Kept pre-close 297,988 (vs hull0 400,888: -102,900 voxels rejected by
+  the mirror — the phantom wedge plus its near-side counterpart outside
+  both profile silhouettes). Closing added 1,522; ALL pruned (107 SDF,
+  1,415 VISIBLE_OUTSIDE): post-prune = 297,988 (closing joined 11 pairs,
+  the prune restored all 11 — net zero, as hull0's 29).
+  Components 1,377 pre / 1,366 raw / 1,377 post. Scalp-touching: 129
+  labels (1 giant + 128 specks of 1-25 voxels, 235 voxels dropped). Kept:
+  the giant component, label 268, 262,532 voxels = 2,100,256 mm^3
+  (2.10 L), 88.1% of the closed set — vs hull0 358,625 vox / 2,869,000
+  mm^3 (-26.8%, -768,744 mm^3 of feasible-space phantom). Largest dropped
+  masses: the same 31,190-voxel posterior nape panel (viscount 0, split
+  by the 2 mm neck standoff as in hull0) plus 822/822/460-voxel minors.
+  Out-of-frame audit: mirror counts equal profile by construction
+  (occluded 3,217,200; outside-render 1,546,534; outside-target 455,130).
+
+STEP 2 — diagnostics (side-by-side vs hull0 in [brackets])
+  (a) Volume by constraining-view count (8 mm^3/voxel):
+      hull0b:  0 views:   4,661 vox,    37,288 mm^3 ( 1.8%) [3.5%]
+               1 view :  15,150 vox,   121,200 mm^3 ( 5.8%) [23.3%]
+               2 views:  62,819 vox,   502,552 mm^3 (23.9%) [56.7%]
+               3 views: 153,571 vox, 1,228,568 mm^3 (58.5%) [—]
+               4 views:  26,331 vox,   210,648 mm^3 (10.0%) [16.5%@3]
+      The 1-view bin collapses 23.3% -> 5.8% and the 0-view bin 3.5% ->
+      1.8%: the far-side wedge is now ruled out from the other side.
+      Slices: E/slices.png row 1 (axial z=1473 / coronal y=-2 / sagittal
+      x=-2 mm, 0-4 colormap): the axial/coronal curtains are left-right
+      symmetric about x = 0 — the mirror working as designed.
+  (b) Reprojected VISIBLE hull vs the UNDILATED mask, per REAL view
+      (mirror constrains but is never scored; gate: excess p95 <= 4 px):
+      front:       excessN 1025, p50 1.0, p95 2.0, max 2.0 (PASS)
+                   [2069/1.0/2.0/2.0]; missN 1638, p50 16.0, p95 39.1,
+                   max 63.9 [1018/12.2/48.1/63.9]; IoU 0.5998 [0.7319];
+                   hull 65,286 px vs target 102,503 [82,222].
+      profile_90:  excessN 1676, p50 1.0, p95 2.0, max 2.0 (PASS)
+                   [1852/1.0/2.0/2.0]; missN 512, p50 1.0, p95 59.3,
+                   max 72.8 [502/1.4/59.6/72.8]; IoU 0.6226 [0.6224];
+                   hull 105,392 vs target 159,523 [105,543].
+      back:        excessN 2181, p50 1.0, p95 2.0, max 2.0 (PASS)
+                   [2386/1.0/2.0/2.0]; missN 405, p50 3.2, p95 98.8,
+                   max 106.6 [284/1.0/52.4/59.7]; IoU 0.6797 [0.7220];
+                   hull 167,416 vs target 235,860 [178,185].
+      Excess still sits exactly at the 2 px dilation radius: no BUG.
+      Miss (report only) rises where the added view bites: the back hem
+      corners the back mask shows but neither profile silhouette allows
+      (back miss p95 52.4 -> 98.8), and the front curtains narrow under
+      both profile silhouettes (front IoU 0.73 -> 0.60) — the standard
+      precision/recall trade of the fourth view, bought with the phantom.
+      Occlusion cross-check: 197/198 buffer rays hit body [same].
+  (c) Thickness (mass = last minus FIRST occupied; gap separate):
+      cheek    z=1515 (n=57/72): mass p50 28.0 p95 49.0 max 50.0 mean 25.8
+               [62: 29.0/50.0/60.0/29.0]; gap p50 3.0 p95 72.0 [3.0/81.9].
+      ear      z=1532 (n=57/72): mass p50 19.0 p95 33.0 max 36.0 mean 17.8
+               [63: 20.0/38.9/52.0/20.6]; gap p50 2.0 p95 3.0 [2.0/3.0].
+      occiput  z=1560 (n=50/72): mass p50 13.0 p95 20.5 max 22.0 mean 12.0
+               [59: 14.0/28.0/37.0/13.7]; gap p50 2.0 p95 3.0 [2.0/28.0] —
+               the gap-p95 collapse (28 -> 3) is the phantom leaving.
+      shoulder z=1405 (n=21/72): mass p50 29.0 p95 35.0 max 35.0 mean 28.2
+               [22: 31.0/42.8/48.0/29.3]; gap p50 3.0 p95 5.0 [3.0/13.5].
+      Hull depth behind midline occiput: 0.0 mm vs target -0.3 mm [same] —
+      still no midline depth. Posterior wall (|x|<20, behind surface):
+      1460: 12, 1470: 10, 1480: 10, 1490: 8, 1500: 8, 1510: 6, 1520: 4,
+      1530: 4, 1540: 2, 1550: 0, 1560+: none
+      [14,12,10,10,8,8,6,4,4,2,0,2,2,2,none] — ~2 mm slimmer throughout.
+      Root proximity (14,155 roots): all p50 3.5 p95 39.2 max 59.4 mm,
+      63.6% within 6 mm [2.8/23.4/38.0, 74.9%]; crown 56.0% [69.7%]; mid
+      99.9% [99.9%]. Roots read farther because the hull shrank, not
+      because it moved: the mid-scalp band is still fully covered.
+  (d) Sensitivity (topology ~88% scalp share; contour |d p95| <= 5 px):
+      A (1 mm, same dilation, 102M voxels): 2,105,231 mm^3 (+0.2% vs
+      2,100,256 [hull0 +0.3%]); comps 4,535/4,535 net zero; scalp-share
+      88.3% [89.7%]; excess p95 2.0/2.0/2.0; miss p95 41.4/58.0/99.9;
+      max |d p95| 2.27 px. STABLE.
+      B (2 mm, undilated): 1,983,432 mm^3 (-5.6% [hull0 -4.9%]); comps
+      1,367/1,367; scalp-share 87.5% [89.0%]; excess p95 0.0 all views;
+      miss p95 43.0/56.7/102.9; max |d p95| 4.14 px. STABLE.
+      No fragile region in either variant.
+
+STEP 3 — three-quarter DISPLAY ONLY (E/hull.png tiles 5-6)
+  tools/openclinxr/evidence/hair-reg3qb/camera-target3q.json does NOT exist
+  in this worktree (checked 2026-10-15; hair-light2 has not landed it) —
+  per the card, no wait: 3/4 stays DISPLAY ONLY. Translucent light-hull on
+  Aisha from the pinned three_quarter camera beside the target 3/4 mask.
+  No score, no carving.
+
+SAW::profile_90_mirror tile is the true mirror of the profile tile (face
+  looks screen-right, curtain falls screen-left); both profile curtains
+  now end at the same compact posterior edge — hull0's far-side lump is
+  gone in both.
+SAW::front tile: two symmetric light curtains frame the face and clear
+  the eyes/mouth; the hem sits slightly higher and narrower than the
+  target front silhouette (matches the measured IoU 0.60).
+SAW::three_quarter tile vs target tile: the 45-degree posterior corner
+  still over-fills past the target's compact corner, but the wedge is
+  visibly slimmer than hull0's dark render; the light material (0.85,
+  0.70, 0.52, alpha 0.60) reads as hair volume, not a shadow mass.
+SAW::slices.png axial: the kept volume is two mirror-symmetric lateral
+  curtains (yellow 3-view core, green 2-view rind, red 4-view slivers at
+  the posterior corners) — no diagonal phantom wedge survives.
+
+NOT TESTED: physical Quest 3 / worn-headset evidence; clinical validity,
+  licensure, or scoring claims; whether the front hem asymmetry (xor band
+  rows 512..768, 10.6% of the front mask) marks a real style asymmetry
+  the mirror wrongly symmetrises — the carve treats it as symmetric
+  target noise; guide routing in hull1 may still avoid the flagged band;
+  3/4-camera scoring (no reg3qb target in this worktree); the mirrored
+  body-depth approximation beyond ~mm body asymmetry; strands, material,
+  or lighting (hull1+ cards).
+
+GATES_PASS=yes (excess p95 2.0/2.0/2.0 <= 4 px on all three real views;
+  scalp-connected keep 88.1%; sensitivity max delta 4.14 px; mirror
+  projection identity 0.0 px / plumbing 1.0; symmetry check run with the
+  front <0.9 flag recorded above; bans clean: no *.blend, cards+scalp
+  untouched).
+Hands to hull1: route guides through E/hull.npz occupancy (views array
+  [front, profile_90, back, profile_90_mirror], 0-4 viscount); treat the
+  residual 5.8% 1-view + 1.8% 0-view volume and the flagged front-hem
+  asymmetric band as known feasible-space uncertainty, not targets.

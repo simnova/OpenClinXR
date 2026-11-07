@@ -1,0 +1,1691 @@
+{
+  "schemaVersion": 1,
+  "landmarks": "landmarks.json",
+  "guideRows": [
+    {
+      "row": 190,
+      "z": 1.6217276219558716,
+      "targetRawInnerMm": 2.63375,
+      "faceWidthRatio": 1.172607879924953,
+      "faceWidthRatioBasis": "nearest measurable cheek row (TS skin hair-occluded above)",
+      "ourVisibleSkinWidthSkullH": 0.625,
+      "tsVisibleSkinWidthSkullH": 0.533,
+      "targetInnerRelMm": 3.088356003752345,
+      "oursInnerMm": 31.16604166666667,
+      "nearestOpeningConstraintMm": 0.0,
+      "reachable": true,
+      "reachabilityNote": "target is outside canthus/eye box",
+      "definingGuides": {
+        "L": [
+          {
+            "guide": 277,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.699302672003,
+            "pathXmm": 0.6589924311520547
+          },
+          {
+            "guide": 179,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.63296554118995,
+            "pathXmm": 0.8267108354342884
+          },
+          {
+            "guide": 331,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.317133221567,
+            "pathXmm": 1.0695084362617133
+          },
+          {
+            "guide": 501,
+            "rootMmFromPart": 1.0689835071526672,
+            "rootMmFromFrontHairline": 150.76912314909933,
+            "pathXmm": 1.4474160923434856
+          }
+        ],
+        "R": [
+          {
+            "guide": 276,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.6993027040412,
+            "pathXmm": 0.6589924311520547
+          },
+          {
+            "guide": 178,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.64193289256767,
+            "pathXmm": 0.8267108354342884
+          },
+          {
+            "guide": 330,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.31713325320496,
+            "pathXmm": 1.0695084362617133
+          },
+          {
+            "guide": 500,
+            "rootMmFromPart": 1.0689835071526672,
+            "rootMmFromFrontHairline": 150.76912318126585,
+            "pathXmm": 1.4474160923434856
+          }
+        ]
+      }
+    },
+    {
+      "row": 244,
+      "z": 1.5980238719558715,
+      "targetRawInnerMm": 34.677708333333335,
+      "faceWidthRatio": 1.172607879924953,
+      "faceWidthRatioBasis": "nearest measurable cheek row (TS skin hair-occluded above)",
+      "ourVisibleSkinWidthSkullH": 0.625,
+      "tsVisibleSkinWidthSkullH": 0.533,
+      "targetInnerRelMm": 40.66335404940588,
+      "oursInnerMm": 45.21270833333333,
+      "nearestOpeningConstraintMm": 0.0,
+      "reachable": true,
+      "reachabilityNote": "target is outside canthus/eye box",
+      "definingGuides": {
+        "L": [
+          {
+            "guide": 277,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.699302672003,
+            "pathXmm": 0.6589924311520547
+          },
+          {
+            "guide": 179,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.63296554118995,
+            "pathXmm": 0.8310667081958409
+          },
+          {
+            "guide": 331,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.317133221567,
+            "pathXmm": 1.0695084362617133
+          },
+          {
+            "guide": 33,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.0513749899044,
+            "pathXmm": 1.6015275779181175
+          }
+        ],
+        "R": [
+          {
+            "guide": 276,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.6993027040412,
+            "pathXmm": 0.6589924311520547
+          },
+          {
+            "guide": 178,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.64193289256767,
+            "pathXmm": 0.8310667081958409
+          },
+          {
+            "guide": 330,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.31713325320496,
+            "pathXmm": 1.0695084362617133
+          },
+          {
+            "guide": 32,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.05138144005176,
+            "pathXmm": 1.6015275779181175
+          }
+        ]
+      }
+    },
+    {
+      "row": 298,
+      "z": 1.5743201219558716,
+      "targetRawInnerMm": 44.33479166666666,
+      "faceWidthRatio": 1.172607879924953,
+      "faceWidthRatioBasis": "nearest measurable cheek row (TS skin hair-occluded above)",
+      "ourVisibleSkinWidthSkullH": 0.625,
+      "tsVisibleSkinWidthSkullH": 0.533,
+      "targetInnerRelMm": 51.98732606316447,
+      "oursInnerMm": 60.356770833333336,
+      "nearestOpeningConstraintMm": 0.0,
+      "reachable": true,
+      "reachabilityNote": "target is outside canthus/eye box",
+      "definingGuides": {
+        "L": [
+          {
+            "guide": 277,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.699302672003,
+            "pathXmm": 0.739122179429267
+          },
+          {
+            "guide": 179,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.63296554118995,
+            "pathXmm": 0.8310667081958409
+          },
+          {
+            "guide": 331,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.317133221567,
+            "pathXmm": 1.1370555411951948
+          },
+          {
+            "guide": 33,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.0513749899044,
+            "pathXmm": 1.6015275779181175
+          }
+        ],
+        "R": [
+          {
+            "guide": 276,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.6993027040412,
+            "pathXmm": 0.739122179429267
+          },
+          {
+            "guide": 178,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.64193289256767,
+            "pathXmm": 0.8310667081958409
+          },
+          {
+            "guide": 330,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.31713325320496,
+            "pathXmm": 1.1370555411951948
+          },
+          {
+            "guide": 32,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.05138144005176,
+            "pathXmm": 1.6015275779181175
+          }
+        ]
+      }
+    },
+    {
+      "row": 352,
+      "z": 1.5506163719558717,
+      "targetRawInnerMm": 47.62697916666667,
+      "faceWidthRatio": 1.172607879924953,
+      "faceWidthRatioBasis": "nearest measurable cheek row (TS skin hair-occluded above)",
+      "ourVisibleSkinWidthSkullH": 0.625,
+      "tsVisibleSkinWidthSkullH": 0.533,
+      "targetInnerRelMm": 55.847771067854914,
+      "oursInnerMm": 62.5515625,
+      "nearestOpeningConstraintMm": 44.40418931299739,
+      "reachable": true,
+      "reachabilityNote": "target is outside canthus/eye box",
+      "definingGuides": {
+        "L": [
+          {
+            "guide": 277,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.699302672003,
+            "pathXmm": 0.739122179429267
+          },
+          {
+            "guide": 179,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.63296554118995,
+            "pathXmm": 0.8310667081958409
+          },
+          {
+            "guide": 331,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.317133221567,
+            "pathXmm": 1.1370555411951948
+          },
+          {
+            "guide": 33,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.0513749899044,
+            "pathXmm": 1.6015275779181175
+          }
+        ],
+        "R": [
+          {
+            "guide": 276,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.6993027040412,
+            "pathXmm": 0.739122179429267
+          },
+          {
+            "guide": 178,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.64193289256767,
+            "pathXmm": 0.8310667081958409
+          },
+          {
+            "guide": 330,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.31713325320496,
+            "pathXmm": 1.1370555411951948
+          },
+          {
+            "guide": 32,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.05138144005176,
+            "pathXmm": 1.6015275779181175
+          }
+        ]
+      }
+    },
+    {
+      "row": 406,
+      "z": 1.5269126219558715,
+      "targetRawInnerMm": 53.3334375,
+      "faceWidthRatio": 1.172607879924953,
+      "faceWidthRatioBasis": "nearest measurable cheek row (TS skin hair-occluded above)",
+      "ourVisibleSkinWidthSkullH": 0.625,
+      "tsVisibleSkinWidthSkullH": 0.533,
+      "targetInnerRelMm": 62.53920907598499,
+      "oursInnerMm": 63.21,
+      "nearestOpeningConstraintMm": 44.40418931299739,
+      "reachable": true,
+      "reachabilityNote": "target is outside canthus/eye box",
+      "definingGuides": {
+        "L": [
+          {
+            "guide": 277,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.699302672003,
+            "pathXmm": 0.739122179429267
+          },
+          {
+            "guide": 179,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.63296554118995,
+            "pathXmm": 0.831066708195841
+          },
+          {
+            "guide": 331,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.317133221567,
+            "pathXmm": 1.1370555411951948
+          },
+          {
+            "guide": 33,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.0513749899044,
+            "pathXmm": 1.6015275779181175
+          }
+        ],
+        "R": [
+          {
+            "guide": 276,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.6993027040412,
+            "pathXmm": 0.739122179429267
+          },
+          {
+            "guide": 178,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.64193289256767,
+            "pathXmm": 0.831066708195841
+          },
+          {
+            "guide": 330,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.31713325320496,
+            "pathXmm": 1.1370555411951948
+          },
+          {
+            "guide": 32,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.05138144005176,
+            "pathXmm": 1.6015275779181175
+          }
+        ]
+      }
+    },
+    {
+      "row": 459,
+      "z": 1.503647830289205,
+      "targetRawInnerMm": 52.89447916666667,
+      "faceWidthRatio": 1.1512811640654879,
+      "faceWidthRatioBasis": "linear equal-skull-H interpolation cheek-to-mouth",
+      "ourVisibleSkinWidthSkullH": 0.5908224299065421,
+      "tsVisibleSkinWidthSkullH": 0.5131869158878505,
+      "targetInnerRelMm": 60.896417547637704,
+      "oursInnerMm": 63.42947916666667,
+      "nearestOpeningConstraintMm": 44.40418931299739,
+      "reachable": true,
+      "reachabilityNote": "target is outside canthus/eye box",
+      "definingGuides": {
+        "L": [
+          {
+            "guide": 277,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.699302672003,
+            "pathXmm": 0.739122179429267
+          },
+          {
+            "guide": 179,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.63296554118995,
+            "pathXmm": 0.8310667081958409
+          },
+          {
+            "guide": 331,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.317133221567,
+            "pathXmm": 1.1370555411951948
+          },
+          {
+            "guide": 33,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.0513749899044,
+            "pathXmm": 1.6015275779181175
+          }
+        ],
+        "R": [
+          {
+            "guide": 276,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.6993027040412,
+            "pathXmm": 0.739122179429267
+          },
+          {
+            "guide": 178,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.64193289256767,
+            "pathXmm": 0.8310667081958409
+          },
+          {
+            "guide": 330,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.31713325320496,
+            "pathXmm": 1.1370555411951948
+          },
+          {
+            "guide": 32,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.05138144005176,
+            "pathXmm": 1.6015275779181175
+          }
+        ]
+      }
+    },
+    {
+      "row": 513,
+      "z": 1.479944080289205,
+      "targetRawInnerMm": 50.04125,
+      "faceWidthRatio": 1.1277890466531442,
+      "faceWidthRatioBasis": "measured mouth row",
+      "ourVisibleSkinWidthSkullH": 0.556,
+      "tsVisibleSkinWidthSkullH": 0.493,
+      "targetInnerRelMm": 56.43597363083165,
+      "oursInnerMm": 55.08927083333333,
+      "nearestOpeningConstraintMm": 44.40418931299739,
+      "reachable": true,
+      "reachabilityNote": "target is outside canthus/eye box",
+      "definingGuides": {
+        "L": [
+          {
+            "guide": 277,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.699302672003,
+            "pathXmm": 0.739122179429267
+          },
+          {
+            "guide": 179,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.63296554118995,
+            "pathXmm": 0.8310667081958409
+          },
+          {
+            "guide": 331,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.317133221567,
+            "pathXmm": 1.1370555411951948
+          },
+          {
+            "guide": 33,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.0513749899044,
+            "pathXmm": 1.44839243552422
+          }
+        ],
+        "R": [
+          {
+            "guide": 276,
+            "rootMmFromPart": 0.05554098229705514,
+            "rootMmFromFrontHairline": 164.6993027040412,
+            "pathXmm": 0.739122179429267
+          },
+          {
+            "guide": 178,
+            "rootMmFromPart": 0.44214477926902607,
+            "rootMmFromFrontHairline": 146.64193289256767,
+            "pathXmm": 0.8310667081958409
+          },
+          {
+            "guide": 330,
+            "rootMmFromPart": 0.4660061693336657,
+            "rootMmFromFrontHairline": 161.31713325320496,
+            "pathXmm": 1.1370555411951948
+          },
+          {
+            "guide": 32,
+            "rootMmFromPart": 1.1137236264078874,
+            "rootMmFromFrontHairline": 165.05138144005176,
+            "pathXmm": 1.44839243552422
+          }
+        ]
+      }
+    }
+  ],
+  "frontalRootsWithin15mm": [],
+  "causeD1": "SUPPORTED: no frontal-band roots exist within 15 mm of the part; the nearest curtain paths open laterally before descending.",
+  "seamLabels": {
+    "partSameSideAheadOnlyStyle": true,
+    "curtainParentsAreSameSideAllHeights": true,
+    "rearParentsAreSameSideAllHeights": true,
+    "behindApexSideValues": [
+      0,
+      1
+    ],
+    "conclusion": "subset_blend re-enables binary side labels behind apex; supported seam cause"
+  },
+  "backChildrenPer10mmBin": {
+    "c1": {
+      "300": [
+        {
+          "xPx": [
+            0,
+            10
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            10,
+            20
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            20,
+            30
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            30,
+            40
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            40,
+            50
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            50,
+            60
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            60,
+            70
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            70,
+            80
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            80,
+            90
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            90,
+            100
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            100,
+            110
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            110,
+            120
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            120,
+            130
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            130,
+            140
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            140,
+            150
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            150,
+            160
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            160,
+            170
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            170,
+            180
+          ],
+          "count": 12
+        },
+        {
+          "xPx": [
+            180,
+            190
+          ],
+          "count": 0
+        }
+      ],
+      "430": [
+        {
+          "xPx": [
+            0,
+            10
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            10,
+            20
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            20,
+            30
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            30,
+            40
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            40,
+            50
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            50,
+            60
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            60,
+            70
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            70,
+            80
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            80,
+            90
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            90,
+            100
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            100,
+            110
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            110,
+            120
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            120,
+            130
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            130,
+            140
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            140,
+            150
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            150,
+            160
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            160,
+            170
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            170,
+            180
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            180,
+            190
+          ],
+          "count": 20
+        }
+      ],
+      "560": [
+        {
+          "xPx": [
+            0,
+            10
+          ],
+          "count": 13
+        },
+        {
+          "xPx": [
+            10,
+            20
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            20,
+            30
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            30,
+            40
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            40,
+            50
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            50,
+            60
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            60,
+            70
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            70,
+            80
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            80,
+            90
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            90,
+            100
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            100,
+            110
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            110,
+            120
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            120,
+            130
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            130,
+            140
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            140,
+            150
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            150,
+            160
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            160,
+            170
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            170,
+            180
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            180,
+            190
+          ],
+          "count": 20
+        }
+      ],
+      "690": [
+        {
+          "xPx": [
+            0,
+            10
+          ],
+          "count": 13
+        },
+        {
+          "xPx": [
+            10,
+            20
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            20,
+            30
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            30,
+            40
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            40,
+            50
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            50,
+            60
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            60,
+            70
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            70,
+            80
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            80,
+            90
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            90,
+            100
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            100,
+            110
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            110,
+            120
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            120,
+            130
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            130,
+            140
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            140,
+            150
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            150,
+            160
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            160,
+            170
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            170,
+            180
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            180,
+            190
+          ],
+          "count": 20
+        }
+      ]
+    },
+    "f4": {
+      "300": [
+        {
+          "xPx": [
+            0,
+            10
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            10,
+            20
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            20,
+            30
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            30,
+            40
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            40,
+            50
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            50,
+            60
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            60,
+            70
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            70,
+            80
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            80,
+            90
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            90,
+            100
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            100,
+            110
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            110,
+            120
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            120,
+            130
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            130,
+            140
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            140,
+            150
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            150,
+            160
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            160,
+            170
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            170,
+            180
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            180,
+            190
+          ],
+          "count": 7
+        }
+      ],
+      "430": [
+        {
+          "xPx": [
+            0,
+            10
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            10,
+            20
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            20,
+            30
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            30,
+            40
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            40,
+            50
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            50,
+            60
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            60,
+            70
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            70,
+            80
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            80,
+            90
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            90,
+            100
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            100,
+            110
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            110,
+            120
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            120,
+            130
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            130,
+            140
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            140,
+            150
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            150,
+            160
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            160,
+            170
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            170,
+            180
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            180,
+            190
+          ],
+          "count": 20
+        }
+      ],
+      "560": [
+        {
+          "xPx": [
+            0,
+            10
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            10,
+            20
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            20,
+            30
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            30,
+            40
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            40,
+            50
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            50,
+            60
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            60,
+            70
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            70,
+            80
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            80,
+            90
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            90,
+            100
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            100,
+            110
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            110,
+            120
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            120,
+            130
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            130,
+            140
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            140,
+            150
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            150,
+            160
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            160,
+            170
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            170,
+            180
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            180,
+            190
+          ],
+          "count": 20
+        }
+      ],
+      "690": [
+        {
+          "xPx": [
+            0,
+            10
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            10,
+            20
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            20,
+            30
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            30,
+            40
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            40,
+            50
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            50,
+            60
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            60,
+            70
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            70,
+            80
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            80,
+            90
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            90,
+            100
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            100,
+            110
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            110,
+            120
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            120,
+            130
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            130,
+            140
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            140,
+            150
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            150,
+            160
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            160,
+            170
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            170,
+            180
+          ],
+          "count": 20
+        },
+        {
+          "xPx": [
+            180,
+            190
+          ],
+          "count": 20
+        }
+      ]
+    },
+    "finding": "c1 loses centre occupancy below the nape while same-side rear parent labels remain active"
+  },
+  "profileBackDepth": {
+    "method": "corrected landmark registered masks; detailed six-height table emitted by analyze.py",
+    "baselineFinding": "c6 nape depth is about half TS and the back sheet is narrow below nape"
+  },
+  "collisionProjection": {
+    "colliders": [
+      "OCLX_Aisha_head",
+      "makeclothes_library_toigo_t_shirt",
+      "makeclothes_library_female_tight_jeans_pants",
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+    ],
+    "first_pass_inside": {
+      "OCLX_Aisha_head": 21731,
+      "makeclothes_library_toigo_t_shirt": 8905,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "post_inside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "post_inside_total": 0,
+    "moved_points": 29518,
+    "max_single_projection_mm": 15.199475361914955,
+    "clearance_mm": 0.2,
+    "passes": 3,
+    "moved_point_mask_shape": [
+      51350,
+      32
+    ],
+    "histogramMm": [
+      {
+        "mm": [
+          0,
+          0.25
+        ],
+        "points": 19959
+      },
+      {
+        "mm": [
+          0.25,
+          0.5
+        ],
+        "points": 846
+      },
+      {
+        "mm": [
+          0.5,
+          1
+        ],
+        "points": 1354
+      },
+      {
+        "mm": [
+          1,
+          2
+        ],
+        "points": 1845
+      },
+      {
+        "mm": [
+          2,
+          3
+        ],
+        "points": 1288
+      },
+      {
+        "mm": [
+          3,
+          5
+        ],
+        "points": 1383
+      },
+      {
+        "mm": [
+          5,
+          8
+        ],
+        "points": 690
+      },
+      {
+        "mm": [
+          8,
+          12
+        ],
+        "points": 736
+      },
+      {
+        "mm": [
+          12,
+          20
+        ],
+        "points": 1417
+      }
+    ],
+    "regionCounts": {
+      "scalp": 20613,
+      "nape": 1819,
+      "shoulder": 7086,
+      "front": 256,
+      "back": 29262
+    },
+    "constructionAttribution": {
+      "step": "semantic child root translation (y/z retained through the tail), followed by resample smoothing",
+      "evidence": "subset_blend adds the full root delta to every point; only x is faded back. Head and shirt dominate first-pass penetrations.",
+      "baseToSemanticRmsMm": 3.930048594768051
+    }
+  }
+}

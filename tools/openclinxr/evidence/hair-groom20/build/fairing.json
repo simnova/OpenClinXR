@@ -1,0 +1,99 @@
+{
+ "schema": "openclinxr.hair-guide-back-tangent-fair.v1",
+ "method": "BACK-region scalp-tangent-frame unit-tangent smoothing over same-side BACK 20mm root graph, anchor 0.3, two passes, re-integrate at own segment lengths from 15mm, hull+body projection; FRONT copied byte-identical from guides-19",
+ "parameters": {
+  "anchor": 0.3,
+  "kernelMm": 20.0,
+  "verbatimBackMm": 15.0,
+  "passes": 2,
+  "marginMm": 1.5,
+  "gateRootMm": 6.0,
+  "P": 41,
+  "yEarM": -0.0635,
+  "zNapeM": 1.51,
+  "partXM": 0.003308140447569022
+ },
+ "regionSplit": {
+  "BACK": 563,
+  "FRONT": 2144,
+  "total": 2707,
+  "yEarM": -0.0635,
+  "zNapeM": 1.51,
+  "partXM": 0.003308140447569022
+ },
+ "guides": {
+  "input": 2707,
+  "output": 2707,
+  "deleted": 0,
+  "verbatimBackSamples": 10422,
+  "frontSamplesCopied": 87904
+ },
+ "guideMaxMoveMm": {
+  "n": 2707,
+  "min": 0.0,
+  "p50": 0.0,
+  "p90": 5.935,
+  "p99": 207.559,
+  "max": 412.491
+ },
+ "guideMaxMoveMmBACK": {
+  "n": 563,
+  "min": 0.0,
+  "p50": 5.441,
+  "p90": 130.6,
+  "p99": 294.127,
+  "max": 412.491
+ },
+ "guideMaxMoveMmFRONT": {
+  "n": 2144,
+  "min": 0.0,
+  "p50": 0.0,
+  "p90": 0.0,
+  "p99": 0.0,
+  "max": 0.0
+ },
+ "backPairs": {
+  "n": 1014
+ },
+ "nearRootPairFullPathSeparationMmBeforeBACK": {
+  "n": 1014,
+  "min": 1.604,
+  "p50": 23.048,
+  "p90": 289.255,
+  "p99": 365.372,
+  "max": 435.691
+ },
+ "nearRootPairFullPathSeparationMmAfterBACK": {
+  "n": 1014,
+  "min": 1.631,
+  "p50": 25.489,
+  "p90": 212.334,
+  "p99": 336.92,
+  "max": 409.98
+ },
+ "coherenceGateBACK": {
+  "p90MaxMm": 25.0,
+  "absoluteMaxMm": 60.0,
+  "pass": false
+ },
+ "takeoffBACK": {
+  "verbatimSamples": 10422,
+  "byteIdentical": true,
+  "maxAbsDiffHeadMm": 0.0,
+  "pass": true
+ },
+ "frontIdentical": {
+  "samples": 87904,
+  "byteIdentical": true,
+  "maxAbsDiffHeadMm": 0.0,
+  "pass": true
+ },
+ "body": {
+  "samplesLtMargin": 5714,
+  "samplesInside0": 1605,
+  "marginMm": 1.5
+ },
+ "hull": {
+  "samplesOutsideHull": 39472
+ }
+}

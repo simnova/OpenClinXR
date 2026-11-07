@@ -1,0 +1,143 @@
+{
+ "views": [
+  "front",
+  "three_quarter",
+  "three_quarter_mirror",
+  "profile_90",
+  "back"
+ ],
+ "keptFinal": 478085,
+ "volMm3": 3824680.0,
+ "nCompPost": 899,
+ "contour": {
+  "front": {
+   "excessN": 1298,
+   "excessP50": 1.0,
+   "excessP95": 2.0,
+   "excessMax": 2.0,
+   "missN": 1754,
+   "missP50": 8.49,
+   "missP95": 53.05,
+   "missMax": 68.88,
+   "iou": 0.669,
+   "hullPx": 85978,
+   "targetPx": 121151
+  },
+  "three_quarter": {
+   "excessN": 1267,
+   "excessP50": 1.0,
+   "excessP95": 2.0,
+   "excessMax": 2.0,
+   "missN": 1035,
+   "missP50": 6.08,
+   "missP95": 43.01,
+   "missMax": 49.41,
+   "iou": 0.6745,
+   "hullPx": 101155,
+   "targetPx": 142547
+  },
+  "three_quarter_mirror": {
+   "excessN": 1486,
+   "excessP50": 1.0,
+   "excessP95": 2.0,
+   "excessMax": 2.0,
+   "missN": 845,
+   "missP50": 6.4,
+   "missP95": 34.27,
+   "missMax": 54.08,
+   "iou": 0.8564,
+   "hullPx": 128493,
+   "targetPx": 142547
+  },
+  "profile_90": {
+   "excessN": 2869,
+   "excessP50": 1.0,
+   "excessP95": 2.0,
+   "excessMax": 2.0,
+   "missN": 309,
+   "missP50": 1.0,
+   "missP95": 9.03,
+   "missMax": 10.82,
+   "iou": 0.7978,
+   "hullPx": 128405,
+   "targetPx": 149114
+  },
+  "back": {
+   "excessN": 3039,
+   "excessP50": 1.0,
+   "excessP95": 2.0,
+   "excessMax": 2.0,
+   "missN": 284,
+   "missP50": 3.16,
+   "missP95": 8.0,
+   "missMax": 8.25,
+   "iou": 0.9105,
+   "hullPx": 316496,
+   "targetPx": 335684
+  }
+ },
+ "excessGate": {
+  "front": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "three_quarter": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "three_quarter_mirror": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "profile_90": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "back": {
+   "p95": 2.0,
+   "pass": true
+  }
+ },
+ "backSym": {
+  "L": 90102,
+  "R": 104520,
+  "L_over_R": 0.8621,
+  "min_over_max": 0.8621
+ },
+ "belowShoulder": {
+  "front": {
+   "vox": 0,
+   "mm3": 0.0,
+   "minZmm": null,
+   "fracOfBelow": 0.0
+  },
+  "sideL": {
+   "vox": 4560,
+   "mm3": 36480.0,
+   "minZmm": 1257.0,
+   "fracOfBelow": 0.0313
+  },
+  "sideR": {
+   "vox": 1466,
+   "mm3": 11728.0,
+   "minZmm": 1285.0,
+   "fracOfBelow": 0.0101
+  },
+  "back": {
+   "vox": 139569,
+   "mm3": 1116552.0,
+   "minZmm": 1255.0,
+   "fracOfBelow": 0.9586
+  },
+  "totalBelow": {
+   "vox": 145595,
+   "mm3": 1164760.0
+  },
+  "shoulderPlaneZ": 1405.0
+ },
+ "rootProx": {
+  "n": 14155,
+  "fracWithin6mm": 0.9887,
+  "p95": 4.0
+ }
+}

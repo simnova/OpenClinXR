@@ -1,0 +1,40 @@
+RESULT hair-cards0: card generator with procedural maps (S5)
+provisional guides (NOT fitted): Poisson subset of S1 roots on a 6 mm scalp shell + gravity fall; card code accepts any guides npz with the documented schema.
+
+STEP 1 layout (cards.py <- provisional-guides.npz schema guides_xyz (G,P,3) root-first + guides_root (G,3))
+- guides: G=312 P=25 seed=7 poisson_r=11.00mm back=93 side=219 minClearAir=3.013mm sha=d72c612f7da09395
+- clusters=157 (greedy path-distance pairing, mean station dist <= 20 mm, max 2/cluster, y/x order); cards=360 (2 layers under/top +0/+2.2 mm; posterior +mid +1.5 mm); widths root 8.0..20.0 mm taper 55% tip; twistMax=38.41deg
+- clearance vs skin set: min=1.502mm (gate >= 0: True); garment proximity 0.001mm (contact allowed, checked on renders); UV u across v root->tip, atlas cell = idx%4, per-card rand in cards.npz
+- determinism: cards.npz sha run1=3cb8ba525f66832a run2=3cb8ba525f66832a identical=True
+
+STEP 2 textures (textures.py, seeded rng(7+cell), no external images)
+- E/textures/: strand-atlas.png 2048 RGBA (2x2 cells, 2600 strands/cell, width 1.5-2.6 px, clump pull 0.55 v^2 to 25 centres, taper from v=0.90, tip fade 0.92-1.0, u-border fade 3%), flow-map.png 2048 (R=128+tilt*800, G=255, B=128), root-tip-gradient.png (0.5+0.5*ss(0,0.4,v)), id-strip.png (card_rand double-record)
+
+STEP 3 material (Cycles Principled BSDF; Blender exposes no strand BSDF for meshes)
+- anisotropic 0.6, rotation = flowR - 0.25 (= 0.25 + (flowR-0.5): base quarter-turn puts the default U tangent on the V strand axis); alpha = atlas A (HASHED blend+shadow); base = atlasRGB x gradient x sRGB(directColorLinear); 0.3 Translucent mix for backlight; cardRand -> roughness 0.36-0.48
+- color conversion linear->sRGB per channel (c<=0.0031308 ? 12.92c : 1.055c^(1/2.4)-0.055): [0.009475 0.006922 0.005410] -> sRGB [0.0964 0.0778 0.0649] (dark brown, no exposure boost)
+
+STEP 4 renders + rulers (pinned scorer-v3 cameras, 1024 px, 64 spp, Cycles CPU seed 7; key sun toward [0.5, -0.6, 0.9]; relit front key azimuth +40 deg; held-out az 22.5 deg)
+- render times s: {"back": 22.3, "back-id": 7.9, "front": 19.6, "front-id": 26.3, "front-relit": 20.7, "heldout_22p5": 17.0, "profile_90": 25.7, "profile_90-id": 12.0, "three_quarter": 18.5, "three_quarter-id": 20.9}; total 192.1s
+- R1 front (skull): above IoU=0.4576 signedP50=+8.77px absP95=46.07px | below IoU=0.1649 signedP50=+75.64px absP95=150.10px
+- R1 profile_90 (skull): above IoU=0.6552 signedP50=+58.52px absP95=170.70px | below IoU=0.3650 signedP50=+33.06px absP95=247.09px
+- R1 back (skull): above IoU=0.8809 signedP50=+4.00px absP95=46.07px | below IoU=0.7822 signedP50=+0.00px absP95=81.54px
+- R1 three_quarter: no registered target (R4 ours-only covers it)
+- R4 profile_90 coverageByThreshold: {"128": 1.0, "230": 1.0, "30": 1.0}; skinVisibleFracHair=0.0526 region=0.0526 (skin [34.0, 33.0, 32.0] hair [5.0, 3.0, 1.0]); targetCoverage=1.0
+- R5 front hem: coverage=0.886 yBottomMAE=121.4px widthMAE=158.5px
+- R5 profile_90 hem: coverage=0.969 yBottomMAE=52.5px widthMAE=97.7px
+- R5 back hem: coverage=1.000 yBottomMAE=20.8px widthMAE=29.3px
+- R2/R3/R6 (contextual, stand-in fixtures): R2 midline distP50=2.80mm P95=4.61mm (scalp-mesh boundary vs S1 roots); R3 front midline signedP50=Nonepx nObs=0; R6 shoulderGap=Nonepx ownHemGap=-9px
+
+provenance: cards.py + textures.py + assemble.py new in S5; run.py/guides/cage untouched (no such dirs touched); topper hidden library-hair; env proxy hidden
+ban-grep (7 names, fragments) over S5+evidence text: clean
+inputs-opened (43 paths) banned-path check: clean
+
+SAW
+- SCOPE: generator output on PROVISIONAL guides (centre-part rail = combing proxy for anterior roots; fitted field drops in via --guides). Cards/shell + procedural maps = the Phase B deliverable form; bake-off vs strands decides Phase A stills.
+- ASSUMED: pinna boxes (|x| 50-100 mm, y -35..55 mm, z 1.49-1.58 m, n=64) stand in for the cap pinna set behind R4; R2/R3/R6 reported for context, not gated; garment contact allowed (open cloth, unsigned distance).
+- WATCH: twistMax 38.4 deg at the shell->fall kink (bend, not accumulated twist); hair reads near-black under the key rig (direct color, no boost); anterior rails may hover beside the cheeks on wide faces.
+
+NOT TESTED: fitted guides input (not ready); other bodies/seeds; EEVEE/Quest material response; strand bake-off numbers; animation/combing dynamics.
+
+GATES_PASS=yes (determinism=True clearance>=0=True ban=True)

@@ -1,0 +1,21 @@
+hair-route1 gates (spec 1fb058a37700 over route0 db7706df):
+PASS unreachable=0
+PASS endpointCoverage (NN min 2.0 all bands, same as route0)
+PASS boundaryFrac4mm=0.1071 (gate <=0.5; route0 0.0663)
+PASS partCrossings=0 over 2mm (rawFlips 9 dust, maxExc 1.41)
+PASS backCentreGap=6.0mm (gate <=20)
+PASS faceGuards=0px
+PASS erodedFrac min=0.9531 (gate >=0.95; route0 0.9649)
+PASS endDisplacement max=0.14mm (in-band)
+FAIL turnMax=107.5 (gate <=15; 15/359 guides over: 2,47,170,175,184,
+  208,239,246,261,286,304,322,329,332,353 keep route0 curves;
+  route0: 359/359 over, max 132.6; route1 relaxed p95=9.37)
+FAIL latticeViol=146 (gate 0; route0 1435; 54 from fallback
+  staircases + 78 relaxed chance-alignments/exemption error)
+FAIL flow p50/p95=32.9/91.9 (gate 20/40; route0 45.0/97.6:
+  gate unsatisfiable as specified, style reference fails 2.2x;
+  coherent drape vs lateral-lay model mismatch, see RESULT.txt)
+note regional scores reported, not gated (target being replaced)
+OVERALL: GATES_FAIL (routing gates all pass; smoothness/flow gated
+by 15 voxel-corner residuals + flow-model finding)
+verdict: MODEL_INADEQUATE (see E/RESULT.txt for mechanisms)

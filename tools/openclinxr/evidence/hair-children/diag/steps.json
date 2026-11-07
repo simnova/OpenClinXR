@@ -1,0 +1,108 @@
+[
+  {
+    "n": 0,
+    "what": "baseline",
+    "children": 1983,
+    "rootToGuideMm": {
+      "mean": 5.287268427527402,
+      "p95": 7.608190768272056,
+      "max": 9.560064782362968
+    },
+    "hist": {
+      "32": 1983
+    },
+    "notes": {
+      "capInfo": {
+        "apexY": -0.053241077810525894,
+        "stripVertexCount": 604,
+        "solidVertexCount": 31070,
+        "uvMissingCount": 0,
+        "uvRule": "nearest head face, barycentric (fan tri for quads)",
+        "splitIslands": true,
+        "islandCount": 2,
+        "islandSizes": [
+          15837,
+          15837
+        ]
+      }
+    },
+    "renders": {
+      "front": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/0-baseline/front.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/0-baseline/front-id.png"
+    }
+  },
+  {
+    "n": 1,
+    "what": "no-solidify",
+    "children": 1983,
+    "rootToGuideMm": {
+      "mean": 5.2857928125735025,
+      "p95": 7.608190768272056,
+      "max": 9.560064782362968
+    },
+    "hist": {
+      "32": 1983
+    },
+    "notes": {
+      "capInfo": {
+        "apexY": -0.053241077810525894,
+        "stripVertexCount": 604,
+        "solidVertexCount": 31070,
+        "uvMissingCount": 0,
+        "uvRule": "nearest head face, barycentric (fan tri for quads)",
+        "splitIslands": true,
+        "islandCount": 2,
+        "islandSizes": [
+          15837,
+          15837
+        ]
+      },
+      "capModifiers": [],
+      "solidifyPresent": false
+    },
+    "renders": {
+      "front": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/1-no-solidify/front.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/1-no-solidify/front-id.png"
+    }
+  },
+  {
+    "n": 2,
+    "what": "no-attach-hand-uv",
+    "children": 1457,
+    "rootToGuideMm": {
+      "mean": 5.767084886274106,
+      "p95": 7.799437243551642,
+      "max": 9.560064782362968
+    },
+    "hist": {
+      "32": 1457
+    },
+    "notes": {
+      "capInfo": {
+        "apexY": -0.053241077810525894,
+        "stripVertexCount": 604,
+        "solidVertexCount": 31070,
+        "uvMissingCount": 0,
+        "uvRule": "nearest head face, barycentric (fan tri for quads)",
+        "splitIslands": true,
+        "islandCount": 2,
+        "islandSizes": [
+          15837,
+          15837
+        ]
+      },
+      "handUV": {
+        "curves": 596,
+        "nan": 0,
+        "uMin": 0.6456583142280579,
+        "uMax": 0.9033679366111755,
+        "vMin": 0.16011300683021545,
+        "vMax": 0.8120583295822144
+      }
+    },
+    "renders": {
+      "front": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/2-no-attach-hand-uv/front.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-children/diag/2-no-attach-hand-uv/front-id.png"
+    }
+  }
+]

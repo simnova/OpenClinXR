@@ -1,0 +1,34 @@
+{
+  "engine": "CYCLES-CPU",
+  "material": {
+    "Color": [
+      0.009475241415202618,
+      0.006922087166458368,
+      0.005410466808825731,
+      1.0
+    ],
+    "R lobe": 0.22099553048610687,
+    "Roughness": 0.3953358232975006,
+    "TRT lobe": 0.7574388980865479,
+    "TT lobe": 0.5,
+    "model": "HUANG",
+    "parametrization": "COLOR"
+  },
+  "relitNote": "none (studio rig only)",
+  "rig": "target2 studio rig verbatim: world 0.5 grey, 12m backdrop (0.72,0.72,0.74) at y+2.2, Area key 100W/2m front-left, fill 40W/2m front-right, rim 60W/1.5m behind-top, film opaque (beauty)",
+  "seconds": {
+    "back": 55.6,
+    "back-id": 41.3,
+    "front": 27.1,
+    "front-id": 19.2,
+    "profile_90": 41.4,
+    "profile_90-id": 30.6,
+    "three_quarter": 34.7,
+    "three_quarter-id": 25.3
+  },
+  "seed": 7,
+  "size": 1024,
+  "spp": 64,
+  "total": 275.9,
+  "transmissionNote": "TT lobe 0.5 per card; look7 lobe_T recorded in params, unused"
+}

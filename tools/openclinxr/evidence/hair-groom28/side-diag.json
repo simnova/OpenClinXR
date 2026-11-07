@@ -1,0 +1,81 @@
+{
+ "inputs": {
+  "guides19": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom19/build/guides-19.npz",
+  "guides25b": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom25/build-25b/guides-25b.npz",
+  "poolRef": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz"
+ },
+ "nBack": 563,
+ "nGraph": 524,
+ "sides": {
+  "posX": {
+   "nGuides": 253,
+   "moveMm_19to25b": {
+    "n": 253,
+    "min": 0.0,
+    "mean": 20.029,
+    "p50": 0.374,
+    "p90": 83.448,
+    "p99": 129.608,
+    "max": 145.489
+   },
+   "neighbourCount": {
+    "n": 253,
+    "min": 16.0,
+    "mean": 46.972,
+    "p50": 50.0,
+    "p90": 58.0,
+    "p99": 64.96,
+    "max": 67.0
+   },
+   "nPoolDropped": 32,
+   "nPoolDroppedBackAll": 32,
+   "meanDeltaMm": {
+    "x": 0.524,
+    "y": -4.754,
+    "z": 4.643,
+    "normMm": 6.666,
+    "unit": [
+     0.0786,
+     -0.7133,
+     0.6965
+    ]
+   }
+  },
+  "negX": {
+   "nGuides": 271,
+   "moveMm_19to25b": {
+    "n": 271,
+    "min": 0.0,
+    "mean": 18.457,
+    "p50": 0.183,
+    "p90": 66.301,
+    "p99": 143.114,
+    "max": 191.32
+   },
+   "neighbourCount": {
+    "n": 271,
+    "min": 20.0,
+    "mean": 48.775,
+    "p50": 51.0,
+    "p90": 59.0,
+    "p99": 65.0,
+    "max": 67.0
+   },
+   "nPoolDropped": 29,
+   "nPoolDroppedBackAll": 29,
+   "meanDeltaMm": {
+    "x": -4.011,
+    "y": -3.729,
+    "z": 1.68,
+    "normMm": 5.729,
+    "unit": [
+     -0.7002,
+     -0.651,
+     0.2932
+    ]
+   }
+  }
+ },
+ "poolDropTotal": 67,
+ "note": "x: lateral(+x/-x); y: anterior(+)/posterior(-); z: up(+)/down(-)"
+}

@@ -1,0 +1,100 @@
+HAIR CROWN 2 — SCALP LINER (UNDER-HAIR ONLY) + ROOT SPREAD
+Base = prof1 combo strands (69181) + crown1 base_params (look7 COLOR + rig1 rig
++ lobe_T 0.5); scorer score.py v3 via score_tt / score_liner2, 1024/64 + crown_top.
+Base re-rendered in E/base: IoU f/p/b 0.7147/0.6952/0.7698 (== count2 tt05);
+ID bit-identical to crown1 base, beauty <=4/255 in 2 px (Cycles thread noise).
+
+STEP 1 NEW RULER (E/ruler.png overlays — read before use; stats E/ruler/ruler_stats.json)
+Old front box (rows 103-269 cols 399-623) is retired: it mixes slope scalp with
+broad forehead BELOW the hairline (judge's own centre hairlineRow = 171).
+New lattice region:
+  OURS (per view) = capmask-white (>127) AND hair silhouette (ID alpha>=30,
+    binary close 7 + dilate 5) AND H-normalized crown band.
+  The capmask is a Cycles render of the cap (the head-mesh UV region that hair
+  covers) as white emission with everything else black and hair hidden, from
+  the exact beauty cameras (E/cap_mask.py). White = under-hair scalp is the
+  first surface along the ray. The cap's front boundary is the anatomical
+  hairline and it never reaches face skin, so forehead is excluded BY
+  CONSTRUCTION (no pixel box to tune). Abandoned first attempt: raw-vert
+  projection (render-resolution normalization bug) — replaced by the render.
+  TARGET = target hair mask (>127) AND the same band in H fractions
+  (front [crown,crown+0.35H]: ours [103,271] tgt [127,295];
+   back [crown-0.02H,crown+0.30H]: ours [145,299] tgt [120,274]).
+  Overlay (red contour) hugs the lattice and follows the hairline; forehead out.
+Base on this ruler (lum / hue / orangeFrac; orange = lum>0.45 & R-B>0.12 & R>0.4):
+  FRONT ours 0.2132/23.80deg/0.0952 (23002 px) vs target 0.1227/29.42/0.0000
+  BACK  ours 0.1924/22.82deg/0.0734 (22502 px) vs target 0.0914/32.05/0.0000
+  (old box said 0.52/0.20 orange — the new ruler already removes the forehead.)
+Caveat: target side is drape-inclusive (no 3D there); the 25% lum gate is
+lenient accordingly. Cap poke-through: one 50px sliver at rows 250-251 cols
+496-528 (cap microscopically proud of the head); 0.2% of region, checked below.
+
+STEP 2 CELLS (one change each; meta E/cell_meta.json; scores E/scores/*)
+  liner_s50/s75/s100 = base strands + cap-copy liner at render time
+    (E/score_liner2.py --liner-shade; R4 name OCLX_body_mesh_scalp_liner, hidden
+    in ID so ID == base bit-for-bit and IoU identical). Shades = 0.5x/0.75x/1.0x
+    int1 diffuse: s50 (0.011,0.0045,0.0025), s75 (0.0165,0.00675,0.00375),
+    s100 (0.022,0.009,0.005), rough 0.72. Full-cap copy = under-hair only
+    (cap boundary is the hairline; capmask shows no white on the face).
+  spread = +50% duplicates (4047; 73228 total) in part band |x|<=4mm,
+    y<=apex+60mm (band extended 20->60mm to touch back-crown roots), rigid
+    outward 0.3->1.0mm deterministic ramp (0.3mm ~= 0.6px: first scale that
+    covers new ground). Repair: 86 pts projected (85 shirt + 1 head), verify 0.
+    End-angle p95 0.051 deg (ends untouched). Raw kept cells/spread_raw.npz.
+  spread_s50 = spread strands + s50 liner (liner_best, see below).
+Ruler scores (front lum/orange | back lum/orange; target front lum 0.1227):
+  base       0.2132/0.0952 | 0.1924/0.0734
+  liner_s50  0.1420/0.0001 | 0.1349/0.0000  (+15.7% front lum)
+  liner_s75  0.1434/0.0001 | 0.1364/0.0000  (+16.9%)
+  liner_s100 0.1447/0.0001 | 0.1378/0.0000  (+17.9%)
+  spread     0.1974/0.0673 | 0.1898/0.0716
+  spread_s50 0.1393/0.0000 | 0.1339/0.0000  (+13.5% front lum)
+Gate numbers (base IoU 0.7147/0.6952/0.7698; ori 24.81/32.21/31.44/24.15;
+back comps 580->floor 493; eye 0.6024):
+  liner_* : dIoU 0/0/0; dOri worst +0.13/-0.11/-0.08/-0.23; back 556-558; eye same.
+  spread  : dIoU +0.0033/-0.0016/-0.0034; dOri +0.28/+0.52/-0.21/+0.07;
+            back 569; eye same; inside 0.
+  spread_s50: dIoU +0.0033/-0.0016/-0.0034; dOri +0.46/+0.52/-0.32/-0.17;
+            back 549 (94.7%); eye 0.6024 (0pp); inside 0.
+Crown-top cover 0-10/10-20/20-30/30-50: base .604/.506/.529/.795;
+spread & combo .718/.580/.592/.807 (cover UP, liner adds nothing — hidden in ID).
+Drape-zone hair fraction (silhouette AND band, reported not gated):
+front base 0.8877 -> spread/combo 0.8901; back 0.9184 -> 0.9188.
+
+STEP 3 KEEP (all-at-once rule):
+  front orange<=0.05 AND lum within 25% of target (cap 0.1534): s50/s75/s100/combo PASS; base/spread FAIL.
+  back orange<=0.05: s50/s75/s100/combo PASS (0.0); base/spread FAIL.
+  IoU not down >0.01: ALL PASS. Ori not worse >1deg: ALL PASS (worst +0.52).
+  back comps >=493: ALL PASS (549-580). Eye within 1pp: ALL PASS (identical).
+  inside 0: ALL PASS (spread repair verified; liners add no strands).
+  liner edge on forehead/ears (looked, 3x crops + 10x sliver box): PASS —
+    ear L/R show soft strand transitions, no hard edge; forehead sliver-box
+    skin unchanged 0.9422->0.9402 (dark bands there are the new spread strands,
+    legitimate coverage); three_quarter drape clean.
+  KEPT: spread_s50. PASS-but-superseded: liner_s50 (all gates pass; combo adds
+    coverage + front IoU). REVERTED standalone: spread (ruler gates fail),
+    liner_s75/liner_s100 (redundant shades; s50 has the best lum margin and
+    darker adds nothing — orange already 0.0001 at s50).
+  best = E/scores/spread_s50/ (copied to E/best/).
+  Best strands: tools/openclinxr/evidence/hair-crown2/cells/spread.npz
+  Best material/rig: tools/openclinxr/evidence/hair-crown2/params.json
+  Best liner: s50 (0.011,0.0045,0.0025) via score_liner2.py --liner-shade s50.
+  Back-crown hair darkness (covered hair ~0.13 vs target 0.079; combo back
+  region lum +46% over target) is OUT OF SCOPE here — lighting/material slice.
+
+SAW: The liner works because the ruler finally measures scalp, not forehead:
+s50 alone closes 85% of the front lum gap (+74% -> +16%) with zero orange, and
+the 0.3-1.0mm spread adds real cover where 40um could not (crown-top 0-10
+.604->.718, front orange .095->.067 standalone). Liner shade curve is flat past
+s50 — darker liner marginally RAISES region lum (contrast with hair; 0.1-0.2%,
+noise-level), so s50 is the point of diminishing returns, not a stepping stone.
+The part slit stays skin (cap has a slit opening) — reads as a part line, correct.
+Front drape below the hairline (rows 171-271) is still sparse: a strand-layout
+problem for a later slice, not measurable by any scalp ruler.
+
+NOT TESTED: liner shades below s50 / between s50-s75; spread offsets beyond
+1.0mm or bands wider than |x|<=4mm; visual liner-edge check for s75/s100
+(reverted, unscored visually); VLM perceptual grading; Quest/WebXR appearance;
+back-crown hair darkening (out of scope).
+Look-sheet: E/look-sheet.png rows TS|base|best; cols front, back, crown crops,
+three_quarter.

@@ -1,0 +1,134 @@
+{
+  "schemaVersion": "openclinxr.hair-rescore.v2",
+  "scorer": "tools/openclinxr/evidence/hair-score/score.py",
+  "definitions": {
+    "iou": "judge v6 with hair-curtain3/landmarks.json and canonical absolute cameras",
+    "orientErr": "Gabor bank (180 orientations, 1 deg; k15/lambda4/sigma3/gamma0.5/psi0) orientation map, render registered to target with judge v6 register_view; confidence-weighted mean |angular diff| inside mask intersection",
+    "histEMD": "18-bin confidence-weighted orientation histogram earth-mover distance, degrees",
+    "bands": "connected components (cv2 8-way) above hair-mask p90 luminance in fixed 1024-frame crops; back=(320,280,704,664) on back view, ear=(100,240,484,624) on three_quarter; acPeak/acLag = detrended (41px boxcar) column-luminance autocorrelation peak/lag, lags 2..191"
+  },
+  "cells": [
+    {
+      "cell": "hair-top1 t1 + hair-look5 BEST",
+      "score": "runs/t1-look5-v2/score.json",
+      "iou": {
+        "back": 0.7839616782198362,
+        "front": 0.686925885126954,
+        "profile": 0.6815174867792478
+      },
+      "orientation": {
+        "back": {
+          "meanAbsErrDeg": 24.560331259897634,
+          "histEMD": 9.421890184956842,
+          "pixels": 219630
+        },
+        "front": {
+          "meanAbsErrDeg": 27.285123419189294,
+          "histEMD": 4.528131990382041,
+          "pixels": 71258
+        },
+        "profile_90": {
+          "meanAbsErrDeg": 31.672679101116948,
+          "histEMD": 29.242046294907556,
+          "pixels": 138667
+        },
+        "three_quarter": {
+          "meanAbsErrDeg": 33.37981343253879,
+          "histEMD": 6.835749385329029,
+          "pixels": 49157
+        }
+      },
+      "bands": {
+        "back": {
+          "ours": {
+            "count": 373,
+            "meanAreaPx": 38.50402144772118,
+            "acPeak": 0.5263881842457181,
+            "acLag": 2
+          },
+          "target": {
+            "count": 849,
+            "meanAreaPx": 16.396937573616018,
+            "acPeak": 0.5683166247419374,
+            "acLag": 2
+          }
+        },
+        "ear": {
+          "ours": {
+            "count": 125,
+            "meanAreaPx": 6.808,
+            "acPeak": 0.3265449562386232,
+            "acLag": 2
+          },
+          "target": {
+            "count": 89,
+            "meanAreaPx": 11.685393258426966,
+            "acPeak": 0.6350035052692762,
+            "acLag": 2
+          }
+        }
+      }
+    },
+    {
+      "cell": "hair-real1 a1 + hair-look5 BEST",
+      "score": "runs/a1-look5-v2/score.json",
+      "iou": {
+        "back": 0.7818585363420665,
+        "front": 0.6883191297783517,
+        "profile": 0.681018814167117
+      },
+      "orientation": {
+        "back": {
+          "meanAbsErrDeg": 24.501554609149316,
+          "histEMD": 9.369042258817185,
+          "pixels": 219463
+        },
+        "front": {
+          "meanAbsErrDeg": 27.243113695723157,
+          "histEMD": 4.191838931311941,
+          "pixels": 71615
+        },
+        "profile_90": {
+          "meanAbsErrDeg": 31.912283305628918,
+          "histEMD": 29.28320593822309,
+          "pixels": 138635
+        },
+        "three_quarter": {
+          "meanAbsErrDeg": 33.67307312374665,
+          "histEMD": 7.3535244391438255,
+          "pixels": 49287
+        }
+      },
+      "bands": {
+        "back": {
+          "ours": {
+            "count": 372,
+            "meanAreaPx": 38.77150537634409,
+            "acPeak": 0.5269951720349414,
+            "acLag": 2
+          },
+          "target": {
+            "count": 849,
+            "meanAreaPx": 16.396937573616018,
+            "acPeak": 0.5683166247419374,
+            "acLag": 2
+          }
+        },
+        "ear": {
+          "ours": {
+            "count": 133,
+            "meanAreaPx": 6.368421052631579,
+            "acPeak": 0.4426085495511174,
+            "acLag": 2
+          },
+          "target": {
+            "count": 89,
+            "meanAreaPx": 11.685393258426966,
+            "acPeak": 0.6350035052692762,
+            "acLag": 2
+          }
+        }
+      }
+    }
+  ]
+}

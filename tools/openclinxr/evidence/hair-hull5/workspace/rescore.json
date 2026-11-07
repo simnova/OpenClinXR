@@ -1,0 +1,329 @@
+{
+ "provenance": "hull5 occupancy == hull4 WS/baseline_kept final",
+ "keptFinal": 393153,
+ "volMm3": 3145224.0,
+ "excess": {
+  "front": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "three_quarter": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "three_quarter_mirror": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "profile_90": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "back": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "profile_90_mirror": {
+   "p95": 3.0,
+   "pass": true
+  }
+ },
+ "roots": {
+  "n": 14155,
+  "p50": 2.83,
+  "p95": 6.0,
+  "max": 18.87,
+  "fracWithin6mm": 0.9529
+ },
+ "single": {
+  "nComponents": 1,
+  "largestFrac": 1.0,
+  "droppedTouchVox": 291,
+  "droppedTouchFrac": 0.00074,
+  "pass": true
+ },
+ "mismatch": {
+  "hairlikeBeyond3px": {
+   "front": 0,
+   "three_quarter": 5,
+   "profile_90": 6,
+   "back": 0
+  },
+  "maxBeyond": 6,
+  "domeCoveredNoShell": true,
+  "pass": true
+ },
+ "backsym": {
+  "L_over_R": 1.0026,
+  "raw": 1.0016,
+  "pass": true
+ },
+ "side": {
+  "sideL": 1166,
+  "sideR": 1183,
+  "L_over_R": 0.9856,
+  "pass": true
+ },
+ "volMirrorIoU": 0.9848,
+ "ear": {
+  "pass": true,
+  "maxVisibleFrac": 0.0213,
+  "clearanceMinMm": 2.17
+ },
+ "sens1mm": {
+  "maxDelta": 1.64,
+  "fragile": [],
+  "pass": true
+ },
+ "sensRedefined_i": {
+  "undilKeepLabel": 96,
+  "undilSplatPx": {
+   "front": 37208,
+   "three_quarter": 50402,
+   "three_quarter_mirror": 50228,
+   "profile_90": 72617,
+   "back": 167926,
+   "profile_90_mirror": 72355
+  },
+  "undilBelow": {
+   "front": 0,
+   "sideL": 824,
+   "sideR": 846,
+   "back": 109462
+  },
+  "pass": true
+ },
+ "sensRedefined_ii": {
+  "regionalNonHemDelta": {
+   "front": {
+    "base": {
+     "excessP95": 2.0,
+     "missP95": 12.17,
+     "excessN": 936,
+     "missN": 1183
+    },
+    "undil": {
+     "excessP95": 0.0,
+     "missP95": 57.88,
+     "excessN": 0,
+     "missN": 1299
+    },
+    "delta": {
+     "excessP95": 2.0,
+     "missP95": 45.71
+    },
+    "hemStartRow": 617
+   },
+   "three_quarter": {
+    "base": {
+     "excessP95": 2.0,
+     "missP95": 17.06,
+     "excessN": 875,
+     "missN": 891
+    },
+    "undil": {
+     "excessP95": 0.0,
+     "missP95": 30.47,
+     "excessN": 0,
+     "missN": 997
+    },
+    "delta": {
+     "excessP95": 2.0,
+     "missP95": 13.41
+    },
+    "hemStartRow": 686
+   },
+   "three_quarter_mirror": {
+    "base": {
+     "excessP95": 2.0,
+     "missP95": 18.03,
+     "excessN": 839,
+     "missN": 861
+    },
+    "undil": {
+     "excessP95": 0.0,
+     "missP95": 30.19,
+     "excessN": 0,
+     "missN": 991
+    },
+    "delta": {
+     "excessP95": 2.0,
+     "missP95": 12.16
+    },
+    "hemStartRow": 686
+   },
+   "profile_90": {
+    "base": {
+     "excessP95": 2.0,
+     "missP95": 6.71,
+     "excessN": 2497,
+     "missN": 326
+    },
+    "undil": {
+     "excessP95": 0.0,
+     "missP95": 6.66,
+     "excessN": 0,
+     "missN": 444
+    },
+    "delta": {
+     "excessP95": 2.0,
+     "missP95": 0.05
+    },
+    "hemStartRow": 984
+   },
+   "back": {
+    "base": {
+     "excessP95": 2.0,
+     "missP95": 2.24,
+     "excessN": 2656,
+     "missN": 89
+    },
+    "undil": {
+     "excessP95": 0.0,
+     "missP95": 3.47,
+     "excessN": 0,
+     "missN": 167
+    },
+    "delta": {
+     "excessP95": 2.0,
+     "missP95": 1.23
+    },
+    "hemStartRow": 984
+   },
+   "profile_90_mirror": {
+    "base": {
+     "excessP95": 3.0,
+     "missP95": 5.83,
+     "excessN": 2234,
+     "missN": 326
+    },
+    "undil": {
+     "excessP95": 1.0,
+     "missP95": 6.45,
+     "excessN": 420,
+     "missN": 498
+    },
+    "delta": {
+     "excessP95": 2.0,
+     "missP95": 0.62
+    },
+    "hemStartRow": 984
+   }
+  },
+  "fragileNonHem": [
+   "front/missP95: base 12.17 vs undil 57.88",
+   "three_quarter/missP95: base 17.06 vs undil 30.47",
+   "three_quarter_mirror/missP95: base 18.03 vs undil 30.19"
+  ],
+  "pass": false
+ },
+ "sensRedefined_iii": {
+  "hemBandMissReported": {
+   "front": {
+    "base": {
+     "missN": 119,
+     "missP50": 9.9,
+     "missP95": 13.37,
+     "missMax": 14.32,
+     "maskHemPx": 4841
+    },
+    "undil": {
+     "missN": 147,
+     "missP50": 11.18,
+     "missP95": 14.96,
+     "missMax": 15.13,
+     "maskHemPx": 4841
+    }
+   },
+   "three_quarter": {
+    "base": {
+     "missN": 7,
+     "missP50": 1.0,
+     "missP95": 1.0,
+     "missMax": 1.0,
+     "maskHemPx": 935
+    },
+    "undil": {
+     "missN": 15,
+     "missP50": 1.0,
+     "missP95": 1.41,
+     "missMax": 1.41,
+     "maskHemPx": 935
+    }
+   },
+   "three_quarter_mirror": {
+    "base": {
+     "missN": 4,
+     "missP50": 1.0,
+     "missP95": 1.0,
+     "missMax": 1.0,
+     "maskHemPx": 935
+    },
+    "undil": {
+     "missN": 14,
+     "missP50": 1.0,
+     "missP95": 1.41,
+     "missMax": 1.41,
+     "maskHemPx": 935
+    }
+   },
+   "profile_90": {
+    "base": {
+     "missN": 59,
+     "missP50": 8.06,
+     "missP95": 11.0,
+     "missMax": 11.18,
+     "maskHemPx": 1598
+    },
+    "undil": {
+     "missN": 62,
+     "missP50": 9.06,
+     "missP95": 13.58,
+     "missMax": 14.14,
+     "maskHemPx": 1598
+    }
+   },
+   "back": {
+    "base": {
+     "missN": 361,
+     "missP50": 4.12,
+     "missP95": 8.06,
+     "missMax": 8.25,
+     "maskHemPx": 13241
+    },
+    "undil": {
+     "missN": 382,
+     "missP50": 4.47,
+     "missP95": 8.25,
+     "missMax": 10.05,
+     "maskHemPx": 13241
+    }
+   },
+   "profile_90_mirror": {
+    "base": {
+     "missN": 62,
+     "missP50": 9.67,
+     "missP95": 13.04,
+     "missMax": 13.34,
+     "maskHemPx": 1598
+    },
+    "undil": {
+     "missN": 73,
+     "missP50": 9.49,
+     "missP95": 15.9,
+     "missMax": 17.03,
+     "maskHemPx": 1598
+    }
+   }
+  }
+ },
+ "sensOldUndil": {
+  "maxDelta": 43.55,
+  "fragile": [
+   "front/missP95: base 13.04 vs 56.59",
+   "three_quarter/missP95: base 17.05 vs 30.4",
+   "three_quarter_mirror/missP95: base 18.03 vs 30.02"
+  ]
+ },
+ "overallPass": false
+}

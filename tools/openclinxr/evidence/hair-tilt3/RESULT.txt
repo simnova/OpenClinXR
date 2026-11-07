@@ -1,0 +1,108 @@
+HAIR TILT 3 — LONG-WAVELENGTH LEAN (the middle between tilt and wave)
+
+Lineage: E/wave.py is hair-tilt2's wave.py copied verbatim (helpers, phase
+field, envelope, clamp, part_gap kept) plus two tilt3 operators:
+apply_long_wave() (SINGLE sine, no harmonic; A = tan(theta)/k exact) and
+apply_lean_return() (per-fibre theta ~ N(0,sigma), offset s*tan(theta) for
+the first 60% of arc, smooth return to the unwaved strand over the last
+40%; tip displacement 0 by construction). All cells in-plane only, same
+5 mm phase field, 3 mm part protection, 15 mm fade-in, 20 mm tip fade as
+tilt2. Guides untouched. Collider audit = transport2 repair.py flow (3x
+repair_outside + strict clamp + final repair). Material: hair-look7
+best-params.json. Scorer: hair-score/score.py schema v2. Base (a1+look7):
+IoU f/p/b = 0.6883/0.6810/0.7819; ori err f/3q/p/b =
+27.09/33.65/31.97/24.55; EMD = 3.96/7.36/29.23/9.48; back bands 353x41.1
+vs TS 849x16.4; ear 127x6.7 vs TS 89x11.7; honest part/side 0.9482;
+eye/jaw openings 0.6046/0.4365.
+
+STEP 1 REALISED STATS (vs unwaved strand; per-fibre max displacement;
+tangent max ~175 deg is the known near-degenerate-gradient artifact at
+tips/kinks, rms/p95 are load-bearing; protected fibres 8949/69181):
+  cell   | op                        | tangent rms/p95  | disp p50/p95/max mm
+  L240   | sine L240mm peak 4deg     | 3.537/6.503      | 2.669/2.671/2.671
+  L450   | sine L450mm peak 4deg     | 5.298/12.014     | 5.005/5.008/5.008
+  L450x6 | sine L450mm peak 6deg     | 7.828/17.897     | 7.523/7.527/7.528
+  LR     | lean-return sigma 4deg    | 6.838/12.152     | 6.995/26.524/101.966
+  (theta realised std 3.72 deg, max|theta| 19.89 deg; strand lengths
+  p50/p95 307/452 mm, so L450 ~= one half-to-full period per strand and
+  every fibre reaches ~= amplitude. Note the realised tangent rms EXCEEDS
+  the quoted peak: the 15/20 mm envelope gradients (env' ~ 1/15mm) add
+  slope on top of the wave; the longer the wavelength (bigger A), the
+  larger this term. L240/L450/L450x6 sit at 2.7/5.0/7.5 mm displacement;
+  LR holds tips at 0 but pays mid-strand, p95 26.5 mm vs tilt1 t4 43.5.)
+
+STEP 2 GATES (inside 0; part gap <= 3 mm; eroded front mask within 8% of
+a1; eye/jaw openings within 1 pp of a1 0.6046/0.4365; honest part/side
+within 0.1 of a1 0.9482. Eroded mask = judge-style 7x7 square erosion
+(r=3) on the raw front-id mask (alpha>=230); a1 = 56575 px by this
+method. Absolute scale differs from the tilt1/2 reports (60422 px,
+unknown kernel) — % deltas are the comparable quantity):
+  L240: inside PASS; part 1.1 PASS; eroded 61152 (+8.09%) FAIL (marginal);
+    eye 0.6024 (|d| 0.0022) PASS; jaw 0.4365 PASS; honest 0.9983 (|d| 0.050) PASS
+  L450: inside PASS; part 1.1 PASS; eroded 64705 (+14.37%) FAIL;
+    eye 0.5980 (|d| 0.0065) PASS; jaw PASS; honest 1.1754 (|d| 0.227) FAIL
+  L450x6: inside PASS; part 1.1 PASS; eroded 68565 (+21.19%) FAIL;
+    eye 0.5871 (|d| 0.0175) FAIL; jaw PASS; honest 1.1861 (|d| 0.238) FAIL
+  LR: inside PASS; part 1.1 PASS; eroded 77118 (+36.31%) FAIL;
+    eye 0.5697 (|d| 0.0349) FAIL; jaw PASS; honest 1.1515 (|d| 0.203) FAIL
+
+STEP 3 SCORES (look7 material; IoU f/p/b; ori err f/3q/p/b; EMD f/3q/p/b):
+  L240: IoU = 0.6936/0.6933/0.7741 (d +0.0053/+0.0122/-0.0078); ori = 27.06/35.48/31.29/22.29 (d -0.03/+1.83/-0.68/-2.26); EMD = 5.95/9.23/29.01/6.92; back 374x38.2 (1.06x); ear 128x8.1
+  L450: IoU = 0.6970/0.6838/0.7644 (d +0.0087/+0.0027/-0.0174); ori = 27.28/34.69/29.62/21.94 (d +0.19/+1.04/-2.35/-2.61); EMD = 5.05/7.27/25.00/6.12; back 391x37.4 (1.11x); ear 125x9.0
+  L450x6: IoU = 0.6931/0.6766/0.7497 (d +0.0048/-0.0044/-0.0322); ori = 27.20/35.91/30.02/21.82 (d +0.11/+2.26/-1.95/-2.73); EMD = 4.61/8.02/25.09/6.26; back 460x30.9 (1.30x, smaller); ear 127x9.1
+  LR: IoU = 0.7006/0.6638/0.7503 (d +0.0123/-0.0172/-0.0316); ori = 27.25/34.39/32.45/20.80 (d +0.16/+0.74/+0.48/-3.75); EMD = 4.53/9.62/20.52/4.10; back 646x22.4 (1.83x, smaller); ear 263x6.8
+  KEEP rule (back count >= 2x base=706 with mean <= 25 px; no IoU drop >
+  0.015 any view; ori not worse by > 1 deg any view):
+  L240: 1.06x FAIL; IoU PASS; ori FAIL (3q +1.83) -> REVERTED
+  L450: 1.11x FAIL; IoU FAIL (back -0.0174); ori FAIL (3q +1.04) -> REVERTED
+  L450x6: 1.30x FAIL; IoU FAIL (back -0.0322); ori FAIL (3q +2.26) -> REVERTED
+  LR: 1.83x FAIL (size 22.4 PASS); IoU FAIL (profile -0.0172, back -0.0316); ori PASS -> REVERTED (bands+IoU)
+  Best cell = LR: most back bands of tilt2+tilt3, only cell with ori PASS
+  in all four views, back ori -3.75 the best of all three tilts.
+  Look-sheet: E/look-sheet.png rows TS | current(a1+look7) | best-LR |
+    tilt1-t4; cols back, three_quarter, profile_90, back crop
+    (320,280,704,664).
+
+TRADE-OFF (back component count vs max IoU drop across views, all tilts;
+base a1 f/p/b = 0.6883/0.6810/0.7819):
+  cell       | back count | max IoU drop | notes
+  w4i (t2)   | 321        | 0.0013       | silhouette holds, no fragmentation
+  L240 (t3)  | 374        | 0.0078       | wave re-merges
+  L450 (t3)  | 391        | 0.0174       | wave re-merges
+  w7m (t2)   | 397        | 0.0036       | mixed adds nothing
+  w10m (t2)  | 390        | 0.0047       | ori improves, bands flat
+  c1 (t2)    | 449        | 0.0176       | r1 base does not stack
+  w7i (t2)   | 458        | 0.0024       | best silhouette-holder
+  L450x6(t3) | 460        | 0.0322       | amplitude without lean fails
+  t2 (t1)    | 484        | 0.0477       | dominated by LR (fewer bands, more drop)
+  LR (t3)    | 646        | 0.0316       | NEW PARETO point: most bands below 0.035 drop
+  t4 (t1)    | 778        | 0.0593       | fragments, silhouette pays
+  t4w (t1)   | 798        | 0.0583       | wave on tilt adds nothing
+  t6 (t1)    | 903        | 0.1147       | TS count+size, IoU destroyed
+  Pareto frontier (bands, drop): w7i (458, 0.0024) -> LR (646, 0.0316) ->
+  t4 (778, 0.0593) -> t6 (903, 0.1147). The middle exists: sustained lean
+  with tip control halves tilt's silhouette cost per band.
+
+KEPT/REVERTED: all four REVERTED. No KEPT cell. Scores and renders
+retained under E/scores/* and E/cells/*/strands.npz for the record.
+
+SAW::The inferred reading half-confirmed again, from the other side: a
+pure long wave does NOT break the bands (L240 374, L450 391, L450x6 460
+back bands — the slope still oscillates about zero along the strand, so
+adjacent highlight rows shift in opposite directions and re-merge, same
+as tilt2). The lean-return DOES break them (646 x 22.4, closest to TS
+short of tilt1), because each fibre holds its own lean over ~60% of its
+run — but the displacement cost returns with it (p95 26.5 mm mid-strand,
+eroded +36%, eye -3.5 pp), even with tip displacement exactly zero.
+Against TS the first wrong read is unchanged: the back curtain keeps
+coarse bands (best 646 x 22 px vs TS 849 x 16 px) and the front curtain
+has no slack left (every lean variant widens the eroded mask and moves
+the honest part/side). The mechanism is now isolated: fragmentation
+needs sustained per-fibre lean over tens of cm; silhouette cost scales
+with the displacement that lean accumulates. Next attempt should make
+the lean bundle-coherent (neighbours share theta, so the silhouette
+moves as a sheet instead of fraying) or schedule amplitude by view
+(back only), not per-fibre everywhere.
+
+NOT TESTED::Physical Quest 3 / worn-headset evidence; clinical validity/
+scoring claims (out of scope per repo guardrails).

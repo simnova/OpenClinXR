@@ -1,0 +1,18 @@
+HAIR LOOK 5 — HIGHLIGHT HUE AND SATURATION
+
+PROBE c1 SUPPORTED::redness 0.15; fitness=5.340661 vs i1 5.650004; delta=+0.309343; front hue/sat=16.435/0.315; 3q=14.167/0.209; profile=12.161/0.187; back=8.031/0.205; part/side=2.219; face=0.733
+PROBE c2 SUPPORTED::redness 0.25; fitness=5.469003 vs i1 5.650004; delta=+0.181000; front hue/sat=16.053/0.333; 3q=13.727/0.226; profile=11.857/0.196; back=7.932/0.217; part/side=2.216; face=0.733
+PROBE c3 SUPPORTED::rim energy x0.25; fitness=5.553550 vs i1 5.650004; delta=+0.096454; front hue/sat=15.291/0.320; 3q=13.334/0.244; profile=11.355/0.217; back=7.890/0.237; part/side=2.220; face=0.733
+PROBE c4 REFUTED::shirt neutral grey at equal luminance (diagnostic only); fitness=5.649658 vs i1 5.650004; delta=+0.000346; front hue/sat=15.744/0.346; 3q=13.236/0.239; profile=11.413/0.213; back=7.831/0.239; part/side=2.212; face=0.733
+PROBE c5 SUPPORTED::Secondary Reflection 1.0; fitness=5.387205 vs i1 5.650004; delta=+0.262799; front hue/sat=16.023/0.327; 3q=13.786/0.213; profile=12.022/0.178; back=7.880/0.205; part/side=2.221; face=0.733
+PROBE c6 SUPPORTED::Transmission 0.6; fitness=5.488397 vs i1 5.650004; delta=+0.161607; front hue/sat=15.635/0.298; 3q=13.262/0.212; profile=11.158/0.192; back=7.165/0.209; part/side=2.240; face=0.733
+
+BEST PARAMS::HUANG melanin=0.887321; redness=0.264027; Reflection=0.401852; Secondary Reflection=0.800940; Transmission=0.968028; roughness=0.390002; Random=0.019248; rim_W=0.083562; camera-relative rig
+BEST FITNESS::512=5.083245; 1024=5.122497; selected eval=14; face move=0.036% PASS<=5%
+
+BEST.front::p50=0.070552 vs TS 0.066064; p90=0.137219 vs TS 0.174715; hue=14.656 vs TS 14.000; sat=0.250 vs TS 0.193; part/side=2.226; face=0.734
+BEST.three_quarter::p50=0.097453 vs TS 0.066878; p90=0.140024 vs TS 0.147584; hue=13.546 vs TS 21.266; sat=0.171 vs TS 0.193
+BEST.profile_90::p50=0.117611 vs TS 0.096016; p90=0.148433 vs TS 0.160182; hue=11.863 vs TS 23.434; sat=0.143 vs TS 0.167
+BEST.back::p50=0.103860 vs TS 0.112289; p90=0.138053 vs TS 0.176686; hue=8.156 vs TS 20.516; sat=0.175 vs TS 0.232
+
+SAW::Best is closer in aggregate highlight hue and closer in aggregate highlight saturation than i1; the sheet preserves the remaining per-view luminance and colour mismatch for visual review.

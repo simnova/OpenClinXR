@@ -1,0 +1,4 @@
+hair-prof1 DONE. Best cell combo: IoU f/p/b = 0.7147/0.6952/0.7698
+(+0.0200/+0.0145/+0.0001 vs b9). KEPT c_cr1, c_fo4, combo. REVERTED c_pb,
+c_pf, c_pf2, c_fo, c_fo2, c_fo3, c_fc, c_fc2, c_fc3. Strands:
+tools/openclinxr/evidence/hair-prof1/cells/combo/strands.npz.

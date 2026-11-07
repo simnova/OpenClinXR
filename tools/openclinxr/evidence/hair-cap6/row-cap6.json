@@ -1,0 +1,396 @@
+{
+ "p1": {
+  "face_cx": 513,
+  "hair_top_row": 127,
+  "skull_crown_row": 150,
+  "chin_row": 608,
+  "H_px": 458,
+  "method": "vertical gradient + 2D temple line-fit; centre part-tip +-5px, outer +-6px",
+  "rows_LR": {
+   "0": [
+    208,
+    208
+   ],
+   "20": [
+    211,
+    211
+   ],
+   "40": [
+    212,
+    213
+   ],
+   "60": [
+    224,
+    219
+   ],
+   "80": [
+    245,
+    238
+   ],
+   "100": [
+    303,
+    284
+   ]
+  },
+  "h_frac_avg": [
+   0.87336,
+   0.86681,
+   0.86354,
+   0.84389,
+   0.80022,
+   0.68668
+  ],
+  "dx_over_H": [
+   0.0,
+   0.04367,
+   0.08734,
+   0.131,
+   0.17467,
+   0.21834
+  ]
+ },
+ "p2": {
+  "profile_H": 452,
+  "rows": [
+   220,
+   250,
+   280,
+   310,
+   340,
+   370,
+   400,
+   430
+  ],
+  "hair_front_col": [
+   390,
+   398,
+   403,
+   408,
+   413,
+   422,
+   436,
+   443
+  ],
+  "eye_outer_col": 347,
+  "eye_row": 348,
+  "offsets_H": [
+   0.0951,
+   0.1128,
+   0.1239,
+   0.135,
+   0.146,
+   0.1659,
+   0.1969,
+   0.2124
+  ],
+  "lobe_row_est": 457.0,
+  "departure_row": 475.0,
+  "root_bottom_row": 425.0,
+  "note": "forward-most hair col per row on JM mask-profile-v2; lobe eye-mapped from our-lobe z=1.5037; departure where edge leaves cheek; root bottom = lobe+15mm"
+ },
+ "p3": {
+  "canthus_L": [
+   0.0444,
+   -0.13646,
+   1.5546
+  ],
+  "canthus_R": [
+   -0.0444,
+   -0.13646,
+   1.5546
+  ],
+  "pinna_L": {
+   "front": [
+    0.06808,
+    -0.07218,
+    1.54374
+   ],
+   "top": [
+    0.06876,
+    -0.05593,
+    1.60064
+   ],
+   "lobe": [
+    0.07033,
+    -0.05584,
+    1.50371
+   ],
+   "lat": [
+    0.08327,
+    -0.03894,
+    1.54471
+   ]
+  },
+  "pinna_R": {
+   "front": [
+    -0.06808,
+    -0.07218,
+    1.54374
+   ],
+   "top": [
+    -0.06876,
+    -0.05593,
+    1.60064
+   ],
+   "lobe": [
+    -0.07033,
+    -0.05584,
+    1.50371
+   ],
+   "lat": [
+    -0.08327,
+    -0.03894,
+    1.54471
+   ]
+  },
+  "note": "canthus = outermost eyelash vert; pinna zones on head mesh; mirror error printed in log"
+ },
+ "p4": {
+  "brow_id": 227,
+  "brow_z": 1.57165,
+  "nasion_id": 1026,
+  "nasion_z": 1.54823,
+  "menton_z": 1.44922,
+  "note": "old brow_z=1.5303 was nasal bone; true brow ridge is the most anterior midline vert above the nasion"
+ },
+ "gates": {
+  "g1": {
+   "area_cm2": 553.59,
+   "removed_forehead_cm2": 40.22,
+   "added_L_cm2": 6.72,
+   "added_R_cm2": 6.72,
+   "cut_pinna_cm2": 73.34,
+   "ncomp": 3,
+   "nloops": 3,
+   "mirror_mm": 0.0,
+   "pass": false
+  },
+  "g2": {
+   "maxerr_H": 0.00143,
+   "pass": true,
+   "cols": [
+    {
+     "dx": 0,
+     "side": "C",
+     "hT": 0.8734,
+     "h5": 0.8717,
+     "h6": 0.8719
+    },
+    {
+     "dx": 20,
+     "side": "L",
+     "hT": 0.8668,
+     "h5": 0.8669,
+     "h6": 0.8668
+    },
+    {
+     "dx": 20,
+     "side": "R",
+     "hT": 0.8668,
+     "h5": 0.8669,
+     "h6": 0.8668
+    },
+    {
+     "dx": 40,
+     "side": "L",
+     "hT": 0.8635,
+     "h5": 0.8324,
+     "h6": 0.8635
+    },
+    {
+     "dx": 40,
+     "side": "R",
+     "hT": 0.8635,
+     "h5": 0.8324,
+     "h6": 0.8635
+    },
+    {
+     "dx": 60,
+     "side": "L",
+     "hT": 0.8439,
+     "h5": 0.7913,
+     "h6": 0.8438
+    },
+    {
+     "dx": 60,
+     "side": "R",
+     "hT": 0.8439,
+     "h5": 0.7913,
+     "h6": 0.8438
+    },
+    {
+     "dx": 80,
+     "side": "L",
+     "hT": 0.8002,
+     "h5": 0.7501,
+     "h6": 0.8002
+    },
+    {
+     "dx": 80,
+     "side": "R",
+     "hT": 0.8002,
+     "h5": 0.7501,
+     "h6": 0.8002
+    },
+    {
+     "dx": 100,
+     "side": "L",
+     "hT": 0.6867,
+     "h5": 0.6884,
+     "h6": 0.6867
+    },
+    {
+     "dx": 100,
+     "side": "R",
+     "hT": 0.6867,
+     "h5": 0.6884,
+     "h6": 0.6867
+    }
+   ]
+  },
+  "g3": {
+   "step_mm": 20.208,
+   "at_vert": 20236,
+   "at_zone": "sideburn",
+   "pass": false
+  },
+  "g4": {
+   "setback_min_mm": 10.0,
+   "setback_max_mm": 55.45,
+   "pinna_min_mm": 0.0,
+   "pinna_at_vert": 4810,
+   "canthus_infront_mm": -12.4,
+   "pass": false,
+   "cols": [
+    {
+     "row": 220,
+     "side": "L",
+     "setback_mm": 55.45
+    },
+    {
+     "row": 220,
+     "side": "R",
+     "setback_mm": 55.45
+    },
+    {
+     "row": 250,
+     "side": "L",
+     "setback_mm": 46.63
+    },
+    {
+     "row": 250,
+     "side": "R",
+     "setback_mm": 46.63
+    },
+    {
+     "row": 280,
+     "side": "L",
+     "setback_mm": 45.72
+    },
+    {
+     "row": 280,
+     "side": "R",
+     "setback_mm": 45.72
+    },
+    {
+     "row": 310,
+     "side": "L",
+     "setback_mm": 10.01
+    },
+    {
+     "row": 310,
+     "side": "R",
+     "setback_mm": 10.01
+    },
+    {
+     "row": 340,
+     "side": "L",
+     "setback_mm": 40.33
+    },
+    {
+     "row": 340,
+     "side": "R",
+     "setback_mm": 40.33
+    },
+    {
+     "row": 370,
+     "side": "L",
+     "setback_mm": 35.21
+    },
+    {
+     "row": 370,
+     "side": "R",
+     "setback_mm": 35.21
+    },
+    {
+     "row": 400,
+     "side": "L",
+     "setback_mm": 10.0
+    },
+    {
+     "row": 400,
+     "side": "R",
+     "setback_mm": 10.0
+    },
+    {
+     "row": 430,
+     "side": "L",
+     "setback_mm": 10.65
+    },
+    {
+     "row": 430,
+     "side": "R",
+     "setback_mm": 10.65
+    }
+   ]
+  },
+  "g5": {
+   "g13": 1.0,
+   "g7": 1.0,
+   "g15": 7.85,
+   "cross": 0,
+   "sinks": 0,
+   "never": 0,
+   "fore_pct": 0.0333,
+   "sym95_deg": 0.001,
+   "pass": false
+  }
+ },
+ "acct": {
+  "removed_forehead_cm2": 40.22,
+  "added_L_cm2": 6.72,
+  "added_R_cm2": 6.72,
+  "cut_pinna_cm2": 73.34,
+  "added_where": "sideburn tongues (P2 edge +10mm setback, lobe+15mm bottom)",
+  "removed_where": "front y<=ear_front_y ax<=46.5mm below-zc6 (exact-P1 forehead strip)"
+ },
+ "sink": {
+  "count": 0,
+  "roots": []
+ },
+ "flow_b": {
+  "hist": {
+   "forehead": 10,
+   "temple-to-ear": 107,
+   "behind-ear": 106,
+   "nape": 77,
+   "never-left": 0
+  },
+  "g5B": 0.9835,
+  "g6B": 0.8518
+ },
+ "files": [
+  "flow7.py",
+  "cap-v6.npz",
+  "flow-b-v6.npz",
+  "hairline-compare.png",
+  "hairline-compare-profile.png",
+  "cap6-debug.png",
+  "target-sideburn-overlay.png",
+  "compare-head.png",
+  "compare-profile.png",
+  "row-cap6.json",
+  "check-cap6.mjs",
+  "RESULT.txt"
+ ]
+}

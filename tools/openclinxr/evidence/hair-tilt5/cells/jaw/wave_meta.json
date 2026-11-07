@@ -1,0 +1,44 @@
+{
+  "tag": "jaw",
+  "op": "b8 + curtain-below-jaw lean (tilt5)",
+  "params": {
+    "sigma": 4.0,
+    "hold": 0.6,
+    "seed": 2026102004,
+    "jawZ": 1.46,
+    "fadeMm": 30.0
+  },
+  "wave": {
+    "sigmaDeg": 4.0,
+    "hold": 0.6,
+    "jawZ": 1.46,
+    "fadeMm": 30.0,
+    "thetaStdCurtain": 3.6009197595022426,
+    "thetaMaxAbsCurtain": 19.903785731252405,
+    "curtainFibres": 31534,
+    "tangentDevDeg": {
+      "rms": 4.526953734367095,
+      "p95": 8.477317308974122,
+      "max": 179.6498354032941
+    },
+    "maxDispMm": {
+      "p50": 0.0,
+      "p95": 20.029858852050896,
+      "max": 70.28660927712698
+    },
+    "maxDispMmCurtain": {
+      "p50": 6.106673824466579,
+      "p95": 25.424720245260964,
+      "max": 70.28660927712698
+    },
+    "protectedFibres": 8949,
+    "seed": 2026102004
+  },
+  "rearMaxAbsDiffVsB8Mm": 0.0,
+  "endAngleDegPreRepair": {
+    "p50": 5.083912881021417e-06,
+    "p95": 8.559160696010217,
+    "max": 31.20613298958636
+  },
+  "partGapMm": 1.0999999940395355
+}

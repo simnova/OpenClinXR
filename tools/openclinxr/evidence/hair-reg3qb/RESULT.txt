@@ -1,0 +1,75 @@
+hair-reg3qb: solved target three-quarter camera pose
+=====================================================
+
+TARGET + BODY (pinned, same as reg3q)
+  target: set-back/target-three_quarter.png
+          sha 7c05831a88e478abebf6f0cbf8060e1982e1e8179e9efb2aff72b90e26bc7022
+  frame: 1024x1024 RGB
+  targets (col,row): crown (527.50,129.00), menton (451.98,569.51),
+    nose_tip (421.19,431.81), philtrum (436.55,488.26),
+    acromion (739.20,711.11), neck_base (560.72,716.485)
+  body: mpfb-peds-parent-aisha GLB
+        sha 5cab66767a6bec8cb22d4d021ccccc416955f8f617fdc243d38d56e17f185dde
+  body 3D: E-reg3q projected-3q.json point3d (crown, menton, nose_tip,
+    philtrum, acromion_L, shoulder-plane point)
+
+MODEL (S/register3q.py --camera; scipy least_squares, start grid
+  yaw {5,15,25,35,45,55} deg x pitch {-2,2,5} deg x dist {0.6,0.7,0.9} m)
+  orbit about vertical axis x=0,y=0 through fixation C=(0,0,1.4735847)
+    (scorer front/profile/three_quarter view-dir intersection),
+  upright (camera X kept horizontal), perspective col=(0.5+xn*lens/S)*1024+tx,
+  row=(0.5-yn*lens/S)*1024+ty. Projection verified byte-exact against the
+  pinned three_quarter camera (all 8 anatomy points reproduce
+  projected-3q.json to 0.01 px).
+  LENS: FIXED at scorer 50.0 mm / 36 mm sensor (focal NOT solved).
+    Free-focal check run for residuals only (see below); it does not help,
+    so the stored fits keep the pinned lens.
+
+STEP 1 POSE (fixed 50 mm lens)
+  ALL-POINT (6): yaw 15.10 deg, pitch 1.52 deg, dist 0.8725 m,
+    tx +1.35 px, ty +9.92 px; loc (0.2272,-0.8420,1.4967)
+  HEAD-ONLY (crown, menton, nose, philtrum): yaw 24.08 deg, pitch 11.49 deg,
+    dist 0.7998 m, tx +57.92 px, ty -38.80 px; loc (0.3198,-0.7156,1.6329)
+  Angle check: solved head-only yaw ~24 deg vs pinned 45 deg confirms the
+  orchestrator read (target nose-tip ~106 px left of skull top vs ~202 px
+  in the pinned 45-deg render; at the solved pose the predicted offset is
+  ~105 px). The target was taken from a camera turned noticeably less
+  than 45 degrees.
+
+STEP 2 RESIDUALS (px, pred-vs-target)
+  ALL: crown 80.41, menton 8.06, nose_tip 11.99, philtrum 15.96,
+    acromion 88.20, neck_base 95.62; p95 = 93.77 px, max 95.62 (gate <= 8)
+  HEAD-ONLY: crown 0.83, menton 5.55, nose_tip 11.42, philtrum 16.26;
+    p95 = 15.53 px, max 16.26 (gate <= 8)
+  FREE-FOCAL check (record only, never stored): all p95 87.35 px @ 80.0 mm
+    (upper bound); head-only p95 15.44 px @ 43.42 mm. Residuals demand no
+    focal change: freeing the lens does not pass the gate either.
+  Extra manual probe (not stored): unconstrained 8-DOF camera (free position
+  + orientation + tx,ty, fixed lens) reaches only head p95 ~14.7 px, all
+  p95 ~21.6 px with non-scorer-like pose/shift. Even a free perspective
+  camera cannot reconcile the two heads: residual is shape mismatch
+  (adult photo vs peds-proportioned synthetic nose/philtrum geometry pulls
+  opposite vertical directions: nose pred +11.4 px low, philtrum -15.9 px
+  high), not just angle.
+
+STEP 3 GATE
+  VERDICT: REGISTRATION_INSUFFICIENT (E/registration-3qb.json, status field,
+    both fits + per-landmark residuals included, NO camera-target3q.json
+    emitted, NO transform key).
+  camera-target3q.json intentionally NOT produced (gate failed on both
+    all-point and head-only fits); frame-3q.png intentionally NOT produced.
+  The 3/4 view must keep scoring/carving with front/profile/back only.
+
+SAW (Scope, Assumptions, Warnings)
+  Scope: 3/4 target-camera solve only; S/register3q.py extended with a
+    --camera mode (original similarity path byte-identical); no other
+    hair-groom file touched.
+  Assumptions: FaceMesh idx 13 ~= philtrum; mask apex ~= skull top;
+    pose idx 11 = camera-side acromion; shoulder-plane point (0,0,crown-0.2549)
+    ~= neck base; orbit axis x=0,y=0 + scorer fixation holds for the target.
+  Warnings: do NOT carve 3/4 from registration-3qb.json (no camera file);
+    station must treat three_quarter as NO_TRIPLE/skip until a passing fit lands.
+
+NOT TESTED: 3/4 carving; Quest/headset or WebXR rendering; scorer-side
+  acceptance of the INSUFFICIENT record; other views' registrations
+  (untouched); frame-3q.png overlay (not produced by design).

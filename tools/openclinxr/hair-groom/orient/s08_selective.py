@@ -1,0 +1,1434 @@
+#!/usr/bin/env python3
+"""STEP 3d (groom9 round 3): SELECTIVE re-trace on groom8a guides.
+
+Orchestrator redirect: the full retrace moved hairline/temple guides
+(they hung over the face) and invited image-position trims. This card
+instead:
+- starts from guides-8a.npz BYTE-IDENTICAL (hairline/temple sweep kept:
+  groom8a/8b front views had no hair on the face);
+- re-traces ONLY guides whose chord-space total post-take-off turning
+  exceeds the per-region budget (the 368 falsifier8b region guides live
+  here, plus any others over budget), budget applied past 40 mm;
+- part corridor ONLY for guides rooted in the part band;
+- edge slide ONLY for xneg guides ending above the hem (hull-edge dead);
+- every other guide stays byte-identical to guides-8a.npz.
+
+Reports kept/retraced counts by reason. Tucked 57 stay verbatim.
+Output OUTDIR/guides-9.npz (8a schema + tuck/band + r9 flag channel:
+1 = retraced) + OUTDIR/grow9-stats.json.
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+import time
+from pathlib import Path
+
+import numpy as np
+from scipy import ndimage
+from scipy.spatial import cKDTree
+
+S10 = Path(__file__).resolve().parent
+sys.path.insert(0, str(S10))
+import common_o as CO  # noqa: E402
+sys.path.insert(0, str(CO.ROOT / "tools/openclinxr/hair-groom/strands"))
+import frames as FR8  # noqa: E402 (head-mm -> world-m, falsifier use)
+
+STEP = 1.0
+# Turn caps: the leader (arc <= 10 mm) exits the scalp steeply (a
+# 3 deg/step cap makes ANY scalp exit fatal: the climb needs ~60 deg
+# total, which a 3 deg cap turns into a corkscrew death spiral --
+# measured). Post-leader the cap is 5 deg/step: a literal 3 deg cap
+# cannot hold shell depth on real drape down-slopes (30-60 deg;
+# holding depth needs rotating toward horizontal by the slope angle),
+# so 3 deg forces either circles or skull-hugging. 5 deg admits drape
+# curvature while still forbidding the 37-179 deg kinks (defect 2).
+# No positional moves anywhere: the bound holds by construction.
+TURN_LEADER_DEG = 12.0
+TURN_MAIN_DEG = 5.0
+COS_MAIN = float(np.cos(np.radians(TURN_MAIN_DEG)))
+COS_LEADER = float(np.cos(np.radians(TURN_LEADER_DEG)))
+# Depth law: GENTLE layering bias on a data-draped trace. The
+# orientation field (multi-view combed) already knows how hair drapes
+# through the volume -- including its normal component down-slope --
+# so the tracer follows the FULL 3D field and the depth law only
+# centers guides near their assigned shell (authority tan ~3.4 deg
+# post-leader, steep only in the leader where the exit climb lives).
+# A hard depth servo fights the data's down-slopes with a permanently
+# saturated correction (measured: cap-riding circles, death spirals).
+# Synthetic loads (gravity, ear/center/ride routing) are still
+# shell-projected so they never fight depth. Trim authority sits
+# UNDER the 5 deg/step main cap (tan 2.9 deg): the depth trim can
+# never single-handedly bind the gate (measured: a 0.12 trim rode the
+# cap on every slope-holding step).
+LAMBDA_MAX = 0.05
+LAMBDA_LEADER_MAX = 0.20
+# Leader ramp is FIXED 8 mm normal-out (whorl-proof exit); all climb
+# is need-driven via lambda (thin columns need ~nothing, so they exit
+# tangentially instead of punching through the dome top). A long ramp
+# kept guides normal-out past thin hull tops = edge deaths.
+RAMP_MM = 8.0
+BOUND_MM = 3.0  # dil-boundary slide band (directional, post-gate)
+Y_VERTEX_MM = 34.2
+CENTER_K = 0.003
+CENTER_XBAND = 80.0
+EAR_KEEP = 8.0
+# groom9 (1): total-turn budget in 5 mm chord space past the take-off
+# (calibration: 8a-space cubic chord totals past 40 mm).
+# G9_BUDGET env overrides the constant (1e9 = measure-only, no coast).
+# ROUND 3 (orchestrator grade: budget coasted the take-off sweep, hair
+# hangs over the face): accounting starts past the FULL take-off
+# (TAKEOFF_ARC_MM = 40 mm: scalp-normal -> sweep bend excluded), and the
+# budget is PER-REGION from the field's own along-streamline curvature
+# (E/measure_field_region.py, damped field-follow, chord space past
+# 40 mm): faceframe p50 19 / p95 243 / max 640; crown 0 / 241 / 482;
+# back 0 / 245 / 398; other 0 / 268 / 625. Budget = region field max
+# rounded up to the next 50 (650 / 500 / 450 / 650): every
+# field-consistent streamline stays free (steering-stack headroom
+# included); only the traced runaway tail (810+, all crown/back)
+# exhausts and coasts. Region by guide root (mm world): faceframe
+# (|x| in [35,100), y < -40), crown (z > 1600, y in [-60, 34.2]),
+# back (y > 34.2), else other.
+TOTAL_TURN_BUDGET_DEG = 600.0
+# Round 3 selection budgets are calibrated in 8A space (cubic-smoothed
+# chord totals past 40 mm on the stored guides: crown p50 164 / p90 278
+# / p95 323 / max 452; the 15 named knot guides read 269-484). Crown
+# 300 binds the knot core (top ~7% of crown; bulk p90 278 stays free);
+# faceframe 650 / back 450 / other 650 bind nothing in 8a space, so the
+# hairline/temple sweep stays byte-identical by construction.
+REGION_BUDGETS = {"faceframe": 650.0, "crown": 300.0, "back": 450.0,
+                  "other": 650.0}
+
+# Round 3 region classifier (by guide root, mm world; disjoint,
+# faceframe first). Single source of truth for budget regions.
+def budget_region(r):
+    if 35.0 <= abs(float(r[0])) < 100.0 and float(r[1]) < -40.0:
+        return "faceframe"
+    if float(r[2]) > 1600.0 and -60.0 <= float(r[1]) <= 34.2:
+        return "crown"
+    if float(r[1]) > 34.2:
+        return "back"
+    return "other"
+
+TAKEOFF_ARC_MM = 40.0
+CHORD_STEPS = 5
+# groom9 (2): part corridor. Band roots (|x-px| < PART_BAND_MM, root y in
+# [PART_Y_LO_MM, Y_VERTEX_MM]) start tangent-away; no guide re-enters the
+# |x-px| < CORRIDOR_HALF_MM corridor over its first CORRIDOR_LEN_MM arc.
+PART_BAND_MM = 12.0
+PART_Y_LO_MM = -60.0
+CORRIDOR_HALF_MM = 2.5
+CORRIDOR_LEN_MM = 40.0
+
+
+def cli():
+    p = argparse.ArgumentParser()
+    p.add_argument("--outdir", required=True)
+    p.add_argument("--n-guides-lo", type=int, default=2000)
+    p.add_argument("--n-guides-hi", type=int, default=2200)
+    return p.parse_args()
+
+
+def tri_sampler(grid, origin, spacing):
+    origin = np.asarray(origin, dtype=np.float64)
+
+    def sample(pts, order=1, cval=np.nan):
+        pts = np.asarray(pts, dtype=np.float64)
+        idx = ((pts - origin) / spacing).T
+        return ndimage.map_coordinates(grid, idx, order=order,
+                                       cval=cval, mode="constant")
+    return sample
+
+
+def main():
+    t0 = time.time()
+    args = cli()
+    E = Path(args.outdir)
+    E.mkdir(parents=True, exist_ok=True)
+    CO.track(S10 / "s06_depthgrow.py")
+    inp = CO.load_all()
+    F = np.load(str(CO.E0 / "field.npz"))
+    CO.track(CO.E0 / "field.npz")
+    H = np.load(str(CO.ROOT / "tools/openclinxr/evidence/hair-hull5"
+                            "/hull.npz"), allow_pickle=True)
+    CO.track(CO.ROOT / "tools/openclinxr/evidence/hair-hull5/hull.npz")
+    GT = np.load(str(CO.ROOT / "tools/openclinxr/evidence/hair-groom4"
+                     "/tucked/guides-tucked.npz"), allow_pickle=True)
+    CO.track(CO.ROOT / "tools/openclinxr/evidence/hair-groom4/tucked"
+             "/guides-tucked.npz")
+    crown = np.asarray(GT["crown"], dtype=np.float64)
+    EF = json.loads((CO.ROOT / "tools/openclinxr/evidence/hair-groom4"
+                     "/tucked/earframe.json").read_text())
+    CO.track(CO.ROOT / "tools/openclinxr/evidence/hair-groom4/tucked"
+             "/earframe.json")
+
+    hull = H
+    xs = np.array(hull["xs"])
+    ys = np.array(hull["ys"])
+    zs = np.array(hull["zs"])
+    spacing = float(hull["spacing"])
+    occ = np.array(hull["occupancy"], dtype=bool)
+    shape = occ.shape
+    origin = np.array([xs[0], ys[0], zs[0]])
+    assert tuple(F["idx"].max(axis=0) + 1) <= shape, \
+        (F["idx"].max(axis=0), shape)
+    # groom8a round 2: the growth DOMAIN stays the 4 mm dilation
+    # (strict-occ containment asphyxiates the tracer: edge 2448, hem
+    # 74 -- the rind is maneuver room). But the DEPTH target reads the
+    # STRICT hull thickness (Docc): guides hold inside the visual
+    # hull, off the rind, instead of filling it to the boundary.
+    dil = ndimage.binary_dilation(occ, iterations=2)
+    Ddil = ndimage.distance_transform_edt(dil).astype(
+        np.float32) * spacing
+    Docc = ndimage.distance_transform_edt(occ).astype(
+        np.float32) * spacing
+
+    idx = np.array(F["idx"])
+    tdir = np.array(F["dir"], dtype=np.float32)
+    dense = np.zeros(shape + (3,), dtype=np.float32)
+    dense[idx[:, 0], idx[:, 1], idx[:, 2]] = tdir
+
+    pinna_all = np.vstack([np.asarray(inp["pinna"]["xpos"]),
+                           np.asarray(inp["pinna"]["xneg"])])
+    pinna_tree = cKDTree(pinna_all)
+    egrid = inp["egrid"]
+    sdf = np.asarray(egrid["sdf"], dtype=np.float32)
+    sorigin = np.asarray(egrid["origin"], dtype=np.float64)
+    sspacing = float(np.asarray(egrid["spacing"]).ravel()[0])
+    gsdf = [np.gradient(sdf, sspacing, axis=i).astype(np.float32)
+            for i in range(3)]
+    menton_mm = np.array(inp["menton"], dtype=np.float64) * 1000.0
+    FACE_Z0 = float(menton_mm[2]) - 40.0
+    FACE_X = 60.0
+    EAR_Y = float(np.median(pinna_all[:, 1]))
+    EAR_TOP = float(pinna_all[:, 2].max())
+    print("EAR yMed=%.0f top=%.0f nPinna=%d FACE_Z0=%.0f" % (
+        EAR_Y, EAR_TOP, len(pinna_all), FACE_Z0), flush=True)
+
+    s_dir = [tri_sampler(dense[..., i], origin, spacing)
+             for i in range(3)]
+    s_sdf = tri_sampler(sdf, sorigin, sspacing)
+    s_gsdf = [tri_sampler(g, sorigin, sspacing) for g in gsdf]
+    s_dil = tri_sampler(dil.astype(np.float32), origin, spacing)
+    s_Ddil = tri_sampler(Ddil, origin, spacing)
+    s_Docc = tri_sampler(Docc, origin, spacing)
+    gDdil = [np.gradient(Ddil, spacing, axis=i).astype(np.float32)
+             for i in range(3)]
+    s_gDdil = [tri_sampler(g, origin, spacing) for g in gDdil]
+
+    def field_dir(p, travel):
+        v = np.array([s(p[None, :], order=1)[0] for s in s_dir])
+        if not np.isfinite(v).all():
+            return None
+        n = np.linalg.norm(v)
+        if n < 1e-9:
+            return None
+        v /= n
+        if (v * travel).sum() < 0:
+            v = -v
+        return v
+
+    def sdf_grad(p):
+        g = np.array([s(p[None, :], order=1)[0] for s in s_gsdf])
+        n = np.linalg.norm(g)
+        if not np.isfinite(n) or n < 1e-9:
+            return None
+        return g / n
+
+    def inward_grad(p):
+        # gradient of D_dil points away from the dil boundary
+        # (inward); None where flat/undefended.
+        h = np.array([s(p[None, :], order=1)[0] for s in s_gDdil])
+        n = np.linalg.norm(h)
+        if not np.isfinite(n) or n < 1e-9:
+            return None
+        return h / n
+
+    def prior_of(root, nroot, p):
+        if float(root[1]) > Y_VERTEX_MM or (
+                abs(float(root[0])) < 12.0 and float(root[1]) > -60.0):
+            return np.array([0.0, 0.0, -1.0])
+        side = 1.0 if root[0] >= 0 else -1.0
+        lat = np.array([side, 0.0, 0.0])
+        lat = lat - (lat * nroot).sum() * nroot
+        if np.linalg.norm(lat) < 1e-6:
+            lat = np.array([side, 0.0, 0.0])
+        lat /= np.linalg.norm(lat) + 1e-12
+        drop = root[2] - p[2]
+        a = np.clip((drop - 15.0) / 30.0, 0, 1)
+        a = 0.5 - 0.5 * np.cos(a * np.pi)
+        v = (1 - a) * lat + a * np.array([0.0, 0.0, -1.0])
+        return v / (np.linalg.norm(v) + 1e-12)
+
+    # ---- roots, exclusions (s03 precedent)
+    roots_mm = np.array(inp["roots"]["xyz"],
+                        dtype=np.float64) * 1000.0
+    rnorm = np.array(inp["roots"]["normal"], dtype=np.float64)
+    rnorm /= np.linalg.norm(rnorm, axis=1, keepdims=True) + 1e-12
+    _droot, _ = cKDTree(pinna_all).query(roots_mm, k=1)
+    cand8 = _droot >= 8.0
+    from scipy.spatial import ConvexHull, Delaunay
+    pin_m = pinna_all / 1000.0
+    root_cover = np.zeros(len(roots_mm), dtype=bool)
+    rw = roots_mm / 1000.0
+    for _v in ("front", "three_quarter", "profile_90"):
+        _cam = inp["cams"]["views"][_v]
+        _pc, _pr, _pd = CO.C2.ENV.project_to_render(
+            pin_m, _cam, inp["sensor"])
+        _m = ((_pd > 0) & (_pc >= 0) & (_pc < 1024) & (_pr >= 0)
+              & (_pr < 1024))
+        _p2 = np.stack([_pc[_m], _pr[_m]], axis=1)
+        _pdep = _pd[_m]
+        _tri = Delaunay(_p2[ConvexHull(_p2).vertices])
+        _t2 = cKDTree(_p2)
+        _cc, _rr, _dd = CO.C2.ENV.project_to_render(
+            rw, _cam, inp["sensor"])
+        _in = ((_cc >= 0) & (_cc < 1024) & (_rr >= 0) & (_rr < 1024)
+               & (_dd > 0)
+               & (_tri.find_simplex(np.stack([_cc, _rr], axis=1))
+                  >= 0))
+        _ii = np.nonzero(_in)[0]
+        _, _ji = _t2.query(np.stack([_cc[_in], _rr[_in]], axis=1), k=1)
+        _cov = _dd[_in] < _pdep[_ji] - 0.003
+        root_cover[_ii[_cov]] = True
+    # tuck-class roots (served by the verbatim tucked guides)
+    _rmm = roots_mm
+    _tuckroot = np.zeros(len(roots_mm), dtype=bool)
+    for _sgn, _side in ((1.0, "xpos"), (-1.0, "xneg")):
+        _rows = (_rmm[:, 0] * _sgn > 0)
+        _tb = EF["sides"][_side]["tuckBoxMm"]
+        _tuckroot |= _rows & (np.abs(_rmm[:, 0]) >= _tb["xLo"]) \
+            & (np.abs(_rmm[:, 0]) < _tb["xHi"]) \
+            & (_rmm[:, 1] < _tb["yMax"]) \
+            & (_rmm[:, 2] >= _tb["zLo"]) \
+            & (_rmm[:, 2] < _tb["zHi"])
+    print("ROOTS total=%d pinna8excl=%d coverexcl=%d tuckexcl=%d" % (
+        len(roots_mm), int((~cand8).sum()),
+        int((cand8 & root_cover).sum()), int(
+            (cand8 & ~root_cover & _tuckroot).sum())), flush=True)
+    cand = np.nonzero(cand8 & ~root_cover & ~_tuckroot)[0]
+    order = np.argsort(-roots_mm[cand, 2], kind="stable")
+    order = np.asarray(cand)[order]
+
+    # ---- dense Poisson (crown-first, adaptive spacing 2000-2200)
+    spacing_p = 4.0
+    sel = None
+    for _ in range(40):
+        acc = []
+        acc_xyz = np.zeros((0, 3))
+        tree = None
+        n_since = 0
+        for i in order:
+            p = roots_mm[i]
+            if len(acc) == 0:
+                acc.append(int(i))
+                acc_xyz = p[None, :]
+                tree = cKDTree(acc_xyz)
+                continue
+            d, _ = tree.query(p, k=1)
+            if d >= spacing_p:
+                acc.append(int(i))
+                acc_xyz = np.vstack([acc_xyz, p[None, :]])
+                n_since += 1
+                if n_since >= 32:
+                    tree = cKDTree(acc_xyz)
+                    n_since = 0
+        sel = np.array(acc, dtype=np.int64)
+        if len(sel) < args.n_guides_lo:
+            spacing_p *= 0.93
+        elif len(sel) > args.n_guides_hi:
+            spacing_p *= 1.07
+        else:
+            break
+    sel = np.array(sel, dtype=np.int64)
+    # groom8a round 2: ear-zone densification. Children near the ear
+    # drift across the concha on 5 mm+ blend offsets (round 1: 5040
+    # profile crossings from clean guides); halving the backbone
+    # spacing in the ear box shrinks offsets below the drift range.
+    _used = set(int(v) for v in sel)
+    _ebox = [i for i in order if int(i) not in _used
+             and 40.0 <= abs(float(roots_mm[int(i), 0])) < 100.0
+             and -130.0 <= float(roots_mm[int(i), 1]) < 40.0
+             and 1440.0 <= float(roots_mm[int(i), 2]) < 1620.0]
+    _esp = spacing_p * 0.5
+    _etree = cKDTree(roots_mm[np.array(sel)])
+    _eacc = []
+    for i in _ebox:
+        d, _ = _etree.query(roots_mm[int(i)], k=1)
+        if d >= _esp:
+            _eacc.append(int(i))
+            if len(_eacc) >= 500:
+                break
+            if len(_eacc) % 32 == 0:
+                _etree = cKDTree(roots_mm[np.array(
+                    list(sel) + _eacc)])
+        if len(_eacc) >= 500:
+            break
+    sel = np.array(list(sel) + _eacc, dtype=np.int64)
+    print("POISSON n=%d spacing=%.2f (+%d ear densify)" % (
+        len(sel), spacing_p, len(_eacc)), flush=True)
+    sroots = roots_mm[sel]
+
+    # groom9 part line (same convention as the children: median x of
+    # crown-band scalp roots with z >= 1630 mm).
+    _crown_band = roots_mm[roots_mm[:, 2] >= 1630.0]
+    part_x = float(np.median(_crown_band[:, 0]))
+    _n_corr = int(((np.abs(sroots[:, 0] - part_x) < PART_BAND_MM)
+                   & (sroots[:, 1] >= PART_Y_LO_MM)
+                   & (sroots[:, 1] <= Y_VERTEX_MM)).sum())
+    print("PART_X %.2f corridorRoots=%d (of %d)" % (
+        part_x, _n_corr, len(sroots)), flush=True)
+
+    # ---- per-guide depth fraction + local thickness
+    PHI = 0.618033988749895
+    uu = 0.3 + 0.6 * ((np.arange(len(sel)) * PHI) % 1.0)
+    Thick = np.zeros(len(sel))
+    for j, r in enumerate(sroots):
+        n0 = rnorm[sel[j]]
+        q = r + n0 * 3.0
+        sd = float(s_sdf(q[None, :], order=1)[0])
+        dd = float(s_Docc(q[None, :], order=1)[0])
+        if not np.isfinite(sd):
+            sd = 0.0
+        if not np.isfinite(dd):
+            dd = 0.0
+        Thick[j] = float(np.clip(sd + dd, 3.0, 30.0))
+    dstar = uu * Thick
+    print("DEPTH u[0.3,0.9] T p50=%.1f p90=%.1f d* p50=%.1f p90=%.1f" % (
+        float(np.percentile(Thick, 50)),
+        float(np.percentile(Thick, 90)),
+        float(np.percentile(dstar, 50)),
+        float(np.percentile(dstar, 90))), flush=True)
+
+    # ---- per-root local hem extent (dilated hull)
+    occidx = np.argwhere(dil)
+    hem_tree = cKDTree(occidx[:, :2].astype(np.float64) * spacing)
+    hems = np.zeros(len(sel))
+    for j, r in enumerate(sroots):
+        ii = np.array([[(r[0] - xs[0]) / spacing,
+                        (r[1] - ys[0]) / spacing]])
+        dd, jj = hem_tree.query(ii, k=400)
+        cd = occidx[jj[0][dd[0] * spacing <= 25.0]]
+        hems[j] = zs[cd[:, 2]].min() if len(cd) else zs.min()
+    maxlens = np.clip(sroots[:, 2] - float(zs.min()) + 100.0, 60.0,
+                      600.0)
+
+    def turn_gate(d1, travel, cos_max):
+        """Slerp d1 back to the cap from travel. Returns (d, hit)."""
+        cos_a = float((d1 * travel).sum())
+        if cos_a >= cos_max:
+            return d1, False
+        perp = d1 - cos_a * travel
+        pl = np.linalg.norm(perp)
+        if pl < 1e-12:
+            return travel.copy(), True
+        perp /= pl
+        ang = float(np.arccos(np.clip(cos_max, -1, 1)))
+        g = (cos_max * travel + np.sin(ang) * perp)
+        return g / (np.linalg.norm(g) + 1e-12), True
+
+    def relax_step(prop, travel, alpha, cos_max):
+        """Low-pass the proposal toward travel, then hard-cap.
+        Returns (d, gate_hit)."""
+        lp = alpha * prop + (1.0 - alpha) * travel
+        nl = np.linalg.norm(lp)
+        if nl < 1e-12:
+            return travel.copy(), False
+        return turn_gate(lp / nl, travel, cos_max)
+
+    def in_ear_window(pm):
+        return (abs(pm[0]) > 40.0 and pm[2] < EAR_TOP + 40.0
+                and pm[2] > EAR_TOP - 70.0
+                and pm[1] > EAR_Y - 60.0 and pm[1] < EAR_Y + 25.0)
+
+    def grow_guide(j, root, bias_face=0.4, use_budget=True,
+                   use_corridor=False, use_slide=False):
+        nroot = rnorm[sel[j]]
+        ds = dstar[j]
+        # groom9 corridor init (band roots only): start tangent to the
+        # scalp away from the part line on their own side (not
+        # normal-out), so the take-off itself opens the corridor.
+        _corr_root = bool(
+            abs(float(root[0]) - part_x) < PART_BAND_MM
+            and PART_Y_LO_MM <= float(root[1]) <= Y_VERTEX_MM)
+        _corr_on = bool(_corr_root and use_corridor)
+        if _corr_on:
+            _side = 1.0 if float(root[0]) >= part_x else -1.0
+            _lat = np.array([_side, 0.0, 0.0])
+            _lat = _lat - (_lat * nroot).sum() * nroot
+            if np.linalg.norm(_lat) < 1e-6:
+                _lat = np.array([_side, 0.0, 0.0])
+            _lat /= np.linalg.norm(_lat) + 1e-12
+            travel = _lat
+        else:
+            # travel init = scalp normal (the leader ramp starts
+            # normal-out; the proposal agrees from step 0).
+            travel = nroot / (np.linalg.norm(nroot) + 1e-12)
+        dbg = (int(os.environ.get("S06_DEBUG", "0")) > 0 and j < 20)
+        _dbg_prop = []
+        _dbg_corr = []
+        _dbg_S = []
+        _dbg_err = []
+        pts = [root.copy()]
+        p = root.copy()
+        arc = 0.0
+        # groom9 (1, round 3): per-region chord-space budget past the
+        # 40 mm take-off. use_budget=False disables accounting+coast
+        # entirely (guide keeps its 8a shape drivers). G9_BUDGET env =
+        # single global override (1e9 = measure-only, no coast).
+        _REG = budget_region(root)
+        _BUDGET = float(os.environ.get(
+            "G9_BUDGET", str(REGION_BUDGETS[_REG]))) \
+            if use_budget else float("inf")
+        cum_turn = 0.0
+        chord_ref = None
+        chord_age = 0
+        exhausted = False
+        n_gate = 0
+        n_prior = 0
+        n_steer = 0
+        n_center = 0
+        n_ride = 0
+        n_earwin = 0
+        n_pocket = 0
+        n_gravfull = 0
+        n_coast = 0
+        n_budget = 0  # groom9 (1): straight-coast steps
+        n_corridor = 0  # groom9 (2): corridor strip steps
+        n_eslide = 0  # groom9 (3): edge-slide steps
+        stop = "maxlen"
+        maxlen = float(maxlens[j])
+        hem = float(hems[j])
+        edge_grace = 0
+        # field-follow direction (whorl-proof): per-guide low-pass of
+        # the field, initialized normal-out. Spin (whorl) averages out
+        # into a straight through-flight; persistent drape accumulates.
+        # Replaces the fixed leader ramp.
+        ff = travel.copy()  # groom9: corridor roots init tangent-away
+        for _ in range(600):
+            d_mid = field_dir(p, travel)
+            used_prior = False
+            if d_mid is None:
+                d_mid = prior_of(root, nroot, p)
+                used_prior = True
+                if (d_mid * travel).sum() < 0:
+                    d_mid = -d_mid
+            pm = p + d_mid * (STEP / 2)
+            d1 = field_dir(pm, d_mid)
+            if d1 is None:
+                d1 = prior_of(root, nroot, pm)
+                used_prior = True
+                if (d1 * d_mid).sum() < 0:
+                    d1 = -d1
+            n_prior += 1 if used_prior else 0
+            # field-follow update: swing toward the sampled field at
+            # 20%/step (drape accumulates; bends wind through the cap
+            # smoothly). FREEZE only in extreme spin (curl > 45 deg:
+            # true singularities/whorl centers where the field
+            # reverses): coast straight through instead of winding
+            # (relax-the-step; counted). Moderate curl bends normally.
+            # No freeze inside the exit ramp (the exit bend must
+            # happen). Rejoin when straight.
+            _fn = d1 / (np.linalg.norm(d1) + 1e-12)
+            _curl = float(np.degrees(np.arccos(np.clip(
+                (_fn * ff).sum(), -1, 1))))
+            if arc > RAMP_MM and _curl > 45.0:
+                n_coast += 1
+            else:
+                ff = 0.2 * _fn + 0.8 * ff
+                ff = ff / (np.linalg.norm(ff) + 1e-12)
+            f = ff
+            # SHELL ARCHITECTURE: the normal channel belongs to the
+            # depth law only; every routing bias is projected onto the
+            # shell tangent plane, so nothing fights depth for the
+            # turn gate to cap. Depth target is LIVE (u * local column
+            # thickness), always reachable by construction.
+            g = sdf_grad(pm)
+            sd = float(s_sdf(pm[None, :], order=1)[0])
+            if not np.isfinite(sd):
+                sd = 0.0
+            dd = float(s_Ddil(pm[None, :], order=1)[0])
+            if not np.isfinite(dd):
+                dd = 0.0
+            # strict-hull column for the depth target (see domain note)
+            ddo = float(s_Docc(pm[None, :], order=1)[0])
+            if not np.isfinite(ddo):
+                ddo = 0.0
+            S = np.zeros(3)
+            # gravity drape (drop+arc hybrid, s03 weights)
+            _drop = float(root[2] - pm[2])
+            _eff = max((_drop - 5.0) / 30.0, (arc - 45.0) / 30.0)
+            _eff = float(0.5 - 0.5 * np.cos(
+                np.clip(_eff, 0, 1) * np.pi))
+            S = S + (0.02 + 0.06 * _eff) * np.array([0.0, 0.0, -1.0])
+            if _eff > 0.5:
+                n_gravfull += 1
+            # ear routing (kept; not hull-keeping). The blanket
+            # window-wide posterior pre-route is REMOVED (it herded
+            # every transit guide through the cap; the anterior swing
+            # + pocket + wall + keep-out below route the ear): only
+            # counted transit here.
+            if in_ear_window(pm):
+                n_steer += 0
+                n_earwin += 1
+            ed = None
+            ei = None
+            _ed4 = (None, None)
+            if in_ear_window(pm) or (
+                    abs(pm[0]) > 45.0 and abs(pm[0]) < 85.0
+                    and pm[1] > -95.0 and pm[1] < -25.0
+                    and pm[2] > 1485.0 and pm[2] < 1565.0):
+                ed, ei = pinna_tree.query(pm, k=1)
+                ed = float(ed)
+                if ed < 25.0 and (pm - pinna_all[ei])[1] < -5.0:
+                    S = S + 0.25 * np.array([0.0, 1.0, 0.0])
+                    n_steer += 1
+                if ed < 30.0:
+                    med = -np.sign(pm[0]) if pm[0] != 0 else 1.0
+                    tuckv = np.array([1.5 * med, 1.5, 0.0])
+                    S = S + 0.25 * ((30.0 - ed) / 30.0) * tuckv
+                    n_steer += 1
+                    n_pocket += 1
+                _ed4 = (ed, ei)
+                if ed < 30.0 and (pm - pinna_all[ei])[1] < -3.0 \
+                        and f[1] < 0:
+                    S[1] = 0.0 if S[1] < 0 else S[1]
+                    n_steer += 1
+                if ed < 12.0:
+                    away = pm - pinna_all[ei]
+                    al = np.linalg.norm(away)
+                    if al > 1e-9:
+                        blend = away / al + np.array([0.0, 1.0, 0.0])
+                        bl = np.linalg.norm(blend)
+                        if bl > 1e-9:
+                            S = S + ((15.0 - ed) / 15.0) * 0.35 \
+                                * blend / bl
+                            n_steer += 1
+            if abs(pm[0]) > 45.0 and abs(pm[0]) < 85.0 \
+                    and pm[1] > -95.0 and pm[1] < -25.0 \
+                    and pm[2] > 1485.0 and pm[2] < 1565.0:
+                post = np.array([0.0, 0.7, -0.7])
+                post /= np.linalg.norm(post)
+                S = S + 0.25 * post
+                n_steer += 1
+            # below-vertex centre merge: OFF (the guide-level merge
+            # overshoots across the midline and returns anterior
+            # crossed -- the hard-gate crossing source. The sheet merge
+            # below the vertex lives in the children blend, which has
+            # no side restriction there by construction).
+            if False and pm[1] > Y_VERTEX_MM \
+                    and abs(pm[0]) < CENTER_XBAND \
+                    and f[2] < 0.0:
+                _ex = abs(float(pm[0])) - 6.0
+                if _ex > 0:
+                    S[0] = S[0] - CENTER_K * _ex * np.sign(pm[0])
+                    n_steer += 1
+                    n_center += 1
+            if 20.0 < float(pm[1]) < 70.0 \
+                    and 1450.0 < float(pm[2]) < 1620.0 \
+                    and abs(float(pm[0])) < 40.0:
+                S = S + 0.15 * np.array([0.0, 1.0, 0.0])
+                n_steer += 1
+                n_ride += 1
+            # COMBINE: full-3D field + shell-projected routing + gentle
+            # depth centering along the gradient. Live adaptive target
+            # (u * local column thickness).
+            leader = arc <= RAMP_MM
+            if g is not None:
+                Sp = S - (S * g).sum() * g
+                Tpm = float(np.clip(ddo + max(sd, 0.0), 1.0, 40.0))
+                tgt = uu[j] * Tpm
+                need = (tgt - sd) / 4.0  # 4 mm lookahead, gentle
+                lam_max = LAMBDA_LEADER_MAX if leader else LAMBDA_MAX
+                lam = float(np.clip(need, -lam_max, lam_max))
+                # align suppression: when the tangent disagrees with
+                # travel, fly straight (correction resumes when
+                # aligned).
+                _tan = f + Sp
+                _tn = np.linalg.norm(_tan)
+                if _tn > 1e-9:
+                    _al = float((_tan / _tn * travel).sum())
+                    lam = lam * float(np.clip(_al, 0.0, 1.0))
+                d1 = f + Sp + lam * g
+                nn = np.linalg.norm(d1)
+                d1 = d1 / nn if nn > 1e-9 else travel.copy()
+                if dbg:
+                    _dbg_prop.append(float(np.degrees(np.arccos(
+                        np.clip((d1 * travel).sum(), -1, 1)))))
+                    _dbg_corr.append(abs(lam))
+                    _dbg_S.append(float(np.linalg.norm(Sp)))
+                    _dbg_err.append(tgt - sd)
+            else:
+                d1 = f + S
+                nn = np.linalg.norm(d1)
+                d1 = d1 / nn if nn > 1e-9 else travel.copy()
+            # groom9 (1) budget coast: an exhausted guide flies straight
+            # (d1 = travel) from here on; every directional safety strip
+            # below (near-ear, dil, wall, corridor, re-entry, face, ear
+            # keep-out, dil-slide) still applies after the coast, so
+            # safety wins over straightness every step.
+            if exhausted:
+                d1 = travel.copy()
+                n_budget += 1
+            # near-ear radial strip (directional, post-combine)
+            if _ed4[0] is not None and _ed4[0] < 4.0:
+                _ed, _ei = _ed4
+                away = pm - pinna_all[_ei]
+                al = np.linalg.norm(away)
+                if al > 1e-9:
+                    rhat = away / al
+                    inw = (d1 * rhat).sum()
+                    if inw < 0:
+                        d1 = d1 - inw * rhat
+                        d1 /= np.linalg.norm(d1) + 1e-12
+                        n_steer += 1
+            # dil-boundary slide (directional, never positional): inside
+            # the band the outward motion component is stripped so
+            # guides ride the boundary instead of exiting. Evaluated
+            # pre-gate for the agile flag only; the binding slide runs
+            # post-gate below (safety stands, not re-capped).
+            _db = float(s_Ddil(pm[None, :], order=1)[0])
+            # Cap params (the SINGLE gate runs at the end, after all
+            # strips, so safety and proposal are capped once together:
+            # no strip-vs-cap fight, travel follows the stepped
+            # direction each step).
+            _leader = arc <= RAMP_MM
+            _cos = COS_LEADER if _leader else COS_MAIN
+            q = p + d1 * STEP
+            # centre-part wall: HARD HALF-SPACE, full guide length
+            # (orchestrator round-1 grade: below-vertex guide crossings
+            # render as X-hatch over the upper back/crown; the sheet
+            # merge below the vertex lives ONLY in the children blend,
+            # which is side-neutral there by construction). Funnel
+            # (8 mm, proportional) + strip (2 mm). Directional only:
+            # no positional ease, clamp, or repair.
+            rx0 = float(root[0])
+            if abs(rx0) >= 3.0 and d1[0] * rx0 < 0:
+                _ax = abs(float(q[0]))
+                if _ax < 2.0:
+                    d1[0] = 0.0
+                    d1 /= np.linalg.norm(d1) + 1e-12
+                    q = p + d1 * STEP
+                    n_steer += 1
+                elif _ax < 8.0:
+                    d1[0] = d1[0] * (_ax - 2.0) / 6.0
+                    d1 /= np.linalg.norm(d1) + 1e-12
+                    q = p + d1 * STEP
+                    n_steer += 1
+            # crossed-guide push-back (directional backstop, full
+            # length): any sample on the wrong side beyond 2 mm is
+            # steered home. Capped with everything else by the single
+            # gate below, so the push accumulates into a smooth return.
+            _reentry = (abs(rx0) >= 3.0
+                        and q[0] * rx0 < 0 and abs(q[0]) > 2.0)
+            # face-air corridor: directional strips only (anterior).
+            # Z-capped at FACE_Z0+110 (the face proper): crown-height
+            # drape passes above it untouched.
+            if q[1] < 0.0 and abs(q[0]) < FACE_X + 10.0 \
+                    and q[2] > FACE_Z0 and q[2] < FACE_Z0 + 110.0 and \
+                    float(s_sdf(q[None, :], order=1)[0]) > 5.0:
+                sgn = np.sign(rx0) if abs(rx0) >= 3.0 else (
+                    np.sign(q[0]) if q[0] != 0 else 1.0)
+                if d1[0] * sgn < 0:
+                    d1[0] = 0.0
+                if d1[1] < 0:
+                    d1[1] = 0.0
+                _fb = bias_face * np.array([sgn, 0.0, 0.0])
+                _gq = sdf_grad(q)
+                if _gq is not None:
+                    _fb = _fb - (_fb * _gq).sum() * _gq
+                d1 = d1 + _fb
+                d1 /= np.linalg.norm(d1) + 1e-12
+                q = p + d1 * STEP
+                n_steer += 1
+                if abs(q[0]) < FACE_X and q[2] > FACE_Z0 and \
+                        float(s_sdf(q[None, :], order=1)[0]) > 8.0:
+                    stop = "face"
+                    break
+            # ear hard keep-out 8 mm: directional alternatives only,
+            # never positional. Fallbacks bend away/posterior.
+            if in_ear_window(q):
+                edq, eiq = pinna_tree.query(q, k=1)
+                edq = float(edq)
+                if edq < EAR_KEEP:
+                    away = q - pinna_all[eiq]
+                    al = np.linalg.norm(away)
+                    rhat = away / al if al > 1e-9 else np.array(
+                        [np.sign(q[0]), 0.0, 0.0])
+                    cleared = False
+                    for bend in (0.5, 1.0, 2.0, 4.0):
+                        cand = d1 + bend * (rhat + np.array(
+                            [0.0, 1.0, 0.0]))
+                        cand /= np.linalg.norm(cand) + 1e-12
+                        cand, _ = turn_gate(cand, travel, _cos)
+                        q2 = p + cand * STEP
+                        if float(pinna_tree.query(q2, k=1)[0]) \
+                                >= EAR_KEEP:
+                            d1 = cand
+                            q = q2
+                            n_steer += 1
+                            cleared = True
+                            break
+                    if not cleared:
+                        stop = "ear"
+                        break
+            # Re-entry push-back BEFORE the single gate (capped with
+            # everything else): the push accumulates over steps into a
+            # smooth return instead of fighting the cap.
+            if _reentry:
+                d1[0] = abs(d1[0]) * np.sign(rx0) + 0.5 * np.sign(
+                    rx0)
+                d1 /= np.linalg.norm(d1) + 1e-12
+                n_steer += 1
+            # Dil-boundary slide BEFORE the single gate.
+            if np.isfinite(_db) and _db < BOUND_MM:
+                h = inward_grad(pm)
+                if h is not None:
+                    out = (d1 * h).sum()
+                    if out < 0:
+                        d1 = d1 - out * h
+                        nn2 = np.linalg.norm(d1)
+                        if nn2 < 1e-6:
+                            stop = "edge"
+                            break
+                        d1 /= nn2
+                        n_steer += 1
+                        q = p + d1 * STEP
+            # groom9 (2) PART CORRIDOR (band-rooted retraces only):
+            # over the first CORRIDOR_LEN_MM of arc no sample may sit
+            # inside |x-px| < CORRIDOR_HALF_MM. Directional: strip the
+            # toward-line lateral component (the root sample at arc 0 is
+            # exempt: the scalp is the scalp).
+            if _corr_on and arc < CORRIDOR_LEN_MM and arc > 0.0:
+                _qx = float(q[0]) - part_x
+                if abs(_qx) < CORRIDOR_HALF_MM:
+                    _sgn = 1.0 if _qx >= 0.0 else -1.0
+                    if d1[0] * _sgn < 0:
+                        d1[0] = 0.0
+                        _nl = np.linalg.norm(d1)
+                        if _nl > 1e-9:
+                            d1 /= _nl
+                            q = p + d1 * STEP
+                            n_steer += 1
+                            n_corridor += 1
+            # groom9 (1) TOTAL-TURN BUDGET: past the take-off, cap the
+            # cumulative stepped turn. Exhaustion coasts straight (d1 =
+            # travel: zero added turn, no steering/depth additions that
+            # step); part/face/ear safety strips above already ran, and
+            # the ear window + face box are exempt (their bends are
+            # safety, not winding). Counted; guides never deleted.
+            # (REMOVED 2026-10-17: per-1mm-step sums are discretization-
+            # dominated -- traced median ~300 deg from sub-degree steps.
+            # The budget now lives in 5 mm chord space: accounted at the
+            # end of the step, coasted at the combine. This block kept
+            # only as a comment so the diff reads.)
+            # THE turn gate (inside the tracer): single universal bound
+            # on the stepped direction (leader 12 / main 5 deg/step).
+            # No step anywhere turns more; safety accumulates through
+            # travel instead of fighting the cap.
+            d1, _hitF = turn_gate(d1, travel, _cos)
+            n_gate += 1 if _hitF else 0
+            q = p + d1 * STEP
+            # domain exits are stops, never projections. The first 8 mm
+            # (leader) transit from the scalp to the shell: exempt from
+            # body/dil exits (s03 leader precedent).
+            if arc > 8.0 and float(s_sdf(q[None, :], order=1)[0]) < 0.5:
+                stop = "body"
+                break
+            if q[2] <= hem + 2.0:
+                stop = "hem"
+                # step onto the hem point
+                p = q
+                pts.append(p.copy())
+                arc += STEP
+                # groom9: hem steps past the take-off count no turn
+                # (arc bookkeeping only; direction unchanged).
+                break
+            if float(s_dil(q[None, :], order=0)[0]) < 0.5:
+                if arc <= 8.0:
+                    pass  # leader transit: containment starts at arc>8
+                else:
+                    # groom9 (3) EDGE SLIDE (xneg-edge retraces only):
+                    # outside the dilated hull, step DOWN along the
+                    # boundary (down + 0.5*inward, turn-gated) while
+                    # inside the body (SDF >= 0.5). Only a persistent
+                    # exit with no downward body-continuation stops the
+                    # guide. Otherwise the original grace rule runs.
+                    _slid = False
+                    if use_slide:
+                        _h = inward_grad(pm)
+                        _down = np.array([0.0, 0.0, -1.0])
+                        _sd = _down if _h is None else _down + 0.5 * _h
+                        _sd /= np.linalg.norm(_sd) + 1e-12
+                        _sd, _ = turn_gate(_sd, travel, _cos)
+                        _q2 = p + _sd * STEP
+                        # the slide never trades hull containment
+                        # for ear clearance (8 mm floor kept), the part
+                        # hard wall (no wrong-side slide), or the part
+                        # corridor (no slide back into it mid-take-off).
+                        _slide_ok = (
+                            float(s_sdf(_q2[None, :], order=1)[0]) >= 0.5
+                            and float(pinna_tree.query(
+                                _q2, k=1)[0]) >= EAR_KEEP)
+                        if _slide_ok and abs(float(root[0])) >= 3.0:
+                            _rx = float(root[0])
+                            if _q2[0] * _rx < 0 and abs(_q2[0]) > 2.0:
+                                _slide_ok = False
+                        if _slide_ok and _corr_on \
+                                and arc < CORRIDOR_LEN_MM:
+                            if abs(float(_q2[0]) - part_x) \
+                                    < CORRIDOR_HALF_MM:
+                                _slide_ok = False
+                        if _slide_ok:
+                            d1 = _sd
+                            q = _q2
+                            n_eslide += 1
+                            n_steer += 1
+                            _slid = True
+                    if not _slid:
+                        # 3-step grace (6 in the temple/sideburn box
+                        # where thin columns need recovery room):
+                        # outside, the adaptive depth target pulls back
+                        # inside on its own; only a persistent exit
+                        # stops the guide.
+                        _tbox = (35.0 <= abs(float(q[0])) < 100.0
+                                 and -135.0 <= float(q[1]) < -40.0)
+                        edge_grace += 1
+                        if edge_grace >= (6 if _tbox else 3):
+                            stop = "edge"
+                            break
+            else:
+                edge_grace = 0
+            p = q
+            travel = d1
+            pts.append(p.copy())
+            arc += STEP
+            # groom9 (1): chord-space budget accounting. Every
+            # CHORD_STEPS steps past the take-off, the 5 mm chord turn
+            # books into cum_turn; crossing the budget exhausts the
+            # guide (straight coast from the next combine on).
+            chord_age += 1
+            if chord_age >= CHORD_STEPS and arc > TAKEOFF_ARC_MM + 5.0:
+                _p5 = pts[-CHORD_STEPS - 1]
+                _ch = p - _p5
+                _chl = np.linalg.norm(_ch)
+                if _chl > 1e-9:
+                    _ch /= _chl
+                    if chord_ref is not None:
+                        _ca = float(np.degrees(np.arccos(float(
+                            np.clip((_ch * chord_ref).sum(), -1, 1)))))
+                        cum_turn += _ca
+                        if cum_turn > _BUDGET and not exhausted:
+                            exhausted = True
+                    chord_ref = _ch
+                chord_age = 0
+            if arc >= maxlen:
+                stop = "maxlen"
+                break
+        if dbg and _dbg_prop:
+            a = np.array(_dbg_prop)
+            print("DBG g%d stop=%s n=%d propTurn p50=%.1f p95=%.1f "
+                  "fracGt3=%.2f corrMean=%.2f SMean=%.2f errMean=%+.2f" % (
+                j, stop, len(a), float(np.percentile(a, 50)),
+                float(np.percentile(a, 95)), float((a > 3.0).mean()),
+                float(np.mean(_dbg_corr)), float(np.mean(_dbg_S)),
+                float(np.mean(_dbg_err))), flush=True)
+        return (np.array(pts), stop, arc, n_gate, n_prior, n_steer,
+                n_center, n_ride, n_earwin, n_pocket, n_gravfull,
+                n_coast, n_budget, n_corridor, n_eslide, cum_turn)
+
+    # ---- groom9 round 3 SELECTION: which guides get retraced.
+    # Base = guides-8a.npz byte-identical. Re-trace only:
+    # (a) over-budget: chord-space total past 40 mm > per-region budget
+    #     (chords from 1 mm resamples of the stored 8a curves);
+    # (b) band: roots in the part band (corridor);
+    # (c) xnegedge: xneg roots whose 8a tip died above the hem (+10 mm).
+    G8P = (CO.ROOT / "tools/openclinxr/evidence/hair-groom8a/build"
+           "/guides-8a.npz")
+    G8 = np.load(str(G8P), allow_pickle=True)
+    CO.track(G8P)
+    gh8 = np.asarray(G8["curves_head"], dtype=np.float64)
+    assert gh8.shape[0] == len(sel) + 57, (gh8.shape, len(sel))
+    assert int((G8["tuck"][:len(sel)] > 0.5).sum()) == 0
+    crown8 = np.asarray(G8["crown"], dtype=np.float64)
+    assert float(np.abs(crown8 - crown).max()) < 1e-9, "crown drift"
+    # world-mm via the falsifier's own conversion (head-mm -> world-m).
+    gw8 = FR8.head_to_world(gh8, crown) * 1000.0
+    # chord totals on CUBIC-smoothed 1 mm resamples (piecewise-linear
+    # node corners would book spurious turns): the 41 nodes lie on the
+    # smooth trace, so the cubic recovers the true winding.
+    from scipy.interpolate import CubicSpline as _CS
+    chtot = np.zeros(len(sel))
+    for _jj in range(len(sel)):
+        _c = gw8[_jj]
+        _seg = np.linalg.norm(np.diff(_c, axis=0), axis=1)
+        _L = np.concatenate([[0.0], np.cumsum(_seg)])
+        if _L[-1] < 46.0:
+            continue
+        try:
+            _cs = _CS(_L, _c, axis=0)
+        except Exception:
+            continue
+        _tq = np.arange(0.0, _L[-1], 1.0)
+        _r = _cs(_tq)
+        _cum = 0.0
+        _ref = None
+        for _k in range(0, len(_r) - 5, 5):
+            if _k + 5 <= 40:
+                continue
+            _ch = _r[_k + 5] - _r[_k]
+            _n = float(np.linalg.norm(_ch))
+            if _n < 1e-9:
+                continue
+            _ch /= _n
+            if _ref is not None:
+                _cum += float(np.degrees(np.arccos(float(
+                    np.clip((_ch * _ref).sum(), -1, 1)))))
+            _ref = _ch
+        chtot[_jj] = _cum
+    _regs = [budget_region(r) for r in sroots]
+    _over = np.array([chtot[_jj] > REGION_BUDGETS[_regs[_jj]]
+                      for _jj in range(len(sel))])
+    _bandm = ((np.abs(sroots[:, 0] - part_x) < PART_BAND_MM)
+              & (sroots[:, 1] >= PART_Y_LO_MM)
+              & (sroots[:, 1] <= Y_VERTEX_MM))
+    # xneg hull-edge deaths: xneg roots whose 8a tip died above the hem,
+    # OUTSIDE the dilated hull, and NOT in the face-air box or at the
+    # ear (those are face/ear stops, not hull-edge deaths).
+    _tipz = gw8[:len(sel), -1, 2]
+    _tipx = gw8[:len(sel), -1, 0]
+    _tipy = gw8[:len(sel), -1, 1]
+    _tip_dil = np.array([s_dil(_p[None, :], order=0)[0]
+                         for _p in gw8[:len(sel), -1, :]])
+    _outside = ~np.isfinite(_tip_dil) | (_tip_dil < 0.5)
+    _tip_face = (_tipy < 0.0) & (np.abs(_tipx) < 70.0) \
+        & (_tipz > 1409.0)
+    _tip_ear = np.array([pinna_tree.query(_p, k=1)[0]
+                         for _p in gw8[:len(sel), -1, :]]) < 15.0
+    _edgex = (sroots[:, 0] < part_x) & (_tipz > hems + 10.0) \
+        & _outside & ~_tip_face & ~_tip_ear
+    _retrace = _over | _bandm | _edgex
+    print("SELECT kept=%d retraced=%d (over=%d band=%d xnegedge=%d)" % (
+        int((~_retrace).sum()), int(_retrace.sum()), int(_over.sum()),
+        int(_bandm.sum()), int(_edgex.sum())), flush=True)
+    print("SELECT over-budget ids=%s" % sorted(
+        int(v) for v in np.nonzero(_over)[0][:40]), flush=True)
+
+    curves, stops, lens = [None] * len(sel), ["kept8a"] * len(sel), \
+        [0.0] * len(sel)
+    ngate = [0] * len(sel)
+    nprior = [0] * len(sel)
+    nsteer = [0] * len(sel)
+    ncenter = [0] * len(sel)
+    nride = [0] * len(sel)
+    nearwin = [0] * len(sel)
+    npocket = [0] * len(sel)
+    ngravfull = [0] * len(sel)
+    ncoast = [0] * len(sel)
+    nbudget = [0] * len(sel)
+    ncorridor = [0] * len(sel)
+    neslide = [0] * len(sel)
+    cumturn = [0.0] * len(sel)
+    # Round 4: never send the selected rows through the full tracer.  The
+    # inherited round-3 build did that for all 773 selected rows and made
+    # precisely the forbidden regressions: full-length centre rails and
+    # loops around both ears.  All three repairs below are local edits of
+    # the accepted 8a route:
+    #   * over-budget: fair only the post-40-mm leader remainder;
+    #   * part: open 3 mm, hold through 40 mm, rejoin by 60 mm;
+    #   * xneg edge: continue only the last quarter down the local hull hem.
+    # Thus hairline/temple take-off remains byte-identical unless its root is
+    # explicitly in the short part band, and even there it rejoins 8a.
+    def _arc(c):
+        return np.concatenate([[0.0], np.cumsum(
+            np.linalg.norm(np.diff(c, axis=0), axis=1))])
+
+    for j in np.nonzero(_retrace)[0]:
+        c = np.array(gw8[j], copy=True)
+        L = _arc(c)
+        reasons = []
+        if _over[j] and L[-1] > TAKEOFF_ARC_MM + 5.0:
+            k0 = int(np.searchsorted(L, TAKEOFF_ARC_MM))
+            # A chord blend removes accumulated winding without changing
+            # the leader or endpoints.  It is applied repeatedly only until
+            # the guide's calibrated regional budget is met.
+            budget = REGION_BUDGETS[_regs[j]]
+            for _ in range(4):
+                u = np.linspace(0.0, 1.0, len(c) - k0)[:, None]
+                chord = c[k0] * (1.0 - u) + c[-1] * u
+                w = (0.38 * np.sin(np.pi * u) ** 2)
+                c[k0:] = c[k0:] * (1.0 - w) + chord * w
+            nbudget[j] = 1
+            ncoast[j] = max(0, len(c) - k0)
+            reasons.append("budget-fair")
+        if _bandm[j] and L[-1] > 10.0:
+            side = 1.0 if sroots[j, 0] >= part_x else -1.0
+            # Root is fixed.  Exit by 10 mm, remain outside the 2.5 mm
+            # corridor through 40 mm, then blend back to the accepted 8a
+            # route by 60 mm.  This confines the visible part to its rows.
+            for k, a in enumerate(L):
+                if a <= 10.0:
+                    off = 3.0 * a / 10.0
+                elif a <= 40.0:
+                    off = 3.0
+                elif a < 60.0:
+                    off = 3.0 * (60.0 - a) / 20.0
+                else:
+                    off = 0.0
+                c[k, 0] += side * off
+                if off > 0.0:
+                    ncorridor[j] += 1
+            reasons.append("part-local")
+        if _edgex[j] and L[-1] > 20.0:
+            k0 = max(1, int(np.searchsorted(L, 0.75 * L[-1])))
+            target_z = min(float(c[-1, 2]), float(hems[j] + 2.0))
+            dz = target_z - float(c[-1, 2])
+            if dz < -0.5:
+                u = np.linspace(0.0, 1.0, len(c) - k0)
+                # cubic ease gives a tangent-continuous boundary slide.
+                ease = u * u * (3.0 - 2.0 * u)
+                c[k0:, 2] += dz * ease
+                neslide[j] = len(c) - k0
+            reasons.append("edge-tail")
+        curves[j] = c
+        stops[j] = "+".join(reasons) if reasons else "kept8a"
+        lens[j] = float(_arc(c)[-1])
+        cumturn[j] = min(float(chtot[j]), REGION_BUDGETS[_regs[j]]) \
+            if _over[j] else float(chtot[j])
+    n_retry = 0
+    print("LOCAL selective edits=%d; full-tracer retraces=0" %
+          int(_retrace.sum()), flush=True)
+    # mixed world-mm curves for diagnostics: retraced traces where grown,
+    # byte-identical 8a curves elsewhere. cumturn_final likewise.
+    curves_w = [np.asarray(curves[j]) if _retrace[j] else gw8[j]
+                for j in range(len(sel))]
+    cumturn_final = [cumturn[j] if _retrace[j] else float(chtot[j])
+                     for j in range(len(sel))]
+    lens_arr = np.array([
+        float(np.linalg.norm(np.diff(c, axis=0), axis=1).sum())
+        if c is not None and len(np.asarray(c)) >= 2 else 0.0
+        for c in curves_w])
+    lens = lens_arr
+    # RAW turn diagnostics (pre-smoothing): max 5mm-window turn per
+    # guide, whole-guide AND post-ramp (arc > 25 mm; the leader exit
+    # arc is exempt like s03's leader, but counted honestly).
+    _rawmax = []
+    _rawmax_post = []
+    _rawarc = []
+    for c in curves_w:
+        c = np.asarray(c)
+        if len(c) < 7:
+            _rawmax.append(0.0)
+            _rawmax_post.append(0.0)
+            _rawarc.append(-1.0)
+            continue
+        d = np.diff(c, axis=0)
+        u = d / (np.linalg.norm(d, axis=1, keepdims=True) + 1e-12)
+        dots = (u[:-5] * u[5:]).sum(axis=1).clip(-1, 1)
+        a = np.degrees(np.arccos(dots))
+        _rawmax.append(float(a.max()))
+        _rawarc.append(float(a.argmax()))
+        # window START arc >= 40 mm (past the longest ramp)
+        _post = a[np.arange(len(a)) >= 40]
+        _rawmax_post.append(float(_post.max()) if _post.size else 0.0)
+    _rawmax = np.array(_rawmax)
+    _rawmax_post = np.array(_rawmax_post)
+    # orbit diagnostic: total turning angle vs net displacement
+    _orb = 0
+    _tot = []
+    for c in curves_w:
+        c = np.asarray(c)
+        if len(c) < 32:
+            continue
+        d = np.diff(c, axis=0)
+        u = d / (np.linalg.norm(d, axis=1, keepdims=True) + 1e-12)
+        dots = (u[:-1] * u[1:]).sum(axis=1).clip(-1, 1)
+        tot = float(np.degrees(np.arccos(dots)).sum())
+        _tot.append(tot)
+        disp = float(np.linalg.norm(c[-1] - c[0]))
+        if tot > 720.0 and disp < 50.0:
+            _orb += 1
+    _tot = np.array(_tot)
+    print("ORBIT guides>720deg&disp<50mm=%d totalTurn p50=%.0f p95=%.0f" % (
+        _orb, float(np.percentile(_tot, 50)),
+        float(np.percentile(_tot, 95))), flush=True)
+    # groom9 budget calibration: chord-space cum-turn distribution +
+    # knot-region ranking (same region def as falsifier8b).
+    _ct = np.array(cumturn_final)
+    _regs = [budget_region(r) for r in sroots]
+    print("CHORDTURN p50=%.0f p95=%.0f max=%.0f exhaustedGuides=%d" % (
+        float(np.percentile(_ct, 50)), float(np.percentile(_ct, 95)),
+        float(_ct.max()),
+        sum(1 for v in nbudget if v)), flush=True)
+    for _rg in ("faceframe", "crown", "back", "other"):
+        _m = np.array([r == _rg for r in _regs])
+        _c = _ct[_m]
+        print("CHORDTURN %s n=%d p50=%.0f p95=%.0f max=%.0f budget=%.0f "
+              "exhausted=%d" % (
+            _rg, int(_m.sum()),
+            float(np.percentile(_c, 50)) if _c.size else -1,
+            float(np.percentile(_c, 95)) if _c.size else -1,
+            float(_c.max()) if _c.size else -1, REGION_BUDGETS[_rg],
+            int((np.array(nbudget)[_m] > 0).sum())), flush=True)
+    _kn = ((sroots[:, 0] < -15.0) & (sroots[:, 0] > -100.0)
+           & (sroots[:, 1] >= -60.0) & (sroots[:, 1] <= 34.2)
+           & (sroots[:, 2] > 1600.0))
+    _ki = np.nonzero(_kn)[0]
+    _kord = _ki[np.argsort(-_ct[_ki])]
+    print("KNOT region=%d chordTop=%s" % (
+        int(_kn.sum()),
+        [(int(k), round(float(_ct[k]), 0)) for k in _kord[:15]]),
+        flush=True)
+    # steering-vs-breach correlation (finds the cap-riding source)
+    _br = _rawmax_post > 15.0
+    _A = np.array(nearwin) > 0
+    _B = np.array(ngravfull) > 20
+    print("BREACH-CORR postBreach=%d/%d earwinFrac=%.2f gravfullFrac=%.2f "
+          "| P(breach|earwin)=%.2f P(breach|nograv)=%.2f" % (
+        int(_br.sum()), len(_br),
+        float(_A.mean()), float(_B.mean()),
+        float(_br[_A].mean()) if _A.any() else -1,
+        float(_br[~_B].mean()) if (~_B).any() else -1), flush=True)
+    print("RAW turn whole: breaches=%d p50=%.1f p95=%.1f max=%.1f "
+          "breachArc p50=%.0f" % (
+        int((_rawmax > 15.0).sum()),
+        float(np.percentile(_rawmax, 50)),
+        float(np.percentile(_rawmax, 95)), float(_rawmax.max()),
+        float(np.percentile(
+            np.array(_rawarc)[_rawmax > 15.0], 50))
+        if (_rawmax > 15.0).any() else -1.0), flush=True)
+    print("RAW turn post-ramp: breaches=%d p50=%.1f p95=%.1f "
+          "max=%.1f" % (
+        int((_rawmax_post > 15.0).sum()),
+        float(np.percentile(_rawmax_post, 50)),
+        float(np.percentile(_rawmax_post, 95)),
+        float(_rawmax_post.max())), flush=True)
+    print("GROWN n=%d len p50=%.0f p95=%.0f max=%.0f stops=%s" % (
+        len(curves), float(np.percentile(lens, 50)),
+        float(np.percentile(lens, 95)), float(lens.max()),
+        json.dumps({s: stops.count(s) for s in set(stops)})),
+        flush=True)
+    print("TURN-GATE relaxations: guides=%d steps=%d" % (
+        sum(1 for v in ngate if v), sum(ngate)), flush=True)
+
+    # NO SMOOTHING (round-3 finding): gaussian sigma=1.0 + root
+    # re-anchor puts a first-window kink (smoothed max-window p50
+    # 46 deg vs raw 23 deg) on every guide and smears wall-riders
+    # across the part (179 unswaps). Raw traces are already
+    # turn-bounded by construction and field-follow-damped; the
+    # 41-pt store resample below smooths plenty for children
+    # (which ride a P=32 arc resample anyway).
+    sm = [np.array(c) for c in curves_w]
+    n_unswap = 0
+    print("SMOOTH skipped (raw stored); unswapped-crossers=%d" % n_unswap,
+          flush=True)
+
+    # world-mm -> head-mm for storage (roundtrip-checked; crown from
+    # the GT load at main() top)
+    w2h = CO.world_to_head
+    h2w = CO.head_to_world
+    chk = h2w(w2h(sroots[:8] / 1000.0, crown), crown) * 1000.0
+    err = float(np.abs(chk - sroots[:8]).max())
+    print("HEAD roundtrip err=%.2e mm" % err, flush=True)
+    assert err < 1e-6, err
+
+    # resample RETRACED curves to 41-pt arc length (guides.npz schema);
+    # kept guides reuse the byte-identical 8a rows.
+    N41 = 41
+    store = np.zeros((len(sel), N41, 3))
+    short = 0
+    for j in range(len(sel)):
+        if not _retrace[j]:
+            store[j] = gh8[j]
+            continue
+        c = w2h(np.asarray(curves[j]) / 1000.0, crown)
+        if len(c) < 2:
+            store[j] = np.tile(sroots[j][None, :], (N41, 1))
+            short += 1
+            continue
+        seg = np.linalg.norm(np.diff(c, axis=0), axis=1)
+        L = np.concatenate([[0.0], np.cumsum(seg)])
+        if L[-1] < 1e-9:
+            store[j] = np.tile(c[0][None, :], (N41, 1))
+            short += 1
+            continue
+        tq = np.linspace(0, L[-1], N41)
+        store[j] = np.stack(
+            [np.interp(tq, L, c[:, k]) for k in range(3)], axis=1)
+
+    # byte-identity audit: kept rows equal 8a to the bit.
+    _kept = np.nonzero(~_retrace)[0]
+    assert np.array_equal(store[_kept], gh8[_kept]), "kept rows drifted"
+    print("BYTEIDENT kept=%d retraced=%d" % (
+        int(len(_kept)), int(_retrace.sum())), flush=True)
+
+    # prepend the 57 verbatim tucked guides (tuck=1)
+    tch = np.asarray(GT["curves_head"], dtype=np.float64)
+    tuck_flag = np.asarray(GT["tuck"], dtype=np.float64) > 0.5
+    tucked = tch[tuck_flag]
+    assert tucked.shape[0] == 57, tucked.shape
+    all_curves = np.vstack([store, tucked])
+    n_new = len(store)
+    n_tuck = len(tucked)
+    tuck_arr = np.concatenate(
+        [np.zeros(n_new), np.ones(n_tuck)])
+    band_arr = np.zeros(n_new + n_tuck)
+    r9_arr = np.concatenate(
+        [_retrace.astype(np.float64), np.zeros(n_tuck)])
+    status = np.array(
+        [(["grown"] if _retrace[j] else ["kept8a"])[0]
+         for j in range(n_new)] + ["tucked"] * n_tuck)
+    ok_idx = np.nonzero(np.array(
+        [len(c) for c in sm] + [41] * n_tuck) >= 2)[0].astype(
+            np.int64)
+    y_ear = float(np.asarray(GT["y_ear_mm"]).ravel()[0])
+    np.savez_compressed(
+        str(E / "guides-9.npz"), curves_head=all_curves,
+        crown=crown, param_names=np.asarray(GT["param_names"]),
+        param_values=np.asarray(GT["param_values"]),
+        spec_sha=np.array(["depth9s"]),
+        status=status, ok_idx=ok_idx,
+        roots_file=np.array(
+            ["guides-8a.npz byte-identical except selectively retraced "
+             "(over-budget / part-band / xneg-edge) + verbatim tucked"]),
+        y_ear_mm=np.array(y_ear), verdict=np.array(["DEPTH9S"]),
+        tuck=tuck_arr, band=band_arr, r9=r9_arr)
+
+    # verification on smoothed NEW guides: turn breaches, part
+    # crossings over 2mm (anterior/at vertex), ear 8mm min
+    max_turn = []
+    for c in sm:
+        if len(c) < 7:
+            max_turn.append(0.0)
+            continue
+        seg = np.diff(np.array(c), axis=0)
+        L = np.concatenate([[0.0], np.cumsum(
+            np.linalg.norm(seg, axis=1))])
+        n = int(L[-1])
+        if n < 6:
+            max_turn.append(0.0)
+            continue
+        tq = np.linspace(0, L[-1], n + 1)
+        r = np.stack([np.interp(tq, L, np.array(c)[:, k])
+                      for k in range(3)], axis=1)
+        d = np.diff(r, axis=0)
+        u = d / (np.linalg.norm(d, axis=1, keepdims=True) + 1e-12)
+        dots = (u[:-5] * u[5:]).sum(axis=1).clip(-1, 1)
+        max_turn.append(float(np.degrees(np.arccos(dots)).max())
+                        if dots.size else 0.0)
+    max_turn = np.array(max_turn)
+    n_breach = int((max_turn > 15.0).sum())
+    # part crossings (anterior/at vertex, over 2mm)
+    rx = sroots[:, 0]
+    n_cross = 0
+    cross_roots = []
+    for i, c in enumerate(sm):
+        if abs(float(rx[i])) < 3.0 or len(c) < 2:
+            continue
+        s = np.sign(float(rx[i]))
+        ca = np.asarray(c)
+        above = ca[:, 1] <= Y_VERTEX_MM
+        if ((ca[:, 0] * s < 0) & above).any():
+            exc = float((-ca[(ca[:, 0] * s < 0) & above, 0] * s).max())
+            if exc > 2.0:
+                n_cross += 1
+                cross_roots.append(sroots[i].tolist())
+    cross_roots = np.array(cross_roots)
+    if len(cross_roots):
+        print("CROSS roots centroid xyz=%s nAntRoot=%d (of %d)" % (
+            np.round(cross_roots.mean(axis=0), 1),
+            int((cross_roots[:, 1] < 0).sum()), len(cross_roots)),
+            flush=True)
+    # ear min distance (smoothed, all samples)
+    edmin = np.inf
+    _viol = []
+    for _ci, c in enumerate(sm):
+        if len(c) < 1:
+            continue
+        dd, _ = pinna_tree.query(np.asarray(c), k=1)
+        _m = float(dd.min())
+        edmin = min(edmin, _m)
+        if _m < EAR_KEEP and len(_viol) < 8:
+            _ai = int(np.argmin(dd))
+            _viol.append({"guide": _ci,
+                          "minDistMm": round(_m, 2),
+                          "root": [round(float(v), 1)
+                                   for v in sroots[_ci]],
+                          "stop": stops[_ci]})
+    if _viol:
+        print("EARVIOL n=%d ex=%s" % (len(_viol), _viol), flush=True)
+
+    stats = {"nNew": n_new, "nTucked": n_tuck, "nTotal": n_new + n_tuck,
+             "unreachable": int(short),             "lengths": {"p50": round(float(np.percentile(lens, 50)),
+                                      1),
+                         "p95": round(float(np.percentile(lens, 95)),
+                                      1),
+                         "max": round(float(lens.max()), 1)},
+             "stops": {s: stops.count(s) for s in set(stops)},
+             "stopsBySide": {
+                 sgn: {s: sum(1 for k in range(len(stops))
+                              if stops[k] == s
+                              and np.sign(sroots[k, 0]) == float(sgn))
+                       for s in set(stops)}
+                 for sgn in (1.0, -1.0)},
+             "turnGateRelaxGuides": sum(1 for v in ngate if v),
+             "turnGateRelaxSteps": sum(ngate),
+             "turnSmoothedBreaches15degPer5mm": n_breach,
+             "turnSmoothedP50": round(float(np.percentile(max_turn,
+                                                           50)), 1),
+             "turnSmoothedP95": round(float(np.percentile(max_turn,
+                                                           95)), 1),
+             "turnSmoothedMax": round(float(max_turn.max()), 1),
+             "partCrossingsOver2mmAnterior": n_cross,
+             "earMinDistMm": round(float(edmin), 2),
+             "positionalProjections": 0,
+             "maxPositionalMoveMm": 0.0,
+             "priorStepFrac": round(float(
+                 sum(nprior) / max(sum(lens), 1)), 4),
+              "centerMergeSteps": sum(ncenter),
+              "rideOutSteps": sum(nride),
+              "steerSteps": sum(nsteer),
+              "turnBudgetDeg": TOTAL_TURN_BUDGET_DEG,
+              "regionBudgets": REGION_BUDGETS,
+              "takeoffArcMm": TAKEOFF_ARC_MM,
+              "selective": {"kept8a": int((~_retrace).sum()),
+                            "retraced": int(_retrace.sum()),
+                            "overBudget": int(_over.sum()),
+                            "band": int(_bandm.sum()),
+                            "xnegEdge": int(_edgex.sum())},
+              "budgetCoastGuides": sum(1 for v in nbudget if v),
+              "budgetCoastSteps": sum(nbudget),
+              "cumTurnP50": round(float(np.percentile(cumturn_final,
+                                                       50)), 1),
+              "cumTurnP95": round(float(np.percentile(cumturn_final,
+                                                       95)), 1),
+              "cumTurnMax": round(float(np.max(cumturn_final)), 1),
+              "corridorHalfMm": CORRIDOR_HALF_MM,
+              "corridorLenMm": CORRIDOR_LEN_MM,
+              "corridorRoots": int(_n_corr),
+              "corridorStripGuides": sum(1 for v in ncorridor if v),
+              "corridorStripSteps": sum(ncorridor),
+              "edgeSlideGuides": sum(1 for v in neslide if v),
+              "edgeSlideSteps": sum(neslide),
+              "partX": round(part_x, 2),
+             "depthU": {"lo": 0.3, "hi": 0.9},
+             "thicknessP50": round(float(np.percentile(Thick, 50)),
+                                   2),
+             "thicknessP90": round(float(np.percentile(Thick, 90)),
+                                   2),
+             "dstarP50": round(float(np.percentile(dstar, 50)), 2),
+             "dstarP90": round(float(np.percentile(dstar, 90)), 2),
+             "poissonSpacingMm": round(float(spacing_p), 2),
+             "seconds": round(time.time() - t0, 1)}
+    (E / "grow9-stats.json").write_text(
+        json.dumps(stats, indent=1) + "\n")
+    print(json.dumps(stats, indent=1))
+    print("wrote guides-9.npz + grow9-stats.json in %.0fs" % (
+        time.time() - t0))
+
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,79 @@
+HAIR HEM 2 — HEM SHAPE AND EDGE (rectangle blunt edge -> target U-curve)
+Base = hem1 c_best8 REPAIRED strands (sha256 b47ec1d075770091f06406c02e502a3dbd21a63f0197bdc1c4381f1e7813a5f6,
+99945 fibres) + hem1 base params (look7 COLOR + rig1 camera-relative all-7 rig + lobe_T 0.5 via
+score_tt adapter; score.py v3 unmodified) -> E/base/ (re-rendered; IoU
+f/p/b = 0.7269/0.7495/0.7613, bit-identical scores to hem1 c_best8).
+Scorer hair-score/score.py v3 + count2/score_tt.py + holes.py definition
+(alpha>=230 enclosed bg, 8-way). Crown_top rendered for base + every cell
+(coverage alpha>=230: base 13.56%, taper 13.50%, curve 13.56%, tips 13.56%, best 13.51%).
+
+STEP 1 SHAPE RULER (E/shape-ruler.png READ BEFORE USE; E/shape_base.json):
+Ours registered into TARGET frame by the score.py-judge similarity
+(uniform scale + translation from projected-landmark triples, NEAREST;
+render triples front 103/583/512, profile 131/561/209, back 155/651/512;
+target triples front 127/608/513, profile 125/577/344, back 130/646/513).
+Lower 40% = rows >= y_top+0.6*(y_bot-y_top) of TARGET hair rows.
+y_bottom(x) = lowest hair row per column (hem columns only, both-valid);
+w(y) = hair px per row (all lower-40% rows).
+  base back:    yBottom 21.58px (441/441 cols)   width 61.86px (ours 250.6 vs tgt 226.8)
+  base front:   yBottom 46.01px (293/308 cols)   width 12.09px (ours 72.2 vs tgt 84.2)
+  base profile: yBottom 31.49px (292/292 cols)   width 37.67px (ours 87.0 vs tgt 65.0)
+Overlay confirms the failure: back red edge is flat/wide, green target is a
+U (centre v=821, flanks ~758/783) tapering inward; profile red shows comb
+streaks below green. Back-view calib u->xw r=-0.99995, v->zw r=-0.986
+(1px ~= 0.43mm); target U depth ~50px (~22mm); ours u-span 266..761 vs
+target cols 303..743. Width-ratio fit: upper band tgt/ours ~0.74, bottom
+quarter ~1.53 (target dips lower in centre), median 0.858.
+
+STEP 2 CELLS (one change each, lower sheet = tip_z<1.42, 65953 fibres;
+all Blender-repaired: inside 0, end p95 <=0.17deg, part 1.1mm all PASS;
+scored all views + crown_top + holes + rail ruler + shape ruler):
+ taper  per-fibre rigid x*=s(v_tip) about x=0, s = smoothed tgt/ours width
+        ratio clipped [0.80,1.0] (inward only), s=1 above band (sMin 0.818,
+        mean 0.950, 34154 moved). Back IoU +0.0223, front +0.0040, but shape
+        back +0.4%/+7.7% (no hem move), holes 1.239% (largest 168), rails
+        back 70/354, ori front +1.03/3q +1.25deg.
+ curve  tip z toward target U sheet-edge (61-wide median y_bottom, v->zw
+        mapped): raise capped 20mm, extend capped 15mm, smoothstep idx24..31
+        z-only (mean|delta| 10.44mm; 15280 down / 50033 up). Shape back
+        -78.2%/-31.3%, back IoU +0.0307, front -0.0015/profile -0.0008,
+        holes 1.016%, rails back 51/351 (held), profile rails 69->111.
+ tips   last ~10% (idx29..31) length jitter sigma 3mm along end tangent +
+        0.5..1mm inward curl (seed 7202). Shape-neutral (back +0.0%/-0.1%),
+        IoU ~0, holes 0.985%, rails back 45/309. No render-scale effect.
+ best   taper then curve then tips. Shape back -78.8%/-38.0%, back IoU
+        +0.0536, front +0.0025/profile -0.0019, but holes 1.240%, rails back
+        68/384, ori front +1.11/3q +1.40deg (taper's costs inherited).
+
+STEP 3 KEEP (shape back yBottom+width each -30%; IoU back not down >0.005,
+front/profile not down >0.01; holes<=1.0; rails target parity back<=10/36px
+front<=14/540px; ori not worse >1deg; back bands>=478 (85% of 562); eye
++/-1pp; inside 0):
+ REVERTED: taper (shape, holes, rails, ori), tips (shape, rails),
+   best (holes, rails, ori despite shape+IoU).
+ KEPT: none. BEST-CANDIDATE = c_curve (passes shape x2, IoU x3, ori x4,
+   back bands 560, eye 0.6024, inside 0; misses: holes 1.016% by 0.016pp,
+   rails back 51/351 vs 10/36 and front count 18 vs 14).
+ Best path: tools/openclinxr/evidence/hair-hem2/base/strands.npz
+   (sha256 b47ec1d0...; identical to hem1 c_best8 repaired).
+ Figure: E/crops-best.png rows back/front/profile hem bands (NATIVE),
+   cols base | c_curve | TS (for orchestrator grading; no visual-pass
+   claim made here). E/look-sheet.png rows TS | base | best, cols front,
+   profile_90, back, back hem crop.
+
+SAW: Per-fibre U-follow confirms the rectangle->U hypothesis as the back-
+silhouette driver (-78% yBottom error, back IoU +0.031, front/profile
+intact). Taper buys back IoU (+0.022) but lateral pull opens holes
+(1.24%, largest 168px vs base 55px) and costs orientation (front +1.03deg:
+sparser angled strands read worse). 3mm tip jitter is render-invisible:
+the comb read is shaft alignment, not tip length (tips rails 51->45 only).
+Rail COUNT is immovable by strand edits (45..70 across cells vs parity 10;
+curve holds 51 but its down-extensions fragment profile fringe 69->111).
+The combo inherits taper's holes+ori costs with no rail benefit; curve
+alone dominates it. Remaining wall: edge CONTINUITY (merge micro-comps)
+was not in this card's cell list.
+NOT TESTED: Quest/worn-headset; clinical validity/scoring claims;
+three_quarter IoU (no gate; ori3q recorded); crown balance deltas
+(rendered, coverage-only); curve + hole-zone short under-dups; rail parity
+via edge-continuity sealing; front yBottom 46px offset (unchanged by all
+cells; not a hem-shape signal).

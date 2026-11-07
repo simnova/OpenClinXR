@@ -1,0 +1,323 @@
+{
+ "ok": false,
+ "stage": "measure",
+ "error": "Error: gated reflection cells missed bars: [{'cell': 1, 'failed': ['p50', 'p90', 'rbRatio']}, {'cell': 2, 'failed': ['p50', 'p90', 'rbRatio']}]",
+ "blenderVersion": "5.1.1",
+ "lightCount": 3,
+ "exposureStops": -0.375,
+ "targetTriple": {
+  "p10": 0.039,
+  "p50": 0.078,
+  "p90": 0.159
+ },
+ "baselineP50": 0.19,
+ "cells": [
+  {
+   "index": 1,
+   "label": "roughness 0.45",
+   "diagnostic": false,
+   "rimWatts": 40.0,
+   "keyWatts": 150.0,
+   "fillWatts": 40.0,
+   "lightScale": 0.7711054127039704,
+   "worldStrength": 0.3,
+   "radius": 0.0003,
+   "amount": 4,
+   "profileRadiusReadBack": 0.0003000000142492354,
+   "surfaceSocketNames": {
+    "Roughness": "Roughness",
+    "Radial Roughness": "Radial Roughness",
+    "Coat": "Coat"
+   },
+   "surfaceReadBack": {
+    "melanin": 0.949999988079071,
+    "redness": 0.5,
+    "roughness": 0.44999998807907104,
+    "radial": 0.20000000298023224,
+    "coat": 0.10000000149011612
+   },
+   "lightReadBack": {
+    "keyEnergy": 115.66580963134766,
+    "fillEnergy": 30.84421730041504,
+    "rimEnergy": 30.84421730041504,
+    "worldStrength": 0.30000001192092896
+   },
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "thresholdVolume": 0.24420872559274756,
+   "faceMeanLuminance": 0.6686012978669706,
+   "backgroundLuminance": 0.4961213149126838,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.18989403065153282,
+    "p10": 0.09998980392156862,
+    "p50": 0.1906643137254902,
+    "p90": 0.28093254901960785,
+    "rbRatio": 1.0759419111697057
+   },
+   "maskMeanRBSpread": 0.000409566673924695,
+   "baselineP50Fraction": 1.0034963880288958,
+   "beautyPng": "refl-1.png",
+   "idPng": "hair-id-refl-1.png",
+   "checks": {
+    "p50": false,
+    "p90": false,
+    "p10": true,
+    "rbRatio": false,
+    "volume": true,
+    "strandsAfter": true,
+    "face": true,
+    "background": true,
+    "maskPixels": true,
+    "maskNeutral": true
+   },
+   "ok": false
+  },
+  {
+   "index": 2,
+   "label": "roughness 0.45, coat 0",
+   "diagnostic": false,
+   "rimWatts": 40.0,
+   "keyWatts": 150.0,
+   "fillWatts": 40.0,
+   "lightScale": 0.7711054127039704,
+   "worldStrength": 0.3,
+   "radius": 0.0003,
+   "amount": 4,
+   "profileRadiusReadBack": 0.0003000000142492354,
+   "surfaceSocketNames": {
+    "Roughness": "Roughness",
+    "Radial Roughness": "Radial Roughness",
+    "Coat": "Coat"
+   },
+   "surfaceReadBack": {
+    "melanin": 0.949999988079071,
+    "redness": 0.5,
+    "roughness": 0.44999998807907104,
+    "radial": 0.20000000298023224,
+    "coat": 0.0
+   },
+   "lightReadBack": {
+    "keyEnergy": 115.66580963134766,
+    "fillEnergy": 30.84421730041504,
+    "rimEnergy": 30.84421730041504,
+    "worldStrength": 0.30000001192092896
+   },
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "thresholdVolume": 0.24496963621571363,
+   "faceMeanLuminance": 0.669202252183923,
+   "backgroundLuminance": 0.4961223824295343,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.18919246333713866,
+    "p10": 0.09970666666666665,
+    "p50": 0.1904533333333333,
+    "p90": 0.2792650980392157,
+    "rbRatio": 1.076269776292337
+   },
+   "maskMeanRBSpread": 0.000409566673924695,
+   "baselineP50Fraction": 1.0023859649122806,
+   "beautyPng": "refl-2.png",
+   "idPng": "hair-id-refl-2.png",
+   "checks": {
+    "p50": false,
+    "p90": false,
+    "p10": true,
+    "rbRatio": false,
+    "volume": true,
+    "strandsAfter": true,
+    "face": true,
+    "background": true,
+    "maskPixels": true,
+    "maskNeutral": true
+   },
+   "ok": false
+  },
+  {
+   "index": 3,
+   "label": "key 0 W diagnostic",
+   "diagnostic": true,
+   "rimWatts": 40.0,
+   "keyWatts": 0.0,
+   "fillWatts": 40.0,
+   "lightScale": 0.7711054127039704,
+   "worldStrength": 0.3,
+   "radius": 0.0003,
+   "amount": 4,
+   "profileRadiusReadBack": 0.0003000000142492354,
+   "surfaceSocketNames": {
+    "Roughness": "Roughness",
+    "Radial Roughness": "Radial Roughness",
+    "Coat": "Coat"
+   },
+   "surfaceReadBack": {
+    "melanin": 0.949999988079071,
+    "redness": 0.5,
+    "roughness": 0.25,
+    "radial": 0.20000000298023224,
+    "coat": 0.10000000149011612
+   },
+   "lightReadBack": {
+    "keyEnergy": 0.0,
+    "fillEnergy": 30.84421730041504,
+    "rimEnergy": 30.84421730041504,
+    "worldStrength": 0.30000001192092896
+   },
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "thresholdVolume": 0.38265450662482564,
+   "faceMeanLuminance": 0.41492060750859516,
+   "backgroundLuminance": 0.3411799498314951,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.09746271522835773,
+    "p10": 0.020441568627450977,
+    "p50": 0.08765882352941176,
+    "p90": 0.17421647058823528,
+    "rbRatio": 1.1092477294453071
+   },
+   "maskMeanRBSpread": 0.000409566673924695,
+   "baselineP50Fraction": 0.4613622291021672,
+   "beautyPng": "refl-3.png",
+   "idPng": "hair-id-refl-3.png",
+   "checks": {
+    "p50": true,
+    "p90": true,
+    "p10": false,
+    "rbRatio": false,
+    "volume": true,
+    "strandsAfter": true,
+    "face": false,
+    "background": false,
+    "maskPixels": true,
+    "maskNeutral": true
+   },
+   "ok": true
+  },
+  {
+   "index": 4,
+   "label": "world 0 diagnostic",
+   "diagnostic": true,
+   "rimWatts": 40.0,
+   "keyWatts": 150.0,
+   "fillWatts": 40.0,
+   "lightScale": 0.7711054127039704,
+   "worldStrength": 0.0,
+   "radius": 0.0003,
+   "amount": 4,
+   "profileRadiusReadBack": 0.0003000000142492354,
+   "surfaceSocketNames": {
+    "Roughness": "Roughness",
+    "Radial Roughness": "Radial Roughness",
+    "Coat": "Coat"
+   },
+   "surfaceReadBack": {
+    "melanin": 0.949999988079071,
+    "redness": 0.5,
+    "roughness": 0.25,
+    "radial": 0.20000000298023224,
+    "coat": 0.10000000149011612
+   },
+   "lightReadBack": {
+    "keyEnergy": 115.66580963134766,
+    "fillEnergy": 30.84421730041504,
+    "rimEnergy": 30.84421730041504,
+    "worldStrength": 0.0
+   },
+   "strandsAfter": 50265,
+   "volume": 0.2250697350069735,
+   "thresholdVolume": 0.6782492154811716,
+   "faceMeanLuminance": 0.6488058914304644,
+   "backgroundLuminance": 0.2990476323146446,
+   "coveragePixels": 124541,
+   "coverageHairLuminance": {
+    "mean": 0.19033125743140578,
+    "p10": 0.09495137254901959,
+    "p50": 0.1814729411764706,
+    "p90": 0.30251137254901955,
+    "rbRatio": 1.0609806050224715
+   },
+   "maskMeanRBSpread": 0.000409566673924695,
+   "baselineP50Fraction": 0.9551207430340557,
+   "beautyPng": "refl-4.png",
+   "idPng": "hair-id-refl-4.png",
+   "checks": {
+    "p50": false,
+    "p90": false,
+    "p10": true,
+    "rbRatio": false,
+    "volume": true,
+    "strandsAfter": true,
+    "face": true,
+    "background": false,
+    "maskPixels": true,
+    "maskNeutral": true
+   },
+   "ok": true
+  }
+ ],
+ "selected": {
+  "index": 4,
+  "label": "world 0 diagnostic",
+  "diagnostic": true,
+  "rimWatts": 40.0,
+  "keyWatts": 150.0,
+  "fillWatts": 40.0,
+  "lightScale": 0.7711054127039704,
+  "worldStrength": 0.0,
+  "radius": 0.0003,
+  "amount": 4,
+  "profileRadiusReadBack": 0.0003000000142492354,
+  "surfaceSocketNames": {
+   "Roughness": "Roughness",
+   "Radial Roughness": "Radial Roughness",
+   "Coat": "Coat"
+  },
+  "surfaceReadBack": {
+   "melanin": 0.949999988079071,
+   "redness": 0.5,
+   "roughness": 0.25,
+   "radial": 0.20000000298023224,
+   "coat": 0.10000000149011612
+  },
+  "lightReadBack": {
+   "keyEnergy": 115.66580963134766,
+   "fillEnergy": 30.84421730041504,
+   "rimEnergy": 30.84421730041504,
+   "worldStrength": 0.0
+  },
+  "strandsAfter": 50265,
+  "volume": 0.2250697350069735,
+  "thresholdVolume": 0.6782492154811716,
+  "faceMeanLuminance": 0.6488058914304644,
+  "backgroundLuminance": 0.2990476323146446,
+  "coveragePixels": 124541,
+  "coverageHairLuminance": {
+   "mean": 0.19033125743140578,
+   "p10": 0.09495137254901959,
+   "p50": 0.1814729411764706,
+   "p90": 0.30251137254901955,
+   "rbRatio": 1.0609806050224715
+  },
+  "maskMeanRBSpread": 0.000409566673924695,
+  "baselineP50Fraction": 0.9551207430340557,
+  "beautyPng": "refl-4.png",
+  "idPng": "hair-id-refl-4.png",
+  "checks": {
+   "p50": false,
+   "p90": false,
+   "p10": true,
+   "rbRatio": false,
+   "volume": true,
+   "strandsAfter": true,
+   "face": true,
+   "background": false,
+   "maskPixels": true,
+   "maskNeutral": true
+  },
+  "ok": true
+ },
+ "front": "front-refl.png",
+ "maskOverlay": "mask-overlay-refl.png"
+}

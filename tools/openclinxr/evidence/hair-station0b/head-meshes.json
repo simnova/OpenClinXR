@@ -1,0 +1,98 @@
+{
+  "glb": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+  "objects": [
+    {
+      "materials": [],
+      "name": "Icosphere",
+      "polygons": 80,
+      "vertices": 42
+    },
+    {
+      "materials": [
+        "mat_makeclothes_library_female_tight_jeans_pants"
+      ],
+      "name": "makeclothes_library_female_tight_jeans_pants",
+      "polygons": 4216,
+      "vertices": 8432
+    },
+    {
+      "materials": [
+        "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes"
+      ],
+      "name": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+      "polygons": 1004,
+      "vertices": 804
+    },
+    {
+      "materials": [
+        "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mat"
+      ],
+      "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_peds_anxious_parent_mesh",
+      "polygons": 4975,
+      "vertices": 3085
+    },
+    {
+      "materials": [
+        "mat_makeclothes_library_toigo_t_shirt"
+      ],
+      "name": "makeclothes_library_toigo_t_shirt",
+      "polygons": 2700,
+      "vertices": 5400
+    },
+    {
+      "materials": [
+        "mpfb_skin_peds_anxious_parent",
+        "openclinxr_hidden_upper_mpfb_parent_tara_johnson_v1_body_mesh",
+        "openclinxr_hidden_lower_mpfb_parent_tara_johnson_v1_body_mesh",
+        "openclinxr_hidden_foot_mpfb_parent_tara_johnson_v1_body_mesh",
+        "openclinxr_hidden_upper_mpfb_parent_tara_johnson_v1_body_mesh.001",
+        "openclinxr_hidden_lower_mpfb_parent_tara_johnson_v1_body_mesh.001",
+        "openclinxr_hidden_foot_mpfb_parent_tara_johnson_v1_body_mesh.001",
+        "openclinxr_hidden_orphan_mpfb_parent_tara_johnson_v1_body_mesh"
+      ],
+      "name": "mpfb_parent_tara_johnson_v1_body",
+      "polygons": 26756,
+      "vertices": 15949
+    },
+    {
+      "materials": [
+        "mat_makeclothes_library_eyes_peds_anxious_parent"
+      ],
+      "name": "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+      "polygons": 172,
+      "vertices": 96
+    },
+    {
+      "materials": [
+        "mat_openclinxr_fitted_teeth_mpfb_peds_anxious_parent_mesh"
+      ],
+      "name": "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+      "polygons": 7120,
+      "vertices": 4494
+    },
+    {
+      "materials": [
+        "mat_openclinxr_fitted_tongue_mpfb_peds_anxious_parent_mesh"
+      ],
+      "name": "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+      "polygons": 448,
+      "vertices": 253
+    },
+    {
+      "materials": [
+        "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mat"
+      ],
+      "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+      "polygons": 8988,
+      "vertices": 5460
+    },
+    {
+      "materials": [
+        "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mat"
+      ],
+      "name": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh",
+      "polygons": 16632,
+      "vertices": 11088
+    }
+  ]
+}

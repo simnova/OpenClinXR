@@ -1,0 +1,36 @@
+{
+ "method": "directed-A* minimum-cost paths on 26-neighbour eroded-hull graph; no gravity blend, no streamline-then-project (route0 method, unchanged)",
+ "input": "hair-hull3/hull.npz (ear-tucked carve, 479750 vox, spacing 2.0) + hair-scalp1/roots.npz (14155) + aisha_straight_long_v4.json (aisha-v3, identity registration)",
+ "coverage_radius_mm": 3.0,
+ "erosion_rule": "hull occupancy distance-transform >= 3.0 mm (2 mm grid) AND exact-SDF >= 3.0 mm",
+ "graph": "26-neighbour over eroded voxels",
+ "roots": {
+  "source": "hair-scalp1/roots.npz (14155)",
+  "rule": "greedy Poisson subset, crown-first order, adaptive spacing to land 300-500 roots",
+  "attach": "nearest eroded-graph node (euclidean, mm)",
+  "side": "sign(root_x_mm) vs centre part x=0 (|x|<1mm -> +1)"
+ },
+ "ear_plane_rule": "y_ear_mm = median y of scalp hairline-loop points with |x| above the 80th percentile (sideburn anchor, data-driven); root world y < y_ear -> curtain family, else back family. With the ears tucked, side hair passes BEHIND the ear: the hull itself clears the pinnae (hull3 ear gate <= 2% coverage, min clearance 2.17 mm), so minimum-cost paths through the hull pass behind/clear of the ears; measured by the new ear gate, no routing term added.",
+ "endpoint_bands": "per (sector, side): curtain-L/R (root x<0 / x>=0, y<y_ear), back-L/R (root x<0 / x>=0, y>=y_ear; pools overlap +-2 mm so bundles can meet at the occiput). Pool = x-binned (10 mm bins) lowest 25 eroded voxels per bin within z <= sector_min_z + 20 mm: a hem-spanning pool derived from hull3's lowest voxels per sector. The front sector has no hair below the shoulder plane (hull3 diag (d): front 0 vox below z=1405), so the curtain pools sit at/above the shoulder line by construction; per-band zmin vs shoulder reported. Assignment is quantile-matched in lateral scalp order with hard same-sign rule, global x-monotonicity, preferred spacing 4 mm (relax 2.5 mm) over a hard distinct-voxel floor (no endpoint voxel ever shared).",
+ "part_rule": "w_part * len_mm added on nodes whose x-sign opposes the root's sign (roots |x|<3 mm exempt)",
+ "edge_cost": "w_len*len_mm + w_up*max(0,dz_mm) + w_curve*turn_rad + w_body*bodyterm*len_mm + w_bnd*bndterm*len_mm + w_coh*min(usage,3)*len_mm",
+ "components": "routing graph = largest 26-connected component of the eroded set (sliver labels dropped at graph build; count recorded)",
+ "weights": {
+  "w_len": 1.0,
+  "w_up": 8.0,
+  "w_curve": 16.0,
+  "w_body": 6.0,
+  "w_bnd": 4.0,
+  "w_coh": 1.0,
+  "w_part": 5.0
+ },
+ "bodyterm": "((clip(8-sdf_mm,0,8))/8)^2",
+ "bndterm": "((clip(6-bnd_mm,0,6))/6)^2",
+ "heuristic": "weighted A* (eps=3.0) on w_len * euclidean mm",
+ "expansions_cap": 600000,
+ "expansions_note": "route0 froze 150000 on the hull0c graph; hull3's eroded graph is ~2x larger (376523 nodes) with longer thin side corridors, and a 150k run left 54/359 unreachable while acceptance-passing paths for them exist (proven by zero-usage re-search: e.g. guide 178 passes eroded-frac 0.970). The cap only truncates search, never changes the cost or the accepted paths, so 600k is a compute- budget recalibration inside the same method, not a cost change. Primary passes and retry levels unchanged.",
+ "order": "scalp order (y, x) with usage-map coherence; retry passes over unreachable roots at usage scales 1.0, 0.25, 0.0; levels recorded",
+ "smooth": "centripetal Catmull-Rom through path nodes, 2 mm resample; fallback = collinear-decimated voxel polyline (always inside eroded hull, SDF>=3)",
+ "accept": "routed portion (arc beyond the first 8 mm) must lie inside hull occupancy with exact-SDF > 0 and arc fraction inside the eroded hull >= 0.95; root leader (first 8 mm) exempt from hull/eroded containment but exact-SDF > -1 mm",
+ "tube_r_mm": 3.0
+}

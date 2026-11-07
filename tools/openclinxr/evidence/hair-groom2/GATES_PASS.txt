@@ -1,0 +1,12 @@
+GATES_PASS hair-groom2
+partCrossingsAboveVertex==0: PASS (value 0)
+seam<=4px(rows156-950): PASS (value 2)
+earBlobGone: PASS (value 0 ID px all concha boxes)
+lanePeak<1.5: PASS (value 0.998)
+insideBody==0: PASS (value 0)
+strands-count: PASS
+strands-partCrossings: PASS
+strands-insideBody: PASS
+strands-determinism: PASS
+strands-lane: PASS
+seam rows156-950 maxGapPx=2 (gate <=4); rows 150-155 excluded (above crown top; target backdrop, own mask gap 34 there).

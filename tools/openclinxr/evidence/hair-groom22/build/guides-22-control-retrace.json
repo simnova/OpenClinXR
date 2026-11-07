@@ -1,0 +1,70 @@
+{
+ "schema": "openclinxr.hair-guide-back-retrace.v1",
+ "method": "s06_depthgrow tracer verbatim on smoothed BACK field; same roots, same depth fractions (golden stride by original s06 index), verbatim 40mm take-off; FRONT + tuck byte-identical guides-19",
+ "field": "tools/openclinxr/evidence/hair-orient0/field.npz",
+ "sourceGuides": "tools/openclinxr/evidence/hair-groom19/build/guides-19.npz",
+ "retraced": 524,
+ "frontTuckRows": 2183,
+ "guides": {
+  "input": 2707,
+  "output": 2707,
+  "deleted": 0,
+  "inputSha256": "d51f4ef118eaf6f74a80be50cb08274bfd2671c7b1965dae19e6e92e71e75c59",
+  "outputSha256": "8f7ec515ec91a9af9e8b1850534aec19152b771951d9d9e39419b7f890df1497"
+ },
+ "stops": {
+  "edge": 384,
+  "face": 2,
+  "maxlen": 4,
+  "hem": 5,
+  "body": 129
+ },
+ "lengthsMm": {
+  "n": 524,
+  "min": 11.0,
+  "p50": 43.5,
+  "p90": 322.0,
+  "max": 489.0
+ },
+ "guideMaxMoveMmBACK": {
+  "n": 524,
+  "min": 0.0,
+  "p50": 0.451,
+  "p90": 15.09,
+  "max": 59.755
+ },
+ "turnGateRelaxSteps": 12822,
+ "crossingBACKNonTuck": {
+  "input": {
+   "nCrossPairs": 9715,
+   "nGuides": 266,
+   "nPairs": 35245
+  },
+  "output": {
+   "nCrossPairs": 10154,
+   "nGuides": 266,
+   "nPairs": 35245
+  },
+  "gate30pct": 2914,
+  "pass": false
+ },
+ "takeoff": {
+  "verbatimMm": 40.0,
+  "verbatimSamples": 46123,
+  "byteIdentical": true,
+  "maxAbsDiffHeadMm": 0.0,
+  "pass": true
+ },
+ "frontIdentical": {
+  "rows": 2183,
+  "byteIdentical": true,
+  "maxAbsDiffHeadMm": 0.0,
+  "pass": true
+ },
+ "depthU": {
+  "rule": "0.3+0.6*((j*PHI)%1), j=original s06 index",
+  "p50": 0.5918,
+  "p90": 0.845
+ },
+ "seconds": 16.6
+}

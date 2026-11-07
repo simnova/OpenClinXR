@@ -1,0 +1,369 @@
+{
+  "base": {
+    "iouF": 0.7268881675142308,
+    "iouP": 0.7495002936545931,
+    "iouB": 0.7613471368443886,
+    "oriF": 24.635981511717013,
+    "ori3": 33.59040783540663,
+    "oriP": 31.329863773978115,
+    "oriB": 24.682860759723997,
+    "backCount": 562,
+    "eye": 0.6024005578082756,
+    "jaw": 0.4365221433393302,
+    "holes": {
+      "holeComponents": 663,
+      "holePixels": 1825,
+      "hairPixels": 176460,
+      "holePctOfHair": 1.03422872038989,
+      "largestHolePx": 55
+    },
+    "rails": {
+      "back": {
+        "railComponents": 51,
+        "railAreaPx": 338
+      },
+      "front": {
+        "railComponents": 18,
+        "railAreaPx": 431
+      },
+      "profile_90": {
+        "railComponents": 69,
+        "railAreaPx": 165
+      }
+    },
+    "inside": null,
+    "shape": {
+      "back": {
+        "yTopTgt": 132,
+        "yBotTgt": 823,
+        "lower40Lo": 547,
+        "nTgtHemCols": 441,
+        "nBothHemCols": 441,
+        "coverage": 1.0,
+        "yBottomMAEpx": 21.58,
+        "widthMAEpx": 61.86,
+        "widthMeanTgtPx": 226.8,
+        "widthMeanOursPx": 250.6
+      },
+      "front": {
+        "yTopTgt": 130,
+        "yBotTgt": 675,
+        "lower40Lo": 457,
+        "nTgtHemCols": 308,
+        "nBothHemCols": 293,
+        "coverage": 0.9512987012987013,
+        "yBottomMAEpx": 46.01,
+        "widthMAEpx": 12.09,
+        "widthMeanTgtPx": 84.2,
+        "widthMeanOursPx": 72.2
+      },
+      "profile_90": {
+        "yTopTgt": 126,
+        "yBotTgt": 870,
+        "lower40Lo": 572,
+        "nTgtHemCols": 292,
+        "nBothHemCols": 292,
+        "coverage": 1.0,
+        "yBottomMAEpx": 31.49,
+        "widthMAEpx": 37.67,
+        "widthMeanTgtPx": 65.0,
+        "widthMeanOursPx": 87.0
+      }
+    },
+    "n": 99945
+  },
+  "cells": {
+    "c_taper": {
+      "iouF": 0.7309087864240259,
+      "iouP": 0.7485177890125374,
+      "iouB": 0.7836461154937785,
+      "oriF": 25.67064336447912,
+      "ori3": 34.84384134373842,
+      "oriP": 30.568032899130593,
+      "oriB": 24.511246974700992,
+      "backCount": 548,
+      "eye": 0.600217947091579,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 710,
+        "holePixels": 2164,
+        "hairPixels": 174631,
+        "holePctOfHair": 1.2391843372597076,
+        "largestHolePx": 168
+      },
+      "rails": {
+        "back": {
+          "railComponents": 70,
+          "railAreaPx": 354
+        },
+        "front": {
+          "railComponents": 20,
+          "railAreaPx": 473
+        },
+        "profile_90": {
+          "railComponents": 82,
+          "railAreaPx": 129
+        }
+      },
+      "inside": 0,
+      "shape": {
+        "back": {
+          "yTopTgt": 132,
+          "yBotTgt": 823,
+          "lower40Lo": 547,
+          "nTgtHemCols": 441,
+          "nBothHemCols": 441,
+          "coverage": 1.0,
+          "yBottomMAEpx": 21.49,
+          "widthMAEpx": 57.12,
+          "widthMeanTgtPx": 226.8,
+          "widthMeanOursPx": 245.9
+        },
+        "front": {
+          "yTopTgt": 130,
+          "yBotTgt": 675,
+          "lower40Lo": 457,
+          "nTgtHemCols": 308,
+          "nBothHemCols": 293,
+          "coverage": 0.9512987012987013,
+          "yBottomMAEpx": 46.78,
+          "widthMAEpx": 13.3,
+          "widthMeanTgtPx": 84.2,
+          "widthMeanOursPx": 70.9
+        },
+        "profile_90": {
+          "yTopTgt": 126,
+          "yBotTgt": 870,
+          "lower40Lo": 572,
+          "nTgtHemCols": 292,
+          "nBothHemCols": 292,
+          "coverage": 1.0,
+          "yBottomMAEpx": 30.72,
+          "widthMAEpx": 36.06,
+          "widthMeanTgtPx": 65.0,
+          "widthMeanOursPx": 84.3
+        }
+      },
+      "n": 99945
+    },
+    "c_curve": {
+      "iouF": 0.7254370074757933,
+      "iouP": 0.7487333810216817,
+      "iouB": 0.7920953086749298,
+      "oriF": 24.65312980538748,
+      "ori3": 33.89755314652577,
+      "oriP": 31.336122199059762,
+      "oriB": 25.155783307319606,
+      "backCount": 560,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 663,
+        "holePixels": 1793,
+        "hairPixels": 176468,
+        "holePctOfHair": 1.016048235374119,
+        "largestHolePx": 55
+      },
+      "rails": {
+        "back": {
+          "railComponents": 51,
+          "railAreaPx": 351
+        },
+        "front": {
+          "railComponents": 18,
+          "railAreaPx": 425
+        },
+        "profile_90": {
+          "railComponents": 111,
+          "railAreaPx": 321
+        }
+      },
+      "inside": 0,
+      "shape": {
+        "back": {
+          "yTopTgt": 132,
+          "yBotTgt": 823,
+          "lower40Lo": 547,
+          "nTgtHemCols": 441,
+          "nBothHemCols": 441,
+          "coverage": 1.0,
+          "yBottomMAEpx": 4.7,
+          "widthMAEpx": 42.48,
+          "widthMeanTgtPx": 226.8,
+          "widthMeanOursPx": 264.9
+        },
+        "front": {
+          "yTopTgt": 130,
+          "yBotTgt": 675,
+          "lower40Lo": 457,
+          "nTgtHemCols": 308,
+          "nBothHemCols": 293,
+          "coverage": 0.9512987012987013,
+          "yBottomMAEpx": 46.6,
+          "widthMAEpx": 12.35,
+          "widthMeanTgtPx": 84.2,
+          "widthMeanOursPx": 71.9
+        },
+        "profile_90": {
+          "yTopTgt": 126,
+          "yBotTgt": 870,
+          "lower40Lo": 572,
+          "nTgtHemCols": 292,
+          "nBothHemCols": 292,
+          "coverage": 1.0,
+          "yBottomMAEpx": 32.9,
+          "widthMAEpx": 38.48,
+          "widthMeanTgtPx": 65.0,
+          "widthMeanOursPx": 86.9
+        }
+      },
+      "n": 99945
+    },
+    "c_tips": {
+      "iouF": 0.7266482126927781,
+      "iouP": 0.749561946880815,
+      "iouB": 0.7612592442295717,
+      "oriF": 24.63453302577107,
+      "ori3": 33.581250282359235,
+      "oriP": 31.465267812440892,
+      "oriB": 24.5719681325596,
+      "backCount": 560,
+      "eye": 0.6024005578082756,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 659,
+        "holePixels": 1738,
+        "hairPixels": 176438,
+        "holePctOfHair": 0.9850485723030187,
+        "largestHolePx": 55
+      },
+      "rails": {
+        "back": {
+          "railComponents": 45,
+          "railAreaPx": 309
+        },
+        "front": {
+          "railComponents": 19,
+          "railAreaPx": 429
+        },
+        "profile_90": {
+          "railComponents": 70,
+          "railAreaPx": 166
+        }
+      },
+      "inside": 0,
+      "shape": {
+        "back": {
+          "yTopTgt": 132,
+          "yBotTgt": 823,
+          "lower40Lo": 547,
+          "nTgtHemCols": 441,
+          "nBothHemCols": 441,
+          "coverage": 1.0,
+          "yBottomMAEpx": 21.58,
+          "widthMAEpx": 61.91,
+          "widthMeanTgtPx": 226.8,
+          "widthMeanOursPx": 250.7
+        },
+        "front": {
+          "yTopTgt": 130,
+          "yBotTgt": 675,
+          "lower40Lo": 457,
+          "nTgtHemCols": 308,
+          "nBothHemCols": 293,
+          "coverage": 0.9512987012987013,
+          "yBottomMAEpx": 46.03,
+          "widthMAEpx": 12.08,
+          "widthMeanTgtPx": 84.2,
+          "widthMeanOursPx": 72.2
+        },
+        "profile_90": {
+          "yTopTgt": 126,
+          "yBotTgt": 870,
+          "lower40Lo": 572,
+          "nTgtHemCols": 292,
+          "nBothHemCols": 292,
+          "coverage": 1.0,
+          "yBottomMAEpx": 31.55,
+          "widthMAEpx": 37.6,
+          "widthMeanTgtPx": 65.0,
+          "widthMeanOursPx": 86.9
+        }
+      },
+      "n": 99945
+    },
+    "c_best": {
+      "iouF": 0.7293601027110508,
+      "iouP": 0.7475635750755961,
+      "iouB": 0.8149566234103671,
+      "oriF": 25.75055478475738,
+      "ori3": 34.994755731310995,
+      "oriP": 30.631345059459107,
+      "oriB": 25.00014575056002,
+      "backCount": 550,
+      "eye": 0.600217947091579,
+      "jaw": 0.4365221433393302,
+      "holes": {
+        "holeComponents": 690,
+        "holePixels": 2167,
+        "hairPixels": 174730,
+        "holePctOfHair": 1.2401991644251131,
+        "largestHolePx": 168
+      },
+      "rails": {
+        "back": {
+          "railComponents": 68,
+          "railAreaPx": 384
+        },
+        "front": {
+          "railComponents": 19,
+          "railAreaPx": 488
+        },
+        "profile_90": {
+          "railComponents": 106,
+          "railAreaPx": 188
+        }
+      },
+      "inside": 0,
+      "shape": {
+        "back": {
+          "yTopTgt": 132,
+          "yBotTgt": 823,
+          "lower40Lo": 547,
+          "nTgtHemCols": 441,
+          "nBothHemCols": 441,
+          "coverage": 1.0,
+          "yBottomMAEpx": 4.58,
+          "widthMAEpx": 38.37,
+          "widthMeanTgtPx": 226.8,
+          "widthMeanOursPx": 260.8
+        },
+        "front": {
+          "yTopTgt": 130,
+          "yBotTgt": 675,
+          "lower40Lo": 457,
+          "nTgtHemCols": 308,
+          "nBothHemCols": 293,
+          "coverage": 0.9512987012987013,
+          "yBottomMAEpx": 47.54,
+          "widthMAEpx": 13.65,
+          "widthMeanTgtPx": 84.2,
+          "widthMeanOursPx": 70.6
+        },
+        "profile_90": {
+          "yTopTgt": 126,
+          "yBotTgt": 870,
+          "lower40Lo": 572,
+          "nTgtHemCols": 292,
+          "nBothHemCols": 292,
+          "coverage": 1.0,
+          "yBottomMAEpx": 32.12,
+          "widthMAEpx": 36.24,
+          "widthMeanTgtPx": 65.0,
+          "widthMeanOursPx": 84.5
+        }
+      },
+      "n": 99945
+    }
+  }
+}

@@ -1,0 +1,164 @@
+{
+  "engine": "BLENDER_EEVEE",
+  "cameraManifest": "tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json",
+  "stageColors": {
+    "baseline_lt5mm": [
+      0.12,
+      0.32,
+      0.8,
+      1
+    ],
+    "far_snap": [
+      0.95,
+      0.95,
+      0.95,
+      1
+    ],
+    "part_sweep": [
+      0.1,
+      0.75,
+      0.95,
+      1
+    ],
+    "persistent_offset": [
+      0.1,
+      0.85,
+      0.55,
+      1
+    ],
+    "depth_servo": [
+      0.55,
+      0.9,
+      0.1,
+      1
+    ],
+    "coarse_clump": [
+      1.0,
+      0.7,
+      0.05,
+      1
+    ],
+    "fine_clump": [
+      1.0,
+      0.35,
+      0.05,
+      1
+    ],
+    "length_jitter": [
+      0.9,
+      0.1,
+      0.55,
+      1
+    ],
+    "hairline_taper": [
+      0.7,
+      0.15,
+      0.95,
+      1
+    ],
+    "ear_keepout": [
+      0.2,
+      1.0,
+      0.2,
+      1
+    ],
+    "sdf_project_outside": [
+      1.0,
+      0.05,
+      0.05,
+      1
+    ],
+    "part_clamp_reproject": [
+      0.55,
+      0.05,
+      0.05,
+      1
+    ]
+  },
+  "panels": {
+    "back-knot": {
+      "view": "back",
+      "boxRowCol": [
+        150,
+        420,
+        512,
+        765
+      ],
+      "nChildren": 31766,
+      "guideCount": 590,
+      "finalColorGroups": {
+        "baseline_lt5mm": 658,
+        "part_sweep": 3,
+        "depth_servo": 20,
+        "coarse_clump": 18085,
+        "fine_clump": 1900,
+        "length_jitter": 3942,
+        "sdf_project_outside": 6601,
+        "part_clamp_reproject": 557
+      }
+    },
+    "behind-ear-loops": {
+      "view": "profile_90",
+      "boxRowCol": [
+        270,
+        550,
+        250,
+        530
+      ],
+      "nChildren": 70124,
+      "guideCount": 1329,
+      "finalColorGroups": {
+        "baseline_lt5mm": 1253,
+        "depth_servo": 158,
+        "coarse_clump": 40220,
+        "fine_clump": 3009,
+        "length_jitter": 6850,
+        "hairline_taper": 3317,
+        "sdf_project_outside": 15282,
+        "part_clamp_reproject": 35
+      }
+    },
+    "sideburn-tuft": {
+      "view": "three_quarter",
+      "boxRowCol": [
+        330,
+        610,
+        380,
+        660
+      ],
+      "nChildren": 57801,
+      "guideCount": 1137,
+      "finalColorGroups": {
+        "baseline_lt5mm": 1489,
+        "depth_servo": 45,
+        "coarse_clump": 34116,
+        "fine_clump": 2300,
+        "length_jitter": 6657,
+        "hairline_taper": 648,
+        "sdf_project_outside": 11940,
+        "part_clamp_reproject": 606
+      }
+    },
+    "hairline-band": {
+      "view": "front",
+      "boxRowCol": [
+        98,
+        196,
+        291,
+        733
+      ],
+      "nChildren": 42766,
+      "guideCount": 463,
+      "finalColorGroups": {
+        "baseline_lt5mm": 6059,
+        "part_sweep": 312,
+        "depth_servo": 1529,
+        "coarse_clump": 24519,
+        "fine_clump": 1505,
+        "length_jitter": 990,
+        "sdf_project_outside": 5145,
+        "part_clamp_reproject": 2707
+      }
+    }
+  }
+}

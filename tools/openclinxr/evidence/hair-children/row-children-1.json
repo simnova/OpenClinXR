@@ -1,0 +1,33 @@
+{
+ "attempts": [],
+ "cap": {
+  "area_cm2": 620.0596648350684,
+  "uv": "UVMap",
+  "zero_uv_faces": 0,
+  "island_overlap_shifted": true
+ },
+ "control": [
+  {
+   "att": 0,
+   "mask": "oclx_ctl_mask",
+   "part": true,
+   "curves": 0,
+   "pcs": []
+  },
+  {
+   "att": 1,
+   "mask": null,
+   "part": true,
+   "curves": 0,
+   "pcs": []
+  },
+  {
+   "att": 2,
+   "mask": null,
+   "part": false,
+   "curves": 0,
+   "pcs": []
+  }
+ ],
+ "stop": "control M3 failed x3"
+}

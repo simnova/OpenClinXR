@@ -1,0 +1,10 @@
+{
+ "buildJsonSha": "74a3eefb18b986e7d082bbc670f068692965024ffb92ee7d2140f76265f11c58",
+ "buildJsonMatch": true,
+ "storeSha": "74a3eefb18b986e7d082bbc670f068692965024ffb92ee7d2140f76265f11c58",
+ "rebuildSha": "d6230415685f2a9aee50de9344ced42f829279ca8cd95eb3cfd3ef0490a78175",
+ "storeArrSha": "96a752af491f6fa782c4fc85e7c4410f2aa50f5193d375f5197e0069f6f3fb7b",
+ "rebuildArrSha": "f59e06ad5fcf3b73034f6710a3282da1bd747eef91b7f61d4855e693cfbaeb29",
+ "pass": false,
+ "note": "children-stage determinism only (pre-settle); settle.py is deterministic by construction (no RNG) and re-run separately"
+}

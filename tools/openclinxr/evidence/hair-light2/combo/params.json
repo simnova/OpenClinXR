@@ -1,0 +1,72 @@
+{
+  "params": {
+    "root_dark": 0.3
+  },
+  "improvingProbes": [],
+  "renders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/combo/front.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/combo/front-id.png"
+    },
+    "three_quarter": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/combo/three_quarter.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/combo/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/combo/profile_90.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/combo/profile_90-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/combo/back.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/combo/back-id.png"
+    },
+    "crown_top": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/combo/crown_top.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/combo/crown_top-id.png"
+    }
+  },
+  "metrics": {
+    "crown_part_band": {
+      "pixels": 4800,
+      "p50": 0.24472470588235296,
+      "p90": 0.3954556862745098,
+      "RB": 1.2491272600954197,
+      "mean_luminance": 0.257950398366013
+    },
+    "sides": {
+      "pixels": 31983,
+      "p50": 0.07332078431372548,
+      "p90": 0.20305176470588235,
+      "RB": 1.6390369719963809,
+      "mean_luminance": 0.09644416799856295
+    },
+    "lower_sheet": {
+      "pixels": 31563,
+      "p50": 0.018738039215686276,
+      "p90": 0.12789568627450978,
+      "RB": 1.7821960196968445,
+      "mean_luminance": 0.04355336915338324
+    },
+    "whole_front": {
+      "pixels": 81673,
+      "p50": 0.08703607843137255,
+      "p90": 0.2629529411764706,
+      "RB": 1.4876405028729098,
+      "mean_luminance": 0.11360846863496539
+    },
+    "part_side_ratio": 2.674608571146122,
+    "cheek": {
+      "box_norm": [
+        0.39,
+        0.4,
+        0.61,
+        0.52
+      ],
+      "pixels": 27615,
+      "p50": 0.7490682352941176
+    },
+    "mask_area_px_native": 81673,
+    "mask_area_px": 81673,
+    "mask_area_change_pct": -0.8786727672123985
+  }
+}

@@ -1,0 +1,39 @@
+{
+ "keptFinal": 368926,
+ "nCompPost": 706,
+ "sideL": 824,
+ "sideR": 846,
+ "L_over_R": 0.974,
+ "sidePass08_125": true,
+ "belowShoulder": {
+  "front": {
+   "vox": 0,
+   "mm3": 0.0,
+   "minZmm": null,
+   "fracOfBelow": 0.0
+  },
+  "sideL": {
+   "vox": 824,
+   "mm3": 6592.0,
+   "minZmm": 1323.0,
+   "fracOfBelow": 0.0074
+  },
+  "sideR": {
+   "vox": 846,
+   "mm3": 6768.0,
+   "minZmm": 1289.0,
+   "fracOfBelow": 0.0076
+  },
+  "back": {
+   "vox": 109462,
+   "mm3": 875696.0,
+   "minZmm": 1255.0,
+   "fracOfBelow": 0.985
+  },
+  "totalBelow": {
+   "vox": 111132,
+   "mm3": 889056.0
+  },
+  "shoulderPlaneZ": 1405.0
+ }
+}

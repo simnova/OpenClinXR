@@ -1,0 +1,94 @@
+hair target 4: hair TUCKED BEHIND THE EARS in every view
+============================================================
+
+WHY: operator direction: tuck the hair BEHIND THE EARS in every view so the
+views agree. In aisha-v2 the profile already shows the ear exposed with the
+hair behind it, while the front and three_quarter cover the ears: an
+inconsistency the carve would have to resolve. The approved look otherwise
+stays (long straight dark brown hair, centre part, all length behind the
+shoulders).
+
+STEP 1 - profile + back carried unchanged into T (gitignored scratch
+.openclinxr/scratch/target-views/aisha-v3/)
+  Copied from aisha-v2, md5-verified identical (v2 -> v3):
+    source-profile_90.png a9a417a3dd3045d8d5f4d256cc502e1d
+    source-back.png       624640a49cc6a36235bb194630817d58
+    target-profile.png    7738d44ec3ceaa1378327abb1dcc23f9
+    target-back.png       2f69726f8c9802c7b3f4f32396364af9
+    mask-profile.png      288fd1c9435fa2b21a812ff6111d81ae
+    mask-back.png         81201caae18951e0f169d150d6f6ec84
+  (sources front/three_quarter copied from aisha-v1 for the regen inputs.)
+  Profile ear check (how checked: ear landmark region vs mask): pose ear
+  landmarks on the BALD source-profile_90.png (ear7 @362.8,384.4 pres 0.984;
+  ear8 @354.8,378.5 pres 0.991; both project onto the one visible ear, as
+  expected in profile), 90x110 px boxes; hair-mask (target2 recipe) coverage
+  inside boxes 0.1299/0.1804 -> uncovered 0.8701/0.8196, both >= 0.80 PASS.
+  Read of target-profile.png confirms: ear fully exposed, hair edge starts
+  behind the ear and falls straight down BEHIND the shoulder.
+  (check_a inbody-below frac 0.060 is N/A for profile: the behind-shoulder
+  curtain legitimately overlaps the back silhouette in 2D projection;
+  target2's profile hair-inside-body was 0.69 for the same reason.)
+
+STEP 2 - FRONT + THREE_QUARTER regeneration (target2/target3 pipeline:
+image_edit on aisha-v1/source-<view>.png, aspect 1:1, driver
+--model muse-spark-1-go; fallback nemotron-ultra armed, never needed;
+NEVER grok-4.7). Brief prompt verbatim (TUCKED BEHIND BOTH EARS ... NO hair
+in front of the shoulders or on the chest).
+  Baseline (why regen was needed): same checks on aisha-v2 targets FAIL
+  check_b: v2 front ears uncovered 0.5249/0.7755 (hair covers ears);
+  v2 three_quarter near-ear uncovered 0.0842 (hair covers ear).
+  Front attempt 1: PASS. check_a inbody-below-shoulder 0/78754 = 0.0 < 0.01;
+  ears uncovered 0.9248/0.9976 (>= 0.80 both). Read: both ears fully visible,
+  centre part, side locks narrow past the jaw and vanish behind the
+  neck/shoulders, shirt bare. Kept as target-front.png (copy of
+  target-front-a1.png, 109124 bytes). No further attempts.
+  Three_quarter attempt 1: PASS. check_a 0/103799 = 0.0; near ear uncovered
+  0.9617, far box 1.0. Read: near ear fully visible, hair tucked behind it
+  and falling behind the shoulder, crown centre part kept. Kept as
+  target-three_quarter.png (copy of target-three_quarter-a1.png,
+  112781 bytes). No further attempts.
+  Tool errors/moderation: none (refs.json errors: []).
+
+STEP 3 - alignment + masks, target2/target3 method (T/mask-front.png,
+T/mask-three_quarter.png, T/overlay-front.png, T/overlay-three_quarter.png,
+T/mask-overlay-*.png all READ before use)
+  Face mesh: eyes p95 front 1.02 px / tq 3.17 px; rigid nose/eye/brow p95
+  front 2.30 / tq 3.72 (max 4.26). Face-interior ECC: front 0.04 px,
+  tq 0.02 px. Edge overlays READ: eyes/nose/mouth/chin coincide (white);
+  red/cyan fringes only on the new hair mass and the bald-crown boundary.
+  VERDICT: both views ALIGNED (no trustworthy signal > 6 px). Pose
+  landmarker excluded per target2 (systematic portrait-crop bias).
+  Masks (target2 colour/diff/morphology/head-ROI/fill-holes rule): front
+  78754 px (7.51% frame), three_quarter 103799 px (9.90%). Overlays READ:
+  masks cover the hair masses, faces and ears clean.
+  Profile/back masks are the md5-identical carried v2 files (149114 /
+  335684 px per target2 masks.json).
+
+STEP 4 - cross-view consistency (ear exposed in front, three_quarter,
+profile; curtains end at the shoulder silhouette in front, target3 step 4)
+  Ear uncovered fractions (hair-mask coverage inside source pose-ear boxes):
+    front 0.9248 / 0.9976; three_quarter 0.9617 / 1.0; profile 0.8701 / 0.8196.
+  All views: ears exposed, hair behind them. PASS.
+  Front curtains: lowest mask rows 630 (left band @x402) / 639 (right band
+  @x646); locks terminate at the neck/shoulder slope where they slip behind
+  the body (above acromion row 807.2); chest-box (x450-600, y650-1023) hair
+  0 px; below-acromion in-body hair 0 px. Rest of the length continues down
+  the back, agreeing with the profile rear curtain and the back view.
+  PASS.
+
+STEP 5 - this record (E/sheet.png rows source | aisha-v2 | aisha-v3 |
+v3 mask overlay, cols front/three_quarter/profile/back; E/RESULT.txt;
+E/DONE.txt). E holds sheet.png (read before ship), RESULT.txt, DONE.txt.
+T images are gitignored scratch; commit holds only E. Back row3 == row2
+(back carried unchanged, md5-identical).
+
+SAW: T/source-*.png, T/target-*.png (front/tq = a1 PASS kept; profile/back
+  md5-same as v2), T/target-front-a1.png, T/target-three_quarter-a1.png
+  (kept originals), T/mask-*.png, T/mask-overlay-*.png, T/overlay-front.png,
+  T/overlay-three_quarter.png, T/alignment-v3.json, T/ecc-v3.json,
+  T/check_v3.py, T/align_v3.py, T/refs.json (2 attempts, 0 further needed),
+  T/prompt-front-a1.md, T/prompt-three_quarter-a1.md, T/run-front-a1.json,
+  T/run-three_quarter-a1.json, E/sheet.png (read before ship).
+NOT TESTED: downstream groom fit against these targets; scorer-vs-target
+  registration numbers; 3D length agreement of the back curtain with the
+  side views beyond the 2D reads here.

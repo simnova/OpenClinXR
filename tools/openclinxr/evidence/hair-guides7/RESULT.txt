@@ -1,0 +1,45 @@
+RESULT::hair-guides-7
+G1::n=594 pts=32 nan=0 trunc=1.8% | [536,656] 32pts 0NaN <=5% PASS
+G2::inside=1384 (shirt 1363, head 21) min=0.13mm | 0 and >=1.5mm MISS
+G3::eye=0.384 jaw=0.328 | eye [0.32,0.41] jaw [0.38,0.50] MISS (jaw)
+G4::guides-mask earSkinL=0 earSkinR=0 profHair=0.53 | render passB earSkinL=291 earSkinR=66 (G6: 235/12) | <=20/side and prof>=0.90 MISS
+G5::ear=81.6mm (86.3 PASS-range) hem=135.7mm (120.7 MISS) | ±10% MISS (hem)
+G6::p95=20.66 max=263.44 short=403 (G6: 21.38/773.63/138) | p95<=10 and max<=45 and 0 MISS
+G7::maxgap=177.5mm (offline no-wrap L=175.7 R=21.1) | <=8mm MISS
+G8::hairPx=140 (G6: 14) | 0 MISS
+X1::IoU 0.6218 | 0.6458 | >=0.80
+X1::eroded-IoU 0.5365 | 0.5147 | >=0.80
+X1::width_rms 0.2211 | 0.1984 | <=0.10
+X1::below_chin 0.5796 vs 0.5512 | 0.5796 vs 0.5512 | |d|<=0.10 (d=0.028 clause-PASS)
+X1::part_px 47 vs 22 | 45 vs 22 | tgt 22
+X1::show-through 0.0014 PASS | 0.0000 PASS | <=0.03
+X1::standing_hair FLAG 15px | FLAG 15px vs 14.4 | no-flag
+X1::score n/a | 0.8932 (G6 0.9284) | lower-better
+X1::openings eye ours 0.431 (tgt 0.494) jaw ours 0.374 (tgt 0.350) | +-0.15 PASS/PASS
+X2::rendered front-id half-width ours vs target (mm @2.28px/mm): r583/607 92.6 vs 91.7; r657 98.7 vs 96.1; r707 107.5 vs 108.4; r757 118.1 vs 116.3; r807 119.8 vs 120.7; hem 864/859 53.1 vs 81.2
+ATTEMPTS::(1) F_hem=15mm + first-inside truncate: n=528 G1 MISS trunc=29.4% drop=68, G5 PASS(80.2/125.2), G8=146, G6 25.81/302.60/1832, stubs+magenta wings in tubes
+ATTEMPTS::(2) F_hem=8mm + push-rescue: n=438 G1 MISS drop_post=156 (Catmull-Rom overshoot after pushes), G8=0 PASS, G5 MISS(81.6/135.7), G6 20.48/263.44/279
+ATTEMPTS::(3, KEPT) F_hem=8mm + trailing-trim + post-resample freeze: n=594 G1 PASS trunc=1.8%, M4 run on this set
+P1::surface exits n=260; y>ear_y 24; y in [ear_y-25mm, ear_y+10mm] 111; M1 band [ear_y-30mm, ear_y+25mm] 143 -> m1side kept 141
+P2::target outer hw mm (1024 frame): 607:91.8, 657:96.1, 707:108.4, 757:116.3, 807:120.7, hem-tip 859:81.2
+SAW::front: dense canopy, clean part; curtains fall straight to chest, inner edges nearer the face than G6 (gap 0.384 vs 0.402); left helix sliver exposed (291px render); right ear covered (66px peek); blunt hem at chest with wispy tail; flyaway fringe left cheek; pink tongue strip under chin (pre-existing scene artifact, also in G6).
+SAW::three_quarter: curtain falls straight in front of the ear to the chest; helix exposed at the side; vertical panel seam where curtain meets side mass; back mass drapes over the shoulder; no wing or shelf at ear level.
+SAW::profile: pinna FULLY exposed between the front curtain (front sheet) and the back mass (behind sheet); notch/shelf dip above the ear where the side sheet should lie; back mass straight to mid-back; hem at shoulder-back. Ear gap NOT closed.
+SAW::back: full coverage to mid-back; center part line visible down the back crown; both pinnae peek at the silhouette sides; blunt straight hem; sparse flyaway wisps at the right hem (flare outliers); faint reddish sheen bands.
+SAW::crown_top: dense continuous canopy; clean full-length part line; copper scalp strip along the part (45px); no lane gutters; ear tips at the sides.
+SAW::side-sheet-over-ear? NO: left side guides contact-end on the pinna top (175mm ear-row hole); profile shows two separate sheets.
+SAW::lower-half-widen? PARTIAL: rendered mid-shaft widths match target within 2.4mm (X2), width_rms 0.221->0.198; hem stays blunt/straight, tip tails differ (53 vs 81mm).
+SAW::wing/shelf/panel-edge? no lateral wings in children; mild shelf notch above the ear in profile; vertical panel seam at the curtain-side junction (three-quarter/front).
+SAW::shoulders-front/back? front panels rest on the chest; back mass lies over the shoulders to mid-back with a blunt hem across.
+SAW::hem? blunt straight (guide hem-pin + constant profile inherited), wispy tail below the cut.
+CAUSE::G2 MISS: M2 flare pushes hem guides laterally into the shirt shoulders (1363 shirt pts vs G6 86); head-inside down 137->21 (M1 over-ear helped); min>=1.5mm incompatible with 3mm-offset authoring in pinch zones (G6 min 0.01mm, same family).
+CAUSE::G3-jaw MISS (0.328): M1 side guides stop surface at ear_top+5mm then fall straight from temple x (~35mm half-gap), medial to the 48mm face line at jaw rows; eye 0.384 still in bar.
+CAUSE::G4 MISS: M1 straight-down guides land on the pinna top -> blocked x3 -> contact-end above the ear (left 175mm ear-row hole, 117/594 guides never reach ear row) -> children leave the helix exposed (front 291px vs G6 235; profile pinna exposed; tubes proxy 0.53). Pinna needs tangential bypass, out of scope after 3 attempts.
+CAUSE::G5-hem MISS (135.7 vs 120.7+-12.1): guides already at ~122mm with no flare; F_hem=8mm overshoots; F=0 would PASS (kept per brief expectation 12-20mm; rendered mid-shaft already matched).
+CAUSE::G6 MISS: contact-ended short guides (CE 107 vs G6 29; M3 4mm min-step ends guides earlier on shoulder/pinna) -> 403 shorts; slide kinks p95 20.7 (G6 21.4, same shoulder-dome tangent family); max 263 improved vs 774 (45deg kink-drop works).
+CAUSE::G7 MISS: left ear-row sector hole 175mm (M1 contact-ends, see G4); right side 21mm (sparse side sheet). Script wraps each side closed, so R's 176 of 177.5 is a wrap chord; offline no-wrap L=175.7/R=21.1, verdict MISS either way.
+CAUSE::G8 MISS (140 vs G6 14): narrower gap (0.384 vs target 0.494) puts curtain fringe inside the eye box; dense eye row itself clear.
+COMMIT::fb1c6ee60
+STILL::G2/G3-jaw/G4/G5-hem/G6/G7/G8 MISS (causes above); D2 ear gap persists in children (front 291px, profile pinna exposed); D1 partial (mid-shaft matched, hem blunt); standing_hair FLAG 15 vs 14.4 (same as G6); pink tongue strip; back part line; blunt hem.
+BRIEF_MISSING::(1) G7 script closes each side loop when measuring (wrap chord inflates R; offline no-wrap L=175.7/R=21.1, MISS either way). (2) G5 hem target 120.7mm = P2 r807 max-width row (blunt hem corresponds to max-width rows, not the 81.2mm wispy tip). (3) G4 render-level uses passB beauty+ID with the G6 skin rule rows 330-420 (mine G6 280/16 vs RESULT 235/12: rule-variant offset, trend holds). (4) M2 chin-|x| rank is exact: flare is 0 above menton so the dry-run chin x equals the flared-run chin x. (5) EAR_BOT = ear_top-30mm pinna-height estimate (no separate pinna mesh; pinna is part of OCLX_Aisha_head). (6) BL/blend.py ran unmodified (--guides E/guides7.npz --out E/blend --pass A|B, then --phase assemble which itself runs judge v3 --landmarks 103,583,512). (7) check-guides7.mjs --self-test catches a planted violation of all 8 gates; file list verified incl RESULT.txt.
+HARM::none (local Blender renders + numpy only; no external calls; no push; no clinical/Quest claims)

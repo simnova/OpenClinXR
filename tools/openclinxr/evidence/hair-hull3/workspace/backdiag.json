@@ -1,0 +1,234 @@
+{
+ "rejectedVoxInBackMask": 2732773,
+ "bands": [
+  {
+   "cols": [
+    0,
+    127
+   ],
+   "rejectedVoxInBackMask": 0,
+   "anyRejectFrac": {
+    "front": 0.0,
+    "three_quarter": 0.0,
+    "profile_90": 0.0
+   },
+   "soleRejectFrac": {
+    "front": 0.0,
+    "three_quarter": 0.0,
+    "profile_90": 0.0
+   },
+   "multiRejectFrac": 0.0,
+   "meanWorldXmm": null
+  },
+  {
+   "cols": [
+    128,
+    255
+   ],
+   "rejectedVoxInBackMask": 0,
+   "anyRejectFrac": {
+    "front": 0.0,
+    "three_quarter": 0.0,
+    "profile_90": 0.0
+   },
+   "soleRejectFrac": {
+    "front": 0.0,
+    "three_quarter": 0.0,
+    "profile_90": 0.0
+   },
+   "multiRejectFrac": 0.0,
+   "meanWorldXmm": null
+  },
+  {
+   "cols": [
+    256,
+    383
+   ],
+   "rejectedVoxInBackMask": 521733,
+   "anyRejectFrac": {
+    "front": 0.6863,
+    "three_quarter": 0.8641,
+    "profile_90": 0.9804
+   },
+   "soleRejectFrac": {
+    "front": 0.0082,
+    "three_quarter": 0.0108,
+    "profile_90": 0.107
+   },
+   "multiRejectFrac": 0.8739,
+   "meanWorldXmm": 93.1
+  },
+  {
+   "cols": [
+    384,
+    511
+   ],
+   "rejectedVoxInBackMask": 877379,
+   "anyRejectFrac": {
+    "front": 0.6099,
+    "three_quarter": 0.8113,
+    "profile_90": 0.994
+   },
+   "soleRejectFrac": {
+    "front": 0.0028,
+    "three_quarter": 0.0023,
+    "profile_90": 0.1735
+   },
+   "multiRejectFrac": 0.8214,
+   "meanWorldXmm": 36.3
+  },
+  {
+   "cols": [
+    512,
+    639
+   ],
+   "rejectedVoxInBackMask": 859803,
+   "anyRejectFrac": {
+    "front": 0.6328,
+    "three_quarter": 0.7557,
+    "profile_90": 0.9188
+   },
+   "soleRejectFrac": {
+    "front": 0.0074,
+    "three_quarter": 0.0333,
+    "profile_90": 0.2365
+   },
+   "multiRejectFrac": 0.7227,
+   "meanWorldXmm": -34.9
+  },
+  {
+   "cols": [
+    640,
+    767
+   ],
+   "rejectedVoxInBackMask": 473858,
+   "anyRejectFrac": {
+    "front": 0.754,
+    "three_quarter": 0.7762,
+    "profile_90": 0.8128
+   },
+   "soleRejectFrac": {
+    "front": 0.0205,
+    "three_quarter": 0.0375,
+    "profile_90": 0.2015
+   },
+   "multiRejectFrac": 0.7405,
+   "meanWorldXmm": -93.8
+  },
+  {
+   "cols": [
+    768,
+    895
+   ],
+   "rejectedVoxInBackMask": 0,
+   "anyRejectFrac": {
+    "front": 0.0,
+    "three_quarter": 0.0,
+    "profile_90": 0.0
+   },
+   "soleRejectFrac": {
+    "front": 0.0,
+    "three_quarter": 0.0,
+    "profile_90": 0.0
+   },
+   "multiRejectFrac": 0.0,
+   "meanWorldXmm": null
+  },
+  {
+   "cols": [
+    896,
+    1023
+   ],
+   "rejectedVoxInBackMask": 0,
+   "anyRejectFrac": {
+    "front": 0.0,
+    "three_quarter": 0.0,
+    "profile_90": 0.0
+   },
+   "soleRejectFrac": {
+    "front": 0.0,
+    "three_quarter": 0.0,
+    "profile_90": 0.0
+   },
+   "multiRejectFrac": 0.0,
+   "meanWorldXmm": null
+  }
+ ],
+ "edgeNoisePx": {
+  "front": {
+   "p50": 0.0,
+   "p95": 0.0,
+   "max": 1.0,
+   "fracGt2px": 0.0,
+   "xorFrac": 0.00055
+  },
+  "three_quarter": {
+   "p50": 0.0,
+   "p95": 0.0,
+   "max": 1.0,
+   "fracGt2px": 0.0,
+   "xorFrac": 0.00059
+  },
+  "profile_90": {
+   "p50": 0.0,
+   "p95": 1.0,
+   "max": 1.0,
+   "fracGt2px": 0.0,
+   "xorFrac": 0.00086
+  },
+  "back": {
+   "p50": 0.0,
+   "p95": 1.0,
+   "max": 1.0,
+   "fracGt2px": 0.0,
+   "xorFrac": 0.00098
+  }
+ },
+ "dilExtra3q": 0,
+ "backSymTarget": {
+  "L": 168141,
+  "R": 167543,
+  "L_over_R": 1.0036,
+  "min_over_max": 0.9964
+ },
+ "backSymHullSplat": {
+  "L": 89013,
+  "R": 106090,
+  "L_over_R": 0.839,
+  "min_over_max": 0.839
+ },
+ "backMissPx": 143653,
+ "backMissBelowHeadPx": 96137,
+ "backCutoffRow": 458.5,
+ "belowShoulderBase": {
+  "front": {
+   "vox": 0,
+   "mm3": 0.0,
+   "minZmm": null,
+   "fracOfBelow": 0.0
+  },
+  "sideL": {
+   "vox": 4947,
+   "mm3": 39576.0,
+   "minZmm": 1255.0,
+   "fracOfBelow": 0.0339
+  },
+  "sideR": {
+   "vox": 1183,
+   "mm3": 9464.0,
+   "minZmm": 1285.0,
+   "fracOfBelow": 0.0081
+  },
+  "back": {
+   "vox": 139807,
+   "mm3": 1118456.0,
+   "minZmm": 1255.0,
+   "fracOfBelow": 0.958
+  },
+  "totalBelow": {
+   "vox": 145937,
+   "mm3": 1167496.0
+  },
+  "shoulderPlaneZ": 1405.0
+ }
+}

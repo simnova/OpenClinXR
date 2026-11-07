@@ -1,0 +1,42 @@
+{
+ "buildJsonSha": "74a3eefb18b986e7d082bbc670f068692965024ffb92ee7d2140f76265f11c58",
+ "buildJsonMatch": true,
+ "refSha": "74a3eefb18b986e7d082bbc670f068692965024ffb92ee7d2140f76265f11c58",
+ "rebuildSha": "74a3eefb18b986e7d082bbc670f068692965024ffb92ee7d2140f76265f11c58",
+ "refArrSha": "96a752af491f6fa782c4fc85e7c4410f2aa50f5193d375f5197e0069f6f3fb7b",
+ "rebuildArrSha": "96a752af491f6fa782c4fc85e7c4410f2aa50f5193d375f5197e0069f6f3fb7b",
+ "shapes": [
+  [
+   281414,
+   32,
+   3
+  ],
+  [
+   281414,
+   32,
+   3
+  ]
+ ],
+ "maxAbsDiffMm": 0.0,
+ "flags": [
+  "--region-weight",
+  "--uv-cutoff",
+  "0.15",
+  "--pool-max-move-mm",
+  "60",
+  "--pool-ref",
+  "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz",
+  "--temple-taper",
+  "0.5",
+  "--lobe-drop-roots",
+  "--sideburn-cap-lobe",
+  "--cap-reproject",
+  "--lobe-sweep-postcap",
+  "--shirt-sdf",
+  "/Volumes/files/openclinxr-assets/store/hair-groom31/shirt-sdf-4mm.npz",
+  "--shirt-clear-mm",
+  "0.5"
+ ],
+ "pass": true,
+ "note": "exact-recipe rebuild (no --lobe-tuck, per build-31 lobeTuck off); compares vs build-31/strands.npz"
+}

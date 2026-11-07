@@ -1,0 +1,15 @@
+hair-groom5 strands asset (big npz lives outside git):
+path: /Volumes/files/src/openclinxr/.openclinxr/asset-production/hair-groom5/strands.npz
+sha256: f3a2fbe32ba40c0f96c8c7244fc930444b9d44801e4ec0de3d9c1f537f0703b6
+bytes: 68611346
+children: 189853 (13/root + 7 extra x 834 part roots), pointsPer 32
+radiiMm: root 0.04 tip 0.04 (fixed, t^1.5 profile constant)
+rebuild: tools/openclinxr/hair-groom/strands/children.py --outdir <E>/
+  --guides tools/openclinxr/evidence/hair-groom4/tucked/guides-tucked.npz
+  --children-per-root 13 --r-root-mm 0.04 --r-tip-mm 0.04
+  --max-guide-gap-mm 15 --min-guide-len-mm 20 --len-trunc-sigma 1.0
+  --len-trunc-lo-sigma 2.0 --tuck-route 1 --tuck-k 20 --coarse-pull 0.2
+  --fine-pull 0.15 --ear-wrap 1
+  --ear-frame tools/openclinxr/evidence/hair-groom4/tucked/earframe.json
+  --tuck-blend 1 --ear-keep-mm 4.0 --ear-clump-cap-mm 30
+  --ear-clump-cap-w 0.3 --sideburn-short 1 --part-extra 7

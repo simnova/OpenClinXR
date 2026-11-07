@@ -1,0 +1,10 @@
+{
+  "tag": "c_best",
+  "base": "hair-ends1/base/strands.npz",
+  "deform": {
+    "cell": "best-combo",
+    "rule": "thin then taper then spread (same params, spread seed 1508)",
+    "n": 118000,
+    "thetaStd": 2.506
+  }
+}

@@ -1,0 +1,80 @@
+{
+ "ok": true,
+ "stage": "colour",
+ "error": "",
+ "blenderVersion": "5.1.1",
+ "exposureStops": -0.375,
+ "lightScale": 0.7711054127039704,
+ "iterations": [
+  {
+   "exposureStops": -0.375,
+   "lightScale": 0.7711054127039704,
+   "faceMeanLuminance": 0.6462689581657196,
+   "backgroundLuminance": 0.49618345109528184,
+   "meanHairLuminance": 0.19433439932129346,
+   "volume": 0.18098231927010694
+  }
+ ],
+ "cells": [
+  {
+   "cell": "cell_0.85_0.6.png",
+   "melanin": 0.85,
+   "redness": 0.6,
+   "meanHairLuminance": 0.20821172157709375,
+   "hairWarmth": 0.07186409207160409,
+   "faceMeanLuminance": 0.655221732952539
+  },
+  {
+   "cell": "cell_0.85_0.2.png",
+   "melanin": 0.85,
+   "redness": 0.2,
+   "meanHairLuminance": 0.2069906856733649,
+   "hairWarmth": 0.06237824230732325,
+   "faceMeanLuminance": 0.6560766082336692
+  },
+  {
+   "cell": "cell_0.92_0.6.png",
+   "melanin": 0.92,
+   "redness": 0.6,
+   "meanHairLuminance": 0.20570122276847616,
+   "hairWarmth": 0.054904039172539575,
+   "faceMeanLuminance": 0.657286379069313
+  },
+  {
+   "cell": "cell_0.92_0.2.png",
+   "melanin": 0.92,
+   "redness": 0.2,
+   "meanHairLuminance": 0.20510501955145088,
+   "hairWarmth": 0.047498309031961526,
+   "faceMeanLuminance": 0.6579186150877954
+  },
+  {
+   "cell": "cell_1.0_0.6.png",
+   "melanin": 1.0,
+   "redness": 0.6,
+   "meanHairLuminance": 0.2038501611576851,
+   "hairWarmth": 0.029839364390432218,
+   "faceMeanLuminance": 0.6595198043873935
+  },
+  {
+   "cell": "cell_1.0_0.2.png",
+   "melanin": 1.0,
+   "redness": 0.2,
+   "meanHairLuminance": 0.2037653508976616,
+   "hairWarmth": 0.02800329083943327,
+   "faceMeanLuminance": 0.6597066593979732
+  }
+ ],
+ "selected": "cell_0.85_0.2.png",
+ "targetHairWarmth": 0.14230547942908026,
+ "strandsAfter": 50265,
+ "lightCount": 3,
+ "worldName": "OCLX_grey_world",
+ "front-tone": "front-tone.png",
+ "threeQuarter-tone": "three_quarter-tone.png",
+ "colourSheet": "colour-tone.png",
+ "missingRefs": [
+  "front3b.png",
+  "front3b.png"
+ ]
+}

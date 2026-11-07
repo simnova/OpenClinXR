@@ -1,0 +1,293 @@
+{
+  "cell": "C1",
+  "partClosure": true,
+  "partFill": false,
+  "requested": 50000,
+  "evaluatedCurveCount": 50000,
+  "pointsPerCurve": 32,
+  "nanCount": 0,
+  "sha256": "883cae23c97b7705478e82b62938e4251ec6e4d58f537558c61cf3ebcdd9c3c3",
+  "sha256_twice_equal": true,
+  "crossings": 0,
+  "nearSlitPoints": 5,
+  "rootDensityBins": [
+    {
+      "binMm": [
+        0.0,
+        2.0
+      ],
+      "count": 1057,
+      "areaCm2": 12.919738434841685,
+      "densityPerCm2": 81.81280180947813
+    },
+    {
+      "binMm": [
+        2.0,
+        4.0
+      ],
+      "count": 1213,
+      "areaCm2": 16.08385975677031,
+      "densityPerCm2": 75.41722063880854
+    },
+    {
+      "binMm": [
+        4.0,
+        6.0
+      ],
+      "count": 1214,
+      "areaCm2": 15.360388712562584,
+      "densityPerCm2": 79.03445822351638
+    },
+    {
+      "binMm": [
+        6.0,
+        8.0
+      ],
+      "count": 1210,
+      "areaCm2": 14.666284687009194,
+      "densityPerCm2": 82.50214869153395
+    },
+    {
+      "binMm": [
+        8.0,
+        10.0
+      ],
+      "count": 1204,
+      "areaCm2": 15.711804319627642,
+      "densityPerCm2": 76.63028227101378
+    },
+    {
+      "binMm": [
+        10.0,
+        12.0
+      ],
+      "count": 1193,
+      "areaCm2": 14.869146882939225,
+      "densityPerCm2": 80.23325140252945
+    },
+    {
+      "binMm": [
+        12.0,
+        14.0
+      ],
+      "count": 1184,
+      "areaCm2": 15.727902521884365,
+      "densityPerCm2": 75.28022241697774
+    },
+    {
+      "binMm": [
+        14.0,
+        16.0
+      ],
+      "count": 1197,
+      "areaCm2": 14.22622903799885,
+      "densityPerCm2": 84.14035770145153
+    },
+    {
+      "binMm": [
+        16.0,
+        18.0
+      ],
+      "count": 1184,
+      "areaCm2": 15.395765345488153,
+      "densityPerCm2": 76.90426383037725
+    },
+    {
+      "binMm": [
+        18.0,
+        20.0
+      ],
+      "count": 1200,
+      "areaCm2": 14.54566688783122,
+      "densityPerCm2": 82.49879563816421
+    }
+  ],
+  "capAveragePerCm2": 79.019761107802,
+  "lateral": [
+    {
+      "rootBinMm": [
+        0.0,
+        2.0
+      ],
+      "n": 1057,
+      "medAt05mm": 5.288575885993693,
+      "medAt10mm": 9.522067823661272,
+      "medAt20mm": 17.641441820926715,
+      "medAt30mm": 25.55717681627306
+    },
+    {
+      "rootBinMm": [
+        2.0,
+        4.0
+      ],
+      "n": 1213,
+      "medAt05mm": 7.292330631147078,
+      "medAt10mm": 11.90604691698854,
+      "medAt20mm": 20.612449059873256,
+      "medAt30mm": 28.931331762746755
+    },
+    {
+      "rootBinMm": [
+        4.0,
+        6.0
+      ],
+      "n": 1214,
+      "medAt05mm": 9.34608154217235,
+      "medAt10mm": 14.018418806113578,
+      "medAt20mm": 22.687002882148708,
+      "medAt30mm": 30.74770547709324
+    },
+    {
+      "rootBinMm": [
+        6.0,
+        8.0
+      ],
+      "n": 1210,
+      "medAt05mm": 11.380410250009861,
+      "medAt10mm": 16.08118021059662,
+      "medAt20mm": 24.559087920058253,
+      "medAt30mm": 32.4324034434241
+    },
+    {
+      "rootBinMm": [
+        8.0,
+        10.0
+      ],
+      "n": 1204,
+      "medAt05mm": 13.424961485791847,
+      "medAt10mm": 18.128940732346656,
+      "medAt20mm": 26.46357145749055,
+      "medAt30mm": 34.18784188933718
+    }
+  ],
+  "ridge": {
+    "n": 1999,
+    "nNoScalp": 0,
+    "fracLe6mm": 1.0,
+    "p50mm": 0.0,
+    "p99mm": 0.10457616109265179,
+    "maxmm": 3.5286700473219192
+  },
+  "crownBand": {
+    "bandPx": 31.0,
+    "bandP90Px": 48.0,
+    "bandMaxPx": 518,
+    "bandMm": 11.546946755785934,
+    "bandP90Mm": 17.87914336379757,
+    "bandMaxMm": 192.9457554676488,
+    "pxPerM": 2684.6923828125
+  },
+  "frontBand": {
+    "bandPx": 22.0,
+    "bandP90Px": 29.0,
+    "bandMaxPx": 37,
+    "bandMm": 10.264494817177354,
+    "bandP90Mm": 13.530470440824695,
+    "bandMaxMm": 17.26301401070737,
+    "pxPerM": 2143.310546875,
+    "partRow": 153,
+    "centre": 512,
+    "frontPxPerM": 2143.310546875
+  },
+  "judge": {
+    "partPx": 41,
+    "iou": 0.6212758915519762,
+    "widthRms": 0.22109694530195653,
+    "eyeOurs": 0.4330572488265742,
+    "judgeShow": 0.0
+  },
+  "idShow": {
+    "fraction": 0.03232424645873802,
+    "region_px": 45817,
+    "nonhair_px": 1481,
+    "brow_row": 295,
+    "region_raw_px": 55807,
+    "opening_px": 9990
+  },
+  "radiusMinMax": {
+    "min": 4.999999873689376e-05,
+    "max": 4.999999873689376e-05
+  },
+  "renders": {
+    "front": {
+      "png": "tools/openclinxr/evidence/hair-part/cellC1/front.png",
+      "id_png": "tools/openclinxr/evidence/hair-part/cellC1/front-id.png"
+    },
+    "crown_top": {
+      "png": "tools/openclinxr/evidence/hair-part/cellC1/crown_top.png",
+      "id_png": "tools/openclinxr/evidence/hair-part/cellC1/crown_top-id.png"
+    }
+  },
+  "silhouette": "tools/openclinxr/evidence/hair-part/cap-silhouette-part.png",
+  "visible": [
+    "Human",
+    "OCLX_Aisha_head",
+    "OCLX_blend_partC1",
+    "OCLX_cam",
+    "OCLX_fill",
+    "OCLX_key",
+    "OCLX_rim",
+    "makeclothes_library_female_tight_jeans_pants",
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+    "makeclothes_library_toigo_t_shirt",
+    "mpfb_parent_tara_johnson_v1_body_mesh",
+    "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+    "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+    "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+  ],
+  "capInfo": {
+    "apexY": -0.053241077810525894,
+    "stripVertexCount": 604,
+    "solidVertexCount": 31070,
+    "uvMissingCount": 0,
+    "uvRule": "nearest head face, barycentric (fan tri for quads)",
+    "splitIslands": true,
+    "islandCount": 2,
+    "islandSizes": [
+      15837,
+      15837
+    ]
+  },
+  "radius": 5e-05,
+  "crownZ": 1.6599169969558716,
+  "apexY": -0.053241077810525894,
+  "generatorMeta": {
+    "fallback_all": false,
+    "fallback_count": 2895,
+    "attempts": {
+      "True": {
+        "kind": "pca",
+        "tris": 562,
+        "fails": [
+          "pca p95=25.3mm",
+          "cyl p95=116.5mm",
+          "yz p95=27.9mm",
+          "kept pca p95=25.3mm"
+        ]
+      },
+      "False": {
+        "kind": "pca",
+        "tris": 576,
+        "fails": [
+          "pca p95=24.1mm",
+          "cyl p95=106.7mm",
+          "yz p95=29.7mm",
+          "kept pca p95=24.1mm"
+        ]
+      }
+    },
+    "tipFactorMean": 0.9849606219419482,
+    "part_n_extra": 0,
+    "part_close": {
+      "affected": 1999,
+      "maxShiftMm": 2.849495844703731,
+      "riseMaxMm": 2.0000000000000004
+    },
+    "seconds_locate": 0.8787014999979874
+  },
+  "evalDiffMax": 5.960463633769564e-08,
+  "generatorSeconds": 24.172951874999853,
+  "wallSeconds": 117.62587633300427
+}

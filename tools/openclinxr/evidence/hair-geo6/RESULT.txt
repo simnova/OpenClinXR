@@ -1,0 +1,22 @@
+hair-geo6 RESULT
+
+D1 SIDE RAILS
+Cause: K1 g1's second strict max_deg=0 vertical end clamp turns interpolated outer curtain children into rails. The 2,000-base-child ablation counted rails as all=15, without collar transfer=11, without vertical clamp=0, without child interpolation=0; interpolation supplies the affected population, while disabling the clamp directly removes the column-forming operation.
+Change: at the identified clamp step, arc-trim >8 mm outliers to 6 mm inside the threshold before collision-safe verticalization; the final end direction remains bounded.
+Rail strands: 360 before -> 87 after (>8 mm detached-square-tail definition; per-strand g1 coordinates are in diagnosis.json).
+
+D2 SQUARE HEM
+Cause: g1 had a deterministic arc trim followed by identical-radius, square-ended vertical tails; last-40 mm distribution is recorded across x in diagnosis.json.
+Change: arc-length-only U trim, deterministic per-strand length jitter -6.000..6.000 mm, and a 25 mm radius taper to 30%; no hem bending.
+Hem: centre is 17.212 mm below sides; tip z std=8.328 mm; z min/p50/max=1333.736/1351.291/1380.763 mm.
+
+D3 CENTRE PART
+Cause: g1 root counts by half-width band 0-3/3-6/6-10 mm were 469/620/595; the four root gaps and cap slit widths are in diagnosis.json.
+Change: added 2073 roots at 0.65-1.0 mm from the part plus a 10 mm first-segment lean toward a 0.4 mm centre margin, rejoining by 25 mm.
+Part: root gap at four hairline-to-crown points=1.102, 1.111, 1.115, 1.112 mm (max 1.115 mm); 10 mm-arc post-collision gap is separately recorded in metrics.json; front part/side ratio=2.2140 (bar 1.6).
+
+GATES
+IoU front/profile/back f1=0.679282/0.681869/0.785769; g1=0.672547/0.682403/0.771218; delta=+0.006735/-0.000534/+0.014550; |delta|<=0.02=True.
+Collider inside points=0; end-angle p95 max=7.5222 deg.
+
+SAW: versus TS, the first remaining wrong read is the rigid rectangular curtain/helmet silhouette; residual sparse side fringe and the bright warm part still read before the improved rounded, tapered hem does.

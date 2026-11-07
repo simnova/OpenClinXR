@@ -1,0 +1,52 @@
+HAIR RIG 1 — CAMERA-RELATIVE LIGHT RE-SOLVE ON B9
+
+b9 = hair-tilt5/cells/s5/strands.npz (current best strands) + hair-look7/best-params.json COLOR material, scored with hair-score/score.py v2.
+
+RIM CHECK::hair-look1/station.py lights() sets OCLX_rim energy to SEARCH_BASE[rim_W] = 26.6544, ignoring params. Probe with sentinel params rim_W = 1234.5 through ST.lights + stock cell_rel.place_camera_relative (which only touches OCLX_key/OCLX_fill): OCLX_rim reads back 26.6544 on front and 26.6544 on back. Readback matches the hardcode to 6 decimals and never the sentinel, so the stock camera-relative path does NOT deliver rim energy. The search harness (rig.py place_rig) and the best 1024-px score (rigAdapter wrapping scorer.C.place_camera_relative) set OCLX_rim explicitly from params rim_W; per-eval readbacks in search.jsonl confirm delivery (eval22 rim readback = 12.0523 on all views).
+
+BEST RIG (search_best.json, eval 22, 512-px fitness 3.1634 vs stock-rig eval00 3.5444)::
+  key_energy = 132.3841 (stock effective 149.3767)
+  key_elev_deg = 28.9951 (stock effective 36.2003)
+  key_daz_deg = -34.2619 (stock effective -38.6600)
+  key_size_m = 1.8013 (stock effective 1.6327)
+  fill_energy = 51.1729 (stock effective 51.7919)
+  fill_elev_deg = 35.2187 (stock effective 28.8098)
+  rim_energy = 12.0523 (stock effective 26.6544)
+
+PER-VIEW PHOTOMETRICS (p50 / p90 / hueDeg / saturation, ours vs TS)::
+  base.front::p50=0.096053 vs TS 0.066064 (d +0.029988); p90=0.192053 vs TS 0.174715 (d +0.017338); hue=23.926 vs TS 14.000; sat=0.143 vs TS 0.193
+  best.front::p50=0.096053 vs TS 0.066064 (d +0.029988); p90=0.174201 vs TS 0.174715 (d -0.000515); hue=23.637 vs TS 14.000; sat=0.143 vs TS 0.193
+  base.three_quarter::p50=0.116494 vs TS 0.066878 (d +0.049616); p90=0.162117 vs TS 0.147584 (d +0.014533); hue=23.060 vs TS 21.266; sat=0.151 vs TS 0.193
+  best.three_quarter::p50=0.107817 vs TS 0.066878 (d +0.040940); p90=0.153991 vs TS 0.147584 (d +0.006407); hue=22.907 vs TS 21.266; sat=0.156 vs TS 0.193
+  base.profile_90::p50=0.141647 vs TS 0.096016 (d +0.045631); p90=0.170830 vs TS 0.160182 (d +0.010648); hue=22.440 vs TS 23.434; sat=0.149 vs TS 0.167
+  best.profile_90::p50=0.132180 vs TS 0.096016 (d +0.036164); p90=0.159631 vs TS 0.160182 (d -0.000551); hue=21.323 vs TS 23.434; sat=0.152 vs TS 0.167
+  base.back::p50=0.123504 vs TS 0.112289 (d +0.011214); p90=0.166867 vs TS 0.176686 (d -0.009819); hue=17.025 vs TS 20.516; sat=0.163 vs TS 0.232
+  best.back::p50=0.117878 vs TS 0.112289 (d +0.005589); p90=0.154593 vs TS 0.176686 (d -0.022093); hue=16.824 vs TS 20.516; sat=0.159 vs TS 0.232
+
+BANDS (lit highlight-band count x mean size px, ours vs TS)::
+  base.back::442x35.4 vs TS 849x16.4
+  best.back::520x29.3 vs TS 849x16.4
+  base.ear::73x11.8 vs TS 89x11.7
+  best.ear::82x10.5 vs TS 89x11.7
+
+IoU (judge v6, silhouette must be unchanged — strands frozen)::
+  front::base 0.6947 vs best 0.6947 (d +0.0000)
+  profile::base 0.6807 vs best 0.6807 (d +0.0000)
+  back::base 0.7696 vs best 0.7696 (d +0.0000)
+  base-vs-best ID-mask cross-IoU (geometry bit-identity check)::
+    front 1.000000 UNCHANGED
+    three_quarter 1.000000 UNCHANGED
+    profile_90 1.000000 UNCHANGED
+    back 1.000000 UNCHANGED
+
+FACE::cheek p50 base 0.733312 vs best 0.756608 (move 3.18% of base; gate <= 5% PASS)
+
+ORIENTATION (meanAbsErrDeg / histEMD, base vs best; strands frozen, light-driven jitter only)::
+  front::base 24.67/7.32 vs best 25.12/6.42
+  three_quarter::base 33.96/8.75 vs best 34.02/8.99
+  profile_90::base 32.21/23.38 vs best 33.02/24.59
+  back::base 24.12/7.29 vs best 25.19/8.53
+
+SAW::Against TS, the first wrong read is still per-view brightness: the re-solved rig (key 149.4->132.4 and lower at 29.0 deg, fill raised to 35.2 deg, rim halved 26.7->12.1) pulls three_quarter/profile/back medians toward TS and lands front p90 almost exactly (0.1742 vs TS 0.1747), but front p50 does not move (0.0961 vs TS 0.0661) and hue/saturation barely shift (front hue 23.6 vs 14.0, sat 0.14 vs 0.19) — the residual is diffuse body brightness the 7-dim rig cannot trade without tripping the 5% face gate (15 of 24 evals paid the +10 face penalty). Bands move the right way (back 442x35.4 -> 520x29.3 vs TS 849x16.4; ear 73x11.8 -> 82x10.5 vs TS 89x11.7) yet stay far from TS fragmentation, and orientation is flat (strands frozen). Next load-bearing step is geometry/fragmentation, not light.
+
+NOT TESTED::Physical Quest 3 / worn-headset evidence; clinical validity/ scoring claims (out of scope per repo guardrails).

@@ -1,0 +1,597 @@
+{
+ "combo": {
+  "edge": {
+   "front": {
+    "ours": {
+     "tw": 9.04,
+     "maxgrad": 0.071,
+     "dark": 0,
+     "part": {
+      "rows": [
+       83,
+       93,
+       103,
+       113,
+       123,
+       133,
+       143,
+       153
+      ],
+      "widthsPx": [
+       0,
+       0,
+       0,
+       8,
+       8,
+       8,
+       8,
+       8
+      ],
+      "detectFrac": 0.625,
+      "meanWidthPx": 8.0,
+      "medianWidthPx": 8.0,
+      "meanLum": 0.2977
+     }
+    },
+    "tgt": {
+     "tw": 17.84,
+     "dark": 0,
+     "part": {
+      "rows": [
+       116,
+       126,
+       136,
+       146,
+       156,
+       166,
+       176,
+       186
+      ],
+      "widthsPx": [
+       0,
+       0,
+       0,
+       0,
+       5,
+       5,
+       10,
+       15
+      ],
+      "detectFrac": 0.5,
+      "meanWidthPx": 8.75,
+      "medianWidthPx": 2.5,
+      "meanLum": 0.2446
+     }
+    }
+   },
+   "three_quarter": {
+    "ours": {
+     "tw": 15.77,
+     "maxgrad": 0.15,
+     "dark": 0,
+     "part": {}
+    },
+    "tgt": {
+     "tw": 14.18,
+     "dark": 0,
+     "part": {}
+    }
+   }
+  },
+  "iou": {
+   "back": 0.7657,
+   "front": 0.7296,
+   "profile": 0.6895
+  },
+  "orientation": {
+   "front": 25.55,
+   "three_quarter": 32.7,
+   "profile_90": 31.23,
+   "back": 23.97
+  },
+  "bands": {
+   "backCount": 556,
+   "earCount": 157
+  },
+  "crownTop": {
+   "0-10": 0.0238,
+   "10-20": 0.0433,
+   "20-30": 0.0293,
+   "30-50": 0.0054
+  },
+  "partSide": {
+   "hairlineRow": 171,
+   "partSide": 1.254
+  },
+  "ruler": {
+   "front": {
+    "pixels": 23422,
+    "meanLum": 0.1433,
+    "meanHueDeg": 22.9988,
+    "orangeFrac": 0.0073
+   },
+   "back": {
+    "pixels": 22502,
+    "meanLum": 0.1328,
+    "meanHueDeg": 22.6608,
+    "orangeFrac": 0.0
+   }
+  }
+ },
+ "fade_skin": {
+  "edge": {
+   "front": {
+    "ours": {
+     "tw": 10.1,
+     "maxgrad": 0.067,
+     "dark": 0,
+     "part": {
+      "rows": [
+       83,
+       93,
+       103,
+       113,
+       123,
+       133,
+       143,
+       153
+      ],
+      "widthsPx": [
+       0,
+       0,
+       6,
+       6,
+       2,
+       0,
+       9,
+       0
+      ],
+      "detectFrac": 0.5,
+      "meanWidthPx": 5.75,
+      "medianWidthPx": 1.0,
+      "meanLum": 0.522
+     }
+    },
+    "tgt": {
+     "tw": 17.84,
+     "dark": 0,
+     "part": {
+      "rows": [
+       116,
+       126,
+       136,
+       146,
+       156,
+       166,
+       176,
+       186
+      ],
+      "widthsPx": [
+       0,
+       0,
+       0,
+       0,
+       5,
+       5,
+       10,
+       15
+      ],
+      "detectFrac": 0.5,
+      "meanWidthPx": 8.75,
+      "medianWidthPx": 2.5,
+      "meanLum": 0.2446
+     }
+    }
+   },
+   "three_quarter": {
+    "ours": {
+     "tw": 3.3,
+     "maxgrad": 0.16,
+     "dark": 0,
+     "part": {}
+    },
+    "tgt": {
+     "tw": 14.18,
+     "dark": 0,
+     "part": {}
+    }
+   }
+  },
+  "iou": {
+   "back": 0.7663,
+   "front": 0.718,
+   "profile": 0.6935
+  },
+  "orientation": {
+   "front": 25.27,
+   "three_quarter": 32.7,
+   "profile_90": 31.13,
+   "back": 23.98
+  },
+  "bands": {
+   "backCount": 549,
+   "earCount": 129
+  },
+  "crownTop": {
+   "0-10": 0.0344,
+   "10-20": 0.0497,
+   "20-30": 0.0311,
+   "30-50": 0.0052
+  },
+  "partSide": {
+   "hairlineRow": 170,
+   "partSide": 1.3741
+  },
+  "ruler": {
+   "front": {
+    "pixels": 23003,
+    "meanLum": 0.1408,
+    "meanHueDeg": 22.9881,
+    "orangeFrac": 0.0
+   },
+   "back": {
+    "pixels": 22502,
+    "meanLum": 0.1339,
+    "meanHueDeg": 22.6597,
+    "orangeFrac": 0.0
+   }
+  }
+ },
+ "front_roots": {
+  "edge": {
+   "front": {
+    "ours": {
+     "tw": 12.31,
+     "maxgrad": 0.163,
+     "dark": 76,
+     "part": {
+      "rows": [
+       126,
+       136,
+       146,
+       156,
+       166,
+       176,
+       186,
+       196
+      ],
+      "widthsPx": [
+       0,
+       0,
+       0,
+       0,
+       0,
+       3,
+       6,
+       6
+      ],
+      "detectFrac": 0.375,
+      "meanWidthPx": 5.0,
+      "medianWidthPx": 0.0,
+      "meanLum": 0.3138
+     }
+    },
+    "tgt": {
+     "tw": 17.84,
+     "dark": 0,
+     "part": {
+      "rows": [
+       116,
+       126,
+       136,
+       146,
+       156,
+       166,
+       176,
+       186
+      ],
+      "widthsPx": [
+       0,
+       0,
+       0,
+       0,
+       5,
+       5,
+       10,
+       15
+      ],
+      "detectFrac": 0.5,
+      "meanWidthPx": 8.75,
+      "medianWidthPx": 2.5,
+      "meanLum": 0.2446
+     }
+    }
+   },
+   "three_quarter": {
+    "ours": {
+     "tw": 14.97,
+     "maxgrad": 0.088,
+     "dark": 0,
+     "part": {}
+    },
+    "tgt": {
+     "tw": 14.18,
+     "dark": 0,
+     "part": {}
+    }
+   }
+  },
+  "iou": {
+   "back": 0.7663,
+   "front": 0.7207,
+   "profile": 0.6856
+  },
+  "orientation": {
+   "front": 29.04,
+   "three_quarter": 32.69,
+   "profile_90": 31.13,
+   "back": 23.98
+  },
+  "bands": {
+   "backCount": 549,
+   "earCount": 117
+  },
+  "crownTop": {
+   "0-10": 0.018,
+   "10-20": 0.0489,
+   "20-30": 0.031,
+   "30-50": 0.0052
+  },
+  "partSide": {
+   "hairlineRow": 205,
+   "partSide": 1.039
+  },
+  "ruler": {
+   "front": {
+    "pixels": 29047,
+    "meanLum": 0.1477,
+    "meanHueDeg": 23.4385,
+    "orangeFrac": 0.0017
+   },
+   "back": {
+    "pixels": 22502,
+    "meanLum": 0.1339,
+    "meanHueDeg": 22.6599,
+    "orangeFrac": 0.0
+   }
+  }
+ },
+ "part": {
+  "edge": {
+   "front": {
+    "ours": {
+     "tw": 7.55,
+     "maxgrad": 0.303,
+     "dark": 100,
+     "part": {
+      "rows": [
+       83,
+       93,
+       103,
+       113,
+       123,
+       133,
+       143,
+       153
+      ],
+      "widthsPx": [
+       0,
+       0,
+       0,
+       8,
+       8,
+       8,
+       8,
+       8
+      ],
+      "detectFrac": 0.625,
+      "meanWidthPx": 8.0,
+      "medianWidthPx": 8.0,
+      "meanLum": 0.2977
+     }
+    },
+    "tgt": {
+     "tw": 17.84,
+     "dark": 0,
+     "part": {
+      "rows": [
+       116,
+       126,
+       136,
+       146,
+       156,
+       166,
+       176,
+       186
+      ],
+      "widthsPx": [
+       0,
+       0,
+       0,
+       0,
+       5,
+       5,
+       10,
+       15
+      ],
+      "detectFrac": 0.5,
+      "meanWidthPx": 8.75,
+      "medianWidthPx": 2.5,
+      "meanLum": 0.2446
+     }
+    }
+   },
+   "three_quarter": {
+    "ours": {
+     "tw": 1.89,
+     "maxgrad": 0.166,
+     "dark": 0,
+     "part": {}
+    },
+    "tgt": {
+     "tw": 14.18,
+     "dark": 0,
+     "part": {}
+    }
+   }
+  },
+  "iou": {
+   "back": 0.7657,
+   "front": 0.7148,
+   "profile": 0.6924
+  },
+  "orientation": {
+   "front": 25.52,
+   "three_quarter": 32.73,
+   "profile_90": 31.21,
+   "back": 23.98
+  },
+  "bands": {
+   "backCount": 555,
+   "earCount": 120
+  },
+  "crownTop": {
+   "0-10": 0.0238,
+   "10-20": 0.0433,
+   "20-30": 0.0293,
+   "30-50": 0.0054
+  },
+  "partSide": {
+   "hairlineRow": 171,
+   "partSide": 1.2539
+  },
+  "ruler": {
+   "front": {
+    "pixels": 23003,
+    "meanLum": 0.1378,
+    "meanHueDeg": 22.8702,
+    "orangeFrac": 0.0
+   },
+   "back": {
+    "pixels": 22502,
+    "meanLum": 0.1328,
+    "meanHueDeg": 22.6638,
+    "orangeFrac": 0.0
+   }
+  }
+ },
+ "temple": {
+  "edge": {
+   "front": {
+    "ours": {
+     "tw": 10.02,
+     "maxgrad": 0.177,
+     "dark": 85,
+     "part": {
+      "rows": [
+       83,
+       93,
+       103,
+       113,
+       123,
+       133,
+       143,
+       153
+      ],
+      "widthsPx": [
+       0,
+       4,
+       6,
+       6,
+       2,
+       0,
+       10,
+       0
+      ],
+      "detectFrac": 0.625,
+      "meanWidthPx": 5.6,
+      "medianWidthPx": 3.0,
+      "meanLum": 0.5116
+     }
+    },
+    "tgt": {
+     "tw": 17.84,
+     "dark": 0,
+     "part": {
+      "rows": [
+       116,
+       126,
+       136,
+       146,
+       156,
+       166,
+       176,
+       186
+      ],
+      "widthsPx": [
+       0,
+       0,
+       0,
+       0,
+       5,
+       5,
+       10,
+       15
+      ],
+      "detectFrac": 0.5,
+      "meanWidthPx": 8.75,
+      "medianWidthPx": 2.5,
+      "meanLum": 0.2446
+     }
+    }
+   },
+   "three_quarter": {
+    "ours": {
+     "tw": 18.48,
+     "maxgrad": 0.088,
+     "dark": 0,
+     "part": {}
+    },
+    "tgt": {
+     "tw": 14.18,
+     "dark": 0,
+     "part": {}
+    }
+   }
+  },
+  "iou": {
+   "back": 0.7663,
+   "front": 0.7231,
+   "profile": 0.688
+  },
+  "orientation": {
+   "front": 26.48,
+   "three_quarter": 32.74,
+   "profile_90": 31.15,
+   "back": 23.98
+  },
+  "bands": {
+   "backCount": 549,
+   "earCount": 134
+  },
+  "crownTop": {
+   "0-10": 0.0344,
+   "10-20": 0.0497,
+   "20-30": 0.031,
+   "30-50": 0.0052
+  },
+  "partSide": {
+   "hairlineRow": 170,
+   "partSide": 1.3699
+  },
+  "ruler": {
+   "front": {
+    "pixels": 24008,
+    "meanLum": 0.1414,
+    "meanHueDeg": 23.2088,
+    "orangeFrac": 0.0002
+   },
+   "back": {
+    "pixels": 22502,
+    "meanLum": 0.1339,
+    "meanHueDeg": 22.6649,
+    "orangeFrac": 0.0
+   }
+  }
+ }
+}

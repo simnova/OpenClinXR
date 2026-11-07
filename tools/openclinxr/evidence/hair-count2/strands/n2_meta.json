@@ -1,0 +1,12 @@
+{
+  "construction": "2x children density probe (repo precedent hair-look2/experiment.py density_geometry factor 2: deterministic +25um x duplicate)",
+  "base": "hair-prof1/cells/combo/strands.npz",
+  "comboCount": 69181,
+  "realisedCount": 138362,
+  "radiusScale": 0.708,
+  "rootRadiusMm": 0.0354,
+  "tipRadiusMm": 0.010619999731716234,
+  "coverageNote": "2x fibres at (0.0354/0.05)^2=0.501 area each => total cross-section ~unchanged",
+  "dupOffsetMm": 0.025,
+  "seedNote": "deterministic, no RNG"
+}

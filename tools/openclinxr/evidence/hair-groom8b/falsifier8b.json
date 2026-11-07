@@ -1,0 +1,156 @@
+{
+ "region": "x[-100,-15] y[-60,34.2] z>1600 tuck=0",
+ "nRegion": 368,
+ "top": [
+  {
+   "id": 677,
+   "totalTurnDeg": 494.8,
+   "dispMm": 397.9,
+   "swirlBoxSamples": 13
+  },
+  {
+   "id": 919,
+   "totalTurnDeg": 446.6,
+   "dispMm": 269.5,
+   "swirlBoxSamples": 20
+  },
+  {
+   "id": 309,
+   "totalTurnDeg": 442.7,
+   "dispMm": 305.9,
+   "swirlBoxSamples": 20
+  },
+  {
+   "id": 201,
+   "totalTurnDeg": 439.3,
+   "dispMm": 396.0,
+   "swirlBoxSamples": 21
+  },
+  {
+   "id": 925,
+   "totalTurnDeg": 438.8,
+   "dispMm": 124.3,
+   "swirlBoxSamples": 20
+  },
+  {
+   "id": 313,
+   "totalTurnDeg": 436.8,
+   "dispMm": 153.8,
+   "swirlBoxSamples": 41
+  },
+  {
+   "id": 394,
+   "totalTurnDeg": 435.6,
+   "dispMm": 142.9,
+   "swirlBoxSamples": 41
+  },
+  {
+   "id": 543,
+   "totalTurnDeg": 433.8,
+   "dispMm": 256.5,
+   "swirlBoxSamples": 20
+  },
+  {
+   "id": 401,
+   "totalTurnDeg": 431.1,
+   "dispMm": 180.4,
+   "swirlBoxSamples": 33
+  },
+  {
+   "id": 476,
+   "totalTurnDeg": 427.8,
+   "dispMm": 178.8,
+   "swirlBoxSamples": 32
+  },
+  {
+   "id": 987,
+   "totalTurnDeg": 426.4,
+   "dispMm": 266.3,
+   "swirlBoxSamples": 20
+  },
+  {
+   "id": 293,
+   "totalTurnDeg": 425.0,
+   "dispMm": 201.7,
+   "swirlBoxSamples": 32
+  },
+  {
+   "id": 760,
+   "totalTurnDeg": 420.4,
+   "dispMm": 383.1,
+   "swirlBoxSamples": 16
+  },
+  {
+   "id": 967,
+   "totalTurnDeg": 419.4,
+   "dispMm": 128.3,
+   "swirlBoxSamples": 21
+  },
+  {
+   "id": 130,
+   "totalTurnDeg": 412.5,
+   "dispMm": 393.0,
+   "swirlBoxSamples": 17
+  },
+  {
+   "id": 93,
+   "totalTurnDeg": 411.6,
+   "dispMm": 130.2,
+   "swirlBoxSamples": 39
+  },
+  {
+   "id": 1008,
+   "totalTurnDeg": 408.6,
+   "dispMm": 367.0,
+   "swirlBoxSamples": 14
+  },
+  {
+   "id": 297,
+   "totalTurnDeg": 404.3,
+   "dispMm": 189.4,
+   "swirlBoxSamples": 33
+  },
+  {
+   "id": 614,
+   "totalTurnDeg": 404.1,
+   "dispMm": 395.0,
+   "swirlBoxSamples": 14
+  },
+  {
+   "id": 713,
+   "totalTurnDeg": 403.3,
+   "dispMm": 376.2,
+   "swirlBoxSamples": 17
+  },
+  {
+   "id": 282,
+   "totalTurnDeg": 402.5,
+   "dispMm": 121.6,
+   "swirlBoxSamples": 41
+  },
+  {
+   "id": 290,
+   "totalTurnDeg": 400.1,
+   "dispMm": 305.6,
+   "swirlBoxSamples": 22
+  },
+  {
+   "id": 571,
+   "totalTurnDeg": 399.1,
+   "dispMm": 178.5,
+   "swirlBoxSamples": 33
+  },
+  {
+   "id": 303,
+   "totalTurnDeg": 396.8,
+   "dispMm": 350.8,
+   "swirlBoxSamples": 19
+  },
+  {
+   "id": 496,
+   "totalTurnDeg": 393.1,
+   "dispMm": 295.5,
+   "swirlBoxSamples": 21
+  }
+ ]
+}

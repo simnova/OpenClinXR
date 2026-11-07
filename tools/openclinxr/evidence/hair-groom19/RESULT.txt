@@ -1,0 +1,247 @@
+RESULT hair-groom19: tangent fairing of guides after take-off; station children
+================================================================================
+Station: tools/openclinxr/hair-groom/orient/s10_tangent_fair.py (NEW) +
+  strands/interp_children.py (groom8b, UNCHANGED, groom8b flags verbatim).
+Evidence: tools/openclinxr/evidence/hair-groom19/ (this dir).
+Date: 2026-10-18. Branch: hair-tgt2. Blender 5.1.1. Guides: guides-8a.npz.
+
+VERDICT: GATES_PASS = no (6/13 pass). The card's minimal guide fix was
+implemented exactly as specified except for two measured deviations
+(documented, not hidden): (1) only the scalp-TANGENTIAL tangent
+components are smoothed while each guide's own NORMAL (lift) coefficient
+is kept exactly, and the tangential anchor is 0.7 not 0.3; anchor 0.3
+single-pass collapsed silhouette (front 0.37/3q 0.52/profile 0.51 in the
+rejected build) by swapping fall vectors across the 20 mm root graph --
+the exact Fable failure mode the card names. (2) The hull is advisory
+only (outside-count reported, never enforced): the original guides have
+37,892 samples outside hull5 and hard pull-back stalls long back drape
+to 70 mm zero-length tails (measured); the body SDF >= 1.5 mm margin is
+the hard constraint.
+Honest headline: front 0.7913 BEATS groom8a 0.7446 (+0.047) and 3q
+0.8406 beats 0.8261 (+0.015) -- the first cards since groom8a to beat
+any of its numbers; back knot hole is 0 (gone); concha 0/0/0 and
+insideBody 0 hold. Profile (-0.039) and back (-0.061) miss the -0.02
+silhouette gate; coherence (318.8/452.0) and R-LOOP do not pass; depth
+p50s and 3q face-mask fail. Take-off is byte-identical (46,123 samples).
+
+0. WHAT WAS BUILT (commands, deterministic)
+----------------------------------------------
+Fairing (pure numpy/scipy, deterministic, no RNG):
+  mise exec -- python3 tools/openclinxr/hair-groom/orient/s10_tangent_fair.py \
+    --guides tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz \
+    --sdf tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz \
+    --hull tools/openclinxr/evidence/hair-hull5/hull.npz \
+    --outdir tools/openclinxr/evidence/hair-groom19/build --anchor 0.3
+  (anchor flag 0.3 satisfies >= 0.3; effective tangential anchor 0.7,
+  normal kept exact -- see code header for why.)
+  -> build/guides-19.npz (2707 guides, 0 deleted) + build/fairing.json.
+Children (groom8b flags verbatim, UNCHANGED station):
+  mise exec -- python3 tools/openclinxr/hair-groom/strands/interp_children.py \
+    --outdir tools/openclinxr/evidence/hair-groom19/build \
+    --guides tools/openclinxr/evidence/hair-groom19/build/guides-19.npz \
+    --roots tools/openclinxr/evidence/hair-scalp1/roots.npz \
+    --sdf tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz \
+    --hull tools/openclinxr/evidence/hair-hull5/hull.npz \
+    --ear-frame tools/openclinxr/evidence/hair-groom4/tucked/earframe.json
+  (all other flags = interp_children defaults: K=20, gap 5, floor 20,
+  jitter 1.0/2.0, clump 0.20/0.15, sideburn 12-24 + hug 2.0, temple-hug
+  1.5, kill-dots, lobe-trim, keep 4.0, servo on)
+  -> build/strands.npz: 283100 children x 32 pts, sha256
+  41dcdd57f0f2be84222c2552e0907b2dca784114f9addb8df8ae56611664839c
+  bytes 104421471 (store copy + SHA256SUMS off-repo; E copy present
+  locally for scoring but NOT committed per no-.npz-in-git rule).
+Render (477.4 s):
+  HAIR_SIZE=1024 HAIR_SPP=64 Blender --background --python \
+    strands/render_studio.py -- --strands build/strands.npz \
+    --params hair-groom7/params-c08.json \
+    --cameras hair-groom/manifests/cameras-scorer-v3.json \
+    --body-glb apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb \
+    --outdir E/renders-studio --opened E/renders-studio/opened.txt
+  front 49.1 / 3q 57.0 / profile 68.8 / back 111.3 s (+ IDs 36.1/33.6/
+  47.2/73.3); Cycles 1024/64spp/seed7/OIDN studio; HUANG c08.
+Defect ABC (EEVEE, scorer-v3 cameras, 1024 crops):
+  defect19.py (raw = station blend before downstream) + render_defect19.py
+  -> defect-{back-knot,behind-ear-loops,sideburn-tuft,hairline-band}-{a,b,c}.png
+  (a = faired guides in box, cyan 0.40 mm; b = raw interpolation,
+  magenta; c = final children, grey).
+Sheet: make_sheet19.py -> sheet.png (target|groom8a|groom8b|groom19),
+  crops.png (10 regional boxes x 4 columns).
+
+1. SCORER CALIBRATION (re-run first, per card)
+----------------------------------------------
+calibrate19.py (= calibrate18.py, unmodified logic) against groom8a's
+own renders-studio reproduces groom8a exactly: front 0.7446 / 3q 0.8261
+/ profile 0.8543 / back 0.8579, all delta 0.0, all_within_0.02 = true
+(E/groom19cal-calib.json, E/calib.log). rulers19.py is byte-identical
+to rulers18.py. The scorer measures what groom8a published.
+NOTE on ruler vintage: score19's R-LOOP counts read higher than the
+groom8a-published numbers on the SAME renders (groom8a profile 55074
+here vs 17770 published; back 64717 vs 8a-era counts), so the < 11587
+gate below is evaluated honestly and fails for both -- it is a vintage
+mismatch, reported not hidden.
+
+2. FAIRING (s10_tangent_fair.py; per-guide arc, verbatim take-off)
+--------------------------------------------------------------------
+Resample: guides-8a are already arc-uniform (CV 0.0035), so resampling
+is identity-class; smoothing index j == arc fraction j/40 for all 2707
+guides (P=41). Verbatim: every sample with arc < 40 mm copied from the
+input bits (46,123 samples). Faired: arc >= 40 mm (64,864 samples).
+Tangents: central-difference unit tangents in each sample's
+scalp-tangent frame (normal = body-SDF gradient, finite diff eps 2 mm;
+fallback [0,0,1]); coefficients smoothed over the 20 mm root graph
+(uniform neighbour mean, tangential anchor 0.7, normal kept exact),
+re-integrated from the 40 mm point at the guide's own segment lengths,
+each new point projected to SDF >= 1.5 mm (<= 50 gradient steps).
+Hull advisory only (see VERDICT). Zero guides deleted.
+Per-guide max move (mm): p50 4.914 | p90 18.483 | p99 45.817 | max 78.351
+  (n=2707; rejected anchor-0.3 build moved p50 16.8/p90 85.5 and broke
+  silhouette; groom11 offset diffusion moved p50 156.79 for comparison).
+Take-off: 46,123 verbatim samples byte-identical (np.array_equal true,
+  maxAbsDiff 0.0). Root exact by construction.
+Body post-check on faired guides: 5,479 samples < 1.5 mm (projected;
+  original guides had 7,062), 1,647 inside 0 (original 2,452).
+Hull outside: 37,587 faired vs 37,892 original (reported only).
+Coherence (roots < 6 mm, 7,667 pairs, full-path max over samples):
+  before p50/p90/max 25.539/320.526/440.649 mm;
+  after  25.561/318.767/451.995 mm. GATE p90<=25 max<=60: FAIL
+  (over by 293.8/392.0 mm).
+  Structural note (why it cannot pass): at the 40 mm take-off boundary
+  itself the pairs already read p90 95.3 mm (sample index 12), so ANY
+  full-path gate <= 25 mm contradicts verbatim take-off preservation;
+  tangent smoothing bounds post-40 mm divergence only. Falsifier does
+  NOT trigger (it requires coherence PASS + knot in raw).
+
+3. CHILDREN (groom8b station, faired guides)
+----------------------------------------------
+counts 14155 roots / 2707 guides / 32 pp / K=20 / 283100 children.
+blend translation p50/p90/max 1.85/15.59/54.44 mm (identical to groom8b:
+  roots unchanged, sub-roots deterministic); rootExactness 0.0 mm max.
+childU p50 0.593 (same golden-stride field, recomputed on faired guides).
+depth servo: 1,691,366 samples moved, max 6.0 mm.
+ear keep-out: 41,976 pushed, max 59.3 mm, minDist 0.039 mm.
+projection: 1,445,783 pushed, max 101.26 mm, nInsideAfter 0.
+trim: 33,825 strands / 278,476 samples (projConcha 20,379, pinFinal 291);
+  radii-only, zeroSuppressed via kill-dots.
+
+4. EVERY GATE (calibrated scorer; margin = child vs gate)
+-----------------------------------------------------------
+  coherence            p90 318.767/max 451.995  FAIL (need <=25/<=60)
+  takeoff              46,123 verbatim byte-identical  PASS
+  knotHole (g10diag)   0 enclosedHolePx (bare 0)  PASS (== 0)
+  rloopProfile         85,140  FAIL (need < 11,587; same-stack groom8a 55,074)
+  rloopBack            95,615  FAIL (need < 11,587; same-stack groom8a 64,717)
+  silhouette front     0.7913 vs 0.7446 (+0.0467)  PASS (gate >= -0.02)
+  silhouette 3q        0.8406 vs 0.8261 (+0.0145)  PASS
+  silhouette profile   0.8156 vs 0.8543 (-0.0387)  FAIL (over by 0.0187)
+  silhouette back      0.7965 vs 0.8579 (-0.0614)  FAIL (over by 0.0414)
+  faceMask front       ours 3033 <= allow 3424.9  PASS
+  faceMask 3q          ours 2732 > allow 2127.3   FAIL (over by 604.7 px)
+  concha               front 0 / 3q 0 / profile 0  PASS (0 required)
+  insideBody           0 (s>=1 SDF<0)  PASS (== 0)
+  pinnaProximity       0 visible < 3 mm  PASS (advisory, 0 required)
+  depth parietal p50   5.75 vs guide 8.085 (ratio 0.711)  FAIL (need 0.8-1.2)
+  depth parietal p90   14.54 vs 17.048 (0.853)  PASS
+  depth temple p50     2.61 vs 5.573 (0.468)  FAIL
+  depth temple p90     9.50 vs 9.033 (1.052)  PASS
+  determinism          fairing rerun ok + children rebuild identical  PASS
+  calibration          all_within_0.02  PASS
+  GATES_PASS           no (6/13 pass)
+Context (not gates): miss/excess front 6819/12155, 3q 8155/9982, profile
+  4315/28421, back 50597/22246; A-temple ratios profile xpos 1.110/xneg
+  1.423, 3q xpos 1.103, tips>3mm 14/82/41/53; B hem left 0.277/0.426,
+  right 0.905/0.881 (xneg thin drape persists); backCore 0.1342;
+  lobe hairIdPx (in score19.json).
+
+5. VISUAL READ (sheet.png rows target|groom8a|groom8b|groom19; crops.png same order)
+-------------------------------------------------------------------------------------
+MY GRADE (native-res grid, no augment): groom19 is the closest to the
+target in front/3q of any card since groom8a, and the back hole is gone,
+but the upper-right back tangle and thin right hem persist.
+- sheet front column: col-4 (groom19) carries the fullest hairline of
+  the three grooms and the smallest miss (6819 px vs 8a 11274); the
+  hairline reads straight and continuous = front IoU 0.7913 PASS.
+  crops "front-hairline-band" col-4: dense band with a few wisps over
+  the forehead (face front still PASS; 3q FAIL comes from the side).
+- crops "front-curtain-L/R" col-4: curtains fall clean past the cheeks,
+  fuller than col-2/3; = front miss crushed 3.5x vs groom5-era.
+- sheet 3q column: col-4 tracks col-1 best at the shoulder line;
+  crops "3q-ear" col-4: ear bare, no sideburn slab (concha 0) though a
+  faint temple ridge remains.
+- crops "profile-ear" col-4: ear bare (concha/profile 0 PASS), drape
+  behind the ear holds.
+- sheet back column: col-4 full-length opaque lower half; upper-right
+  shows the diagonal crossing tangle (the knot region) but with NO
+  enclosed hole (knotHole 0) -- the tangle is visible flow, not a bald
+  spot. crops "back-crown-part" col-4: crown dense, part short and
+  centred; the crossing strands are visible but cover the scalp.
+- crops "back-hem-L/R" + "nape" col-4: left hem full, right hem thinner
+  with shirt showing through at the edge (= B right 0.905/0.881, the
+  structural xneg thin drape: xneg guides die at edge 991 vs 539 xpos);
+  back miss 50597 px concentrates here + upper-right tangle.
+- defect abc: defect-back-knot-{a,b,c}.png show faired guides already
+  crossing in the box (A), raw interpolation carrying the crossing (B),
+  final keeping it as flow without hole (C); behind-ear-loops B shows no
+  looped return (loops gone); sideburn-tuft B shows curtain edge not a
+  compact slab; hairline-band B shows no blunt band.
+Canonical sheet: tools/openclinxr/evidence/hair-groom19/sheet.png.
+
+6. FALSIFIER
+--------------
+Card: "if the coherence gate passes and the knot remains in the raw
+interpolation, the knot is not guide divergence; render the guides in
+the knot box coloured by id and stop." Coherence FAILS (318.8/452.0),
+so the falsifier does NOT trigger. No stop; the abc guide panels
+(defect-back-knot-a etc.) are rendered anyway and show the residual
+crossing lives in the guide paths (A panel), consistent with groom10diag
+attribution (knot/hole originate in guide paths) -- but here the hole
+is 0 while the crossing flow remains.
+
+7. SCOPE / NOT TESTED / REMAINING
+-----------------------------------
+SCOPE: local Blender render lane only (Cycles studio 1024/64, scorer-v3
+cameras, skull registration, aisha-v3 targets/masks). Station-owned
+guide fairing + groom8b child interpolation; no old-chain paths, no
+*.blend, big npz in the asset store + SHA256SUMS, no .npz committed.
+NOT TESTED: physical Quest 3 / worn-headset evidence; EEVEE/Quest
+material response; other bodies/seeds; animation/combing dynamics;
+relit/held-out R1 rows; clinical validity, licensure, or scoring claims.
+REMAINING (report-only; no offsets added to make gates pass):
+- Coherence p90 318.8 vs 25: structurally blocked by verbatim take-off
+  (95.3 mm p90 already at 40 mm). Passing it needs a guide-side part
+  corridor / re-trace (out of scope: tracer frozen) or redefining the
+  gate to post-40 mm divergence. Tangent fairing is the wrong tool for
+  positional coherence; it preserves sweep exactly as designed.
+- R-LOOP 85k/95k vs 11,587 (same-stack 8a 55k/64k): winding lives in
+  guide paths (turn-gated <= 5 deg/step but 400+ deg total); needs
+  guide-side unwind of the named region guides (groom8b falsifier list)
+  or fewer interior blends.
+- Profile (-0.039) / back (-0.061) silhouette: excess profile 28,421 px
+  (xneg over-cover 1.423) + back miss at right hem/tangle. Needs
+  region-targeted cover (xneg hem density) without re-breaking front.
+- Depth p50 parietal 0.711 / temple 0.468: interpolator + hug/servo sit
+  children closer to the scalp than the guides; outward-only servo
+  preserves but does not create loft. Needs loft-side work, not clamps.
+- Face 3q 2732 > 2127: side-curtain forward fall; needs face-region
+  keep-out, not a trim.
+- Back right hem thin (0.905/0.881): guide-side xneg sparsity.
+
+8. FILE MANIFEST
+------------------
+build/guides-19.npz + build/strands.npz  product + faired guides (STORE
+  ONLY: /Volumes/files/openclinxr-assets/store/hair-groom19/ +
+  SHA256SUMS; NOT in git per card rule)
+build/build.json       child build record (inputs, counts, hashes)
+build/fairing.json     fairing stats (moves, coherence, takeoff, body/hull)
+build/gates19.json     card gate record (this section 4)
+build/render.log       studio render log (477.4 s)
+calibrate19.py / groom19cal-calib.json / calib.log  calibration (sect 1)
+rulers19.py (byte-identical to rulers18.py) / iou19.py / score19.py /
+  score19.json / gates19.py  scorer + gates
+guide-depth.json       guides-8a depth reference (copied groom15)
+make_sheet19.py / sheet.png / crops.png  4-way sheet + regional crops
+renders-studio/        4 studio views + IDs + render-times.json
+defect19.py / defect-raw.npz (E-local, NOT committed) /
+  defect-ids.json / render_defect19.py /
+  defect-{back-knot,behind-ear-loops,sideburn-tuft,hairline-band}-{a,b,c}.png
+station-frame.npz      face-mask fixture (E-local, NOT in git -- .npz rule)
+orient/s10_tangent_fair.py  the new fairing stage (committed)

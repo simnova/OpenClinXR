@@ -1,0 +1,70 @@
+{
+ "nGuides": 477,
+ "unreachable": 0,
+ "lengths": {
+  "p50": 405.0,
+  "p95": 497.2,
+  "max": 504.0
+ },
+ "stops": {
+  "silhouette": 190,
+  "face": 10,
+  "hem": 2,
+  "stuck": 47,
+  "maxlen": 228
+ },
+ "projGuides": 407,
+ "projSteps": 18492,
+ "projMagMean": 11.842,
+ "projMagMax": 102.96,
+ "priorStepFrac": 0.0037,
+ "partCrossings": {
+  "rawFlips": 12,
+  "crossingsOver2mm": 0,
+  "maxExcursionMm": 1.98
+ },
+ "ear": {
+  "xpos": {
+   "nGuidesNear3mm": 0,
+   "nearIdx": [],
+   "minDistMm": 9.81,
+   "p50DistMm": 111.01
+  },
+  "xneg": {
+   "nGuidesNear3mm": 0,
+   "nearIdx": [],
+   "minDistMm": 8.12,
+   "p50DistMm": 109.34
+  },
+  "occlusion": {
+   "coveringSamples": 0,
+   "behindSamples": 36820,
+   "nGuidesCovering": 0,
+   "coveringIdx": [],
+   "perView": {
+    "front": [],
+    "three_quarter": [],
+    "profile_90": []
+   }
+  },
+  "gate": {
+   "clearMm": 3.0,
+   "pass": true
+  }
+ },
+ "backGap": {
+  "n": 279,
+  "maxGapMm": 7.93
+ },
+ "turn": {
+  "max": 179.9,
+  "p95": 90.49,
+  "p50": 5.18,
+  "fracGuidesOver15": 0.9245,
+  "nGuidesOver15": 441,
+  "gate": 15.0
+ },
+ "containMin": 0.0,
+ "containBelow95": 11,
+ "poissonSpacingMm": 10.08
+}

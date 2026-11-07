@@ -1,0 +1,22 @@
+hair-groom8b strands asset (big npz lives outside git):
+path: /Volumes/files/openclinxr-assets/store/hair-groom8b/strands.npz
+sha256: 6644eaf40bc5bda941e8da65f67ccde227cd66f22c21e5c84c2a1a2586485ddd
+bytes: 104384438
+children: 283100 (20/root), pointsPer 32
+guides: 2707 (guides-8a.npz unchanged: 2650 depth-layered + 57 verbatim
+  tucked); pool 2429 at 20 mm floor; 14155 roots / 2707 guides =
+  5.23 roots/guide (gate <= 7)
+radiiMm: root 0.05 tip 0.015 (t^1.5 profile)
+note: sha above is the build REPORTED sha (build.json); the store file
+  is a byte copy of E/build/strands.npz written by the same build.
+rebuild children: tools/openclinxr/hair-groom/strands/interp_children.py
+  --outdir tools/openclinxr/evidence/hair-groom8b/build
+  --guides tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz
+  --roots tools/openclinxr/evidence/hair-scalp1/roots.npz
+  --sdf tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz
+  --ear-frame tools/openclinxr/evidence/hair-groom4/tucked/earframe.json
+  (all other flags = defaults: K 20, gap 5, floor 20, jitter 1.0/2.0,
+  clump 0.20/0.15, sideburn 12-24 + hug 2.0 + tuck-behind,
+  temple-hug 1.5, kill-dots, lobe-trim, keep 4.0, servo on)
+E/build/strands.npz is intentionally NOT committed (104 MB; 8a/7/6
+precedent: big npz to the asset store, byte-rebuildable from flags).

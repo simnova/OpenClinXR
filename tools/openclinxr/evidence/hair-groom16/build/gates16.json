@@ -1,0 +1,81 @@
+{
+ "count": {
+  "n": 276984,
+  "pointsPer": 41,
+  "expectBand": [
+   250000,
+   310000
+  ],
+  "pass": true,
+  "hard": true
+ },
+ "insideBody": {
+  "nSge1Inside": 17,
+  "gate": "<= 500",
+  "pass": true,
+  "hard": true
+ },
+ "pinnaProximity": {
+  "clearMm": 3.0,
+  "nVisibleSamplesLt": 159719,
+  "pass": false,
+  "hard": true
+ },
+ "guideClearance": {
+  "postSamplesLtGate": 0,
+  "gate": "0 samples < 1.5 mm",
+  "pass": true,
+  "hard": true
+ },
+ "outsidePass": {
+  "fracChildrenMoveGt3mm": 0.322625,
+  "nChildrenMoveGt3mm": 89362,
+  "gate": "<= 0.02 of children move > 3 mm",
+  "pass": false,
+  "hard": true
+ },
+ "falsifier": {
+  "triggered": true,
+  "preInsideFracSamples": 0.190613,
+  "preChildrenWithInside": 132002,
+  "preChildInsideFracMax": 1.0,
+  "note": ">10% of children enter the body before the outside pass: Interpolate cuts through the skull between outside guides."
+ },
+ "tipDriftAcross": {
+  "n": 39575,
+  "note": "advisory: tips across x=0 vs own root"
+ },
+ "determinism": {
+  "hashA": "78899d4c172bc33deb9b6b10ba4199b0b201b5f073c0004e96929bb568becebb",
+  "hashB": "78899d4c172bc33deb9b6b10ba4199b0b201b5f073c0004e96929bb568becebb",
+  "pass": true,
+  "hard": true
+ },
+ "buildFlags": {
+  "guides": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz",
+  "density": "3900000",
+  "seed": "7",
+  "scalp-roots": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "part-by-islands": "1",
+  "clump-factor": "0.2",
+  "lateral-keep": "0.0",
+  "root-band": "0.070",
+  "sideburn-tuck": "1",
+  "skip-drape": "1",
+  "clear-guides": "1",
+  "clearance-mm": "2.0",
+  "clear-thresh-mm": "2.0",
+  "clear-gate-mm": "1.5",
+  "outside-pass": "1",
+  "outside-target-mm": "0.5",
+  "outside-thresh-mm": "0.5",
+  "smooth-steps": "2",
+  "smooth-amount": "0.15",
+  "smooth-iters": "1",
+  "depth-classes": "3",
+  "interp-guides": "3",
+  "skip-shrink": "1",
+  "colliders": ""
+ },
+ "pass": false
+}

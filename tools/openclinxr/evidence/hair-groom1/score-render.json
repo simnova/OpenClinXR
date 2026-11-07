@@ -1,0 +1,459 @@
+{
+ "fitted": "studio ID alpha>=230",
+ "contour": {
+  "front": {
+   "whole": {
+    "excessN": 7586,
+    "excessP50": 159.8,
+    "excessP95": 266.3,
+    "missN": 1957,
+    "missP50": 14.3,
+    "missP95": 43.0,
+    "empty": false
+   },
+   "crown": {
+    "excessN": 740,
+    "excessP50": 6.3,
+    "excessP95": 12.5,
+    "missN": 662,
+    "missP50": 12.5,
+    "missP95": 19.4,
+    "empty": false
+   },
+   "mid": {
+    "excessN": 713,
+    "excessP50": 14.0,
+    "excessP95": 21.0,
+    "missN": 717,
+    "missP50": 15.3,
+    "missP95": 40.0,
+    "empty": false
+   },
+   "hem": {
+    "excessN": 192,
+    "excessP50": 5.8,
+    "excessP95": 10.9,
+    "missN": 751,
+    "missP50": 27.1,
+    "missP95": 48.2,
+    "empty": false
+   },
+   "left": {
+    "excessN": 3668,
+    "excessP50": 162.3,
+    "excessP95": 249.5,
+    "missN": 997,
+    "missP50": 12.5,
+    "missP95": 45.9,
+    "empty": false
+   },
+   "right": {
+    "excessN": 3918,
+    "excessP50": 157.1,
+    "excessP95": 289.0,
+    "missN": 1015,
+    "missP50": 16.0,
+    "missP95": 41.2,
+    "empty": false
+   }
+  },
+  "three_quarter": {
+   "whole": {
+    "excessN": 6459,
+    "excessP50": 111.4,
+    "excessP95": 238.3,
+    "missN": 1386,
+    "missP50": 18.0,
+    "missP95": 63.6,
+    "empty": false
+   },
+   "crown": {
+    "excessN": 607,
+    "excessP50": 5.0,
+    "excessP95": 13.6,
+    "missN": 634,
+    "missP50": 13.0,
+    "missP95": 25.0,
+    "empty": false
+   },
+   "mid": {
+    "excessN": 1119,
+    "excessP50": 26.0,
+    "excessP95": 47.0,
+    "missN": 470,
+    "missP50": 29.0,
+    "missP95": 52.4,
+    "empty": false
+   },
+   "hem": {
+    "excessN": 710,
+    "excessP50": 17.7,
+    "excessP95": 126.7,
+    "missN": 467,
+    "missP50": 54.7,
+    "missP95": 70.4,
+    "empty": false
+   },
+   "left": {
+    "excessN": 1198,
+    "excessP50": 8.6,
+    "excessP95": 497.0,
+    "missN": 404,
+    "missP50": 8.1,
+    "missP95": 15.5,
+    "empty": false
+   },
+   "right": {
+    "excessN": 5478,
+    "excessP50": 125.0,
+    "excessP95": 237.3,
+    "missN": 1043,
+    "missP50": 24.5,
+    "missP95": 64.5,
+    "empty": false
+   }
+  },
+  "profile_90": {
+   "whole": {
+    "excessN": 2928,
+    "excessP50": 19.2,
+    "excessP95": 56.0,
+    "missN": 1320,
+    "missP50": 30.0,
+    "missP95": 42.3,
+    "empty": false
+   },
+   "crown": {
+    "excessN": 1261,
+    "excessP50": 20.2,
+    "excessP95": 56.0,
+    "missN": 639,
+    "missP50": 9.8,
+    "missP95": 29.1,
+    "empty": false
+   },
+   "mid": {
+    "excessN": 1188,
+    "excessP50": 16.5,
+    "excessP95": 60.8,
+    "missN": 377,
+    "missP50": 34.4,
+    "missP95": 38.5,
+    "empty": false
+   },
+   "hem": {
+    "excessN": 524,
+    "excessP50": 23.0,
+    "excessP95": 36.1,
+    "missN": 445,
+    "missP50": 40.8,
+    "missP95": 44.8,
+    "empty": false
+   },
+   "left": {
+    "excessN": 2236,
+    "excessP50": 21.6,
+    "excessP95": 58.0,
+    "missN": 271,
+    "missP50": 2.0,
+    "missP95": 7.8,
+    "empty": false
+   },
+   "right": {
+    "excessN": 774,
+    "excessP50": 14.4,
+    "excessP95": 36.0,
+    "missN": 1055,
+    "missP50": 34.5,
+    "missP95": 42.6,
+    "empty": false
+   }
+  },
+  "back": {
+   "whole": {
+    "excessN": 387,
+    "excessP50": 2.0,
+    "excessP95": 4.0,
+    "missN": 2134,
+    "missP50": 33.1,
+    "missP95": 80.4,
+    "empty": false
+   },
+   "crown": {
+    "excessN": 328,
+    "excessP50": 2.0,
+    "excessP95": 3.6,
+    "missN": 512,
+    "missP50": 8.1,
+    "missP95": 22.0,
+    "empty": false
+   },
+   "mid": {
+    "excessN": 14,
+    "excessP50": 1.2,
+    "excessP95": 3.3,
+    "missN": 794,
+    "missP50": 20.4,
+    "missP95": 54.6,
+    "empty": false
+   },
+   "hem": {
+    "excessN": 0,
+    "excessP50": 0.0,
+    "excessP95": 0.0,
+    "missN": 1242,
+    "missP50": 62.1,
+    "missP95": 86.8,
+    "empty": false
+   },
+   "left": {
+    "excessN": 174,
+    "excessP50": 2.0,
+    "excessP95": 4.0,
+    "missN": 1804,
+    "missP50": 14.9,
+    "missP95": 81.5,
+    "empty": false
+   },
+   "right": {
+    "excessN": 214,
+    "excessP50": 2.0,
+    "excessP95": 4.0,
+    "missN": 1763,
+    "missP50": 18.1,
+    "missP95": 76.0,
+    "empty": false
+   }
+  }
+ },
+ "iou": {
+  "front": {
+   "iou": 0.4037,
+   "fPx": 78947,
+   "tPx": 78754,
+   "interPx": 45354
+  },
+  "three_quarter": {
+   "iou": 0.5334,
+   "fPx": 102520,
+   "tPx": 103799,
+   "interPx": 71767
+  },
+  "profile_90": {
+   "iou": 0.7238,
+   "fPx": 133041,
+   "tPx": 149114,
+   "interPx": 118469
+  },
+  "back": {
+   "iou": 0.6448,
+   "fPx": 217658,
+   "tPx": 335684,
+   "interPx": 216916
+  }
+ },
+ "agree": {
+  "front": {
+   "wmean": 23.07,
+   "p50": 16.0,
+   "p95": 79.0,
+   "n": 45354
+  },
+  "three_quarter": {
+   "wmean": 28.97,
+   "p50": 23.0,
+   "p95": 80.0,
+   "n": 71767
+  },
+  "profile_90": {
+   "wmean": 26.02,
+   "p50": 21.0,
+   "p95": 74.0,
+   "n": 118469
+  },
+  "back": {
+   "wmean": 26.19,
+   "p50": 17.0,
+   "p95": 84.0,
+   "n": 216916
+  }
+ },
+ "color": {
+  "front": {
+   "target": {
+    "lumP50": 26.1,
+    "lumP90": 57.7,
+    "hueMean": 17.9,
+    "satMean": 0.485,
+    "n": 78754
+   },
+   "render": {
+    "lumP50": 28.5,
+    "lumP90": 190.9,
+    "hueMean": 6.5,
+    "satMean": 0.203,
+    "n": 78947
+   },
+   "renderInInter": {
+    "lumP50": 13.9,
+    "lumP90": 45.5,
+    "hueMean": 18.7,
+    "satMean": 0.267,
+    "n": 45354
+   }
+  },
+  "three_quarter": {
+   "target": {
+    "lumP50": 26.5,
+    "lumP90": 49.0,
+    "hueMean": 17.7,
+    "satMean": 0.423,
+    "n": 103799
+   },
+   "render": {
+    "lumP50": 15.7,
+    "lumP90": 183.9,
+    "hueMean": 12.1,
+    "satMean": 0.224,
+    "n": 102520
+   },
+   "renderInInter": {
+    "lumP50": 11.1,
+    "lumP90": 34.7,
+    "hueMean": 21.0,
+    "satMean": 0.252,
+    "n": 71767
+   }
+  },
+  "profile_90": {
+   "target": {
+    "lumP50": 31.5,
+    "lumP90": 56.0,
+    "hueMean": 22.5,
+    "satMean": 0.364,
+    "n": 149114
+   },
+   "render": {
+    "lumP50": 11.4,
+    "lumP90": 28.9,
+    "hueMean": 19.3,
+    "satMean": 0.259,
+    "n": 133041
+   },
+   "renderInInter": {
+    "lumP50": 11.1,
+    "lumP90": 21.5,
+    "hueMean": 21.3,
+    "satMean": 0.26,
+    "n": 118469
+   }
+  },
+  "back": {
+   "target": {
+    "lumP50": 35.5,
+    "lumP90": 49.9,
+    "hueMean": 21.4,
+    "satMean": 0.325,
+    "n": 335684
+   },
+   "render": {
+    "lumP50": 13.1,
+    "lumP90": 90.7,
+    "hueMean": 16.3,
+    "satMean": 0.22,
+    "n": 217658
+   },
+   "renderInInter": {
+    "lumP50": 13.1,
+    "lumP90": 90.6,
+    "hueMean": 16.3,
+    "satMean": 0.22,
+    "n": 216916
+   }
+  }
+ },
+ "coverageScorerRig": {
+  "refs": {
+   "skin": [
+    132.0,
+    96.0,
+    74.0
+   ],
+   "hair": [
+    67.0,
+    60.0,
+    55.0
+   ],
+   "nSkinPx": 41652
+  },
+  "method": "rulers4b-R4 skin_visible_frac on the scorer rig (rig-matched vs strands1); hair region = ID alpha>=230 (128 bracket); refs by the R4 method",
+  "views": {
+   "crown_top": {
+    "id230": 0.0001,
+    "id230Denom": 107893,
+    "id128": 0.0021,
+    "id128Denom": 124955
+   },
+   "back": {
+    "id230": 0.2396,
+    "id230Denom": 217658,
+    "id128": 0.297,
+    "id128Denom": 253236
+   }
+  },
+  "backDecomposition": {
+   "coreSkinlike": 0.1621,
+   "edgeSkinlike": 0.4414,
+   "warmSkinlike": 0.0011,
+   "hemAlphaMed": 255.0,
+   "hemAlphaP10": 243.0,
+   "hemBeautyMed": [
+    94.0,
+    84.0,
+    79.0
+   ]
+  },
+  "strands1": {
+   "refs": {
+    "skin": [
+     132.0,
+     96.0,
+     74.0
+    ],
+    "hair": [
+     68.0,
+     61.0,
+     57.0
+    ],
+    "nSkinPx": 39640,
+    "nHairPx": 212124
+   },
+   "views": {
+    "crown_top": {
+     "id230": 0.0,
+     "id230Denom": 129829,
+     "id128": 0.0024,
+     "id128Denom": 149463
+    },
+    "back": {
+     "id230": 0.232,
+     "id230Denom": 212124,
+     "id128": 0.2433,
+     "id128Denom": 232234
+    }
+   },
+   "backDecomposition": {
+    "coreSkinlike": 0.244,
+    "edgeSkinlike": 0.1675,
+    "warmSkinlike": 0.0,
+    "hemAlphaMed": 255.0,
+    "hemAlphaP10": 255.0,
+    "hemBeautyMed": [
+     101.0,
+     92.0,
+     86.0
+    ]
+   }
+  }
+ }
+}

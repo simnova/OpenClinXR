@@ -1,0 +1,12 @@
+HAIR SCORE — ONE COMPARABLE SCORER
+
+CAUSE::children3.set_final_view inherited radius from the preceding view. hair-top1 rendered T1 after I1 crown_top, so its profile camera was x=0.7097886205 m; hair-real1 rerendered profile from a fresh scene at x=0.7002856135 m. Changing only that camera history reproduced profile IoU 0.6991751039 and 0.6807692308 exactly. Resolution 1024, filter 1.5, transparent holdout ID at 16 samples, alpha>=230 threshold, visible objects, saved T1 strands, judge v6, and landmarks were identical.
+
+SCORER::/Applications/Blender.app/Contents/MacOS/Blender --background --python tools/openclinxr/evidence/hair-score/score.py -- --strands <strands.npz> --params <material-rig.json> --out <out> [--crown-top]
+SCHEMA::openclinxr.hair-score.v1; 1024 px; 64 beauty samples; fixed per-view camera matrices; camera-relative lights; judge v6 + hair-curtain3/landmarks.json; p50/p90/hue/sat vs TS; hair-top1 honest part/side; BARE/PARTIAL crown tiles; git SHA and hashed input paths.
+SELF-TEST::same T1/look5 input scored twice: IoU f/p/b=0.6869258851/0.6815174868/0.7839616782 both times; exact equality PASS; ID pixels exact equality PASS.
+
+RESCORE::cell | IoU f/p/b | p50 front/3q/profile/back | honest part/side | BARE 0-10/10-20/20-30/30-50
+T1+LOOK5::0.686926/0.681517/0.783962 | 0.076409/0.108064/0.130209/0.111435 | 0.905900 | 0.7213%/2.0027%/0.0342%/0.0063%
+A1+LOOK5::0.688319/0.681019/0.781859 | 0.075858/0.107781/0.130209/0.110602 | 0.946884 | 0.5985%/1.7327%/0.0456%/0.0125%
+I1+INT1::0.682461/0.680534/0.782669 | 0.077757/0.111435/0.134645/0.115357 | 1.033052 | 1.6268%/1.6202%/0.0228%/0.0626%

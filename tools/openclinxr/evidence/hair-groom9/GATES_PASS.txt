@@ -1,0 +1,4 @@
+GATES_PASS=no
+Reason: hard face-mask gate fails front 4704 > 3424.9 and 3q 3575 >
+2127.3; part rows/width, temple depth, back opacity/hem, R-LOOP, and
+knot-hole gates also fail. Full numbers and remaining defects are in RESULT.txt.

@@ -1,0 +1,6 @@
+cage0 DONE — 2026-10-15
+spec d5aa424b25dfcfc52ed7793c048211f5c67d3270cb6347daaf0fc03d99f92a09
+(22 params) frozen; self-tests 5/5 PASS (E/selftests.json); default cage
+rendered + measured (E/default-cage.png, E/default-overlay.png,
+E/default-metrics.json); ban scans empty; NO FITTING (cage1).
+GATES_PASS=yes

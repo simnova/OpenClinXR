@@ -1,0 +1,1 @@
+DONE hair-groom1: field+guides on hull5 + 99085 strands + studio/scorer renders + sheet.png + RESULT.txt + GATES_PASS.txt; card gates pass.

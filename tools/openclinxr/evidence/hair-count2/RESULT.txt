@@ -1,0 +1,73 @@
+HAIR COUNT 2 — FIBRE COUNT, TRANSMISSION AND KEY PROBES
+Base = prof1 combo strands (69181) + look7 best params (COLOR) + rig1 rig block, score.py v3, 1024/64 + crown_top.
+n2 = 138362 fibres (2x, deterministic +25um x duplicate, radii 0.05->0.0354mm, coverage-neutral by area).
+tt0/tt05 = base with Huang TT-lobe 0.0/0.5 via score_tt adapter (one socket write; score.py file unmodified, sha in score.json).
+key15 = base rig with key_daz -34.2619 -> -49.2619 (15 deg further off camera axis).
+
+TS TARGETS::front p50=0.0661 p90=0.1747 hue=14.0 sat=0.193; three_quarter p50=0.0669 p90=0.1476 hue=21.3 sat=0.193;
+profile p50=0.0960 p90=0.1602 hue=23.4 sat=0.167; back p50=0.1123 p90=0.1767 hue=20.5 sat=0.232;
+bands back TS 849x16.4, ear TS 89x11.7.
+
+BASE::IoU f/p/b=0.7147/0.6952/0.7698; oriErr f/3q/p/b=24.83/32.58/32.31/24.67deg;
+front p50=0.0812 p90=0.1899 hue=23.3 sat=0.178 maskPx=86916;
+3q p50=0.1044 p90=0.1560 hue=22.9 sat=0.176 maskPx=119126;
+profile p50=0.1322 p90=0.1593 hue=21.4 sat=0.156 maskPx=170570;
+back p50=0.1159 p90=0.1526 hue=16.6 sat=0.163 maskPx=247921;
+bands back 501x29.8 (acPeak 0.650), ear 83x10.4; holes profile 6.818% (1141 comp, 11630px of 170570, largest 7300px).
+crown cover 0-10/10-20/20-30/30-50 = 0.604/0.506/0.529/0.795; crown partSide=1.2613; front partSide=0.9632.
+
+N2::IoU f/p/b=0.7113/0.6741/0.7665 (d=-0.0034/-0.0210/-0.0032); oriErr=24.96/32.93/33.80/25.43deg;
+front p50=0.0835 p90=0.1871 hue=23.4 sat=0.176 maskPx=85792;
+3q p50=0.1047 p90=0.1591 hue=22.8 sat=0.196 maskPx=115859;
+profile p50=0.1271 p90=0.1554 hue=21.2 sat=0.163 maskPx=158315;
+back p50=0.1196 p90=0.1554 hue=17.0 sat=0.163 maskPx=246227;
+bands back 445x32.7 (acPeak 0.657), ear 103x7.9; holes profile 10.588% (1387 comp, 16762px of 158315, largest 12462px).
+crown cover 0.502/0.422/0.401/0.679; crown partSide=1.2498; front partSide=0.9222.
+
+TT0::IoU f/p/b=0.7147/0.6952/0.7698 (geometry-identical); oriErr=24.98/31.15/29.25/21.17deg;
+front p50=0.0524 p90=0.1339 hue=24.1 sat=0.158;
+3q p50=0.0874 p90=0.1313 hue=23.8 sat=0.132;
+profile p50=0.1148 p90=0.1392 hue=23.1 sat=0.128;
+back p50=0.0991 p90=0.1319 hue=17.7 sat=0.132;
+bands back 646x23.5 (acPeak 0.414), ear 119x7.3; holes 6.818% (identical masks).
+crown partSide=1.3162; front partSide=1.0659.
+
+TT05::IoU f/p/b=0.7147/0.6952/0.7698; oriErr=24.81/32.21/31.45/24.15deg;
+front p50=0.0700 p90=0.1636 hue=23.7 sat=0.162;
+3q p50=0.0961 p90=0.1428 hue=23.5 sat=0.150;
+profile p50=0.1235 p90=0.1479 hue=22.3 sat=0.143;
+back p50=0.1078 p90=0.1431 hue=17.1 sat=0.146;
+bands back 580x28.1 (acPeak 0.629), ear 101x8.6; holes 6.818%.
+crown partSide=1.2827; front partSide=1.0080.
+
+KEY15::IoU f/p/b=0.7147/0.6952/0.7698; oriErr=24.69/31.60/30.83/23.38deg;
+front p50=0.0814 p90=0.1851 hue=23.4 sat=0.171;
+3q p50=0.0961 p90=0.1507 hue=23.0 sat=0.186;
+profile p50=0.1257 p90=0.1557 hue=21.4 sat=0.159;
+back p50=0.1117 p90=0.1630 hue=17.7 sat=0.167;
+bands back 268x54.3 (acPeak 0.673), ear 63x13.8; holes 6.818%.
+crown partSide=1.2613; front partSide=0.9445.
+
+VERDICTS (rules as briefed; detail in verdicts.json)::
+A1 COUNT REFUTED. n2 back components 501->445 (need >=800), mean size 29.8->32.7px (need <=20): doubling fibres merges
+highlights instead of splitting them, and thinner fibres lose alpha>=230 mask (profile maskPx -7%, crown cover -10pp,
+profile IoU -0.021). The 849x16px TS structure is not a fibre-count deficit.
+A2 TT REFUTED (binary rule): tt0 front p50 0.0812->0.0524 overshoots past 0.07 (dist 0.0112->0.0176), hue 23.3->24.1 moves
+away from 14. AUXILIARY: transmission scales front brightness monotonically (TT 1.0/0.5/0.0 -> p50 0.0812/0.0700/0.0524);
+TT=0.5 lands p50 on target with hue fixed at ~23.7. Brightness is transmission-driven; the yellow cast is not.
+A2 DEPTH false: n2 front p50 0.0835/hue 23.4 both move away. A2 KEY false: key15 front p50 0.0814/hue 23.4 unchanged;
+key position instead governs back band merging (501->268, 29.8->54.3px). No cell moves front hue toward 14 at any setting:
+the cast lives in directColorLinear/lobe balance, not in TT, depth, or key.
+STRUCTURE: profile HOLE area base 6.818% vs TS target 0.026% (1141 comps/11630px, largest 7300px vs TS 2/42px): our curtain
+is lacy where TS is a solid sheet; n2 worsens it to 10.588% (alpha-threshold effect of thinner fibres). Next slice should
+fill curtain solidity (guide re-drape/children placement), not fibre count.
+
+RENDER TIME (n2, 138362 strands, beauty+ID 1024/64 per view)::front 80.59s; three_quarter 74.94s; profile_90 63.85s;
+back 77.47s; crown_top 45.92s; render subtotal 342.77s. Wall clock incl. judge/orientation: n2 5:13 first run (6:00 timed
+rerun, IoU-identical), base 5:40, tt0 5:05, tt05 4:33, key15 4:38.
+
+SAW::Against TS, the two asks resolve asymmetrically: the back highlight gap is not count (2x fibres coarsen bands and
+shrink the alpha mask) and the front brightness is transmission Volume (TT=0.5 nails p50) while the front yellowness
+survives every rig, colour-lobe and density probe — with the profile curtain holding 6.8% see-through holes against TS
+0.03%, solidity, not shading, is the load-bearing deficit.
+Look sheet: E/look-sheet.png rows TS|base|n2|tt0, cols front/back/back-crop/ear-crop.

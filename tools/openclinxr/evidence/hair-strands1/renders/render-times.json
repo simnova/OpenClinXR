@@ -1,0 +1,49 @@
+{
+  "engine": "CYCLES-CPU",
+  "fillEnergy": 1.0,
+  "keyAngles": {
+    "dazDeg": -34.261880624326544,
+    "elDeg": 28.995110058505865
+  },
+  "keyEnergy": 5.0,
+  "keySun": [
+    -0.49241347094795934,
+    -0.7228837935943891,
+    0.4847349735552078
+  ],
+  "material": {
+    "Color": [
+      0.009475241415202618,
+      0.006922087166458368,
+      0.005410466808825731,
+      1.0
+    ],
+    "R lobe": 0.22099553048610687,
+    "Roughness": 0.3953358232975006,
+    "TRT lobe": 0.7574388980865479,
+    "TT lobe": 0.5,
+    "model": "HUANG",
+    "parametrization": "COLOR"
+  },
+  "relitNote": "front-relit: key azimuth +40 deg",
+  "rimEnergy": 1.5,
+  "seconds": {
+    "back": 60.7,
+    "back-id": 44.5,
+    "crown_top": 28.6,
+    "crown_top-id": 30.5,
+    "front": 32.5,
+    "front-id": 28.3,
+    "front-relit": 26.4,
+    "heldout_22p5": 24.4,
+    "profile_90": 42.8,
+    "profile_90-id": 40.1,
+    "three_quarter": 40.0,
+    "three_quarter-id": 31.6
+  },
+  "seed": 7,
+  "size": 1024,
+  "spp": 64,
+  "total": 431.2,
+  "transmissionNote": "TT lobe 0.5 per card; look7 lobe_T recorded in params, unused"
+}

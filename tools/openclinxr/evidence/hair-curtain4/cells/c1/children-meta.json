@@ -1,0 +1,128 @@
+{
+  "tag": "c1",
+  "requested": 50000,
+  "generated": 51350,
+  "partClosure": true,
+  "partFill": true,
+  "frontFill": true,
+  "sameSideAheadOnly": true,
+  "frontExits": 0,
+  "overEyeCheekStrands": 0,
+  "backSeamCount": 4309,
+  "partFrontClosure": false,
+  "weightJitter": false,
+  "layeredClearance": false,
+  "curtainPreserving": true,
+  "curtainGuides": 148,
+  "curtainChildren": 15656,
+  "blendBandChildren": 2372,
+  "curtainBlendBandMm": 12.0,
+  "curtainInnerLimitMm": null,
+  "curtainRootInwardMm": 0,
+  "curtainClearanceMaxMm": 8.0,
+  "crownThicknessMm": 0.0,
+  "resampleSmooth": false,
+  "smoothMeta": null,
+  "collisionRepair": {
+    "colliders": [
+      "OCLX_Aisha_head",
+      "makeclothes_library_toigo_t_shirt",
+      "makeclothes_library_female_tight_jeans_pants",
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent"
+    ],
+    "first_pass_inside": {
+      "OCLX_Aisha_head": 21483,
+      "makeclothes_library_toigo_t_shirt": 7630,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "post_inside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "post_inside_total": 0,
+    "moved_points": 28110,
+    "max_single_projection_mm": 15.197076368163872,
+    "clearance_mm": 0.2,
+    "passes": 3
+  },
+  "nan": 0,
+  "generatorMeta": {
+    "poisson": {
+      "method": "best-candidate",
+      "k": 32,
+      "r0mm": 1.163142470709703,
+      "capAreaCm2": 585.8230606991901,
+      "part_n_extra": 315,
+      "front_n_extra": 1035,
+      "front_band_area_cm2": 12.130128816089169
+    },
+    "fallback_count": 38998,
+    "part_n_extra": 315,
+    "front_n_extra": 1035
+  },
+  "capInfo": {
+    "apexY": -0.053241077810525894,
+    "stripVertexCount": 604,
+    "solidVertexCount": 31070,
+    "uvMissingCount": 0,
+    "uvRule": "nearest head face, barycentric (fan tri for quads)",
+    "splitIslands": true,
+    "islandCount": 2,
+    "islandSizes": [
+      15837,
+      15837
+    ]
+  },
+  "profileReadback": [
+    "Input_2",
+    "Input_3",
+    "Input_4",
+    "Input_5",
+    "Input_6",
+    "Socket_0",
+    "Socket_1"
+  ],
+  "visible": [
+    "Human",
+    "OCLX_Aisha_head",
+    "OCLX_blend_guides16_children",
+    "OCLX_cam",
+    "OCLX_fill",
+    "OCLX_key",
+    "OCLX_rim",
+    "makeclothes_library_female_tight_jeans_pants",
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+    "makeclothes_library_toigo_t_shirt",
+    "mpfb_parent_tara_johnson_v1_body_mesh",
+    "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+    "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+    "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+  ],
+  "renders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/cells/c1/children/front.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/cells/c1/children/front-id.png"
+    },
+    "three_quarter": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/cells/c1/children/three_quarter.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/cells/c1/children/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/cells/c1/children/profile_90.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/cells/c1/children/profile_90-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/cells/c1/children/back.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/cells/c1/children/back-id.png"
+    },
+    "crown_top": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/cells/c1/children/crown_top.png",
+      "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/cells/c1/children/crown_top-id.png"
+    }
+  }
+}

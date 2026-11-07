@@ -1,0 +1,10 @@
+{
+  "K": 3,
+  "method": "frame-transport loft + IDW blend + length-restore",
+  "tipFade": "transported offset x (1 - smoothstep(u; 0.6..1)); tip = pure guide average",
+  "meanNearestGuideDistMm": 4.8123,
+  "curtainChildren": 30368,
+  "rearChildren": 38813,
+  "lengthRestore": "per-strand scale to a1 arc length about the root",
+  "guides": "guides16.npz untouched"
+}

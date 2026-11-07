@@ -1,0 +1,50 @@
+{
+ "mask10": {
+  "front": {
+   "iou": 0.7818,
+   "interPx": 67622,
+   "unionPx": 86500,
+   "missPx": 11132,
+   "excessPx": 7746
+  },
+  "three_quarter": {
+   "iou": 0.8491,
+   "interPx": 94606,
+   "unionPx": 111419,
+   "missPx": 9193,
+   "excessPx": 7620
+  }
+ },
+ "mask15": {
+  "front": {
+   "iou": 0.7813,
+   "interPx": 67435,
+   "unionPx": 86314,
+   "missPx": 11319,
+   "excessPx": 7560
+  },
+  "three_quarter": {
+   "iou": 0.8482,
+   "interPx": 93989,
+   "unionPx": 110807,
+   "missPx": 9810,
+   "excessPx": 7008
+  }
+ },
+ "mask20": {
+  "front": {
+   "iou": 0.7838,
+   "interPx": 67331,
+   "unionPx": 85901,
+   "missPx": 11423,
+   "excessPx": 7147
+  },
+  "three_quarter": {
+   "iou": 0.8501,
+   "interPx": 93529,
+   "unionPx": 110015,
+   "missPx": 10270,
+   "excessPx": 6216
+  }
+ }
+}

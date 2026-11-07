@@ -1,0 +1,1 @@
+COMPLETE: horizontal-test.json (verdict OTHER), 4 tilt cells with audits, 5 look7 scores, per-cell table, look-sheet.png, RESULT.txt. All cells REVERTED (silhouette cost exceeds tilt fragmentation gain).

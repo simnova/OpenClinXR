@@ -1,0 +1,1 @@
+hair-shell0 STEPS 1-5 complete. GATES_PASS=yes. shell=19220 verts/39999 tris clearance=1.992mm determinism=True

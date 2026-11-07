@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 1,
+  "selection": "minimum declared fitness over 24 bounded seeded CMA-ES evaluations (first eval = stock effective rig)",
+  "bounds": {
+    "key_energy": [
+      60.0,
+      260.0
+    ],
+    "key_elev_deg": [
+      25.0,
+      65.0
+    ],
+    "key_daz_deg": [
+      -60.0,
+      -15.0
+    ],
+    "key_size_m": [
+      0.5,
+      3.0
+    ],
+    "fill_energy": [
+      15.0,
+      120.0
+    ],
+    "fill_elev_deg": [
+      5.0,
+      45.0
+    ],
+    "rim_energy": [
+      0.0,
+      60.0
+    ]
+  },
+  "startRig": {
+    "key_energy": 149.37668031234784,
+    "key_elev_deg": 36.20026659258368,
+    "key_daz_deg": -38.66,
+    "key_size_m": 1.6326859138340684,
+    "fill_energy": 51.79189232647554,
+    "fill_elev_deg": 28.809817716918104,
+    "rim_energy": 26.654435328323842
+  },
+  "bestEval": 22,
+  "searchFitness512": 3.1634398430721355,
+  "rig": {
+    "key_energy": 132.38408741072192,
+    "key_elev_deg": 28.995110058505865,
+    "key_daz_deg": -34.261880624326544,
+    "key_size_m": 1.8012515045852677,
+    "fill_energy": 51.172946975595096,
+    "fill_elev_deg": 35.21874500369956,
+    "rim_energy": 12.052275384868981
+  },
+  "fitnessParts": {
+    "front": {
+      "p50Relative": 0.4582106562826478,
+      "p90Relative": 0.0018270620662411646,
+      "hueOver30": 0.3244170229789461,
+      "saturationAbsolute": 0.04991394148020645,
+      "subtotal": 1.208699647267194
+    },
+    "three_quarter": {
+      "p50Relative": 0.6121568213535986,
+      "p90Relative": 0.026571858276336412,
+      "hueOver30": 0.03783912256871342,
+      "saturationAbsolute": 0.03389154704944192,
+      "subtotal": 0.7821900188662457
+    },
+    "profile_90": {
+      "p50Relative": 0.37664289623512326,
+      "p90Relative": 0.029686826746053295,
+      "hueOver30": 0.07461063110624669,
+      "saturationAbsolute": 0.0038759689922479856,
+      "subtotal": 0.5633029231781659
+    },
+    "back": {
+      "p50Relative": 0.0649442267529983,
+      "p90Relative": 0.14251914326933748,
+      "hueOver30": 0.1354157513929067,
+      "saturationAbsolute": 0.0654761904761905,
+      "subtotal": 0.6092472537605302
+    },
+    "face": {
+      "moveFraction": 0.030084825978932056,
+      "penalty": 0.0
+    }
+  },
+  "baseFaceCheekP50": 0.7333121568627451
+}

@@ -1,0 +1,63 @@
+HAIR TILT 1 — PER-FIBRE TILT AND WAVE (sheet-plane rotation about the root)
+
+STEP 1 HORIZONTAL-TEST (E/horizontal-test.json; Gabor 180x1deg, same kernels as
+hair-score/orientation.py; confidence-weighted 180-bin histogram over hair-mask
+interior; mass80_100 = bins 80..99 / total):
+  lit back 0.0600 | lit profile 0.1349
+  unlit (flat emission) back 0.4836 | profile 0.4708 (strand contrast vanishes
+    without shading: mean conf 0.71/0.63 -> 0.51, bimodal grid-locked 0/90 deg)
+  resampled-64 (cubic 32->64, lit) back 0.0602 | profile 0.1382 (identical top
+    bins to lit: tessellation kinks ruled out)
+  VERDICT: OTHER (no collapse in b: 0.060->0.484 / 0.135->0.471; no drop in c:
+    0.060->0.060 / 0.135->0.138). Rule: BANDS if unlit <50% of lit both views;
+    KINKS if surviving b and res64 <70% of lit both views; else OTHER.
+
+STEP 2 CELLS (E/tilt.py copies the a1 children pipeline; guides untouched;
+per-child theta ~ N(0,S) deg as s*tan(theta) lateral offset in the local sheet
+plane + optional W*sin(2*pi*s/L+phi); zero within 3 mm of part, ramp-in over
+first 15 mm arc; repair->clamp->repair->clamp->probe in Blender):
+  cell | S/W/L/seed | theta std/maxAbs | maxDisp p50/p95 | end p95 | inside | part gap
+  t2   | 2/0/0/2026101601   | 1.86/8.61 deg | 6.2/22.1 mm   | 1.96 deg | 0 | 1.1 mm
+  t4   | 4/0/0/2026101611   | 3.74/19.93    | 11.6/43.5     | 8.29     | 0 | 1.1
+  t6   | 6/0/0/2026101621   | 5.59/24.22    | 17.0/65.2     | 12.52    | 0 | 1.1
+  t4w  | 4/1.5/90/2026101631| 3.74/17.53    | 11.8/43.8     | 8.02     | 0 | 1.1
+  Step-2 gates (inside 0; eroded front mask within 1% of a1 60422px; face-box
+  openings within 1% of a1 59436px; part gap <= 3 mm):
+  t2: inside PASS; eroded 76212 (+26.1%) FAIL; openings 59282 (0.26%) PASS; part PASS
+  t4: inside PASS; eroded 87813 (+45.3%) FAIL; openings 58965 (0.79%) PASS; part PASS
+  t6: inside PASS; eroded 97682 (+61.7%) FAIL; openings 58730 (1.19%) FAIL; part PASS
+  t4w: inside PASS; eroded 87991 (+45.6%) FAIL; openings 58805 (1.06%) FAIL; part PASS
+
+STEP 3 SCORES (hair-score/score.py, look7 best-params; base = a1+look7):
+  base a1: IoU f/p/b = 0.6883/0.6810/0.7819; ori err f/3q/p/b = 27.09/33.65/31.97/24.55;
+    EMD = 3.96/7.36/29.23/9.48; back 353x41.1 vs TS 849x16.4; ear 127x6.7 vs TS 89x11.7
+  t2: IoU = 0.7181/0.6665/0.7342 (d +0.0298/-0.0145/-0.0477); ori = 27.58/37.45/31.26/21.99
+    (lower in 2/4: p,b); EMD = 4.58/12.36/22.84/7.57; back 484x31.3 (1.37x); ear 170x6.6
+  t4: IoU = 0.6889/0.6217/0.7279 (d +0.0006/-0.0593/-0.0540); ori = 26.23/35.86/33.73/22.58
+    (lower in 2/4: f,b); EMD = 3.77/11.09/23.55/4.43; back 778x18.6 (2.20x, smaller); ear 313x5.7
+  t6: IoU = 0.6411/0.5663/0.7134 (d -0.0472/-0.1147/-0.0685); ori = 27.59/35.55/34.88/22.97
+    (lower in 1/4: b); EMD = 5.18/11.91/23.94/4.16; back 903x16.6 (2.56x, ~= TS size); ear 457x5.6
+  t4w: IoU = 0.6836/0.6227/0.7258 (d -0.0047/-0.0583/-0.0561); ori = 28.08/36.65/33.81/22.30
+    (lower in 1/4: b); EMD = 4.62/12.38/22.48/4.19; back 798x18.9 (2.26x); ear 310x5.9
+  KEEP rule (ori lower >=3/4 views; back count >=1.5x with smaller mean; no IoU drop >0.01):
+  t2: 2/4 FAIL; 1.37x FAIL; IoU FAIL -> REVERTED
+  t4: 2/4 FAIL; 2.20x+smaller PASS; IoU FAIL -> REVERTED
+  t6: 1/4 FAIL; 2.56x+smaller PASS; IoU FAIL -> REVERTED
+  t4w: 1/4 FAIL; 2.26x+smaller PASS; IoU FAIL -> REVERTED
+  Look-sheet: E/look-sheet.png rows TS | current(a1+look7) | best-t4-REVERTED;
+    cols front, three_quarter, profile_90, back, back crop (320,280,704,664),
+    ear crop (three_quarter 100,240,484,624).
+
+KEPT/REVERTED: all four REVERTED. No KEPT cell. Scores and renders retained under
+E/scores/*-look7 and E/cells/*/strands.npz for the record.
+
+SAW::Tilt fragments the bands exactly as theorised (back count 353 -> 484/778/903/798,
+mean size 41.1 -> 31.3/18.6/16.6/18.9 px; t6 matches the TS count and mean size) but a
+rigid per-fibre rotation about the root moves tips centimetres (t2 p95 22 mm already),
+so the curtain silhouette pays first: front hair mask +14/+32/+50/+32%, eroded mask
++26/+45/+62/+46%, IoU drops to -0.11, and the three_quarter orientation error worsens in
+every cell (+1.9/+2.2/+1.9/+3.0 deg) with ear-crop over-fragmentation (170-457 vs TS 89).
+The working tilt magnitude lives between the prior 0.5 deg (no effect) and t2's 2 deg
+(silhouette already moves); next attempt should bend fibres without displacing tips
+(arc-distributed curvature change vanishing at root AND tip, or direction-field-only
+tilt), not rotate them about the root.

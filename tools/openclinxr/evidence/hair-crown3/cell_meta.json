@@ -1,0 +1,18 @@
+{
+ "frontroots": {
+  "added": 4200,
+  "newTotal": 77428,
+  "donorPool": 73228
+ },
+ "part": {
+  "nudged": 7717,
+  "nudgeMm": 0.75
+ },
+ "combo": {
+  "temple Roots": 655,
+  "nudged": 7717,
+  "newTotal": 73883,
+  "note": "spread+part-nudge+temple655(|x|>34mm,v4-upflow); center gap bare (fade covers); 20pct trim for tw gate",
+  "v7kept": 1117
+ }
+}

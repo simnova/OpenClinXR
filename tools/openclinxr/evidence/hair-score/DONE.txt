@@ -1,0 +1,1 @@
+PASS: diff.json reproduces both disputed profile IoUs by changing only camera history; score.py is the canonical history-independent scorer; deterministic self-test and three requested canonical rescoring cells are complete; RESULT.txt and rescore.{json,md} exist.

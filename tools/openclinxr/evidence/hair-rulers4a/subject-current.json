@@ -1,0 +1,226 @@
+{
+ "subject": "current",
+ "mmPerPx": 0.4597869103039705,
+ "idThreshold": {
+  "R1_R5": 230,
+  "R4": 128,
+  "why": "R1/R5 230 = judge load_mask alpha>=0.9 encoding (reproduces judge profile/back IoU); R4 128 per brief; R5 230 = hem2 shape_ruler"
+ },
+ "registration": {
+  "method": "hair_judge.register_view (imported, no bpy) with RAW triples",
+  "renderTriple": {
+   "front": [
+    103.0,
+    583.0,
+    512.0
+   ],
+   "profile_90": [
+    131.0,
+    561.0,
+    209.0
+   ],
+   "back": [
+    155.0,
+    651.0,
+    512.0
+   ]
+  },
+  "targetTriple": {
+   "front": [
+    127.0,
+    608.0,
+    513.0
+   ],
+   "profile_90": [
+    125.0,
+    577.0,
+    344.0
+   ],
+   "back": [
+    130.0,
+    646.0,
+    513.0
+   ]
+  },
+  "note": "front orientation.front in score.json uses skull-mode (scale 0.9545); rulers v4a use raw (scale ~1.0021) for hem2 shape_base parity; agreement probe checks raw"
+ },
+ "r1": {
+  "front": {
+   "transform": {
+    "scale": 1.0020833333333334,
+    "tx": -0.06666666666671972,
+    "ty": 23.785416666666663
+   },
+   "chinRow": 608,
+   "above": {
+    "iou": 0.5942,
+    "nOursContour": 5894,
+    "nTgtContour": 2864,
+    "signedP50px": -12.0,
+    "signedP95px": 25.5,
+    "absP95px": 34.83,
+    "signedP50mm": -5.517,
+    "signedP95mm": 11.722,
+    "absP95mm": 16.014
+   },
+   "below": {
+    "iou": 0.7214,
+    "nOursContour": 872,
+    "nTgtContour": 946,
+    "signedP50px": 0.0,
+    "signedP95px": 6.19,
+    "absP95px": 19.77,
+    "signedP50mm": 0.0,
+    "signedP95mm": 2.847,
+    "absP95mm": 9.091
+   }
+  },
+  "profile_90": {
+   "transform": {
+    "scale": 1.0511627906976744,
+    "tx": 124.30697674418604,
+    "ty": -12.702325581395343
+   },
+   "chinRow": 577,
+   "above": {
+    "iou": 0.8167,
+    "nOursContour": 9268,
+    "nTgtContour": 1850,
+    "signedP50px": -2.24,
+    "signedP95px": 50.99,
+    "absP95px": 115.88,
+    "signedP50mm": -1.028,
+    "signedP95mm": 23.445,
+    "absP95mm": 53.282
+   },
+   "below": {
+    "iou": 0.5028,
+    "nOursContour": 4317,
+    "nTgtContour": 1158,
+    "signedP50px": 25.5,
+    "signedP95px": 100.82,
+    "absP95px": 100.82,
+    "signedP50mm": 11.722,
+    "signedP95mm": 46.356,
+    "absP95mm": 46.356
+   }
+  },
+  "back": {
+   "transform": {
+    "scale": 1.0403225806451613,
+    "tx": -19.645161290322562,
+    "ty": -31.25
+   },
+   "chinRow": 611,
+   "above": {
+    "iou": 0.7503,
+    "nOursContour": 12530,
+    "nTgtContour": 1923,
+    "signedP50px": -39.96,
+    "signedP95px": 40.31,
+    "absP95px": 128.08,
+    "signedP50mm": -18.374,
+    "signedP95mm": 18.535,
+    "absP95mm": 58.89
+   },
+   "below": {
+    "iou": 0.877,
+    "nOursContour": 2343,
+    "nTgtContour": 1384,
+    "signedP50px": 0.0,
+    "signedP95px": 38.99,
+    "absP95px": 44.0,
+    "signedP50mm": 0.0,
+    "signedP95mm": 17.929,
+    "absP95mm": 20.231
+   }
+  }
+ },
+ "r4": {
+  "profile_90": {
+   "coverage": 1.0,
+   "nRegionPx": 11027,
+   "nProjPts": 262,
+   "projBBox": [
+    365.7,
+    327.7,
+    448.0,
+    452.7
+   ],
+   "targetCoverage": 1.0,
+   "nTgtRegionPx": 11978
+  },
+  "three_quarter": {
+   "coverage": 0.4927,
+   "nRegionPx": 35277,
+   "nProjPts": 262,
+   "projBBox": [
+    320.6,
+    327.7,
+    586.8,
+    450.8
+   ],
+   "targetCoverage": null,
+   "targetNote": "three_quarter has no registered target: ours only"
+  }
+ },
+ "r5": {
+  "front": {
+   "yTopTgt": 130,
+   "yBotTgt": 675,
+   "lower40Lo": 457,
+   "nTgtHemCols": 308,
+   "nBothHemCols": 293,
+   "coverage": 0.9513,
+   "yBottomMAEpx": 46.6,
+   "widthMAEpx": 12.35,
+   "yBottomMAEmm": 21.43,
+   "widthMAEmm": 5.68,
+   "widthMeanTgtPx": 84.2,
+   "widthMeanOursPx": 71.9,
+   "transform": {
+    "scale": 1.0020833333333334,
+    "tx": -0.06666666666671972,
+    "ty": 23.785416666666663
+   }
+  },
+  "profile_90": {
+   "yTopTgt": 126,
+   "yBotTgt": 870,
+   "lower40Lo": 572,
+   "nTgtHemCols": 292,
+   "nBothHemCols": 292,
+   "coverage": 1.0,
+   "yBottomMAEpx": 32.9,
+   "widthMAEpx": 38.48,
+   "yBottomMAEmm": 15.13,
+   "widthMAEmm": 17.69,
+   "widthMeanTgtPx": 65.0,
+   "widthMeanOursPx": 86.9,
+   "transform": {
+    "scale": 1.0511627906976744,
+    "tx": 124.30697674418604,
+    "ty": -12.702325581395343
+   }
+  },
+  "back": {
+   "yTopTgt": 132,
+   "yBotTgt": 823,
+   "lower40Lo": 547,
+   "nTgtHemCols": 441,
+   "nBothHemCols": 441,
+   "coverage": 1.0,
+   "yBottomMAEpx": 4.7,
+   "widthMAEpx": 42.48,
+   "yBottomMAEmm": 2.16,
+   "widthMAEmm": 19.53,
+   "widthMeanTgtPx": 226.8,
+   "widthMeanOursPx": 264.9,
+   "transform": {
+    "scale": 1.0403225806451613,
+    "tx": -19.645161290322562,
+    "ty": -31.25
+   }
+  }
+ }
+}

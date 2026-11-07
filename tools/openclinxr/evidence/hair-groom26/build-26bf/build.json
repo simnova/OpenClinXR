@@ -1,0 +1,242 @@
+{
+ "inputs": {
+  "guides": "tools/openclinxr/evidence/hair-groom25/build-25b/guides-25b.npz",
+  "roots": "tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "sdf": "tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz",
+  "hull": "tools/openclinxr/evidence/hair-hull5/hull.npz"
+ },
+ "counts": {
+  "roots": 14155,
+  "guides": 2707,
+  "pointsPer": 32,
+  "childrenPerRoot": 20,
+  "children": 289630
+ },
+ "part": {
+  "partX": 0.0001401995879485164,
+  "crownBandN": 4184
+ },
+ "vertex": {
+  "yVertexM": 0.0342,
+  "nBelowVertexRoots": 335
+ },
+ "model": "interpolated children on dense guides (no transport)",
+ "blend": {
+  "kernel": "per-child positional 4-nearest UV 1/(duv+0.03)^4, cutoff 1.0 rad, nearest-alone fallback",
+  "meanWeight0": 0.7571,
+  "nearestAloneFrac": 0.4234,
+  "nAlone": 33452,
+  "gapGate": {
+   "gateMm": 5.0,
+   "off": false,
+   "nFallbackRows": 84042,
+   "nDroppedWeights": 417791,
+   "maxGapMm": 161.94
+  },
+  "translationMm": {
+   "p50": 1.96,
+   "p90": 19.21,
+   "max": 54.44,
+   "gt5mm": 69686,
+   "gt15mm": 36548
+  },
+  "rootExactnessMmMax": 0.0
+ },
+ "regionWeight": {
+  "on": true,
+  "yEarM": -0.0635,
+  "zNapeM": 1.51,
+  "widthMm": 25.0,
+  "tol": 0.5,
+  "maxCross": 1,
+  "nCrossUsed": 15124
+ },
+ "uvCutoffRad": 0.15,
+ "poolDrop": {
+  "on": true,
+  "ref": "tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz",
+  "maxMoveMm": 60.0,
+  "nDropped": 67,
+  "moveP50": 6.626,
+  "moveP90": 25.0,
+  "moveMax": 163.112
+ },
+ "childU": {
+  "p50": 0.582,
+  "p90": 0.777,
+  "min": 0.302,
+  "max": 0.9
+ },
+ "depthServo": {
+  "on": 1,
+  "nMoved": 1651909,
+  "maxMoveMm": 6.0,
+  "childUP50": 0.582
+ },
+ "earKeepout": {
+  "keepMm": 4.0,
+  "nPushed": 48067,
+  "maxPushMm": 77.5621,
+  "minDistAfterMm": 0.039,
+  "fracLt3mmAfter": 0.0134
+ },
+ "partStyle": {
+  "on": 0,
+  "note": "removed in 8b"
+ },
+ "partExtra": {
+  "extraPerPartRoot": 0,
+  "note": "removed in 8b"
+ },
+ "partSetback": {
+  "on": 0,
+  "note": "removed in 8b"
+ },
+ "partSweep": {
+  "on": 1,
+  "bandMm": 12.0,
+  "nPartRoots": 834,
+  "nStripRoots": 21,
+  "doneRows": 16260
+ },
+ "partStrip": {
+  "stripMm": 0.75,
+  "stripArcMm": 50.0,
+  "lineTrim": false,
+  "nRoots": 21,
+  "nStrands": 420,
+  "nSamples": 3864
+ },
+ "farSnap": {
+  "snapMm": 25.0,
+  "nSnapped": 20091
+ },
+ "partClamp": {
+  "on": 1,
+  "nSamples": 191545,
+  "nStrands": 16812,
+  "nFeather": 32512,
+  "rounds": 2
+ },
+ "tuckBlend": {
+  "on": 1,
+  "nTuckRoots": 481,
+  "nTuckGuides": 57
+ },
+ "conchaTrim": {
+  "nStrands": 36423,
+  "nSamples": 321804,
+  "projConchaSamples": 14004,
+  "pinFinalSamples": 275
+ },
+ "dotGuides": {
+  "floorMm": 20.0,
+  "nDot": 345,
+  "nPool": 2362
+ },
+ "subRoots": {
+  "perRoot": 20,
+  "seed": 11,
+  "cellFrac": 0.45,
+  "uvPerM": 11.6739,
+  "cellRmmP50": 0.753,
+  "cellRmmMax": 1.413,
+  "jitMmMax": 1.374
+ },
+ "sideburnShort": {
+  "on": 1,
+  "nStrands": 6950,
+  "targetMm": [
+   12.0,
+   24.0
+  ]
+ },
+ "sideburnClamp": {
+  "on": 1,
+  "nClamped": 0,
+  "maxBeforeMm": 24.0,
+  "maxAfterMm": 24.0,
+  "rounds": 0
+ },
+ "sideburnHug": {
+  "on": 1,
+  "hugMm": 2.0,
+  "nPushed": 43003,
+  "maxPullMm": 13.5636
+ },
+ "templeRoots": {
+  "hugMm": 1.5,
+  "nRoots": 774
+ },
+ "templeHug": {
+  "on": 1,
+  "hugMm": 1.5,
+  "nPushed": 221329,
+  "maxPullMm": 43.6806
+ },
+ "templeTaper": {
+  "on": false,
+  "factor": 0.0,
+  "nStrands": 0
+ },
+ "backfill": {
+  "on": true,
+  "extraPerRoot": 10,
+  "xmaxM": -0.01,
+  "zloM": 1.51,
+  "zhiM": 1.6,
+  "yEarM": -0.0635,
+  "nRoots": 653,
+  "nExtra": 6530
+ },
+ "rootDots": {
+  "on": 1,
+  "nStrands": 6441
+ },
+ "lobeTrim": {
+  "on": 1,
+  "nSamples": 137148
+ },
+ "clump": {
+  "coarseMm": 20.0,
+  "coarsePullTip": 0.2,
+  "coarseCells": {
+   "nCells": 261,
+   "cellMin": 1,
+   "cellMax": 3178,
+   "cellMean": 1109.69
+  },
+  "fineMm": 4.5,
+  "finePullTip": 0.15,
+  "fineCells": {
+   "nCells": 4020,
+   "cellMin": 1,
+   "cellMax": 205,
+   "cellMean": 72.05
+  },
+  "pow": 2.0
+ },
+ "lengthJitter": {
+  "sigma": 0.04,
+  "seed": 7,
+  "truncSigma": 1.0,
+  "truncLoSigma": 2.0,
+  "scaleMin": 0.92,
+  "scaleMax": 1.04
+ },
+ "projection": {
+  "nPushed": 1450199,
+  "maxPushMm": 83.282,
+  "minSdfAfter": 0.3,
+  "nInsideAfter": 0,
+  "nRounds": 13,
+  "outsideGrid": 0
+ },
+ "radiiMm": {
+  "root": 0.05,
+  "tip": 0.015000000000000001,
+  "profile": "linear in t^1.5"
+ },
+ "sha256": "d13b332bd6a663c02ded1b976b426b4c92561598dc757c5862069246219f646b",
+ "bytes": 105984917
+}

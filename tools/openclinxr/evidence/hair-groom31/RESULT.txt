@@ -1,0 +1,110 @@
+# hair-groom31 RESULT: shirt-as-obstacle + gravity settle
+
+Build: children build-31 (281414 strands, sha 74a3eefb) -> settle 200 iters
+(3233.6 s) -> store/strands-31.npz sha
+0a65920c74b013f023ebd853235d78eed0f8a851e8f8fbd0ed64c5d4ef7f2550.
+Render: Blender 5.1.1 CYCLES-CPU 1024/64spp seed 7, scorer-v3 four views.
+
+## STEP 0 (measure the inference first)
+
+Method: shirt SDF from the render-scene T-shirt meshes
+(makeclothes_library_toigo_t_shirt in the render GLB), sign via
+trimesh+pyembree; groom30 strands tested.
+- Naive (all samples, shirt SDF<0 & body SDF>0): 858,584 samples, but 86%
+  sit ABOVE the shirt top edge (open-mesh neck-hole parity garbage).
+- Trustworthy (|shirt sd|<3 mm near-band): 58,986 embedded samples on
+  32,227 strands. Per region (embedded/strands): shoulders 3674/3092,
+  back_mid 19934/9099, back_hem_L 5/5, back_hem_R 0/0, nape 0/0.
+- Overlay: E/step0-back-shirt.png (embedded samples coloured, back view).
+VERDICT: inference CONFIRMED for shoulders and back-mid (thousands of
+strands sit 0.5-2 mm off skin inside the shirt volume). NOT confirmed for
+nape (no shirt contact there) or hem (no hair present; right-hem failure
+is thin-curtain rendering, not shirt-hiding). Proceeded to step 1+2.
+
+## STEP 1 (body+shirt field)
+
+Union field min(body, shirt-offset), clearance 0.5 mm above shirt, with
+near-band (|sv|<10 mm) + z<1.40 collar gate (kills neck-hole parity).
+Used for every keep-out in interp_children.py (--shirt-sdf,
+--shirt-clear-mm; both default OFF). Side fixes in same builder run:
+--cap-reproject (cap pushed 10660, nInsideAfter 0) and
+--lobe-sweep-postcap (8 rounds; earlobe-3D pre-settle xpos 1 + xneg 0
+strands vs groom30's 26+11=37).
+
+## STEP 2 (settle) stats (E/settle31.json)
+
+Gravity 0.15 mm x 200 iters, roots + first 40 mm pinned, collide vs
+body+shirt union, per-iter earlobe column clear (--pinna) + final cleanup
+(project50/sweep/project20). nLive 207566 / nFrozen 73848.
+- Free-sample drop: mean 7.738 mm, max 106.617 mm, p90 24.093 mm.
+- Contact (within clearance of union surface): 1266863 -> 1404028 /
+  4987963 (25.4% -> 28.1%).
+- Per region (dropMean / dropMax / contactBefore->After [/nFree]):
+  shoulders 4.389 / 34.369 / 14498->17908; back_mid -0.293 / 31.28 /
+  102886->99459; back_hem -1.484 / 25.272 / 151->153; nape 7.477 /
+  44.756 / 103371->22451 (nape contact FELL 9.4%->2.0%: settle lifted
+  hair off the nape rather than resting it).
+- Length: mean change +0.03655 mm, MAX +21.6038 mm on at least one strand
+  (NOT length-exact; the "0.0 um" claim in the prior STATE was wrong).
+
+## GATES (provenance in parentheses)
+
+| gate | groom19/ctrl | groom30 | groom31 | verdict |
+|---|---|---|---|---|
+| insideBody (score canonical nSge1Inside) | 0 | 2638 | 0 | PASS |
+| inside-shirt crude (shirt_gates31, |sv|<10mm) | - | 235156 | 105365 | report (halved, not 0) |
+| earlobe 3D column (earlobe31, strands) | - | 26+11=37 | 76+69=145 | FAIL (settle re-filled column; pre-settle was 1+0) |
+| profile ear box px, gate 0 | - | 0 | 5501 | FAIL |
+| 3q ear box px, gate <= target 842 | 842 | 841 | 4528 | FAIL |
+| concha (score, f/3q/p) | 0/0/0 | 0/0/0 | 6674/2483/8239 | FAIL |
+| front IoU >= 0.79 | 0.7915 | 0.7994 | 0.7685 | FAIL (-0.0215) |
+| 3q IoU >= 0.83 | 0.8406 | 0.8505 | 0.6323 | FAIL (-0.1977) |
+| profile IoU >= 0.84 | 0.8156 | 0.8413 | 0.7128 | FAIL (-0.1272) |
+| back IoU (report w/ shirt; groom30 0.7878) | 0.7959 | 0.7878 | 0.7851 | report (-0.0027) |
+| right-hem w/ shirt (shirt-gates31) | - | 11696 samples, 3981 behind (34.0%) | 11735 samples, 6945 behind (59.2%) | report (more hidden, not better cover) |
+| left-hem w/ shirt | - | 84218, 6038 behind (7.2%) | 103159, 23562 behind (22.8%) | report |
+| 3D back crossings <= 935 (cross31, guides-30) | - | 935 | 935 | PASS (unchanged guides) |
+| gradAniso sigma4 <= 0.70 | 1.0162 | 0.6257 | 0.4886 | PASS |
+| determinism | - | - | children det-31.json pass=false (recipe mismatch, see below); calibration re-ran EXACT (all 0.0); render seed 7 | FAIL/unproven |
+| faceMask front (score) | pass | - | FAIL (oursHairPx 7326 vs allow 3424.9) | FAIL |
+
+Render hairpx 31 vs 30: front 84377/83041, 3q 135425/103994 (+30%),
+profile 200539/167933 (+19%), back 289575/304806. pinnaProx visible<3mm:
+11842 (ctrl 0). lobeBoxes hairIdPx 4570 (ctrl 100).
+GATES_PASS: NO.
+
+## SCOPE
+
+Session work only: STEP 0 measurement, shirt SDF field, builder flags,
+build-31, settle, render-31, all scorers, sheet/crops, this file.
+No changes to guides, targets, masks, or other cards' evidence.
+
+## NOT TESTED
+
+- Blender hair-dynamics settle alternative (used position-based settle.py).
+- Whether a smaller gravity step / fewer iters / no final cleanup would
+  preserve silhouette (no new runs per orchestrator instruction).
+- дет children determinism with the exact build-31 recipe (det-31 used
+  --lobe-tuck while build-31 build.json records lobeTuck off, so
+  pass=false is a recipe mismatch, not proven nondeterminism).
+- Pixel-level visual grading beyond sheet/crops inspection.
+
+## REMAINING
+
+1. Settle as run destroys the groom (3q -0.22, profile -0.13, concha
+   flood, earlobe re-fill 1 -> 145 strands). The keep-out projection +
+   gravity formulation needs rework, not tuning.
+2. Determinism proof needs a det rebuild with the exact build-31 flags.
+3. Right-hem cover still fails lineage-wide (thin curtain, unchanged).
+
+## Visual read (sheet.png rows target|groom19|groom30|groom31; crops.png)
+
+- sheet 3q/profile rows: groom31 shows a wider, looser curtain spilling
+  over the ears and forward of the jaw vs groom30's contained curtain;
+  front row shows more hair inside the face mask (score FAIL).
+- crops back-knot native: knot region comparable; back rows slightly
+  thinner (back hairpx -5%).
+- crops lobe-3q-xpos / lobe-profile-xpos natives: dense hair fills the
+  ear boxes (matches 4528/5501 px boxes).
+- crops back-hem-L/R natives: hem corners remain bare thin wisps in all
+  builds incl. groom19 (rendering, not shirt-hiding).

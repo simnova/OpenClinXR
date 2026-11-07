@@ -1,0 +1,31 @@
+{
+  "c_den": {
+    "change": "+50pct duplicates in part band |x|<=4mm y<=apex+20mm, +40um outward x",
+    "baseCount": 69181,
+    "newCount": 72764,
+    "addedCount": 3583,
+    "endAngleDeg": {
+      "p50": 0.0,
+      "p95": 0.05144963002230944,
+      "max": 14.288915495912457
+    }
+  },
+  "c_slit": {
+    "change": "roots within 3mm of midline lean over slit, 1.2mm at root fading over first 12 pts",
+    "movedCount": 6571,
+    "endAngleDeg": {
+      "p50": 0.0,
+      "p95": 0.03978220050031217,
+      "max": 14.288915495912457
+    }
+  },
+  "c_lift": {
+    "change": "part-band points[1:7] z 25pct toward root z (less tent over scalp)",
+    "movedCount": 7166,
+    "endAngleDeg": {
+      "p50": 0.0,
+      "p95": 0.03978220050031217,
+      "max": 14.288915495912457
+    }
+  }
+}

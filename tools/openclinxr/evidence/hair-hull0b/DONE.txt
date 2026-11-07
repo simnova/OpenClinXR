@@ -1,0 +1,19 @@
+DONE hair-hull0b (2026-10-15, Apple M1 Max, single host)
+- S6/hull.py: --mirror-profile (default on) + --evidence-dir; 4-view carve
+  (front, profile_90, back, profile_90_mirror via exact voxel-mirror
+  equivalence, mirrorVerify 0.0 px / 1.0) + symmetry.json + diagnostics +
+  sensitivity + export stages.
+- S6/render_hull.py: mirrored-profile render tile (R' = F R F explicit
+  camera), 6-panel figure, light hull material (0.85/0.70/0.52/a0.60).
+- E/hull.npz (164,437 B, in-E; views+viscount 0-4+mirror flag), E/hull.png
+  (5 renders + 3q display tile), E/slices.png (0-4 slices + thickness
+  histograms), E/RESULT.txt, E/inputs-opened.txt, E/blender-opened.txt.
+- hair-reg3qb/camera-target3q.json absent in this worktree: 3/4 stayed
+  DISPLAY ONLY per the card.
+- git scope: tools/openclinxr/hair-groom/hull + tools/openclinxr/evidence/hair-hull0b only.
+- GATES_PASS=yes (excess p95 2.0/2.0/2.0 <= 4 px; scalp-connected 88.1%;
+  sensitivity max delta 4.14 px; front mirror-IoU 0.8992 <0.9 flagged in
+  RESULT; bans clean).
+- Hands to hull1: route guides through E/hull.npz occupancy; treat the
+  residual 1-view/0-view volume and the flagged front-hem band as known
+  feasible-space uncertainty, not guide targets.

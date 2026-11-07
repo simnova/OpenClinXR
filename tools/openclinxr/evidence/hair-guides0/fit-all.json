@@ -1,0 +1,823 @@
+{
+  "best": {
+    "cost": 796249.0738655739,
+    "start": "spec-default",
+    "values": [
+      32.667,
+      2.217,
+      3.945,
+      1.413,
+      -2.109,
+      -0.283,
+      91.595,
+      -30.56,
+      3.72,
+      19.317,
+      0.118,
+      -78.877,
+      -0.612,
+      -0.157,
+      -12.466,
+      6.407,
+      311.238,
+      -10.069,
+      0.036,
+      16.801,
+      4.472
+    ]
+  },
+  "specSha": "a2deb11688e277ba4643eb0caf977f7b705c6985ee610763da3a0f41ef5f35fe",
+  "starts": {
+    "behind-shoulder": {
+      "adequacy": {
+        "guard": {
+          "back": {
+            "coveredPx": 0,
+            "guardPx": 0
+          },
+          "front": {
+            "coveredPx": 0,
+            "eyes": {
+              "coveredPx": 0,
+              "guardPx": 3087
+            },
+            "guardPx": 5712,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 2625
+            }
+          },
+          "profile_90": {
+            "coveredPx": 0,
+            "eyes": {
+              "coveredPx": 0,
+              "guardPx": 1368
+            },
+            "guardPx": 3024,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 1656
+            }
+          },
+          "totalCoveredPx": 0
+        },
+        "guideHash": "7411e3fd5b3cb025c0a218ed6ed6047c39e78043bb5bac630cb89c84c0ff6dac",
+        "projection": {
+          "max_proj_fall_mm": 11.423,
+          "max_proj_shell_mm": 6.614,
+          "min_sdf_mm": 3.0,
+          "n_inside_mm": 0,
+          "n_proj_fall": 1402,
+          "n_proj_shell": 460
+        },
+        "regional": {
+          "back": {
+            "crown": {
+              "excessMaxPx": 32.45,
+              "excessMeanPx": 18.0,
+              "excessN": 460,
+              "missMaxPx": 13.0,
+              "missMeanPx": 5.17,
+              "missN": 39,
+              "n": 499,
+              "p50": 19.21,
+              "p95": 29.7
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            },
+            "hem": {
+              "excessMaxPx": 79.62,
+              "excessMeanPx": 45.84,
+              "excessN": 213,
+              "missMaxPx": 135.15,
+              "missMeanPx": 74.56,
+              "missN": 358,
+              "n": 571,
+              "p50": 59.81,
+              "p95": 125.18
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 27.73,
+              "excessMeanPx": 8.8,
+              "excessN": 330,
+              "missMaxPx": 1.0,
+              "missMeanPx": 1.0,
+              "missN": 15,
+              "n": 345,
+              "p50": 6.0,
+              "p95": 24.35
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 20.59,
+              "excessMeanPx": 11.54,
+              "excessN": 108,
+              "missMaxPx": 8.0,
+              "missMeanPx": 4.43,
+              "missN": 270,
+              "n": 378,
+              "p50": 5.0,
+              "p95": 18.41
+            }
+          },
+          "front": {
+            "crown": {
+              "excessMaxPx": 18.6,
+              "excessMeanPx": 7.77,
+              "excessN": 246,
+              "missMaxPx": 9.85,
+              "missMeanPx": 3.35,
+              "missN": 93,
+              "n": 339,
+              "p50": 5.39,
+              "p95": 14.88
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 12.04,
+              "missMeanPx": 9.67,
+              "missN": 50,
+              "n": 50,
+              "p50": 10.0,
+              "p95": 11.54
+            },
+            "hem": {
+              "excessMaxPx": 10.05,
+              "excessMeanPx": 4.12,
+              "excessN": 116,
+              "missMaxPx": 83.0,
+              "missMeanPx": 36.37,
+              "missN": 372,
+              "n": 488,
+              "p50": 9.0,
+              "p95": 77.69
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 36.0,
+              "missMeanPx": 16.04,
+              "missN": 395,
+              "n": 395,
+              "p50": 16.0,
+              "p95": 34.0
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 33.38,
+              "missMeanPx": 17.06,
+              "missN": 306,
+              "n": 306,
+              "p50": 18.0,
+              "p95": 29.88
+            }
+          },
+          "profile_90": {
+            "crown": {
+              "excessMaxPx": 47.01,
+              "excessMeanPx": 18.16,
+              "excessN": 484,
+              "missMaxPx": 3.61,
+              "missMeanPx": 1.8,
+              "missN": 16,
+              "n": 500,
+              "p50": 17.68,
+              "p95": 35.4
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            },
+            "hem": {
+              "excessMaxPx": 39.22,
+              "excessMeanPx": 21.11,
+              "excessN": 90,
+              "missMaxPx": 33.62,
+              "missMeanPx": 17.79,
+              "missN": 155,
+              "n": 245,
+              "p50": 19.1,
+              "p95": 36.59
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 39.2,
+              "excessMeanPx": 24.31,
+              "excessN": 100,
+              "missMaxPx": 80.45,
+              "missMeanPx": 50.06,
+              "missN": 301,
+              "n": 401,
+              "p50": 44.78,
+              "p95": 76.55
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            }
+          }
+        }
+      },
+      "cost": 1295066.3261083837,
+      "gateFails": [
+        "front/side_curtain_L p50=16.0 p95=34.0",
+        "front/side_curtain_R p50=18.0 p95=29.9",
+        "front/hem p50=9.0 p95=77.7",
+        "profile_90/crown p50=17.7 p95=35.4",
+        "profile_90/side_curtain_L p50=44.8 p95=76.5",
+        "profile_90/hem p50=19.1 p95=36.6",
+        "back/crown p50=19.2 p95=29.7",
+        "back/side_curtain_L p50=6.0 p95=24.4",
+        "back/hem p50=59.8 p95=125.2",
+        "fall projection max=11.42mm > 10mm"
+      ],
+      "nfev": 17,
+      "optimality": 1308906.0142846925,
+      "secs": 697.8,
+      "specSha": "a2deb11688e277ba4643eb0caf977f7b705c6985ee610763da3a0f41ef5f35fe",
+      "start": "behind-shoulder",
+      "status": 3,
+      "terms": {
+        "guard": 0.0,
+        "penalty": 65.3,
+        "regional": 1294999.9,
+        "regularizer": 1.105
+      },
+      "values": [
+        50.495,
+        3.405,
+        5.958,
+        2.082,
+        -2.752,
+        1.59,
+        84.265,
+        6.62,
+        -16.139,
+        5.031,
+        -0.262,
+        -82.648,
+        -15.563,
+        0.74,
+        -29.993,
+        2.842,
+        249.753,
+        50.957,
+        27.173,
+        -59.621,
+        3.086
+      ]
+    },
+    "long-back-short-front": {
+      "adequacy": {
+        "guard": {
+          "back": {
+            "coveredPx": 0,
+            "guardPx": 0
+          },
+          "front": {
+            "coveredPx": 0,
+            "eyes": {
+              "coveredPx": 0,
+              "guardPx": 3087
+            },
+            "guardPx": 5712,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 2625
+            }
+          },
+          "profile_90": {
+            "coveredPx": 369,
+            "eyes": {
+              "coveredPx": 369,
+              "guardPx": 1368
+            },
+            "guardPx": 3024,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 1656
+            }
+          },
+          "totalCoveredPx": 369
+        },
+        "guideHash": "4a1feba2f98e0a6058191e84b58ac3644428e68e5abb6f16048588edadecd36d",
+        "projection": {
+          "max_proj_fall_mm": 40.679,
+          "max_proj_shell_mm": 9.297,
+          "min_sdf_mm": 2.751,
+          "n_inside_mm": 0,
+          "n_proj_fall": 2534,
+          "n_proj_shell": 1358
+        },
+        "regional": {
+          "back": {
+            "crown": {
+              "excessMaxPx": 29.0,
+              "excessMeanPx": 19.96,
+              "excessN": 362,
+              "missMaxPx": 11.0,
+              "missMeanPx": 4.78,
+              "missN": 38,
+              "n": 400,
+              "p50": 20.81,
+              "p95": 27.8
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            },
+            "hem": {
+              "excessMaxPx": 88.39,
+              "excessMeanPx": 56.19,
+              "excessN": 507,
+              "missMaxPx": 68.96,
+              "missMeanPx": 34.47,
+              "missN": 320,
+              "n": 827,
+              "p50": 49.04,
+              "p95": 84.86
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 23.09,
+              "excessMeanPx": 11.88,
+              "excessN": 271,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 271,
+              "p50": 10.0,
+              "p95": 21.25
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 17.89,
+              "excessMeanPx": 7.2,
+              "excessN": 291,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 291,
+              "p50": 6.0,
+              "p95": 15.89
+            }
+          },
+          "front": {
+            "crown": {
+              "excessMaxPx": 15.81,
+              "excessMeanPx": 6.22,
+              "excessN": 268,
+              "missMaxPx": 6.71,
+              "missMeanPx": 2.35,
+              "missN": 34,
+              "n": 302,
+              "p50": 5.39,
+              "p95": 14.41
+            },
+            "face_opening": {
+              "excessMaxPx": 33.24,
+              "excessMeanPx": 27.21,
+              "excessN": 50,
+              "missMaxPx": 11.0,
+              "missMeanPx": 8.99,
+              "missN": 50,
+              "n": 100,
+              "p50": 13.26,
+              "p95": 32.56
+            },
+            "hem": {
+              "excessMaxPx": 27.2,
+              "excessMeanPx": 9.18,
+              "excessN": 233,
+              "missMaxPx": 46.27,
+              "missMeanPx": 18.41,
+              "missN": 287,
+              "n": 520,
+              "p50": 9.0,
+              "p95": 40.52
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 18.03,
+              "missMeanPx": 10.17,
+              "missN": 395,
+              "n": 395,
+              "p50": 10.44,
+              "p95": 16.28
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 18.38,
+              "excessMeanPx": 7.11,
+              "excessN": 88,
+              "missMaxPx": 20.62,
+              "missMeanPx": 12.19,
+              "missN": 239,
+              "n": 327,
+              "p50": 10.2,
+              "p95": 19.31
+            }
+          },
+          "profile_90": {
+            "crown": {
+              "excessMaxPx": 41.34,
+              "excessMeanPx": 18.61,
+              "excessN": 440,
+              "missMaxPx": 2.24,
+              "missMeanPx": 1.41,
+              "missN": 5,
+              "n": 445,
+              "p50": 19.0,
+              "p95": 33.2
+            },
+            "face_opening": {
+              "excessMaxPx": 71.7,
+              "excessMeanPx": 65.16,
+              "excessN": 87,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 87,
+              "p50": 63.79,
+              "p95": 71.23
+            },
+            "hem": {
+              "excessMaxPx": 47.43,
+              "excessMeanPx": 25.93,
+              "excessN": 108,
+              "missMaxPx": 28.64,
+              "missMeanPx": 15.4,
+              "missN": 150,
+              "n": 258,
+              "p50": 17.59,
+              "p95": 45.24
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 59.03,
+              "excessMeanPx": 32.99,
+              "excessN": 117,
+              "missMaxPx": 44.69,
+              "missMeanPx": 29.51,
+              "missN": 223,
+              "n": 340,
+              "p50": 31.24,
+              "p95": 51.65
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            }
+          }
+        }
+      },
+      "cost": 1164756.3032332743,
+      "gateFails": [
+        "front/face_opening p50=13.3 p95=32.6",
+        "front/hem p50=9.0 p95=40.5",
+        "profile_90/crown p50=19.0 p95=33.2",
+        "profile_90/face_opening p50=63.8 p95=71.2",
+        "profile_90/side_curtain_L p50=31.2 p95=51.6",
+        "profile_90/hem p50=17.6 p95=45.2",
+        "back/crown p50=20.8 p95=27.8",
+        "back/hem p50=49.0 p95=84.9",
+        "fall projection max=40.68mm > 10mm"
+      ],
+      "nfev": 18,
+      "optimality": 1816161.125379033,
+      "secs": 783.7,
+      "specSha": "a2deb11688e277ba4643eb0caf977f7b705c6985ee610763da3a0f41ef5f35fe",
+      "start": "long-back-short-front",
+      "status": 3,
+      "terms": {
+        "guard": 17020.1,
+        "penalty": 30164.5,
+        "regional": 1117570.1,
+        "regularizer": 1.531
+      },
+      "values": [
+        33.649,
+        1.855,
+        4.843,
+        1.484,
+        -2.598,
+        1.438,
+        77.149,
+        -45.214,
+        12.229,
+        17.565,
+        -0.303,
+        -58.496,
+        -1.917,
+        -0.764,
+        -14.972,
+        1.642,
+        264.42,
+        8.272,
+        -9.058,
+        71.151,
+        4.053
+      ]
+    },
+    "spec-default": {
+      "adequacy": {
+        "guard": {
+          "back": {
+            "coveredPx": 0,
+            "guardPx": 0
+          },
+          "front": {
+            "coveredPx": 0,
+            "eyes": {
+              "coveredPx": 0,
+              "guardPx": 3087
+            },
+            "guardPx": 5712,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 2625
+            }
+          },
+          "profile_90": {
+            "coveredPx": 407,
+            "eyes": {
+              "coveredPx": 407,
+              "guardPx": 1368
+            },
+            "guardPx": 3024,
+            "mouth": {
+              "coveredPx": 0,
+              "guardPx": 1656
+            }
+          },
+          "totalCoveredPx": 407
+        },
+        "guideHash": "f7a21a86ae7e642b86e3dd0242f90286e63eb34a5a852731e816e83bebbd1d7f",
+        "projection": {
+          "max_proj_fall_mm": 22.512,
+          "max_proj_shell_mm": 9.654,
+          "min_sdf_mm": 2.995,
+          "n_inside_mm": 0,
+          "n_proj_fall": 2365,
+          "n_proj_shell": 1221
+        },
+        "regional": {
+          "back": {
+            "crown": {
+              "excessMaxPx": 27.46,
+              "excessMeanPx": 20.04,
+              "excessN": 363,
+              "missMaxPx": 10.05,
+              "missMeanPx": 4.49,
+              "missN": 31,
+              "n": 394,
+              "p50": 21.02,
+              "p95": 26.4
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            },
+            "hem": {
+              "excessMaxPx": 86.95,
+              "excessMeanPx": 33.17,
+              "excessN": 443,
+              "missMaxPx": 24.04,
+              "missMeanPx": 10.15,
+              "missN": 213,
+              "n": 656,
+              "p50": 17.46,
+              "p95": 83.3
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 20.25,
+              "excessMeanPx": 10.29,
+              "excessN": 243,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 243,
+              "p50": 9.49,
+              "p95": 18.98
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 21.02,
+              "excessMeanPx": 11.5,
+              "excessN": 229,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 229,
+              "p50": 10.05,
+              "p95": 19.51
+            }
+          },
+          "front": {
+            "crown": {
+              "excessMaxPx": 14.14,
+              "excessMeanPx": 6.41,
+              "excessN": 275,
+              "missMaxPx": 5.83,
+              "missMeanPx": 2.48,
+              "missN": 27,
+              "n": 302,
+              "p50": 5.39,
+              "p95": 12.73
+            },
+            "face_opening": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 11.0,
+              "missMeanPx": 8.99,
+              "missN": 50,
+              "n": 50,
+              "p50": 9.0,
+              "p95": 10.33
+            },
+            "hem": {
+              "excessMaxPx": 32.0,
+              "excessMeanPx": 11.68,
+              "excessN": 274,
+              "missMaxPx": 29.15,
+              "missMeanPx": 10.98,
+              "missN": 244,
+              "n": 518,
+              "p50": 9.0,
+              "p95": 28.44
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 18.0,
+              "missMeanPx": 7.25,
+              "missN": 395,
+              "n": 395,
+              "p50": 5.0,
+              "p95": 16.19
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 9.06,
+              "excessMeanPx": 5.7,
+              "excessN": 65,
+              "missMaxPx": 21.1,
+              "missMeanPx": 11.36,
+              "missN": 239,
+              "n": 304,
+              "p50": 8.06,
+              "p95": 19.65
+            }
+          },
+          "profile_90": {
+            "crown": {
+              "excessMaxPx": 40.22,
+              "excessMeanPx": 19.45,
+              "excessN": 417,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 417,
+              "p50": 19.92,
+              "p95": 33.07
+            },
+            "face_opening": {
+              "excessMaxPx": 74.53,
+              "excessMeanPx": 66.44,
+              "excessN": 89,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 89,
+              "p50": 64.85,
+              "p95": 73.55
+            },
+            "hem": {
+              "excessMaxPx": 5.0,
+              "excessMeanPx": 2.56,
+              "excessN": 23,
+              "missMaxPx": 20.0,
+              "missMeanPx": 9.42,
+              "missN": 138,
+              "n": 161,
+              "p50": 6.71,
+              "p95": 19.24
+            },
+            "side_curtain_L": {
+              "excessMaxPx": 59.94,
+              "excessMeanPx": 30.22,
+              "excessN": 106,
+              "missMaxPx": 53.0,
+              "missMeanPx": 34.73,
+              "missN": 235,
+              "n": 341,
+              "p50": 35.81,
+              "p95": 52.2
+            },
+            "side_curtain_R": {
+              "excessMaxPx": 0.0,
+              "excessMeanPx": 0.0,
+              "excessN": 0,
+              "missMaxPx": 0.0,
+              "missMeanPx": 0.0,
+              "missN": 0,
+              "n": 0,
+              "p50": 0.0,
+              "p95": 0.0
+            }
+          }
+        }
+      },
+      "cost": 796249.0738655739,
+      "gateFails": [
+        "front/hem p50=9.0 p95=28.4",
+        "profile_90/crown p50=19.9 p95=33.1",
+        "profile_90/face_opening p50=64.8 p95=73.5",
+        "profile_90/side_curtain_L p50=35.8 p95=52.2",
+        "back/crown p50=21.0 p95=26.4",
+        "back/hem p50=17.5 p95=83.3",
+        "fall projection max=22.51mm > 10mm"
+      ],
+      "nfev": 20,
+      "optimality": 6248297.082805821,
+      "secs": 854.6,
+      "specSha": "a2deb11688e277ba4643eb0caf977f7b705c6985ee610763da3a0f41ef5f35fe",
+      "start": "spec-default",
+      "status": 3,
+      "terms": {
+        "guard": 20706.1,
+        "penalty": 5023.5,
+        "regional": 770519.1,
+        "regularizer": 0.291
+      },
+      "values": [
+        32.667,
+        2.217,
+        3.945,
+        1.413,
+        -2.109,
+        -0.283,
+        91.595,
+        -30.56,
+        3.72,
+        19.317,
+        0.118,
+        -78.877,
+        -0.612,
+        -0.157,
+        -12.466,
+        6.407,
+        311.238,
+        -10.069,
+        0.036,
+        16.801,
+        4.472
+      ]
+    }
+  }
+}

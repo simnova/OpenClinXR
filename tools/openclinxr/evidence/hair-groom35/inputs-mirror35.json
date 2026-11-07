@@ -1,0 +1,32 @@
+{
+ "pinnaSrc": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-hull4/workspace/ear_pinna.npz",
+ "pinnaSrcSha256": "bcdd013c1f2afbf15ee4bc595270b4b4f6acf6aa8dddb946cb84deb56cceb469",
+ "pinnaOut": "/Volumes/files/openclinxr-assets/store/hair-groom35/ear_pinna-mirror35.npz",
+ "pinnaOutSha256": "778c0fe02a26a528cfa7814d1acc87e01918ac3df1c19a2c2c68a3305ba5b64b",
+ "idxEarXposN": 174,
+ "idxEarXnegN": 174,
+ "fillIdx": [
+  9716,
+  9717,
+  9738,
+  9788,
+  10017,
+  10021
+ ],
+ "maxMirrorDiffMm": 0.0,
+ "frameSrc": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom4/tucked/earframe.json",
+ "frameOut": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom35/earframe-mirror35.json",
+ "frameXnegMirrorOfXpos": {
+  "xEarMm": -71.19020447134972,
+  "helixTopMm": [
+   -68.85222345590591,
+   -66.77214056253433,
+   1553.265929222107
+  ],
+  "lobeBottomMm": [
+   -71.22828811407089,
+   -63.18846344947815,
+   1508.2972049713135
+  ]
+ }
+}

@@ -1,0 +1,303 @@
+{
+  "evaluations": 16,
+  "warmStart": {
+    "roughness": 0.20744728799748446,
+    "melanin": 0.8318858642281755,
+    "redness": 0.8294456558210432,
+    "key_elev_deg": 38.0,
+    "key_energy": 148.18581432335196,
+    "key_size_m": 1.968943565284564,
+    "root_dark": 0.29801737620714847,
+    "random": 0.0
+  },
+  "best512": {
+    "index": 9,
+    "generation": 1,
+    "params": {
+      "roughness": 0.24954088555385912,
+      "melanin": 0.82,
+      "redness": 0.7742335660719442,
+      "key_elev_deg": 33.97561376022246,
+      "key_azimuth_delta_deg": -34.07547569130069,
+      "key_energy": 150.31454886059802,
+      "key_size_m": 1.7035231139100802,
+      "fill_W": 67.1377978877512,
+      "fill_elev_deg": 16.867847855674313,
+      "root_dark": 0.4,
+      "random": 0.03994997405268805
+    },
+    "metrics": {
+      "crown_part_band": {
+        "pixels": 1161,
+        "p50": 0.2186298039215686,
+        "p90": 0.28957333333333335,
+        "RB": 1.3162359608097491,
+        "mean_luminance": 0.2199673932208542
+      },
+      "sides": {
+        "pixels": 7900,
+        "p50": 0.11573999999999998,
+        "p90": 0.2562141176470588,
+        "RB": 1.5382857700635486,
+        "mean_luminance": 0.13475832444775376
+      },
+      "lower_sheet": {
+        "pixels": 7773,
+        "p50": 0.018738039215686276,
+        "p90": 0.13708784313725494,
+        "RB": 1.8485478007270368,
+        "mean_luminance": 0.048606668331554935
+      },
+      "whole_front": {
+        "pixels": 20093,
+        "p50": 0.11448705882352941,
+        "p90": 0.27514117647058817,
+        "RB": 1.5353441921898665,
+        "mean_luminance": 0.12837716028311488
+      },
+      "part_side_ratio": 1.6323102422228193,
+      "cheek": {
+        "box_norm": [
+          0.39,
+          0.4,
+          0.61,
+          0.52
+        ],
+        "pixels": 6989,
+        "p50": 0.7304494117647058
+      },
+      "mask_area_px_native": 20093,
+      "mask_area_px": 80372,
+      "mask_area_change_pct": -2.457613748073352
+    },
+    "fitness": {
+      "p50": 1.0996661505746275,
+      "p90": 0.9082531531567979,
+      "RB": 0.043590415634159295,
+      "partSide": 0.16155121111409598,
+      "face": 0,
+      "total": 2.2130609304796804
+    },
+    "renders": {
+      "front": {
+        "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine/eval-009/front.png",
+        "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine/eval-009/front-id.png"
+      }
+    }
+  },
+  "confirmation": [
+    {
+      "seed": 0,
+      "metrics": {
+        "crown_part_band": {
+          "pixels": 4792,
+          "p50": 0.21752078431372546,
+          "p90": 0.2957243137254903,
+          "RB": 1.3038640534871697,
+          "mean_luminance": 0.22100630004255462
+        },
+        "sides": {
+          "pixels": 31951,
+          "p50": 0.11368941176470587,
+          "p90": 0.26372235294117646,
+          "RB": 1.5303985967617892,
+          "mean_luminance": 0.13498376175283108
+        },
+        "lower_sheet": {
+          "pixels": 31502,
+          "p50": 0.018738039215686276,
+          "p90": 0.13718274509803924,
+          "RB": 1.864106072603663,
+          "mean_luminance": 0.04809628555174212
+        },
+        "whole_front": {
+          "pixels": 81418,
+          "p50": 0.11166666666666666,
+          "p90": 0.27938823529411766,
+          "RB": 1.5282395209171031,
+          "mean_luminance": 0.1285459701304187
+        },
+        "part_side_ratio": 1.6372806415577563,
+        "cheek": {
+          "box_norm": [
+            0.39,
+            0.4,
+            0.61,
+            0.52
+          ],
+          "pixels": 27611,
+          "p50": 0.7318180392156861
+        },
+        "mask_area_px_native": 81418,
+        "mask_area_px": 81418,
+        "mask_area_change_pct": -1.1881500540068206
+      },
+      "fitness": {
+        "p50": 1.049779050425776,
+        "p90": 0.9388891611137906,
+        "RB": 0.03895226327753153,
+        "partSide": 0.18640320778878117,
+        "face": 0,
+        "total": 2.2140236826058795
+      },
+      "renders": {
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-0/front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-0/front-id.png"
+        },
+        "three_quarter": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-0/three_quarter.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-0/three_quarter-id.png"
+        },
+        "profile_90": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-0/profile_90.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-0/profile_90-id.png"
+        },
+        "back": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-0/back.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-0/back-id.png"
+        },
+        "crown_top": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-0/crown_top.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-0/crown_top-id.png"
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "metrics": {
+        "crown_part_band": {
+          "pixels": 4859,
+          "p50": 0.2143529411764706,
+          "p90": 0.2940597647058823,
+          "RB": 1.3093069128648487,
+          "mean_luminance": 0.21862982200000805
+        },
+        "sides": {
+          "pixels": 31181,
+          "p50": 0.11333411764705884,
+          "p90": 0.2634705882352941,
+          "RB": 1.5316511363356513,
+          "mean_luminance": 0.13430625512897182
+        },
+        "lower_sheet": {
+          "pixels": 30749,
+          "p50": 0.01957176470588235,
+          "p90": 0.13718274509803924,
+          "RB": 1.860098904163781,
+          "mean_luminance": 0.04790948699750478
+        },
+        "whole_front": {
+          "pixels": 79581,
+          "p50": 0.11198588235294117,
+          "p90": 0.27919294117647053,
+          "RB": 1.525641612278311,
+          "mean_luminance": 0.12851032449118927
+        },
+        "part_side_ratio": 1.6278454178479018,
+        "cheek": {
+          "box_norm": [
+            0.39,
+            0.4,
+            0.61,
+            0.52
+          ],
+          "pixels": 27574,
+          "p50": 0.7325003921568627
+        },
+        "mask_area_px_native": 79581,
+        "mask_area_px": 79581,
+        "mask_area_change_pct": -3.4176001553454616
+      },
+      "fitness": {
+        "p50": 1.0554881899716717,
+        "p90": 0.9374906598120566,
+        "RB": 0.0372508812314304,
+        "partSide": 0.13922708923950866,
+        "face": 0,
+        "total": 2.1694568202546676
+      },
+      "renders": {
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-1/front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-1/front-id.png"
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "metrics": {
+        "crown_part_band": {
+          "pixels": 4864,
+          "p50": 0.21355764705882352,
+          "p90": 0.29450141176470584,
+          "RB": 1.3077499246908348,
+          "mean_luminance": 0.21955286635706914
+        },
+        "sides": {
+          "pixels": 31200,
+          "p50": 0.11305098039215687,
+          "p90": 0.26349098039215685,
+          "RB": 1.5321556504465061,
+          "mean_luminance": 0.1344404780794369
+        },
+        "lower_sheet": {
+          "pixels": 30758,
+          "p50": 0.01957176470588235,
+          "p90": 0.13715466666666665,
+          "RB": 1.8586503945890094,
+          "mean_luminance": 0.048262358857061254
+        },
+        "whole_front": {
+          "pixels": 79584,
+          "p50": 0.11194980392156863,
+          "p90": 0.28060862745098036,
+          "RB": 1.5281666932169742,
+          "mean_luminance": 0.12862341499325908
+        },
+        "part_side_ratio": 1.6330860280587653,
+        "cheek": {
+          "box_norm": [
+            0.39,
+            0.4,
+            0.61,
+            0.52
+          ],
+          "pixels": 27572,
+          "p50": 0.7323066666666667
+        },
+        "mask_area_px_native": 79584,
+        "mask_area_px": 79584,
+        "mask_area_change_pct": -3.4139592460890564
+      },
+      "fitness": {
+        "p50": 1.054843747233939,
+        "p90": 0.9476063105840922,
+        "RB": 0.03890460750467911,
+        "partSide": 0.1654301402938263,
+        "face": 0,
+        "total": 2.2067848056165364
+      },
+      "renders": {
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-2/front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-light2/refine-best/seed-2/front-id.png"
+        }
+      }
+    }
+  ],
+  "spread": {
+    "p50": {
+      "mean": 0.11186745098039215,
+      "sd": 0.00014273791549838905
+    },
+    "p90": {
+      "mean": 0.27972993464052287,
+      "sd": 0.0006264241052509515
+    },
+    "RB": {
+      "mean": 1.5273492754707962,
+      "sd": 0.0012078662047050554
+    }
+  }
+}

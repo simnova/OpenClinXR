@@ -1,0 +1,76 @@
+{
+ "xpos": {
+  "childrenTotal": 134749,
+  "inBandChildren": 134749,
+  "mixedChildren": 34031,
+  "singleChildren": 100718,
+  "shellSegs": 2134,
+  "shellStrands": 1136,
+  "shellCrossSide": 0,
+  "shellMixed": 423,
+  "shellSingle": 713,
+  "shellOutOfBand": 0,
+  "shellByClassSet": {
+   "FRONT": 713,
+   "FRONT+NONE": 251,
+   "FRONT+OVER": 171,
+   "FRONT+NONE+OVER": 1
+  },
+  "shellBackboneClass": {
+   "FRONT": 999,
+   "OVER": 73,
+   "NONE": 64
+  },
+  "mixedFracOfShell": 0.3724
+ },
+ "xneg": {
+  "childrenTotal": 134731,
+  "inBandChildren": 134731,
+  "mixedChildren": 33996,
+  "singleChildren": 100735,
+  "shellSegs": 2043,
+  "shellStrands": 1036,
+  "shellCrossSide": 3,
+  "shellMixed": 421,
+  "shellSingle": 615,
+  "shellOutOfBand": 0,
+  "shellByClassSet": {
+   "FRONT": 615,
+   "FRONT+NONE": 235,
+   "FRONT+OVER": 181,
+   "FRONT+NONE+OVER": 5
+  },
+  "shellBackboneClass": {
+   "FRONT": 902,
+   "OVER": 85,
+   "NONE": 49
+  },
+  "mixedFracOfShell": 0.4064
+ },
+ "midlineGuides": {
+  "n": 9,
+  "ids": [
+   1366,
+   1367,
+   1368,
+   1369,
+   1370,
+   1371,
+   1372,
+   1373,
+   1374
+  ],
+  "classes": {
+   "1366": "OVER",
+   "1367": "OVER",
+   "1368": "OVER",
+   "1369": "NONE",
+   "1370": "NONE",
+   "1371": "NONE",
+   "1372": "FRONT",
+   "1373": "NONE",
+   "1374": "FRONT"
+  },
+  "childrenUsing": 469
+ }
+}

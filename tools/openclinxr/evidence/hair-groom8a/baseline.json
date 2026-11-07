@@ -1,0 +1,162 @@
+{
+ "bands": "parietal |x| 50-85mm; temple tuck-box (|x| 45-85mm, y -135..-40mm); crown z>=1.60m; back y>34.2mm",
+ "grooms": {
+  "groom5": {
+   "children": 189853,
+   "sdf": {
+    "parietal": {
+     "n": 237159,
+     "p50": 2.24,
+     "p90": 8.32
+    },
+    "temple": {
+     "n": 106181,
+     "p50": 1.6,
+     "p90": 2.77
+    },
+    "crown": {
+     "n": 86145,
+     "p50": 1.83,
+     "p90": 2.89
+    },
+    "back": {
+     "n": 39780,
+     "p50": 21.84,
+     "p90": 49.22
+    }
+   },
+   "thickness": {
+    "parietal": {
+     "n": 237159,
+     "p50": 3.3,
+     "p90": 10.87
+    },
+    "temple": {
+     "n": 106181,
+     "p50": 3.17,
+     "p90": 7.64
+    },
+    "crown": {
+     "n": 86145,
+     "p50": 3.06,
+     "p90": 3.7
+    },
+    "back": {
+     "n": 39780,
+     "p50": 23.08,
+     "p90": 50.24
+    }
+   },
+   "shellNote": "sdf/thickness on arc 10-80mm shell samples",
+   "silhouette": {
+    "front": {
+     "missPx": 38965,
+     "excessPx": 3322,
+     "iou": 0.4848
+    },
+    "three_quarter": {
+     "missPx": 30584,
+     "excessPx": 2336,
+     "iou": 0.6898
+    },
+    "profile_90": {
+     "missPx": 11284,
+     "excessPx": 8331,
+     "iou": 0.8754
+    },
+    "back": {
+     "missPx": 46878,
+     "excessPx": 3297,
+     "iou": 0.852
+    }
+   },
+   "projection": {
+    "nPushed": 891201,
+    "maxPushMm": 80.7915
+   }
+  },
+  "groom7": {
+   "children": 306001,
+   "sdf": {
+    "parietal": {
+     "n": 452518,
+     "p50": 2.51,
+     "p90": 11.02
+    },
+    "temple": {
+     "n": 165284,
+     "p50": 1.71,
+     "p90": 3.54
+    },
+    "crown": {
+     "n": 103366,
+     "p50": 1.91,
+     "p90": 3.43
+    },
+    "back": {
+     "n": 43338,
+     "p50": 23.22,
+     "p90": 50.01
+    }
+   },
+   "thickness": {
+    "parietal": {
+     "n": 452518,
+     "p50": 3.42,
+     "p90": 12.36
+    },
+    "temple": {
+     "n": 165284,
+     "p50": 3.25,
+     "p90": 6.29
+    },
+    "crown": {
+     "n": 103366,
+     "p50": 3.1,
+     "p90": 4.18
+    },
+    "back": {
+     "n": 43338,
+     "p50": 24.41,
+     "p90": 50.61
+    }
+   },
+   "shellNote": "sdf/thickness on arc 10-80mm shell samples",
+   "silhouette": {
+    "front": {
+     "missPx": 33646,
+     "excessPx": 1981,
+     "iou": 0.5587
+    },
+    "three_quarter": {
+     "missPx": 29021,
+     "excessPx": 1878,
+     "iou": 0.7076
+    },
+    "profile_90": {
+     "missPx": 13087,
+     "excessPx": 8396,
+     "iou": 0.8636
+    },
+    "back": {
+     "missPx": 39403,
+     "excessPx": 5579,
+     "iou": 0.8682
+    }
+   },
+   "projection": {
+    "nPushed": 1501528,
+    "maxPushMm": 80.5279
+   }
+  }
+ },
+ "guides": {
+  "n": 567,
+  "turnGateBreaches15degPer5mm": 473,
+  "turnP50": 68.6,
+  "turnP95": 172.0,
+  "turnMax": 179.2,
+  "nTucked": 57
+ },
+ "seconds": 3.1
+}

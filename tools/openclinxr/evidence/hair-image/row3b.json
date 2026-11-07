@@ -1,0 +1,168 @@
+{
+ "ok": false,
+ "stage": "compose",
+ "error": "Traceback (most recent call last):\n  File \"/Users/patrick/.grok/worktrees/src-openclinxr/bothy-tsk_e43b54ee32d3876e/tools/openclinxr/evidence/hair-image/image03b.py\", line 791, in main\n    im = PILImage.open(p).convert(\"RGB\")\n         ~~~~~~~~~~~~~^^^\n  File \"/Applications/Blender.app/Contents/Resources/5.1/python/lib/python3.13/site-packages/PIL/Image.py\", line 3711, in open\n    raise UnidentifiedImageError(msg)\nPIL.UnidentifiedImageError: cannot identify image file 'tools/openclinxr/evidence/hair-image/_target3.png'\n",
+ "blenderVersion": "5.1.1",
+ "dupSockets": [
+  [
+   "Geometry",
+   "Output_1"
+  ],
+  [
+   "Guide Index",
+   "Output_9"
+  ],
+  [
+   "Geometry",
+   "Input_0"
+  ],
+  [
+   "Amount",
+   "Input_2"
+  ],
+  [
+   "Viewport Amount",
+   "Input_4"
+  ],
+  [
+   "Radius",
+   "Input_5"
+  ],
+  [
+   "Distribution Shape",
+   "Input_7"
+  ],
+  [
+   "Tip Roundness",
+   "Input_8"
+  ],
+  [
+   "Even Thickness",
+   "Input_6"
+  ],
+  [
+   "Seed",
+   "Input_3"
+  ]
+ ],
+ "cells": [
+  {
+   "strands": "Amount 1",
+   "amount": 1,
+   "radius": 0.002,
+   "strandsAfter": 20106,
+   "strandsExpected": 20106,
+   "invalid": false,
+   "volume": 0.08614061049210771,
+   "crownScalpFraction": 0.06436962577207218,
+   "meanHairLuminance": 0.22372379079463364,
+   "faceSkinRatio": 1.953069153069153,
+   "feasible": false
+  },
+  {
+   "strands": "Amount 1",
+   "amount": 1,
+   "radius": 0.005,
+   "strandsAfter": 20106,
+   "strandsExpected": 20106,
+   "invalid": false,
+   "volume": 0.0851758356545961,
+   "crownScalpFraction": 0.06516881447243564,
+   "meanHairLuminance": 0.22508887653170617,
+   "faceSkinRatio": 1.9567987567987568,
+   "feasible": false
+  },
+  {
+   "strands": "Amount 1",
+   "amount": 1,
+   "radius": 0.01,
+   "strandsAfter": 20106,
+   "strandsExpected": 20106,
+   "invalid": false,
+   "volume": 0.08505251857010214,
+   "crownScalpFraction": 0.06577410369305418,
+   "meanHairLuminance": 0.22853163426564654,
+   "faceSkinRatio": 1.9452991452991453,
+   "feasible": false
+  },
+  {
+   "strands": "Amount 2",
+   "amount": 2,
+   "radius": 0.002,
+   "strandsAfter": 30159,
+   "strandsExpected": 30159,
+   "invalid": false,
+   "volume": 0.10148270659238626,
+   "crownScalpFraction": 0.06107167460388774,
+   "meanHairLuminance": 0.21831276598130317,
+   "faceSkinRatio": 1.8682206682206681,
+   "feasible": true
+  },
+  {
+   "strands": "Amount 2",
+   "amount": 2,
+   "radius": 0.005,
+   "strandsAfter": 30159,
+   "strandsExpected": 30159,
+   "invalid": false,
+   "volume": 0.10113451717734448,
+   "crownScalpFraction": 0.061251385269715755,
+   "meanHairLuminance": 0.22130777506813942,
+   "faceSkinRatio": 1.8637140637140637,
+   "feasible": false
+  },
+  {
+   "strands": "Amount 2",
+   "amount": 2,
+   "radius": 0.01,
+   "strandsAfter": 30159,
+   "strandsExpected": 30159,
+   "invalid": false,
+   "volume": 0.10048891597028783,
+   "crownScalpFraction": 0.06226974570940785,
+   "meanHairLuminance": 0.2260041035919168,
+   "faceSkinRatio": 1.8707070707070708,
+   "feasible": false
+  },
+  {
+   "strands": "Amount 4",
+   "amount": 4,
+   "radius": 0.002,
+   "strandsAfter": 50265,
+   "strandsExpected": 50265,
+   "invalid": false,
+   "volume": 0.12193883472609099,
+   "crownScalpFraction": 0.05958705453292364,
+   "meanHairLuminance": 0.2114118507890961,
+   "faceSkinRatio": 1.7325563325563325,
+   "feasible": true
+  },
+  {
+   "strands": "Amount 4",
+   "amount": 4,
+   "radius": 0.005,
+   "strandsAfter": 50265,
+   "strandsExpected": 50265,
+   "invalid": false,
+   "volume": 0.12013260213556175,
+   "crownScalpFraction": 0.06000227389005742,
+   "meanHairLuminance": 0.21499520370916314,
+   "faceSkinRatio": 1.7317793317793317,
+   "feasible": true
+  },
+  {
+   "strands": "Amount 4",
+   "amount": 4,
+   "radius": 0.01,
+   "strandsAfter": 50265,
+   "strandsExpected": 50265,
+   "invalid": false,
+   "volume": 0.12011084029712163,
+   "crownScalpFraction": 0.057567316620241414,
+   "meanHairLuminance": 0.2221304988525184,
+   "faceSkinRatio": 1.740947940947941,
+   "feasible": false
+  }
+ ],
+ "selected": null
+}

@@ -1,0 +1,211 @@
+hair-groom15 — collision-only shrinkwrap + depth-class interpolation + full colliders
+====================================================================================
+Station: tools/openclinxr/hair-groom/strands/blender_children.py (rewritten)
+Evidence: tools/openclinxr/evidence/hair-groom15/  (this dir)
+Date: 2026-10-18   Branch: hair-tgt2   Blender 5.1.1   Guides: hair-groom8a/build/guides-8a.npz
+
+VERDICT: GATES_PASS = no  (HARD gates insideBody<=500 and pinna==0 FAIL; several
+advisory gates regress vs groom12-8a). The brief's central premise is REFUTED by
+measurement: "Above Surface 0.0 = collision-only" does NOT zero the inside-body
+penetration, and the depth gate that Above Surface 0.0 was meant to restore cannot
+pass simultaneously with the insideBody gate. Details + causal proof below.
+
+
+1. WHAT WAS IMPLEMENTED
+-----------------------
+Copy of blender_children.py rewritten to the groom15 spec:
+- Shrinkwrap Hair Curves: Above Surface 0.0 (brief's "collision-only"), Factor 1.0,
+  Offset 1 mm, Lock Roots, CHAINED over head + body + garments colliders.
+- Smooth Hair Curves: Amount 0.15, 1 iteration.
+- Guides split into N depth classes (default 3) by each guide's own max skull SDF
+  (tertiles); one Interpolate modifier per class; children blend only same-class
+  guides; density share proportional to class root count.
+- New CLI args (all default runner, no manual touches): --above-surface (0.0),
+  --shrink-offset (0.001), --smooth-steps (2), --smooth-amount (0.15),
+  --smooth-iters (1), --depth-classes (3), --interp-guides (3), --colliders (""),
+  --distance-to-guides (1.0), --follow-surface-normal (0), --attach-snap (1),
+  --attach-blend (0.0), --skip-clump/--skip-noise/--skip-shrink/--skip-smooth (0).
+- Colliders used when --colliders "" (auto): OCLX_Aisha_head, Human,
+  makeclothes_library_toigo_t_shirt, makeclothes_library_female_tight_jeans_pants,
+  makeclothes_library_footwear_toigo_mj_cloth_shoes_<...> (5 objects).
+- 3 depth-class tertile cuts by per-guide max SDF: [11.169, 31.808]; class sizes
+  [903, 902, 902] of 2707 guides.
+
+FINAL BUILD (the product of this slice):
+  blender_children.py --density 3900000 --seed 7 --scalp-roots hair-scalp1/roots.npz
+  -> 276971 children x 41 pts, radius 4e-05 m, zeroSuppressed 0
+  array-hash sha256 b1ff2c4bc6549bd7d2e4c8c5f5ec0a9d09a84fb271e664054483cf7eb17010d8
+  (determinism rebuild -> identical hash; gates15.json)
+  file sha256 45ba28a6e0c2cd65c6356ac1bf0dc0942b494777f8fe7ce95ae695e207e1dba0
+  file bytes 186125512  -> stored at
+  /Volumes/files/openclinxr-assets/store/hair-groom15/strands-8a.npz (+ SHA256SUMS)
+
+Renders: renders-studio-8a/ (front, three_quarter, profile_90, back), 1024 px / 64 spp,
+  params-c08, body mpfb-peds-parent-aisha.glb. Sheet: sheet.png (target|8a|12-8a|15).
+  Crops: crops.png (10 regional boxes).
+
+
+2. SCORER CALIBRATION (why the numbers below are trustworthy)
+-------------------------------------------------------------
+The groom14 scorer (commit 07cad3530, branch groom14-wip) was reused unmodified in
+logic: score15.py + rulers15.py + calibrate15.py + iou15.py + depthprobe15.py.
+calibrate15.py re-scores the groom8a renders with this stack and must reproduce the
+published groom8a IoU. Result: front/3q/profile/back IoU 0.7446 / 0.8261 / 0.8543 /
+0.8579, delta 0.0 mm, "all_within_0.02": true. => the ruler measures what groom8a
+published; trim = ~0% of mass, so depth gates are ~unaffected by the 4 mm trim.
+
+
+3. GUIDE-DEPTH REFERENCE (the causal chain: what depth the guides carry)
+------------------------------------------------------------------------
+guide-depth.json, raw guides-8a, arc 10-80 mm, metres:
+  band      n       p50     p90     std
+  parietal  21649   8.085   17.048  6.524
+  temple    9806    5.573   9.033   4.029
+  crown     26171   6.555   11.454  3.645
+  back      1005    13.63   27.504  7.992
+Depth gate = child p50/p90 within +-20% of guide; child std >= 0.6x guide std.
+
+
+4. CHILD DEPTH — FINAL BUILD (score15.json depth)
+-------------------------------------------------
+groom12-8a (baseline): parietal p50 3.26 p90 10.25 std 4.34 | temple p50 1.17 p90 5.12 std 2.76
+groom15   (this slice): parietal p50 4.55 p90 17.16 std 7.51 | temple p50 3.28 p90 12.65 std 6.15
+  parietal p50 ratio 0.563 FAIL (need 0.80-1.20, i.e. 6.47-9.70 mm)
+  parietal p90 ratio 1.007 PASS
+  parietal std ratio 1.151 PASS
+  temple   p50 ratio 0.589 FAIL
+  temple   p90 ratio 1.400 FAIL
+  temple   std ratio 1.526 PASS
+Direction is right (parietal p50 3.26 -> 4.55, +40%), but nowhere near the guide.
+The deeper tail (p90) now matches the guide, so the deficit is entirely in the
+MEDIAN strand, not the tail.
+
+
+5. STAGE-TOGGLE TABLE (toggles15.json; rebuilt per toggle, density 1.2M, one probe each)
+-----------------------------------------------------------------------------------------
+tag            args                                   parietal p50/p90   temple p50/p90   insideBody
+alloff         no clump/noise/shrink/smooth           5.79 / 18.33       3.86 / 14.99     813923
+base           FINAL defaults                         4.58 / 17.28       3.30 / 12.72     71760
+noshrink       skip-shrink                            5.82 / 17.81       3.91 / 14.23     802934
+nosmooth       skip-smooth                            4.54 / 17.22       3.27 / 12.69     71173
+noclumpnoise   skip-clump skip-noise                  4.53 / 17.83       3.30 / 13.34     74730
+singleclass    depth-classes 1                        3.73 / 16.58       2.25 /  8.54     65413
+above05        above-surface 0.5                      0.00 /  0.00       0.00 /  0.00         0
+nodrape        lateral-keep 1 sideburn-tuck 0          5.10 / 17.71       3.89 / 13.64     50814
+pureinterp     alloff + depth-classes 1               5.02 / 17.43       1.82 / 10.44    690610
+interp1        interp-guides 1                        5.19 / 17.21       3.97 / 12.46     70985
+interp4        interp-guides 4                        4.48 / 17.36       3.26 / 13.06     71310
+interp8        interp-guides 8                        4.08 / 17.17       3.06 / 13.90     69572
+dg005          distance-to-guides 0.05                4.61 / 17.10       3.32 / 12.34     66954
+dg001          distance-to-guides 0.01                5.46 / 16.22       3.83 /  7.95     10095
+headonly       colliders OCLX_Aisha_head only         5.82 / 17.79       3.98 / 14.27     41663
+noshrink_c1    skip-shrink depth-classes 1            4.73 / 16.76       1.64 /  9.11    717364
+noshrink_i1    skip-shrink interp-guides 1            6.42 / 17.94       4.69 / 14.26    607265
+alloff_i1      alloff + interp-guides 1               6.56 / 18.44       4.68 / 14.97    611651
+alloff_dg001   alloff + distance-to-guides 0.01       6.29 / 16.55       4.13 /  9.01    380591
+
+Reading the table:
+- SHRINK is the dominant depth mover: removing it lifts parietal p50 4.58 -> 5.82
+  and roughly TRIPLES-TO-10x insideBody (71k -> 803k). Above Surface 0.0 is NOT
+  collision-only; it still pulls the shell onto the skull (it is the Shrinkwrap
+  modifier itself, not the offset, that flattens depth).
+- The depth classes HELP: 3 classes beat 1 (base 4.58 vs singleclass 3.73; alloff
+  5.79 vs pureinterp 5.02). The intended mechanism works, it is just bounded.
+- Above Surface 0.5 flattens ALL shell depth to 0.00 (the groom12 failure mode).
+
+
+6. MUTUALLY-EXCLUSIVE GATES (the headline finding)
+--------------------------------------------------
+- Max parietal p50 the station can produce = 6.56 mm (alloff_i1: shrink DISABLED,
+  interp-guides 1). Guide p50 = 8.085; +-20% band = [6.47, 9.70]. So the depth p50
+  gate *can* pass — but ONLY with the shrinkwrap switched OFF, which is the opposite
+  of this slice's brief, and that config has insideBody = 611651.
+- Above Surface 0.5 is the ONLY setting that reaches insideBody = 0, and it sets
+  every depth percentile to 0.00 mm.
+=> {depth p50 in band} requires shrink OFF; {insideBody <= 500} requires Above
+   Surface 0.5. No setting satisfies both. With the brief's Above Surface 0.0 the
+   station gives depth p50 ~4.5 and insideBody ~72k-230k: neither gate passes.
+- temple p90 <= 1.2x guide (10.84 mm) is reachable ONLY via distance-to-guides 0.01
+  (7.95 mm) — which collapses the count to 51549 (count gate needs 250k-310k) and
+  still leaves parietal/temple p50 low.
+  Corroboration: tools/openclinxr/evidence/hair-lanes/lanes.py, the earlier station
+  that uses Above Surface 0.0 as its "collision-only" setting, also only reduced
+  inside-body 42% -> 22% — never to ~0. Same node behaviour, independent station.
+
+
+7. HARD GATES (build/gates15.json)
+-----------------------------------
+count          276971 in [250000,310000], 41 pts      PASS
+determinism    rebuild hash == build hash            PASS  (trivial: deterministic by construction)
+insideBody     230457 <= 500                         FAIL  (groom12-8a 66944)
+pinnaProximity 174409 visible samples < 3 mm == 0     FAIL  (groom12-8a 47050)
+
+
+8. ADVISORY GATES (score15.json gates15) — pass / fail / margin
+---------------------------------------------------------------
+PASS  frontMissExcess 0.76 (<=2.0) · threeQMissExcess 0.24 (<=2.0)
+PASS  parietal p90 1.007 · parietal std 1.151 · temple std 1.526
+PASS  seamRedefined · backCoreSheer 0.0302 · hairlineFront 0.938 · hairline3q 0.913
+PASS  knotHole 0 (groom12-8a 503) · knotNoRegress · colourNoRegress 0.92x
+PASS  sideburn 0.996 · backStrip · coverage 276971 · zeroSuppressed
+FAIL  frontIoU 0.5091 (>=0.70; groom12-8a 0.4968) · threeQ 0.6104 (g12 0.6120)
+FAIL  profile IoU 0.6722 vs baseline 0.7598  -> profileNoRegress FAIL
+FAIL  concha front 168277 / 3q 79145 / profile 299245 (gate 0; g12 14879/6846/36904)
+FAIL  faceMask front 6569 (allow 3424) / 3q 24167 (allow 2127)
+FAIL  templeTips up to 1502 (<=10) · partFront/BackRows 0 (target 36/56)
+FAIL  partCrossNoRegress 152725 > 98200 · rloopProfile 66342 / rloopBack 87889
+FAIL  templeCoverage front 1.492 (0.9-1.1) · barePatch 3q 1386 px (>150)
+FAIL  hemRight alphaLt09 0.8124 (<=0.10) · back IoU 0.8434 (g12 0.7958 — improved)
+Note the tension: back IoU IMPROVED (0.7958 -> 0.8434, fuller crown) and front IoU
+improved (0.4968 -> 0.5091), but PROFILE regressed (0.7598 -> 0.6722) and every
+front/3q penetration/spill metric (faceMask, concha, pinna, templeTips, insideBody)
+got worse — exactly the "hair stands off the skull and spills forward" signature of
+a shrinkwrap that no longer holds the shell down.
+
+
+9. VISUAL READ (sheet.png rows target|8a|12-8a|15; crops.png boxes)
+-------------------------------------------------------------------
+MY GRADE (grid, no augment): groom15 is worse than groom12-8a at the front and 3q
+and better at the back.
+- crops.png "top" and "top-3q": col-4 (groom15) shows dark strands falling across
+  the forehead and temple and down over the face; col-3 (groom12-8a) and the target
+  keep a clean hairline with no forward fall. This is the faceMask/templeTips FAIL
+  made visible.
+- crops.png "back-no-part" / "back-hairline-band": col-4 is the fullest, matching
+  the target's crown volume best (back IoU improved).
+- crops.png "profile-ear": col-4 fringe/lobe messier than col-3, consistent with
+  profileIoU regression and pinna FAIL.
+- sheet.png "nape" row: col-4 more enclosed/darker than the target (nape strands
+  no longer tucked to the skull).
+
+
+10. SCOPE / NOT TESTED / REMAINING
+----------------------------------
+SCOPE: local Blender render lane only. No Quest/WebXR runtime, no on-headset evidence.
+NOT TESTED: hair-groom15 has NOT been validated on a worn headset; no WebXR capture;
+  no performance/frame-budget measurement; no downstream consumer (arena/iwsdk) load.
+REMAINING (do NOT add offsets — report-only per brief):
+  - The depth p50 gate and the insideBody<=500 gate are mutually exclusive with this
+    station's node semantics (section 6). A fixed shrinkwrap cannot both preserve
+    guide depth and eliminate penetration.
+  - Root cause hypothesis to test next: the Shrinkwrap node collapses the whole shell
+    toward the surface regardless of Above Surface; a proper "collision-only" pass
+    needs per-point closest-surface projection with a keep-out shell, not a global
+    shrink. The depth-class split is a real win (section 5) and should be kept.
+  - frontMiss 23204 (<=15000) and backMiss 45497 (<=5000) are additionally out of
+    reach from this station: groom8a itself already had frontMiss ~6k / backMiss
+    ~30k, so those thresholds post-date the base station's capability.
+  - pinna proximity (174409) needs an ear/tuck pass independent of shrinkwrap.
+
+
+11. FILE MANIFEST
+-----------------
+build/strands-8a.npz          final product (store copy + SHA256SUMS off-repo)
+build/gates15.json            hard-gate record + exact build flags + hashes
+toggles15.json                stage-toggle matrix (section 5), reproducible source
+guide-depth.json, guide_depth15.py   guide-depth reference (section 3)
+score15.py, rulers15.py, calibrate15.py, iou15.py, depthprobe15.py   scorer (sec.2)
+gates15.py, make_sheet.py     gate runner + sheet builder
+score15.json                  full per-region scorer output
+sheet.png, crops.png          4-way render sheet + regional crops
+renders-studio-8a/            4 studio views + id images + render-times.json

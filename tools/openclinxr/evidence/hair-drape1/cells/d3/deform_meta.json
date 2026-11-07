@@ -1,0 +1,9 @@
+{
+  "tag": "d3",
+  "base": "d2 waved + per-height lateral re-widen to combo half-width",
+  "ratios": {
+    "min": 1.0,
+    "max": 1.0
+  },
+  "rearFibres": 37647
+}

@@ -1,0 +1,12 @@
+{
+  "tag": "c_best4",
+  "base": "hair-hem1/base/strands.npz",
+  "deform": {
+    "cell": "best-combo-translate-densify",
+    "sealedLower": 22409,
+    "dupFibres": 12000,
+    "sealedDups": 2511,
+    "totalFibres": 110549,
+    "rule": "12k outward-translated (4..10mm, cap 0.128) full-length edge dups populate rail territory + self-edge-1mm seal of all lower tips incl rails; no trim, rail paths kept"
+  }
+}

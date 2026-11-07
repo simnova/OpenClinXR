@@ -1,0 +1,34 @@
+RESULT hair-groom12: Blender Essentials hair children on field-traced guides
+
+METHOD
+- New station stage strands/blender_children.py runs the shipped Essentials
+  groups (Attach, Interpolate, Clump, Noise, Shrinkwrap, Smooth) headless on
+  guides-8a / guides-11; Set Hair Curve Profile replaced by manual 0.04 mm
+  radius (node returns empty on large sets). Scalp mask restricted to vertices
+  within 15 mm of guide roots (face hair removed). Deterministic seed 7.
+
+GATES
+- Children: 161849 (filtered 41-pt curves) for both rows.
+- Radius: all 4e-5 m (0.04 mm); zero children with radius < 1e-6: PASS.
+- Determinism: two runs byte-identical points/radii
+  (sha256 0aca382b577b86e21e33858bca306fc5065d45fbd42c63ceaf887f7bc58c53d4): PASS.
+- Front IoU, face-mask, insideBody, concha, back-core alpha: not measured by
+  this worker (no scorer run); renders provided for orchestrator grading.
+- Visual: c08 dark-brown color restored (front mean RGB ~175/166 vs black);
+  scalp-restricted distribution removes face hair; vertical back-centre split
+  still present (part side-keying/interpolation, reported).
+
+SCOPE
+- strands/blender_children.py (new); evidence/hair-groom12 (renders, strands,
+  sheet, crops, defect abc). Skull registration, aisha-v3 targets, scorer-v3
+  cameras retained. No old-chain paths, no .blend committed. Big npz in evidence.
+
+NOT TESTED
+- Quest/headset, other bodies/seeds, dynamics, held-out lights, promotion.
+- Automated scorer gates (IoU, insideBody, concha, back-core opacity).
+
+REMAINING
+- Vertical back-centre split diagnosis; tighter scalp mask tuning; Set Hair
+  Curve Profile node compatibility on large sets.
+
+GATES_PASS=no (scorer gates not run; determinism + radius gates pass).

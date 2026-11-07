@@ -1,0 +1,16 @@
+DONE hair-groom23diag (diagnostic; no station changes, no builds, no renders)
+- Step A (3D crossing metric, s11-verbatim 2D + <=3mm 3D filter): 2D counts
+  reproduce all 4 published baselines exactly (19: 9715, 22: 9213,
+  22-control: 10154, 21: 7417); true-3D fractions 8a 22.2% / 19 18.8% /
+  21-family ~10% / 22 21.6%; d3 bimodal (p50 ~12-15mm 8a/19/22, ~131-139mm
+  21-family; p90 ~152-165mm all); radial p50 3-5mm (same-shell near-misses).
+- Step B (image-space lock metric, scorer Gabor verbatim + judge-v6
+  registration + structure-tensor twin, back-knot box): card metric does
+  NOT separate 12 from 8a/19 (8a .711 / 12 .668 / 8b .645 / 19 .628);
+  ~14 variants tested, none separates; best candidate gradAniso gy/gx
+  (tgt 0.530 / 12 0.546 / 8b 0.849 / 19 1.023 / 8a 1.273, mechanism
+  unproven); lock maps E/lock-map-{8a,8b,12,19}.png.
+- Step C (groom19 attribution via guide_idx/guide_w): top guides
+  393/378/357 (adjacent upper-back) + 2278/2279; 92.4% dev-pixel coverage.
+- Outputs: E/metrics.json, E/metrics-step-{a,b,c}.json, E/RESULT.txt,
+  E/DONE.txt, E/diag23.py, E/lock-map-*.png. Scope/limits in RESULT.txt.

@@ -1,0 +1,177 @@
+{
+ "cell": "A",
+ "gates": [
+  {
+   "gate": "G1",
+   "measured": "n=596 pts=32 nan=0 ce=11.7%",
+   "bar": "count in [536,656] and 32 pts and 0 NaN and ce<=8%",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G2",
+   "measured": "inside=4 min=0.00mm",
+   "bar": "0 inside and min>=1.0mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G5",
+   "measured": "Lgap=175.6mm Rgap=20.6mm",
+   "bar": "per-side ear-row neighbour gap<=10mm (no wrap)",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G6",
+   "measured": "p95=90000000000.00 max=90000000000.00 short=7.642%",
+   "bar": "p95<=12 and max<=45 and short<=1%",
+   "verdict": "MISS"
+  }
+ ],
+ "z_hem": 1.3332169969558714,
+ "menton_z": 1.4492169969558715,
+ "crown_z": 1.6599169969558716,
+ "brow_z": 1.5303385257720947,
+ "ear_y": -0.03894279897212982,
+ "ear_top": 1.5542949438095093,
+ "ear_row_z": 1.5392949438095094,
+ "yneck": -0.1130041554570198,
+ "count": 596,
+ "contact_ended": 70,
+ "contact_ended_frac": 11.74496644295302,
+ "m1_side": 143,
+ "trunc_kept": 6,
+ "drop_pre": 0,
+ "drop_post": 0,
+ "n_raw": 596,
+ "n_trunc": 6,
+ "ears": {
+  "L": {
+   "ear_top": [
+    -0.07081406563520432,
+    -0.04506228491663933,
+    1.5690526962280273
+   ],
+   "ear_back": [
+    -0.05948171764612198,
+    -0.015127467922866344,
+    1.5314158201217651
+   ],
+   "ear_front": [
+    -0.06290628015995026,
+    -0.09692937880754471,
+    1.524593710899353
+   ],
+   "lobe": [
+    -0.059318121522665024,
+    -0.0951622724533081,
+    1.5047229528427124
+   ],
+   "n": 407
+  },
+  "R": {
+   "ear_top": [
+    0.07081406563520432,
+    -0.04506228491663933,
+    1.5690526962280273
+   ],
+   "ear_back": [
+    0.059481725096702576,
+    -0.015127469785511494,
+    1.5314158201217651
+   ],
+   "ear_front": [
+    0.06290628761053085,
+    -0.09692937880754471,
+    1.5245938301086426
+   ],
+   "lobe": [
+    0.05931812897324562,
+    -0.0951622799038887,
+    1.5047229528427124
+   ],
+   "n": 407
+  }
+ },
+ "hulls": [
+  {
+   "name": "OCLX_ear_hull_L",
+   "faces": 106,
+   "verts": 545
+  },
+  {
+   "name": "OCLX_ear_hull_R",
+   "faces": 106,
+   "verts": 545
+  }
+ ],
+ "P2_target_hw_mm": {
+  "r607": 91.8,
+  "r657": 96.1,
+  "r707": 108.4,
+  "r757": 116.3,
+  "r807": 120.7,
+  "hem859_tip": 81.2
+ },
+ "x_face_jaw_mm": 48.0,
+ "x_face_menton_mm": 34.0,
+ "x_face_jaw_z": 1.4792169969558715,
+ "flare": {
+  "F_hem_mm": 0.0,
+  "shape": "smoothstep t=(menton-z)/(menton-zhem), flare=F_hem*t^2*(3-2t)",
+  "attempt": 8
+ },
+ "grp": {
+  "front": 111,
+  "side": 143,
+  "back": 342
+ },
+ "mask_rows": {
+  "crown": 258,
+  "menton": 612,
+  "eye": 476,
+  "jaw": 562,
+  "ear": 461,
+  "Hpx": 354.0,
+  "mmpx": 0.5951977401129943
+ },
+ "g2_inside": 4,
+ "g2_min_mm": 0.0007566351373620401,
+ "g2_by": {
+  "OCLX_Aisha_head": 3,
+  "makeclothes_library_toigo_t_shirt": 1
+ },
+ "g3_proxy": {
+  "eye_full_frac": 0.3983050847457627,
+  "jaw_full_frac": 0.4011299435028249,
+  "eye_L_px": 72.0,
+  "eye_R_px": 69.0,
+  "jaw_L_px": 72.0,
+  "jaw_R_px": 70.0
+ },
+ "g4_proxy": {
+  "earSkinL": 0,
+  "earSkinR": 0,
+  "profHair": 0.7246272246272246
+ },
+ "g5": {
+  "L": {
+   "n": 229,
+   "maxgap_mm": 175.58765746334606
+  },
+  "R": {
+   "n": 252,
+   "maxgap_mm": 20.575654007546735
+  }
+ },
+ "g6_p95": 90000000000.0,
+ "g6_max": 90000000000.0,
+ "g6_short": 1412,
+ "g6_short_frac": 0.07642346828317818,
+ "g7_proxy_px": 126,
+ "g8_proxy_px": 150,
+ "g5_ear_mm": null,
+ "g5_hem_mm": null,
+ "walk_end": {
+  "lateral": 258,
+  "rim-normal": 2
+ }
+}

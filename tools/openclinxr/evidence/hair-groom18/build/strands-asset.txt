@@ -1,0 +1,19 @@
+strands asset store: /Volumes/files/openclinxr-assets/store/hair-groom18/ (see SHA256SUMS there)
+85899ddecb53a6cb0ac01fd3f21e9aecca69ade5533f38fa79051dda21217329  strands-18.npz
+b1c453d81885a8a259602eef5e4af965e87bd332e7e4ede1939c8bf87f4dc7e5  strands-18-pre.npz
+
+array-hash (points+child_move_mm, gates18.json): 609aebe84a3b6071c8b4a2d3c8ff028d4ef3876024cf8ea55b8caec506b603a7
+pre-build array-hash (points+radii, Blender rebuild identical): 58bf45d550bcda54897ae14decdc9f4d252bcd4b95b88a2e0612c4754b601049
+build: blender_children.py --guides <groom16 guides-cleared.npz>
+       --density 3900000 --seed 7 --scalp-roots hair-scalp1/roots.npz
+       --part-by-islands 1 --clump-factor 0.2 --sideburn-tuck 0 --skip-drape 1
+       --clear-guides 0 --outside-pass 0 --height-transfer 0
+       --depth-classes 1 --interp-guides 3 --distance-to-guides 0.02
+       --follow-surface-normal 0 --skip-clump 0 --skip-noise 0
+       --skip-shrink 1 --skip-smooth 1 --colliders ""
+       -> strands-18-pre.npz (251401 x 41)
+       then rerun_transfer18.py (bounded SDF height transfer, maxStep 10 mm,
+       maxTotal 150 mm, iters 120) -> strands-18.npz
+RESULT: GATES_PASS = no (8/22 fail incl. hard pinna; falsifier NOT fired:
+temple p90 misses band by 0.08 mm so depth is 5/6, front below groom16 floor
+but profile above it). See E/RESULT.txt sections 4 and 6.

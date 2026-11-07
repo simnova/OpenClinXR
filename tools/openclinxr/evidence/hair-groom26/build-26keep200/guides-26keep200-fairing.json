@@ -1,0 +1,147 @@
+{
+ "schema": "openclinxr.hair-guide-back-position-coherent.v1",
+ "method": "BACK-region root-relative cylindrical-offset position smoothing over BACK non-tuck 20mm root graph, anchor 0.60, ONE pass, boundary weight w (25mm smoothstep), verbatim 40mm take-off; FRONT + tuck byte-identical",
+ "parameters": {
+  "anchor": 0.6,
+  "kernelMm": 20.0,
+  "verbatimMm": 40.0,
+  "capMm": 0.0,
+  "pinHem": false,
+  "hemFrac": 0.0,
+  "hemKeepMm": 200.0,
+  "passes": 1,
+  "permuteSeed": -1,
+  "permuted": false,
+  "marginMm": 1.5,
+  "gateRootMm": 6.0,
+  "P": 41,
+  "yEarM": -0.0635,
+  "zNapeM": 1.51,
+  "boundaryWidthMm": 25.0,
+  "arcLoMm": 40.0,
+  "arcHiMm": 200.0
+ },
+ "regionSplit": {
+  "BACK": 563,
+  "FRONT": 2144,
+  "total": 2707,
+  "backNonTuck": 524,
+  "tuckTotal": 57,
+  "wZeroRows": 2183,
+  "wOneRows": 313
+ },
+ "guides": {
+  "input": 2707,
+  "output": 2707,
+  "deleted": 0,
+  "inputSha256": "d51f4ef118eaf6f74a80be50cb08274bfd2671c7b1965dae19e6e92e71e75c59",
+  "outputSha256": "ea7664edc7c33d553b3ff83a3a48ac388ce719b7ac19c5be5f75d4adbaa553e5"
+ },
+ "cap": {
+  "on": false,
+  "capMm": 0.0,
+  "nCapped": 0,
+  "maxDeltaBeforeMm": 0.0
+ },
+ "pinHem": {
+  "on": false,
+  "nPinned": 0
+ },
+ "hemBlend": {
+  "on": true,
+  "hemFrac": 0.0,
+  "hemKeepMm": 200.0,
+  "nGuides": 524
+ },
+ "guideMaxMoveMm": {
+  "n": 2707,
+  "min": 0.0,
+  "p50": 0.0,
+  "p90": 0.002,
+  "p99": 63.439,
+  "max": 96.776
+ },
+ "guideMaxMoveMmBACK": {
+  "n": 563,
+  "min": 0.0,
+  "p50": 0.0,
+  "p90": 50.869,
+  "p99": 85.228,
+  "max": 96.776
+ },
+ "guideMaxMoveMmBACKNonTuck": {
+  "n": 524,
+  "min": 0.0,
+  "p50": 0.212,
+  "p90": 52.607,
+  "p99": 86.793,
+  "max": 96.776
+ },
+ "guideMaxMoveMmFRONT": {
+  "n": 2144,
+  "min": 0.0,
+  "p50": 0.0,
+  "p90": 0.0,
+  "p99": 0.0,
+  "max": 0.0
+ },
+ "backPairs": {
+  "n": 1014
+ },
+ "nearRootPairFullPathSeparationMmBeforeBACK": {
+  "n": 1014,
+  "min": 1.631,
+  "p50": 22.443,
+  "p90": 284.653,
+  "p99": 364.115,
+  "max": 441.125
+ },
+ "nearRootPairFullPathSeparationMmAfterBACK": {
+  "n": 1014,
+  "min": 1.631,
+  "p50": 20.954,
+  "p90": 275.336,
+  "p99": 363.969,
+  "max": 440.616
+ },
+ "crossingBACKNonTuck": {
+  "input": {
+   "nCrossPairs": 9715,
+   "nGuides": 266,
+   "nPairs": 35245
+  },
+  "output": {
+   "nCrossPairs": 7793,
+   "nGuides": 266,
+   "nPairs": 35245
+  },
+  "ratio": 0.8022
+ },
+ "takeoff": {
+  "verbatimMm": 40.0,
+  "verbatimSamples": 46123,
+  "byteIdentical": true,
+  "maxAbsDiffHeadMm": 0.0,
+  "pass": true
+ },
+ "frontIdentical": {
+  "samples": 87904,
+  "byteIdentical": true,
+  "maxAbsDiffHeadMm": 0.0,
+  "pass": true
+ },
+ "wZeroIdentical": {
+  "rows": 2183,
+  "samples": 89503,
+  "byteIdentical": true,
+  "pass": true
+ },
+ "body": {
+  "samplesLtMargin": 6950,
+  "samplesInside0": 2577,
+  "marginMm": 1.5
+ },
+ "hull": {
+  "samplesOutsideHull": 38335
+ }
+}

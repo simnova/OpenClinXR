@@ -1,0 +1,51 @@
+{
+ "ok": false,
+ "stage": "sockets",
+ "error": "Error: Duplicate Hair Curves has no Distance/Spread scatter socket; cannot pin scatter to 0.002 m. Sockets: [('Geometry', 'Output_1'), ('Guide Index', 'Output_9'), ('Geometry', 'Input_0'), ('Amount', 'Input_2'), ('Viewport Amount', 'Input_4'), ('Radius', 'Input_5'), ('Distribution Shape', 'Input_7'), ('Tip Roundness', 'Input_8'), ('Even Thickness', 'Input_6'), ('Seed', 'Input_3')]",
+ "blenderVersion": "5.1.1",
+ "dupSockets": [
+  [
+   "Geometry",
+   "Output_1"
+  ],
+  [
+   "Guide Index",
+   "Output_9"
+  ],
+  [
+   "Geometry",
+   "Input_0"
+  ],
+  [
+   "Amount",
+   "Input_2"
+  ],
+  [
+   "Viewport Amount",
+   "Input_4"
+  ],
+  [
+   "Radius",
+   "Input_5"
+  ],
+  [
+   "Distribution Shape",
+   "Input_7"
+  ],
+  [
+   "Tip Roundness",
+   "Input_8"
+  ],
+  [
+   "Even Thickness",
+   "Input_6"
+  ],
+  [
+   "Seed",
+   "Input_3"
+  ]
+ ],
+ "cells": [],
+ "strandsBefore": 10053,
+ "remaining": 10053
+}

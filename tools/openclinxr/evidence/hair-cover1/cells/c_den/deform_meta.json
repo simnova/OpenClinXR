@@ -1,0 +1,11 @@
+{
+  "tag": "c_den",
+  "base": "hair-cover1/base/strands.npz",
+  "deform": {
+    "cell": "c_den",
+    "dupFibres": 29368,
+    "jitterYmm": "0.2..0.5 det",
+    "jitterXmm": "0.1..0.3 det",
+    "totalFibres": 98549
+  }
+}

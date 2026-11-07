@@ -1,0 +1,100 @@
+{
+ "nGuides": 567,
+ "unreachable": 0,
+ "lengths": {
+  "p50": 420.0,
+  "p95": 501.7,
+  "max": 505.0
+ },
+ "stops": {
+  "face": 11,
+  "stuck": 112,
+  "hem": 83,
+  "silhouette": 167,
+  "maxlen": 194
+ },
+ "projGuides": 456,
+ "projSteps": 62556,
+ "projMagMean": 47.582,
+ "projMagMax": 393.01,
+ "priorStepFrac": 0.0105,
+ "partCrossings": {
+  "rawFlips": 7,
+  "crossingsOver2mm": 0,
+  "maxExcursionMm": 1.95,
+  "wholeCurve": {
+   "rawFlips": 13,
+   "crossingsOver2mm": 2,
+   "maxExcursionMm": 3.27
+  },
+  "belowVertexAllowed": {
+   "nGuides": 6,
+   "over2mm": 2
+  },
+  "yVertexMm": 34.2
+ },
+ "ear": {
+  "xpos": {
+   "nGuidesNear3mm": 0,
+   "nearIdx": [],
+   "minDistMm": 9.81,
+   "p50DistMm": 123.54
+  },
+  "xneg": {
+   "nGuidesNear3mm": 0,
+   "nearIdx": [],
+   "minDistMm": 8.12,
+   "p50DistMm": 123.36
+  },
+  "occlusion": {
+   "coveringSamples": 0,
+   "behindSamples": 37132,
+   "nGuidesCovering": 0,
+   "coveringIdx": [],
+   "perView": {
+    "front": [],
+    "three_quarter": [],
+    "profile_90": []
+   }
+  },
+  "gate": {
+   "clearMm": 3.0,
+   "pass": true
+  }
+ },
+ "backGap": {
+  "n": 334,
+  "maxGapMm": 4.68
+ },
+ "turn": {
+  "max": 179.55,
+  "p95": 37.55,
+  "p50": 4.37,
+  "fracGuidesOver15": 0.8466,
+  "nGuidesOver15": 480,
+  "gate": 15.0
+ },
+ "silTriggers": {
+  "front": 10,
+  "three_quarter": 8,
+  "profile_90": 26,
+  "back": 141
+ },
+ "silOverrides": {
+  "steps": 0,
+  "guides": 0
+ },
+ "vertexClamps": {
+  "steps": 0,
+  "guides": 0
+ },
+ "vertexRepairSamples": 0,
+ "centerMergeSteps": 43281,
+ "apexSlides": 637,
+ "rideOutSteps": 10794,
+ "maskDilatePx": 12,
+ "mirrorTest": false,
+ "containMin": 0.0,
+ "containBelow95": 17,
+ "poissonSpacingMm": 10.08
+}

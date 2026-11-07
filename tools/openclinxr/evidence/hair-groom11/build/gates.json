@@ -1,0 +1,75 @@
+{
+ "count": {
+  "n": 283100,
+  "pointsPer": 32,
+  "expect": 283100,
+  "pass": true,
+  "hard": true
+ },
+ "partCrossings": {
+  "nAssignAcross": 0,
+  "pass": true,
+  "hard": true,
+  "nAssignAcrossBelowVertexAllowed": 638,
+  "tipDriftAcross": 15780,
+  "tipOvershootMmP50": 13.31,
+  "tipOvershootMmMax": 42.46,
+  "guideTipCross": 160
+ },
+ "insideBody": {
+  "nSge1Inside": 0,
+  "pass": true,
+  "hard": true
+ },
+ "pinnaProximity": {
+  "clearMm": 3.0,
+  "nVisibleSamplesLt": 0,
+  "pass": true,
+  "hard": true
+ },
+ "faceMask": {
+  "views": {
+   "front": {
+    "maskPx": 93895,
+    "targetHairPx": 1547,
+    "oursHairPx": 4601,
+    "allowPx": 3424.9,
+    "pass": false
+   },
+   "three_quarter": {
+    "maskPx": 91763,
+    "targetHairPx": 292,
+    "oursHairPx": 4988,
+    "allowPx": 2127.3,
+    "pass": false
+   }
+  },
+  "pass": false,
+  "hard": true,
+  "note": "no hair over the face: ID>=230 px inside the target-skin face mask (brow line down) <= target + 2% of mask px, front + 3q"
+ },
+ "determinism": {
+  "hashA": "a7a0c327a59bc140ee36c068843b828849479d29ab80427f1e10c02cf5d07ede",
+  "hashB": "a7a0c327a59bc140ee36c068843b828849479d29ab80427f1e10c02cf5d07ede",
+  "pass": true,
+  "hard": true
+ },
+ "lane": {
+  "nBackStrands": 200452,
+  "guideSpacingMm": 0.57,
+  "lagBins": 2,
+  "peakRatio": 0.985,
+  "pass": true,
+  "hard": true
+ },
+ "framesSelfTest": {
+  "spinPer100mmDeg": 0.0,
+  "spinTotalDeg": 3e-06,
+  "lengthMm": 630.4,
+  "frenetContrastPer100mmDeg": 64.7,
+  "orthoMax": 1.249000902703301e-16,
+  "normMax": 1.1102230246251565e-16,
+  "pass": true
+ },
+ "pass": false
+}

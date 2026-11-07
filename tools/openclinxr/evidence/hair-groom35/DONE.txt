@@ -1,0 +1,8 @@
+groom35 DONE 2026-10-19
+STEP2 (mirrored pinna+frame): partial - concha burial fixed, mirror-IoU up, front
+IoU 0.7947 PASS; zero-gates still fail (shell 4900/8818, column 26/709).
+STEP3 (--ear-band-routed): FAIL - routed guides transit the ear; shell 15312/19864.
+Determinism PASS (step2det da3a5a59==, step3det 79d1d9bd==).
+GATES_PASS: NO. Full per-side table + provenance in RESULT.txt.
+Outputs: sheet.png, ears.png, RESULT.txt, this file. Store SHA256SUMS written.
+No .npz in git.

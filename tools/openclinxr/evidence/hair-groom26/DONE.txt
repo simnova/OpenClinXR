@@ -1,0 +1,20 @@
+DONE hair-groom26 (2026-10-18, branch hair-tgt2, base cb15f6161).
+
+Final groom26 = keep200 guides (s11 anchor 0.6 + --hem-keep-mm 200, from
+guides-19) + children (--region-weight --uv-cutoff 0.15 --pool-max-move-mm
+60 --pool-ref guides-8a.npz + --temple-taper 0.5 + --lobe-drop-roots),
+281800 children. Store: /Volumes/files/openclinxr-assets/store/hair-groom26/
+strands-26.npz sha256 61b9be3036a88775e3fd5d95563d7a751fa7b1f13bede8a6550f1c85354f9b54.
+
+Gates: 3q PASS (0.8411), profile PASS (0.8105), concha 0 PASS, insideBody 0
+PASS, faceMask-front PASS, 3D crossings 885 PASS, gradAniso 0.6253 PASS,
+front/temple byte-identical PASS, fairing + children determinism PASS,
+calibration PASS. FAIL: back 0.7776 (gate 0.795), front band +0.0131
+(gate +-0.01), right-hem alpha/miss, earlobe HARD (3D + image, 25 and 26).
+GATES_PASS = no. Full record: E/RESULT.txt. Sheets: E/sheet.png, E/crops.png.
+
+Station changes committed: orient/s11_back_coherent.py (--hem-frac,
+--hem-keep-mm), strands/interp_children.py (--backfill-*, --temple-taper,
+--lobe-drop-roots, --lobe-tuck sweep), all default OFF with groom25
+rebuild-identical proofs (s11 sha a97e76fe; interp sha 5ba846af).
+No .npz in git.

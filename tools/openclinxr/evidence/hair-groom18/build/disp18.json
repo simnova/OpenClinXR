@@ -1,0 +1,24 @@
+{
+ "note": "Clump+Noise displacement vs Attach+Interpolate reference",
+ "clumpFactor": 0.2,
+ "noiseFactor": 0.1,
+ "noiseDistanceMm": 2.0,
+ "perClass": [
+  {
+   "class": 0,
+   "nChildren": 251579,
+   "dispMm_p50": 1.0134,
+   "dispMm_p90": 6.6458,
+   "dispMm_p99": 22.1046,
+   "dispMm_max": 58.3072
+  }
+ ],
+ "allMm": {
+  "p50": 1.0134,
+  "p90": 6.6458,
+  "p99": 22.1046,
+  "max": 58.3072
+ },
+ "clumpBoundMm": 8.0,
+ "pass": false
+}

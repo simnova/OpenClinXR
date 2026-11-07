@@ -1,0 +1,78 @@
+{
+ "front": {
+  "cutoffTargetRow": 455.6,
+  "warpedScalpPx": 27052,
+  "targetMaskPx": 238370,
+  "pokeAreaPx": 4529,
+  "pokeAreaMm2": 1234.3,
+  "mmpix": 0.5221,
+  "protrusionPx": {
+   "max": 29.53,
+   "p95": 24.19,
+   "p50": 10.3,
+   "mean": 11.2
+  },
+  "protrusionMm": {
+   "max": 15.42,
+   "p95": 12.63,
+   "p50": 5.38
+  }
+ },
+ "three_quarter": {
+  "cutoffTargetRow": 458.1,
+  "warpedScalpPx": 53863,
+  "targetMaskPx": 142547,
+  "pokeAreaPx": 2489,
+  "pokeAreaMm2": 718.0,
+  "mmpix": 0.5371,
+  "protrusionPx": {
+   "max": 89.0,
+   "p95": 28.0,
+   "p50": 9.49,
+   "mean": 11.71
+  },
+  "protrusionMm": {
+   "max": 47.8,
+   "p95": 15.04,
+   "p50": 5.1
+  }
+ },
+ "profile_90": {
+  "cutoffTargetRow": 458.3,
+  "warpedScalpPx": 73709,
+  "targetMaskPx": 149114,
+  "pokeAreaPx": 5635,
+  "pokeAreaMm2": 1537.4,
+  "mmpix": 0.5223,
+  "protrusionPx": {
+   "max": 72.34,
+   "p95": 62.43,
+   "p50": 12.21,
+   "mean": 20.08
+  },
+  "protrusionMm": {
+   "max": 37.79,
+   "p95": 32.61,
+   "p50": 6.38
+  }
+ },
+ "back": {
+  "cutoffTargetRow": 458.5,
+  "warpedScalpPx": 66206,
+  "targetMaskPx": 335684,
+  "pokeAreaPx": 443,
+  "pokeAreaMm2": 121.0,
+  "mmpix": 0.5226,
+  "protrusionPx": {
+   "max": 6.4,
+   "p95": 4.24,
+   "p50": 2.0,
+   "mean": 2.33
+  },
+  "protrusionMm": {
+   "max": 3.34,
+   "p95": 2.22,
+   "p50": 1.05
+  }
+ }
+}

@@ -1,0 +1,24 @@
+{
+ "schema": "openclinxr.hair-back-field-smooth.v1",
+ "weight": "certainty c=clip(gap/0.2,0,1)*min(nviews,2)/2 (s02 beta), neighbour-weighted mean, lam=0.5",
+ "iterations": 1,
+ "frontRefP90": 21.779,
+ "backPooledP90Before": 14.708,
+ "backPooledP90After": 11.85,
+ "backPooledAfter": {
+  "n": 536588,
+  "min": 0.0,
+  "p50": 3.898,
+  "p90": 11.85,
+  "max": 89.999,
+  "mean": 6.281
+ },
+ "historyP90": [
+  14.708,
+  11.85
+ ],
+ "gate": "backPooledP90 <= frontRefP90",
+ "pass": true,
+ "frontUntouched": true,
+ "frontByteIdentical": true
+}

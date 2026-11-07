@@ -1,0 +1,10 @@
+{
+  "tag": "c_spr",
+  "base": "hair-cover1/base/strands.npz",
+  "deform": {
+    "cell": "c_spr",
+    "zoneFibres": 29368,
+    "spreadYmm": "+-1.5",
+    "envelope": "sin^2 peak idx 16, 0 at 4/28, roots/tips fixed"
+  }
+}

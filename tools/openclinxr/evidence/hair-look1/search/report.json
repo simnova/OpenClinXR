@@ -1,0 +1,160 @@
+{
+  "evaluations": 24,
+  "warmStart": {
+    "roughness": 0.24954088555385912,
+    "melanin": 0.82,
+    "redness": 0.7742335660719442,
+    "key_elev_deg": 33.97561376022246,
+    "key_azimuth_delta_deg": -34.07547569130069,
+    "key_energy": 150.31454886059802,
+    "key_size_m": 1.7035231139100802,
+    "fill_W": 67.1377978877512,
+    "fill_elev_deg": 16.867847855674313,
+    "root_dark": 0.4,
+    "random": 0.03994997405268805
+  },
+  "target": {
+    "p50": 0.0660643137254902,
+    "p90": 0.17471529411764705
+  },
+  "baseFaceP50": 0.7314627450980392,
+  "best512": {
+    "index": 18,
+    "generation": 2,
+    "params": {
+      "roughness": 0.12,
+      "melanin": 0.8877252726379737,
+      "redness": 0.8293402218429133,
+      "key_elev_deg": 40.161821774411294,
+      "key_azimuth_delta_deg": -31.689290105080133,
+      "key_energy": 121.20520887976956,
+      "key_size_m": 1.6326859138340684,
+      "fill_W": 83.34681733694208,
+      "fill_elev_deg": 15.0,
+      "root_dark": 0.3475482850614254
+    },
+    "metrics": {
+      "p50": 0.1002164705882353,
+      "p90": 0.27331356862745093,
+      "partSide": 1.4837409791277667,
+      "faceP50": 0.7272737254901961
+    },
+    "fitness": {
+      "p50": 0.8334076686527052,
+      "p90": 0.44746198073277826,
+      "partSide": 0,
+      "face": 0,
+      "total": 1.2808696493854834
+    }
+  },
+  "params": {
+    "roughness": 0.12,
+    "melanin": 0.8877252726379737,
+    "redness": 0.8293402218429133,
+    "key_elev_deg": 40.161821774411294,
+    "key_azimuth_delta_deg": -31.689290105080133,
+    "key_energy": 121.20520887976956,
+    "key_size_m": 1.6326859138340684,
+    "fill_W": 83.34681733694208,
+    "fill_elev_deg": 15.0,
+    "root_dark": 0.3475482850614254
+  },
+  "confirmation": [
+    {
+      "seed": 0,
+      "metrics": {
+        "p50": 0.09906823529411764,
+        "p90": 0.2732847058823529,
+        "partSide": 1.468845229434774,
+        "faceP50": 0.7278243137254902
+      },
+      "fitness": {
+        "p50": 0.8103602803302585,
+        "p90": 0.44735637211134316,
+        "partSide": 0,
+        "face": 0,
+        "total": 1.2577166524416017
+      },
+      "renders": {
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6/front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6/front-id.png"
+        },
+        "three_quarter": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6/three_quarter.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6/three_quarter-id.png"
+        },
+        "profile_90": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6/profile_90.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6/profile_90-id.png"
+        },
+        "back": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6/back.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6/back-id.png"
+        }
+      }
+    },
+    {
+      "seed": 1,
+      "metrics": {
+        "p50": 0.09851764705882353,
+        "p90": 0.2727341176470588,
+        "partSide": 1.4781064352324473,
+        "faceP50": 0.7278447058823528
+      },
+      "fitness": {
+        "p50": 0.799213944289407,
+        "p90": 0.445339634232787,
+        "partSide": 0,
+        "face": 0,
+        "total": 1.244553578522194
+      },
+      "renders": {
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6-seed1/front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6-seed1/front-id.png"
+        }
+      }
+    },
+    {
+      "seed": 2,
+      "metrics": {
+        "p50": 0.09880078431372549,
+        "p90": 0.2730533333333333,
+        "partSide": 1.4735372135294007,
+        "faceP50": 0.7281074509803921
+      },
+      "fitness": {
+        "p50": 0.8049536503525515,
+        "p90": 0.4465093779566476,
+        "partSide": 0,
+        "face": 0,
+        "total": 1.2514630283091992
+      },
+      "renders": {
+        "front": {
+          "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6-seed2/front.png",
+          "id_png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look1/cells/g6-seed2/front-id.png"
+        }
+      }
+    }
+  ],
+  "spread": {
+    "p50": {
+      "mean": 0.09879555555555557,
+      "sd": 0.000224807111609145
+    },
+    "p90": {
+      "mean": 0.2730240522875817,
+      "sd": 0.00022572828199894857
+    },
+    "partSide": {
+      "mean": 1.4734962927322073,
+      "sd": 0.0037809821555116812
+    },
+    "faceP50": {
+      "mean": 0.7279254901960783,
+      "sd": 0.00012893475168065252
+    }
+  }
+}

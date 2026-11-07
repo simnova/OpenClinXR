@@ -1,0 +1,1 @@
+DONE. hair-tilt5: b8 re-scored (0.6944/0.6848/0.7732, 560x25.7); s5 KEPT (713x20.8); h75 KEPT (668x21.5); s5h75 REVERTED (772x18.6, profile pays); jaw REVERTED (gates+KEEP). Best = s5 at tools/openclinxr/evidence/hair-tilt5/cells/s5/strands.npz. See RESULT.txt.

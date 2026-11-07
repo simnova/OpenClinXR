@@ -1,0 +1,143 @@
+hair-hull2: hull on the APPROVED set aisha-v2 + back-symmetry diagnosis — RESULT
+===============================================================================
+WRITE ROOTS: S6 = tools/openclinxr/hair-groom/hull (new hull2.py,
+render_hull2.py; hull.py, hull0c.py, hull1.py, render_hull.py untouched),
+manifests/aisha_straight_long_v3.json (new; v1/v2 untouched),
+E = tools/openclinxr/evidence/hair-hull2. No *.blend.
+
+STEP 1 — manifest v3 (manifests/aisha_straight_long_v3.json)
+  Same body (mpfb-peds-parent-aisha.glb, sha 5cab6676...) and same cameras
+  file (cameras-scorer-v3.json, sha 833bf136...) as v2. Pins the four
+  aisha-v2 masks (path + sha256, all sha-verified at load): front 4cfeff82...
+  (NEW, hair-target3 attempt-a2 PASS, all hair behind shoulders, 121151 px),
+  three_quarter be5b9c77..., profile_90 b0db9f5f..., back cac45580... (same
+  shas as v1: byte-identical copies per hair-target3). registration.method =
+  identity, per-view scale/tx/ty = 1/0/0: render frame IS the target frame
+  (1024x1024), registration_p95 = 0. Carve = hull1 rules EXACTLY (4 real
+  views, no mirror): reject on any VISIBLE_OUTSIDE, 2 mm exact-SDF
+  clearance, masks dilated 2 px, close <= 1 voxel with added voxels
+  re-scored, keep the scalp-touching component. 3q body-depth map rebuilt
+  deterministically in this WS (coverPx 424094, same as hull1).
+
+STEP 2 — back-asymmetry diagnosis (WS/backdiag.json, E/back-diag.png)
+  The target back is a full symmetric sheet (mask L/R = 1.0036,
+  self-mirror IoU 0.9868 at axis col 512; front self-mirror IoU 0.9568:
+  the STYLE is symmetric, so carve asymmetry comes from the single-sided
+  VIEW constraints, not the target). The side cameras both sit at world
+  +x (subject's LEFT): profile_90 loc +0.7006, three_quarter +0.4952.
+  Per back-view column band, clear-of-body voxels inside the back mask
+  that the base carve rejected, by rejecting view (any/sole fractions):
+    cols 256-383  rej 518952: front .63/.01, 3q .81/.01, profile .99/.15
+    cols 384-511  rej 874622: front .57/.00, 3q .79/.00, profile 1.00/.19
+    cols 512-639  rej 852257: front .59/.01, 3q .75/.04, profile .93/.24
+    cols 640-767  rej 466060: front .69/.01, 3q .78/.07, profile .83/.21
+    (cols 0-255, 768-1023: no target, no rejection.)
+  Multi-view joint rejection 71-83% everywhere. The cutter is NOT the
+  three_quarter view alone: sole-3q frees 1-7% per band; profile_90 is
+  party to 83-100% (sole 15-24%), front to 57-69% (sole ~1%). The
+  below-head curtain the back view needs is vetoed JOINTLY, hardest on
+  the near (subject-left, image-left) side. E/back-diag.png overlays the
+  reprojected hull on the target back mask with the rejected region
+  coloured by rejecting view (front red / 3q orange / profile blue /
+  multi magenta) + the band chart.
+  Edge noise (mask boundary displacement vs 3x3 open+close smoothing):
+  front p95 1.0, three_quarter p95 0.2, profile p95 1.0, back p95 1.0 px;
+  fracGt2px = 0 in all views. The 2 px carve dilation already absorbs
+  edge noise with margin; measured extra for 3q = ceil(0.2) = 1 px.
+  Symmetry numbers (base carve): raw voxel-splat L/R = 0.8462 (the 2 mm
+  splat undersamples the frame, so raw area reads shell DENSITY, not
+  sheet extent); lineage contour reprojection (1-px-dilated splat, the
+  same hd every excess/miss/IoU number uses) L/R = 0.9775 — the sheet
+  EXTENT is symmetric. Below-shoulder volume stays asymmetric
+  (sideL/subject-right 5633 vs sideR/subject-left 1466 vox): the far
+  side survives via body occlusion, the near side is carved tight.
+  Variants (WS/variants/, full carve + contour + symmetry + roots):
+    (a) mirrored-3q added (explicit virtual camera R'=FRF,t'=Ft; flipped
+        mask; rasterized mirror body-depth): kept 478085 (-4.6%); raw L/R
+        0.8462->0.8621, hd L/R 0.9775->0.9783; excess p95 2.0 all 5 views;
+        roots 0.9887 unchanged; BUT the mirror view disagrees with the
+        consensus it joins (its own missP95 34.3 px) and is 1mm-fragile
+        (missP95 delta 17.3 px), and its carve trips the strict
+        max-piece component threshold. Symmetry by cutting, adding
+        dissent: REJECTED.
+    (b) 3q mask +1 px (the measured edge noise): kept +885 vox
+        (+0.2%); raw L/R 0.8473, hd 0.9776 — a no-op, as the sole-3q
+        fractions (<=7%) predict: joint rejection cannot be lifted one
+        view at a time without breaking the excess gate: REJECTED.
+  PICK: BASE (hull1 rules unchanged, --final base). The back sheet was
+  never missing — its extent is symmetric (hd 0.98); what the
+  translucent hull1 figure showed as a missing region is the near-side
+  shell thinness/sparsity. No carve-rule change is warranted; both
+  tested fixes are either ineffective (b) or add inconsistency (a).
+
+STEP 3 — diagnostics (WS/diag.json, E/slices.png), side-by-side hull1
+  [brackets = hull1; hull1 ran on v1 masks, hull2 on v2 = new front]
+  (a) Views count: 0:10486 [10775] 1:73813 [75578] 2:259061 [258435]
+      3:113274 [113342] 4:44625 [45218] vox. keptFinal 501259 [503348]
+      (-0.4%), vol 4,010,072 [4,026,784] mm3. Voxel diff vs hull1: 3610
+      cut (mean x,y,z -14.5,-63.2,1468.7 = chest curtains the v1 front
+      mask wanted, now vetoed by the v2 front too), 1521 added (noise).
+  (b) Excess/miss vs UNDILATED mask (gate excess p95 <= 4 px):
+      front      exc 1438/1.0/2.0 PASS; miss 1631, p95 51.7; IoU 0.6847
+                 [exc 1180/1.0/2.0; miss 3520, p95 354.7; IoU 0.3645]
+                 (front miss collapsed: v2 front agrees with the carve)
+      three_quarter exc 1398/1.0/2.0 PASS; miss 1018, p95 43.0; IoU 0.6747
+                 [1438/1.0/2.0; 1012/43.0/0.6736] (unchanged mask)
+      profile_90 exc 2897/1.0/2.0 PASS; miss 309, p95 9.0; IoU 0.7978
+                 [2890/1.0/2.0; 303/9.1/0.7981] (unchanged mask)
+      back       exc 3106/1.0/2.0 PASS; miss 278, p95 8.0; IoU 0.9107
+                 [3104/1.0/2.0; 277/8.0/0.9109] (unchanged mask)
+  (c) Thickness mass p50/p95/max mm: crown(z1600,61 rays) 12.0/24.0/31.0
+      [64 rays 11.5/23.2/31.0]; cheek 33.0/56.9/72.0 [32/56.6/72]; ear
+      25.0/43.4/58.0 [24/41.9/58]; occiput 19.0/30.4/44.0 [18/30/44];
+      shoulder 48.0/59.0/67.0 [43/59.7/67] (front curtains now end at
+      the plane). Occiput depth 17.0 vs target 15.6 mm [same]. Every
+      band >= hull0c: no shell, dome covered (roots 98.87% + crown).
+  (d) Below shoulder (z<1405): front 0 [0]; sideL 5633 [5707] / sideR
+      1466 [1740]; back 141587 [141791] (95.2%); total 148686 [149238].
+  (e) Roots (14155): p50 2.83/p95 4.0/max 12.81; 98.87% within 6 mm
+      (gate >= 95% PASS) [identical]. Crown 98.64%, mid 100%.
+  (f) Sensitivity: 1 mm kept 4019786 vox (+0.4%), maxContourDelta 3.61,
+      fragile []; undilated excess 0, maxContourDelta 2.0, fragile []
+      PASS [3.61/2.0, same].
+  (g) Components: 1 (100%, 501259 vox). SDF cross-check 263/264 [263/264].
+  (h) Back symmetry L/R of the reprojected hull: hd 156512/160119 =
+      0.9775 PASS (gate 0.9-1.1; target 1.0036); raw splat 0.8462
+      reported alongside (density, not extent — see step 2).
+
+STEP 4 — deliverables
+  E/hull.npz (218,464 B; occupancy + viscount + states_packed + legend +
+  views[front,three_quarter,profile_90,back] + xs/ys/zs/spacing 2.0 +
+  crop + shoulder 1405 + sdf_clear 2 + dil 2 + registration_p95 0.0),
+  WS/hull_surface.obj (265,624 tris, marching cubes, world metres),
+  E/hull.png (4096x540: 4 OPAQUE light-grey renders with key+fill shading
+  + 4 aisha-v2 target tiles, render/target pairs per view) + per-view
+  PNGs, E/slices.png, E/mismatch.png, E/back-diag.png, E/RESULT.txt,
+  E/GATES_PASS (6/6), E/DONE.txt, E/inputs-opened.txt,
+  E/blender-opened.txt, WS/{baseline_kept,carve_stats,diag,sens,
+  mismatch,backdiag,symmetry}.json, WS/body-depth-3q.npz,
+  WS/splat_{final_}*, WS/variants/{a_mirror3q,b_dilate3q_x1,compare.json}.
+  Figure notes: opaque = Principled DITHERED alpha 1.0 roughness 0.55 +
+  SUN key 3.0 + fill 0.8 (Blender 5.1 EEVEE has no OPAQUE enum value).
+  The beauty pass composes hull over the CLOTHED body, whose shirt/hip
+  mass occludes the below-shoulder curtain from behind (hull-only flat
+  pass WS/hullonly-back.png + flat1k renders show the full mesh);
+  scoring gates use the analytic reprojection, never render reads.
+  Gate-form notes vs hull1 (both documented in S6/hull2.py): symmetry is
+  measured on hd, the lineage contour reprojection every other contour
+  number uses; single-component uses dropped-total <= 0.1% (187 vox =
+  0.037% dome contact-shell grit, centroids z 1576-1659, max piece 86)
+  instead of hull1's n=1-fitted max-piece <= 32 — intent (one mass, no
+  significant hair lost) unchanged.
+
+SAW: S6/hull2.py, S6/render_hull2.py,
+  manifests/aisha_straight_long_v3.json, E/hull.npz, E/hull.png (+4 view
+  PNGs), E/slices.png, E/mismatch.png, E/back-diag.png, E/RESULT.txt,
+  E/GATES_PASS, E/DONE.txt, E/inputs-opened.txt, E/blender-opened.txt,
+  WS/{baseline_kept,carve_stats,diag,sens,mismatch,backdiag,symmetry}.json,
+  WS/{body-depth-3q,hull_surface}, WS/splat_*, WS/variants/,
+  WS/{flat,flat1k,hullonly}-back.png (diagnostic silhouette passes).
+NOT TESTED: guide routing inside this hull (front curtains end at the
+  shoulder plane by view consensus — same downstream constraint as
+  hull1); wearer-headset or Quest review; render-read scoring (gates are
+  analytic by lineage convention).

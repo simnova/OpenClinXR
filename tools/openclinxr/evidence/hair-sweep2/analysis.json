@@ -1,0 +1,606 @@
+{
+  "best": "x1",
+  "diagnosis": "diagnosis.json",
+  "rows": [
+    {
+      "tag": "b1",
+      "style_diff": {},
+      "count": 558,
+      "n_roots": 600,
+      "g4": {
+        "inside": 0,
+        "deep_mm": 0.0
+      },
+      "g8": {
+        "cover": {
+          "L": 0.9921230307576894,
+          "R": 0.9921230307576894
+        },
+        "face": 0
+      },
+      "judge": {
+        "front_iou": 0.524719937366493,
+        "eroded": 0.40038684719535783,
+        "width_rms_head": 0.1293720431677378,
+        "face_gap_eye_L": 1.1607142857142858,
+        "face_gap_eye_R": 1.2285714285714286,
+        "profile_iou": 0.7116853986493781,
+        "back_iou": 0.7516743317045128,
+        "back_hem_ours": 0.6653319768395446,
+        "back_hem_target": 0.5103666159540824,
+        "eye_box": 0,
+        "id_show_through": 0.020416701531252614,
+        "standing_hair": false,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep2": {
+        "front_exits": 3,
+        "hairline_row_centre_ours": null,
+        "hairline_row_centre_target": 187,
+        "crown_thickness_ours_px": -85.50105705941282,
+        "crown_thickness_target_px": 22.99870730383587,
+        "temple_thickness_ours_px": -6.0,
+        "temple_thickness_target_px": 2.0,
+        "back_seam_count": 4229
+      }
+    },
+    {
+      "tag": "h1",
+      "style_diff": {
+        "repair_intersections": {
+          "from": false,
+          "to": true
+        },
+        "hem_head_fraction": {
+          "from": 0.73,
+          "to": 0.5715
+        }
+      },
+      "count": 558,
+      "n_roots": 600,
+      "g4": {
+        "inside": 0,
+        "deep_mm": 0.0
+      },
+      "g8": {
+        "cover": {
+          "L": 0.9921230307576894,
+          "R": 0.9921230307576894
+        },
+        "face": 0
+      },
+      "judge": {
+        "front_iou": 0.4821380243572395,
+        "eroded": 0.38436795366382764,
+        "width_rms_head": 0.15045887950231285,
+        "face_gap_eye_L": 1.1607142857142858,
+        "face_gap_eye_R": 1.2285714285714286,
+        "profile_iou": 0.711606656580938,
+        "back_iou": 0.8375060552236396,
+        "back_hem_ours": 0.5169144481041724,
+        "back_hem_target": 0.5103666159540824,
+        "eye_box": 0,
+        "id_show_through": 0.009779620532696381,
+        "standing_hair": false,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep2": {
+        "front_exits": 3,
+        "hairline_row_centre_ours": null,
+        "hairline_row_centre_target": 187,
+        "crown_thickness_ours_px": -85.50105705941282,
+        "crown_thickness_target_px": 22.99870730383587,
+        "temple_thickness_ours_px": -8.0,
+        "temple_thickness_target_px": 2.0,
+        "back_seam_count": 4233
+      }
+    },
+    {
+      "tag": "c1",
+      "style_diff": {
+        "repair_intersections": {
+          "from": false,
+          "to": true
+        },
+        "child_front_fill": {
+          "from": false,
+          "to": true
+        }
+      },
+      "count": 558,
+      "n_roots": 600,
+      "g4": {
+        "inside": 0,
+        "deep_mm": 0.0
+      },
+      "g8": {
+        "cover": {
+          "L": 0.9921230307576894,
+          "R": 0.9921230307576894
+        },
+        "face": 0
+      },
+      "judge": {
+        "front_iou": 0.5342244645480554,
+        "eroded": 0.41170373061756627,
+        "width_rms_head": 0.127196259218353,
+        "face_gap_eye_L": 1.1607142857142858,
+        "face_gap_eye_R": 1.2285714285714286,
+        "profile_iou": 0.7145509315542673,
+        "back_iou": 0.7478160475822825,
+        "back_hem_ours": 0.6675145875562413,
+        "back_hem_target": 0.5103666159540824,
+        "eye_box": 0,
+        "id_show_through": 0.015897415153108694,
+        "standing_hair": false,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep2": {
+        "front_exits": 3,
+        "hairline_row_centre_ours": null,
+        "hairline_row_centre_target": 187,
+        "crown_thickness_ours_px": -85.50105705941282,
+        "crown_thickness_target_px": 22.99870730383587,
+        "temple_thickness_ours_px": -5.0,
+        "temple_thickness_target_px": 2.0,
+        "back_seam_count": 4229
+      }
+    },
+    {
+      "tag": "f1",
+      "style_diff": {
+        "repair_intersections": {
+          "from": false,
+          "to": true
+        },
+        "front_comb_scale": {
+          "from": 1.0,
+          "to": 0.5
+        }
+      },
+      "count": 556,
+      "n_roots": 600,
+      "g4": {
+        "inside": 0,
+        "deep_mm": 0.0
+      },
+      "g8": {
+        "cover": {
+          "L": 0.9921230307576894,
+          "R": 0.9921230307576894
+        },
+        "face": 0
+      },
+      "judge": {
+        "front_iou": 0.5665009978507829,
+        "eroded": 0.4523374472404766,
+        "width_rms_head": 0.12021373660674667,
+        "face_gap_eye_L": 1.1607142857142858,
+        "face_gap_eye_R": 1.2285714285714286,
+        "profile_iou": 0.7180316693376707,
+        "back_iou": 0.7340452898928589,
+        "back_hem_ours": 0.6653319768395446,
+        "back_hem_target": 0.5103666159540824,
+        "eye_box": 0,
+        "id_show_through": 0.01810477657935285,
+        "standing_hair": false,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep2": {
+        "front_exits": 7,
+        "hairline_row_centre_ours": null,
+        "hairline_row_centre_target": 187,
+        "crown_thickness_ours_px": -85.50105705941282,
+        "crown_thickness_target_px": 22.99870730383587,
+        "temple_thickness_ours_px": 5.0,
+        "temple_thickness_target_px": 2.0,
+        "back_seam_count": 4226
+      }
+    },
+    {
+      "tag": "f2",
+      "style_diff": {
+        "repair_intersections": {
+          "from": false,
+          "to": true
+        },
+        "front_comb_scale": {
+          "from": 1.0,
+          "to": 0.0
+        },
+        "front_comb_ramp": {
+          "from": false,
+          "to": true
+        }
+      },
+      "count": 542,
+      "n_roots": 600,
+      "g4": {
+        "inside": 0,
+        "deep_mm": 0.0
+      },
+      "g8": {
+        "cover": {
+          "L": 0.9921230307576894,
+          "R": 0.9921230307576894
+        },
+        "face": 0
+      },
+      "judge": {
+        "front_iou": 0.5881509978360183,
+        "eroded": 0.4717473072320055,
+        "width_rms_head": 0.11405624291698356,
+        "face_gap_eye_L": 1.1517857142857142,
+        "face_gap_eye_R": 1.2190476190476192,
+        "profile_iou": 0.7305889229521298,
+        "back_iou": 0.7312381939685312,
+        "back_hem_ours": 0.6653319768395446,
+        "back_hem_target": 0.5103666159540824,
+        "eye_box": 0,
+        "id_show_through": 0.003997783407219759,
+        "standing_hair": false,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep2": {
+        "front_exits": 7,
+        "hairline_row_centre_ours": null,
+        "hairline_row_centre_target": 187,
+        "crown_thickness_ours_px": -85.50105705941282,
+        "crown_thickness_target_px": 22.99870730383587,
+        "temple_thickness_ours_px": 7.0,
+        "temple_thickness_target_px": 2.0,
+        "back_seam_count": 4201
+      }
+    },
+    {
+      "tag": "l1",
+      "style_diff": {
+        "repair_intersections": {
+          "from": false,
+          "to": true
+        },
+        "root_lift_mm": {
+          "from": 0.0,
+          "to": 6.0
+        }
+      },
+      "count": 582,
+      "n_roots": 600,
+      "g4": {
+        "inside": 0,
+        "deep_mm": 0.0
+      },
+      "g8": {
+        "cover": {
+          "L": 0.9921230307576894,
+          "R": 0.9921230307576894
+        },
+        "face": 0
+      },
+      "judge": {
+        "front_iou": 0.502256932697977,
+        "eroded": 0.40098528484563517,
+        "width_rms_head": 0.14610269630862976,
+        "face_gap_eye_L": 1.1517857142857142,
+        "face_gap_eye_R": 1.2190476190476192,
+        "profile_iou": 0.7235941290926998,
+        "back_iou": 0.7616702200701044,
+        "back_hem_ours": 0.6653319768395446,
+        "back_hem_target": 0.5103666159540824,
+        "eye_box": 0,
+        "id_show_through": 0.009856489512695158,
+        "standing_hair": false,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep2": {
+        "front_exits": 3,
+        "hairline_row_centre_ours": null,
+        "hairline_row_centre_target": 187,
+        "crown_thickness_ours_px": -85.50105705941282,
+        "crown_thickness_target_px": 22.99870730383587,
+        "temple_thickness_ours_px": -9.0,
+        "temple_thickness_target_px": 2.0,
+        "back_seam_count": 4220
+      }
+    },
+    {
+      "tag": "l2",
+      "style_diff": {
+        "repair_intersections": {
+          "from": false,
+          "to": true
+        },
+        "root_lift_mm": {
+          "from": 0.0,
+          "to": 12.0
+        }
+      },
+      "count": 584,
+      "n_roots": 600,
+      "g4": {
+        "inside": 0,
+        "deep_mm": 0.0
+      },
+      "g8": {
+        "cover": {
+          "L": 0.9921230307576894,
+          "R": 0.9921230307576894
+        },
+        "face": 0
+      },
+      "judge": {
+        "front_iou": 0.5265365693353051,
+        "eroded": 0.4259486839714887,
+        "width_rms_head": 0.14536009308464182,
+        "face_gap_eye_L": 1.1607142857142858,
+        "face_gap_eye_R": 1.2285714285714286,
+        "profile_iou": 0.7404726089379783,
+        "back_iou": 0.7675765095119934,
+        "back_hem_ours": 0.6653319768395446,
+        "back_hem_target": 0.5103666159540824,
+        "eye_box": 0,
+        "id_show_through": 0.01037422535693498,
+        "standing_hair": false,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep2": {
+        "front_exits": 3,
+        "hairline_row_centre_ours": null,
+        "hairline_row_centre_target": 187,
+        "crown_thickness_ours_px": 8.498942940587185,
+        "crown_thickness_target_px": 22.99870730383587,
+        "temple_thickness_ours_px": -9.0,
+        "temple_thickness_target_px": 2.0,
+        "back_seam_count": 4215
+      }
+    },
+    {
+      "tag": "k1",
+      "style_diff": {
+        "repair_intersections": {
+          "from": false,
+          "to": true
+        },
+        "part_same_side_ahead_only": {
+          "from": false,
+          "to": true
+        }
+      },
+      "count": 558,
+      "n_roots": 600,
+      "g4": {
+        "inside": 0,
+        "deep_mm": 0.0
+      },
+      "g8": {
+        "cover": {
+          "L": 0.9921230307576894,
+          "R": 0.9921230307576894
+        },
+        "face": 0
+      },
+      "judge": {
+        "front_iou": 0.524719937366493,
+        "eroded": 0.3998632142513652,
+        "width_rms_head": 0.1293720431677378,
+        "face_gap_eye_L": 1.1607142857142858,
+        "face_gap_eye_R": 1.2285714285714286,
+        "profile_iou": 0.7137678532588995,
+        "back_iou": 0.759178169637894,
+        "back_hem_ours": 0.6653319768395446,
+        "back_hem_target": 0.5103666159540824,
+        "eye_box": 0,
+        "id_show_through": 0.020416701531252614,
+        "standing_hair": false,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep2": {
+        "front_exits": 3,
+        "hairline_row_centre_ours": null,
+        "hairline_row_centre_target": 187,
+        "crown_thickness_ours_px": -85.50105705941282,
+        "crown_thickness_target_px": 22.99870730383587,
+        "temple_thickness_ours_px": -6.0,
+        "temple_thickness_target_px": 2.0,
+        "back_seam_count": 4160
+      }
+    },
+    {
+      "tag": "x1",
+      "style_diff": {
+        "repair_intersections": {
+          "from": false,
+          "to": true
+        },
+        "hem_head_fraction": {
+          "from": 0.73,
+          "to": 0.5715
+        },
+        "child_front_fill": {
+          "from": false,
+          "to": true
+        },
+        "front_comb_scale": {
+          "from": 1.0,
+          "to": 0.0
+        },
+        "front_comb_ramp": {
+          "from": false,
+          "to": true
+        },
+        "root_lift_mm": {
+          "from": 0.0,
+          "to": 12.0
+        },
+        "part_same_side_ahead_only": {
+          "from": false,
+          "to": true
+        }
+      },
+      "count": 578,
+      "n_roots": 600,
+      "g4": {
+        "inside": 0,
+        "deep_mm": 0.0
+      },
+      "g8": {
+        "cover": {
+          "L": 0.9921230307576894,
+          "R": 0.9921230307576894
+        },
+        "face": 0
+      },
+      "judge": {
+        "front_iou": 0.5992165468387569,
+        "eroded": 0.47069258471632985,
+        "width_rms_head": 0.12092343644135116,
+        "face_gap_eye_L": 1.1607142857142858,
+        "face_gap_eye_R": 1.2285714285714286,
+        "profile_iou": 0.7636925687962177,
+        "back_iou": 0.8567920495747382,
+        "back_hem_ours": 0.5147318373874757,
+        "back_hem_target": 0.5103666159540824,
+        "eye_box": 0,
+        "id_show_through": 0.0034598555001526406,
+        "standing_hair": false,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep2": {
+        "front_exits": 7,
+        "hairline_row_centre_ours": null,
+        "hairline_row_centre_target": 187,
+        "crown_thickness_ours_px": -18.501057059412815,
+        "crown_thickness_target_px": 22.99870730383587,
+        "temple_thickness_ours_px": -7.0,
+        "temple_thickness_target_px": 2.0,
+        "back_seam_count": 4144
+      }
+    }
+  ]
+}

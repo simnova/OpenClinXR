@@ -1,0 +1,99 @@
+groom36 RESULT (2026-10-19): route +x guides against the inflated 3 mm ear
+shell, then exact-mirror guides+roots, then children on the symmetric set.
+
+VERDICT: FAIL (guide-level gates all pass; child-level zero-gates fail:
+shell segs, earlobe column, gt30, crossings; 2 IoU views miss by <0.011)
+
+BUILDS (store/hair-groom36/, NOT in git):
+- step1/guides-36routed.npz (sha out 0c08a9ae; 57 rerouted, 4 skip-short,
+  9 skip-riderless; takeoff-verbatim + untouched-identical both True).
+  Obstacle: store/hair-groom34/ear-proxy.npz inflated 3 mm shell.
+- guides-36.npz (sha 4336dd13736e, 2741 = 1366 pos + 9 mid + 1366 neg),
+  roots-36.npz (sha d0f68883407c, 13528 = 6752+24+6752),
+  pool-ref-36.npz (sha a0204f43). STEP2 exact mirror, all orig -x dropped.
+- build-36 (sha dc1e2df2, 269480 children, poolDrop 16, maxMove 82.7;
+  step2 recipe flags per its build.json, mask20, mirrored pinna/earframe).
+  build-36det rebuild sha dc1e2df2 IDENTICAL. Determinism PASS.
+
+STEP1 (route against the real ear, +x obstacle; s14_ear_route --ear-shell):
+  shell-cross before: +x 9 guides / 28 segs (444,613,640,675,676,683,693,
+  696,806); shell-feeders incl 280 (647 dom), 264 (699), 1061 (326),
+  2278 (2090), 2507 (275). All 57 reroutes pushScale<=1.0, poolKept all
+  but one True (disp<=55.3), per-guide shellClear True.
+  Crown guides 280/1061 carried +x shell strands as feeders (not own-path
+  crossers) and were rerouted; 2278/2507 likewise routed as feeders.
+  GUIDE GATE (guides_head curves, gates34 def, verified this round):
+  guide segs in +x shell 0, in -x shell 0. PASS both sides.
+
+STEP2 (exact mirror): construction pairing deviation exactly 0.0 mm for
+  all 1366 guide pairs and all 6752 root pairs. PASS (100% by construction).
+  Orchestrator nearest-root metric: guides 2726/2741 (9 mid singletons kept
+  once per card, 1 mid self-mirror 162.4 mm, 6 duplicate-root ambiguities);
+  roots 13505/13528 (23 mid singletons + duplicates). Shortfall is only
+  singletons/duplicate-root tree ambiguity, not asymmetry.
+  GUIDE GATE on guides-36: guide segs in shell +x 0 / -x 0. PASS.
+
+STEP3 (children): recipe = groom35 step2 flags (no --ear-band-routed).
+
+GATE TABLE (value | threshold | verdict | provenance):
+  guide segs in shell +x      | 0 / 0        | PASS | guides-36 curves_head
+  guide segs in shell -x      | 0 / 0        | PASS | guides-36 curves_head
+  child segs in 3mm shell +x  | 2134 / 0     | FAIL | gates-36full.json xpos
+  child segs in 3mm shell -x  | 2043 / 0     | FAIL | gates-36full.json xneg
+  child strands in shell +x   | 1136         | info | (step2: shell segs 4900)
+  child strands in shell -x   | 1036         | info | (step2: shell segs 8818)
+  earlobe column +x           | 53 / 0       | FAIL | strands/samples/tips 53/55/4
+  earlobe column -x           | 56 / 0       | FAIL | strands/samples/tips 56/58/3
+  profile ear box +x (std)    | 0 px / 0     | PASS | imgStd profile_90/xpos
+  profile ear box -x (mirror) | 0 px / 0     | PASS | imgMirror profile_90/xneg
+  profile ear box -x (std)    | 5 px         | INFO | non-graded view, std camera
+  3q ear box +x (std)         | 281 / <=842  | PASS | margin -561
+  3q ear box -x (mirror)      | 357 / <=842  | PASS | margin -485
+  concha +x / -x              | 0/0/0 both   | PASS | concha34 projective
+  insideBody                  | 0 / 0        | PASS | nSge1Inside
+  segments > 30 mm            | 2970 / <=1789| FAIL | over by 1181 (step2 2161)
+  +x IoU front                | 0.7794/>=0.79| FAIL | margin -0.0106
+  +x IoU 3q                   | 0.8489/>=0.83| PASS | margin +0.0189
+  +x IoU profile              | 0.8326/>=0.84| FAIL | margin -0.0074
+  back IoU                    | 0.8911       | reported (step2 0.8935)
+  mirror IoU 3q / profile     | 0.9731/0.9717| reported (step2 0.9330/0.9495)
+  3D back crossings           | 1029 / <=935 | FAIL | guides-level, over by 94
+  gradAniso sigma 4           | 0.3471/<=0.70| PASS | metrics-grad31.json opt36
+  determinism                 | sha identical| PASS | dc1e2df2 == dc1e2df2
+  calibration                 | delta 0 all  | PASS | all_within_0.02 true
+
+RESIDUAL ATTRIBUTION (residual-36.py; routed = STEP1 reroute set):
+  +x shell roots proxy-dist p50 40.3 mm (roots sit far from ear; strands
+  travel to the shell). Top backbone new-1264 = orig 2507 (280 strands,
+  ROUTED), then new-541 = orig 1061 (201, ROUTED); backbone routedFrac
+  0.85. -x top new-2639 = mirror of orig 2507 (271 strands, ROUTED);
+  routedFrac 0.84. Column backbones routedFrac 0.62 (+x) / 0.71 (-x).
+  Mechanism: STEP1-routed guides' children blend with unrouted neighbour
+  guides at interpolation time and the blended strands cut the 3 mm shell.
+  Routing cleared the guides (0 segs) but not the children. No new fix in
+  this card (per brief: report, do not invent another fix).
+
+SCOPE: new code tools/openclinxr/hair-groom/orient/s14_ear_route.py
+  (--ear-shell flag, default OFF; legacy path byte-identical),
+  interp_children.py --expect-n-new (default 2650; STEP3 passes 2669).
+  New evidence E/hair-groom36/ (drivers import, no copies: run_gates36,
+  residual36, run_cross36, run_grad36, make_sheet36, ears36; iou via iou35
+  CLI; calib via calibrate31 CLI with cwd=E36).
+  Store .npz in /Volumes/files/openclinxr-assets/store/hair-groom36/.
+  Sheet rows target | groom35step2 | groom36 (3q, 3q -x flip, profile,
+  profile -x flip, ear +x, ear -x flip). ears.png native 1:1 crops both
+  sides (cols groom34 | step2 | 36).
+NOT TESTED: wearer-side (Quest) views; VLM review of sheet/ears.
+REMAINING: child-level shell/column/gt30/crossing gates; front/profile IoU
+  margins (-0.0106/-0.0074); next card owns the interpolation-blend fix.
+GATES_PASS: false
+VISUAL READ (citing crops): ears.png +x row - concha bowl clear of hair
+  in groom36 (groom34 shows wisps crossing the concha; step2 already
+  clean); two fine flyaway strands cross in front of the ear but outside
+  the concha projection (ID metric 0). ears.png -x flip row - groom34 has
+  a hair slab over the ear top; step2 shows dark strands inside the
+  concha shading; groom36 concha reads clear with strands only at the
+  front rim (ID metric 0/0/0 both sides; the dark in the bowl is shading,
+  not hair pixels). Sheet 3q/profile rows: groom36 silhouette matches
+  step2 closely on both sides; no hair below the earlobe in any crop.
+  Ear close-ups show the full pinna visible on both sides.

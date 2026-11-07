@@ -1,0 +1,29 @@
+{
+ "guideClearStats": {
+  "nGuides": 2707,
+  "pointsPerGuide": 41,
+  "clearanceMm": 2.0,
+  "threshMm": 2.0,
+  "gateMm": 1.5,
+  "preOffGridSamples": 0,
+  "preSamplesLt2mm": 8325,
+  "preSamplesInside": 2550,
+  "preMinMm": -10.0832,
+  "postOffGridSamples": 0,
+  "postSamplesLtGate": 0,
+  "postSamplesLtClearance": 2604,
+  "postMinMm": 1.5036,
+  "nGuidesMovedGt0p05mm": 2702,
+  "fracGuidesMoved": 0.9982,
+  "guideMaxMoveMm_p50": 2.0,
+  "guideMaxMoveMm_p90": 2.7052,
+  "guideMaxMoveMm_p99": 7.3935,
+  "guideMaxMoveMm_max": 15.2275,
+  "sampleMoveMm_p50": 0.3167,
+  "sampleMoveMm_p90": 1.9666,
+  "sampleMoveMm_p99": 5.0848,
+  "sampleMoveMm_max": 15.2275,
+  "nSamplesMovedGt0p05mm": 99004,
+  "pass": true
+ }
+}

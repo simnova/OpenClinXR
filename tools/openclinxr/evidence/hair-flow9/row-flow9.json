@@ -1,0 +1,93 @@
+{
+ "p1": {
+  "ear_y": -0.03894279897212982,
+  "bnd_n": 1875,
+  "front_n": 1282,
+  "sbback_n": 142,
+  "front_y": [
+   -0.12383314967155457,
+   -0.03911083564162254
+  ],
+  "front_z": [
+   1.5350748300552368,
+   1.6598951816558838
+  ]
+ },
+ "p2": {
+  "no_forward_lines": [
+   201,
+   215,
+   216,
+   218,
+   221,
+   248,
+   277
+  ]
+ },
+ "b": {
+  "mean": 0.3659,
+  "min": 0.0,
+  "max": 1.0
+ },
+ "hist_old": {
+  "front": 333,
+  "above-ear": 0,
+  "behind-ear": 319,
+  "nape": 147,
+  "never-left": 1
+ },
+ "hist_new": {
+  "front": 63,
+  "above-ear": 0,
+  "behind-ear": 586,
+  "nape": 150,
+  "never-left": 1
+ },
+ "gates": {
+  "g1": {
+   "front_exits": 63,
+   "n": 800,
+   "pass": false
+  },
+  "g2": {
+   "n30": 395,
+   "bad": 27,
+   "worst_dy_mm": -0.7073,
+   "pass": false
+  },
+  "g3": {
+   "behind_n": 11475,
+   "p95_deg": 0.0,
+   "pass": true
+  },
+  "g4": {
+   "sym95_deg": 0.071,
+   "pass": true
+  },
+  "g5": {
+   "never": 1,
+   "cross": 0,
+   "smooth_p95": 11.21,
+   "pass": false
+  },
+  "g6": {
+   "above_behind": 145,
+   "strict_nosb": 143,
+   "sb_exits": [
+    745,
+    776
+   ],
+   "n": 200,
+   "sb_nonroot_exits": [],
+   "pass": false
+  }
+ },
+ "files": [
+  "flow9.py",
+  "flow-b-v9.npz",
+  "flow9-debug.png",
+  "row-flow9.json",
+  "check-flow9.mjs",
+  "RESULT.txt"
+ ]
+}

@@ -1,0 +1,995 @@
+{
+ "schema": "openclinxr.hair-groom23diag.v1",
+ "card": "3D vs 2D crossing metric and image-space lock metric (diagnostic, no station changes)",
+ "crossing3D": {
+  "guides-8a": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz",
+   "sha256": "3827eb863d3e65177e8125527726ede4e265b25a60509a3c33baaa45d1b9cf79",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 10154,
+   "cross3D_le3mm": 2258,
+   "frac3Dof2D": 0.2224,
+   "d3mm_at_2Dcross": {
+    "n": 10154,
+    "p10": 1.212,
+    "p25": 3.438,
+    "p50": 11.823,
+    "p75": 154.596,
+    "p90": 158.991,
+    "p99": 165.241,
+    "min": 0.001,
+    "max": 172.294
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 841
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 745
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 672
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 1155
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1443
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 545
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 321
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4432
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 10154,
+    "p10": 0.518,
+    "p25": 1.313,
+    "p50": 2.997,
+    "p75": 5.139,
+    "p90": 7.36,
+    "p99": 13.484,
+    "min": 0.002,
+    "max": 34.671
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 10154,
+    "p10": 0.207,
+    "p25": 0.655,
+    "p50": 1.666,
+    "p75": 2.753,
+    "p90": 3.748,
+    "p99": 6.152,
+    "min": 0.0,
+    "max": 9.667
+   }
+  },
+  "guides-19": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom19/build/guides-19.npz",
+   "sha256": "95a471531b95bde349d9b678902bf9b7c020745f16ec15db22213146ac7981e3",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 9715,
+   "cross3D_le3mm": 1827,
+   "frac3Dof2D": 0.1881,
+   "d3mm_at_2Dcross": {
+    "n": 9715,
+    "p10": 1.494,
+    "p25": 4.166,
+    "p50": 14.957,
+    "p75": 152.254,
+    "p90": 157.044,
+    "p99": 163.709,
+    "min": 0.0,
+    "max": 169.839
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 696
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 563
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 568
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 1017
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1596
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 578
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 315
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4382
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 9715,
+    "p10": 0.481,
+    "p25": 1.367,
+    "p50": 3.294,
+    "p75": 5.523,
+    "p90": 8.064,
+    "p99": 17.159,
+    "min": 0.0,
+    "max": 43.399
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 9715,
+    "p10": 0.21,
+    "p25": 0.64,
+    "p50": 1.632,
+    "p75": 2.72,
+    "p90": 3.628,
+    "p99": 5.999,
+    "min": 0.0,
+    "max": 11.104
+   }
+  },
+  "guides-21": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom21/build/guides-21.npz",
+   "sha256": "ee55481f4dc55eb4992aadbfa7f89842956db3fc5ddaa132b9ab2f9f0c99d8c0",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 7417,
+   "cross3D_le3mm": 753,
+   "frac3Dof2D": 0.1015,
+   "d3mm_at_2Dcross": {
+    "n": 7417,
+    "p10": 2.946,
+    "p25": 8.826,
+    "p50": 138.832,
+    "p75": 149.631,
+    "p90": 156.906,
+    "p99": 170.141,
+    "min": 0.007,
+    "max": 176.067
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 272
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 253
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 228
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 482
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 763
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 706
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 473
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4240
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 7417,
+    "p10": 0.806,
+    "p25": 2.119,
+    "p50": 4.73,
+    "p75": 9.047,
+    "p90": 14.002,
+    "p99": 23.399,
+    "min": 0.001,
+    "max": 43.664
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 7417,
+    "p10": 0.227,
+    "p25": 0.62,
+    "p50": 1.315,
+    "p75": 2.17,
+    "p90": 3.028,
+    "p99": 5.243,
+    "min": 0.0,
+    "max": 8.988
+   }
+  },
+  "guides-21a03": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom21/guides-21a03.npz",
+   "sha256": "180abd775a3423da7fcca86c694b5f4fb2b1dbc7547de38b373c1287a2375be3",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 6389,
+   "cross3D_le3mm": 676,
+   "frac3Dof2D": 0.1058,
+   "d3mm_at_2Dcross": {
+    "n": 6389,
+    "p10": 2.863,
+    "p25": 8.634,
+    "p50": 131.071,
+    "p75": 145.153,
+    "p90": 152.461,
+    "p99": 161.188,
+    "min": 0.001,
+    "max": 169.668
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 230
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 219
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 227
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 433
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 632
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 548
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 451
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 3649
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 6389,
+    "p10": 0.907,
+    "p25": 2.379,
+    "p50": 5.107,
+    "p75": 9.263,
+    "p90": 13.383,
+    "p99": 21.513,
+    "min": 0.001,
+    "max": 37.061
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 6389,
+    "p10": 0.211,
+    "p25": 0.548,
+    "p50": 1.215,
+    "p75": 1.992,
+    "p90": 2.918,
+    "p99": 5.136,
+    "min": 0.0,
+    "max": 8.844
+   }
+  },
+  "guides-21perm": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom21/guides-21perm.npz",
+   "sha256": "cf408535ef16d366d6c7fcdea17647729fab44db6bec4d3a73155da0301e57d7",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 8279,
+   "cross3D_le3mm": 809,
+   "frac3Dof2D": 0.0977,
+   "d3mm_at_2Dcross": {
+    "n": 8279,
+    "p10": 3.062,
+    "p25": 8.95,
+    "p50": 134.404,
+    "p75": 147.299,
+    "p90": 156.105,
+    "p99": 171.382,
+    "min": 0.006,
+    "max": 183.43
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 287
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 250
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 272
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 553
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 878
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 736
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 635
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4668
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 8279,
+    "p10": 0.896,
+    "p25": 2.481,
+    "p50": 5.293,
+    "p75": 9.967,
+    "p90": 15.49,
+    "p99": 28.188,
+    "min": 0.0,
+    "max": 36.455
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 8279,
+    "p10": 0.209,
+    "p25": 0.547,
+    "p50": 1.157,
+    "p75": 1.943,
+    "p90": 2.775,
+    "p99": 4.99,
+    "min": 0.0,
+    "max": 8.693
+   }
+  },
+  "guides-22": {
+   "file": "/Volumes/files/openclinxr-assets/store/hair-groom22/guides-22.npz",
+   "sha256": "06fd6c7f009b56eef4bd034fa0e516b451a6b401e3dabeadfcfd25987de63623",
+   "nGuides": 2707,
+   "nBackNonTuck": 265,
+   "nPairs": 34980,
+   "cross2D": 9213,
+   "cross3D_le3mm": 1986,
+   "frac3Dof2D": 0.2156,
+   "d3mm_at_2Dcross": {
+    "n": 9213,
+    "p10": 1.24,
+    "p25": 3.557,
+    "p50": 11.163,
+    "p75": 154.407,
+    "p90": 159.111,
+    "p99": 165.025,
+    "min": 0.001,
+    "max": 170.471
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 771
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 626
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 589
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 1113
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1382
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 408
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 282
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4042
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 9213,
+    "p10": 0.514,
+    "p25": 1.297,
+    "p50": 2.909,
+    "p75": 5.115,
+    "p90": 7.53,
+    "p99": 12.741,
+    "min": 0.001,
+    "max": 20.289
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 9213,
+    "p10": 0.196,
+    "p25": 0.603,
+    "p50": 1.575,
+    "p75": 2.692,
+    "p90": 3.66,
+    "p99": 5.911,
+    "min": 0.0,
+    "max": 8.359
+   }
+  },
+  "guides-22-control": {
+   "file": "/Volumes/files/openclinxr-assets/store/hair-groom22/guides-22-control.npz",
+   "sha256": "8647d370b4612c5048d022e3a17ce2d88b52ef667d890b77bc7458e522f70cac",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 10154,
+   "cross3D_le3mm": 2258,
+   "frac3Dof2D": 0.2224,
+   "d3mm_at_2Dcross": {
+    "n": 10154,
+    "p10": 1.212,
+    "p25": 3.438,
+    "p50": 11.823,
+    "p75": 154.596,
+    "p90": 158.991,
+    "p99": 165.241,
+    "min": 0.001,
+    "max": 172.294
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 841
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 745
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 672
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 1155
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1443
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 545
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 321
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4432
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 10154,
+    "p10": 0.518,
+    "p25": 1.313,
+    "p50": 2.997,
+    "p75": 5.139,
+    "p90": 7.36,
+    "p99": 13.484,
+    "min": 0.002,
+    "max": 34.671
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 10154,
+    "p10": 0.207,
+    "p25": 0.655,
+    "p50": 1.666,
+    "p75": 2.753,
+    "p90": 3.748,
+    "p99": 6.152,
+    "min": 0.0,
+    "max": 9.667
+   }
+  }
+ },
+ "imageLock": {
+  "registration": {
+   "scale": 1.0403225806451613,
+   "tx": -19.645161290322562,
+   "ty": -31.25,
+   "renderTriple": [
+    155.0,
+    651.0,
+    512.0
+   ],
+   "targetTriple": [
+    130.0,
+    646.0,
+    513.0
+   ]
+  },
+  "targetBox": [
+   124,
+   406,
+   513,
+   777
+  ],
+  "targetIntrinsic": {
+   "dispersionFracGt25": 0.1025,
+   "dispersionMean": 9.576,
+   "structCohMean": 0.8791,
+   "structFracCohLt05": 0.026,
+   "crossScale": {
+    "fracGt25": 0.0082,
+    "mean": 2.467,
+    "nBig": 0,
+    "bigFrac": 0.0,
+    "largestPx": 279
+   },
+   "gradAniso_gyOvergx": 0.5302,
+   "darkComp_meanAreaPx": 56.38,
+   "darkComp_count": 65,
+   "darkComp_bigFrac": 0.0915,
+   "darkComp_p10": 0.0843
+  },
+  "8a": {
+   "render": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8a/renders-studio/back.png",
+   "sha256": "6c03cb20d28fa64138d0ca2dbe54eed294dfbfcc87ebc4e3088cc7e74ba83707",
+   "transform": {
+    "scale": 1.0403,
+    "tx": -19.6452,
+    "ty": -31.25
+   },
+   "nHairPx": 36404,
+   "gabor_fracDevGt25": 0.7107,
+   "gabor_meanAbsErr": 46.269,
+   "gabor_confWtMeanAbsErr": 46.467,
+   "struct_fracDevGt25": 0.7081,
+   "struct_meanAbsErr": 46.056,
+   "gabor_fracDevGt45": 0.5296,
+   "gabor_fracDevGt60": 0.3711,
+   "gabor_devP90": 82.0,
+   "intrinsic_dispersionFracGt25": 0.2156,
+   "intrinsic_dispersionMean": 17.615,
+   "struct_cohMean": 0.7989,
+   "struct_fracCohLt05": 0.1063,
+   "lock_coherentDev45": 0.5326,
+   "lock_bigCompFrac": 0.4656,
+   "lock_nBigComp": 2,
+   "lock_largestCompPx": 16185,
+   "crossScale": {
+    "fracGt25": 0.1641,
+    "mean": 14.258,
+    "nBig": 4,
+    "bigFrac": 0.1163,
+    "largestPx": 1910
+   },
+   "upperHalf": {
+    "nHairPx": 13115,
+    "gabor_fracDevGt25": 0.5809,
+    "gabor_fracDevGt45": 0.3168,
+    "gabor_meanAbsErr": 34.934,
+    "lock_coherentDev45": 0.2415,
+    "crossScale": {
+     "fracGt25": 0.0928,
+     "mean": 10.265,
+     "nBig": 1,
+     "bigFrac": 0.0409,
+     "largestPx": 537
+    },
+    "flow": {
+     "gabor_fracDevGt25": 0.5498,
+     "gabor_fracDevGt45": 0.51,
+     "gabor_meanAbsErr": 46.46,
+     "lock_coherentDev45": 0.5875,
+     "lock_bigCompFrac": 0.4699,
+     "lock_nBigComp": 1,
+     "lock_largestCompPx": 6163
+    },
+    "histEMD_vsTarget": 15.343,
+    "histPeakBin_render": 11,
+    "histPeakBin_target": 15,
+    "histPeakMass_render": 0.147,
+    "histPeakMass_target": 0.1846
+   },
+   "gradAniso_gyOvergx": 1.2729,
+   "darkComp_meanAreaPx": 67.13,
+   "darkComp_count": 55,
+   "darkComp_bigFrac": 0.047,
+   "darkComp_p10": 0.0818
+  },
+  "8b": {
+   "render": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8b/renders-studio/back.png",
+   "sha256": "b541c2af8d717d1d7557fab7e772a4be5b5d0273d0c0324d20d8d6c6ae8c4efa",
+   "transform": {
+    "scale": 1.0403,
+    "tx": -19.6452,
+    "ty": -31.25
+   },
+   "nHairPx": 36077,
+   "gabor_fracDevGt25": 0.6449,
+   "gabor_meanAbsErr": 42.215,
+   "gabor_confWtMeanAbsErr": 41.839,
+   "struct_fracDevGt25": 0.6329,
+   "struct_meanAbsErr": 41.306,
+   "gabor_fracDevGt45": 0.4597,
+   "gabor_fracDevGt60": 0.3116,
+   "gabor_devP90": 83.0,
+   "intrinsic_dispersionFracGt25": 0.2722,
+   "intrinsic_dispersionMean": 20.86,
+   "struct_cohMean": 0.7749,
+   "struct_fracCohLt05": 0.1243,
+   "lock_coherentDev45": 0.4335,
+   "lock_bigCompFrac": 0.3437,
+   "lock_nBigComp": 2,
+   "lock_largestCompPx": 10546,
+   "crossScale": {
+    "fracGt25": 0.2193,
+    "mean": 18.193,
+    "nBig": 5,
+    "bigFrac": 0.1409,
+    "largestPx": 1172
+   },
+   "upperHalf": {
+    "nHairPx": 12800,
+    "gabor_fracDevGt25": 0.5954,
+    "gabor_fracDevGt45": 0.3346,
+    "gabor_meanAbsErr": 35.29,
+    "lock_coherentDev45": 0.1976,
+    "crossScale": {
+     "fracGt25": 0.1249,
+     "mean": 12.87,
+     "nBig": 0,
+     "bigFrac": 0.0,
+     "largestPx": 455
+    },
+    "flow": {
+     "gabor_fracDevGt25": 0.5237,
+     "gabor_fracDevGt45": 0.4813,
+     "gabor_meanAbsErr": 44.2,
+     "lock_coherentDev45": 0.4866,
+     "lock_bigCompFrac": 0.3904,
+     "lock_nBigComp": 2,
+     "lock_largestCompPx": 2844
+    },
+    "histEMD_vsTarget": 18.452,
+    "histPeakBin_render": 11,
+    "histPeakBin_target": 15,
+    "histPeakMass_render": 0.1495,
+    "histPeakMass_target": 0.1872
+   },
+   "gradAniso_gyOvergx": 0.849,
+   "darkComp_meanAreaPx": 65.84,
+   "darkComp_count": 55,
+   "darkComp_bigFrac": 0.047,
+   "darkComp_p10": 0.0972
+  },
+  "12": {
+   "render": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom12/renders-studio-8a/back.png",
+   "sha256": "6daba1ce9fe7b68c50b873eff7969bbafe81fe4eb13a06f477b6764ff1990889",
+   "transform": {
+    "scale": 1.0403,
+    "tx": -19.6452,
+    "ty": -31.25
+   },
+   "nHairPx": 36383,
+   "gabor_fracDevGt25": 0.6677,
+   "gabor_meanAbsErr": 43.676,
+   "gabor_confWtMeanAbsErr": 43.618,
+   "struct_fracDevGt25": 0.6313,
+   "struct_meanAbsErr": 43.196,
+   "gabor_fracDevGt45": 0.4869,
+   "gabor_fracDevGt60": 0.3324,
+   "gabor_devP90": 83.0,
+   "intrinsic_dispersionFracGt25": 0.3388,
+   "intrinsic_dispersionMean": 24.4,
+   "struct_cohMean": 0.7051,
+   "struct_fracCohLt05": 0.1926,
+   "lock_coherentDev45": 0.4647,
+   "lock_bigCompFrac": 0.3744,
+   "lock_nBigComp": 1,
+   "lock_largestCompPx": 13622,
+   "crossScale": {
+    "fracGt25": 0.1911,
+    "mean": 13.432,
+    "nBig": 2,
+    "bigFrac": 0.1131,
+    "largestPx": 2205
+   },
+   "upperHalf": {
+    "nHairPx": 13092,
+    "gabor_fracDevGt25": 0.6227,
+    "gabor_fracDevGt45": 0.363,
+    "gabor_meanAbsErr": 37.09,
+    "lock_coherentDev45": 0.1858,
+    "crossScale": {
+     "fracGt25": 0.3058,
+     "mean": 17.598,
+     "nBig": 2,
+     "bigFrac": 0.2101,
+     "largestPx": 1786
+    },
+    "flow": {
+     "gabor_fracDevGt25": 0.5223,
+     "gabor_fracDevGt45": 0.4786,
+     "gabor_meanAbsErr": 44.183,
+     "lock_coherentDev45": 0.521,
+     "lock_bigCompFrac": 0.3959,
+     "lock_nBigComp": 1,
+     "lock_largestCompPx": 5183
+    },
+    "histEMD_vsTarget": 28.676,
+    "histPeakBin_render": 9,
+    "histPeakBin_target": 15,
+    "histPeakMass_render": 0.164,
+    "histPeakMass_target": 0.1847
+   },
+   "gradAniso_gyOvergx": 0.5456,
+   "darkComp_meanAreaPx": 68.09,
+   "darkComp_count": 54,
+   "darkComp_bigFrac": 0.0595,
+   "darkComp_p10": 0.1257
+  },
+  "19": {
+   "render": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom19/renders-studio/back.png",
+   "sha256": "31a4a7d26d8fef5bf1e59dacaaa7fe127f707a5e514ad4f5ce807cf977f13aee",
+   "transform": {
+    "scale": 1.0403,
+    "tx": -19.6452,
+    "ty": -31.25
+   },
+   "nHairPx": 36408,
+   "gabor_fracDevGt25": 0.6284,
+   "gabor_meanAbsErr": 41.794,
+   "gabor_confWtMeanAbsErr": 41.508,
+   "struct_fracDevGt25": 0.6079,
+   "struct_meanAbsErr": 40.636,
+   "gabor_fracDevGt45": 0.4544,
+   "gabor_fracDevGt60": 0.314,
+   "gabor_devP90": 83.0,
+   "intrinsic_dispersionFracGt25": 0.2474,
+   "intrinsic_dispersionMean": 20.419,
+   "struct_cohMean": 0.8011,
+   "struct_fracCohLt05": 0.0931,
+   "lock_coherentDev45": 0.4174,
+   "lock_bigCompFrac": 0.3687,
+   "lock_nBigComp": 2,
+   "lock_largestCompPx": 12824,
+   "crossScale": {
+    "fracGt25": 0.1809,
+    "mean": 15.633,
+    "nBig": 5,
+    "bigFrac": 0.1358,
+    "largestPx": 1746
+   },
+   "upperHalf": {
+    "nHairPx": 13115,
+    "gabor_fracDevGt25": 0.599,
+    "gabor_fracDevGt45": 0.353,
+    "gabor_meanAbsErr": 36.029,
+    "lock_coherentDev45": 0.2449,
+    "crossScale": {
+     "fracGt25": 0.0445,
+     "mean": 7.895,
+     "nBig": 0,
+     "bigFrac": 0.0,
+     "largestPx": 448
+    },
+    "flow": {
+     "gabor_fracDevGt25": 0.5299,
+     "gabor_fracDevGt45": 0.4905,
+     "gabor_meanAbsErr": 44.969,
+     "lock_coherentDev45": 0.5021,
+     "lock_bigCompFrac": 0.4462,
+     "lock_nBigComp": 2,
+     "lock_largestCompPx": 5220
+    },
+    "histEMD_vsTarget": 15.149,
+    "histPeakBin_render": 9,
+    "histPeakBin_target": 15,
+    "histPeakMass_render": 0.1415,
+    "histPeakMass_target": 0.1846
+   },
+   "gradAniso_gyOvergx": 1.0228,
+   "darkComp_meanAreaPx": 91.6,
+   "darkComp_count": 40,
+   "darkComp_bigFrac": 0.052,
+   "darkComp_p10": 0.0941
+  }
+ },
+ "guideAttribution19": {
+  "nChildren": 283100,
+  "nDevPx": 22878,
+  "nContribChildren": 23718,
+  "devPxTouchedByContrib": 0.9237,
+  "topGuidesByWeight": [
+   {
+    "guide": 393,
+    "weight": 767.564
+   },
+   {
+    "guide": 378,
+    "weight": 459.861
+   },
+   {
+    "guide": 357,
+    "weight": 389.678
+   },
+   {
+    "guide": 2278,
+    "weight": 266.919
+   },
+   {
+    "guide": 954,
+    "weight": 251.0
+   },
+   {
+    "guide": 1308,
+    "weight": 241.0
+   },
+   {
+    "guide": 941,
+    "weight": 237.0
+   },
+   {
+    "guide": 232,
+    "weight": 219.95
+   },
+   {
+    "guide": 276,
+    "weight": 215.39
+   },
+   {
+    "guide": 1100,
+    "weight": 203.332
+   },
+   {
+    "guide": 2279,
+    "weight": 186.671
+   },
+   {
+    "guide": 1712,
+    "weight": 185.0
+   },
+   {
+    "guide": 761,
+    "weight": 175.32
+   },
+   {
+    "guide": 1593,
+    "weight": 174.952
+   },
+   {
+    "guide": 967,
+    "weight": 174.316
+   },
+   {
+    "guide": 1143,
+    "weight": 171.0
+   },
+   {
+    "guide": 855,
+    "weight": 165.554
+   },
+   {
+    "guide": 1255,
+    "weight": 160.235
+   },
+   {
+    "guide": 251,
+    "weight": 159.061
+   },
+   {
+    "guide": 474,
+    "weight": 155.978
+   }
+  ],
+  "note": "no occlusion beyond per-pixel hair z-buffer (32 samples/child, no oversampling); front-layer strands projecting into the box count as contributors"
+ }
+}

@@ -1,0 +1,64 @@
+{
+ "inputs": {
+  "guides": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-guides0/guides.npz",
+  "roots": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "sdf": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz"
+ },
+ "counts": {
+  "roots": 14155,
+  "guides": 276,
+  "pointsPer": 32,
+  "children": 14155
+ },
+ "part": {
+  "partX": 0.0001401995879485164,
+  "crownBandN": 4184
+ },
+ "blend": {
+  "kernel": "1/(duv+0.03)^4, cutoff 1.0 rad, nearest-alone fallback",
+  "meanWeight0": 0.6388,
+  "nearestAloneFrac": 0.035,
+  "nAlone": 467,
+  "rootExactnessMmMax": 0.0
+ },
+ "clump": {
+  "coarseMm": 20.0,
+  "coarsePullTip": 0.4,
+  "coarseCells": {
+   "nCells": 219,
+   "cellMin": 1,
+   "cellMax": 138,
+   "cellMean": 64.63
+  },
+  "fineMm": 4.5,
+  "finePullTip": 0.25,
+  "fineCells": {
+   "nCells": 3468,
+   "cellMin": 1,
+   "cellMax": 9,
+   "cellMean": 4.08
+  },
+  "profile": "t^2 root->tip, zero at root"
+ },
+ "lengthJitter": {
+  "sigma": 0.04,
+  "seed": 7,
+  "scaleMin": 0.8531,
+  "scaleMax": 1.1497
+ },
+ "projection": {
+  "nPushed": 158195,
+  "maxPushMm": 73.143,
+  "minSdfAfter": 0.0579,
+  "nInsideAfter": 0,
+  "nRounds": 8,
+  "outsideGrid": 126
+ },
+ "radiiMm": {
+  "root": 0.05,
+  "tip": 0.015000000000000001,
+  "profile": "linear in t^1.5"
+ },
+ "sha256": "557daea861fda1289fde7e13824e550f9d5494433dfebfd3202ecdd56ff11787",
+ "bytes": 5355177
+}

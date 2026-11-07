@@ -1,0 +1,20 @@
+RESULT::hair-flow-2
+G1::658.9 | [550,750]+2% MISS
+G2::165 | 101 MISS
+G3::66.5 | <=3 MISS
+G4::4.773e-07 | <=10 PASS
+G5::0.9984 | <=0.2 MISS
+G6::46.15 | >=95 MISS
+G7::43.41 | >=95 MISS
+G8::37 | 0 MISS
+G9::0.0001192 | <=5 PASS
+SAW::front: arrows leave the part sideways and run down toward the ears
+SAW::three_quarter: side flow runs down-back over the temple
+SAW::profile: flow over the ear points down-back
+SAW::back: flow converges down the occiput toward the nape
+SAW::top: flow radiates from the part line toward both sides
+STEPS::coarse-select v=872 f=1394 area=683.0cm2 comp=10 loops=18; remove_doubles v=834 f=1394 area=683.0cm2 comp=6 loops=11; subdiv-1 v=3112 f=5576 area=683.0cm2 comp=6 loops=6; subdiv-2 v=11850 f=22304 area=683.0cm2 comp=6 loops=7; triangulate v=11850 f=22304 area=683.0cm2 comp=6 loops=7
+CAUSE(D1)::withheld: gates MISS
+COMMIT::pending
+STILL::guides/children/hair renders (later cards)
+HARM::none

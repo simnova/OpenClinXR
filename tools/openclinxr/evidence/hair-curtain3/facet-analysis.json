@@ -1,0 +1,17 @@
+{
+  "guide_segment_median_mm": 9.575318664439001,
+  "guide_segment_p10_p90_mm": [
+    6.968968111735306,
+    12.642809095384932
+  ],
+  "segments_2_4mm_fraction": 0.002869934565491907,
+  "adjacent_turn_gt10deg_fraction": 0.2220640569395018,
+  "blend_band_children": 2372,
+  "verdict": "polyline curvature (not literal 3mm steps); c6 required",
+  "c6_smoothing": {
+    "max_move_mm": 4.500000000000002,
+    "p95_move_mm": 0.0021973545132253436,
+    "iterations": 3,
+    "cap_per_iteration_mm": 1.5
+  }
+}

@@ -1,0 +1,343 @@
+{
+  "schemaVersion": 1,
+  "skullHeightMm": 210.7,
+  "definitions": {
+    "frontHairline": "median last alpha>=230 (T1) or white-mask (TS) row in an 11px window at each skull-H column",
+    "profileHairline": "median row within 2px of the most-anterior solid-hair boundary above the brow",
+    "targetBrow": "front row 343 crosses visible brows; profile row 345 is midpoint of judge-documented transition 342..348",
+    "t1Brow": "projected anatomical brow from hair-curtain3/landmarks.json",
+    "higherByMm": "T1 brow-to-hairline distance minus TS distance; positive means T1 hairline is higher"
+  },
+  "inputs": {
+    "targetFront": "/Volumes/files/src/openclinxr/.openclinxr/scratch/target-views/set-back/target-front.png",
+    "targetProfile": "/Volumes/files/src/openclinxr/.openclinxr/scratch/target-views/set-back/target-profile.png",
+    "targetMasks": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-judge/tools/openclinxr/evidence/hair-judge/target-set-back",
+    "t1": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-top1/cells/t1",
+    "landmarks": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-curtain3/landmarks.json"
+  },
+  "subjects": {
+    "ts": {
+      "front": {
+        "skullHeightPx": 481.0,
+        "crownRow": 127.0,
+        "chinRow": 608.0,
+        "centreColumn": 513.0,
+        "browRow": 343.0,
+        "columns": [
+          {
+            "offsetSkullH": -0.2,
+            "column": 417,
+            "hairlineRow": 286.0,
+            "browRow": 343.0,
+            "browToHairlinePx": 57.0,
+            "browToHairlineSkullH": 0.11850311850311851,
+            "browToHairlineMm": 24.968607068607067,
+            "windowRows": [
+              302,
+              299,
+              296,
+              293,
+              288,
+              286,
+              284,
+              281,
+              279,
+              274,
+              272
+            ]
+          },
+          {
+            "offsetSkullH": -0.1,
+            "column": 465,
+            "hairlineRow": 217.0,
+            "browRow": 343.0,
+            "browToHairlinePx": 126.0,
+            "browToHairlineSkullH": 0.26195426195426197,
+            "browToHairlineMm": 55.193762993762995,
+            "windowRows": [
+              220,
+              220,
+              219,
+              219,
+              218,
+              217,
+              217,
+              216,
+              216,
+              215,
+              214
+            ]
+          },
+          {
+            "offsetSkullH": 0.0,
+            "column": 513,
+            "hairlineRow": 187.0,
+            "browRow": 343.0,
+            "browToHairlinePx": 156.0,
+            "browToHairlineSkullH": 0.32432432432432434,
+            "browToHairlineMm": 68.33513513513513,
+            "windowRows": [
+              187,
+              187,
+              187,
+              187,
+              187,
+              187,
+              187,
+              187,
+              187,
+              188,
+              194
+            ]
+          },
+          {
+            "offsetSkullH": 0.1,
+            "column": 561,
+            "hairlineRow": 217.0,
+            "browRow": 343.0,
+            "browToHairlinePx": 126.0,
+            "browToHairlineSkullH": 0.26195426195426197,
+            "browToHairlineMm": 55.193762993762995,
+            "windowRows": [
+              216,
+              216,
+              216,
+              216,
+              217,
+              217,
+              217,
+              218,
+              218,
+              219,
+              219
+            ]
+          },
+          {
+            "offsetSkullH": 0.2,
+            "column": 609,
+            "hairlineRow": 279.0,
+            "browRow": 343.0,
+            "browToHairlinePx": 64.0,
+            "browToHairlineSkullH": 0.13305613305613306,
+            "browToHairlineMm": 28.034927234927235,
+            "windowRows": [
+              272,
+              273,
+              274,
+              277,
+              277,
+              279,
+              283,
+              286,
+              290,
+              337,
+              340
+            ]
+          }
+        ]
+      },
+      "profile": {
+        "skullHeightPx": 452.0,
+        "crownRow": 125.0,
+        "chinRow": 577.0,
+        "browRow": 345.0,
+        "hairlineFrontEdge": {
+          "column": 373.0,
+          "row": 198.0,
+          "rowRangeWithin2PxOfAnterior": [
+            192,
+            204
+          ],
+          "anteriorColumn": 373
+        },
+        "browToHairlinePx": 147.0,
+        "browToHairlineSkullH": 0.3252212389380531,
+        "browToHairlineMm": 68.52411504424778
+      }
+    },
+    "t1": {
+      "front": {
+        "skullHeightPx": 480.0,
+        "crownRow": 103.0,
+        "chinRow": 583.0,
+        "centreColumn": 512.0,
+        "browRow": 269.13348388671875,
+        "columns": [
+          {
+            "offsetSkullH": -0.2,
+            "column": 416,
+            "hairlineRow": 204.0,
+            "browRow": 269.13348388671875,
+            "browToHairlinePx": 65.13348388671875,
+            "browToHairlineSkullH": 0.13569475809733073,
+            "browToHairlineMm": 28.59088553110758,
+            "windowRows": [
+              208,
+              207,
+              207,
+              206,
+              205,
+              204,
+              203,
+              201,
+              201,
+              200,
+              199
+            ]
+          },
+          {
+            "offsetSkullH": -0.1,
+            "column": 464,
+            "hairlineRow": 175.0,
+            "browRow": 269.13348388671875,
+            "browToHairlinePx": 94.13348388671875,
+            "browToHairlineSkullH": 0.1961114247639974,
+            "browToHairlineMm": 41.32067719777425,
+            "windowRows": [
+              177,
+              176,
+              175,
+              176,
+              175,
+              175,
+              174,
+              174,
+              173,
+              173,
+              173
+            ]
+          },
+          {
+            "offsetSkullH": 0.0,
+            "column": 512,
+            "hairlineRow": 151.0,
+            "browRow": 269.13348388671875,
+            "browToHairlinePx": 118.13348388671875,
+            "browToHairlineSkullH": 0.2461114247639974,
+            "browToHairlineMm": 51.85567719777425,
+            "windowRows": [
+              154,
+              153,
+              153,
+              146,
+              139,
+              138,
+              146,
+              149,
+              151,
+              152,
+              154
+            ]
+          },
+          {
+            "offsetSkullH": 0.1,
+            "column": 560,
+            "hairlineRow": 176.0,
+            "browRow": 269.13348388671875,
+            "browToHairlinePx": 93.13348388671875,
+            "browToHairlineSkullH": 0.19402809143066407,
+            "browToHairlineMm": 40.88171886444092,
+            "windowRows": [
+              173,
+              174,
+              174,
+              175,
+              175,
+              176,
+              176,
+              176,
+              177,
+              177,
+              177
+            ]
+          },
+          {
+            "offsetSkullH": 0.2,
+            "column": 608,
+            "hairlineRow": 204.0,
+            "browRow": 269.13348388671875,
+            "browToHairlinePx": 65.13348388671875,
+            "browToHairlineSkullH": 0.13569475809733073,
+            "browToHairlineMm": 28.59088553110758,
+            "windowRows": [
+              200,
+              202,
+              203,
+              203,
+              203,
+              204,
+              205,
+              206,
+              207,
+              207,
+              209
+            ]
+          }
+        ]
+      },
+      "profile": {
+        "skullHeightPx": 430.0,
+        "crownRow": 131.0,
+        "chinRow": 561.0,
+        "browRow": 312.279541015625,
+        "hairlineFrontEdge": {
+          "column": 220.0,
+          "row": 228.5,
+          "rowRangeWithin2PxOfAnterior": [
+            218,
+            237
+          ],
+          "anteriorColumn": 220
+        },
+        "browToHairlinePx": 83.779541015625,
+        "browToHairlineSkullH": 0.19483614189680232,
+        "browToHairlineMm": 41.051975097656246
+      }
+    }
+  },
+  "comparison": {
+    "front": [
+      {
+        "offsetSkullH": -0.2,
+        "tsMm": 24.968607068607067,
+        "t1Mm": 28.59088553110758,
+        "t1HigherByMm": 3.622278462500514
+      },
+      {
+        "offsetSkullH": -0.1,
+        "tsMm": 55.193762993762995,
+        "t1Mm": 41.32067719777425,
+        "t1HigherByMm": -13.873085795988743
+      },
+      {
+        "offsetSkullH": 0.0,
+        "tsMm": 68.33513513513513,
+        "t1Mm": 51.85567719777425,
+        "t1HigherByMm": -16.479457937360884
+      },
+      {
+        "offsetSkullH": 0.1,
+        "tsMm": 55.193762993762995,
+        "t1Mm": 40.88171886444092,
+        "t1HigherByMm": -14.312044129322075
+      },
+      {
+        "offsetSkullH": 0.2,
+        "tsMm": 28.034927234927235,
+        "t1Mm": 28.59088553110758,
+        "t1HigherByMm": 0.5559582961803464
+      }
+    ],
+    "profile": {
+      "tsMm": 68.52411504424778,
+      "t1Mm": 41.051975097656246,
+      "t1HigherByMm": -27.472139946591533
+    }
+  },
+  "premise": {
+    "t1HigherThanTsAtEveryFrontColumn": false,
+    "t1HigherByAtLeast4MmAtAnyFrontColumn": false,
+    "allFrontDifferencesBelow4Mm": true,
+    "verdict": "PREMISE_WRONG_STOP"
+  }
+}

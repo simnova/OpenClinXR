@@ -1,0 +1,4 @@
+DONE hair-groom10diag: rebuilt groom9 byte-identically, captured ordered
+per-child stage maxima, selected z-visible strands in four scorer boxes plus
+random controls, rendered EEVEE guide/raw/final A-B-C crops, and attributed
+knot+loops to guide paths and tuft+hairline band to raw interpolation.

@@ -1,0 +1,29 @@
+{
+  "faces": 778,
+  "gates": {
+    "ALL_PASS": true,
+    "A_domeDome": 0,
+    "A_overlaps": 0,
+    "A_pairsChecked": 4892,
+    "A_pass": true,
+    "B_areaMinM2": 4.879869830621616e-06,
+    "B_flips": 0,
+    "B_jacMin": 0.001771882819549148,
+    "B_neg": 0,
+    "B_pass": true,
+    "B_pos": 778,
+    "B_uvDegenerate": 0,
+    "C1_maxMm": 0.02639029726628293,
+    "C1_meanMm": 0.004635323387391879,
+    "C1_n": 10000,
+    "C1_sameTri": 8884,
+    "C2_maxMm": 26.06108157319429,
+    "C2_meanMm": 4.666120804593703,
+    "C2_nUsed": 9565,
+    "C2_poleExcluded": 435,
+    "C_note": "gated on C1 (mesh lookup round trip, the representation roots use); C2 analytic leg is diagnostic (chart nonlinearity on coarse dome tris exceeds 0.1mm independent of consistency)",
+    "C_pass": true
+  },
+  "method": "A: grid-hashed segment intersection over nonadjacent pairs (UV-duplicate seam verts unified; both-dome-r20mm pairs counted separately); B: sign(dot(n3d, dP/du x dP/dv)) on seam-unwrapped tris; C1: UV-grid lookup return-trip in 3D (gated); C2: analytic-chart round trip (diagnostic)",
+  "seed": 21937
+}

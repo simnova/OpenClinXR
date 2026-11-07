@@ -1,0 +1,94 @@
+{
+  "frontroots": {
+    "firstInside": {
+      "OCLX_Aisha_head": 3515,
+      "makeclothes_library_toigo_t_shirt": 6903,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "postInside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "postInsideTotal": 0,
+    "movedPoints": 6950,
+    "maxProjectionMm": 15.197400405930436,
+    "repairDispMm": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "max": 0.02204320866608153
+    },
+    "verifyPostInsideTotal": 0
+  },
+  "part": {
+    "firstInside": {
+      "OCLX_Aisha_head": 4,
+      "makeclothes_library_toigo_t_shirt": 103,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "postInside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "postInsideTotal": 0,
+    "movedPoints": 107,
+    "maxProjectionMm": 14.066288879339135,
+    "repairDispMm": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "max": 0.014066288879339141
+    },
+    "verifyPostInsideTotal": 0
+  },
+  "combo": {
+    "firstInside": {
+      "OCLX_Aisha_head": 556,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "postInside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "postInsideTotal": 0,
+    "movedPoints": 556,
+    "maxProjectionMm": 1.2469681115014728,
+    "repairDispMm": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "max": 0.0012469681115014656
+    },
+    "verifyPostInsideTotal": 0
+  },
+  "frontroots_v2": {
+    "firstInside": {
+      "OCLX_Aisha_head": 1135,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "postInside": {
+      "OCLX_Aisha_head": 0,
+      "makeclothes_library_toigo_t_shirt": 0,
+      "makeclothes_library_female_tight_jeans_pants": 0,
+      "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent": 0
+    },
+    "postInsideTotal": 0,
+    "movedPoints": 1135,
+    "maxProjectionMm": 2.3895445934365487,
+    "repairDispMm": {
+      "p50": 0.0,
+      "p95": 0.0,
+      "max": 0.0023895445934365364
+    },
+    "verifyPostInsideTotal": 0
+  }
+}

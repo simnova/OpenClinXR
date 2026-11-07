@@ -1,0 +1,26 @@
+RESULT::hair-cap-6
+P1::cx=513 crown=127 skull=150 chin=608 H=458 rows(dx:L/R)=0:208/208 20:211/211 40:212/213 60:224/219 80:245/238 100:303/284
+P2::rows=r220:c390=0.0951H r250:c398=0.1128H r280:c403=0.1239H r310:c408=0.1350H r340:c413=0.1460H r370:c422=0.1659H r400:c436=0.1969H r430:c443=0.2124H
+P2::lobe_row_est=457 departure_row=475 root_bottom_row=425 (+21.5px=10mm root line)
+P3::canthus L=(44.4,-136.5,1.55460) R=(-44.4,-136.5,1.55460)
+P3::ear-front L=(68.1,-72.2,1.5437) R=(-68.1,-72.2,1.5437) | top Lz=1.6006 Rz=1.6006 | lobe Lz=1.5037 Rz=1.5037
+P4::brow id=227 z=1.57165 nasion id=1026 z=1.54823 (old 1.5303 was nose)
+HAIRLINE::0.00000 target 0.8734 | ours-v5 0.8717 | ours-v6 0.8719
+HAIRLINE::0.04367 target 0.8668 | ours-v5 0.8669 | ours-v6 0.8668
+HAIRLINE::0.08734 target 0.8635 | ours-v5 0.8324 | ours-v6 0.8635
+HAIRLINE::0.13100 target 0.8439 | ours-v5 0.7913 | ours-v6 0.8438
+HAIRLINE::0.17467 target 0.8002 | ours-v5 0.7501 | ours-v6 0.8002
+HAIRLINE::0.21834 target 0.6867 | ours-v5 0.6884 | ours-v6 0.6867
+G1::area=553.6 [600,680] removed_forehead=40.2 added_L=6.7 added_R=6.7 cut_pinna=73.3 ncomp=3 nloops=3 mirror=0.00mm<=1 MISS
+G2::maxerr=0.0014H<=0.02 cols=0:0.0014,20:0.0000,40:0.0001,60:0.0001,80:0.0000,100:0.0000 PASS
+G3::step=20.208mm<=3 at_vert=20236 zone=sideburn MISS
+G4::setback=[10.0,55.4]mm in [8,12] pinna_min=0.00mm>5 canthus_infront=-12.40mm<=1 MISS
+G5::g13=1.00>=0.90 g7=1.00>=0.95 g15=7.85<=25 cross=0 sinks=0 never=0 fore=3.33%<=2% sym95=0.001deg<=1 MISS
+HIST-B::forehead=10 temple-to-ear=107 behind-ear=106 nape=77 never-left=0
+SINK::count=0 roots=[] (see log SINK/STALL lines; cause fix in M4)
+SAW::pending-visual
+CAUSE::MISS G1,G3,G4,G5 see row-cap6.json
+COMMIT::uncommitted
+STILL::guides/children/hair renders (later cards)
+BRIEF_MISSING::none
+HARM::none

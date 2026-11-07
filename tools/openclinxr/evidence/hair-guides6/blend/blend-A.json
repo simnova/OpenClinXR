@@ -1,0 +1,183 @@
+{
+  "tag": "A",
+  "requested": 2000,
+  "evaluatedCurveCount": 2000,
+  "pointsPerCurve": 32,
+  "nanCount": 0,
+  "sha256": "4fb94b18ecb2aac07b0afe97d958bcca9275be4ade5db942d48c765d97766035",
+  "sha256_twice_equal": true,
+  "crossings": 0,
+  "nearSlitPoints": 1,
+  "rootToCapMm": {
+    "mean": 2.991245033420537,
+    "max": 3.0001324574024553,
+    "sample": 2000
+  },
+  "rootDensityCV": 0.2834282868275793,
+  "cvInfo": {
+    "patches": 633,
+    "meanCount": 3.1595576619273302,
+    "minCount": 1,
+    "maxCount": 6,
+    "meanPatchCm2": 0.9996099765528689
+  },
+  "hullFrac": 0.991453125,
+  "hullSeconds": 0.019758000002184417,
+  "g5": {
+    "insideBodyFrac": 0.41996875,
+    "insideBodyGatedFrac": 0.157421875,
+    "insideShirtFrac": 0.107578125,
+    "insideHeadFrac": 0.03115625,
+    "guideInsideBodyFrac": 0.40184563758389263,
+    "guideInsideShirtFrac": 0.07482172818791946,
+    "guideInsideHeadFrac": 0.007340604026845637,
+    "excludedShare": 0.299015625
+  },
+  "wrap": {
+    "insideBodyFrac": 0.213953125,
+    "insideShirtFrac": 0.064140625,
+    "dispMm": {
+      "p50": 4.606558840839664e-05,
+      "p95": 22.954623998776682,
+      "max": 63.30789822828667
+    }
+  },
+  "kept": "raw",
+  "radiusMinMax": {
+    "min": 0.00039999998989515007,
+    "max": 0.00039999998989515007
+  },
+  "tipAttempts": [
+    {
+      "radius": 0.0004,
+      "shape": 0.0,
+      "factorMin": 0.0,
+      "minmax": {
+        "min": 0.00039999998989515007,
+        "max": 0.00039999998989515007
+      }
+    }
+  ],
+  "profileReadbackKeys": [
+    "Density",
+    "Factor Max",
+    "Factor Min",
+    "Length",
+    "Radius",
+    "Replace Radius",
+    "Shape"
+  ],
+  "evalDiffMax": 5.960450111253124e-08,
+  "generatorSeconds": 1.760684125001717,
+  "generatorMeta": {
+    "poisson": {
+      "method": "best-candidate",
+      "k": 32,
+      "r0mm": 6.044172245783751,
+      "capAreaCm2": 632.753115157966
+    },
+    "fallback_all": false,
+    "fallback_count": 125,
+    "attempts": {
+      "True": {
+        "kind": "pca",
+        "tris": 562,
+        "fails": [
+          "pca p95=25.3mm",
+          "cyl p95=116.5mm",
+          "yz p95=27.9mm",
+          "kept pca p95=25.3mm"
+        ]
+      },
+      "False": {
+        "kind": "pca",
+        "tris": 576,
+        "fails": [
+          "pca p95=24.1mm",
+          "cyl p95=106.7mm",
+          "yz p95=29.7mm",
+          "kept pca p95=24.1mm"
+        ]
+      }
+    },
+    "tipFactorMean": 0.9850504652422287,
+    "seconds_locate": 0.035547834006138146
+  },
+  "lanes": {
+    "showTotal": 0.4697160002791152,
+    "partBandShow": 0.050354127416090994,
+    "showRest": 0.41936187286302423,
+    "gutters": 7,
+    "pxPerM": 2642.88330078125,
+    "bandWidthPx": 32
+  },
+  "renders": {
+    "front": {
+      "png": "tools/openclinxr/evidence/hair-guides6/blend/passA/front.png",
+      "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA/front-id.png"
+    },
+    "three_quarter": {
+      "png": "tools/openclinxr/evidence/hair-guides6/blend/passA/three_quarter.png",
+      "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "tools/openclinxr/evidence/hair-guides6/blend/passA/profile_90.png",
+      "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA/profile_90-id.png"
+    },
+    "back": {
+      "png": "tools/openclinxr/evidence/hair-guides6/blend/passA/back.png",
+      "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA/back-id.png"
+    },
+    "crown_top": {
+      "png": "tools/openclinxr/evidence/hair-guides6/blend/passA/crown_top.png",
+      "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA/crown_top-id.png"
+    },
+    "altVariant": "shrinkwrap",
+    "alt": {
+      "front": {
+        "png": "tools/openclinxr/evidence/hair-guides6/blend/passA-alt/front.png",
+        "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA-alt/front-id.png"
+      },
+      "crown_top": {
+        "png": "tools/openclinxr/evidence/hair-guides6/blend/passA-alt/crown_top.png",
+        "id_png": "tools/openclinxr/evidence/hair-guides6/blend/passA-alt/crown_top-id.png"
+      }
+    }
+  },
+  "silhouette": "tools/openclinxr/evidence/hair-guides6/blend/cap-silhouette-A.png",
+  "visible": [
+    "Human",
+    "OCLX_Aisha_head",
+    "OCLX_blend_A",
+    "OCLX_cam",
+    "OCLX_fill",
+    "OCLX_key",
+    "OCLX_rim",
+    "makeclothes_library_female_tight_jeans_pants",
+    "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_peds_anxious_parent",
+    "makeclothes_library_toigo_t_shirt",
+    "mpfb_parent_tara_johnson_v1_body_mesh",
+    "mpfb_parent_tara_johnson_v1_body_mesh.low-poly",
+    "mpfb_parent_tara_johnson_v1_body_mesh.teeth_base",
+    "mpfb_parent_tara_johnson_v1_body_mesh.tongue01",
+    "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_peds_anxious_parent_mesh",
+    "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh"
+  ],
+  "capInfo": {
+    "apexY": -0.053241077810525894,
+    "stripVertexCount": 604,
+    "solidVertexCount": 31070,
+    "uvMissingCount": 0,
+    "uvRule": "nearest head face, barycentric (fan tri for quads)",
+    "splitIslands": true,
+    "islandCount": 2,
+    "islandSizes": [
+      15837,
+      15837
+    ]
+  },
+  "radius": 0.0004,
+  "crownZ": 1.6599169969558716,
+  "apexY": -0.053241077810525894,
+  "wallSeconds": 132.76015466699755
+}

@@ -1,0 +1,1325 @@
+{
+  "best": "g1",
+  "diagnosis": "diagnosis.json",
+  "rows": [
+    {
+      "tag": "b2",
+      "style_diff": {},
+      "gates": [
+        {
+          "gate": "G1",
+          "measured": "{\"max_mm\": 0.0, \"p95_mm\": 0.0}",
+          "bar": "p95<=0.5mm max<=2mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G2",
+          "measured": "{\"nan\": 0, \"pts32\": true, \"short\": 14, \"zero\": 0}",
+          "bar": "kept>=95%; 32 points; 0 NaN/short",
+          "verdict": "MISS"
+        },
+        {
+          "gate": "G3",
+          "measured": "{\"behind_viol\": 0, \"front\": 0}",
+          "bar": "0 points in front of shoulder/torso",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G4",
+          "measured": "{\"deep_mm\": 0.0, \"inside\": 0}",
+          "bar": "inside<=5; depth<=1mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G5",
+          "measured": "{\"back_band_mm\": 85.24280744909606, \"front_lo\": 2, \"nape_edge_frac\": 0.0}",
+          "bar": "nape<=10%; front<=2%; back band>=25mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G6",
+          "measured": "{\"backfill_ratio\": 1.4046847394961917, \"travel_max_mm\": 0.005852319701564468, \"travel_viol\": 0}",
+          "bar": "centre/outer>=0.90; back travel<=15mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G7",
+          "measured": "{\"horiz\": 0}",
+          "bar": "horizontal runs<=1%",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G8",
+          "measured": "{\"cover\": {\"L\": 0.9921230307576894, \"R\": 0.9921230307576894}, \"face\": 0}",
+          "bar": "ear cover>=0.90; face points=0",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G9",
+          "measured": "{\"hem_bad\": 0}",
+          "bar": "every tip within 8mm of z_hem",
+          "verdict": "PASS"
+        }
+      ],
+      "judge": {
+        "front_iou": 0.5992165468387569,
+        "eroded": 0.47069258471632985,
+        "face_gap_eye_L": 1.1607142857142858,
+        "face_gap_eye_R": 1.2285714285714286,
+        "profile_iou": 0.7636925687962177,
+        "back_iou": 0.8567920495747382,
+        "back_hem_ours_skull_H": 0.5147318373874757,
+        "back_hem_target_skull_H": 0.5103666159540824,
+        "eye_box_px": 0,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep3": {
+        "front_exits": 7,
+        "over_eye_cheek_strands": 0,
+        "ear_cover_profile_mask": 0.7793162393162393,
+        "ahead_ear_percent": {
+          "n": 232,
+          "front": 11.206896551724139,
+          "over": 50.86206896551724,
+          "behind": 37.93103448275862
+        },
+        "profile_front_edge": [
+          {
+            "row": 180,
+            "ours_front_col": 400,
+            "TS_front_col": 381,
+            "delta_skull_H": 0.0395010395010395
+          },
+          {
+            "row": 240,
+            "ours_front_col": 384,
+            "TS_front_col": 395,
+            "delta_skull_H": -0.02286902286902287
+          },
+          {
+            "row": 300,
+            "ours_front_col": 426,
+            "TS_front_col": 406,
+            "delta_skull_H": 0.04158004158004158
+          },
+          {
+            "row": 360,
+            "ours_front_col": 439,
+            "TS_front_col": 420,
+            "delta_skull_H": 0.0395010395010395
+          },
+          {
+            "row": 420,
+            "ours_front_col": 460,
+            "TS_front_col": 442,
+            "delta_skull_H": 0.037422037422037424
+          },
+          {
+            "row": 480,
+            "ours_front_col": 537,
+            "TS_front_col": 469,
+            "delta_skull_H": 0.14137214137214138
+          },
+          {
+            "row": 540,
+            "ours_front_col": 592,
+            "TS_front_col": 498,
+            "delta_skull_H": 0.19542619542619544
+          }
+        ],
+        "stripe_contrast": 0.2908845047445359,
+        "face_gap_TS_band": {
+          "L_skull_H": 0.2661122661122661,
+          "R_skull_H": 0.26195426195426197,
+          "L_pass": false,
+          "R_pass": false,
+          "band_skull_H": {
+            "L": [
+              0.2003742203742204,
+              0.24037422037422038
+            ],
+            "R": [
+              0.19205821205821208,
+              0.23205821205821206
+            ]
+          },
+          "judge_clause_ratio": {
+            "L": 1.1607142857142858,
+            "R": 1.2285714285714286
+          }
+        }
+      }
+    },
+    {
+      "tag": "r1",
+      "style_diff": {
+        "side_front_route": true
+      },
+      "gates": [
+        {
+          "gate": "G1",
+          "measured": "{\"max_mm\": 0.0, \"p95_mm\": 0.0}",
+          "bar": "p95<=0.5mm max<=2mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G2",
+          "measured": "{\"nan\": 0, \"pts32\": true, \"short\": 0, \"zero\": 0}",
+          "bar": "kept>=95%; 32 points; 0 NaN/short",
+          "verdict": "MISS"
+        },
+        {
+          "gate": "G3",
+          "measured": "{\"behind_viol\": 0, \"front\": 0}",
+          "bar": "0 points in front of shoulder/torso",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G4",
+          "measured": "{\"deep_mm\": 0.0, \"inside\": 0}",
+          "bar": "inside<=5; depth<=1mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G5",
+          "measured": "{\"back_band_mm\": 85.64099560014272, \"front_lo\": 0, \"nape_edge_frac\": 0.0}",
+          "bar": "nape<=10%; front<=2%; back band>=25mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G6",
+          "measured": "{\"backfill_ratio\": 1.1321994298133986, \"travel_max_mm\": 0.005852319701564468, \"travel_viol\": 0}",
+          "bar": "centre/outer>=0.90; back travel<=15mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G7",
+          "measured": "{\"horiz\": 0}",
+          "bar": "horizontal runs<=1%",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G8",
+          "measured": "{\"cover\": {\"L\": 0.0, \"R\": 0.0}, \"face\": 0}",
+          "bar": "ear cover>=0.90; face points=0",
+          "verdict": "MISS"
+        },
+        {
+          "gate": "G9",
+          "measured": "{\"hem_bad\": 0}",
+          "bar": "every tip within 8mm of z_hem",
+          "verdict": "PASS"
+        }
+      ],
+      "judge": {
+        "front_iou": 0.3291265231970469,
+        "eroded": 0.18839030958462016,
+        "face_gap_eye_L": 1.1785714285714286,
+        "face_gap_eye_R": 1.2476190476190476,
+        "profile_iou": 0.5663796349150443,
+        "back_iou": 0.8522207054984935,
+        "back_hem_ours_skull_H": 0.5147318373874757,
+        "back_hem_target_skull_H": 0.5103666159540824,
+        "eye_box_px": 0,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep3": {
+        "front_exits": 7,
+        "over_eye_cheek_strands": 0,
+        "ear_cover_profile_mask": 0.6154700854700854,
+        "ahead_ear_percent": {
+          "n": 0,
+          "front": 0.0,
+          "over": 0.0,
+          "behind": 0.0
+        },
+        "profile_front_edge": [
+          {
+            "row": 180,
+            "ours_front_col": 430,
+            "TS_front_col": 381,
+            "delta_skull_H": 0.10187110187110188
+          },
+          {
+            "row": 240,
+            "ours_front_col": 384,
+            "TS_front_col": 395,
+            "delta_skull_H": -0.02286902286902287
+          },
+          {
+            "row": 300,
+            "ours_front_col": 427,
+            "TS_front_col": 406,
+            "delta_skull_H": 0.04365904365904366
+          },
+          {
+            "row": 360,
+            "ours_front_col": 440,
+            "TS_front_col": 420,
+            "delta_skull_H": 0.04158004158004158
+          },
+          {
+            "row": 420,
+            "ours_front_col": 460,
+            "TS_front_col": 442,
+            "delta_skull_H": 0.037422037422037424
+          },
+          {
+            "row": 480,
+            "ours_front_col": 605,
+            "TS_front_col": 469,
+            "delta_skull_H": 0.28274428274428276
+          },
+          {
+            "row": 540,
+            "ours_front_col": 653,
+            "TS_front_col": 498,
+            "delta_skull_H": 0.32224532224532226
+          }
+        ],
+        "stripe_contrast": 0.2597305639637441,
+        "face_gap_TS_band": {
+          "L_skull_H": 0.2681912681912682,
+          "R_skull_H": 0.2661122661122661,
+          "L_pass": false,
+          "R_pass": false,
+          "band_skull_H": {
+            "L": [
+              0.2003742203742204,
+              0.24037422037422038
+            ],
+            "R": [
+              0.19205821205821208,
+              0.23205821205821206
+            ]
+          },
+          "judge_clause_ratio": {
+            "L": 1.1785714285714286,
+            "R": 1.2476190476190476
+          }
+        }
+      }
+    },
+    {
+      "tag": "g1",
+      "style_diff": {
+        "front_flow_g1": true
+      },
+      "gates": [
+        {
+          "gate": "G1",
+          "measured": "{\"max_mm\": 0.0, \"p95_mm\": 0.0}",
+          "bar": "p95<=0.5mm max<=2mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G2",
+          "measured": "{\"nan\": 0, \"pts32\": true, \"short\": 0, \"zero\": 0}",
+          "bar": "kept>=95%; 32 points; 0 NaN/short",
+          "verdict": "MISS"
+        },
+        {
+          "gate": "G3",
+          "measured": "{\"behind_viol\": 0, \"front\": 0}",
+          "bar": "0 points in front of shoulder/torso",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G4",
+          "measured": "{\"deep_mm\": 0.0, \"inside\": 0}",
+          "bar": "inside<=5; depth<=1mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G5",
+          "measured": "{\"back_band_mm\": 85.24280744909606, \"front_lo\": 2, \"nape_edge_frac\": 0.0}",
+          "bar": "nape<=10%; front<=2%; back band>=25mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G6",
+          "measured": "{\"backfill_ratio\": 1.4981110930354464, \"travel_max_mm\": 0.005852319701564468, \"travel_viol\": 0}",
+          "bar": "centre/outer>=0.90; back travel<=15mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G7",
+          "measured": "{\"horiz\": 0}",
+          "bar": "horizontal runs<=1%",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G8",
+          "measured": "{\"cover\": {\"L\": 0.9921230307576894, \"R\": 0.9921230307576894}, \"face\": 0}",
+          "bar": "ear cover>=0.90; face points=0",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G9",
+          "measured": "{\"hem_bad\": 0}",
+          "bar": "every tip within 8mm of z_hem",
+          "verdict": "PASS"
+        }
+      ],
+      "judge": {
+        "front_iou": 0.604418463553454,
+        "eroded": 0.497687632840954,
+        "face_gap_eye_L": 1.1607142857142858,
+        "face_gap_eye_R": 1.2285714285714286,
+        "profile_iou": 0.7560734754213568,
+        "back_iou": 0.848685840099078,
+        "back_hem_ours_skull_H": 0.5147318373874757,
+        "back_hem_target_skull_H": 0.5103666159540824,
+        "eye_box_px": 0,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep3": {
+        "front_exits": 2,
+        "over_eye_cheek_strands": 0,
+        "ear_cover_profile_mask": 0.7793162393162393,
+        "ahead_ear_percent": {
+          "n": 216,
+          "front": 10.185185185185185,
+          "over": 50.925925925925924,
+          "behind": 38.888888888888886
+        },
+        "profile_front_edge": [
+          {
+            "row": 180,
+            "ours_front_col": 397,
+            "TS_front_col": 381,
+            "delta_skull_H": 0.033264033264033266
+          },
+          {
+            "row": 240,
+            "ours_front_col": 384,
+            "TS_front_col": 395,
+            "delta_skull_H": -0.02286902286902287
+          },
+          {
+            "row": 300,
+            "ours_front_col": 424,
+            "TS_front_col": 406,
+            "delta_skull_H": 0.037422037422037424
+          },
+          {
+            "row": 360,
+            "ours_front_col": 439,
+            "TS_front_col": 420,
+            "delta_skull_H": 0.0395010395010395
+          },
+          {
+            "row": 420,
+            "ours_front_col": 460,
+            "TS_front_col": 442,
+            "delta_skull_H": 0.037422037422037424
+          },
+          {
+            "row": 480,
+            "ours_front_col": 537,
+            "TS_front_col": 469,
+            "delta_skull_H": 0.14137214137214138
+          },
+          {
+            "row": 540,
+            "ours_front_col": 592,
+            "TS_front_col": 498,
+            "delta_skull_H": 0.19542619542619544
+          }
+        ],
+        "stripe_contrast": 0.32086052497156115,
+        "face_gap_TS_band": {
+          "L_skull_H": 0.2661122661122661,
+          "R_skull_H": 0.26195426195426197,
+          "L_pass": false,
+          "R_pass": false,
+          "band_skull_H": {
+            "L": [
+              0.2003742203742204,
+              0.24037422037422038
+            ],
+            "R": [
+              0.19205821205821208,
+              0.23205821205821206
+            ]
+          },
+          "judge_clause_ratio": {
+            "L": 1.1607142857142858,
+            "R": 1.2285714285714286
+          }
+        }
+      }
+    },
+    {
+      "tag": "rg1",
+      "style_diff": {
+        "side_front_route": true,
+        "front_flow_g1": true
+      },
+      "gates": [
+        {
+          "gate": "G1",
+          "measured": "{\"max_mm\": 0.0, \"p95_mm\": 0.0}",
+          "bar": "p95<=0.5mm max<=2mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G2",
+          "measured": "{\"nan\": 0, \"pts32\": true, \"short\": 0, \"zero\": 0}",
+          "bar": "kept>=95%; 32 points; 0 NaN/short",
+          "verdict": "MISS"
+        },
+        {
+          "gate": "G3",
+          "measured": "{\"behind_viol\": 0, \"front\": 0}",
+          "bar": "0 points in front of shoulder/torso",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G4",
+          "measured": "{\"deep_mm\": 0.0, \"inside\": 0}",
+          "bar": "inside<=5; depth<=1mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G5",
+          "measured": "{\"back_band_mm\": 85.64099560014272, \"front_lo\": 0, \"nape_edge_frac\": 0.0}",
+          "bar": "nape<=10%; front<=2%; back band>=25mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G6",
+          "measured": "{\"backfill_ratio\": 1.1321994298133986, \"travel_max_mm\": 0.005852319701564468, \"travel_viol\": 0}",
+          "bar": "centre/outer>=0.90; back travel<=15mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G7",
+          "measured": "{\"horiz\": 0}",
+          "bar": "horizontal runs<=1%",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G8",
+          "measured": "{\"cover\": {\"L\": 0.0, \"R\": 0.0}, \"face\": 0}",
+          "bar": "ear cover>=0.90; face points=0",
+          "verdict": "MISS"
+        },
+        {
+          "gate": "G9",
+          "measured": "{\"hem_bad\": 0}",
+          "bar": "every tip within 8mm of z_hem",
+          "verdict": "PASS"
+        }
+      ],
+      "judge": {
+        "front_iou": 0.3291265231970469,
+        "eroded": 0.18839030958462016,
+        "face_gap_eye_L": 1.1785714285714286,
+        "face_gap_eye_R": 1.2476190476190476,
+        "profile_iou": 0.5663796349150443,
+        "back_iou": 0.8522207054984935,
+        "back_hem_ours_skull_H": 0.5147318373874757,
+        "back_hem_target_skull_H": 0.5103666159540824,
+        "eye_box_px": 0,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep3": {
+        "front_exits": 0,
+        "over_eye_cheek_strands": 0,
+        "ear_cover_profile_mask": 0.6154700854700854,
+        "ahead_ear_percent": {
+          "n": 0,
+          "front": 0.0,
+          "over": 0.0,
+          "behind": 0.0
+        },
+        "profile_front_edge": [
+          {
+            "row": 180,
+            "ours_front_col": 430,
+            "TS_front_col": 381,
+            "delta_skull_H": 0.10187110187110188
+          },
+          {
+            "row": 240,
+            "ours_front_col": 384,
+            "TS_front_col": 395,
+            "delta_skull_H": -0.02286902286902287
+          },
+          {
+            "row": 300,
+            "ours_front_col": 427,
+            "TS_front_col": 406,
+            "delta_skull_H": 0.04365904365904366
+          },
+          {
+            "row": 360,
+            "ours_front_col": 440,
+            "TS_front_col": 420,
+            "delta_skull_H": 0.04158004158004158
+          },
+          {
+            "row": 420,
+            "ours_front_col": 460,
+            "TS_front_col": 442,
+            "delta_skull_H": 0.037422037422037424
+          },
+          {
+            "row": 480,
+            "ours_front_col": 605,
+            "TS_front_col": 469,
+            "delta_skull_H": 0.28274428274428276
+          },
+          {
+            "row": 540,
+            "ours_front_col": 653,
+            "TS_front_col": 498,
+            "delta_skull_H": 0.32224532224532226
+          }
+        ],
+        "stripe_contrast": 0.2597305639637441,
+        "face_gap_TS_band": {
+          "L_skull_H": 0.2681912681912682,
+          "R_skull_H": 0.2661122661122661,
+          "L_pass": false,
+          "R_pass": false,
+          "band_skull_H": {
+            "L": [
+              0.2003742203742204,
+              0.24037422037422038
+            ],
+            "R": [
+              0.19205821205821208,
+              0.23205821205821206
+            ]
+          },
+          "judge_clause_ratio": {
+            "L": 1.1785714285714286,
+            "R": 1.2476190476190476
+          }
+        }
+      }
+    },
+    {
+      "tag": "v1",
+      "style_diff": {
+        "root_lift_mm": 6.0,
+        "layered_clearance": true
+      },
+      "gates": [
+        {
+          "gate": "G1",
+          "measured": "{\"max_mm\": 0.0, \"p95_mm\": 0.0}",
+          "bar": "p95<=0.5mm max<=2mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G2",
+          "measured": "{\"nan\": 0, \"pts32\": true, \"short\": 16, \"zero\": 0}",
+          "bar": "kept>=95%; 32 points; 0 NaN/short",
+          "verdict": "MISS"
+        },
+        {
+          "gate": "G3",
+          "measured": "{\"behind_viol\": 0, \"front\": 0}",
+          "bar": "0 points in front of shoulder/torso",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G4",
+          "measured": "{\"deep_mm\": 0.0, \"inside\": 0}",
+          "bar": "inside<=5; depth<=1mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G5",
+          "measured": "{\"back_band_mm\": 84.19228084008368, \"front_lo\": 2, \"nape_edge_frac\": 0.0}",
+          "bar": "nape<=10%; front<=2%; back band>=25mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G6",
+          "measured": "{\"backfill_ratio\": 1.398704957273, \"travel_max_mm\": 0.005101045655674097, \"travel_viol\": 0}",
+          "bar": "centre/outer>=0.90; back travel<=15mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G7",
+          "measured": "{\"horiz\": 0}",
+          "bar": "horizontal runs<=1%",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G8",
+          "measured": "{\"cover\": {\"L\": 0.9921230307576894, \"R\": 0.9921230307576894}, \"face\": 0}",
+          "bar": "ear cover>=0.90; face points=0",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G9",
+          "measured": "{\"hem_bad\": 0}",
+          "bar": "every tip within 8mm of z_hem",
+          "verdict": "PASS"
+        }
+      ],
+      "judge": {
+        "front_iou": 0.6375018644766743,
+        "eroded": 0.576504359542663,
+        "face_gap_eye_L": 1.1785714285714286,
+        "face_gap_eye_R": 1.2476190476190476,
+        "profile_iou": 0.756554081343549,
+        "back_iou": 0.6848796415297509,
+        "back_hem_ours_skull_H": 0.5147318373874757,
+        "back_hem_target_skull_H": 0.5103666159540824,
+        "eye_box_px": 0,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep3": {
+        "front_exits": 7,
+        "over_eye_cheek_strands": 0,
+        "ear_cover_profile_mask": 0.7856410256410257,
+        "ahead_ear_percent": {
+          "n": 222,
+          "front": 9.90990990990991,
+          "over": 53.153153153153156,
+          "behind": 36.93693693693694
+        },
+        "profile_front_edge": [
+          {
+            "row": 180,
+            "ours_front_col": 413,
+            "TS_front_col": 381,
+            "delta_skull_H": 0.06652806652806653
+          },
+          {
+            "row": 240,
+            "ours_front_col": 384,
+            "TS_front_col": 395,
+            "delta_skull_H": -0.02286902286902287
+          },
+          {
+            "row": 300,
+            "ours_front_col": 426,
+            "TS_front_col": 406,
+            "delta_skull_H": 0.04158004158004158
+          },
+          {
+            "row": 360,
+            "ours_front_col": 439,
+            "TS_front_col": 420,
+            "delta_skull_H": 0.0395010395010395
+          },
+          {
+            "row": 420,
+            "ours_front_col": 460,
+            "TS_front_col": 442,
+            "delta_skull_H": 0.037422037422037424
+          },
+          {
+            "row": 480,
+            "ours_front_col": 534,
+            "TS_front_col": 469,
+            "delta_skull_H": 0.13513513513513514
+          },
+          {
+            "row": 540,
+            "ours_front_col": 589,
+            "TS_front_col": 498,
+            "delta_skull_H": 0.1891891891891892
+          }
+        ],
+        "stripe_contrast": 0.30274180411965035,
+        "face_gap_TS_band": {
+          "L_skull_H": 0.2681912681912682,
+          "R_skull_H": 0.2661122661122661,
+          "L_pass": false,
+          "R_pass": false,
+          "band_skull_H": {
+            "L": [
+              0.2003742203742204,
+              0.24037422037422038
+            ],
+            "R": [
+              0.19205821205821208,
+              0.23205821205821206
+            ]
+          },
+          "judge_clause_ratio": {
+            "L": 1.1785714285714286,
+            "R": 1.2476190476190476
+          }
+        }
+      }
+    },
+    {
+      "tag": "j1",
+      "style_diff": {
+        "child_weight_jitter": true,
+        "child_lateral_jitter_mm": 0.003
+      },
+      "gates": [
+        {
+          "gate": "G1",
+          "measured": "{\"max_mm\": 0.0, \"p95_mm\": 0.0}",
+          "bar": "p95<=0.5mm max<=2mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G2",
+          "measured": "{\"nan\": 0, \"pts32\": true, \"short\": 14, \"zero\": 0}",
+          "bar": "kept>=95%; 32 points; 0 NaN/short",
+          "verdict": "MISS"
+        },
+        {
+          "gate": "G3",
+          "measured": "{\"behind_viol\": 0, \"front\": 0}",
+          "bar": "0 points in front of shoulder/torso",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G4",
+          "measured": "{\"deep_mm\": 0.0, \"inside\": 0}",
+          "bar": "inside<=5; depth<=1mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G5",
+          "measured": "{\"back_band_mm\": 85.24280744909606, \"front_lo\": 2, \"nape_edge_frac\": 0.0}",
+          "bar": "nape<=10%; front<=2%; back band>=25mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G6",
+          "measured": "{\"backfill_ratio\": 1.4046847394961917, \"travel_max_mm\": 0.005852319701564468, \"travel_viol\": 0}",
+          "bar": "centre/outer>=0.90; back travel<=15mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G7",
+          "measured": "{\"horiz\": 0}",
+          "bar": "horizontal runs<=1%",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G8",
+          "measured": "{\"cover\": {\"L\": 0.9921230307576894, \"R\": 0.9921230307576894}, \"face\": 0}",
+          "bar": "ear cover>=0.90; face points=0",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G9",
+          "measured": "{\"hem_bad\": 0}",
+          "bar": "every tip within 8mm of z_hem",
+          "verdict": "PASS"
+        }
+      ],
+      "judge": {
+        "front_iou": 0.5985192307692307,
+        "eroded": 0.4754837537797438,
+        "face_gap_eye_L": 1.1607142857142858,
+        "face_gap_eye_R": 1.2285714285714286,
+        "profile_iou": 0.7643289728682171,
+        "back_iou": 0.856554414229764,
+        "back_hem_ours_skull_H": 0.5147318373874757,
+        "back_hem_target_skull_H": 0.5103666159540824,
+        "eye_box_px": 0,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep3": {
+        "front_exits": 7,
+        "over_eye_cheek_strands": 0,
+        "ear_cover_profile_mask": 0.7790598290598291,
+        "ahead_ear_percent": {
+          "n": 232,
+          "front": 11.206896551724139,
+          "over": 50.86206896551724,
+          "behind": 37.93103448275862
+        },
+        "profile_front_edge": [
+          {
+            "row": 180,
+            "ours_front_col": 400,
+            "TS_front_col": 381,
+            "delta_skull_H": 0.0395010395010395
+          },
+          {
+            "row": 240,
+            "ours_front_col": 384,
+            "TS_front_col": 395,
+            "delta_skull_H": -0.02286902286902287
+          },
+          {
+            "row": 300,
+            "ours_front_col": 426,
+            "TS_front_col": 406,
+            "delta_skull_H": 0.04158004158004158
+          },
+          {
+            "row": 360,
+            "ours_front_col": 439,
+            "TS_front_col": 420,
+            "delta_skull_H": 0.0395010395010395
+          },
+          {
+            "row": 420,
+            "ours_front_col": 460,
+            "TS_front_col": 442,
+            "delta_skull_H": 0.037422037422037424
+          },
+          {
+            "row": 480,
+            "ours_front_col": 537,
+            "TS_front_col": 469,
+            "delta_skull_H": 0.14137214137214138
+          },
+          {
+            "row": 540,
+            "ours_front_col": 592,
+            "TS_front_col": 498,
+            "delta_skull_H": 0.19542619542619544
+          }
+        ],
+        "stripe_contrast": 0.29126428918146885,
+        "face_gap_TS_band": {
+          "L_skull_H": 0.2661122661122661,
+          "R_skull_H": 0.26195426195426197,
+          "L_pass": false,
+          "R_pass": false,
+          "band_skull_H": {
+            "L": [
+              0.2003742203742204,
+              0.24037422037422038
+            ],
+            "R": [
+              0.19205821205821208,
+              0.23205821205821206
+            ]
+          },
+          "judge_clause_ratio": {
+            "L": 1.1607142857142858,
+            "R": 1.2285714285714286
+          }
+        }
+      }
+    },
+    {
+      "tag": "p1",
+      "style_diff": {
+        "part_front_closure": true
+      },
+      "gates": [
+        {
+          "gate": "G1",
+          "measured": "{\"max_mm\": 0.0, \"p95_mm\": 0.0}",
+          "bar": "p95<=0.5mm max<=2mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G2",
+          "measured": "{\"nan\": 0, \"pts32\": true, \"short\": 14, \"zero\": 0}",
+          "bar": "kept>=95%; 32 points; 0 NaN/short",
+          "verdict": "MISS"
+        },
+        {
+          "gate": "G3",
+          "measured": "{\"behind_viol\": 0, \"front\": 0}",
+          "bar": "0 points in front of shoulder/torso",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G4",
+          "measured": "{\"deep_mm\": 0.0, \"inside\": 0}",
+          "bar": "inside<=5; depth<=1mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G5",
+          "measured": "{\"back_band_mm\": 85.24280744909606, \"front_lo\": 2, \"nape_edge_frac\": 0.0}",
+          "bar": "nape<=10%; front<=2%; back band>=25mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G6",
+          "measured": "{\"backfill_ratio\": 1.4046847394961917, \"travel_max_mm\": 0.005852319701564468, \"travel_viol\": 0}",
+          "bar": "centre/outer>=0.90; back travel<=15mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G7",
+          "measured": "{\"horiz\": 0}",
+          "bar": "horizontal runs<=1%",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G8",
+          "measured": "{\"cover\": {\"L\": 0.9921230307576894, \"R\": 0.9921230307576894}, \"face\": 0}",
+          "bar": "ear cover>=0.90; face points=0",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G9",
+          "measured": "{\"hem_bad\": 0}",
+          "bar": "every tip within 8mm of z_hem",
+          "verdict": "PASS"
+        }
+      ],
+      "judge": {
+        "front_iou": 0.5991684231802038,
+        "eroded": 0.4700526816340924,
+        "face_gap_eye_L": 1.1607142857142858,
+        "face_gap_eye_R": 1.2285714285714286,
+        "profile_iou": 0.7635895260031519,
+        "back_iou": 0.856726682267539,
+        "back_hem_ours_skull_H": 0.5147318373874757,
+        "back_hem_target_skull_H": 0.5103666159540824,
+        "eye_box_px": 0,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep3": {
+        "front_exits": 7,
+        "over_eye_cheek_strands": 0,
+        "ear_cover_profile_mask": 0.7793162393162393,
+        "ahead_ear_percent": {
+          "n": 232,
+          "front": 11.206896551724139,
+          "over": 50.86206896551724,
+          "behind": 37.93103448275862
+        },
+        "profile_front_edge": [
+          {
+            "row": 180,
+            "ours_front_col": 400,
+            "TS_front_col": 381,
+            "delta_skull_H": 0.0395010395010395
+          },
+          {
+            "row": 240,
+            "ours_front_col": 384,
+            "TS_front_col": 395,
+            "delta_skull_H": -0.02286902286902287
+          },
+          {
+            "row": 300,
+            "ours_front_col": 426,
+            "TS_front_col": 406,
+            "delta_skull_H": 0.04158004158004158
+          },
+          {
+            "row": 360,
+            "ours_front_col": 439,
+            "TS_front_col": 420,
+            "delta_skull_H": 0.0395010395010395
+          },
+          {
+            "row": 420,
+            "ours_front_col": 460,
+            "TS_front_col": 442,
+            "delta_skull_H": 0.037422037422037424
+          },
+          {
+            "row": 480,
+            "ours_front_col": 537,
+            "TS_front_col": 469,
+            "delta_skull_H": 0.14137214137214138
+          },
+          {
+            "row": 540,
+            "ours_front_col": 592,
+            "TS_front_col": 498,
+            "delta_skull_H": 0.19542619542619544
+          }
+        ],
+        "stripe_contrast": 0.2908845047445359,
+        "face_gap_TS_band": {
+          "L_skull_H": 0.2661122661122661,
+          "R_skull_H": 0.26195426195426197,
+          "L_pass": false,
+          "R_pass": false,
+          "band_skull_H": {
+            "L": [
+              0.2003742203742204,
+              0.24037422037422038
+            ],
+            "R": [
+              0.19205821205821208,
+              0.23205821205821206
+            ]
+          },
+          "judge_clause_ratio": {
+            "L": 1.1607142857142858,
+            "R": 1.2285714285714286
+          }
+        }
+      }
+    },
+    {
+      "tag": "y1",
+      "style_diff": {
+        "root_lift_mm": 6.0,
+        "side_front_route": true,
+        "front_flow_g1": true,
+        "layered_clearance": true,
+        "part_front_closure": true,
+        "child_weight_jitter": true,
+        "child_lateral_jitter_mm": 0.003
+      },
+      "gates": [
+        {
+          "gate": "G1",
+          "measured": "{\"max_mm\": 0.0, \"p95_mm\": 0.0}",
+          "bar": "p95<=0.5mm max<=2mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G2",
+          "measured": "{\"nan\": 0, \"pts32\": true, \"short\": 0, \"zero\": 0}",
+          "bar": "kept>=95%; 32 points; 0 NaN/short",
+          "verdict": "MISS"
+        },
+        {
+          "gate": "G3",
+          "measured": "{\"behind_viol\": 0, \"front\": 0}",
+          "bar": "0 points in front of shoulder/torso",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G4",
+          "measured": "{\"deep_mm\": 0.0, \"inside\": 0}",
+          "bar": "inside<=5; depth<=1mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G5",
+          "measured": "{\"back_band_mm\": 84.40205460487871, \"front_lo\": 0, \"nape_edge_frac\": 0.0}",
+          "bar": "nape<=10%; front<=2%; back band>=25mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G6",
+          "measured": "{\"backfill_ratio\": 1.1409067040971637, \"travel_max_mm\": 0.005101045655674097, \"travel_viol\": 0}",
+          "bar": "centre/outer>=0.90; back travel<=15mm",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G7",
+          "measured": "{\"horiz\": 0}",
+          "bar": "horizontal runs<=1%",
+          "verdict": "PASS"
+        },
+        {
+          "gate": "G8",
+          "measured": "{\"cover\": {\"L\": 0.0, \"R\": 0.0}, \"face\": 0}",
+          "bar": "ear cover>=0.90; face points=0",
+          "verdict": "MISS"
+        },
+        {
+          "gate": "G9",
+          "measured": "{\"hem_bad\": 0}",
+          "bar": "every tip within 8mm of z_hem",
+          "verdict": "PASS"
+        }
+      ],
+      "judge": {
+        "front_iou": 0.5819343238383647,
+        "eroded": 0.49012597355078147,
+        "face_gap_eye_L": 1.1785714285714286,
+        "face_gap_eye_R": 1.2476190476190476,
+        "profile_iou": 0.5760360881941429,
+        "back_iou": 0.7196979925775363,
+        "back_hem_ours_skull_H": 0.5147318373874757,
+        "back_hem_target_skull_H": 0.5103666159540824,
+        "eye_box_px": 0,
+        "transform": {
+          "scale": 0.8484572341212556,
+          "tx": 78.58989612991712,
+          "ty": 103.1679456978529
+        },
+        "profile_transform": {
+          "scale": 0.9416666666666667,
+          "tx": 155.66666666666666,
+          "ty": 40.25
+        },
+        "back_transform": {
+          "scale": 0.9381818181818182,
+          "tx": 32.65090909090907,
+          "ty": 36.18181818181817
+        }
+      },
+      "sweep3": {
+        "front_exits": 0,
+        "over_eye_cheek_strands": 0,
+        "ear_cover_profile_mask": 0.750940170940171,
+        "ahead_ear_percent": {
+          "n": 0,
+          "front": 0.0,
+          "over": 0.0,
+          "behind": 0.0
+        },
+        "profile_front_edge": [
+          {
+            "row": 180,
+            "ours_front_col": 430,
+            "TS_front_col": 381,
+            "delta_skull_H": 0.10187110187110188
+          },
+          {
+            "row": 240,
+            "ours_front_col": 384,
+            "TS_front_col": 395,
+            "delta_skull_H": -0.02286902286902287
+          },
+          {
+            "row": 300,
+            "ours_front_col": 428,
+            "TS_front_col": 406,
+            "delta_skull_H": 0.04573804573804574
+          },
+          {
+            "row": 360,
+            "ours_front_col": 440,
+            "TS_front_col": 420,
+            "delta_skull_H": 0.04158004158004158
+          },
+          {
+            "row": 420,
+            "ours_front_col": 460,
+            "TS_front_col": 442,
+            "delta_skull_H": 0.037422037422037424
+          },
+          {
+            "row": 480,
+            "ours_front_col": 605,
+            "TS_front_col": 469,
+            "delta_skull_H": 0.28274428274428276
+          },
+          {
+            "row": 540,
+            "ours_front_col": 653,
+            "TS_front_col": 498,
+            "delta_skull_H": 0.32224532224532226
+          }
+        ],
+        "stripe_contrast": 0.2767856501325673,
+        "face_gap_TS_band": {
+          "L_skull_H": 0.2681912681912682,
+          "R_skull_H": 0.2661122661122661,
+          "L_pass": false,
+          "R_pass": false,
+          "band_skull_H": {
+            "L": [
+              0.2003742203742204,
+              0.24037422037422038
+            ],
+            "R": [
+              0.19205821205821208,
+              0.23205821205821206
+            ]
+          },
+          "judge_clause_ratio": {
+            "L": 1.1785714285714286,
+            "R": 1.2476190476190476
+          }
+        }
+      }
+    }
+  ]
+}

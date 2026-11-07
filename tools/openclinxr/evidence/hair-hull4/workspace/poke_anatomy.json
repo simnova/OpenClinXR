@@ -1,0 +1,90 @@
+{
+ "front": {
+  "pokePx": 9470,
+  "protrusionPx": {
+   "p50": 9.85,
+   "p95": 24.7,
+   "max": 32.7
+  },
+  "inEarBoxPx": 1270,
+  "outEarBoxPx": 8200,
+  "skinlikeFrac": {
+   "inEar": 0.9496,
+   "outEar": 0.5976
+  },
+  "hairlikeN": 10,
+  "hairlikeFracOfPoke": 0.00106,
+  "hairlikeDistToMask": {
+   "p50": 1.0,
+   "p95": 1.55,
+   "max": 2.0,
+   "fracWithin3px": 1.0
+  }
+ },
+ "three_quarter": {
+  "pokePx": 9737,
+  "protrusionPx": {
+   "p50": 10.82,
+   "p95": 43.14,
+   "max": 197.23
+  },
+  "inEarBoxPx": 2483,
+  "outEarBoxPx": 7254,
+  "skinlikeFrac": {
+   "inEar": 0.3645,
+   "outEar": 0.5539
+  },
+  "hairlikeN": 54,
+  "hairlikeFracOfPoke": 0.00555,
+  "hairlikeDistToMask": {
+   "p50": 1.71,
+   "p95": 4.0,
+   "max": 4.0,
+   "fracWithin3px": 0.9074
+  }
+ },
+ "profile_90": {
+  "pokePx": 5635,
+  "protrusionPx": {
+   "p50": 12.21,
+   "p95": 62.43,
+   "max": 72.34
+  },
+  "inEarBoxPx": 2508,
+  "outEarBoxPx": 3127,
+  "skinlikeFrac": {
+   "inEar": 0.6292,
+   "outEar": 0.4608
+  },
+  "hairlikeN": 86,
+  "hairlikeFracOfPoke": 0.01526,
+  "hairlikeDistToMask": {
+   "p50": 1.0,
+   "p95": 3.16,
+   "max": 5.0,
+   "fracWithin3px": 0.9302
+  }
+ },
+ "back": {
+  "pokePx": 443,
+  "protrusionPx": {
+   "p50": 2.0,
+   "p95": 4.24,
+   "max": 6.4
+  },
+  "inEarBoxPx": 0,
+  "outEarBoxPx": 443,
+  "skinlikeFrac": {
+   "inEar": null,
+   "outEar": 0.0023
+  },
+  "hairlikeN": 73,
+  "hairlikeFracOfPoke": 0.16479,
+  "hairlikeDistToMask": {
+   "p50": 1.0,
+   "p95": 3.0,
+   "max": 3.0,
+   "fracWithin3px": 1.0
+  }
+ }
+}

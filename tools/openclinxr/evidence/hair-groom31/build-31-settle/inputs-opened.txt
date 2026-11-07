@@ -1,0 +1,4 @@
+/Volumes/files/openclinxr-assets/store/hair-groom31/shirt-sdf-4mm.npz
+tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz
+tools/openclinxr/evidence/hair-groom31/build-31/strands.npz
+tools/openclinxr/evidence/hair-hull3/workspace/ear_pinna.npz

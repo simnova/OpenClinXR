@@ -1,0 +1,189 @@
+{
+ "tag": "groom33-before",
+ "strandsSha16": "4034cf7bead7f23f",
+ "proxy": {
+  "inflateMm": 3.0,
+  "shellTrisPerSide": 672,
+  "fillBowlN": 6,
+  "mirrorMaxDiffMm": 0.0
+ },
+ "shellSegments": {
+  "xpos": {
+   "nSegments": 71062,
+   "nStrands": 6851,
+   "gate": 0
+  },
+  "xneg": {
+   "nSegments": 82199,
+   "nStrands": 10329,
+   "gate": 0
+  }
+ },
+ "column": {
+  "xpos": {
+   "strands": 26,
+   "samples": 26,
+   "tips": 1,
+   "strands25mm": 26,
+   "samples25mm": 26,
+   "tips25mm": 1
+  },
+  "xneg": {
+   "strands": 1072,
+   "samples": 9897,
+   "tips": 555,
+   "strands25mm": 1062,
+   "samples25mm": 9875,
+   "tips25mm": 538
+  }
+ },
+ "concha34": {
+  "front/xpos": 0,
+  "front/xneg": 9768,
+  "three_quarter/xpos": 0,
+  "three_quarter/xneg": 155,
+  "profile_90/xpos": 0,
+  "profile_90/xneg": 13119
+ },
+ "imgStd": {
+  "front/xpos": {
+   "box": [
+    437,
+    496,
+    666,
+    679
+   ],
+   "hairIDpx": 629
+  },
+  "front/xneg": {
+   "box": [
+    437,
+    496,
+    345,
+    358
+   ],
+   "hairIDpx": 628
+  },
+  "three_quarter/xpos": {
+   "box": [
+    439,
+    501,
+    478,
+    553
+   ],
+   "hairIDpx": 841
+  },
+  "three_quarter/xneg": {
+   "box": [
+    441,
+    494,
+    274,
+    348
+   ],
+   "hairIDpx": 0
+  },
+  "profile_90/xpos": {
+   "box": [
+    438,
+    495,
+    306,
+    408
+   ],
+   "hairIDpx": 0
+  },
+  "profile_90/xneg": {
+   "box": [
+    444,
+    491,
+    344,
+    427
+   ],
+   "hairIDpx": 51
+  },
+  "back/xpos": {
+   "box": [
+    443,
+    492,
+    376,
+    385
+   ],
+   "hairIDpx": 441
+  },
+  "back/xneg": {
+   "box": [
+    443,
+    492,
+    639,
+    648
+   ],
+   "hairIDpx": 441
+  }
+ },
+ "imgMirror": {
+  "three_quarter/xpos": {
+   "box": [
+    441,
+    494,
+    676,
+    750
+   ],
+   "hairIDpx": 0
+  },
+  "three_quarter/xneg": {
+   "box": [
+    439,
+    501,
+    471,
+    546
+   ],
+   "hairIDpx": 1380
+  },
+  "profile_90/xpos": {
+   "box": [
+    444,
+    491,
+    597,
+    680
+   ],
+   "hairIDpx": 492
+  },
+  "profile_90/xneg": {
+   "box": [
+    438,
+    495,
+    616,
+    718
+   ],
+   "hairIDpx": 6
+  }
+ },
+ "mirrorIou": {
+  "three_quarter": {
+   "iou": 0.826,
+   "interPx": 101660,
+   "unionPx": 123070,
+   "note": "flipped -x ID vs +x ID (no target on -x)"
+  },
+  "profile_90": {
+   "iou": 0.8877,
+   "interPx": 158228,
+   "unionPx": 178245,
+   "note": "flipped -x ID vs +x ID (no target on -x)"
+  }
+ },
+ "iouPlusX": {
+  "front": 0.7997,
+  "three_quarter": 0.8514,
+  "profile_90": 0.8375,
+  "back": 0.7753
+ },
+ "segmentsGt30": {
+  "nGt30mm": 1789,
+  "nNearHorizontal": 372,
+  "maxMm": 90.62
+ },
+ "insideBody": {
+  "nSge1Inside": 0
+ },
+ "note": "-x side never graded before: std-camera xneg boxes are occluded/misplaced (reported, not gated); the -x grades are the mirrored-camera rows. concha34 uses the symmetric (mirrored xpos) definition, unlike score31 which sums the asymmetric file sets."
+}

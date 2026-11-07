@@ -1,0 +1,6 @@
+groom32 complete: build-31 rendered and scored WITHOUT settle.
+VERDICT NO-GO, GATES_PASS: NO. Passes: insideBody 0, concha 0/0/0,
+crossings 935, gradAniso 0.6256, determinism bit-exact. Fails: front/3q/
+profile IoU (0.7737/0.7003/0.7275), earlobe 3D (1 strand) + image boxes
+(4645 vs 842; 5812 vs 0). lobePostSweep spike predates the settle; settle
+added concha flood + hem-behind-shirt + 3q drop. See RESULT.txt.

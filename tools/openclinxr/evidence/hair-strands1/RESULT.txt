@@ -1,0 +1,37 @@
+RESULT hair-strands1: frame-transport children (S9)
+interpolator: child(s) = sum_i w_i (G_i(s) + R_i(s) d_i), transported frames, inverse-quartic UV weights + 1.0-rad cutoff
+inputs: guides=tools/openclinxr/evidence/hair-route0/guides.npz roots=tools/openclinxr/evidence/hair-scalp1/roots.npz sdf=tools/openclinxr/evidence/hair-cage1/body-exact-sdf.npz
+counts: roots=14155 guides=359 pointsPer=32 children=99085 (7 per root, Voronoi sub-roots)
+sub-roots: {"cellFrac": 0.45, "cellRmmMax": 1.413, "cellRmmP50": 0.753, "jitMmMax": 1.386, "perRoot": 7, "seed": 11}
+frames self-test: spin 0.000000 deg/100mm (gate <= 1.0), frenet contrast 64.70 deg/100mm, ortho 1.25e-16: True
+blend: 1/(duv+0.03)^4, cutoff 1.0 rad, nearest-alone fallback meanW0=0.7576 alone=0 rootExact=0.0000 mm
+gap gate: {"gateMm": 25.0, "maxGapMm": 160.82, "nDroppedWeights": 748, "nFallbackRows": 480, "off": false}
+clump: coarse 20.0 mm pull-tip 0.40 (245 cells 404.43); fine 4.5 mm pull-tip 0.25 (3837 cells mean 25.82); profile t^2 root->tip
+length jitter: sigma 0.04 seed 7 scale [0.8275, 1.1744]
+radii: root 0.060 mm -> tip 0.020 mm (t^1.5)
+coverage strands0 refs skin=[132.0, 96.0, 74.0] hair=[63.0, 57.0, 52.0]: {"back": {"id128": 0.3065, "id128Denom": 256929, "id230": 0.0968, "id230Denom": 168233}, "crown_top": {"id128": 0.0263, "id128Denom": 95149, "id230": 0.033, "id230Denom": 32448}}
+coverage strands1 refs skin=[132.0, 96.0, 74.0] hair=[68.0, 61.0, 57.0]: {"back": {"id128": 0.2433, "id128Denom": 232234, "id230": 0.232, "id230Denom": 212124}, "crown_top": {"id128": 0.0024, "id128Denom": 149463, "id230": 0.0, "id230Denom": 129829}}
+coverage method: rulers4b-R4 skin_visible_frac; hair region = ID alpha>=230 solid hair (128 bracket); refs per groom by the R4 method adapted to this subject: hair = median back beauty at back-ID>=230, skin = median front beauty with R>120,R-B>25,front-ID<30 in face box rows200-500 cols300-724; fixed-ref cross-check skin [255,193,152] hair [34,31,29]
+back decomposition (glow vs gaps): {"strands0": {"coreSkinlike": 0.0087, "edgeSkinlike": 0.1875, "hemAlphaMed": 243.0, "hemAlphaP10": 231.0, "hemBeautyMed": [120.0, 91.0, 97.0], "warmSkinlike": 0.0019}, "strands1": {"coreSkinlike": 0.244, "edgeSkinlike": 0.1675, "hemAlphaMed": 255.0, "hemAlphaP10": 255.0, "hemBeautyMed": [101.0, 92.0, 86.0], "warmSkinlike": 0.0}}
+coverage reading: crown_top passes decisively (3.30%% -> 0.00%%, hair-region px 32k -> 130k); back as-prescribed rises (9.68%% -> 23.20%%) but the decomposition shows it is backlight transmission glow, not gaps: strands1 hem-zone ID alpha is solid 255 (med and p10) yet beauty reads bright, and warmth-gated show-through (true scalp/shirt gaps) falls 0.19%% -> 0.00%% with core skinlike 0.87%% -> 24.4%% concentrated in the backlit hem. Glow grows with density under the fixed Transmission-0.5 backlit rig (material/rig note, not a coverage regression).
+projection (exact SDF, 0.3 mm margin, s>=1, roots pinned): pushed=29285 maxPush=71.3556 mm minSdfAfter=0.3000 insideAfter=0 rounds=7 outsideGrid=0
+part: assignAcross=0 (HARD 0); tipDrift=903 overshoot p50=1.07 max=75.36 mm; guideTipCross=3 (shape calibration: fitted guides converge across the midline by shape; interpolator adds no assignment crossing)
+lane: backStrands=75460 guideSpacing=2.00 mm lag=4 peakRatio=0.992 (gate < 1.5); within-guide tangent RMS ours=0.71 deg (n=286) vs old-style jittered control=9.94 deg
+determinism: 2ac057e02b6ea7cc == 2ac057e02b6ea7cc
+material: Principled Hair BSDF HUANG COLOR direct COLOR + look7 COLOR, Transmission 0.5 (card), radius 0.06 mm root tapering
+rig: v3-scorer rig geometry (key el 28.995 / daz -34.262 deg), shell-lane exposure suns 5.0/1.0/1.5, world 0.03, OIDN
+cameras: pinned v3-scorer manifest (front, three_quarter, profile_90, back) + held-out 22.5 deg + front-relit (+40 deg key); 1024 px / 64 spp / seed 7
+render times s: {"back": 60.7, "back-id": 44.5, "crown_top": 28.6, "crown_top-id": 30.5, "front": 32.5, "front-id": 28.3, "front-relit": 26.4, "heldout_22p5": 24.4, "profile_90": 42.8, "profile_90-id": 40.1, "three_quarter": 40.0, "three_quarter-id": 31.6}; total 431.2s
+R1 front above (skull, ID230): IoU=0.6087 signedP50=-11.00px absP95=34.42px
+R1 front below (skull, ID230): IoU=0.1591 signedP50=+86.96px absP95=175.37px
+R1 profile_90 above (skull, ID230): IoU=0.8540 signedP50=-9.00px absP95=136.57px
+R1 profile_90 below (skull, ID230): IoU=0.8922 signedP50=-2.00px absP95=8.94px
+R1 back above (skull, ID230): IoU=0.8394 signedP50=-80.23px absP95=162.19px
+R1 back below (skull, ID230): IoU=0.8059 signedP50=+0.00px absP95=68.00px
+R1 three_quarter: no registered target (same as shell)
+strands.npz sha256=6dbe81e76d3bcd6dfa15eaf1cde5d0003f0aa091fb96d4bada8b314dc4879171 bytes=35886982
+ban-grep (7 names, fragments) over S9 *.py + evidence json/txt (RESULT/DONE excluded): sibling hits none; card-sanctioned input-path mentions (provenance, not reads) none
+inputs-opened log (46 paths) in E/inputs-opened.txt; render inputs in E/blender-opened.txt
+SAW
+- SCOPE: dense strand output for the sparsity fix: 99085 frame-transport children (7 per root, Voronoi sub-roots) on the routed guide input, two clump scales, Cycles renders on the pinned cameras + crown_top coverage view, R1 rows and before/after coverage for the record. Guide shape is the route0 routed input (MODEL_INADEQUATE per its verdict: shoulder-mismatch shortfall, crown overhang); silhouette length/width mismatches below the chin are shape-owned, not interpolator-owned.
+NOT TESTED: physical Quest 3 / worn-headset evidence; clinical validity, licensure, or scoring claims; EEVEE/Quest material response; other bodies/seeds; animation/combing dynamics; strands/cards bake-off numbers; relit/held-out R1 rows (rendered for the record, scored on front/profile/back); guide-shape adequacy (shape acknowledged in inputs).

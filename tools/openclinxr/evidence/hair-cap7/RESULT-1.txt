@@ -1,0 +1,28 @@
+RESULT::hair-cap-7
+P1::cx=513 crown=127 skull=150 chin=608 H=458 rows(dx:L/R)=0:208/208 20:211/211 40:212/213 60:224/219 80:245/238 100:303/284
+P2::rows=r220:c390=0.0951H r250:c398=0.1128H r280:c403=0.1239H r310:c408=0.1350H r340:c413=0.1460H r370:c422=0.1659H r400:c436=0.1969H r430:c443=0.2124H
+P2::lobe_row_est=457 departure_row=475 root_bottom_row=425 (+21.5px=10mm root line)
+P3::canthus L=(44.4,-136.5,1.55460) R=(-44.4,-136.5,1.55460)
+P3::ear dense verts=586 C=(0.0000,-0.0389,1.5651)
+P4::brow id=227 z=1.57165 nasion id=1026 z=1.54823 (old 1.5303 was nose)
+HAIRLINE::0.00000 target 0.8734 | ours-v5 0.8717 | ours-v7 0.8723
+HAIRLINE::0.04367 target 0.8668 | ours-v5 0.8669 | ours-v7 0.8669
+HAIRLINE::0.08734 target 0.8635 | ours-v5 0.8324 | ours-v7 0.8273
+HAIRLINE::0.13100 target 0.8439 | ours-v5 0.7913 | ours-v7 0.7819
+HAIRLINE::0.17467 target 0.8002 | ours-v5 0.7501 | ours-v7 0.7365
+HAIRLINE::0.21834 target 0.6867 | ours-v5 0.6884 | ours-v7 0.6951
+G1::area=544.7 [600,690] removed_forehead=188.4 sideburn_L=42.5 sideburn_R=42.5 earhole=63.0 ncomp=1 nloops=9 mirror=0.00mm<=1 MISS
+G2::maxerr=0.0637H<=0.02 mirror=0.00mm<=1 MISS
+G3::step=3.891mm<=3 at_vert=28 zone=slit MISS
+G4::setback=[-6.8,6.8]mm in [8,14] bottom_L=-2.7 bottom_R=-2.7 (lobe+15mm +-8) pinna_min=5.55mm>4 canthus_infront=-12.06mm<=0 MISS
+G5::qual=328 uncovered=0 coverage=1.0000==1.0 PASS
+G6::sideways=1.00>=0.90 backdown=1.00>=0.95 smooth=9.09<=25 cross=0 sinks=0 never=0 fore=0.00%<=2% sym95=11.209deg<=1 MISS
+HIST-B::forehead=0 temple-to-ear=119 behind-ear=102 nape=79 never-left=0
+SINK::count=0 roots=[]
+EHTABLE::(0.0,39.5) (60.5,-2.9) (65.0,-3.8) (70.4,-4.4) (73.9,-6.9) (77.7,-15.6) (81.5,-17.3) (85.3,-18.9) (87.0,-20.4) (88.4,-21.2) (90.5,-23.4) (99.8,-29.3) (109.6,-50.7) (131.2,-59.5) (150.1,-61.4) (169.5,-63.8) (178.8,-64.2)
+SAW::pending-visual
+CAUSE::MISS G1,G2,G3,G4,G6 see row-cap7.json
+COMMIT::uncommitted
+STILL::guides/children/hair renders (later cards)
+BRIEF_MISSING::none
+HARM::none

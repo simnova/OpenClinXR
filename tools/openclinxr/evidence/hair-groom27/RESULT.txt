@@ -1,0 +1,182 @@
+RESULT hair-groom27: side-guide posterior re-route (s14) + verbatim-locked dot hygiene
+================================================================================
+Final groom27 = guides-26 + 4 s14_ear_route passes (41 guides rerouted
+behind the ear in the groom4 tuck corridor, verbatim 40 mm take-off,
+bypass body clearance >= 1.7 mm, pinna >= 3.1 mm) + band=1 pool hygiene
+on 5 verbatim-locked side dots (2145, 2138, 2113, 2144, 2133); children
+via interp_children.py with the groom26 final flags (--region-weight
+--uv-cutoff 0.15 --pool-max-move-mm 60 --pool-ref guides-8a.npz
+--temple-taper 0.5 --lobe-drop-roots), 281800 children. No other flag
+changed. Evidence: tools/openclinxr/evidence/hair-groom27/ (this dir).
+Date: 2026-10-18. Branch: hair-tgt2. Blender 5.1.1, CYCLES-CPU, 1024/64spp, seed 7.
+
+VERDICT: GATES_PASS = no. The guide-side fix works where guides can
+reach: 4,996 -> 748 column strands (-85%), profile-xpos box 770 -> 0 px
+(target 0, PASS), 3q-xpos box 1180 -> 841 px (target's own 842, PASS),
+profile IoU +0.031. But the 3D HARD gate (0 strands) FAILS at 748, and
+the rerouted BACK guides regress the 3D-crossing proxy 885 -> 1059
+(gate <= 900, FAIL) while the image lock metric is unchanged (0.6261).
+Falsifier (card-defined) TRIGGERED: the re-routed guides pass the 3D
+column test, but the children still fill the column -- 99.9% of residual
+through-samples sit at SDF <= 2 mm (hugged to the skull, whose surface
+behind the ear lies inside the y-span) and 95% of residual strands are
+<= 30 mm sideburn-shorts hanging from peri-lobe roots (their direction
+is the verbatim take-off, which guides cannot change). Feeding guides
+reported in sect 3. Stopped per card (no further child-side attempts).
+
+1. GUIDE IDENTIFICATION (earlobe_gate.py 3D test on guides-26 + rider map via guide_idx/guide_w)
+--------------------------------------------------------------------------------
+Through-guides (own path enters the column, 18): xpos 522 537 550 551
+642 645 675 683 696 717 742 806 2145 2147 2148; xneg 2143 2146 2149.
+Dominant feeders of the 4,996 column strands (nDom >= 10 or wsum >= 25,
+21 guides): back 445 521 522 533 537 550 551 642 645; side 1666 2507
+2589 2700(tuck) 2273 2263 682 886 1013 1932; dots 2145 2138. Far-snap
+dominates: 74% xpos / 93% xneg column strands ride ONE backbone
+(max weight > 0.9), translations small (dy within -44..+4 mm), so
+backbone reroutes move riders near-rigidly (child(f) = root+G(f)-G(0)).
+
+2. ROUTING METHOD (tools/openclinxr/hair-groom/orient/s14_ear_route.py, 4 passes)
+--------------------------------------------------------------------------------
+Tuck rule reused (groom4 tuck.py + tucked/earframe.json anchors): from
+the ear-vicinity entry (or rider-correspondence arc - 15 mm, clamped
+>= 45 mm arc) the bypass forces y to the tuck corridor (earframe yPost
++ 11 mm pass 1, + 20 mm passes 2-4) wherever the path lies anterior of
+it; x/z track the original (minimal displacement); per-guide target
+raised by rider translations (target = corridor - min_dy + 6 mm, +
+12 mm own-path margin); Catmull-Rom + sigma-1 smooth across splice;
+SDF project to >= 1.7 mm, pinna push to >= 3.0 mm, re-verify column
+with 6 mm margin. Displacement budget <= 58 mm vs guides-8a (pool-ref)
+so rerouted guides STAY in the child pool (pool-drop unchanged at 44).
+41 rerouted total: 445 521 522 533 537 550 551 642 645 (back) + 93 208
+346 523 580 620 654 698 725 822 1664 1666 1702 1774 1788 1795 1810 1854
+1927 1932 2646 (xneg side) + 682 886 1013 2118 2137 2263 2273 2507 2589
+2700 (side/tuck). Per-guide roots in build-27{e,c,d,}/guides-*-route.json.
+Band=1 (pool hygiene, guides kept, bits identical) on 5 verbatim-locked
+dots, in cascade order: 2145 (below-lobe, 187 mm, verbatim-zone root),
+2138 (27 mm dot), 2113 (45 mm), 2144 (40 mm), 2133 (37 mm).
+SKIP-short (verbatim covers whole guide, reroute impossible): 2138 2143
+2146 2147 2148 2149 (+2113/2144/2133 banded instead). SKIP-riderless
+(own-path violation, zero riders, crossing-gated): 675 683 696 717 742
+806. SKIP-disproportionate (riders > 1000 for <= 6 marginal strands):
+280 (1567 riders/5) 1061 (2001/6) 1062 (2617/2) 609 (1149/1).
+Verified every pass: take-off 40 mm byte-identical TRUE; untouched
+guides (2687/2682/2702/2703) byte-identical TRUE; bypass minSDF >= 1.7
+(req 1.5); bypass minPinna >= 3.1 (req 3.0); all rerouted pool-kept.
+
+3. EARLOBE HARD GATE (E/earlobe_gate27.py = earlobe_gate.py + groom27 + target-mask ref)
+--------------------------------------------------------------------------------
+3D strands through column (unbounded; 25mm-bounded identical -- all shallow):
+ groom25 2059+2735 = 4794 | groom26 2372+2624 = 4996 | groom27 547+201 = 748 -- FAIL (0).
+ Tips: 1422 (25) -> 1119 (26) -> 642 (521+121) (short tip-enders).
+IMAGE hair-ID px, camera-side boxes: profile-xpos rows 438:495 cols
+306:408: 583 -> 770 -> 0 (target 0) -- PASS. 3q-xpos rows 439:501 cols
+478:553: 1120 -> 1180 -> 841 (target mask 842; card cited 823 from the
+older mask export, re-measured 842 here) -- PASS (<= target, margin 1 px).
+FALSIFIER (card): guides pass (sect 2 colMargin, except verbatim-zone
+grazes on 2145/2113-class), children still fill column. Which guides
+feed the 748 (build-27e dominant backbone): xpos 2118:406, 2137:114,
+642:6, 1061:6, 280:5; xneg 2109:181 (landing dot for banded 2133),
+2121:7, rest singles. Mechanism (measured, not speculated): 99.9% of
+residual through-samples at SDF <= 2 mm = hug-limited (sideburn 2.0 /
+temple 1.5 mm hug pulls drape onto skull whose surface sits inside the
+y-span); 95% of residual strands <= 30 mm = sideburn-shorts whose
+direction is the verbatim take-off. Both are child-side/anatomy walls
+for guide surgery: STOP per card.
+
+4. EVERY GATE, FINAL 27 (provenance in parentheses)
+-----------------------------------------------------------------------
+frontIoU   0.8058 vs >= 0.79                  PASS (+0.0158) (score27-27)
+3q         0.8504 vs >= 0.83                  PASS (+0.0204, was +0.0111)
+profile    0.8412 vs >= 0.81                  PASS (+0.0312, was +0.0005)
+back       0.7790                             REPORT ONLY (26: 0.7776)
+concha     0 / 0 / 0                          PASS (score27-27)
+insideBody 0                                  PASS
+faceMask   front 3149 <= 3424.9 PASS; 3q 2002 <= 2127.3 PASS (lineage FAIL fixed)
+3D cross   1059 vs <= 900 (guides; cross27)   FAIL (-159; 26: 885 -- sect 6)
+gradAniso  0.6261 vs <= 0.70 (back-knot)      PASS (margin 0.0739; 26: 0.6253)
+takeoff verbatim40 / untouched byte-identical PASS all 4 passes (route jsons)
+bypass clearance SDF >= 1.7 / pinna >= 3.1    PASS (req 1.5 / 3.0)
+pool-drop 44 (= 26: all rerouted pool-kept)   PASS (no cascade by displacement)
+children determinism (recipe rebuild)        PASS (E/det-27.json)
+calibration all_within_0.02                 PASS (exact 0.0, groom27cal-calib)
+earlobe HARD 3D 748 FAIL / profile-img PASS / 3q-img PASS (sect 3)
+GATES_PASS = no (3D earlobe + 3D crossings fail).
+
+5. EVIDENCE, NOT GATES
+------------------------
+Lobe rows (crops.png, target|25|26|27): 3q under-lobe wedge gone in 27
+(bare skin + legitimate curtain at right, no cheek slab); profile wedge
+gone (0 px). back-knot-NATIVE: vertical flow kept, gradAniso unchanged.
+back-hem-R still thin (lineage miss); crown slot persists. Temple
+hairline unchanged vs 26 (taper kept). Sheet (E/sheet.png): 27 matches
+25/26 in all four views; drape outline preserved (hem z kept, len +0-17%
+on rerouted guides per route jsons).
+
+6. FILE MANIFEST
+------------------
+E/sheet.png (target | groom25=25b | groom26 | groom27, 4 views)
+E/crops.png (back-knot/3q-ear/profile-ear/temple-hairline NATIVE +
+crown/part, hem-L/R, nape, front band, lobe boxes; same column order)
+E/score27-27.json (full scorer output, ctrl ref)
+E/metrics-cross27.json (3D crossings 19/25b/26/27) E/metrics-grad27.json
+E/earlobe-gate27.json + E/earlobe_gate27.py (HARD numbers + target ref)
+E/groom27cal-calib.json (calibration exact) E/det-27.json + E/det_rebuild27.py
+E/build-27{{,c,d,e}}/guides-27{,c,d,e}{-route.json,-base.npz} (guide lineage;
+27e final: 41 route flags + band 2113 2133 2138 2144 2145; strands.npz
+WORKTREE ONLY per no-.npz rule) E/build-27e/build.json (final recipe)
+E/renders-27/ (studio 1024/64 beauty + IDs + opened.txt, 679.7 s)
+E/{score27,cross27,grad27,earlobe_gate27,make_sheet27,predict27,det_rebuild27}.py
+E/predict27.json (rigid-translation design check, iter-1)
+STORE: /Volumes/files/openclinxr-assets/store/hair-groom27/
+strands-27.npz + SHA256SUMS (NOT in git, per no-.npz rule)
+store strands-27.npz sha256 39e96995747ddb18b9de66454153163fbbcbd76d6ca64a499d80b819b3beac55
+Committed station change: orient/s14_ear_route.py (NEW posterior-bypass
+stage; defaults = pass-1 thresholds; no existing file touched).
+
+7. SCOPE
+---------
+Local Blender lane only (Cycles studio 1024/64spp/seed7, scorer-v3
+cameras, skull registration, aisha-v3 masks). Guide inputs = guides-26;
+41 reroutes + 5 band flags; children recipe = groom26 final flags
+verbatim (pool60, taper0.5, lobe-drop65). No .npz in git (store +
+SHA256SUMS). Score/cross/grad/gate scripts copied from groom26
+(REF/TEST generalisation + "27" wiring + target-mask ref; scorer math
+untouched); calibration re-run exact. Four s14 passes (20/25/5/4
+targets, corridor +11 then +20, thresholds to nDom>=2); band cascade
+documented per pass (2145/2138 -> 2113/2144 -> 2133/2109-landing).
+
+8. NOT TESTED
+---------------
+Physical Quest 3 / worn-headset evidence; EEVEE/Quest material response;
+other bodies/seeds; animation/combing dynamics; relit/held-out R1 rows;
+clinical validity, licensure, or scoring claims. R-LOOP/groove/depth
+sub-gates beyond the headline numbers (see score27-27.json raw).
+Iteration-1/2/3 intermediate builds not rendered (guide+3D evidence
+only; renders-27 = final 27e).
+
+9. REMAINING (report-only)
+----------------------------
+- 3D earlobe: 748 strands (95% <=30 mm shorts, 99.9% hug-limited SDF).
+  Guide-side walls hit: verbatim take-off sets shorts direction;
+  hug re-seats bypass drape onto in-span skull; pool-band cascade lands
+  on the next dot. Needs child-side or root-mask work (out of scope;
+  tuck-blend/sweep variants already reverted in 26).
+- 3D crossings 1059 (+174 from 9 rerouted BACK guides; image lock metric
+  unaffected at 0.6261). Reverting recovers crossings but returns
+  ~900 strands to the column.
+- Back cover 0.7790 (miss persists image-right mid+bot; cover must be
+  ADDED per 26-sect-1, unchanged by this card).
+- R-LOOP/profile-back winding, 3q face-mask lineage notes: see
+  score27-27.json raw (not re-gated here).
+
+GATES_PASS: no.
+
+VISUAL READ (E/crops.png lobe rows + /tmp/lobe_zoom.png, cols target | 25 | 26 | 27)
+-------------------------------------------------------------------------
+lobe-3q-xpos: 27 shows bare skin under the lobe with the curtain edge at
+the box right (target-matching; 841 vs target 842 px). No hair below the
+lobe in the box beyond the curtain. lobe-profile-xpos: 0 hair px; ear
+clear, posterior curtain visible outside the box (legitimate). 3q-ear /
+profile-ear NATIVE: drape passes behind the ear; no cheek slab. Answer:
+no hair below the lobe is visible in either ear crop beyond the target's
+own curtain.

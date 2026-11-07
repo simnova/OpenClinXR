@@ -1,0 +1,15 @@
+{
+ "mode": "mask",
+ "rootsIn": "/Volumes/files/openclinxr-assets/store/hair-groom34/roots-34mirror.npz",
+ "rootsSha": "508074dc4819f455",
+ "proxy": "/Volumes/files/openclinxr-assets/store/hair-groom34/ear-proxy.npz",
+ "rMm": 15.0,
+ "nIn": 14155,
+ "nKept": 13654,
+ "nDropped": 501,
+ "distToProxyMm": {
+  "min": 2.931,
+  "p50": 84.652
+ },
+ "target": "scalp roots within R of inflated ear outer patch, both sides"
+}

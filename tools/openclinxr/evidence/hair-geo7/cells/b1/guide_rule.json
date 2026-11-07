@@ -1,0 +1,13 @@
+{
+  "rule": "rear guides (root y>=apex_y): dy=tan(8deg)*(earz-z), smoothstep ramp 20mm below ear, cap 12mm, roots fixed",
+  "angleDeg": 8.0,
+  "capMm": 12.0,
+  "rampMm": 20.0,
+  "apexY": -0.053241077810525894,
+  "earLobeZ": 1.5037058591842651,
+  "rearGuides": 394,
+  "affectedGuides": 394,
+  "maxShiftMm": 12.0,
+  "targetAngle": "profile row4_back residual +14.5deg (step1 where.json; k5 where_k5.json); half-step +8deg to protect IoU",
+  "sourceGuides": "hair-look1/guides16.npz (untouched; modified copy stored here)"
+}

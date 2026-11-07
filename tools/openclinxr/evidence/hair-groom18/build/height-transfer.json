@@ -1,0 +1,71 @@
+{
+ "min": 0.5,
+ "nBlendGuides": 3,
+ "iters": 120,
+ "itersUsed": 120,
+ "weighting": "inverse-distance to 3 nearest guide roots",
+ "stepBound": {
+  "maxStepMm": 10.0,
+  "maxTotalMoveMm": 150.0,
+  "note": "per-iter step cap + per-sample path cap + best-residual restore; child_move_mm is NET displacement, path reported separately"
+ },
+ "nSamples": 10307441,
+ "samplesLeftUntouchedGuideOffGrid": 0,
+ "offGridSamples": 0,
+ "moveMm_p50": 2.8551,
+ "moveMm_p90": 17.0126,
+ "moveMm_p99": 42.2439,
+ "moveMm_max": 150.0,
+ "netMm_p50": 2.8532,
+ "netMm_p90": 16.715,
+ "netMm_p99": 41.2391,
+ "netMm_max": 97.81,
+ "childMaxMoveMm_p50": 8.3275,
+ "childMaxMoveMm_p90": 33.0694,
+ "childMaxMoveMm_p99": 56.3448,
+ "childMaxMoveMm_max": 97.81,
+ "childMaxPathMm_p50": 8.5569,
+ "childMaxPathMm_p90": 34.6546,
+ "childMaxPathMm_p99": 63.4988,
+ "childMaxPathMm_max": 150.0,
+ "nSamplesStepCapped": 1507787,
+ "nSamplesTotalCapped": 3229,
+ "nChildrenTotalCapped": 543,
+ "nChildrenMovedGt3mm": 195726,
+ "fracChildrenMovedGt3mm": 0.778541,
+ "nChildrenMoved": 251401,
+ "fracChildrenMoved": 1.0,
+ "moveByBand": {
+  "parietal": {
+   "nChildren": 108523,
+   "nGt3mm": 89745,
+   "fracGt3mm": 0.826968
+  },
+  "temple": {
+   "nChildren": 73967,
+   "nGt3mm": 64721,
+   "fracGt3mm": 0.874998
+  },
+  "crown": {
+   "nChildren": 127175,
+   "nGt3mm": 97679,
+   "fracGt3mm": 0.768068
+  },
+  "back": {
+   "nChildren": 6254,
+   "nGt3mm": 5206,
+   "fracGt3mm": 0.832427
+  }
+ },
+ "residMm_p50": 0.0192,
+ "residMm_p90": 0.041,
+ "residMm_p99": 0.0491,
+ "residMm_max": 28.2728,
+ "postInsideSamples": 0,
+ "postBelowMin": 0,
+ "preInside": {
+  "insideSamplesSge1": 1847612,
+  "finite": 10056040,
+  "insideFracSge1": 0.183732
+ }
+}

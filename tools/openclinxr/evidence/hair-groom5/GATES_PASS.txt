@@ -1,0 +1,5 @@
+GATES_PASS hair-groom5: PASS
+A tuck-routing: pinnaVisible 0.849/0.876 (gate >=0.80) True | conchaCross 0 (gate 0) True | front-of-ear-above-sideburn 0 True
+B coverage sheet-core frac crown 0.0219 hemCore 0.0302 nape 0.0000 behindEarCore 0.0316/0.0370 (gate <=0.05) True [broad-box fringe residual: hem 0.0622 behindEar 0.4181/0.5709]
+C banding streak med 11.0 vs target 7.0 (gate <=2x) True
+groom3 hard gates: count/part/inside/determinism/lane/frames True + seam 0<=4 + frizzRuler True

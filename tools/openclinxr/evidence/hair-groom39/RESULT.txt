@@ -1,0 +1,79 @@
+groom39 RESULT — ear region partition premise probe (STEP 1; no build)
+VERDICT: PREMISE FALSE. STOP. No children build was run.
+
+WHY (one line): single-region (single-FRONT) blends alone account for
+62.8% (+x) / 59.4% (-x) of groom36's shell strands, and the brief's
+BEHIND class is anatomically empty at ear height — so restricting pools
+by region cannot remove most of the defect.
+
+PRIMARY GATE (child segments in 3 mm inflated ear shell, 0/side):
+  NOT RUN — premise stopped before any build. groom36 base for reference:
+  +x 2134 segs / 1136 strands; -x 2043 segs / 1036 strands
+  (gates34.segments_in_shell on store/hair-groom36/build-36/strands.npz;
+  matches groom36/groom38 records 2134/2043).
+
+PREMISE NUMBERS (E/premise39.json, E/breakdown39.json authoritative):
+  band: roots within 135 mm of own-side proxy outer surface.
+  +x children total 134749; in-band 134749 (band covers scalp);
+      MIXED 34031; single-class 100718.
+  -x children total 134731; in-band 134731;
+      MIXED 33996; single-class 100735.
+  shell strands among MIXED: +x 423 / 1136 = 37.2%;
+                             -x 421 / 1036 = 40.6%.
+  shell strands among single-class: +x 713 (all single-FRONT);
+                                    -x 615 (all single-FRONT).
+  shell out-of-band: 0 both sides. cross-side hitters: +x 0; -x 3
+  (+x-side children touching the -x shell; counted in MIXED/single above).
+  STOP CONDITION: MIXED < half of shell strands on BOTH sides
+  (37.2% < 50%, 40.6% < 50%). A perfect partition removes at most the
+  MIXED fraction and introduces unknown new defect; the majority of the
+  defect reproduces inside one region. No build per card.
+
+CLASS COUNTS (guides-36, 2741 classified; computed +x, mirrored -x):
+  FRONT 1726 | OVER 305 | BEHIND 0 | NONE 694 | OTHER 16.
+  Planes (m, both sides): YF=-0.0462533 (ear front plane);
+  YB=-0.0907587 (pinna back plane); ZT=1.5532659 (ear top);
+  ZL=1.5082972 (lobe bottom). Check order FRONT/BEHIND/OVER/NONE/OTHER.
+  Pairing: +x->-x geometric pair max deviation 0.0 mm (exact mirror);
+  direct-vs-transferred agreement 1366/1366.
+  BEHIND empty: no guide path reaches y < YB at ear height; rearmost
+  guide reach at ear height is y=-81.1 mm (16 in-span dippers -> OTHER).
+  Midline guides (9: 1366-1374) classified OVER/NONE/FRONT; 469 children
+  use them (included in MIXED counts).
+
+MIXED STATS (shell strands by class-set):
+  +x: FRONT 713; FRONT+NONE 251; FRONT+OVER 171; FRONT+NONE+OVER 1.
+  -x: FRONT 615; FRONT+NONE 235; FRONT+OVER 181; FRONT+NONE+OVER 5.
+  No shell strand uses an OTHER guide. Backbone class of shell strands:
+  +x FRONT 999 / OVER 73 / NONE 64; -x FRONT 902 / OVER 85 / NONE 49.
+  Consistent with groom38 residual (83.5%/82.4% routed backbones): routed
+  FRONT guides blended with FRONT pool-mates still enter the shell.
+
+OTHER GUIDES (16, read first; none touch shell strands):
+  grazing x-range (10): 240, 375, 390, 1342, 1350, 1615, 1750, 1765,
+  2717, 2725 (ear-height samples inside shell x-range, no segment hit).
+  lateral hug (6): 291, 754, 758, 1666, 2129, 2133 (in-span at ear
+  height, lateral of shell xmax).
+
+SCOPE: STEP 1 probe only. No --ear-region-partition flag was added; no
+children rebuilt; children outside the band untouched (vacuous — no
+build). No renders, no gate battery, no calibration re-run.
+
+NOT TESTED: everything downstream of a build — shell 0/side, earlobe
+column, face-front, sub-lobe loops, seam, profile/3q boxes, concha,
+insideBody, gt30, crossings, gradAniso, IoU x3/back/mirror,
+determinism, calibrate31 delta. No visual read (no images produced).
+
+REMAINING (for operator): the defect reproduces within single-FRONT
+blends (same-region guides whose translated shapes still span the
+shell corner) — a pool-restriction fix cannot reach it. Any future fix
+must change blend geometry/weights inside FRONT, not region membership.
+BEHIND as specified (posterior of pinna back plane at ear height) does
+not exist in guides-36; if a behind-ear region is wanted it needs
+different planes (e.g. in-span posterior hug) — operator decision.
+
+GATES_PASS: NO (no build; premise refuted at STEP 1 per card rule).
+Provenance: premise39.py (classes, MIXED), classify39.py (shared
+classifier), breakdown39.py (shell-by-class-set), residual38.shell_mask
++ gates34 (import, no copy); inputs guides-36.npz, roots via build-36
+strands.npz, ear-proxy.npz, earframe-mirror35.json.

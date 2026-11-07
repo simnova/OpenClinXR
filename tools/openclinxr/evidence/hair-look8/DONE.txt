@@ -1,0 +1,1 @@
+DONE: five 512x32 Offset-noise/roughness probes with band metrics, conditional brightness re-solve, look sheet, RESULT, and reproducible source are present.

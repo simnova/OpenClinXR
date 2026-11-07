@@ -1,0 +1,265 @@
+{
+  "adequacy": {
+    "guard": {
+      "back": {
+        "coveredPx": 0,
+        "guardPx": 0
+      },
+      "front": {
+        "coveredPx": 0,
+        "eyes": {
+          "coveredPx": 0,
+          "guardPx": 3087
+        },
+        "guardPx": 5712,
+        "mouth": {
+          "coveredPx": 0,
+          "guardPx": 2625
+        }
+      },
+      "profile_90": {
+        "coveredPx": 0,
+        "eyes": {
+          "coveredPx": 0,
+          "guardPx": 1368
+        },
+        "guardPx": 3024,
+        "mouth": {
+          "coveredPx": 0,
+          "guardPx": 1656
+        }
+      },
+      "totalCoveredPx": 0
+    },
+    "guideHash": "7411e3fd5b3cb025c0a218ed6ed6047c39e78043bb5bac630cb89c84c0ff6dac",
+    "projection": {
+      "max_proj_fall_mm": 11.423,
+      "max_proj_shell_mm": 6.614,
+      "min_sdf_mm": 3.0,
+      "n_inside_mm": 0,
+      "n_proj_fall": 1402,
+      "n_proj_shell": 460
+    },
+    "regional": {
+      "back": {
+        "crown": {
+          "excessMaxPx": 32.45,
+          "excessMeanPx": 18.0,
+          "excessN": 460,
+          "missMaxPx": 13.0,
+          "missMeanPx": 5.17,
+          "missN": 39,
+          "n": 499,
+          "p50": 19.21,
+          "p95": 29.7
+        },
+        "face_opening": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "n": 0,
+          "p50": 0.0,
+          "p95": 0.0
+        },
+        "hem": {
+          "excessMaxPx": 79.62,
+          "excessMeanPx": 45.84,
+          "excessN": 213,
+          "missMaxPx": 135.15,
+          "missMeanPx": 74.56,
+          "missN": 358,
+          "n": 571,
+          "p50": 59.81,
+          "p95": 125.18
+        },
+        "side_curtain_L": {
+          "excessMaxPx": 27.73,
+          "excessMeanPx": 8.8,
+          "excessN": 330,
+          "missMaxPx": 1.0,
+          "missMeanPx": 1.0,
+          "missN": 15,
+          "n": 345,
+          "p50": 6.0,
+          "p95": 24.35
+        },
+        "side_curtain_R": {
+          "excessMaxPx": 20.59,
+          "excessMeanPx": 11.54,
+          "excessN": 108,
+          "missMaxPx": 8.0,
+          "missMeanPx": 4.43,
+          "missN": 270,
+          "n": 378,
+          "p50": 5.0,
+          "p95": 18.41
+        }
+      },
+      "front": {
+        "crown": {
+          "excessMaxPx": 18.6,
+          "excessMeanPx": 7.77,
+          "excessN": 246,
+          "missMaxPx": 9.85,
+          "missMeanPx": 3.35,
+          "missN": 93,
+          "n": 339,
+          "p50": 5.39,
+          "p95": 14.88
+        },
+        "face_opening": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 12.04,
+          "missMeanPx": 9.67,
+          "missN": 50,
+          "n": 50,
+          "p50": 10.0,
+          "p95": 11.54
+        },
+        "hem": {
+          "excessMaxPx": 10.05,
+          "excessMeanPx": 4.12,
+          "excessN": 116,
+          "missMaxPx": 83.0,
+          "missMeanPx": 36.37,
+          "missN": 372,
+          "n": 488,
+          "p50": 9.0,
+          "p95": 77.69
+        },
+        "side_curtain_L": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 36.0,
+          "missMeanPx": 16.04,
+          "missN": 395,
+          "n": 395,
+          "p50": 16.0,
+          "p95": 34.0
+        },
+        "side_curtain_R": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 33.38,
+          "missMeanPx": 17.06,
+          "missN": 306,
+          "n": 306,
+          "p50": 18.0,
+          "p95": 29.88
+        }
+      },
+      "profile_90": {
+        "crown": {
+          "excessMaxPx": 47.01,
+          "excessMeanPx": 18.16,
+          "excessN": 484,
+          "missMaxPx": 3.61,
+          "missMeanPx": 1.8,
+          "missN": 16,
+          "n": 500,
+          "p50": 17.68,
+          "p95": 35.4
+        },
+        "face_opening": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "n": 0,
+          "p50": 0.0,
+          "p95": 0.0
+        },
+        "hem": {
+          "excessMaxPx": 39.22,
+          "excessMeanPx": 21.11,
+          "excessN": 90,
+          "missMaxPx": 33.62,
+          "missMeanPx": 17.79,
+          "missN": 155,
+          "n": 245,
+          "p50": 19.1,
+          "p95": 36.59
+        },
+        "side_curtain_L": {
+          "excessMaxPx": 39.2,
+          "excessMeanPx": 24.31,
+          "excessN": 100,
+          "missMaxPx": 80.45,
+          "missMeanPx": 50.06,
+          "missN": 301,
+          "n": 401,
+          "p50": 44.78,
+          "p95": 76.55
+        },
+        "side_curtain_R": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "n": 0,
+          "p50": 0.0,
+          "p95": 0.0
+        }
+      }
+    }
+  },
+  "cost": 1295066.3261083837,
+  "gateFails": [
+    "front/side_curtain_L p50=16.0 p95=34.0",
+    "front/side_curtain_R p50=18.0 p95=29.9",
+    "front/hem p50=9.0 p95=77.7",
+    "profile_90/crown p50=17.7 p95=35.4",
+    "profile_90/side_curtain_L p50=44.8 p95=76.5",
+    "profile_90/hem p50=19.1 p95=36.6",
+    "back/crown p50=19.2 p95=29.7",
+    "back/side_curtain_L p50=6.0 p95=24.4",
+    "back/hem p50=59.8 p95=125.2",
+    "fall projection max=11.42mm > 10mm"
+  ],
+  "nfev": 17,
+  "optimality": 1308906.0142846925,
+  "secs": 697.8,
+  "specSha": "a2deb11688e277ba4643eb0caf977f7b705c6985ee610763da3a0f41ef5f35fe",
+  "start": "behind-shoulder",
+  "status": 3,
+  "terms": {
+    "guard": 0.0,
+    "penalty": 65.3,
+    "regional": 1294999.9,
+    "regularizer": 1.105
+  },
+  "values": [
+    50.495,
+    3.405,
+    5.958,
+    2.082,
+    -2.752,
+    1.59,
+    84.265,
+    6.62,
+    -16.139,
+    5.031,
+    -0.262,
+    -82.648,
+    -15.563,
+    0.74,
+    -29.993,
+    2.842,
+    249.753,
+    50.957,
+    27.173,
+    -59.621,
+    3.086
+  ]
+}

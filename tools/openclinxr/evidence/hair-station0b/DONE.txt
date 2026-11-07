@@ -1,0 +1,7 @@
+station0b DONE — multiview envelope feasibility (KILL TEST)
+Verdict: STOP. The three target views are not ONE plausible 3D hair volume
+for the frozen 17-param symmetric envelope: held-out p95 112.8 / 118.0 /
+132.3 px vs 12.0 px threshold; bounds saturate in 2/4 fits; collision
+23.1..48.0 mm in 4/4 fits. Guide fitter must not start. Card complete.
+Spec sha 71f84b7f2eca97c8b8b7f40a514c0a94d9d21f6a12125be8e2107f4462c9e2d1
+(frozen before fitting, identical after). Full record: E/RESULT.txt.

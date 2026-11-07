@@ -1,0 +1,237 @@
+RESULT hair-groom22: back orientation-field smoothing and back guide re-trace
+===============================================================================
+Station: tools/openclinxr/hair-groom/orient/s12_back_smooth.py (NEW: measure
+  + coherence-weighted Laplacian on BACK field voxels) +
+  tools/openclinxr/hair-groom/orient/s13_back_retrace.py (NEW: back re-trace
+  entry point, s06_depthgrow.py tracer verbatim).
+Evidence: tools/openclinxr/evidence/hair-groom22/ (this dir).
+Date: 2026-10-18. Branch: hair-tgt2. Blender 5.1.1 (not run: see STOP).
+Guides: guides-19.npz (re-trace source AND front source).
+Field: hair-orient0/field.npz -> field-smooth22.npz (store + SHA256SUMS).
+
+VERDICT: GATES_PASS = no. FALSIFIER TRIGGERED per card: the smoothed
+field meets its disagreement gate (back pooled-pair p90 11.85 <= front
+21.78) and the re-traced back guides still cross at 9213 pairs = 94.8%
+of groom19's 9715 (gate <= 30%, i.e. <= 2914). The crossings are NOT
+from field discontinuity. Rendered the crossing pairs over the smoothed
+field (E/falsifier.png) and STOPPED: no children, no studio render, no
+score, no sheet/crops. Control proof: the same tracer on the UNSMOOTHED
+field reproduces 10154 pairs (104.5%), so the tracer+routing system
+regenerates the locks with or without smoothing (-9.3% smoothed vs
+control is real but 3.2x short of the gate).
+
+0. WHAT WAS BUILT (commands, deterministic)
+----------------------------------------------
+Measure + smooth (numpy/matplotlib, deterministic, no RNG):
+  mise exec -- python3 tools/openclinxr/hair-groom/orient/s12_back_smooth.py \
+    --field tools/openclinxr/evidence/hair-orient0/field.npz \
+    --guides tools/openclinxr/evidence/hair-groom19/build/guides-19.npz \
+    --outdir tools/openclinxr/evidence/hair-groom22 \
+    --smooth-outdir /Volumes/files/openclinxr-assets/store/hair-groom22
+  -> E/back-field.json + E/back-field.png + store/field-smooth22.npz
+     + store/field-smooth22.json (copied to E/build/).
+Re-trace (s06 tracer verbatim, deterministic, no RNG):
+  mise exec -- python3 tools/openclinxr/hair-groom/orient/s13_back_retrace.py \
+    --guides tools/openclinxr/evidence/hair-groom19/build/guides-19.npz \
+    --field /Volumes/files/openclinxr-assets/store/hair-groom22/field-smooth22.npz \
+    --outdir /Volumes/files/openclinxr-assets/store/hair-groom22 \
+    --stem guides-22
+  -> store/guides-22.npz + store/guides-22-retrace.json (copied to
+     E/build/). Control (same, --field hair-orient0/field.npz,
+     --stem guides-21-control heritage: guides-22-control) ->
+     store/guides-22-control.npz + *-retrace.json (E/build copy).
+Determinism: re-ran the smoothed re-trace to /tmp/g22det, sha256
+  06fd6c7f009b56eef4bd034fa0e516b451a6b401e3dabeadfcfd25987de63623,
+  identical to the store copy. PASS.
+Calibration (re-run first, per card):
+  mise exec -- python3 tools/openclinxr/evidence/hair-groom22/calibrate22.py \
+    --renders tools/openclinxr/evidence/hair-groom8a/renders-studio \
+    --tag tools/openclinxr/evidence/hair-groom22/groom22cal
+  -> E/groom22cal-calib.json + E/calib.log.
+Falsifier render:
+  mise exec -- python3 tools/openclinxr/evidence/hair-groom22/render_falsifier22.py
+  -> E/falsifier.png (9213 retraced pairs over the smoothed field).
+NOT RUN per STOP: children build with groom21 flags, studio render,
+score22, gates22, sheet.png, crops.png, native studio back reads.
+
+1. SCORER CALIBRATION (re-run first, per card)
+----------------------------------------------
+calibrate22.py (calibrate21 logic, unmodified) against groom8a's own
+renders-studio reproduces groom8a exactly: front 0.7446 / 3q 0.8261 /
+profile 0.8543 / back 0.8579, all delta 0.0, all_within_0.02 = true
+(E/groom22cal-calib.json, E/calib.log). The scorer measures what
+groom8a published. No scorer changes were needed (nothing scored).
+
+2. FIELD MEASURE (card step 1; E/back-field.json, E/back-field.png)
+---------------------------------------------------------------------
+Regions (field voxel xyz_mm): BACK = (y < -63.5) & (z > 1510):
+45,752 voxels. FRONT = rest of the 641,014-voxel domain: 595,262.
+Same planes as the guide-root split (stated).
+Unsigned neighbour disagreement, arccos(|dot|) 0..90 deg, pooled over
+26-neighbour pairs (each unordered pair once):
+  BACK   p50 4.701 / p90 14.708 / max 89.999 (n = 536,588 pairs)
+  FRONT  p50 5.482 / p90 21.779 / max 90.000 (n = 7,371,544 pairs)
+Per-voxel means: BACK p50 5.425/p90 15.693; FRONT p50 6.636/p90 21.792.
+Signed angles (0..180, stride-7 uniform sample): BACK p50 4.737/p90
+16.081 (n = 76,650); FRONT p50 6.027/p90 153.049 (n = 1,053,326).
+The front signed p90 of 153 deg is the centre-part splay (left/right
+neighbours pointing oppositely across the midline): expected
+structure, not noise. The back has no such sign flip.
+Eigen record (s02 archives gap/beta/nviews, NOT lam0 itself, so the
+smallest-eigenvector residual lam0/trace is not recoverable exactly;
+gap = (l1-l0)/trace, beta, nviews reported instead):
+  gap  BACK p50 0.139/p90 0.324 | FRONT p50 0.297/p90 0.463
+  beta BACK mean 0.577 | FRONT mean 0.758; nviews BACK 2.889/FRONT 2.497.
+Cause reading: the back LINE field is locally SMOOTH (p90 14.7 below
+the front's 21.8) -- the inferred baked-sheen/eigen-averaging cause is
+NOT visible as local spikes. It IS visible as low certainty: back gap
+p50 0.139 vs front 0.297 (back voxels more prior-blended /
+view-conflicted). The cause is low-certainty prior blend, not local
+discontinuity; and (sect 4) even that does not drive the crossings.
+groom19 crossing input reproduced exactly with the reused metric:
+9715 pairs over 266 back non-tuck guides (35,245 pairs) -- metric reuse
+verified (matches groom19/groom21 baselines to the pair).
+
+3. FIELD SMOOTHING (card step 2; s12_back_smooth.py)
+------------------------------------------------------
+Coherence-weighted Laplacian, weight c = clip(gap/0.2,0,1) *
+min(nviews,2)/2 (== s02 beta), lam = 0.5, sign-aligned neighbour mean.
+FRONT voxels never updated (fixed boundary; byte-identical verified).
+Front reference p90 = 21.779 (fixed before smoothing).
+Back pooled p90 BEFORE smoothing was ALREADY 14.708 <= 21.779, so the
+gate was met at measure time; 1 iteration ran per the prescription
+("iterations until ... drops below"): 14.708 -> 11.850. Gate PASS.
+History: [14.708, 11.850]. Front byte-identical: true.
+
+4. BACK RE-TRACE (card step 3; s13_back_retrace.py, s06 verbatim)
+-------------------------------------------------------------------
+Deltas vs s06 (only three, all stated in the module docstring):
+(1) direction sampler reads field-smooth22.npz (same idx grid/hull5
+domain); (2) no Poisson reselection -- the retraced set is exactly the
+524 guides-19 BACK non-tuck guides, same roots (match dist max 0.00e+00
+mm to scalp roots), same depth fractions u_j = 0.3+0.6*((j*PHI)%1)
+with j = original s06 index (order preserved guides-8a -> guides-19;
+rows 0..2649 are s06 new guides, 2650..2706 tucked; asserted), same
+Thick/dstar/hem/maxlen formulas on the same SDF/hull inputs;
+(3) per-guide own arc from guides-19, retraced samples with guides-19
+arc < 40 mm overwritten with guides-19 head-mm bits (s11 verbatim rule).
+Tracer body (field-follow, depth law, gravity/ear/centre/ride routing,
+centre-part wall, face corridor, ear keep-out, re-entry push-back,
+dil slide, turn gates 12/5 deg, body/hem/edge stops, face retry,
+41-pt arc resample) is a verbatim copy of s06's.
+Stops: hem 4 / body 126 / maxlen 3 / edge 391; lengths p50 45.5/p90
+321.1/max 485.0 mm -- same class as the input back guides themselves
+(guides-19 back: p50 43.3/p90 319.4; guides-8a back: p50 43.5/p90 320.7),
+so no tracer bug: most back guides are short edge/body stops in every
+generation and the drape body comes from children. Turn-gate relax
+steps 12,774. Retry face 0. Move vs guides-19 BACK: p50 0.896/p90
+35.115/max 338.752 mm (n = 524). Zero guides deleted (2707 in/out).
+Crossings (s11 metric, back non-tuck, arc 40-200 mm):
+  input 9715 (266 guides) -> retraced 9213 (265 guides). Gate <= 2914:
+  FAIL (over by 6,299; 94.8% of baseline).
+Control (identical tracer, UNSMOOTHED field): 10154 (266 guides,
+104.5% of baseline; move p50 0.451/p90 15.09). Smoothing removes 941
+pairs vs control (-9.3%) and 502 vs guides-19 (-5.2%): a real but
+3.2x-insufficient response. The tracer regenerates the locks from the
+same roots with or without smoothing.
+Take-off: 46,123 verbatim samples byte-identical (maxAbsDiff 0.0). PASS.
+Front/tuck: 2183 rows byte-identical (maxAbsDiff 0.0). PASS.
+
+5. EVERY GATE (margins; calibrated scorer provenance N/A -- STOP)
+-------------------------------------------------------------------
+  calibration            all_within_0.02  PASS
+  fieldDisagreement      back 11.850 <= front 21.779  PASS
+                         (met already before smoothing, 14.708)
+  crossingBACK           9213 vs <= 2914  FAIL (over by 6299; 94.8%)
+  takeoff                46,123 verbatim byte-identical  PASS
+  frontIdentical         2183 rows byte-identical  PASS
+  childrenIoU-*          NOT RUN (STOP) -- no children built
+  concha / insideBody    NOT RUN (children gates)
+  determinismGuides      re-run sha256-identical  PASS
+  falsifier              smoothed gate met + crossings above gate ->
+                         TRIGGERED, STOP recorded  PASS (record only)
+  GATES_PASS             no (STOP: crossing gate decides)
+Control context (not a gate): unsmoothed re-trace 10154 > 9213, so the
+field change moved the metric in the right direction, just 3.2x short.
+
+6. VISUAL READ (field-level; no studio crops per STOP -- see NOT TESTED)
+--------------------------------------------------------------------------
+MY GRADE (native-res read of E/back-field.png and E/falsifier.png):
+both are x-z back-view projections of the field dome (crown z 1610-1670,
+drape columns at x ~= +/-75, z 1530-1590). Voxels are overwhelmingly
+dark (0-15 deg): the back field is smooth. ONE narrow high-disagreement
+band (orange/yellow, 40-60 deg) runs vertically at x ~= 0, z 1612-1668:
+the midline part splay, expected structure. Crossing-pair mids (cyan,
+<= 4000 plotted) form THREE vertical columns at x ~= -77 / 0 / +77,
+z 1530-1595 -- inside the smooth dark drape regions, NOT on the
+disagreement band (the midline column sits below the band, which ends
+at z ~= 1612). The crossings pass through locally smooth field: there
+are no diagonal crossing locks visible in the FIELD because the locks
+are not in the field -- guides with roots ~56 mm apart (p50) are
+funneled by the tracer's routing (part wall + posterior/ear routing +
+depth law) into the same drape columns, where their projections
+interleave. That is a global routing attractor, not a local field
+defect, consistent with the control regenerating 104.5% without any
+field change. No diagonal crossing locks to describe in crops because
+no studio crops exist (STOP); the field renders show smooth drape
+columns with midline part structure above and three crossing columns
+below. Falsifier panel: E/falsifier.png (9213 retraced mids over the
+smoothed field). Measure panel: E/back-field.png (groom19 mids over
+the original field).
+
+7. FALSIFIER
+--------------
+Card: "if the smoothed field meets its disagreement gate and the
+re-traced back guides still cross above the 30% gate, the crossings are
+not from field discontinuity; render the crossing pairs over the
+smoothed field and stop." Field gate met (11.85 <= 21.78, sect 3);
+crossings 9213 > 2914 (sect 4). FALSIFIER TRIGGERED. Rendered
+E/falsifier.png. STOPPED: no children, no render, no score, no
+sheet/crops. The crossings are not from field discontinuity (the
+control proves the tracer regenerates them on the original field too).
+
+8. SCOPE / NOT TESTED / REMAINING
+-----------------------------------
+SCOPE: field-voxel lane (641k voxels, 26-neighbour stats, 1 Laplacian
+iteration) + guide-level lane (524 retraced guides, scalp-UV crossing
+counts, hash proofs). Calibrated scorer re-run (calibration only, no
+scoring). No .npz in git (store + SHA256SUMS only; E/build carries the
+small JSON records).
+NOT TESTED: everything downstream of guides -- children with
+--region-weight --uv-cutoff 0.15 --pool-max-move-mm 60, Cycles studio
+renders (1024/64), IoU/concha/insideBody children gates, studio visual
+read of back crops (no native-resolution studio read performed);
+physical Quest 3 / worn-headset evidence; other bodies/seeds;
+animation/combing dynamics; clinical validity, licensure, or scoring
+claims.
+REMAINING (report-only):
+- Crossings 94.8% (need <= 30%): not a field-discontinuity problem
+  (falsifier). Fresh s06 traces of the same roots cross at 104.5%
+  without any field change: the locks are a stable attractor of the
+  tracer+routing system (part wall, posterior/ear routing, depth law
+  funnel far-apart roots into shared drape columns). Uncrossing needs
+  guide-level sheet separation (fall-direction split or part-corridor
+  at the guide level), not field work. Field lane is CLOSED by the
+  falsifier; do not smooth further.
+- Children/render/score with the groom21 flags belong to a card on
+  re-separated (not re-traced) guides.
+- Control files (guides-22-control.npz + retrace JSON) are retained in
+  the store as falsifier provenance, not as products.
+
+9. FILE MANIFEST
+------------------
+store/field-smooth22.npz + store/field-smooth22.json  smoothed field +
+  stats (STORE ONLY + SHA256SUMS; NOT in git; E/build JSON copy committed)
+store/guides-22.npz + store/guides-22-retrace.json  re-traced guides +
+  stats (STORE ONLY + SHA256SUMS; E/build JSON copy committed)
+store/guides-22-control.npz + *-retrace.json  unsmoothed control
+  (store + E/build JSON copy; falsifier provenance, not a product)
+E/back-field.json + E/back-field.png  measure record + render (committed)
+E/falsifier.png  crossing pairs over smoothed field (committed)
+E/calibrate22.py + E/groom22cal-calib.json + E/calib.log (committed)
+E/render_falsifier22.py  falsifier render script (committed)
+orient/s12_back_smooth.py  measure + smoothing stage (committed)
+orient/s13_back_retrace.py  re-trace entry point (committed)
+E/RESULT.txt + E/DONE.txt  this record + stop marker (committed)
+
+(End of file)

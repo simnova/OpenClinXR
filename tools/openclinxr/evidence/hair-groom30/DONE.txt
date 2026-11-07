@@ -1,0 +1,10 @@
+DONE hair-groom30.
+Final: E/build-30 (guides-30 + strands-30, 281414 children, cap 426 capped
+mean 12.2/max 20.2 mm + 386 dropped-root-below).
+Gates: earlobe 3D 37 FAIL / profile box 0 PASS / 3q box 841<=842 PASS /
+back 0.7878>=0.786 PASS (provisional: bare-body collision field) /
+front 0.7994 PASS / 3q 0.8505 PASS / profile 0.8412 PASS /
+cross 935 FAIL / gradAniso-sigma4 0.6257 PASS / concha 0 PASS /
+insideBody 2638 FAIL / face-mask front PASS (3q report-only PASS).
+Back-guide CHECK: with 37/935; without(445/521/533) 209/894; keeper WITH.
+GATES_PASS = no. See RESULT.txt.

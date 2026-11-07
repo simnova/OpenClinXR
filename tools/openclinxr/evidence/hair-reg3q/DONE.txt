@@ -1,0 +1,5 @@
+DONE: hair-reg3q three-quarter target registration
+- STEP 1: E/landmarks-3q.png + E/target-landmarks-3q.json (6/6 observed, 0 UNOBSERVED)
+- STEP 2: E/projected-3q.json + E/render-3q-beauty.png (pinned 3/4 camera); fit + residuals in E/registration-3q.json
+- STEP 3: S/register3q.py -> E/registration-3q.json = REGISTRATION_INSUFFICIENT (p95 106.90px > 8px), no transform; frame-3q.png not produced by design
+- STEP 4: E/RESULT.txt + E/DONE.txt; commit feat(hair-groom): three-quarter target registration from landmarks

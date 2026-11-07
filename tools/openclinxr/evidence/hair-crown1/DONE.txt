@@ -1,0 +1,7 @@
+HAIR CROWN 1 DONE — crown scalp exposure.
+Base scored (E/base/ = count2 tt05 reproduction). STEP 1: scalp proven (green/hair-only
+remove it, rim-off keeps it; E/diagnose.png + E/diagnosis.json). STEP 2: 4 cells built,
+repaired (c_den/c_slit inside-0 verified), scored all views + crown_top. STEP 3: strict
+all-at-once KEEP keeps none (region 15% band unmet, measured blockers in RESULT.txt);
+best = base (E/best/ + E/best_meta.json). STEP 4: E/look-sheet.png, E/RESULT.txt, this file.
+NOT TESTED in RESULT.txt. No *.blend files under E/.

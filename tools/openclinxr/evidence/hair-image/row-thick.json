@@ -1,0 +1,76 @@
+{
+ "ok": true,
+ "stage": "measure",
+ "error": "",
+ "blenderVersion": "5.1.1",
+ "lightCount": 3,
+ "exposureStops": -0.375,
+ "cells": [
+  {
+   "radius": 0.00015,
+   "readBack": 0.0001500000071246177,
+   "strandsAfter": 50265,
+   "volume": 0.20422759981429897,
+   "crownScalpFraction": 0.0737883008356546,
+   "faceSkinRatio": 1.4301476301476301,
+   "coveragePixels": 64940,
+   "coverageHairLuminance": {
+    "mean": 0.4651704125074729,
+    "p10": 0.16995882352941175,
+    "p50": 0.3707705882352941,
+    "p90": 0.8675596078431371
+   },
+   "feasible": true
+  },
+  {
+   "radius": 0.0002,
+   "readBack": 0.00019999999494757503,
+   "strandsAfter": 50265,
+   "volume": 0.21587743732590528,
+   "crownScalpFraction": 0.07074105739264734,
+   "faceSkinRatio": 1.3958041958041958,
+   "coveragePixels": 66714,
+   "coverageHairLuminance": {
+    "mean": 0.45917190147936143,
+    "p10": 0.16183137254901958,
+    "p50": 0.3599333333333333,
+    "p90": 0.8644235294117646
+   },
+   "feasible": true
+  },
+  {
+   "radius": 0.0003,
+   "readBack": 0.0003000000142492354,
+   "strandsAfter": 50265,
+   "volume": 0.22423398328690808,
+   "crownScalpFraction": 0.06627887923971817,
+   "faceSkinRatio": 1.3645687645687645,
+   "coveragePixels": 68730,
+   "coverageHairLuminance": {
+    "mean": 0.4529577833123647,
+    "p10": 0.15253725490196077,
+    "p50": 0.3572607843137255,
+    "p90": 0.8598196078431372
+   },
+   "feasible": true
+  }
+ ],
+ "selected": {
+  "radius": 0.0003,
+  "readBack": 0.0003000000142492354,
+  "strandsAfter": 50265,
+  "volume": 0.22423398328690808,
+  "crownScalpFraction": 0.06627887923971817,
+  "faceSkinRatio": 1.3645687645687645,
+  "coveragePixels": 68730,
+  "coverageHairLuminance": {
+   "mean": 0.4529577833123647,
+   "p10": 0.15253725490196077,
+   "p50": 0.3572607843137255,
+   "p90": 0.8598196078431372
+  },
+  "feasible": true
+ },
+ "front": "front-thick.png",
+ "idPng": "hair-id-thick.png"
+}

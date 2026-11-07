@@ -1,0 +1,16 @@
+{
+  "a_back_occluded_over_face": {
+    "occBackPxInFaceBox": 0,
+    "pass": true,
+    "rawBackPxInFaceBox": 3087
+  },
+  "b_curtain_visible_over_chest": {
+    "occPxChestBand": 31686,
+    "pass": true
+  },
+  "c_scalp_depth_agrees": {
+    "errMm": 0.05,
+    "pass": true
+  },
+  "pass": true
+}

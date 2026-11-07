@@ -1,0 +1,4 @@
+HAIR COVER 1 DONE.
+Best = best4: holes 6.818% -> 0.970%, IoU f/p/b 0.7147/0.6952/0.7698 ->
+0.7365/0.7308/0.7600, all KEEP gates pass. Strands:
+tools/openclinxr/evidence/hair-cover1/best/strands.npz. See RESULT.txt.

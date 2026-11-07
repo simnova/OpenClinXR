@@ -1,0 +1,238 @@
+{
+  "pass": true,
+  "specSha": "d5aa424b25dfcfc52ed7793c048211f5c67d3270cb6347daaf0fc03d99f92a09",
+  "tests": {
+    "a_strip_width": {
+      "back": {
+        "deltaPx": 0.226,
+        "expectedPx": 88.77,
+        "measuredPx": 89.0
+      },
+      "front": {
+        "deltaPx": 0.452,
+        "expectedPx": 81.45,
+        "measuredPx": 81.0
+      },
+      "pass": true
+    },
+    "b_collision": {
+      "maxDepthMm": 9.5,
+      "pass": true,
+      "samples": 6,
+      "surfaceZ": 1.6635,
+      "wantMm": 10.0
+    },
+    "c_face_guard": {
+      "behindHeadCoveredPx": 0,
+      "coveredEyeMouthPx": 3087,
+      "pass": true,
+      "report": {
+        "front": {
+          "coveredPx": 3087,
+          "eyes": {
+            "coveredPx": 3087,
+            "guardPx": 3087
+          },
+          "guardPx": 5712,
+          "mouth": {
+            "coveredPx": 0,
+            "guardPx": 2625
+          }
+        }
+      }
+    },
+    "d_regional": {
+      "hemInRange": true,
+      "othersQuiet": true,
+      "ownAllZero": true,
+      "pass": true,
+      "regions": {
+        "back/crown": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "back/face_opening": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "back/hem": {
+          "excessMaxPx": 8.06,
+          "excessMeanPx": 1.36,
+          "excessN": 390,
+          "missMaxPx": 15.0,
+          "missMeanPx": 14.45,
+          "missN": 382,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "back/side_curtain_L": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "back/side_curtain_R": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "front/crown": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "front/face_opening": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "front/hem": {
+          "excessMaxPx": 9.43,
+          "excessMeanPx": 2.56,
+          "excessN": 1008,
+          "missMaxPx": 15.0,
+          "missMeanPx": 8.31,
+          "missN": 1138,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "front/side_curtain_L": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "front/side_curtain_R": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "profile_90/crown": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "profile_90/face_opening": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "profile_90/hem": {
+          "excessMaxPx": 8.25,
+          "excessMeanPx": 2.57,
+          "excessN": 263,
+          "missMaxPx": 15.0,
+          "missMeanPx": 6.38,
+          "missN": 344,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "profile_90/side_curtain_L": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        },
+        "profile_90/side_curtain_R": {
+          "excessMaxPx": 0.0,
+          "excessMeanPx": 0.0,
+          "excessN": 0,
+          "missMaxPx": 0.0,
+          "missMeanPx": 0.0,
+          "missN": 0,
+          "own": [
+            0,
+            0
+          ]
+        }
+      }
+    },
+    "e_determinism": {
+      "pass": true,
+      "run1": "54b232a02fec79b19d5f5914de873b5aad0876844403bf2b57eb7971c67e5aee",
+      "run2": "54b232a02fec79b19d5f5914de873b5aad0876844403bf2b57eb7971c67e5aee"
+    }
+  }
+}

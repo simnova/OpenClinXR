@@ -1,0 +1,7 @@
+DONE. Hair rulers v4a frozen: R1 regional contour/IoU, R4 ear coverage, R5 hem.
+Files: tools/openclinxr/evidence/hair-score/rulers_v4.py (CLI as specified),
+tools/openclinxr/evidence/hair-rulers4a/ (fixtures.json, subject-*.json,
+probes.json 32/32 pass, table.md/table.json 20 rows, overlays.png, RESULT.txt).
+RULERS probes PASS 32/32. GROOM GATES_PASS=no: current (hem2 c_curve) fails
+17/18 HARD_GATE rows (only R5-back yBottom passes); previous worse-or-equal.
+R4 ADVISORY (no separation; frozen tripwire for the rebuilt groom).

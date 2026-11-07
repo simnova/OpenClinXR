@@ -1,0 +1,7 @@
+RESULT::hair-children-2
+G0::control_diff present, cause UNKNOWN (REF does not reproduce) | bar PASS
+CAUSE(D1)::UNKNOWN: REF-exact control 0 curves x3 (gn3-attr-part, gn2-attr-part, gn3-lit-nopart) on Blender 5.1.1
+COMMIT::pending
+STILL::children1 D1 open
+BRIEF_MISSING::
+HARM::none

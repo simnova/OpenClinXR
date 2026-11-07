@@ -1,0 +1,239 @@
+hair-groom18 — SDF height transfer from guides to Blender children
+==============================================================================
+Station: tools/openclinxr/hair-groom/strands/blender_children.py
+  + NEW STATION STAGE strands/height_transfer.py (bounded SDF height transfer)
+Evidence: tools/openclinxr/evidence/hair-groom18/  (this dir)
+Date: 2026-10-18   Branch: hair-tgt2   Blender 5.1.1
+Guides: hair-groom16/build/guides-cleared.npz (2707 body-cleared guides, reused)
+
+VERDICT: GATES_PASS = no (14/22 pass; hard pinna fails, silhouette + face-region
+fail). The card's FALSIFIER does NOT formally fire: depth is 5/6 (temple p90
+ratio 1.208 vs 1.200 allowed — over by 0.08 mm), so "meets depth" is false;
+front is below groom16's floor (0.6148 < 0.62) but profile is above it
+(0.7661 > 0.70). The honest headline is narrower than the falsifier: the
+height transfer achieves what it was built for — guide-matched depth
+(parietal 0.936/1.015, temple p50 0.987) with insideBody 0 and no strand
+hidden or deleted — but large radial moves reposition strands (exit-point
+drift): all 336 bangs are transfer-added (pre-transfer bangs = 0), and the
+face/ear-region gates fail. Heights transferred; placement did not.
+
+HANDBACK ITEMS (done this turn):
+- Checked E/ + strands/height_transfer.py: prior workers left strands-18-pre.npz
+  (Attach/Interp/Clump/Noise children) and strands-18.npz plus an UNBOUNDED
+  transfer run (build/height-transfer.json: insideBody 3; 78% of children moved
+  > 3 mm; child max-move p90 35 mm, max 773 mm path).
+- Investigated the 773 mm outlier: it is a far-field gradient fault. The
+  unbounded walker sized each step as 0.8 * (target - SDF) along the unit
+  gradient, which assumes the target isosurface lies along the gradient at
+  distance ~= deficit. Deep samples (pre-transfer SDF down to -60 mm, e.g.
+  child 125602 pre -60.78 mm -> target +36.08 mm) overshoot across thin
+  structures, the gradient flips, and the walk ping-pongs: worst sample path
+  773.27 mm for a net displacement of only 123.68 mm (recomputed). resid max
+  was 38.24 mm (non-converged oscillators).
+- Bounded the step in height_transfer.py: per-iteration step cap 10 mm,
+  per-sample cumulative path cap 150 mm (capped samples stop and are counted),
+  best-residual position tracked per sample and restored at the end so
+  oscillation never leaves a sample worse than its closest approach, active-set
+  sampling only. Re-ran via E/rerun_transfer18.py (same function the Blender
+  --height-transfer path calls; pure numpy, no RNG).
+- Bounded result: path max exactly 150.0 (cap binds), net max 97.81;
+  resid p50/p90/p99 0.019/0.041/0.049, max 28.27 (capped samples that could
+  not reach target); postInside 0, postBelowMin 0 (was 3/6). 3229 samples /
+  543 children (0.22%) hit the total cap; 1,507,787 samples hit the per-iter
+  cap at least once (expected: deep samples need many 10 mm steps).
+
+
+0. WHAT WAS BUILT (commands, deterministic)
+----------------------------------------------
+Blender children (verified rebuild, see section 1):
+  blender_children.py --guides <groom16 guides-cleared.npz> --out strands-18-pre.npz \
+    --density 3900000 --seed 7 --scalp-roots hair-scalp1/roots.npz \
+    --part-by-islands 1 --clump-factor 0.2 \
+    --sideburn-tuck 0 --skip-drape 1 --clear-guides 0 --outside-pass 0 \
+    --height-transfer 0 --depth-classes 1 --interp-guides 3 \
+    --distance-to-guides 0.02 --follow-surface-normal 0 \
+    --skip-clump 0 --skip-noise 0 --skip-shrink 1 --skip-smooth 1 --colliders ""
+  -> strands-18-pre.npz: 251401 children x 41 pts, radius 4e-05 m, zeroSuppressed 0.
+Height transfer (Python, ~53 s):
+  mise exec -- python3 tools/openclinxr/evidence/hair-groom18/rerun_transfer18.py
+  -> strands-18.npz (same count/radii/roots; child_move_mm = per-child max NET
+     displacement in mm) + build/height-transfer.json.
+Render (495.8 s):
+  HAIR_SIZE=1024 HAIR_SPP=64 Blender --background --python \
+    strands/render_studio.py -- --strands build/strands-18.npz \
+    --params hair-groom7/params-c08.json \
+    --cameras hair-groom/manifests/cameras-scorer-v3.json \
+    --body-glb apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb \
+    --outdir E/renders-studio --opened E/renders-studio/opened.txt
+  -> renders-studio/ (front, three_quarter, profile_90, back + -id, 1024/64).
+  Weighting used: inverse-distance to the 3 nearest guide roots (Blender does
+  not export the Interpolate weights; stated here and in height_transfer.py).
+
+
+1. SCORER CALIBRATION + DETERMINISM (why the numbers below are trustworthy)
+---------------------------------------------------------------------------
+calibrate18.py re-run 2026-10-18 (this turn) against groom8a's own
+renders-studio reproduces groom8a exactly: front 0.7446 / 3q 0.8261 /
+profile 0.8543 / back 0.8579, all delta 0.0, all_within_0.02 = true
+(E/calib.log, E/groom18cal-calib.json). rulers18.py is byte-identical to
+groom16's rulers16.py. The scorer measures what groom8a published.
+Reference column in score18.json is the TRUE groom8a (renders-studio +
+build/strands.npz), not the groom12 re-render (which scores 0.4968 front on
+this rig and was replaced for that reason).
+Determinism (both PASS, gates18.json):
+- Blender pre-build: rebuilt strands-18-pre to /tmp with the card-spec flags
+  above -> array hash 58bf45d5... identical to the committed pre-build. This
+  simultaneously confirms the recorded flags are the actual flags.
+- Transfer: rerun_transfer18.py on the same inputs -> array hash 609aebe8...
+  identical (points + child_move_mm).
+
+
+2. STEP 1 — CHILDREN (Interpolate ig3/dtg0.02, 1 depth class, Clump + Noise)
+------------------------------------------------------------------------------
+Single depth class (DEPTH_CUTS [] counts=[2707]); Clump 0.2 + Noise 0.1/2 mm;
+no Shrinkwrap, no Smooth, no outside pass (card spec).
+Clump+Noise displacement vs Attach+Interpolate-only reference (disp18.json,
+measured on the full Blender run, n=251579 pre-keep-filter):
+  per-sample p50 1.01 | p90 6.65 | p99 22.10 | max 58.31 mm.
+The card's "Clump displacement <= 8 mm" bound is NOT met at the tail
+(p99 22.1, max 58.3 mm); Noise was not isolated separately. Reported as
+measured; it is a build-spec note, not a card gate.
+Pre-transfer state (strands-18-pre): 18.37% of s>=1 samples inside the body
+(1,847,612 / 10,056,040 finite) — the groom16/17 Interpolate dive, unchanged
+in kind; bangs = 0.
+
+
+3. STEP 2 — HEIGHT TRANSFER (bounded; this card's mechanism)
+-------------------------------------------------------------
+Target per sample h(s) = inverse-distance-weighted blend of the 3 nearest
+guides' body-SDF at the same normalized arc fraction; move along the SDF
+gradient until SDF == max(h, 0.5 mm). Tangential coordinate untouched by
+construction (radial-only steps); no strand hidden or deleted
+(samplesLeftUntouchedGuideOffGrid 0, offGridSamples 0).
+Move distribution (build/height-transfer.json, NET = actual displacement):
+  per-sample path  p50 2.86 | p90 17.01 | p99 42.24 | max 150.00 (cap binds)
+  per-sample net   p50 2.85 | p90 16.72 | p99 41.24 | max 97.81
+  per-child maxnet p50 8.33 | p90 33.07 | p99 56.34 | max 97.81
+  children moved > 3 mm = 195,726 / 251,401 = 77.85% (no gate; report only)
+  top bands: temple 87.50% (64721/73967) | back 83.24% (5206/6254) |
+             parietal 82.70% (89745/108523) | crown 76.81% (97679/127175)
+  resid |v-tgt| p50 0.019 | p90 0.041 | p99 0.049 | max 28.27 mm
+  postInsideSamples 0 ; postBelowMin 0.
+Distribution read: the transfer is large because the defect is large — 78% of
+children need >3 mm to reach guide heights, median child max-move 8.3 mm.
+Path-vs-net is now tight (p90 34.65 vs 33.07); the 773 mm pathology is gone.
+The 543 total-capped children (0.22%) are the deepest samples; their 28 mm
+worst residual is reported, not hidden.
+
+
+4. EVERY GATE (calibrated scorer; margin = child vs gate)
+--------------------------------------------------------------
+  depth parietal p50   7.54 vs band [6.447, 9.671]    PASS (ratio 0.936)
+  depth parietal p90   17.32 vs band [13.652, 20.478]  PASS (ratio 1.015)
+  depth parietal std   6.31 vs 0.6*6.437=3.862         PASS (ratio 0.980)
+  depth temple p50     5.45 vs band [4.419, 6.629]     PASS (ratio 0.987)
+  depth temple p90     10.79 vs band [7.144, 10.716]   FAIL (ratio 1.208;
+                                                      0.08 mm over bound)
+  depth temple std     3.73 vs 0.6*2.742=1.645         PASS (ratio 1.360)
+  insideBody           0 (s>=1 SDF<0)                  PASS (<= 500; margin 500)
+  concha crossings     front 13101 / 3q 19713 / prof 54239  FAIL (0 required)
+  faceMask             front ours 4457 > allow 3424.9  FAIL
+                       3q ours 6998 > allow 2127.3     FAIL
+  pinnaProximity       10272 visible samples < 3 mm    FAIL (0 required; hard)
+  frontIoU             0.6148                        FAIL (>= 0.70; -0.085;
+                                                      below groom16 0.6239
+                                                      and floor 0.62)
+  profileIoU           0.7661                        FAIL (>= 0.80; -0.034;
+                                                      above floor 0.70 and
+                                                      groom16 0.7014)
+  backIoU              0.8676                        PASS (>= 0.84; +0.028;
+                                                      below groom16 0.9276)
+  three_quarter IoU    0.7317 (no gate; groom16 0.6128, +0.119)
+  frontMiss            13129 px                      PASS (<= 15000; +1871)
+  bangs (groom17)      336                           FAIL (<= 30; groom8a 1;
+                                                      pre-transfer 0: all 336
+                                                      added by the transfer)
+  knotHole (g10diag)   0 enclosedHolePx                PASS (== 0)
+  colourNoRegress      mean RGB ratio [1.087,1.093,1.093] PASS (0.7..1.3 of 8a)
+  backCore alpha<=5%   0.0564                          FAIL (<= 0.05; +0.0064)
+  determinism          rebuild hash identical          PASS
+  hardGates            pinna fails                     FAIL
+  moveBudget           77.85% >3 mm; bands above       report only (no gate)
+  falsifier            depthOk false (temple p90)      NOT FIRED (pass)
+                       insideOk true; front<0.62 true but profile>0.70
+  GATES_PASS           no
+Reference values: groom8a front 0.7446 / 3q 0.8261 / profile 0.8543 /
+back 0.8579; groom16 front 0.6239 / 3q 0.6128 / profile 0.7014 / back 0.9276.
+Context (not gates): A-temple tips>3mm 2991/2389/707/960; seam maxGap 0
+(target part max 9); sideburn ratio 1.0; hairline coverage front 1.502 /
+3q 1.225 (over-cover = fringe); groove3q gatePass true; lobe hairIdPx 2942.
+
+
+5. VISUAL READ (sheet.png rows target|groom8a|groom16|groom18; crops.png same order)
+--------------------------------------------------------------------------------------
+MY GRADE (grid, no augment): groom18 trades the skull-dive for a halo. Depth
+is real (hair stands off the scalp everywhere) but placement is lost: the
+shell is puffy where the target is sleek, and fringe/ear-curtain hair sits
+where the target is bare.
+- crops.png "top-3q" col4: crown halo frizz lifted off the scalp vs col1
+  sleek and col2 flat; the temple-p90 overshoot made visible.
+- crops.png "front-hairline-band" col4: wispy fringe across the forehead where
+  col1/col2 are clean; = bangs 336 and hairline over-cover 1.502.
+- crops.png "front-curtain-L/R" col4: curtain strands stand off the face,
+  frizzy, vs col1 sleek; = faceMask FAIL + front excess 27993 px.
+- crops.png "3q-ear" / "profile-ear" col4: dense side curtain over the ear
+  with a swirl sitting on the ear vs col1 bare ear; = concha/pinna FAILs.
+- crops.png "back-crown-part" col4: puffy crown, no clean part (col1 clean
+  center part); seam maxGap 0 only because the crown is dense, not ordered.
+- crops.png "back-hem-L/R" and "nape" col4: full and closest to col1; =
+  backIoU 0.8676 PASS, the one silhouette gate that holds.
+- sheet.png profile col4: rounded halo standing off the back of the head vs
+  col1 lying on the skull; sheet front col4: frizz halo at crown/sides.
+Canonical sheet: tools/openclinxr/evidence/hair-groom18/sheet.png.
+
+
+6. SCOPE / NOT TESTED / REMAINING
+-----------------------------------
+SCOPE: local Blender render lane only. No Quest/WebXR runtime, no on-headset
+evidence, no performance/frame-budget measurement, no downstream consumer
+(arena/iwsdk) load.
+NOT TESTED: worn-headset validation; WebXR capture; clip-through in-engine;
+whether the transferred shell is stable under animation; Clump<=8mm tail
+(disp max 58.3 mm exceeds the step-1 spec — untested whether a lower clump
+factor keeps depth while fixing the tail).
+REMAINING (report-only per brief; no offsets added to make gates pass):
+- The mechanism works at the sample level (resid p99 0.05 mm, inside 0) but
+  large radial moves along a spatially varying gradient relocate strands:
+  pre-transfer bangs 0 -> post 336 proves exit-point drift. "Tangential
+  position untouched" holds per-step, not per-strand: a 97 mm walk that
+  changes direction exits the body somewhere the strand never belonged
+  (forehead, ears). The next card is either guide-side (render the cleared
+  guides themselves: if THEY already spill onto face/ears, heights are wrong
+  for the target) or transfer-side (constrain the exit: face/ear-region
+  masks, or project each child's SHAPE rather than each sample).
+- The falsifier as written did not fire (temple p90 misses by 0.08 mm), so
+  no guide-side verdict is declared; but front below groom16's floor with
+  depth essentially met keeps guide-side as the leading hypothesis.
+- pinna (10272), concha, faceMask, backCore (+0.0064), bangs need a
+  placement/region pass independent of the height mechanism.
+- Clump tail (max 58.3 mm vs 8 mm spec) should be re-measured with lower
+  clump factors; Noise was not isolated from Clump in disp18.json.
+
+7. FILE MANIFEST
+------------------
+build/strands-18.npz          final product (store copy + SHA256SUMS off-repo; not in git)
+build/strands-18-pre.npz      pre-transfer children (store copy + SHA256SUMS; not in git)
+build/height-transfer.json    bounded transfer stats + move budget by band
+build/gates18.json            hard-gate record + exact build flags + hashes
+build/disp18.json             Clump+Noise displacement vs Interp-only reference
+build/strands-asset.txt       store hashes + build command (committed)
+build/build.log               full Blender build log (unbounded inline transfer run)
+build/build-pre.log           pre-transfer Blender build log
+build/render.log              studio render log (495.8 s)
+guide-depth.json              cleared guide-depth reference (copied groom16; section 4)
+score18.py, rulers18.py, calibrate18.py, iou18.py, rerun_transfer18.py, make_sheet18.py
+score18.json                  full per-region scorer output
+groom18cal-calib.json         calibration (section 1)
+sheet.png, crops.png          4-way render sheet (target|8a|16|18) + regional crops
+renders-studio/               4 studio views + id images + render-times.json
+station-frame.npz             face-mask frame fixture (NOT in git — .npz rule)

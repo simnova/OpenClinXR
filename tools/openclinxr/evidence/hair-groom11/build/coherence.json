@@ -1,0 +1,52 @@
+{
+ "schema": "openclinxr.hair-guide-coherence.v1",
+ "method": "post-trace root-relative scalp-distance graph fairing",
+ "why": "directly bounds near-root route disagreement while retaining groom8a take-off samples and tuck anchors without a posterior geometry push",
+ "parameters": {
+  "kernelMm": 20.0,
+  "iterations": 32,
+  "originalAnchor": 0.01,
+  "takeoffSamplesVerbatim": 2,
+  "gateRootMm": 6.0
+ },
+ "guides": {
+  "input": 2707,
+  "output": 2707,
+  "deleted": 0,
+  "tuckAnchors": 57
+ },
+ "nearRootPairFullPathSeparationMmBefore": {
+  "n": 7667,
+  "min": 1.604,
+  "p50": 31.014,
+  "p90": 372.919,
+  "p99": 425.899,
+  "max": 441.276
+ },
+ "nearRootPairFullPathSeparationMmAfter": {
+  "n": 7667,
+  "min": 1.611,
+  "p50": 7.608,
+  "p90": 17.644,
+  "p99": 30.001,
+  "max": 52.187
+ },
+ "guideMaxMoveMm": {
+  "n": 2707,
+  "min": 0.0,
+  "p50": 156.79,
+  "p90": 237.28,
+  "p99": 317.824,
+  "max": 359.696
+ },
+ "hull": {
+  "policy": "convex local route hull in cylindrical scalp parameterisation (radius, unwrapped azimuth, height)",
+  "insideSamplesAfter": 20597
+ },
+ "takeoffVerbatimMaxMm": 0.0,
+ "gate": {
+  "p90MaxMm": 25.0,
+  "absoluteMaxMm": 60.0,
+  "pass": true
+ }
+}

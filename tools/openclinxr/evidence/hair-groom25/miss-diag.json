@@ -1,0 +1,453 @@
+{
+ "back": {
+  "groom19": {
+   "nMiss": 50597,
+   "tgtBBox": [
+    150,
+    1023,
+    261,
+    765
+   ],
+   "bands": {
+    "top": {
+     "rows": [
+      150,
+      441
+     ],
+     "missPx": 35,
+     "missLeft": 0,
+     "missRight": 35
+    },
+    "mid": {
+     "rows": [
+      441,
+      732
+     ],
+     "missPx": 4509,
+     "missLeft": 2199,
+     "missRight": 2310
+    },
+    "bot": {
+     "rows": [
+      732,
+      1024
+     ],
+     "missPx": 46053,
+     "missLeft": 10561,
+     "missRight": 35492
+    }
+   }
+  },
+  "groom24": {
+   "nMiss": 57253,
+   "tgtBBox": [
+    150,
+    1023,
+    261,
+    765
+   ],
+   "bands": {
+    "top": {
+     "rows": [
+      150,
+      441
+     ],
+     "missPx": 37,
+     "missLeft": 0,
+     "missRight": 37
+    },
+    "mid": {
+     "rows": [
+      441,
+      732
+     ],
+     "missPx": 6619,
+     "missLeft": 2196,
+     "missRight": 4423
+    },
+    "bot": {
+     "rows": [
+      732,
+      1024
+     ],
+     "missPx": 50597,
+     "missLeft": 10555,
+     "missRight": 40042
+    }
+   }
+  },
+  "dMissPx": {
+   "top": 2,
+   "mid": 2110,
+   "bot": 4544
+  },
+  "dSide": {
+   "top": {
+    "dLeft": 0,
+    "dRight": 2
+   },
+   "mid": {
+    "dLeft": -3,
+    "dRight": 2113
+   },
+   "bot": {
+    "dLeft": -6,
+    "dRight": 4550
+   }
+  },
+  "dMissTotal": 6656,
+  "dExcessTotal": 36,
+  "tgtBBox": [
+   150,
+   1023,
+   261,
+   765
+  ]
+ },
+ "profile_90": {
+  "groom19": {
+   "nMiss": 4315,
+   "tgtBBox": [
+    120,
+    1023,
+    234,
+    696
+   ],
+   "bands": {
+    "top": {
+     "rows": [
+      120,
+      421
+     ],
+     "missPx": 746,
+     "missLeft": 746,
+     "missRight": 0
+    },
+    "mid": {
+     "rows": [
+      421,
+      722
+     ],
+     "missPx": 981,
+     "missLeft": 239,
+     "missRight": 742
+    },
+    "bot": {
+     "rows": [
+      722,
+      1024
+     ],
+     "missPx": 2588,
+     "missLeft": 0,
+     "missRight": 2588
+    }
+   }
+  },
+  "groom24": {
+   "nMiss": 4166,
+   "tgtBBox": [
+    120,
+    1023,
+    234,
+    696
+   ],
+   "bands": {
+    "top": {
+     "rows": [
+      120,
+      421
+     ],
+     "missPx": 666,
+     "missLeft": 666,
+     "missRight": 0
+    },
+    "mid": {
+     "rows": [
+      421,
+      722
+     ],
+     "missPx": 869,
+     "missLeft": 60,
+     "missRight": 809
+    },
+    "bot": {
+     "rows": [
+      722,
+      1024
+     ],
+     "missPx": 2631,
+     "missLeft": 0,
+     "missRight": 2631
+    }
+   }
+  },
+  "dMissPx": {
+   "top": -80,
+   "mid": -112,
+   "bot": 43
+  },
+  "dSide": {
+   "top": {
+    "dLeft": -80,
+    "dRight": 0
+   },
+   "mid": {
+    "dLeft": -179,
+    "dRight": 67
+   },
+   "bot": {
+    "dLeft": 0,
+    "dRight": 43
+   }
+  },
+  "dMissTotal": -149,
+  "dExcessTotal": 1952,
+  "tgtBBox": [
+   120,
+   1023,
+   234,
+   696
+  ]
+ },
+ "displacement": {
+  "backN": 563,
+  "tuckN": 57,
+  "movedBackMm": {
+   "p50": 0.0,
+   "p90": 82.3,
+   "max": 229.5
+  },
+  "movedBackNonTuckMm": {
+   "p50": 0.3,
+   "p90": 86.4,
+   "max": 229.5
+  },
+  "hemBackNonTuckMm": {
+   "p50": 0.3,
+   "p90": 86.4,
+   "max": 229.5
+  }
+ },
+ "topMovers": [
+  {
+   "guide": 1079,
+   "rootMm": [
+    -41.3,
+    -120.6,
+    1612.5
+   ],
+   "tuck": false,
+   "movedMm": 229.5,
+   "hemMm": 229.5
+  },
+  {
+   "guide": 754,
+   "rootMm": [
+    -1.8,
+    -124.8,
+    1629.5
+   ],
+   "tuck": false,
+   "movedMm": 211.4,
+   "hemMm": 211.4
+  },
+  {
+   "guide": 752,
+   "rootMm": [
+    -16.2,
+    -122.3,
+    1629.6
+   ],
+   "tuck": false,
+   "movedMm": 187.5,
+   "hemMm": 187.5
+  },
+  {
+   "guide": 748,
+   "rootMm": [
+    0.9,
+    -124.7,
+    1629.7
+   ],
+   "tuck": false,
+   "movedMm": 171.8,
+   "hemMm": 171.8
+  },
+  {
+   "guide": 207,
+   "rootMm": [
+    -19.7,
+    -82.5,
+    1653.3
+   ],
+   "tuck": false,
+   "movedMm": 170.6,
+   "hemMm": 170.6
+  },
+  {
+   "guide": 742,
+   "rootMm": [
+    4.4,
+    -124.0,
+    1630.1
+   ],
+   "tuck": false,
+   "movedMm": 168.9,
+   "hemMm": 168.9
+  },
+  {
+   "guide": 970,
+   "rootMm": [
+    2.3,
+    -133.1,
+    1618.4
+   ],
+   "tuck": false,
+   "movedMm": 159.5,
+   "hemMm": 159.5
+  },
+  {
+   "guide": 613,
+   "rootMm": [
+    24.0,
+    -111.5,
+    1636.5
+   ],
+   "tuck": false,
+   "movedMm": 154.3,
+   "hemMm": 154.3
+  },
+  {
+   "guide": 717,
+   "rootMm": [
+    23.9,
+    -117.8,
+    1631.5
+   ],
+   "tuck": false,
+   "movedMm": 148.0,
+   "hemMm": 148.0
+  },
+  {
+   "guide": 466,
+   "rootMm": [
+    2.6,
+    -110.0,
+    1643.3
+   ],
+   "tuck": false,
+   "movedMm": 146.9,
+   "hemMm": 146.9
+  },
+  {
+   "guide": 645,
+   "rootMm": [
+    5.9,
+    -119.4,
+    1634.7
+   ],
+   "tuck": false,
+   "movedMm": 146.5,
+   "hemMm": 146.5
+  },
+  {
+   "guide": 550,
+   "rootMm": [
+    9.0,
+    -113.4,
+    1639.5
+   ],
+   "tuck": false,
+   "movedMm": 145.8,
+   "hemMm": 145.8
+  },
+  {
+   "guide": 565,
+   "rootMm": [
+    1.9,
+    -115.2,
+    1638.9
+   ],
+   "tuck": false,
+   "movedMm": 145.0,
+   "hemMm": 145.0
+  },
+  {
+   "guide": 749,
+   "rootMm": [
+    -23.5,
+    -119.8,
+    1629.6
+   ],
+   "tuck": false,
+   "movedMm": 144.1,
+   "hemMm": 144.1
+  },
+  {
+   "guide": 642,
+   "rootMm": [
+    7.4,
+    -119.0,
+    1635.0
+   ],
+   "tuck": false,
+   "movedMm": 144.0,
+   "hemMm": 144.0
+  },
+  {
+   "guide": 444,
+   "rootMm": [
+    9.6,
+    -107.5,
+    1644.3
+   ],
+   "tuck": false,
+   "movedMm": 140.4,
+   "hemMm": 140.4
+  },
+  {
+   "guide": 676,
+   "rootMm": [
+    44.4,
+    -97.0,
+    1633.4
+   ],
+   "tuck": false,
+   "movedMm": 138.3,
+   "hemMm": 138.3
+  },
+  {
+   "guide": 378,
+   "rootMm": [
+    2.2,
+    -104.7,
+    1646.8
+   ],
+   "tuck": false,
+   "movedMm": 138.0,
+   "hemMm": 138.0
+  },
+  {
+   "guide": 2207,
+   "rootMm": [
+    -51.9,
+    -103.5,
+    1617.0
+   ],
+   "tuck": false,
+   "movedMm": 137.3,
+   "hemMm": 137.3
+  },
+  {
+   "guide": 824,
+   "rootMm": [
+    -9.6,
+    -127.0,
+    1626.2
+   ],
+   "tuck": false,
+   "movedMm": 136.3,
+   "hemMm": 136.3
+  }
+ ]
+}

@@ -1,0 +1,25 @@
+{
+ "tag": "t6",
+ "op": "per-child constant tilt in local sheet plane + optional wave, then strict end clamp",
+ "params": {
+  "sigma_deg": 6,
+  "seed": 2026101621,
+  "partProtectMm": 3.0,
+  "rampMm": 15.0
+ },
+ "thetaDeg": {
+  "mean": -0.002050254029276007,
+  "std": 5.585489810274037,
+  "maxAbs": 24.22189936585359
+ },
+ "maxDispMm": {
+  "p50": 17.048606658029534,
+  "p95": 65.16844590917631,
+  "max": 209.38159112876005
+ },
+ "endAngleDeg": {
+  "p50": 0.0,
+  "p95": 12.317711388784906,
+  "max": 89.99834635360702
+ }
+}

@@ -1,0 +1,1 @@
+DONE hair-groom3: strands.npz (v2b/S3 config) + studio renders (c08+rough0.15) + sheet.png + crops.png + score3.json + RESULT.txt + GATES_PASS.txt; all card gates pass.

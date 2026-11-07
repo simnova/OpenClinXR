@@ -1,0 +1,76 @@
+{
+  "density": {
+    "rear_sheet": {
+      "medianDensityAtHoles": 1.0,
+      "medianDensityAtSolid": 21.0,
+      "ratioHoleOverSolid": 0.0476190485060215,
+      "fracZeroAtHoles": 0.38183333333333336,
+      "fracZeroAtSolid": 0.2215
+    },
+    "curtain_outer": {
+      "medianDensityAtHoles": 4.0,
+      "medianDensityAtSolid": 0.0,
+      "ratioHoleOverSolid": 4000000000.0,
+      "fracZeroAtHoles": 0.24416666666666667,
+      "fracZeroAtSolid": 0.5603333333333333
+    },
+    "curtain_inner": {
+      "medianDensityAtHoles": 4.0,
+      "medianDensityAtSolid": 2.0,
+      "ratioHoleOverSolid": 2.0,
+      "fracZeroAtHoles": 0.26416666666666666,
+      "fracZeroAtSolid": 0.4598333333333333
+    }
+  },
+  "meanDensityShareHoles": {
+    "rear_sheet": 2.5138332843780518,
+    "curtain_outer": 12.026000022888184,
+    "curtain_inner": 32.97983169555664
+  },
+  "meanDensityShareSolid": {
+    "rear_sheet": 55.91466522216797,
+    "curtain_outer": 9.293999671936035,
+    "curtain_inner": 35.00899887084961
+  },
+  "surround": {
+    "n": 3000,
+    "groupFrac": {
+      "rear_sheet": 0.20233333333333334,
+      "curtain_outer": 0.4256666666666667,
+      "curtain_inner": 0.372
+    },
+    "rootXmm_p5p50p95": [
+      -69.08157467842102,
+      -14.077750034630299,
+      69.28496062755585
+    ],
+    "rootYmm_p5p50p95": [
+      -120.33828347921371,
+      -66.12169742584229,
+      -20.144129171967506
+    ],
+    "arcIdx_p5p50p95": [
+      2.0,
+      14.0,
+      22.0
+    ],
+    "distPx_p50p95": [
+      0.8536982044477415,
+      3.4825107298199045
+    ],
+    "apexYmm": -53.241077810525894
+  },
+  "method": "profile_90 camera matrixWorld from base/score.json, f=50mm/36mm sensor (bbox-validated); groups by root proxy (no per-fibre labels in strands.npz); density on 4px grid over projected pts; surround = nearest projected pt (8pt/fibre subsample) to 3000 sampled hole px",
+  "pctOfHoleAreaPerGroup_nearestFibre": {
+    "rear_sheet": {
+      "pct": 20.23
+    },
+    "curtain_outer": {
+      "pct": 42.57
+    },
+    "curtain_inner": {
+      "pct": 37.2
+    }
+  },
+  "causalReading": "Holes are NOT empty of fibres: nearest projected fibre median 0.85px from hole pixels; surround arc p50=idx14 (mid-shaft). Rear-sheet density collapses at holes (median 1 vs 21 at solid): holes sit in the anterior curtain where the rear sheet does not reach, so only one curtain layer covers and its inter-fibre spacing exceeds the rendered footprint. Inner-curtain density at holes ~= solid (4 vs 2 median); the curtain is present but lacy. Fix = add coverage BETWEEN existing hole-zone fibres (regional children/density or radius), not shifts: drape1 already refuted uniform anterior shift (profile +0.07 for back -0.18)."
+}

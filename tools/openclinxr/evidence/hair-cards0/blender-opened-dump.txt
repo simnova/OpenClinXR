@@ -1,0 +1,3 @@
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/evidence/hair-cards0/body-geo.npz
+/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2/tools/openclinxr/hair-groom/cards/_blender_dump_body.py

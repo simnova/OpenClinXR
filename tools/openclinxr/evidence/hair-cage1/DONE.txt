@@ -1,0 +1,8 @@
+cage1 DONE — 2026-10-15
+spec v4 51506271ed34794ce7fc78c7e54bd97d16edb0619c72f09ce22904e8da64d36a
+(22 params) frozen before any fit, sha re-verified after; exact collision
+field self-tested (+13.05/-9.74); occlusion self-test 3/3 (E/occlusion-test.json);
+3-start least_squares fit (best: behind-shoulder, cost 758929.9) with
+17-fail adequacy gate; split-hem STOP (curtain 99.1 mm > 30 mm, skew gap
+136.4 mm); heights + E/fit.png + E/fit-cage.png rendered; ban scans empty.
+VERDICT: STOP (target inconsistent)

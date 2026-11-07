@@ -1,0 +1,125 @@
+{
+ "views": [
+  "front",
+  "three_quarter",
+  "profile_90",
+  "back"
+ ],
+ "keptFinal": 502144,
+ "volMm3": 4017152.0,
+ "nCompPost": 1272,
+ "contour": {
+  "front": {
+   "excessN": 1453,
+   "excessP50": 1.0,
+   "excessP95": 2.0,
+   "excessMax": 2.0,
+   "missN": 1624,
+   "missP50": 10.05,
+   "missP95": 51.82,
+   "missMax": 68.88,
+   "iou": 0.6859,
+   "hullPx": 88723,
+   "targetPx": 121151
+  },
+  "three_quarter": {
+   "excessN": 1234,
+   "excessP50": 1.0,
+   "excessP95": 2.0,
+   "excessMax": 2.0,
+   "missN": 1014,
+   "missP50": 6.71,
+   "missP95": 43.96,
+   "missMax": 50.16,
+   "iou": 0.6742,
+   "hullPx": 102345,
+   "targetPx": 144892
+  },
+  "profile_90": {
+   "excessN": 2900,
+   "excessP50": 1.0,
+   "excessP95": 2.0,
+   "excessMax": 2.0,
+   "missN": 308,
+   "missP50": 1.0,
+   "missP95": 9.04,
+   "missMax": 10.82,
+   "iou": 0.7981,
+   "hullPx": 128470,
+   "targetPx": 149114
+  },
+  "back": {
+   "excessN": 3107,
+   "excessP50": 1.0,
+   "excessP95": 2.0,
+   "excessMax": 2.0,
+   "missN": 278,
+   "missP50": 3.16,
+   "missP95": 8.01,
+   "missMax": 8.25,
+   "iou": 0.9107,
+   "hullPx": 316652,
+   "targetPx": 335684
+  }
+ },
+ "excessGate": {
+  "front": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "three_quarter": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "profile_90": {
+   "p95": 2.0,
+   "pass": true
+  },
+  "back": {
+   "p95": 2.0,
+   "pass": true
+  }
+ },
+ "backSym": {
+  "L": 90218,
+  "R": 106473,
+  "L_over_R": 0.8473,
+  "min_over_max": 0.8473
+ },
+ "belowShoulder": {
+  "front": {
+   "vox": 0,
+   "mm3": 0.0,
+   "minZmm": null,
+   "fracOfBelow": 0.0
+  },
+  "sideL": {
+   "vox": 5633,
+   "mm3": 45064.0,
+   "minZmm": 1255.0,
+   "fracOfBelow": 0.0379
+  },
+  "sideR": {
+   "vox": 1492,
+   "mm3": 11936.0,
+   "minZmm": 1285.0,
+   "fracOfBelow": 0.01
+  },
+  "back": {
+   "vox": 141683,
+   "mm3": 1133464.0,
+   "minZmm": 1255.0,
+   "fracOfBelow": 0.9521
+  },
+  "totalBelow": {
+   "vox": 148808,
+   "mm3": 1190464.0
+  },
+  "shoulderPlaneZ": 1405.0
+ },
+ "rootProx": {
+  "n": 14155,
+  "fracWithin6mm": 0.9887,
+  "p95": 4.0
+ }
+}

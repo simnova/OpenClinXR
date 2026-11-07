@@ -1,0 +1,10 @@
+{
+  "tag": "c_blunt",
+  "base": "hair-hem1/base/strands.npz",
+  "deform": {
+    "cell": "blunt",
+    "lowerFibres": 70735,
+    "raisedFibres": 19684,
+    "rule": "tips of lower sheet (tip_z<1.42) below smooth hem curve fitted to TS back-mask hem (deg5, v->zw calib r=-0.9904) raised to curve, smoothstep idx24..31, z-only"
+  }
+}

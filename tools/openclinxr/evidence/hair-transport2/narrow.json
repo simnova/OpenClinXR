@@ -1,0 +1,78 @@
+{
+  "claim": "frame-transport (K=5, all children) narrows the back sheet because outer children's lateral offsets average inward",
+  "method": {
+    "curtainReplica": "frame_transport.build population split; rear=~curtain",
+    "outerBack": "|root_x - cx| >= rear-region median (same roots both grooms)",
+    "halfWidth": "judge half_widths replica on scored back-id.png (1024px)",
+    "hemRow": "per-mask robust_lowest(frac=0.02) - 6",
+    "inSheetOffsetMm": "mean |x(s) - root_x| over 32 arc pts x outer back strands"
+  },
+  "counts": {
+    "strands": 69181,
+    "curtainRegion": 30368,
+    "rearRegion": 38813,
+    "outerBack": 19407
+  },
+  "outerHalfWidthPx": {
+    "a1": {
+      "shoulderRow": 651,
+      "shoulderHalfWidthPx": {
+        "left": 283,
+        "right": 285
+      },
+      "robustLowestRow": 802,
+      "hemRow": 796,
+      "hemHalfWidthPx": {
+        "left": 110,
+        "right": 125
+      },
+      "maskPx": 244198
+    },
+    "a_k5": {
+      "shoulderRow": 651,
+      "shoulderHalfWidthPx": {
+        "left": 261,
+        "right": 257
+      },
+      "robustLowestRow": 864,
+      "hemRow": 858,
+      "hemHalfWidthPx": {
+        "left": 18,
+        "right": 44
+      },
+      "maskPx": 252865
+    }
+  },
+  "matchedRowHalfWidthPx": {
+    "note": "both masks at a1's hem row (row 796); controls for different hem heights",
+    "widths": {
+      "a1": {
+        "row": 796,
+        "halfWidthPx": {
+          "left": 110,
+          "right": 125
+        }
+      },
+      "a_k5": {
+        "row": 796,
+        "halfWidthPx": {
+          "left": 229,
+          "right": 225
+        }
+      }
+    }
+  },
+  "meanAbsInSheetOffsetMm": {
+    "a1": 11.0717,
+    "a_k5": 11.2911,
+    "deltaMm": 0.2195
+  },
+  "checks": {
+    "narrowerAtShoulder": true,
+    "narrowerAtHem": true,
+    "narrowerAtMatchedHemRow": false,
+    "smallerMeanOffset": false
+  },
+  "verdict": "REFUTED",
+  "reading": "narrowing is height-dependent, not a uniform inward averaging: a_k5 is narrower at the shoulder row (518 vs 568 px) but WIDER at a1's hem height (454 vs 235 px at row 796) and hangs lower as thin spikes (robust lowest 864 vs 802; 62 px wide at its own hem). Outer back children's mean |lateral offset| grows (+0.22 mm), so lateral offsets do NOT average inward; the shoulder narrowing comes from transported mid-shaft offsets swinging forward (side-view lean) plus tip-fade toward the guide average, redistributing mass downward rather than shrinking lateral spread"
+}

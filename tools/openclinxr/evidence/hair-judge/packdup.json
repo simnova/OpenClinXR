@@ -1,0 +1,162 @@
+{
+  "H_target": 480.0,
+  "below_chin_ours": 0.2916666666666667,
+  "below_chin_target": 0.525,
+  "clauses": {
+    "below_chin": false,
+    "iou": false,
+    "opening_eye": false,
+    "opening_jaw": true,
+    "photo": true,
+    "rb": true,
+    "width_rms": false
+  },
+  "contaminated": false,
+  "iou": 0.4053738048611911,
+  "landmarks_derived": true,
+  "landmarks_render": {
+    "chin_row": 710.0,
+    "crown_top_row": 67.0,
+    "face_centre_col": 513.0
+  },
+  "landmarks_target": {
+    "chin_row": 607.0,
+    "crown_top_row": 127.0,
+    "face_centre_col": 514.0
+  },
+  "mask_encoding": "alpha>=0.9",
+  "name": "packdup",
+  "openings": {
+    "eye": {
+      "ours": 0.46041666666666664,
+      "ours_px": 221,
+      "rel_err": 0.21428571428571427,
+      "row": 343,
+      "target": 0.37916666666666665,
+      "target_px": 182
+    },
+    "jaw": {
+      "ours": 0.36875,
+      "ours_px": 177,
+      "rel_err": 0.07926829268292683,
+      "row": 559,
+      "target": 0.3416666666666667,
+      "target_px": 164
+    }
+  },
+  "overall": false,
+  "part_ours_px": 15,
+  "part_row": 156,
+  "part_target_px": 14,
+  "photometrics_render": {
+    "RB": 1.444075889008555,
+    "meanB": 0.10284789674921763,
+    "meanR": 0.1485201679307865,
+    "meanRminusB": 0.04567227118156891,
+    "p10": 0.021825882352941174,
+    "p50": 0.08398431372549019,
+    "p90": 0.27503999999999995
+  },
+  "photometrics_target": {
+    "RB": 1.5324643524415986,
+    "meanB": 0.07728496023173957,
+    "meanR": 0.11843644653500748,
+    "meanRminusB": 0.041151486303267905,
+    "p10": 0.03942666666666666,
+    "p50": 0.08425176470588235,
+    "p90": 0.16820470588235292
+  },
+  "registered": true,
+  "score": 1.338835166720661,
+  "score_formula": "(1-IoU) + width_rms + |below_chin_ours - below_chin_target| + |ln(p50_ours/p50_target)|/2 + |ln(RB_ours/RB_target)|/2",
+  "stopbar_provenance": "orchestrator proposal 2026-10-12, tunable",
+  "target_mask_encoding": "white",
+  "transform": {
+    "scale": 0.7465007776049767,
+    "tx": 131.04510108864696,
+    "ty": 76.98444790046656
+  },
+  "width_profile": [
+    {
+      "frac": 0.2,
+      "ours_left": 181,
+      "ours_right": 171,
+      "rel_err_left": 0.7745098039215687,
+      "rel_err_right": 0.2302158273381295,
+      "row": 223,
+      "target_left": 102,
+      "target_right": 139
+    },
+    {
+      "frac": 0.4,
+      "ours_left": 201,
+      "ours_right": 213,
+      "rel_err_left": 0.25625,
+      "rel_err_right": 0.23121387283236994,
+      "row": 319,
+      "target_left": 160,
+      "target_right": 173
+    },
+    {
+      "frac": 0.6,
+      "ours_left": 213,
+      "ours_right": 236,
+      "rel_err_left": 0.15760869565217392,
+      "rel_err_right": 0.2356020942408377,
+      "row": 415,
+      "target_left": 184,
+      "target_right": 191
+    },
+    {
+      "frac": 0.8,
+      "ours_left": 221,
+      "ours_right": 233,
+      "rel_err_left": 0.13917525773195877,
+      "rel_err_right": 0.15920398009950248,
+      "row": 511,
+      "target_left": 194,
+      "target_right": 201
+    },
+    {
+      "frac": 1.0,
+      "ours_left": 177,
+      "ours_right": 188,
+      "rel_err_left": -0.08762886597938144,
+      "rel_err_right": -0.10047846889952153,
+      "row": 607,
+      "target_left": 194,
+      "target_right": 209
+    },
+    {
+      "frac": 1.2,
+      "ours_left": 146,
+      "ours_right": 152,
+      "rel_err_left": -0.39166666666666666,
+      "rel_err_right": -0.3895582329317269,
+      "row": 703,
+      "target_left": 240,
+      "target_right": 249
+    },
+    {
+      "frac": 1.4,
+      "ours_left": 0,
+      "ours_right": 0,
+      "rel_err_left": -1.0,
+      "rel_err_right": -1.0,
+      "row": 799,
+      "target_left": 240,
+      "target_right": 275
+    },
+    {
+      "frac": 1.6,
+      "ours_left": 0,
+      "ours_right": 0,
+      "rel_err_left": 0.0,
+      "rel_err_right": 0.0,
+      "row": 895,
+      "target_left": 0,
+      "target_right": 0
+    }
+  ],
+  "width_rms": 0.47958213387919946
+}

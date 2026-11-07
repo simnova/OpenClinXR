@@ -1,0 +1,7 @@
+{
+  "cell": "c_den2",
+  "dupFibres": 29368,
+  "form": "arc 0..24 resampled to 32 (short under-fibres, no fringe tips)",
+  "jitterYmm": "0.2..0.5 det, x 0",
+  "totalFibres": 98549
+}

@@ -1,0 +1,49 @@
+{
+ "count": {
+  "n": 277288,
+  "pointsPer": 41,
+  "expectBand": [
+   250000,
+   310000
+  ],
+  "pass": true,
+  "hard": true
+ },
+ "insideBody": {
+  "nSge1Inside": 203372,
+  "pass": false,
+  "hard": true
+ },
+ "pinnaProximity": {
+  "clearMm": 3.0,
+  "nVisibleSamplesLt": 278492,
+  "pass": false,
+  "hard": true
+ },
+ "tipDriftAcross": {
+  "n": 20933,
+  "note": "advisory: tips across x=0 vs own root"
+ },
+ "determinism": {
+  "hashA": "c83eca2f1a18fdd5f0e4c63c0ad47cd619a735ec73a400883e1f4ecb4fd833b4",
+  "hashB": "0d7768939d5628a45fab050b50fabb5c357a35866ca6b1a598c3aff39ff37484",
+  "pass": false,
+  "hard": true
+ },
+ "buildFlags": {
+  "guides": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz",
+  "density": "3900000",
+  "seed": "7",
+  "scalp-roots": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-scalp1/roots.npz",
+  "part-by-islands": "1",
+  "clump-factor": "0.2",
+  "lateral-keep": "0.0",
+  "root-band": "0.070",
+  "sideburn-tuck": "1",
+  "use-profile": "1",
+  "above-surface": "0.5",
+  "shrink-offset": "0.001",
+  "smooth-steps": "2"
+ },
+ "pass": false
+}

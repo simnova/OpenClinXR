@@ -1,0 +1,688 @@
+{
+ "crossing3D": {
+  "guides-8a": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom8a/build/guides-8a.npz",
+   "sha256": "3827eb863d3e65177e8125527726ede4e265b25a60509a3c33baaa45d1b9cf79",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 10154,
+   "cross3D_le3mm": 2258,
+   "frac3Dof2D": 0.2224,
+   "d3mm_at_2Dcross": {
+    "n": 10154,
+    "p10": 1.212,
+    "p25": 3.438,
+    "p50": 11.823,
+    "p75": 154.596,
+    "p90": 158.991,
+    "p99": 165.241,
+    "min": 0.001,
+    "max": 172.294
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 841
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 745
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 672
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 1155
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1443
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 545
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 321
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4432
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 10154,
+    "p10": 648.676,
+    "p25": 1617.316,
+    "p50": 3759.638,
+    "p75": 7232.921,
+    "p90": 14054.888,
+    "p99": 29138.302,
+    "min": 0.054,
+    "max": 56511.577
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 10154,
+    "p10": 206.635,
+    "p25": 655.063,
+    "p50": 1665.967,
+    "p75": 2753.081,
+    "p90": 3747.667,
+    "p99": 6152.11,
+    "min": 0.203,
+    "max": 9666.964
+   }
+  },
+  "guides-19": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom19/build/guides-19.npz",
+   "sha256": "95a471531b95bde349d9b678902bf9b7c020745f16ec15db22213146ac7981e3",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 9715,
+   "cross3D_le3mm": 1827,
+   "frac3Dof2D": 0.1881,
+   "d3mm_at_2Dcross": {
+    "n": 9715,
+    "p10": 1.494,
+    "p25": 4.166,
+    "p50": 14.957,
+    "p75": 152.254,
+    "p90": 157.044,
+    "p99": 163.709,
+    "min": 0.0,
+    "max": 169.839
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 696
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 563
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 568
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 1017
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1596
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 578
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 315
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4382
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 9715,
+    "p10": 639.948,
+    "p25": 1801.26,
+    "p50": 4177.155,
+    "p75": 8524.959,
+    "p90": 15594.637,
+    "p99": 30407.444,
+    "min": 0.755,
+    "max": 43257.106
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 9715,
+    "p10": 209.928,
+    "p25": 640.101,
+    "p50": 1631.826,
+    "p75": 2719.969,
+    "p90": 3627.658,
+    "p99": 5999.243,
+    "min": 0.146,
+    "max": 11104.172
+   }
+  },
+  "guides-21": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom21/build/guides-21.npz",
+   "sha256": "ee55481f4dc55eb4992aadbfa7f89842956db3fc5ddaa132b9ab2f9f0c99d8c0",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 7417,
+   "cross3D_le3mm": 753,
+   "frac3Dof2D": 0.1015,
+   "d3mm_at_2Dcross": {
+    "n": 7417,
+    "p10": 2.946,
+    "p25": 8.826,
+    "p50": 138.832,
+    "p75": 149.631,
+    "p90": 156.906,
+    "p99": 170.141,
+    "min": 0.007,
+    "max": 176.067
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 272
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 253
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 228
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 482
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 763
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 706
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 473
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4240
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 7417,
+    "p10": 842.946,
+    "p25": 2388.305,
+    "p50": 5721.734,
+    "p75": 11788.158,
+    "p90": 18820.656,
+    "p99": 35054.421,
+    "min": 0.336,
+    "max": 72808.135
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 7417,
+    "p10": 226.977,
+    "p25": 620.34,
+    "p50": 1314.932,
+    "p75": 2170.242,
+    "p90": 3028.209,
+    "p99": 5242.877,
+    "min": 0.385,
+    "max": 8987.839
+   }
+  },
+  "guides-21a03": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom21/guides-21a03.npz",
+   "sha256": "180abd775a3423da7fcca86c694b5f4fb2b1dbc7547de38b373c1287a2375be3",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 6389,
+   "cross3D_le3mm": 676,
+   "frac3Dof2D": 0.1058,
+   "d3mm_at_2Dcross": {
+    "n": 6389,
+    "p10": 2.863,
+    "p25": 8.634,
+    "p50": 131.071,
+    "p75": 145.153,
+    "p90": 152.461,
+    "p99": 161.188,
+    "min": 0.001,
+    "max": 169.668
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 230
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 219
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 227
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 433
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 632
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 548
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 451
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 3649
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 6389,
+    "p10": 863.942,
+    "p25": 2335.596,
+    "p50": 5481.448,
+    "p75": 11912.395,
+    "p90": 23015.182,
+    "p99": 36556.321,
+    "min": 2.361,
+    "max": 47300.509
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 6389,
+    "p10": 211.288,
+    "p25": 548.438,
+    "p50": 1215.312,
+    "p75": 1992.084,
+    "p90": 2918.468,
+    "p99": 5136.291,
+    "min": 0.008,
+    "max": 8843.779
+   }
+  },
+  "guides-21perm": {
+   "file": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-tgt2/tools/openclinxr/evidence/hair-groom21/guides-21perm.npz",
+   "sha256": "cf408535ef16d366d6c7fcdea17647729fab44db6bec4d3a73155da0301e57d7",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 8279,
+   "cross3D_le3mm": 809,
+   "frac3Dof2D": 0.0977,
+   "d3mm_at_2Dcross": {
+    "n": 8279,
+    "p10": 3.062,
+    "p25": 8.95,
+    "p50": 134.404,
+    "p75": 147.299,
+    "p90": 156.105,
+    "p99": 171.382,
+    "min": 0.006,
+    "max": 183.43
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 287
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 250
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 272
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 553
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 878
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 736
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 635
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4668
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 8279,
+    "p10": 1030.552,
+    "p25": 2891.149,
+    "p50": 6799.424,
+    "p75": 14154.311,
+    "p90": 22650.033,
+    "p99": 36060.746,
+    "min": 2.189,
+    "max": 57432.948
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 8279,
+    "p10": 208.643,
+    "p25": 546.865,
+    "p50": 1157.056,
+    "p75": 1942.745,
+    "p90": 2775.129,
+    "p99": 4990.022,
+    "min": 0.185,
+    "max": 8693.219
+   }
+  },
+  "guides-22": {
+   "file": "/Volumes/files/openclinxr-assets/store/hair-groom22/guides-22.npz",
+   "sha256": "06fd6c7f009b56eef4bd034fa0e516b451a6b401e3dabeadfcfd25987de63623",
+   "nGuides": 2707,
+   "nBackNonTuck": 265,
+   "nPairs": 34980,
+   "cross2D": 9213,
+   "cross3D_le3mm": 1986,
+   "frac3Dof2D": 0.2156,
+   "d3mm_at_2Dcross": {
+    "n": 9213,
+    "p10": 1.24,
+    "p25": 3.557,
+    "p50": 11.163,
+    "p75": 154.407,
+    "p90": 159.111,
+    "p99": 165.025,
+    "min": 0.001,
+    "max": 170.471
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 771
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 626
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 589
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 1113
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1382
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 408
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 282
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4042
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 9213,
+    "p10": 615.994,
+    "p25": 1577.645,
+    "p50": 3759.964,
+    "p75": 7200.336,
+    "p90": 14181.206,
+    "p99": 30465.368,
+    "min": 0.043,
+    "max": 49706.808
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 9213,
+    "p10": 195.896,
+    "p25": 602.787,
+    "p50": 1574.624,
+    "p75": 2692.351,
+    "p90": 3660.08,
+    "p99": 5910.829,
+    "min": 0.223,
+    "max": 8359.419
+   }
+  },
+  "guides-22-control": {
+   "file": "/Volumes/files/openclinxr-assets/store/hair-groom22/guides-22-control.npz",
+   "sha256": "8647d370b4612c5048d022e3a17ce2d88b52ef667d890b77bc7458e522f70cac",
+   "nGuides": 2707,
+   "nBackNonTuck": 266,
+   "nPairs": 35245,
+   "cross2D": 10154,
+   "cross3D_le3mm": 2258,
+   "frac3Dof2D": 0.2224,
+   "d3mm_at_2Dcross": {
+    "n": 10154,
+    "p10": 1.212,
+    "p25": 3.438,
+    "p50": 11.823,
+    "p75": 154.596,
+    "p90": 158.991,
+    "p99": 165.241,
+    "min": 0.001,
+    "max": 172.294
+   },
+   "d3_hist_mm": [
+    {
+     "lo": 0.0,
+     "hi": 1,
+     "n": 841
+    },
+    {
+     "lo": 1,
+     "hi": 2,
+     "n": 745
+    },
+    {
+     "lo": 2,
+     "hi": 3,
+     "n": 672
+    },
+    {
+     "lo": 3,
+     "hi": 5,
+     "n": 1155
+    },
+    {
+     "lo": 5,
+     "hi": 10,
+     "n": 1443
+    },
+    {
+     "lo": 10,
+     "hi": 20,
+     "n": 545
+    },
+    {
+     "lo": 20,
+     "hi": 50,
+     "n": 321
+    },
+    {
+     "lo": 50,
+     "hi": null,
+     "n": 4432
+    }
+   ],
+   "radialSepMM_at_2Dcross": {
+    "n": 10154,
+    "p10": 648.676,
+    "p25": 1617.316,
+    "p50": 3759.638,
+    "p75": 7232.921,
+    "p90": 14054.888,
+    "p99": 29138.302,
+    "min": 0.054,
+    "max": 56511.577
+   },
+   "verticalSepMM_at_2Dcross": {
+    "n": 10154,
+    "p10": 206.635,
+    "p25": 655.063,
+    "p50": 1665.967,
+    "p75": 2753.081,
+    "p90": 3747.667,
+    "p99": 6152.11,
+    "min": 0.203,
+    "max": 9666.964
+   }
+  }
+ },
+ "guideAttribution19": {
+  "nChildren": 283100,
+  "nDevPx": 22878,
+  "nContribChildren": 23718,
+  "devPxTouchedByContrib": 0.9237,
+  "topGuidesByWeight": [
+   {
+    "guide": 393,
+    "weight": 767.564
+   },
+   {
+    "guide": 378,
+    "weight": 459.861
+   },
+   {
+    "guide": 357,
+    "weight": 389.678
+   },
+   {
+    "guide": 2278,
+    "weight": 266.919
+   },
+   {
+    "guide": 954,
+    "weight": 251.0
+   },
+   {
+    "guide": 1308,
+    "weight": 241.0
+   },
+   {
+    "guide": 941,
+    "weight": 237.0
+   },
+   {
+    "guide": 232,
+    "weight": 219.95
+   },
+   {
+    "guide": 276,
+    "weight": 215.39
+   },
+   {
+    "guide": 1100,
+    "weight": 203.332
+   },
+   {
+    "guide": 2279,
+    "weight": 186.671
+   },
+   {
+    "guide": 1712,
+    "weight": 185.0
+   },
+   {
+    "guide": 761,
+    "weight": 175.32
+   },
+   {
+    "guide": 1593,
+    "weight": 174.952
+   },
+   {
+    "guide": 967,
+    "weight": 174.316
+   },
+   {
+    "guide": 1143,
+    "weight": 171.0
+   },
+   {
+    "guide": 855,
+    "weight": 165.554
+   },
+   {
+    "guide": 1255,
+    "weight": 160.235
+   },
+   {
+    "guide": 251,
+    "weight": 159.061
+   },
+   {
+    "guide": 474,
+    "weight": 155.978
+   }
+  ],
+  "note": "no occlusion beyond per-pixel hair z-buffer (32 samples/child, no oversampling); front-layer strands projecting into the box count as contributors"
+ }
+}

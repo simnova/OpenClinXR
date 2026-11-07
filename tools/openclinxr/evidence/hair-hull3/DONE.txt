@@ -1,0 +1,5 @@
+hair-hull3 DONE: hull carved on the ear-tucked aisha-v3 target set with
+hull2's exact rules (4 views, no mirror, --final base); ear clearance
+measured occlusion-aware (coverage 0.35-2.13% everywhere visible, gate
+<= 20%); 7/7 gates PASS (E/GATES_PASS). E/hull.npz + E/hull.png
+(+4 view PNGs) + E/ear.png (read) + E/RESULT.txt shipped.

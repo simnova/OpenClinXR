@@ -1,0 +1,22 @@
+groom36 reproduction from the ported tree (hair-port), 2026-11-06.
+
+Command: interp_children.py with groom36's recorded flags (groom36.r1.jsonl, build-36det), inputs
+from store/hair-groom3{1,5,6}; --sdf/--hull read from store/hair-port/excluded/ (git no longer
+carries body-exact-sdf.npz 62.7 MB; hull.npz moved with it). Output store/hair-port/rebuild-36/.
+
+strands.npz file sha256:
+  groom36 recorded (8b9a32a7b)    dc1e2df2b719c98d
+  hair-tgt2 HEAD (838234da8)      42ea14567f34688d  (coordinator spike, store/hair-blendserve/fresh)
+  hair-port rebuild               42ea14567f34688d  == hair-tgt2 HEAD
+Cause of the file-sha change: f466f7b1f (groom37) adds a 9th array `rerouted` to strands.npz
+(all zeros with --shell-routed-only off). The 8 groom36 arrays (points, radii, roots, guide_idx,
+guide_w, childu, side, parent) are bit-identical in all three builds. Re-saving the port rebuild
+without `rerouted` (np.savez_compressed, same key order) gives
+dc1e2df2b719c98d49dfc93580af44caa4c05192de0af1f1c07eac9ebaf70373 = the recorded groom36 sha.
+build.json differs from groom36 only in shellRoutedOnly {"on": false}, inputs paths, bytes, sha256.
+
+Gates: run_gates36.py on the rebuild (store/hair-port/runtree = this tree + excluded files
+hardlinked back) -> gates-36-port.json. 127 of 129 leaves equal hair-groom36/gates-36.json;
+the 2 that differ are `strands` (path) and `strandsSha256`. Shell segs 2134/2043, column 53/56,
+gt30 2970, insideBody 0, as recorded. Render gates (IoU, ear boxes) were not rerun: they are
+functions of the identical arrays.

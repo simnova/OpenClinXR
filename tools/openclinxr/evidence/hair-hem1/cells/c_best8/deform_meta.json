@@ -1,0 +1,14 @@
+{
+  "tag": "c_best8",
+  "base": "hair-hem1/base/strands.npz",
+  "deform": {
+    "cell": "best-combo-delete-splay-out",
+    "splaySign": "outward: vee rotation x'=ca*x+sa*z with th=-dx/len moves +x-side tips +x (z<0 below root); best7 had the sign flipped (dups went inward)",
+    "deletedRails": 10604,
+    "sealedLower": 20541,
+    "dupFibres": 12000,
+    "sealedDups": 1785,
+    "totalFibres": 99945,
+    "rule": "rails deleted; 12k root-pivot-splayed (tips +4..12mm outward, cap 0.128) full-length edge dups; self-edge-1mm seal of all lower tips; no trim"
+  }
+}

@@ -1,0 +1,1 @@
+DONE: b9 re-score via score.py (E/base/score.json), 24-evaluation bounded CMA-ES camera-relative rig search with verified rim delivery (E/search.jsonl, E/search_best.json, E/rim_check.json), best rig at 1024x64 via score.py (E/best/score.json), TS/base/best look sheet (E/look-sheet.png), RESULT, and reproducible sources (E/rig.py, E/sheet.py, E/result.py) are present.

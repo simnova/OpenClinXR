@@ -1,0 +1,122 @@
+{
+  "tag": "p4-half",
+  "params": {
+    "roughness": 0.12,
+    "melanin": 0.8877252726379737,
+    "redness": 0.8293402218429133,
+    "key_elev_deg": 40.161821774411294,
+    "key_azimuth_delta_deg": -31.689290105080133,
+    "key_energy": 121.20520887976956,
+    "key_size_m": 1.6326859138340684,
+    "fill_W": 83.34681733694208,
+    "fill_elev_deg": 15.0,
+    "root_dark": 0.3475482850614254
+  },
+  "radiusMm": 0.07,
+  "densityFactor": 0.5,
+  "lightMode": "base",
+  "curveShape": {
+    "requested": null,
+    "changes": [],
+    "before": {
+      "scene.cycles.debug_use_hair_bvh": true,
+      "scene.cycles.filter_width": 1.5,
+      "scene.cycles.max_subdivisions": 12,
+      "scene.render.hair_subdiv": 0,
+      "scene.render.hair_type": "STRAND",
+      "scene.render.simplify_subdivision": 6,
+      "scene.render.simplify_subdivision_render": 6
+    },
+    "after": {
+      "scene.cycles.debug_use_hair_bvh": true,
+      "scene.cycles.filter_width": 1.5,
+      "scene.cycles.max_subdivisions": 12,
+      "scene.render.hair_subdiv": 0,
+      "scene.render.hair_type": "STRAND",
+      "scene.render.simplify_subdivision": 6,
+      "scene.render.simplify_subdivision_render": 6
+    }
+  },
+  "renders": {
+    "front": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p4-half/front.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p4-half/front-id.png"
+    },
+    "three_quarter": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p4-half/three_quarter.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p4-half/three_quarter-id.png"
+    },
+    "profile_90": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p4-half/profile_90.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p4-half/profile_90-id.png"
+    },
+    "back": {
+      "png": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p4-half/back.png",
+      "id": "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-look2/cells/p4-half/back-id.png"
+    }
+  },
+  "views": {
+    "front": {
+      "p50": 0.10217176470588235,
+      "p90": 0.2831145098039216,
+      "highlight": {
+        "hueDeg": 13.190740828564008,
+        "saturation": 0.2061855670103093,
+        "pixels": 7754
+      },
+      "iou": 0.4436755402845124,
+      "maskPx": 77327,
+      "partSide": 1.455544301493126,
+      "faceP50": 0.727907450980392
+    },
+    "three_quarter": {
+      "p50": 0.17244078431372548,
+      "p90": 0.3124643137254902,
+      "highlight": {
+        "hueDeg": 10.986859633935474,
+        "saturation": 0.17391304347826086,
+        "pixels": 10410
+      },
+      "iou": 0.33316221765913756,
+      "maskPx": 104090
+    },
+    "profile_90": {
+      "p50": 0.21731764705882353,
+      "p90": 0.28873960784313724,
+      "highlight": {
+        "hueDeg": 9.505402394006333,
+        "saturation": 0.12790697674418608,
+        "pixels": 14626
+      },
+      "iou": 0.36056526689438084,
+      "maskPx": 145196
+    },
+    "back": {
+      "p50": 0.0632235294117647,
+      "p90": 0.30536705882352944,
+      "highlight": {
+        "hueDeg": 14.74692383673422,
+        "saturation": 0.35398230088495575,
+        "pixels": 22949
+      },
+      "iou": 0.8067670370039571,
+      "maskPx": 229406,
+      "backProfile": {
+        "bins": [
+          0.153574359447723,
+          0.2140334797858249,
+          0.12331316131870279,
+          0.0804585040669028,
+          0.06235006076914452,
+          0.051783496339583866,
+          0.04314109143548249,
+          0.0337188679280084,
+          0.03464216360745772,
+          0.03435979339758502
+        ],
+        "topMinusHemOverMean": 1.4339446001021277,
+        "pixels": 130840
+      }
+    }
+  }
+}

@@ -1,0 +1,87 @@
+{
+ "meshHashA": "b5da1088a52bf951c8f8175a357e8582bc7c1987d00828db498e0ffdd5dbd313",
+ "meshHashB": "b5da1088a52bf951c8f8175a357e8582bc7c1987d00828db498e0ffdd5dbd313",
+ "meshHashIdentical": true,
+ "shellNpzHash": "f25e27b9b687c837f259e0efeaeae19cc1a5d8c4300e3f9362d946ea3a88d975",
+ "verts": 19220,
+ "tris": 39638,
+ "facesRemoved": 361,
+ "clearancePreMinMm": -0.077,
+ "repairRounds": 5,
+ "clearanceMinMm": 1.992,
+ "clearanceP1Mm": 2.0,
+ "clearanceP50Mm": 4.946,
+ "hullBandsBelow": {
+  "1250-1300": 1539,
+  "1300-1350": 6245,
+  "1350-1405": 25788,
+  "1405-1450": 52520,
+  "1450-1500": 89122
+ },
+ "hullBelow1405BySector": {
+  "front": 0,
+  "frontR": 0,
+  "right": 0,
+  "backR": 6756,
+  "backMid": 9300,
+  "backMid2": 9617,
+  "backL": 7899,
+  "left": 0,
+  "frontL": 0
+ },
+ "minzRaw": {
+  "front": 1.5944,
+  "frontR": 1.4488,
+  "right": 1.4083,
+  "backR": 1.2552,
+  "backMid": 1.2551,
+  "backMid2": 1.2554,
+  "backL": 1.255,
+  "left": 1.4145,
+  "frontL": 1.454
+ },
+ "minzDec": {
+  "front": 1.5942,
+  "frontR": 1.4489,
+  "right": 1.4084,
+  "backR": 1.2552,
+  "backMid": 1.2551,
+  "backMid2": 1.2554,
+  "backL": 1.255,
+  "left": 1.4146,
+  "frontL": 1.4541
+ },
+ "minzRepaired": {
+  "front": 1.5942,
+  "frontR": 1.4489,
+  "right": 1.4084,
+  "backR": 1.2552,
+  "backMid": 1.2551,
+  "backMid2": 1.2554,
+  "backL": 1.2549,
+  "left": 1.4146,
+  "frontL": 1.4541
+ },
+ "faceHoleTgtPx": 93886,
+ "faceHoleRenderPx": 93886,
+ "faceHoleErodedPx": 58430,
+ "faceCutYcutM": -0.008,
+ "faceCutProjHit": 3653,
+ "faceCutRemoved": 361,
+ "faceCutRemovedAbsXmaxM": 0.0609,
+ "faceCutRemovedZrangeM": [
+  1.4202,
+  1.6214
+ ],
+ "innerOffsetMm": 3.0,
+ "innerFaces": 39638,
+ "innerRepairRounds": 5,
+ "innerMinMm": 1.018,
+ "innerP1Mm": 1.5,
+ "partX": 0.0008,
+ "nCrownRoots": 7943,
+ "uvSpan": [
+  1.6702,
+  1.2549
+ ]
+}

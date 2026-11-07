@@ -1,0 +1,33 @@
+RESULT::hair-cap-8 flow-10
+P1-EH-V7::(0.0,39.54) (6.3,38.73) (12.8,38.39) (18.7,35.76) (24.1,30.34) (28.5,16.64) (37.5,30.04) (42.0,22.29) (44.5,13.82)
+P1-EH-V8::(0.0,39.54) (6.3,38.73) (12.8,38.39) (18.7,35.76) (24.1,30.34) (28.5,16.64) -> PCHIP -> (44.5,13.82); cap-7 re-entrant controls (37.5,30.04),(42.0,22.29) removed
+CAP::area=585.8cm2 components=1 boundary_loops=1 direct_six_column_level_error=0.00mm
+P1::ear_y=-0.038943 bnd=1703 front=1110 sbback=142 front_y=[-0.1238,-0.0391] front_z=[1.5351,1.6599]
+P2::flow8 no-forward lines=[201, 215, 216, 218, 221, 248, 277] (def no_forward + front-of-ear clamp, kept)
+HIST-OLD-800::front=331 above-ear=0 behind-ear=330 nape=138 never-left=1
+HIST-NEW-800::front=3 above-ear=0 behind-ear=649 nape=141 never-left=7
+G4-flow-front::front_exits=3/800<=8 PASS
+G4-flow-forward::n30=386 bad=21<=16 worst_dy=-0.7904mm MISS
+G3::behind_n=11475 p95=0.000deg<=1 PASS
+G4::sym95=0.468deg<=1 PASS
+G5::never=7<=1 cross=0 smooth95=11.28<=25 interior_sinks=7 MISS
+G4-flow-dest::above_behind=193/200>=180 strict_nosb=184 sb_nonroot_exits=[] PASS
+ATTEMPTS::1 exits=35 forward=41 dest=160 never=9 | 2 exits=3 forward=18 dest=191 never=7 | 3 exits=3 forward=21 dest=193 never=7
+OFFENDERS::front exits roots=705,723,728 immediately above/in front of the ears; marked red in flow10-debug.png
+OFFENDERS::forward worst=-0.7904mm; samples root58 (0.0605,-0.0119,1.5375), root184 (0.0555,-0.0261,1.5167), root204 (-0.0569,-0.0222,1.5214), concentrated at low temple/ear transition
+OFFENDERS::never roots/tips 210 (-.0656,-.0825,1.5476)->(-.0643,-.0304,1.5304); 217 (.0639,-.0941,1.5553)->(.0667,-.0769,1.5597); 333 (-.0003,-.0500,1.6595)->(-.0001,.0163,1.5179); 626/632/651/774 cluster at left low temple x=-.064,y=-.09,z=1.55 and end beside ear y=-.034..-.037
+SAW::flow9-debug.png native 4096x2128: cap-7 has a deep symmetric W notch and narrow spike at both temples; profile shows the bare wedge from forehead edge to sideburn tongue; multiple lines aim into/cross that edge.
+SAW::flow10-debug.png native 4096x2128: the W notch is gone; the front arch joins each sideburn in one continuous rounded/downward line. New dark streamlines generally sweep backward over the crown and sides; three front exits remain at the low temple/ear transition (red markers are small against the magenta boundary).
+SAW::cell_new_front.png native 1024x1024: symmetric smooth arch, no dip-and-spike; both temple edges continue down to the sideburns.
+SAW::cell_new_three_quarter.png native 1024x1024: continuous arch-to-sideburn edge with no bare triangular temple wedge; flow turns backward across the green front zone.
+SAW::cell_new_profile.png native 1024x1024: one continuous forehead-to-sideburn line; no re-entrant notch; the retained ear exclusion/sideburn tongue remains visible.
+SAW::cell_new_top.png native 1024x1024: streamlines sweep rearward symmetrically on both sides; no part crossing visible.
+SAW::cell_old_front.png native 1024x1024: old mode-B lines run mostly sideways from the crown; cap-v8 boundary itself is notch-free.
+SAW::cell_old_three_quarter.png native 1024x1024: old flow remains lateral and approaches the temple edge; cap-v8 edge is continuous.
+SAW::cell_old_profile.png native 1024x1024: old flow is largely vertical/lateral above the temple and does not consistently comb backward.
+SAW::cell_old_top.png native 1024x1024: old streamlines run nearly transverse; no obvious part crossing.
+CAUSE::MISS G4 forward-step: surface reprojection at the low temple/ear transition produces 21 >0.2mm forward steps despite a non-forward vertex field. MISS G5 never-left: six paths circulate/stall around the low temple/ear transition and one inherited mode-B path remains at the center back. Stopped after 3 honest attempts per brief; gates were not weakened.
+COMMIT::uncommitted
+STILL::gate MISS stopped the card before eh-plot.png, cap8-compare.png, row-cap8.json, and check-cap8.mjs; no commit made
+BRIEF_MISSING::none
+HARM::none

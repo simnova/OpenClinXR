@@ -1,0 +1,1 @@
+hair-crown3 complete: best=combo (fade8lin + v7 temple drape + part nudge/strip-v3); all KEEP gates pass, see RESULT.txt

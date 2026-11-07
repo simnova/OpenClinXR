@@ -1,0 +1,61 @@
+{
+ "nNew": 2650,
+ "nTucked": 57,
+ "nTotal": 2707,
+ "unreachable": 0,
+ "lengths": {
+  "p50": 144.0,
+  "p95": 416.5,
+  "max": 501.0
+ },
+ "stops": {
+  "hem": 674,
+  "face": 71,
+  "edge": 1530,
+  "ear": 42,
+  "body": 302,
+  "maxlen": 31
+ },
+ "stopsBySide": {
+  "1.0": {
+   "hem": 554,
+   "face": 34,
+   "edge": 539,
+   "ear": 0,
+   "body": 181,
+   "maxlen": 25
+  },
+  "-1.0": {
+   "hem": 120,
+   "face": 37,
+   "edge": 991,
+   "ear": 42,
+   "body": 121,
+   "maxlen": 6
+  }
+ },
+ "turnGateRelaxGuides": 2639,
+ "turnGateRelaxSteps": 74434,
+ "turnSmoothedBreaches15degPer5mm": 2641,
+ "turnSmoothedP50": 51.2,
+ "turnSmoothedP95": 60.6,
+ "turnSmoothedMax": 65.3,
+ "partCrossingsOver2mmAnterior": 187,
+ "earMinDistMm": 8.02,
+ "positionalProjections": 0,
+ "maxPositionalMoveMm": 0.0,
+ "priorStepFrac": 0.0017,
+ "centerMergeSteps": 0,
+ "rideOutSteps": 43042,
+ "steerSteps": 202439,
+ "depthU": {
+  "lo": 0.3,
+  "hi": 0.9
+ },
+ "thicknessP50": 4.91,
+ "thicknessP90": 5.32,
+ "dstarP50": 2.82,
+ "dstarP90": 4.11,
+ "poissonSpacingMm": 6.0,
+ "seconds": 75.9
+}

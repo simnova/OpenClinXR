@@ -1,0 +1,33 @@
+{
+ "tag": "tools/openclinxr/evidence/hair-groom30/groom30cal-calib",
+ "renders": "tools/openclinxr/evidence/hair-groom8a/renders-studio",
+ "iou": {
+  "front": {
+   "iou": 0.7446,
+   "missPx": 11274,
+   "excessPx": 11866
+  },
+  "three_quarter": {
+   "iou": 0.8261,
+   "missPx": 14783,
+   "excessPx": 3958
+  },
+  "profile_90": {
+   "iou": 0.8543,
+   "missPx": 8656,
+   "excessPx": 15299
+  },
+  "back": {
+   "iou": 0.8579,
+   "missPx": 30471,
+   "excessPx": 20070
+  }
+ },
+ "delta": {
+  "front": 0.0,
+  "three_quarter": -0.0,
+  "profile_90": -0.0,
+  "back": 0.0
+ },
+ "all_within_0.02": true
+}

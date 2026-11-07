@@ -1,0 +1,383 @@
+{
+ "front": {
+  "groom3": {
+   "xpos/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xpos/sil": {
+    "id": 42,
+    "out": 35,
+    "tgt": 94
+   },
+   "xpos/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 818
+   },
+   "xpos/NK": {
+    "id": 1517,
+    "out": 13,
+    "tgt": 4494
+   },
+   "xneg/concha": {
+    "id": 1,
+    "out": 1
+   },
+   "xneg/sil": {
+    "id": 86,
+    "out": 82,
+    "tgt": 10
+   },
+   "xneg/FL": {
+    "id": 411,
+    "out": 0,
+    "tgt": 1227
+   },
+   "xneg/NK": {
+    "id": 2228,
+    "out": 1,
+    "tgt": 3551
+   }
+  },
+  "cfgG": {
+   "xpos/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xpos/sil": {
+    "id": 45,
+    "out": 37,
+    "tgt": 94
+   },
+   "xpos/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 818
+   },
+   "xpos/NK": {
+    "id": 2093,
+    "out": 17,
+    "tgt": 4494
+   },
+   "xneg/concha": {
+    "id": 39,
+    "out": 39
+   },
+   "xneg/sil": {
+    "id": 76,
+    "out": 72,
+    "tgt": 10
+   },
+   "xneg/FL": {
+    "id": 472,
+    "out": 0,
+    "tgt": 1227
+   },
+   "xneg/NK": {
+    "id": 2497,
+    "out": 1,
+    "tgt": 3551
+   }
+  },
+  "tuck": {
+   "xpos/concha": {
+    "id": 33,
+    "out": 33
+   },
+   "xpos/sil": {
+    "id": 233,
+    "out": 224,
+    "tgt": 94
+   },
+   "xpos/FL": {
+    "id": 1,
+    "out": 0,
+    "tgt": 818
+   },
+   "xpos/NK": {
+    "id": 1849,
+    "out": 13,
+    "tgt": 4494
+   },
+   "xneg/concha": {
+    "id": 32,
+    "out": 32
+   },
+   "xneg/sil": {
+    "id": 160,
+    "out": 156,
+    "tgt": 10
+   },
+   "xneg/FL": {
+    "id": 475,
+    "out": 0,
+    "tgt": 1227
+   },
+   "xneg/NK": {
+    "id": 2413,
+    "out": 1,
+    "tgt": 3551
+   }
+  }
+ },
+ "three_quarter": {
+  "groom3": {
+   "xpos/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xpos/sil": {
+    "id": 121,
+    "out": 0,
+    "tgt": 877
+   },
+   "xpos/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xpos/NK": {
+    "id": 3629,
+    "out": 559,
+    "tgt": 3511
+   },
+   "xneg/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xneg/sil": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xneg/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xneg/NK": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   }
+  },
+  "cfgG": {
+   "xpos/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xpos/sil": {
+    "id": 184,
+    "out": 3,
+    "tgt": 877
+   },
+   "xpos/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xpos/NK": {
+    "id": 3634,
+    "out": 451,
+    "tgt": 3511
+   },
+   "xneg/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xneg/sil": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xneg/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xneg/NK": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   }
+  },
+  "tuck": {
+   "xpos/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xpos/sil": {
+    "id": 559,
+    "out": 386,
+    "tgt": 877
+   },
+   "xpos/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xpos/NK": {
+    "id": 2975,
+    "out": 23,
+    "tgt": 3511
+   },
+   "xneg/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xneg/sil": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xneg/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xneg/NK": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   }
+  }
+ },
+ "profile_90": {
+  "groom3": {
+   "xpos/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xpos/sil": {
+    "id": 104,
+    "out": 0,
+    "tgt": 653
+   },
+   "xpos/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xpos/NK": {
+    "id": 1023,
+    "out": 939,
+    "tgt": 251
+   },
+   "xneg/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xneg/sil": {
+    "id": 160,
+    "out": 160,
+    "tgt": 0
+   },
+   "xneg/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xneg/NK": {
+    "id": 1057,
+    "out": 894,
+    "tgt": 926
+   },
+   "band": {
+    "id": 905,
+    "out": 3,
+    "tgt": 1560
+   }
+  },
+  "cfgG": {
+   "xpos/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xpos/sil": {
+    "id": 162,
+    "out": 7,
+    "tgt": 653
+   },
+   "xpos/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xpos/NK": {
+    "id": 1241,
+    "out": 1111,
+    "tgt": 251
+   },
+   "xneg/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xneg/sil": {
+    "id": 401,
+    "out": 401,
+    "tgt": 0
+   },
+   "xneg/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xneg/NK": {
+    "id": 1172,
+    "out": 806,
+    "tgt": 926
+   },
+   "band": {
+    "id": 1205,
+    "out": 17,
+    "tgt": 1560
+   }
+  },
+  "tuck": {
+   "xpos/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xpos/sil": {
+    "id": 516,
+    "out": 397,
+    "tgt": 653
+   },
+   "xpos/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xpos/NK": {
+    "id": 45,
+    "out": 1,
+    "tgt": 251
+   },
+   "xneg/concha": {
+    "id": 0,
+    "out": 0
+   },
+   "xneg/sil": {
+    "id": 328,
+    "out": 328,
+    "tgt": 0
+   },
+   "xneg/FL": {
+    "id": 0,
+    "out": 0,
+    "tgt": 0
+   },
+   "xneg/NK": {
+    "id": 150,
+    "out": 0,
+    "tgt": 926
+   },
+   "band": {
+    "id": 1711,
+    "out": 342,
+    "tgt": 1560
+   }
+  }
+ }
+}

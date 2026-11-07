@@ -1,0 +1,176 @@
+hair-hull0c: hull with scalp shell, head-mismatch measured — RESULT
+===============================================================================
+Card: hull0b's mirrored profile removed the phantom wedge (1-view volume
+23.3% -> 5.8%) but left NO HAIR ON THE CRANIUM (bald dome, two lateral
+curtains, zero depth behind midline occiput above z=1550, 56% crown-root
+proximity). Mechanism to verify, not assume: the masks come from a
+different person; where Aisha's head is larger than the target's
+head-plus-hair, the target hair outline falls INSIDE Aisha's skull and the
+carve (target silhouette minus Aisha) can hold no dome.
+WRITE ROOTS: S6 = tools/openclinxr/hair-groom/hull (new hull0c.py; hull.py
+and render_hull.py untouched), E = tools/openclinxr/evidence/hair-hull0c.
+No *.blend anywhere.
+
+METHOD (S6/hull0c.py; reuse by import, no copies)
+- Carve: hull.stage_carve verbatim (2 mm grid, same crop, 2 px dilation,
+  occl0 5 mm patch rule, exact-SDF 2 mm removal, 4.0 mm scalp contact +
+  dominant-component filter, mirrored profile). Reproduced hull0b exactly:
+  keptFinal 262,532, volByVisCount identical (0:4661 1:15150 2:62819
+  3:153571 4:26331), closing +1522/all-pruned, label 268 giant.
+- Step-1 poke: bare-body render-frame cover is hair-cage1/body-depth.npz
+  (station0b body-verts, topper excluded). Warped to the target frame by
+  nearest-neighbour inverse similarity (p_r = (p_t - t)/s). Compared
+  against the UNDILATED target hair mask using the SCALP1 scalp mesh
+  (778 tris, backface-culled raster via instruments.scan_triangle; verts
+  identical to body-verts) so the face hole cannot contaminate: poke =
+  warped-scalp OUTSIDE mask, rows above the hairline/ear line, where the
+  line = lowest target row of the projected scalp hairline loop (front
+  486.4, profile 469.1, back 445.7). mm/px at scalp-centroid depth:
+  front 0.5469, profile 0.4969, back 0.5024 (focal/depth / scale).
+  (Without backface culling the open cap paints through the face opening
+  and the front poke reads 50,828 px of face — caught by overlay, culled.)
+- Shell: voxels with point-to-triangle distance to the scalp mesh <= t(z),
+  t(z) = 6 + 4*clip((z-1560)/60,0,1) mm — 10 mm at the crown (z>=1620,
+  the same hair-over-skull allowance the skull-mode registration already
+  assumes: targetTripleProvenance "front a += 10mm * ..."), 6 mm at and
+  below the occiput/temple line (z<=1560), linear ramp between — then
+  exact-SDF > 2 mm (outside body). Union = carve_final UNION shell;
+  scalp-connected filter keeps the dominant touching label plus any
+  touching label carrying shell.
+- Union diagnostics: per-voxel states for shell-only voxels via the same
+  4-view pipeline (occlusion precedence kept); splats project voxels with
+  state != 2 (not body-occluded) so the shell overhang is scored, not
+  hidden; carve voxels under this rule reproduce the hull0b splat exactly
+  (no state-1 voxels by construction).
+
+STEP 1 — mismatch (E/mismatch.png + WS/mismatch.json). Mechanism CONFIRMED:
+scalp pokes outside the target hair mask in all three views, exactly where
+the dome is bald:
+  front:      poke 1,775 px / 531 mm2; protrusion p50 6.5 px / p95 12.1 px
+              (6.6 mm) / max 15.7 px. Small crown spike.
+  profile_90: poke 5,474 px / 1,352 mm2; p50 6.7 / p95 19.2 px (9.6 mm) /
+              max 34.5 px. Forehead + posterior rim — worst view.
+  back:       poke 2,389 px / 603 mm2; p50 4.0 / p95 8.5 px (4.3 mm) /
+              max 10.8 px. Crown rim.
+  Overlay: red = poke, green = scalp-inside-mask, gray = target mask.
+  So the carve is (target silhouette) minus (Aisha) and Aisha's head pokes
+  through it at the crown — no voxel layer on the dome could survive the
+  carve rule there. A shell (union, not carve) is the correct repair.
+
+STEP 2 — shell (stated taper rule above)
+  2 mm grid: stamped 129,195 vox within 10 mm of scalp; 74,409 inside the
+  body (SDF <= 2 mm) removed; shell = 54,786 vox = 438,288 mm3.
+  Shell-only (outside carve) = 33,477 vox; 26,610 above z=1580 within
+  |x|<60 mm: a full cranium cap, not a patch.
+  Union: carve 262,532 + shell 54,786 (overlap 21,309) = 296,009 vox =
+  2,368,072 mm3 (+267,816 mm3 over hull0b). Components: 1. Scalp-touching
+  labels: 1 (the giant); droppedTouch {}; shell voxels outside kept: 0.
+  The union is a single scalp-connected mass.
+
+STEP 3 — diagnostics on the union (side-by-side vs hull0b in [brackets])
+  (a) Volume by view count (8 mm3/voxel):
+      union:  0 views: 16,817 vox,   134,536 mm3 ( 5.7%) [ 1.8%]
+              1 view : 33,352 vox,   266,816 mm3 (11.3%) [ 5.8%]
+              2 views: 65,937 vox,   527,496 mm3 (22.3%) [23.9%]
+              3 views:153,572 vox, 1,228,576 mm3 (51.9%) [58.5%]
+              4 views: 26,331 vox,   210,648 mm3 ( 8.9%) [10.0%]
+      The 0/1-view bins grow because shell rind voxels carry the states
+      the carve rejected them for (mostly occluded/low-count) — expected:
+      the shell is stipulated minimum hair, not silhouette evidence.
+  (b) Reprojected union hull vs UNDILATED mask, per real view
+      (not-occluded splat; carve part identical to hull0b's definition):
+      front:      union excessN 4142 p50 3.6 p95 11.3 max 21.9;
+                  missN 1346, miss p95 42.8 [1638/39.1]; IoU 0.6598 [0.5998]
+      profile_90: union excessN 11605 p50 14.3 p95 34.7 max 53.4;
+                  missN 366, miss p95 10.9 [512/59.3]; IoU 0.6204 [0.6226]
+      back:       union excessN 10255 p50 10.6 p95 24.7 max 31.1;
+                  missN 221, miss p95 1.0 [405/98.8]; IoU 0.7124 [0.6797]
+      Miss falls everywhere (the cap fills missed crown); IoU rises front
+      and back. Excess split (WS/diag_union.json excessSplit):
+      carve excess (gate: p95 <= 4 px): front 1025/1.0/2.0/2.0,
+        profile 1676/1.0/2.0/2.0, back 2181/1.0/2.0/2.0 — PASS, unchanged.
+      UNAVOIDABLE_HEAD_MISMATCH (shell-only excess inside step-1 poke):
+        front 216 px p95 11.4, profile 1352 px p95 20.0, back 1063 px
+        p95 8.6.
+      shellOther (shell-only excess outside poke pixels):
+        front 2901 px p50 5.4/p95 11.7 (6.4 mm)/max 21.9;
+        profile 8577 px p50 18.4/p95 36.2 (18.0 mm)/max 53.4;
+        back 7011 px p50 14.9/p95 25.5 (12.8 mm)/max 31.1.
+      shellOther is NOT a carve violation: it is the 6-10 mm rind crossing
+      the mask edge where the scalp sits just inside it (front: within one
+      rind thickness of the edge, p95 6.4 mm; grazing-rind speckle along
+      the dome outline, 212 splat components) or the rind overhang
+      contiguous with the poke (profile/back: 87%/98% of shellOther pixels
+      connect to poke; 90%/93% within a 12 mm dilation of poke; the p95
+      13-18 mm reach is grazing-angle stretch on the posterior rim plus
+      2 mm grid). All union excess beyond the 2 px carve ring sits on the
+      head outline where step 1 measured scalp at/over the mask edge.
+  (c) Thickness (mass; gap separate) [hull0b]:
+      cheek    z=1515 (n=57): mass p50 28.0 p95 49.0 max 50.0 [29/50/60]
+      ear      z=1532 (n=57): 19.0/33.0/36.0 [20/38.9/52]
+      occiput  z=1560 (n=57): 11.0/20.2/22.0 [13/20.5/22]
+      crown    z=1600 (n=69): 6.0/11.2/12.0 [— NEW: the dome now reads]
+      shoulder z=1405 (n=21): 29.0/35.0/35.0 [29/35/35]
+  (d) Depth behind midline occiput: hull 5.0 mm vs target -0.3 mm
+      [hull0b 0.0] — POSITIVE. Posterior wall (|x|<20, behind surface):
+      1460: 12, 1470: 10, 1480: 10, 1490: 8, 1500: 8, 1510: 6, 1520: 4,
+      1530: 4, 1540: 2, 1550: 2, 1560: 4, 1570: 8, 1580: 8, 1590: 8,
+      1600: 8 — depth > 0 at every step above z=1550 (was none).
+  (e) Root proximity (14,155 roots): all p50 2.8 p95 4.0 max 4.5 mm,
+      100.0% within 6 mm [3.5/39.2, 63.6%]; crown (11,730 roots) 100.0%
+      [56.0%]; mid 100.0% [99.9%]. Target >= 95%: PASS with margin.
+      Occlusion cross-check: 197/198 buffer rays hit body [same].
+  (f) Sensitivity (topology single-component; contour |d p95| <= 5 px):
+      A (1 mm re-carve + 1 mm shell, 102M voxels): union 2,371,715 mm3
+      (+0.2% vs 2,368,072); carve comps 4,535/4,535 net zero; excess p95
+      11.3/34.7/24.7-class deltas max |d p95| 4.7 px. STABLE.
+      B (2 mm re-carve, undilated + baseline shell): union 2,263,128 mm3
+      (-4.4%); carve comps 1,367/1,367; max |d p95| 3.04 px. STABLE.
+      No fragile region in either variant.
+      (1 mm shell: 438,052 vox; B keeps the 2 mm shell — shell is
+      mask-independent by construction.)
+  (g) Components: union labels 1; scalp-touching labels [1]; kept [1];
+      droppedTouch {}. Scalp-connected: PASS.
+
+STEP 4 — export + figure (E/hull.npz 196,797 B in-E: occupancy, viscount
+0-4, states_packed + legend, 4 views + mirror flag, grid, shell_rule,
+shell_vox 54786, carve_vox 262532; WS/hull_surface.obj 221,752 tris;
+E/hull.png 6-panel light-material figure via S6/render_hull.py untouched:
+front/profile_90/profile_90_mirror/back/three_quarter + target 3/4 display
+tile; E/slices.png visible-count slices + band histograms (hull0b 4-band
+layout; crown band in diag JSON + table above); E/mismatch.png step-1
+overlay. Blender removed the same library topper; bans clean.)
+
+SAW::mismatch.png: red poke caps the crown in all three views (profile
+  worst: forehead + posterior rim); green scalp fills the target dome to
+  its edge — Aisha's head is bigger than the target's head-plus-hair.
+SAW::hull.png front tile: the dome rind is a 6-10 mm translucent layer
+  seen face-on, so it reads faint against skin (thin-layer physics, not
+  absence); side curtains unchanged. Profile/back/three_quarter tiles:
+  the light cap over the cranium and occiput reads clearly edge-on.
+SAW::slices.png coronal/sagittal: a 1-view (blue) rind arcs over the crown
+  where hull0b showed air; axial curtains unchanged and symmetric.
+SAW::numbers: crown roots 56.0% -> 100.0% within 6 mm; midline-occiput depth
+  0.0 -> 5.0 mm with wall > 0 at every 10 mm step above z=1550; IoU up
+  front/back, miss down everywhere; carve excess still exactly the 2 px
+  dilation ring.
+
+NOT TESTED: physical Quest 3 / worn-headset evidence; clinical validity,
+  licensure, or scoring claims; whether the 6-10 mm taper (vs a thicker
+  style-driven dome) matches the target's actual hair depth — the shell is
+  the minimum any groom on this body must have, not the style volume;
+  3/4-camera scoring (no reg3qb target in this worktree); the mirrored
+  body-depth approximation beyond ~mm body asymmetry; strands, material,
+  or lighting (hull1+ cards); profile posterior-rim grazing stretch
+  (p95 18 mm) beyond the 10 mm rind — measured, not explained away.
+
+GATES_PASS=yes (carve excess p95 2.0/2.0/2.0 <= 4 px; root proximity 100.0%
+  >= 95% overall and crown; union single scalp-connected component, shell
+  fully inside kept (shellOutside 0); sensitivity max delta 4.7/3.04 px, no
+  fragile region; bans clean: no *.blend, cards+scalp untouched, hull.py +
+  render_hull.py untouched).
+Hands to hull1: route guides through E/hull.npz occupancy (views array
+  [front, profile_90, back, profile_90_mirror], 0-4 viscount); use the
+  shell as the guaranteed-minimum layer (roots attach inside it by
+  construction: max root distance 4.5 mm); treat shellOther overhang as
+  known head-driven silhouette excess, not guide targets.

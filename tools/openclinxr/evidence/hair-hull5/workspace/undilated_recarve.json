@@ -1,0 +1,47 @@
+{
+ "keptFinal": 368926,
+ "keepLabel": 96,
+ "nCompPre": 706,
+ "nCompPost": 706,
+ "nAdded": 6128,
+ "droppedTouchVox": 660,
+ "belowShoulder": {
+  "front": {
+   "vox": 0,
+   "mm3": 0.0,
+   "minZmm": null,
+   "fracOfBelow": 0.0
+  },
+  "sideL": {
+   "vox": 824,
+   "mm3": 6592.0,
+   "minZmm": 1323.0,
+   "fracOfBelow": 0.0074
+  },
+  "sideR": {
+   "vox": 846,
+   "mm3": 6768.0,
+   "minZmm": 1289.0,
+   "fracOfBelow": 0.0076
+  },
+  "back": {
+   "vox": 109462,
+   "mm3": 875696.0,
+   "minZmm": 1255.0,
+   "fracOfBelow": 0.985
+  },
+  "totalBelow": {
+   "vox": 111132,
+   "mm3": 889056.0
+  },
+  "shoulderPlaneZ": 1405.0
+ },
+ "splatPx": {
+  "front": 37208,
+  "three_quarter": 50402,
+  "three_quarter_mirror": 50228,
+  "profile_90": 72617,
+  "back": 167926,
+  "profile_90_mirror": 72355
+ }
+}

@@ -1,0 +1,144 @@
+{
+ "blender": "5.1.1",
+ "control": [
+  {
+   "tag": "ref-exact",
+   "guides_n": 3,
+   "mask": "attr",
+   "part": true,
+   "no_attach": false,
+   "no_uv": false,
+   "dist": 1.0,
+   "curves": 592,
+   "pcs": [
+    1,
+    12
+   ]
+  },
+  {
+   "tag": "ref-exact-g2",
+   "guides_n": 2,
+   "mask": "attr",
+   "part": true,
+   "no_attach": false,
+   "no_uv": false,
+   "dist": 1.0,
+   "curves": 590,
+   "pcs": [
+    1,
+    12
+   ]
+  }
+ ],
+ "control_diff": [
+  {
+   "input": "Attach modifier on guides",
+   "ref": "present (OCLX_attach precedes)",
+   "attempt0": "absent (hand surface_uv_coordinate)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Attach.Sample Attachment UV",
+   "ref": true,
+   "attempt0": "n/a (no node)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Attach.Snap to Surface",
+   "ref": true,
+   "attempt0": "n/a (no node)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Attach.Align to Surface Normal",
+   "ref": false,
+   "attempt0": "n/a (no node)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Attach.Blend along Curve",
+   "ref": 0.0,
+   "attempt0": "n/a (no node)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Surface Input Type",
+   "ref": "Object(0)",
+   "attempt0": "unset (default Object)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Surface (object)",
+   "ref": "sphere object",
+   "attempt0": "sphere object (via Surface#2)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Surface UV Map",
+   "ref": "attribute <uv>",
+   "attempt0": "unset (default 0,0,0 literal)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Surface Rest Position",
+   "ref": false,
+   "attempt0": "unset (default False)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Follow Surface Normal",
+   "ref": false,
+   "attempt0": "unset (default False)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Part by Mesh Islands",
+   "ref": true,
+   "attempt0": "True(att0,1)/False(att2)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Interpolation Guides",
+   "ref": 3,
+   "attempt0": 2,
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Distance to Guides",
+   "ref": 1.0,
+   "attempt0": "unset (default 0.0)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Distribution Method",
+   "ref": "Poisson Disk(1)",
+   "attempt0": "Poisson Disk(1)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Density",
+   "ref": "~4912 (500/area)",
+   "attempt0": "~4912 (500/area)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Density Mask",
+   "ref": "attribute oclx_ctl_mask",
+   "attempt0": "attribute(att0)/1.0 literal(att1,2)",
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Viewport Amount",
+   "ref": 1.0,
+   "attempt0": 1.0,
+   "now": "0 curves in all 3 control runs"
+  },
+  {
+   "input": "Interp.Seed",
+   "ref": 0,
+   "attempt0": "unset (default 0)",
+   "now": "0 curves in all 3 control runs"
+  }
+ ],
+ "stop": "REF exact input set gives 0 curves on control x3"
+}

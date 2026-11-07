@@ -1,0 +1,75 @@
+{
+  "method": "ours->target judge similarity; band=target lower40 rows; comb=3-15px FFT power frac of detrended band column-mean luminance; soft=10-90% luminance transition at y_bottom",
+  "back": {
+    "band": [
+      547,
+      823
+    ],
+    "nIntCols": 411,
+    "tgtCombFrac": 0.321,
+    "tgtPeakPeriodPx": 14.678571428571429,
+    "oursCombFrac": 0.5524,
+    "oursPeakPeriodPx": 10.275,
+    "tgtSoftPx": 12.156,
+    "tgtSoftN": 441,
+    "oursSoftPx": 7.067,
+    "oursSoftN": 554,
+    "transform": {
+      "scale": 1.0403,
+      "tx": -19.6452,
+      "ty": -31.25
+    }
+  },
+  "profile_90": {
+    "band": [
+      572,
+      870
+    ],
+    "nIntCols": 53,
+    "tgtCombFrac": 0.0656,
+    "tgtPeakPeriodPx": 8.833333333333334,
+    "oursCombFrac": 0.3839,
+    "oursPeakPeriodPx": 3.1176470588235294,
+    "tgtSoftPx": 12.049,
+    "tgtSoftN": 450,
+    "oursSoftPx": 9.984,
+    "oursSoftN": 550,
+    "transform": {
+      "scale": 1.0512,
+      "tx": 124.307,
+      "ty": -12.7023
+    }
+  },
+  "fibres": {
+    "n": 99945,
+    "root": {
+      "p50": 0.05,
+      "mean": 0.05,
+      "p90": 0.05
+    },
+    "mid": {
+      "p50": 0.055,
+      "mean": 0.061,
+      "p90": 0.085
+    },
+    "tip": {
+      "p50": 0.015,
+      "mean": 0.0268,
+      "p90": 0.05
+    },
+    "lowerN": 65953,
+    "mid_all": {
+      "p50": 0.055
+    },
+    "mid_lower": {
+      "p50": 0.05
+    },
+    "lowerArcAngle": {
+      "p50": 0.0,
+      "p90": 59.156,
+      "std": 22.703,
+      "nSeg": 461671
+    },
+    "src": "tools/openclinxr/evidence/hair-ends1/base/strands.npz"
+  }
+}

@@ -1,0 +1,7 @@
+groom37 DONE (2026-10-19): routed-only weights for children that
+enter the ear shell. build-37 sha eeae8267 == build-37det (PASS).
+Shell segs +x 2134->1356 / -x 2043->1287; column 53/56 unchanged;
+concha 0/0/0, insideBody 0; gt30 2907; IoU f/3q/p
+0.7798/0.8484/0.8358, back 0.8911, mirror 0.9748/0.9724; crossings
+1029; grad 0.3470; calib delta 0. VERDICT PARTIAL, GATES_PASS false.
+E/sheet.png, E/ears.png, E/RESULT.txt written. No .npz in git.

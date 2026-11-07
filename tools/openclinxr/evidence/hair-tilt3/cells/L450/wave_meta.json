@@ -1,0 +1,37 @@
+{
+  "tag": "L450",
+  "op": "single-sine long-wavelength lean, in-plane (no root rotation)",
+  "params": {
+    "targetDeg": 4.0,
+    "waveLenMm": 450.0,
+    "seed": 2026101811,
+    "phaseFieldMm": 5.0,
+    "partProtectMm": 3.0,
+    "fadeInMm": 15.0,
+    "fadeOutMm": 20.0,
+    "source": "hair-real1 a1"
+  },
+  "wave": {
+    "targetDeg": 4.0,
+    "amplitudeMm": 5.008138998960181,
+    "tangentDevDeg": {
+      "rms": 5.297944853984498,
+      "p95": 12.013863460159005,
+      "max": 177.3814901544805
+    },
+    "maxDispMm": {
+      "p50": 5.004887503188614,
+      "p95": 5.008110060320021,
+      "max": 5.008138998957845
+    },
+    "protectedFibres": 8949,
+    "seed": 2026101811,
+    "waveLenMm": 450.0
+  },
+  "endAngleDegPreRepair": {
+    "p50": 4.928841508344384,
+    "p95": 10.14512968221425,
+    "max": 15.71451364820976
+  },
+  "partGapMm": 1.0999999940395355
+}

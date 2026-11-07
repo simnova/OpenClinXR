@@ -1,0 +1,21 @@
+DONE hair-groom28: one-sided back cover loss — side diagnosis, controls A/B, anisotropy controls
+Branch hair-tgt2b. Date 2026-10-18. Blender 5.1.1, CYCLES-CPU 1024/64spp seed7 (2 back renders).
+
+CAUSE: guides-19 -x back drape is a narrow central curtain (hem|x| p50
+11.7 mm vs 24.1 +x); anchor-0.6 fairing drags its inner half outward
+~20 mm, scattering it. +x drape already fanned: no gap. Pool-drop 32/29
+and neighbour counts 47/49 symmetric. Branch cut INERT (control A:
+1.8e-16 mm). Code x-symmetric (control B: 1.5e-13 mm; scatter follows
+mirrored geometry). No station change (s11 untouched).
+
+STEP 4 NOT RUN: curtain-kept probe trades locks for cover (3D 865->1132,
+gate 900); all 6 prior variants prove no fairing reaches back >= 0.795.
+Fix = add -x cover (separate re-drape slice).
+
+ANISOTROPY: gy/gx sigma2 range 0.0628 over 4x radius (> 0.05: reads
+fineness); sigma4 range 0.0374. r05/r10/r20 = 0.5185/0.5456/0.5813 @ s2.
+
+GATES_PASS: no. E/RESULT.txt (cause, controls, mitig probe, aniso table,
+scope, NOT TESTED). Images: E/side-topview.png,
+E/renders-aniso-r05/r20/back.png. Store: hair-groom28/guides-28M.npz +
+SHA256SUMS. No .npz in git.

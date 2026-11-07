@@ -1,0 +1,366 @@
+{
+  "fits": {
+    "all": {
+      "collision": {
+        "maxPenMm": 47.27,
+        "minSdfMm": -51.27,
+        "nViol": 114,
+        "tolMm": 4.0
+      },
+      "cost": 8363267.167,
+      "inSample": {
+        "back": {
+          "nFitted": 1910,
+          "nTarget": 2003,
+          "p50mm": 17.51,
+          "p50px": 33.24,
+          "p95mm": 64.68,
+          "p95px": 122.8,
+          "pitchMmPx": 0.5267
+        },
+        "front": {
+          "nFitted": 1900,
+          "nTarget": 2615,
+          "p50mm": 11.88,
+          "p50px": 26.31,
+          "p95mm": 46.51,
+          "p95px": 103.02,
+          "pitchMmPx": 0.4514
+        },
+        "profile_90": {
+          "nFitted": 1614,
+          "nTarget": 1992,
+          "p50mm": 13.14,
+          "p50px": 26.87,
+          "p95mm": 31.88,
+          "p95px": 65.19,
+          "pitchMmPx": 0.4891
+        }
+      },
+      "nfev": 23,
+      "optimality": 1090332.3622,
+      "params": {
+        "apex_back": 36.081,
+        "apex_front": 35.69,
+        "back_ear": 25.465,
+        "back_hl": 27.318,
+        "back_jaw": 25.709,
+        "cap_top": 6.493,
+        "crown_w": 55.254,
+        "curtain_front_ear": 61.252,
+        "hairline_z": 70.431,
+        "hem_back": -137.397,
+        "hem_drop": 266.51,
+        "hem_front": -34.28,
+        "hem_halfw": 136.806,
+        "jaw_front": 54.34,
+        "side_ear": 23.98,
+        "side_hl": 9.694,
+        "side_jaw": 36.69
+      },
+      "saturation": {
+        "minGapFrac": 0.0145,
+        "minGapParam": "cap_top",
+        "saturated": false,
+        "saturatedParams": []
+      },
+      "starts": {
+        "long-wide": {
+          "cost": 8642372.978,
+          "nfev": 21,
+          "status": 3
+        },
+        "narrow-short": {
+          "cost": 8724501.79,
+          "nfev": 20,
+          "status": 3
+        },
+        "spec": {
+          "cost": 8363267.167,
+          "nfev": 23,
+          "status": 3
+        }
+      },
+      "status": 3,
+      "views": [
+        "front",
+        "profile_90",
+        "back"
+      ]
+    },
+    "holdout-back": {
+      "collision": {
+        "maxPenMm": 47.98,
+        "minSdfMm": -51.98,
+        "nViol": 92,
+        "tolMm": 4.0
+      },
+      "cost": 4817795.791,
+      "heldOut": {
+        "back": {
+          "nFitted": 1962,
+          "nTarget": 2003,
+          "p50mm": 30.13,
+          "p50px": 57.2,
+          "p95mm": 69.68,
+          "p95px": 132.29,
+          "pitchMmPx": 0.5267
+        }
+      },
+      "inSample": {
+        "front": {
+          "nFitted": 1916,
+          "nTarget": 2615,
+          "p50mm": 14.34,
+          "p50px": 31.76,
+          "p95mm": 51.01,
+          "p95px": 113.0,
+          "pitchMmPx": 0.4514
+        },
+        "profile_90": {
+          "nFitted": 1597,
+          "nTarget": 1992,
+          "p50mm": 9.9,
+          "p50px": 20.25,
+          "p95mm": 40.76,
+          "p95px": 83.35,
+          "pitchMmPx": 0.4891
+        }
+      },
+      "nfev": 27,
+      "optimality": 811123.9887,
+      "params": {
+        "apex_back": 28.154,
+        "apex_front": 36.054,
+        "back_ear": 31.832,
+        "back_hl": 26.504,
+        "back_jaw": 25.721,
+        "cap_top": 6.805,
+        "crown_w": 55.73,
+        "curtain_front_ear": 52.98,
+        "hairline_z": 71.232,
+        "hem_back": -147.411,
+        "hem_drop": 260.876,
+        "hem_front": -40.021,
+        "hem_halfw": 149.184,
+        "jaw_front": 32.634,
+        "side_ear": 31.148,
+        "side_hl": 14.703,
+        "side_jaw": 57.417
+      },
+      "saturation": {
+        "minGapFrac": 0.0029,
+        "minGapParam": "hem_drop",
+        "saturated": true,
+        "saturatedParams": [
+          "hem_drop"
+        ]
+      },
+      "starts": {
+        "long-wide": {
+          "cost": 5133999.978,
+          "nfev": 29,
+          "status": 3
+        },
+        "narrow-short": {
+          "cost": 5205132.143,
+          "nfev": 20,
+          "status": 3
+        },
+        "spec": {
+          "cost": 4817795.791,
+          "nfev": 27,
+          "status": 3
+        }
+      },
+      "status": 3,
+      "views": [
+        "front",
+        "profile_90"
+      ]
+    },
+    "holdout-front": {
+      "collision": {
+        "maxPenMm": 44.37,
+        "minSdfMm": -48.37,
+        "nViol": 132,
+        "tolMm": 4.0
+      },
+      "cost": 5239375.712,
+      "heldOut": {
+        "front": {
+          "nFitted": 2054,
+          "nTarget": 2615,
+          "p50mm": 20.11,
+          "p50px": 44.55,
+          "p95mm": 50.91,
+          "p95px": 112.76,
+          "pitchMmPx": 0.4514
+        }
+      },
+      "inSample": {
+        "back": {
+          "nFitted": 2014,
+          "nTarget": 2003,
+          "p50mm": 18.16,
+          "p50px": 34.48,
+          "p95mm": 48.98,
+          "p95px": 93.0,
+          "pitchMmPx": 0.5267
+        },
+        "profile_90": {
+          "nFitted": 1755,
+          "nTarget": 1992,
+          "p50mm": 11.62,
+          "p50px": 23.77,
+          "p95mm": 42.96,
+          "p95px": 87.84,
+          "pitchMmPx": 0.4891
+        }
+      },
+      "nfev": 21,
+      "optimality": 1192517.535,
+      "params": {
+        "apex_back": 49.978,
+        "apex_front": 40.972,
+        "back_ear": 15.591,
+        "back_hl": 25.996,
+        "back_jaw": 27.168,
+        "cap_top": 7.654,
+        "crown_w": 60.867,
+        "curtain_front_ear": 56.849,
+        "hairline_z": 65.613,
+        "hem_back": -130.616,
+        "hem_drop": 280.568,
+        "hem_front": -17.851,
+        "hem_halfw": 146.944,
+        "jaw_front": 46.465,
+        "side_ear": 27.304,
+        "side_hl": 14.208,
+        "side_jaw": 28.608
+      },
+      "saturation": {
+        "minGapFrac": 0.0487,
+        "minGapParam": "cap_top",
+        "saturated": false,
+        "saturatedParams": []
+      },
+      "starts": {
+        "long-wide": {
+          "cost": 5629563.303,
+          "nfev": 25,
+          "status": 3
+        },
+        "narrow-short": {
+          "cost": 5470691.353,
+          "nfev": 20,
+          "status": 3
+        },
+        "spec": {
+          "cost": 5239375.712,
+          "nfev": 21,
+          "status": 3
+        }
+      },
+      "status": 3,
+      "views": [
+        "profile_90",
+        "back"
+      ]
+    },
+    "holdout-profile_90": {
+      "collision": {
+        "maxPenMm": 23.1,
+        "minSdfMm": -27.1,
+        "nViol": 117,
+        "tolMm": 4.0
+      },
+      "cost": 4942060.272,
+      "heldOut": {
+        "profile_90": {
+          "nFitted": 1678,
+          "nTarget": 1992,
+          "p50mm": 18.26,
+          "p50px": 37.34,
+          "p95mm": 57.68,
+          "p95px": 117.95,
+          "pitchMmPx": 0.4891
+        }
+      },
+      "inSample": {
+        "back": {
+          "nFitted": 1824,
+          "nTarget": 2003,
+          "p50mm": 10.17,
+          "p50px": 19.31,
+          "p95mm": 57.93,
+          "p95px": 110.0,
+          "pitchMmPx": 0.5267
+        },
+        "front": {
+          "nFitted": 1898,
+          "nTarget": 2615,
+          "p50mm": 15.35,
+          "p50px": 34.0,
+          "p95mm": 49.14,
+          "p95px": 108.85,
+          "pitchMmPx": 0.4514
+        }
+      },
+      "nfev": 42,
+      "optimality": 627959.1985,
+      "params": {
+        "apex_back": 40.656,
+        "apex_front": 40.175,
+        "back_ear": 10.261,
+        "back_hl": 13.476,
+        "back_jaw": 41.289,
+        "cap_top": 6.027,
+        "crown_w": 56.542,
+        "curtain_front_ear": 96.271,
+        "hairline_z": 79.592,
+        "hem_back": -124.564,
+        "hem_drop": 274.048,
+        "hem_front": -1.073,
+        "hem_halfw": 117.368,
+        "jaw_front": 107.858,
+        "side_ear": 22.137,
+        "side_hl": 9.256,
+        "side_jaw": 31.783
+      },
+      "saturation": {
+        "minGapFrac": 0.0008,
+        "minGapParam": "cap_top",
+        "saturated": true,
+        "saturatedParams": [
+          "cap_top"
+        ]
+      },
+      "starts": {
+        "long-wide": {
+          "cost": 4942060.272,
+          "nfev": 42,
+          "status": 3
+        },
+        "narrow-short": {
+          "cost": 5428988.408,
+          "nfev": 25,
+          "status": 2
+        },
+        "spec": {
+          "cost": 5478192.064,
+          "nfev": 23,
+          "status": 3
+        }
+      },
+      "status": 3,
+      "views": [
+        "front",
+        "back"
+      ]
+    }
+  },
+  "regRmsPx": 0.0,
+  "specSha": "71f84b7f2eca97c8b8b7f40a514c0a94d9d21f6a12125be8e2107f4462c9e2d1",
+  "thresholdPx": 12.0
+}

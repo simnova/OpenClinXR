@@ -1,0 +1,1 @@
+DONE hair-strands1: strands.npz + sheet.png + RESULT.txt + GATES_PASS.txt; renders/rulers/gates/coverage on disk; dense strands ready for the bake-off.

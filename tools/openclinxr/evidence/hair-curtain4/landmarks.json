@@ -1,0 +1,207 @@
+{
+  "anatomy": {
+    "back_shoulder": {
+      "rule": "judge back-registration shoulder plane z=1.405m",
+      "world": [
+        0.0,
+        0.0,
+        1.405
+      ]
+    },
+    "brow": {
+      "requested_z": 1.5716520547866821,
+      "vertex": 227,
+      "world": [
+        1.8774706234125915e-09,
+        -0.1486320048570633,
+        1.5716520547866821
+      ]
+    },
+    "crown": {
+      "rule": "bare head max world-z vertex",
+      "vertex": 942,
+      "world": [
+        1.1403722410818773e-09,
+        -0.053241077810525894,
+        1.6599169969558716
+      ]
+    },
+    "ear_front_L": {
+      "source": "cap-v8.pinna_front_L",
+      "world": [
+        0.06867039948701859,
+        -0.06493991613388062,
+        1.506698727607727
+      ]
+    },
+    "ear_front_R": {
+      "source": "cap-v8.pinna_front_R",
+      "world": [
+        -0.06867039948701859,
+        -0.06493990868330002,
+        1.506698727607727
+      ]
+    },
+    "face_centre": {
+      "rule": "x=0 at menton y/z",
+      "world": [
+        0.0,
+        -0.1348039209842682,
+        1.4492578506469727
+      ]
+    },
+    "menton": {
+      "requested_z": 1.4492169969558715,
+      "rule": "anterior midline head vertex nearest z=1.4492",
+      "vertex": 4394,
+      "world": [
+        9.141150059122083e-10,
+        -0.1348039209842682,
+        1.4492578506469727
+      ]
+    }
+  },
+  "camera_setter": "children3.set_final_view",
+  "judge": {
+    "back": {
+      "crown_top_row": 155,
+      "hair_centre_col": 512,
+      "shoulder_row": 651
+    },
+    "front": {
+      "chin_row": 583,
+      "crown_top_row": 103,
+      "face_centre_col": 512
+    },
+    "profile": {
+      "chin_row": 561,
+      "crown_top_row": 131,
+      "forehead_front_col": 209
+    }
+  },
+  "judge_semantics": {
+    "back": "crown_top_row=projected bare-head crown; shoulder_row=projected shoulder plane; hair_centre_col=projected x=0",
+    "front": "skull mode: crown_top_row=projected bare-head crown; chin_row=projected menton; face_centre_col=projected x=0",
+    "profile": "crown_top_row=projected bare-head crown; chin_row=projected menton; forehead_front_col=projected brow/anterior reference",
+    "source_lines": "hair_judge.py:15-24,38-39,124-149,668-680,814-836,996-1018"
+  },
+  "resolution": 1024,
+  "scene_builder": "children_station.import_children3().load_hair_scene().build_scene()",
+  "schemaVersion": 1,
+  "views": {
+    "back": {
+      "camera_lens_mm": 50.0,
+      "camera_location": [
+        0.0,
+        0.7008565664291382,
+        1.4935846328735352
+      ],
+      "projected": {
+        "back_shoulder": {
+          "col": 512.0001831054688,
+          "row": 650.6764221191406
+        },
+        "brow": {
+          "col": 512.000244140625,
+          "row": 340.263427734375
+        },
+        "crown": {
+          "col": 512.000244140625,
+          "row": 155.4693603515625
+        },
+        "ear_front_L": {
+          "col": 384.35260009765625,
+          "row": 447.02801513671875
+        },
+        "ear_front_R": {
+          "col": 639.6478271484375,
+          "row": 447.02801513671875
+        },
+        "face_centre": {
+          "col": 512.0001831054688,
+          "row": 546.8027038574219
+        },
+        "menton": {
+          "col": 512.0001831054688,
+          "row": 546.8027038574219
+        }
+      }
+    },
+    "front": {
+      "camera_lens_mm": 50.0,
+      "camera_location": [
+        0.0,
+        -0.7002856135368347,
+        1.4935846328735352
+      ],
+      "projected": {
+        "back_shoulder": {
+          "col": 512.0,
+          "row": 650.7882690429688
+        },
+        "brow": {
+          "col": 512.0,
+          "row": 269.13348388671875
+        },
+        "crown": {
+          "col": 512.0,
+          "row": 102.77374267578125
+        },
+        "ear_front_L": {
+          "col": 665.8721923828125,
+          "row": 441.98419189453125
+        },
+        "ear_front_R": {
+          "col": 358.1278381347656,
+          "row": 441.98419189453125
+        },
+        "face_centre": {
+          "col": 512.0,
+          "row": 582.7078247070312
+        },
+        "menton": {
+          "col": 512.0,
+          "row": 582.7078247070312
+        }
+      }
+    },
+    "profile_90": {
+      "camera_lens_mm": 50.0,
+      "camera_location": [
+        0.7005711197853088,
+        0.0,
+        1.4935846328735352
+      ],
+      "projected": {
+        "back_shoulder": {
+          "col": 512.000244140625,
+          "row": 650.7325744628906
+        },
+        "brow": {
+          "col": 209.17767333984375,
+          "row": 312.279541015625
+        },
+        "crown": {
+          "col": 403.1341247558594,
+          "row": 131.1475830078125
+        },
+        "ear_front_L": {
+          "col": 365.69342041015625,
+          "row": 441.8411865234375
+        },
+        "ear_front_R": {
+          "col": 391.8278503417969,
+          "row": 447.1209716796875
+        },
+        "face_centre": {
+          "col": 238.71835327148438,
+          "row": 561.2970581054688
+        },
+        "menton": {
+          "col": 238.71835327148438,
+          "row": 561.2970581054688
+        }
+      }
+    }
+  }
+}

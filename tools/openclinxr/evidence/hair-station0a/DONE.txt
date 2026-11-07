@@ -1,0 +1,11 @@
+station0a complete incl. FIX 1. GATES_PASS=yes (see RESULT.txt FIX 1 section).
+S: tools/openclinxr/hair-groom (schema, manifest + cameras-scorer-v3.json pin,
+   run.py, export_frame.py, register.py). Cameras are the scorer v3 records
+   verbatim (matrix assigned directly, no aim rule); registration triples are
+   the scorer effective inputs incl. skull-mode front offset.
+E: tools/openclinxr/evidence/hair-station0a (registration.json, parity.json,
+   determinism.json, frame.png, frame-stats.json, inputs-opened.txt,
+   extract_cameras.py, RESULT.txt). Station transforms equal scorer stored
+   orientation transforms bit-exact; judge parity 0; determinism IDENTICAL.
+codeHash ead9d2ee105d4c91e53e0467aac3d69bf82c00120ac5c9d7cb601f9ed2a1e281
+No groom.npz. No guides/children/fit (station0b).

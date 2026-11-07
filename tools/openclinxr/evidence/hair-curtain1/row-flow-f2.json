@@ -1,0 +1,139 @@
+{
+ "p1": {
+  "ear_y": -0.03894279897212982,
+  "bnd_n": 1703,
+  "front_n": 1110,
+  "sbback_n": 142,
+  "front_y": [
+   -0.12383314967155457,
+   -0.03911083564162254
+  ],
+  "front_z": [
+   1.5350748300552368,
+   1.6598951816558838
+  ]
+ },
+ "p2": {
+  "no_forward_lines": [
+   201,
+   215,
+   216,
+   218,
+   221,
+   248,
+   277
+  ]
+ },
+ "b": {
+  "mean": 0.3358,
+  "min": 0.0,
+  "max": 1.0
+ },
+ "hist_old": {
+  "front": 331,
+  "above-ear": 0,
+  "behind-ear": 330,
+  "nape": 138,
+  "never-left": 1
+ },
+ "hist_new": {
+  "front": 7,
+  "above-ear": 0,
+  "behind-ear": 598,
+  "nape": 141,
+  "never-left": 54
+ },
+ "gates": {
+  "g1": {
+   "front_exits": 7,
+   "n": 800,
+   "pass": true
+  },
+  "g2": {
+   "n30": 386,
+   "bad": 24,
+   "worst_dy_mm": -1.4349,
+   "pass": false
+  },
+  "g3": {
+   "behind_n": 11475,
+   "p95_deg": 0.0,
+   "pass": true
+  },
+  "g4": {
+   "sym95_deg": 2.344,
+   "pass": false
+  },
+  "g5": {
+   "never": 54,
+   "cross": 0,
+   "smooth_p95": 12.6,
+   "interior_sinks": 54,
+   "pass": false
+  },
+  "g6": {
+   "above_behind": 158,
+   "strict_nosb": 119,
+   "sb_exits": [
+    605,
+    609,
+    611,
+    613,
+    620,
+    626,
+    631,
+    632,
+    651,
+    653,
+    658,
+    667,
+    670,
+    672,
+    685,
+    687,
+    688,
+    694,
+    697,
+    703,
+    716,
+    718,
+    741,
+    743,
+    745,
+    753,
+    754,
+    759,
+    765,
+    766,
+    768,
+    771,
+    774,
+    775,
+    781,
+    782,
+    789,
+    791,
+    792
+   ],
+   "n": 200,
+   "sb_nonroot_exits": [
+    716,
+    781
+   ],
+   "pass": false
+  }
+ },
+ "files": [
+  "flow10.py",
+  "flow-b-v10.npz",
+  "flow10-debug.png",
+  "row-cap8.json",
+  "check-cap8.mjs",
+  "RESULT.txt"
+ ],
+ "variant": {
+  "name": "f2",
+  "front_comb_scale": 0.0,
+  "front_comb_ramp": true
+ }
+}

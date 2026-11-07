@@ -1,0 +1,203 @@
+hair-groom16 — body-cleared guides, no-Shrinkwrap Blender children, bounded outside pass
+=========================================================================================
+Station: tools/openclinxr/hair-groom/strands/blender_children.py + body_clear.py (new)
+Evidence: tools/openclinxr/evidence/hair-groom16/  (this dir)
+Date: 2026-10-18   Branch: hair-tgt2   Blender 5.1.1   Guides: hair-groom8a/build/guides-8a.npz
+
+VERDICT: GATES_PASS = no. The card's FALSIFIER FIRED.
+With cleared guides and no Shrinkwrap, 19.06% of child samples (47.7% of children) are
+inside the exact body BEFORE the outside pass — >10%. The Blender Essentials Interpolate
+blend itself cuts through the skull between outside guides; it is NOT the guides. The
+guide defect is real and fixed (section 2), but clearing the guides does not transfer the
+fix to the children because the child generator does not respect the body: it needs either
+the Shrinkwrap it was built around, or a projection pass (section 3), and the projection
+needed is large (32.26% of children move > 3 mm; gate <= 2%). Depth p50 and temple p90
+also fail, and collision/spill gates (pinna, concha, faceMask) fail. Back IoU 0.9276 PASS.
+
+Honest headline: this slice proves the causal direction the card assumed is wrong. The
+depth/collision defect is NOT upstream in the guides for the child stage; it is in the
+Interpolate node's inability to stay out of the body. Evidence below.
+
+
+0. WHAT WAS BUILT (one command, deterministic)
+----------------------------------------------
+blender_children.py --guides guides-8a.npz --density 3900000 --seed 7 \
+  --scalp-roots hair-scalp1/roots.npz --part-by-islands 1 --clump-factor 0.2 \
+  --sideburn-tuck 1 --skip-drape 1 \
+  --clear-guides 1 --clearance-mm 2.0 --clear-thresh-mm 2.0 --clear-gate-mm 1.5 \
+  --outside-pass 1 --outside-target-mm 0.5 --outside-thresh-mm 0.5 \
+  --smooth-steps 2 --smooth-amount 0.15 --smooth-iters 1 --depth-classes 3 \
+  --interp-guides 3 --skip-shrink 1 --colliders ""
+-> 276984 children x 41 pts, radius 4e-05 m, zeroSuppressed 0.
+   array-hash (points+radii) 78899d4c172bc33deb9b6b10ba4199b0b201b5f073c0004e96929bb568becebb
+   (determinism rebuild -> identical hash; gates16.json)
+   file sha256 9f3d7dafe534ab4f3a5d4529d0d3f288dcd5349a33e15b15b01bc3915e6eb4cc
+   store: /Volumes/files/openclinxr-assets/store/hair-groom16/ (+ SHA256SUMS)
+Cleared guides: build/guides-cleared.npz (same store dir; sidecar build/guides-cleared.json).
+Renders: renders-studio-8a/ (front, three_quarter, profile_90, back) 1024 px / 64 spp,
+   params-c08, body mpfb-peds-parent-aisha.glb. Sheet: sheet.png (target|8a|15|16).
+   Crops: crops.png (10 regional boxes).
+
+NEW HELPER: strands/body_clear.py (station-owned, pure numpy, no scipy):
+  clear_guides  = project every sample < 2 mm from the exact body SDF out to 2 mm along
+                  the SDF gradient, re-smooth each guide (keep length, root, first
+                  take-off sample), re-project; no guide deleted.
+  outside_pass  = move every child sample < 0.5 mm out to 0.5 mm along the gradient;
+                  records per-child max move (npz key child_move_mm).
+
+
+1. SCORER CALIBRATION (why the numbers below are trustworthy)
+-------------------------------------------------------------
+calibrate16.py (= groom15's calibrate15.py, unmodified) re-scores groom8a's
+renders-studio with this stack and reproduces the published groom8a IoU exactly:
+front 0.7446, three_quarter 0.8261, profile_90 0.8543, back 0.8579; all delta 0.0;
+all_within_0.02 = true. rulers16.py is a verbatim copy of rulers15.py. => the ruler
+measures what groom8a published.
+
+
+2. STEP 1 — GUIDE CLEARANCE (station-owned, deterministic)
+-----------------------------------------------------------
+guides-8a raw: 2707 guides x 41 pts; pre-pass min skull-SDF -10.083 mm; 8325 samples
+< 2 mm; 2550 samples inside the body. After the clearance pass (build/guides-cleared.json):
+  postSamplesLtGate (SDF < 1.5 mm) = 0          GATE PASS (0 required)
+  postMinMm = 1.504 mm; postSamplesLtClearance (SDF < 2 mm) = 2604
+  guides moved > 0.05 mm = 2702 / 2707 (99.8%)
+  per-guide max move: p50 2.000 mm | p90 2.705 mm | p99 7.394 mm | max 15.228 mm
+  per-sample move:    p50 0.317 mm | p90 1.967 mm | p99 5.085 mm | max 15.228 mm
+  n samples moved > 0.05 mm = 99004
+Distribution read: the guide fix is small and local (median guide moves 2.0 mm); the
+tail (p99 7.4 mm, max 15.2 mm, from the sideburn tuck + deep raw guides) is bounded and
+reported. No guide deleted. Cleared guide-depth reference (E/guide-depth.json, re-measured
+on the CLEARED guides; this is the causal-chain input for the child depth gates):
+  band       n       p50     p90     std     min
+  parietal   22293   8.059   17.065  6.437   1.522
+  temple     9368    5.524   8.930   2.742   1.518
+  crown      25018   6.620   11.573  3.302   1.518
+  back       1865    13.890  31.257  9.607   4.015
+NOTE: the child build skips collapse_lateral (--skip-drape 1). Measured: collapse_lateral
+(keep 0.0) pulls in-band posterior samples' x toward the local mean and buries them up to
+-64.0 mm (a temple sample at x -80.5 mm -> x -0.97 mm, SDF 10.49 -> -64.04), max x move
+119.8 mm; it raised pre-pass inside samples from 2,550 to 9,279. It is a net harm and is
+dropped. Sideburn tuck is kept (631 guides, bounded).
+
+
+3. STEP 2 — CHILDREN (no Shrinkwrap) + OUTSIDE PASS
+---------------------------------------------------
+Stack: 3 depth classes (tertiles of each guide's own max skull SDF, cuts [11.027, 35.724],
+903/901/903 guides) -> one Interpolate per class + Clump 0.2 + Noise 0.1/2 mm +
+Smooth 0.15 x 1. NO Shrinkwrap.
+Outside pass (build/move16.json):
+  prePass samples inside (SDF<0, s>=1) = 2,164,671 / 11,356,344 finite = 19.061%   <-- FALSIFIER
+  prePass children with any inside sample = 132,002 / 276,984 = 47.7%
+  prePass inside fraction by band: parietal 21.09% | temple 27.19% | crown 15.98% | back 19.57%
+  postPass samples < 0 = 17 ; < 0.5 mm = 551,839
+  children moving > 3 mm = 89,362 = 32.26%          GATE FAIL (<= 2%)
+  per-child max move: p50 0.507 mm | p90 21.049 mm | p99 51.503 mm | max 89.008 mm
+  zero suppressed children = 0
+Distribution read: 32% of children need a >3 mm projection; their deepest sample is a
+median 21 mm inside the skull. The outside pass achieves insideBody<=500 only by spiking
+them out along the gradient — a per-sample fix, not a shape fix.
+
+FALSIFIER (card: ">10% of children enter the body before the outside pass ... report that
+fraction, the bands, and stop"): TRIGGERED. Fraction 19.06% of samples / 47.7% of children;
+bands parietal 21.09%, temple 27.19%, crown 15.98%, back 19.57%. Confirmed the blend, not
+the interpolation radius, is the cause: a no-Shrinkwrap rebuild at distance-to-guides 0.01
+gives 11.99% inside (and collapses count to 52,193), 0.05 gives 18.24%, 1.0 (groom15
+default) gives 19.06% — always >10%. Diagnosis: the Interpolate children dive through the
+skull; the groom15 Shrinkwrap was masking this by pulling the whole shell onto the surface
+(which is exactly why it flattened depth). Cleared guides do not change it.
+
+
+4. EVERY GATE (calibrated scorer; margin = child/gate result)
+--------------------------------------------------------------
+STEP GATES
+  guideClearance      samples<1.5mm 0                  PASS  (0 required)
+  outsidePass         32.26% children >3 mm            FAIL  (<= 2%; over by 30.26 pts)
+CARD GATES (cleared guide-depth reference)
+  depth parietal p50   4.39 vs band [6.447, 9.671]     FAIL  (2.06 mm below band; ratio 0.545)
+  depth parietal p90   17.79 vs band [13.652,20.478]   PASS  (ratio 1.042)
+  depth parietal std   7.66 >= 0.6*6.437=3.862         PASS  (ratio 1.190)
+  depth temple p50     2.80 vs band [4.419, 6.629]     FAIL  (1.62 mm below band; ratio 0.506)
+  depth temple p90     14.93 vs band [7.144,10.716]    FAIL  (ratio 1.672; 4.21 mm over)
+  depth temple std     7.12 >= 0.6*2.742=1.645         PASS  (ratio 2.597)
+  insideBody           17 (s>=1 SDF<0)                 PASS  (<= 500)
+  concha crossings     front 117998 / 3q 54007 / prof 240212  FAIL  (0 required)
+  faceMask             front ours 8503 > allow 3425    FAIL
+                       three_quarter 23272 > allow 2127 FAIL
+  pinnaProximity       159719 visible samples < 3 mm   FAIL  (0 required)
+  frontIoU             0.6239                          FAIL  (>= 0.70; -0.076)
+  profileIoU           0.7014                          FAIL  (>= 0.80; -0.099)
+  backIoU              0.9276                          PASS  (>= 0.84; +0.088)
+  frontMiss            11321 px                        PASS  (<= 15000; +3679)
+  knotHole (g10diag)   0 enclosedHolePx                PASS  (== 0)
+  colourNoRegress      mean RGB ratio [0.891,0.883,0.885] PASS (0.7..1.3 of groom12-8a)
+  backCore alpha<=5%   0.0147                          PASS  (<= 0.05)
+  determinism          rebuild hash identical          PASS
+  hardGates            pinna + outsidePass fail        FAIL
+  GATES_PASS           no
+Reference values: groom8a front 0.7446 / profile 0.8543; groom15 back 0.8434.
+Note the collision gates look PASS/FAIL inconsistently because they are measured on the
+POST outside-pass build: insideBody 17 is real, but it is produced by 89k projections
+(section 3), while pinna (159719) and concha/faceMask are geometry the projection did not
+remove. groom15 for comparison: insideBody 230457, pinna 174409, concha 168277/79145/299245,
+front 0.5091, profile 0.6722, back 0.8434.
+
+
+5. VISUAL READ (sheet.png rows target|groom8a|groom15|groom16; crops.png columns same)
+--------------------------------------------------------------------------------------
+MY GRADE (grid, no augment): groom16 tracks groom15 closely at the front/top and is
+better than groom15 at the back, exactly as the numbers say.
+- crops.png "top-3q" and "front-curtain-L/R": col-2 (target) and col-3 (groom8a) keep a
+  clean bare forehead and a clean hairline; col-5 (groom16) shows a dark fringe/bang band
+  falling across the forehead and temple strands crossing the hairline — the faceMask
+  FAIL (8503 px vs 3425) and forward-fall signature.
+- crops.png "3q-ear" and "profile-ear": col-5 shows a dark stray spike at the left
+  temple/ear and a messier lobe than col-3, consistent with pinna FAIL (159719) and
+  concha/faceMask fails; this is the outside-pass spiking a diving child back out.
+- crops.png "back-crown-part": col-5 has a wide splayed part whose strands leave the
+  crown (like col-4 groom15); the target part is narrow. knotHole == 0 (no enclosed
+  hole) but the part is splayed, not clean.
+- crops.png "back-hem-L/R" and "nape": col-5 is the fullest and closest to the target's
+  back coverage; this is the backIoU 0.9276 PASS and backCore 0.0147 PASS made visible.
+- sheet.png profile column: col-5 sits the hair slightly further off the crown than col-2,
+  the depth-p50 shortfall made visible at the silhouette.
+Canonical sheet: tools/openclinxr/evidence/hair-groom16/sheet.png.
+
+
+6. SCOPE / NOT TESTED / REMAINING
+---------------------------------
+SCOPE: local Blender render lane only. No Quest/WebXR runtime, no on-headset evidence,
+no performance/frame-budget measurement, no downstream consumer (arena/iwsdk) load.
+NOT TESTED: worn-headset validation; WebXR capture; clip-through in-engine; whether the
+outside-pass spikes are stable under animation.
+REMAINING (report-only per brief; no offsets added to make gates pass):
+  - The FALSIFIER is the finding: the Blender Essentials Interpolate children do not
+    respect the body; the groom15 Shrinkwrap was the collision control and it flattens
+    depth. A station that wants both needs a real shape-preserving collision (project
+    each child's shape, not each sample) or a different child generator. Cleared guides
+    (this slice) remove the guide-side penetration but do not fix the child side.
+  - Guide clearance itself PASSES and is native to the guide field; it is the correct
+    upstream hygiene and should be kept regardless of the child stage.
+  - Depth p50 (parietal 4.39, temple 2.80) still short of the cleared-guide band; temple
+    p90 14.93 still overshoots. std gates pass, so the spread is there but shifted.
+  - pinna 159719 and concha/faceMask need an ear/tuck + face-region pass independent of
+    the child generator.
+
+7. FILE MANIFEST
+----------------
+build/strands-8a.npz          final product (store copy + SHA256SUMS off-repo; not in git)
+build/guides-cleared.npz      cleared guides (store copy + SHA256SUMS; not in git)
+build/gates16.json            hard-gate record + exact build flags + hashes
+build/move16.json             outside-pass stats + guide-clear stats + falsifier
+build/guides-cleared.json     guide-clear stats sidecar
+build/strands-asset.txt       store hashes + build command (committed)
+build/build.log               full build log
+guide-depth.json, guide_depth16.py   cleared guide-depth reference (section 2)
+score16.py, rulers16.py, calibrate16.py, iou16.py, depthprobe16.py  scorer
+gates16.py, make_sheet.py     gate runner + sheet builder
+score16.json                  full per-region scorer output
+calibrate16.py / groom8a-calib.json  calibration (section 1)
+sheet.png, crops.png          4-way render sheet + regional crops
+renders-studio-8a/            4 studio views + id images + render-times.json
+station-frame.npz             face-mask frame fixture (copied from /tmp/station0b-run;
+                              NOT in git — .npz rule; re-copy to re-run score16.py)

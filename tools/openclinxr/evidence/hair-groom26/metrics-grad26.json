@@ -1,0 +1,68 @@
+{
+ "registration": {
+  "scale": 1.0403225806451613,
+  "tx": -19.645161290322562,
+  "ty": -31.25,
+  "renderTriple": [
+   155.0,
+   651.0,
+   512.0
+  ],
+  "targetTriple": [
+   130.0,
+   646.0,
+   513.0
+  ]
+ },
+ "targetBox": [
+  124,
+  406,
+  513,
+  777
+ ],
+ "boxNote": "groom10diag back-knot box rows 150-420 cols 512-765 mapped render->target with scorer judge-v6",
+ "target": {
+  "gradAniso_gyOvergx": 0.5302,
+  "darkComp_meanAreaPx": 56.38,
+  "darkComp_count": 65,
+  "darkComp_bigFrac": 0.0915,
+  "darkComp_p10": 0.0843,
+  "nHairPx": 36408
+ },
+ "ctrl": {
+  "gradAniso_gyOvergx": 1.0162,
+  "darkComp_meanAreaPx": 93.67,
+  "darkComp_count": 39,
+  "darkComp_bigFrac": 0.052,
+  "darkComp_p10": 0.0941,
+  "nHairPx": 36408,
+  "renderSha": "ea076717a32aa1e62bae7c0c246fcb31d706bd865b6cc0ccf728aea388b7c493"
+ },
+ "opt26keep200": {
+  "gradAniso_gyOvergx": 0.6179,
+  "darkComp_meanAreaPx": 80.93,
+  "darkComp_count": 46,
+  "darkComp_bigFrac": 0.065,
+  "darkComp_p10": 0.0983,
+  "nHairPx": 36408,
+  "renderSha": "e0699c63c3af44d03fe9ea3da250c23177a09958a035e961b4ad5a3dede2dd7c"
+ },
+ "opt26bf": {
+  "gradAniso_gyOvergx": 0.6151,
+  "darkComp_meanAreaPx": 108.88,
+  "darkComp_count": 34,
+  "darkComp_bigFrac": 0.0631,
+  "darkComp_p10": 0.098,
+  "nHairPx": 36408,
+  "renderSha": "f76a6beaf3bb8b4210ba1788280736b5026b92459240b59ed665426b2e1b3f2c"
+ },
+ "opt26": {
+  "gradAniso_gyOvergx": 0.6253,
+  "darkComp_meanAreaPx": 95.49,
+  "darkComp_count": 39,
+  "darkComp_bigFrac": 0.0651,
+  "darkComp_p10": 0.0988,
+  "nHairPx": 36408,
+  "renderSha": "d26e301cf138cd8fe7e298aba2be0fe1e38456769a0ac3d32641920647072f99"
+ }
+}

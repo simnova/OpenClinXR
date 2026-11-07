@@ -1,0 +1,2326 @@
+{
+  "bodySource": "tools/openclinxr/evidence/hair-cage1/body-depth.npz (bare body + garment, library topper excluded)",
+  "hemBaseZ": {
+    "L": 1.3991,
+    "R": 1.3962
+  },
+  "hypothesis": "front flat hem (rows 666/675) is the body-occlusion edge; hair continues behind shoulders to the profile/back hem",
+  "inputs": [
+    "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-split0/split.json",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/cage/instruments.py",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/hair-groom/envelope.py",
+    "/Users/patrick/.grok/worktrees/src-openclinxr/hair-p7/tools/openclinxr/evidence/hair-cage1/body-depth.npz"
+  ],
+  "marginMm": 5.0,
+  "nBelowHem": 90,
+  "nCandidates": 96,
+  "nOccludedBelow": 89,
+  "patchPx": 2,
+  "results": {
+    "backCentreL": {
+      "bodyDepthM": 0.6313,
+      "colR": 507.1,
+      "colT": 508.3,
+      "depthM": 0.836,
+      "gapMm": -204.6,
+      "note": "ref back-ray-side backC (pairs frontL)",
+      "occluderM": [
+        -0.0022,
+        -0.0717,
+        1.3873
+      ],
+      "pointM": [
+        -0.0029,
+        0.132,
+        1.3528
+      ],
+      "rowR": 711.0,
+      "rowT": 730.2,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 204.6 mm in front of hair"
+    },
+    "backCentreR": {
+      "bodyDepthM": 0.631,
+      "colR": 506.8,
+      "colT": 508.0,
+      "depthM": 0.8223,
+      "gapMm": -191.3,
+      "note": "ref back-ray-side backC (pairs frontR)",
+      "occluderM": [
+        -0.0023,
+        -0.0722,
+        1.3829
+      ],
+      "pointM": [
+        -0.003,
+        0.1182,
+        1.3494
+      ],
+      "rowR": 720.9,
+      "rowT": 739.6,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 191.3 mm in front of hair"
+    },
+    "backCornerL": {
+      "bodyDepthM": 0.6338,
+      "colR": 577.3,
+      "colT": 575.4,
+      "depthM": 0.8119,
+      "gapMm": -178.2,
+      "note": "H3 back-ray-side backL (pairs frontR)",
+      "occluderM": [
+        0.0291,
+        -0.0694,
+        1.3819
+      ],
+      "pointM": [
+        0.0373,
+        0.1079,
+        1.3505
+      ],
+      "rowR": 722.1,
+      "rowT": 740.8,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 178.2 mm in front of hair"
+    },
+    "backCornerR": {
+      "bodyDepthM": 0.6343,
+      "colR": 450.9,
+      "colT": 454.7,
+      "depthM": 0.8306,
+      "gapMm": -196.3,
+      "note": "H3 back-ray-side backR (pairs frontL)",
+      "occluderM": [
+        -0.0273,
+        -0.0688,
+        1.3866
+      ],
+      "pointM": [
+        -0.0357,
+        0.1267,
+        1.3535
+      ],
+      "rowR": 711.3,
+      "rowT": 730.5,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 196.3 mm in front of hair"
+    },
+    "profHemL": {
+      "bodyDepthM": 0.6096,
+      "colR": 370.1,
+      "colT": 377.5,
+      "depthM": 0.7736,
+      "gapMm": -164.0,
+      "note": "H1 profile-ray-side hem L (z 1.2908)",
+      "occluderM": [
+        -0.0608,
+        -0.095,
+        1.3338
+      ],
+      "pointM": [
+        -0.0772,
+        0.0678,
+        1.2908
+      ],
+      "rowR": 844.4,
+      "rowT": 857.5,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 164.0 mm in front of hair"
+    },
+    "profHemR": {
+      "bodyDepthM": 0.6422,
+      "colR": 735.0,
+      "colT": 725.9,
+      "depthM": 0.7551,
+      "gapMm": -112.9,
+      "note": "H1 profile-ray-side hem R (z 1.3418)",
+      "occluderM": [
+        0.1007,
+        -0.0615,
+        1.3645
+      ],
+      "pointM": [
+        0.1184,
+        0.0508,
+        1.3418
+      ],
+      "rowR": 757.4,
+      "rowT": 774.4,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 112.9 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.259": {
+      "bodyDepthM": 0.5993,
+      "colR": 322.2,
+      "colT": 331.9,
+      "depthM": 0.784,
+      "gapMm": -184.7,
+      "note": "sweep L hem column dy=+0mm z=1.259",
+      "occluderM": [
+        -0.08,
+        -0.1059,
+        1.3143
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.2591
+      ],
+      "rowR": 896.9,
+      "rowT": 907.7,
+      "status": "occluded",
+      "surface": "chest",
+      "why": "body 184.7 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.269": {
+      "bodyDepthM": 0.6037,
+      "colR": 322.2,
+      "colT": 331.8,
+      "depthM": 0.7837,
+      "gapMm": -180.0,
+      "note": "sweep L hem column dy=+0mm z=1.269",
+      "occluderM": [
+        -0.0806,
+        -0.1013,
+        1.3207
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.2691
+      ],
+      "rowR": 878.9,
+      "rowT": 890.5,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 180.0 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.279": {
+      "bodyDepthM": 0.6086,
+      "colR": 322.1,
+      "colT": 331.7,
+      "depthM": 0.7834,
+      "gapMm": -174.8,
+      "note": "sweep L hem column dy=+0mm z=1.279",
+      "occluderM": [
+        -0.0813,
+        -0.0962,
+        1.327
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.2791
+      ],
+      "rowR": 860.9,
+      "rowT": 873.3,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 174.8 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.289": {
+      "bodyDepthM": 0.6136,
+      "colR": 322.0,
+      "colT": 331.7,
+      "depthM": 0.7831,
+      "gapMm": -169.5,
+      "note": "sweep L hem column dy=+0mm z=1.289",
+      "occluderM": [
+        -0.082,
+        -0.091,
+        1.3334
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.2891
+      ],
+      "rowR": 842.9,
+      "rowT": 856.1,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 169.5 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.299": {
+      "bodyDepthM": 0.6185,
+      "colR": 322.0,
+      "colT": 331.6,
+      "depthM": 0.7828,
+      "gapMm": -164.3,
+      "note": "sweep L hem column dy=+0mm z=1.299",
+      "occluderM": [
+        -0.0826,
+        -0.0859,
+        1.3399
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.2991
+      ],
+      "rowR": 824.9,
+      "rowT": 838.9,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 164.3 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.309": {
+      "bodyDepthM": 0.6237,
+      "colR": 321.9,
+      "colT": 331.5,
+      "depthM": 0.7825,
+      "gapMm": -158.8,
+      "note": "sweep L hem column dy=+0mm z=1.309",
+      "occluderM": [
+        -0.0834,
+        -0.0805,
+        1.3465
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.3091
+      ],
+      "rowR": 806.8,
+      "rowT": 821.6,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 158.8 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.319": {
+      "bodyDepthM": 0.6288,
+      "colR": 321.8,
+      "colT": 331.5,
+      "depthM": 0.7822,
+      "gapMm": -153.5,
+      "note": "sweep L hem column dy=+0mm z=1.319",
+      "occluderM": [
+        -0.0841,
+        -0.0753,
+        1.3533
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.3191
+      ],
+      "rowR": 788.7,
+      "rowT": 804.4,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 153.5 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.329": {
+      "bodyDepthM": 0.6346,
+      "colR": 321.8,
+      "colT": 331.4,
+      "depthM": 0.782,
+      "gapMm": -147.3,
+      "note": "sweep L hem column dy=+0mm z=1.329",
+      "occluderM": [
+        -0.0849,
+        -0.0692,
+        1.3601
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.3291
+      ],
+      "rowR": 770.7,
+      "rowT": 787.1,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 147.3 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.339": {
+      "bodyDepthM": 0.6413,
+      "colR": 321.7,
+      "colT": 331.3,
+      "depthM": 0.7817,
+      "gapMm": -140.4,
+      "note": "sweep L hem column dy=+0mm z=1.339",
+      "occluderM": [
+        -0.0858,
+        -0.0624,
+        1.3668
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.3391
+      ],
+      "rowR": 752.6,
+      "rowT": 769.9,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 140.4 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.349": {
+      "bodyDepthM": 0.6508,
+      "colR": 321.6,
+      "colT": 331.3,
+      "depthM": 0.7814,
+      "gapMm": -130.6,
+      "note": "sweep L hem column dy=+0mm z=1.349",
+      "occluderM": [
+        -0.0871,
+        -0.0527,
+        1.3733
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.3491
+      ],
+      "rowR": 734.5,
+      "rowT": 752.6,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 130.6 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.359": {
+      "bodyDepthM": 0.6594,
+      "colR": 321.5,
+      "colT": 331.2,
+      "depthM": 0.7811,
+      "gapMm": -121.7,
+      "note": "sweep L hem column dy=+0mm z=1.359",
+      "occluderM": [
+        -0.0883,
+        -0.0438,
+        1.38
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.3591
+      ],
+      "rowR": 716.3,
+      "rowT": 735.3,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 121.7 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.369": {
+      "bodyDepthM": 0.6686,
+      "colR": 321.5,
+      "colT": 331.1,
+      "depthM": 0.7808,
+      "gapMm": -112.2,
+      "note": "sweep L hem column dy=+0mm z=1.369",
+      "occluderM": [
+        -0.0896,
+        -0.0344,
+        1.387
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.3691
+      ],
+      "rowR": 698.2,
+      "rowT": 718.0,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 112.2 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.379": {
+      "bodyDepthM": 0.6834,
+      "colR": 321.4,
+      "colT": 331.1,
+      "depthM": 0.7805,
+      "gapMm": -97.2,
+      "note": "sweep L hem column dy=+0mm z=1.379",
+      "occluderM": [
+        -0.0916,
+        -0.0195,
+        1.3934
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.3791
+      ],
+      "rowR": 680.1,
+      "rowT": 700.7,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 97.2 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.389": {
+      "bodyDepthM": 0.7039,
+      "colR": 321.3,
+      "colT": 331.0,
+      "depthM": 0.7803,
+      "gapMm": -76.3,
+      "note": "sweep L hem column dy=+0mm z=1.389",
+      "occluderM": [
+        -0.0944,
+        0.0013,
+        1.3993
+      ],
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.3891
+      ],
+      "rowR": 661.9,
+      "rowT": 683.3,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 76.3 mm in front of hair"
+    },
+    "sweepL_dy+0_z1.399": {
+      "bodyDepthM": null,
+      "colR": 321.3,
+      "colT": 330.9,
+      "depthM": 0.78,
+      "gapMm": null,
+      "note": "sweep L hem column dy=+0mm z=1.399",
+      "occluderM": null,
+      "pointM": [
+        -0.1046,
+        0.0773,
+        1.3991
+      ],
+      "rowR": 643.7,
+      "rowT": 666.0,
+      "status": "visible",
+      "surface": null,
+      "why": "no body along ray"
+    },
+    "sweepL_dy+40_z1.259": {
+      "bodyDepthM": 0.604,
+      "colR": 331.4,
+      "colT": 340.7,
+      "depthM": 0.8239,
+      "gapMm": -220.0,
+      "note": "sweep L hem column dy=+40mm z=1.259",
+      "occluderM": [
+        -0.0767,
+        -0.101,
+        1.3217
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.2591
+      ],
+      "rowR": 876.3,
+      "rowT": 888.0,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 220.0 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.269": {
+      "bodyDepthM": 0.6086,
+      "colR": 331.4,
+      "colT": 340.6,
+      "depthM": 0.8237,
+      "gapMm": -215.0,
+      "note": "sweep L hem column dy=+40mm z=1.269",
+      "occluderM": [
+        -0.0773,
+        -0.0962,
+        1.3277
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.2691
+      ],
+      "rowR": 859.2,
+      "rowT": 871.6,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 215.0 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.279": {
+      "bodyDepthM": 0.6134,
+      "colR": 331.3,
+      "colT": 340.5,
+      "depthM": 0.8234,
+      "gapMm": -210.0,
+      "note": "sweep L hem column dy=+40mm z=1.279",
+      "occluderM": [
+        -0.0779,
+        -0.0912,
+        1.3338
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.2791
+      ],
+      "rowR": 842.0,
+      "rowT": 855.2,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 210.0 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.289": {
+      "bodyDepthM": 0.618,
+      "colR": 331.3,
+      "colT": 340.5,
+      "depthM": 0.8231,
+      "gapMm": -205.1,
+      "note": "sweep L hem column dy=+40mm z=1.289",
+      "occluderM": [
+        -0.0785,
+        -0.0864,
+        1.34
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.2891
+      ],
+      "rowR": 824.9,
+      "rowT": 838.9,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 205.1 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.299": {
+      "bodyDepthM": 0.6228,
+      "colR": 331.2,
+      "colT": 340.4,
+      "depthM": 0.8228,
+      "gapMm": -200.0,
+      "note": "sweep L hem column dy=+40mm z=1.299",
+      "occluderM": [
+        -0.0792,
+        -0.0814,
+        1.3464
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.2991
+      ],
+      "rowR": 807.7,
+      "rowT": 822.5,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 200.0 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.309": {
+      "bodyDepthM": 0.6275,
+      "colR": 331.1,
+      "colT": 340.4,
+      "depthM": 0.8225,
+      "gapMm": -195.0,
+      "note": "sweep L hem column dy=+40mm z=1.309",
+      "occluderM": [
+        -0.0798,
+        -0.0765,
+        1.3528
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.3091
+      ],
+      "rowR": 790.5,
+      "rowT": 806.1,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 195.0 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.319": {
+      "bodyDepthM": 0.633,
+      "colR": 331.1,
+      "colT": 340.3,
+      "depthM": 0.8222,
+      "gapMm": -189.3,
+      "note": "sweep L hem column dy=+40mm z=1.319",
+      "occluderM": [
+        -0.0805,
+        -0.0709,
+        1.3593
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.3191
+      ],
+      "rowR": 773.3,
+      "rowT": 789.7,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 189.3 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.329": {
+      "bodyDepthM": 0.639,
+      "colR": 331.0,
+      "colT": 340.2,
+      "depthM": 0.8219,
+      "gapMm": -182.9,
+      "note": "sweep L hem column dy=+40mm z=1.329",
+      "occluderM": [
+        -0.0813,
+        -0.0646,
+        1.3657
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.3291
+      ],
+      "rowR": 756.1,
+      "rowT": 773.2,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 182.9 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.339": {
+      "bodyDepthM": 0.6476,
+      "colR": 330.9,
+      "colT": 340.2,
+      "depthM": 0.8217,
+      "gapMm": -174.1,
+      "note": "sweep L hem column dy=+40mm z=1.339",
+      "occluderM": [
+        -0.0824,
+        -0.0559,
+        1.3718
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.3391
+      ],
+      "rowR": 738.9,
+      "rowT": 756.8,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 174.1 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.349": {
+      "bodyDepthM": 0.6559,
+      "colR": 330.9,
+      "colT": 340.1,
+      "depthM": 0.8214,
+      "gapMm": -165.5,
+      "note": "sweep L hem column dy=+40mm z=1.349",
+      "occluderM": [
+        -0.0835,
+        -0.0474,
+        1.3782
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.3491
+      ],
+      "rowR": 721.7,
+      "rowT": 740.4,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 165.5 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.359": {
+      "bodyDepthM": 0.664,
+      "colR": 330.8,
+      "colT": 340.1,
+      "depthM": 0.8211,
+      "gapMm": -157.1,
+      "note": "sweep L hem column dy=+40mm z=1.359",
+      "occluderM": [
+        -0.0846,
+        -0.0391,
+        1.3848
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.3591
+      ],
+      "rowR": 704.4,
+      "rowT": 723.9,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 157.1 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.369": {
+      "bodyDepthM": 0.6752,
+      "colR": 330.8,
+      "colT": 340.0,
+      "depthM": 0.8208,
+      "gapMm": -145.6,
+      "note": "sweep L hem column dy=+40mm z=1.369",
+      "occluderM": [
+        -0.086,
+        -0.0278,
+        1.3912
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.3691
+      ],
+      "rowR": 687.2,
+      "rowT": 707.4,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 145.6 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.379": {
+      "bodyDepthM": 0.6897,
+      "colR": 330.7,
+      "colT": 339.9,
+      "depthM": 0.8205,
+      "gapMm": -130.9,
+      "note": "sweep L hem column dy=+40mm z=1.379",
+      "occluderM": [
+        -0.0879,
+        -0.0131,
+        1.3974
+      ],
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.3791
+      ],
+      "rowR": 669.9,
+      "rowT": 690.9,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 130.9 mm in front of hair"
+    },
+    "sweepL_dy+40_z1.389": {
+      "bodyDepthM": null,
+      "colR": 330.6,
+      "colT": 339.9,
+      "depthM": 0.8202,
+      "gapMm": null,
+      "note": "sweep L hem column dy=+40mm z=1.389",
+      "occluderM": null,
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.3891
+      ],
+      "rowR": 652.6,
+      "rowT": 674.5,
+      "status": "visible",
+      "surface": null,
+      "why": "no body along ray"
+    },
+    "sweepL_dy+40_z1.399": {
+      "bodyDepthM": null,
+      "colR": 330.6,
+      "colT": 339.8,
+      "depthM": 0.8199,
+      "gapMm": null,
+      "note": "sweep L hem column dy=+40mm z=1.399",
+      "occluderM": null,
+      "pointM": [
+        -0.1046,
+        0.1173,
+        1.3991
+      ],
+      "rowR": 635.3,
+      "rowT": 658.0,
+      "status": "visible",
+      "surface": null,
+      "why": "no body along ray"
+    },
+    "sweepL_dy-40_z1.259": {
+      "bodyDepthM": 0.5942,
+      "colR": 312.0,
+      "colT": 322.1,
+      "depthM": 0.744,
+      "gapMm": -149.8,
+      "note": "sweep L hem column dy=-40mm z=1.259",
+      "occluderM": [
+        -0.0835,
+        -0.1112,
+        1.3063
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.2591
+      ],
+      "rowR": 919.8,
+      "rowT": 929.5,
+      "status": "occluded",
+      "surface": "chest",
+      "why": "body 149.8 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.269": {
+      "bodyDepthM": 0.5989,
+      "colR": 312.0,
+      "colT": 322.1,
+      "depthM": 0.7437,
+      "gapMm": -144.8,
+      "note": "sweep L hem column dy=-40mm z=1.269",
+      "occluderM": [
+        -0.0842,
+        -0.1063,
+        1.3128
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.2691
+      ],
+      "rowR": 900.9,
+      "rowT": 911.4,
+      "status": "occluded",
+      "surface": "chest",
+      "why": "body 144.8 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.279": {
+      "bodyDepthM": 0.6034,
+      "colR": 311.9,
+      "colT": 322.0,
+      "depthM": 0.7434,
+      "gapMm": -140.0,
+      "note": "sweep L hem column dy=-40mm z=1.279",
+      "occluderM": [
+        -0.0849,
+        -0.1016,
+        1.3195
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.2791
+      ],
+      "rowR": 881.9,
+      "rowT": 893.3,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 140.0 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.289": {
+      "bodyDepthM": 0.6086,
+      "colR": 311.8,
+      "colT": 321.9,
+      "depthM": 0.7431,
+      "gapMm": -134.5,
+      "note": "sweep L hem column dy=-40mm z=1.289",
+      "occluderM": [
+        -0.0857,
+        -0.0962,
+        1.3261
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.2891
+      ],
+      "rowR": 862.9,
+      "rowT": 875.2,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 134.5 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.299": {
+      "bodyDepthM": 0.6139,
+      "colR": 311.7,
+      "colT": 321.8,
+      "depthM": 0.7428,
+      "gapMm": -129.0,
+      "note": "sweep L hem column dy=-40mm z=1.299",
+      "occluderM": [
+        -0.0864,
+        -0.0908,
+        1.3329
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.2991
+      ],
+      "rowR": 843.9,
+      "rowT": 857.0,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 129.0 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.309": {
+      "bodyDepthM": 0.6192,
+      "colR": 311.7,
+      "colT": 321.8,
+      "depthM": 0.7426,
+      "gapMm": -123.4,
+      "note": "sweep L hem column dy=-40mm z=1.309",
+      "occluderM": [
+        -0.0872,
+        -0.0853,
+        1.3398
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.3091
+      ],
+      "rowR": 824.9,
+      "rowT": 838.9,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 123.4 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.319": {
+      "bodyDepthM": 0.6247,
+      "colR": 311.6,
+      "colT": 321.7,
+      "depthM": 0.7423,
+      "gapMm": -117.6,
+      "note": "sweep L hem column dy=-40mm z=1.319",
+      "occluderM": [
+        -0.088,
+        -0.0796,
+        1.3467
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.3191
+      ],
+      "rowR": 805.8,
+      "rowT": 820.7,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 117.6 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.329": {
+      "bodyDepthM": 0.6303,
+      "colR": 311.5,
+      "colT": 321.6,
+      "depthM": 0.742,
+      "gapMm": -111.7,
+      "note": "sweep L hem column dy=-40mm z=1.329",
+      "occluderM": [
+        -0.0889,
+        -0.0737,
+        1.3539
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.3291
+      ],
+      "rowR": 786.8,
+      "rowT": 802.5,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 111.7 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.339": {
+      "bodyDepthM": 0.6362,
+      "colR": 311.4,
+      "colT": 321.5,
+      "depthM": 0.7417,
+      "gapMm": -105.5,
+      "note": "sweep L hem column dy=-40mm z=1.339",
+      "occluderM": [
+        -0.0897,
+        -0.0676,
+        1.3611
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.3391
+      ],
+      "rowR": 767.7,
+      "rowT": 784.3,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 105.5 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.349": {
+      "bodyDepthM": 0.6442,
+      "colR": 311.3,
+      "colT": 321.5,
+      "depthM": 0.7414,
+      "gapMm": -97.2,
+      "note": "sweep L hem column dy=-40mm z=1.349",
+      "occluderM": [
+        -0.0909,
+        -0.0594,
+        1.368
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.3491
+      ],
+      "rowR": 748.7,
+      "rowT": 766.1,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 97.2 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.359": {
+      "bodyDepthM": 0.6535,
+      "colR": 311.3,
+      "colT": 321.4,
+      "depthM": 0.7411,
+      "gapMm": -87.6,
+      "note": "sweep L hem column dy=-40mm z=1.359",
+      "occluderM": [
+        -0.0922,
+        -0.0499,
+        1.375
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.3591
+      ],
+      "rowR": 729.6,
+      "rowT": 747.9,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 87.6 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.369": {
+      "bodyDepthM": 0.6628,
+      "colR": 311.2,
+      "colT": 321.3,
+      "depthM": 0.7408,
+      "gapMm": -78.0,
+      "note": "sweep L hem column dy=-40mm z=1.369",
+      "occluderM": [
+        -0.0936,
+        -0.0404,
+        1.3822
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.3691
+      ],
+      "rowR": 710.5,
+      "rowT": 729.7,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 78.0 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.379": {
+      "bodyDepthM": 0.6747,
+      "colR": 311.1,
+      "colT": 321.3,
+      "depthM": 0.7406,
+      "gapMm": -65.9,
+      "note": "sweep L hem column dy=-40mm z=1.379",
+      "occluderM": [
+        -0.0953,
+        -0.0283,
+        1.3893
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.3791
+      ],
+      "rowR": 691.3,
+      "rowT": 711.4,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 65.9 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.389": {
+      "bodyDepthM": 0.6942,
+      "colR": 311.0,
+      "colT": 321.2,
+      "depthM": 0.7403,
+      "gapMm": -46.0,
+      "note": "sweep L hem column dy=-40mm z=1.389",
+      "occluderM": [
+        -0.0981,
+        -0.0086,
+        1.3956
+      ],
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.3891
+      ],
+      "rowR": 672.2,
+      "rowT": 693.1,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 46.0 mm in front of hair"
+    },
+    "sweepL_dy-40_z1.399": {
+      "bodyDepthM": null,
+      "colR": 311.0,
+      "colT": 321.1,
+      "depthM": 0.74,
+      "gapMm": null,
+      "note": "sweep L hem column dy=-40mm z=1.399",
+      "occluderM": null,
+      "pointM": [
+        -0.1046,
+        0.0373,
+        1.3991
+      ],
+      "rowR": 653.1,
+      "rowT": 674.9,
+      "status": "visible",
+      "surface": null,
+      "why": "no body along ray"
+    },
+    "sweepR_dy+0_z1.256": {
+      "bodyDepthM": 0.5957,
+      "colR": 706.9,
+      "colT": 699.0,
+      "depthM": 0.7664,
+      "gapMm": -170.6,
+      "note": "sweep R hem column dy=+0mm z=1.256",
+      "occluderM": [
+        0.0816,
+        -0.1096,
+        1.3091
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.2562
+      ],
+      "rowR": 912.1,
+      "rowT": 922.1,
+      "status": "occluded",
+      "surface": "chest",
+      "why": "body 170.6 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.266": {
+      "bodyDepthM": 0.6003,
+      "colR": 706.9,
+      "colT": 699.1,
+      "depthM": 0.7661,
+      "gapMm": -165.7,
+      "note": "sweep R hem column dy=+0mm z=1.266",
+      "occluderM": [
+        0.0823,
+        -0.1048,
+        1.3154
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.2662
+      ],
+      "rowR": 893.7,
+      "rowT": 904.6,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 165.7 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.276": {
+      "bodyDepthM": 0.6049,
+      "colR": 707.0,
+      "colT": 699.1,
+      "depthM": 0.7658,
+      "gapMm": -160.9,
+      "note": "sweep R hem column dy=+0mm z=1.276",
+      "occluderM": [
+        0.0829,
+        -0.1,
+        1.3219
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.2762
+      ],
+      "rowR": 875.3,
+      "rowT": 887.0,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 160.9 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.286": {
+      "bodyDepthM": 0.61,
+      "colR": 707.1,
+      "colT": 699.2,
+      "depthM": 0.7655,
+      "gapMm": -155.5,
+      "note": "sweep R hem column dy=+0mm z=1.286",
+      "occluderM": [
+        0.0837,
+        -0.0948,
+        1.3283
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.2862
+      ],
+      "rowR": 856.8,
+      "rowT": 869.4,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 155.5 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.296": {
+      "bodyDepthM": 0.6152,
+      "colR": 707.2,
+      "colT": 699.3,
+      "depthM": 0.7652,
+      "gapMm": -150.0,
+      "note": "sweep R hem column dy=+0mm z=1.296",
+      "occluderM": [
+        0.0844,
+        -0.0893,
+        1.3349
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.2962
+      ],
+      "rowR": 838.4,
+      "rowT": 851.8,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 150.0 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.306": {
+      "bodyDepthM": 0.6203,
+      "colR": 707.2,
+      "colT": 699.3,
+      "depthM": 0.7649,
+      "gapMm": -144.7,
+      "note": "sweep R hem column dy=+0mm z=1.306",
+      "occluderM": [
+        0.0851,
+        -0.0841,
+        1.3416
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.3062
+      ],
+      "rowR": 819.9,
+      "rowT": 834.2,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 144.7 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.316": {
+      "bodyDepthM": 0.6258,
+      "colR": 707.3,
+      "colT": 699.4,
+      "depthM": 0.7646,
+      "gapMm": -138.9,
+      "note": "sweep R hem column dy=+0mm z=1.316",
+      "occluderM": [
+        0.0859,
+        -0.0784,
+        1.3484
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.3162
+      ],
+      "rowR": 801.4,
+      "rowT": 816.5,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 138.9 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.326": {
+      "bodyDepthM": 0.6311,
+      "colR": 707.4,
+      "colT": 699.5,
+      "depthM": 0.7644,
+      "gapMm": -133.3,
+      "note": "sweep R hem column dy=+0mm z=1.326",
+      "occluderM": [
+        0.0867,
+        -0.0729,
+        1.3554
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.3262
+      ],
+      "rowR": 783.0,
+      "rowT": 798.9,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 133.3 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.336": {
+      "bodyDepthM": 0.6371,
+      "colR": 707.4,
+      "colT": 699.6,
+      "depthM": 0.7641,
+      "gapMm": -127.0,
+      "note": "sweep R hem column dy=+0mm z=1.336",
+      "occluderM": [
+        0.0875,
+        -0.0667,
+        1.3624
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.3362
+      ],
+      "rowR": 764.5,
+      "rowT": 781.2,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 127.0 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.346": {
+      "bodyDepthM": 0.6453,
+      "colR": 707.5,
+      "colT": 699.6,
+      "depthM": 0.7638,
+      "gapMm": -118.5,
+      "note": "sweep R hem column dy=+0mm z=1.346",
+      "occluderM": [
+        0.0887,
+        -0.0583,
+        1.3691
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.3462
+      ],
+      "rowR": 745.9,
+      "rowT": 763.5,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 118.5 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.356": {
+      "bodyDepthM": 0.6546,
+      "colR": 707.6,
+      "colT": 699.7,
+      "depthM": 0.7635,
+      "gapMm": -108.9,
+      "note": "sweep R hem column dy=+0mm z=1.356",
+      "occluderM": [
+        0.09,
+        -0.0488,
+        1.3758
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.3562
+      ],
+      "rowR": 727.4,
+      "rowT": 745.8,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 108.9 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.366": {
+      "bodyDepthM": 0.6629,
+      "colR": 707.7,
+      "colT": 699.8,
+      "depthM": 0.7632,
+      "gapMm": -100.4,
+      "note": "sweep R hem column dy=+0mm z=1.366",
+      "occluderM": [
+        0.0912,
+        -0.0403,
+        1.3829
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.3662
+      ],
+      "rowR": 708.9,
+      "rowT": 728.1,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 100.4 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.376": {
+      "bodyDepthM": 0.6747,
+      "colR": 707.7,
+      "colT": 699.8,
+      "depthM": 0.7629,
+      "gapMm": -88.2,
+      "note": "sweep R hem column dy=+0mm z=1.376",
+      "occluderM": [
+        0.0929,
+        -0.0282,
+        1.3898
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.3762
+      ],
+      "rowR": 690.3,
+      "rowT": 710.4,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 88.2 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.386": {
+      "bodyDepthM": 0.6926,
+      "colR": 707.8,
+      "colT": 699.9,
+      "depthM": 0.7626,
+      "gapMm": -70.0,
+      "note": "sweep R hem column dy=+0mm z=1.386",
+      "occluderM": [
+        0.0954,
+        -0.0102,
+        1.3961
+      ],
+      "pointM": [
+        0.105,
+        0.0596,
+        1.3862
+      ],
+      "rowR": 671.7,
+      "rowT": 692.7,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 70.0 mm in front of hair"
+    },
+    "sweepR_dy+0_z1.396": {
+      "bodyDepthM": null,
+      "colR": 707.9,
+      "colT": 700.0,
+      "depthM": 0.7624,
+      "gapMm": null,
+      "note": "sweep R hem column dy=+0mm z=1.396",
+      "occluderM": null,
+      "pointM": [
+        0.105,
+        0.0596,
+        1.3962
+      ],
+      "rowR": 653.1,
+      "rowT": 674.9,
+      "status": "visible",
+      "surface": null,
+      "why": "no body along ray"
+    },
+    "sweepR_dy+40_z1.256": {
+      "bodyDepthM": 0.6008,
+      "colR": 697.2,
+      "colT": 689.8,
+      "depthM": 0.8063,
+      "gapMm": -205.5,
+      "note": "sweep R hem column dy=+40mm z=1.256",
+      "occluderM": [
+        0.0782,
+        -0.1043,
+        1.3167
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.2562
+      ],
+      "rowR": 890.3,
+      "rowT": 901.3,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 205.5 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.266": {
+      "bodyDepthM": 0.6049,
+      "colR": 697.3,
+      "colT": 689.8,
+      "depthM": 0.8061,
+      "gapMm": -201.2,
+      "note": "sweep R hem column dy=+40mm z=1.266",
+      "occluderM": [
+        0.0788,
+        -0.1,
+        1.323
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.2662
+      ],
+      "rowR": 872.7,
+      "rowT": 884.6,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 201.2 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.276": {
+      "bodyDepthM": 0.61,
+      "colR": 697.3,
+      "colT": 689.9,
+      "depthM": 0.8058,
+      "gapMm": -195.8,
+      "note": "sweep R hem column dy=+40mm z=1.276",
+      "occluderM": [
+        0.0795,
+        -0.0947,
+        1.329
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.2762
+      ],
+      "rowR": 855.2,
+      "rowT": 867.9,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 195.8 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.286": {
+      "bodyDepthM": 0.6147,
+      "colR": 697.4,
+      "colT": 690.0,
+      "depthM": 0.8055,
+      "gapMm": -190.8,
+      "note": "sweep R hem column dy=+40mm z=1.286",
+      "occluderM": [
+        0.0801,
+        -0.0899,
+        1.3353
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.2862
+      ],
+      "rowR": 837.7,
+      "rowT": 851.1,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 190.8 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.296": {
+      "bodyDepthM": 0.6196,
+      "colR": 697.5,
+      "colT": 690.0,
+      "depthM": 0.8052,
+      "gapMm": -185.6,
+      "note": "sweep R hem column dy=+40mm z=1.296",
+      "occluderM": [
+        0.0808,
+        -0.0848,
+        1.3417
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.2962
+      ],
+      "rowR": 820.2,
+      "rowT": 834.4,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 185.6 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.306": {
+      "bodyDepthM": 0.6246,
+      "colR": 697.5,
+      "colT": 690.1,
+      "depthM": 0.8049,
+      "gapMm": -180.3,
+      "note": "sweep R hem column dy=+40mm z=1.306",
+      "occluderM": [
+        0.0815,
+        -0.0796,
+        1.3482
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.3062
+      ],
+      "rowR": 802.6,
+      "rowT": 817.6,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 180.3 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.316": {
+      "bodyDepthM": 0.6296,
+      "colR": 697.6,
+      "colT": 690.2,
+      "depthM": 0.8046,
+      "gapMm": -175.1,
+      "note": "sweep R hem column dy=+40mm z=1.316",
+      "occluderM": [
+        0.0822,
+        -0.0744,
+        1.3548
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.3162
+      ],
+      "rowR": 785.0,
+      "rowT": 800.9,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 175.1 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.326": {
+      "bodyDepthM": 0.6356,
+      "colR": 697.7,
+      "colT": 690.2,
+      "depthM": 0.8043,
+      "gapMm": -168.8,
+      "note": "sweep R hem column dy=+40mm z=1.326",
+      "occluderM": [
+        0.083,
+        -0.0682,
+        1.3613
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.3262
+      ],
+      "rowR": 767.5,
+      "rowT": 784.1,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 168.8 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.336": {
+      "bodyDepthM": 0.6424,
+      "colR": 697.7,
+      "colT": 690.3,
+      "depthM": 0.8041,
+      "gapMm": -161.7,
+      "note": "sweep R hem column dy=+40mm z=1.336",
+      "occluderM": [
+        0.0839,
+        -0.0612,
+        1.3678
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.3362
+      ],
+      "rowR": 749.9,
+      "rowT": 767.3,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 161.7 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.346": {
+      "bodyDepthM": 0.6515,
+      "colR": 697.8,
+      "colT": 690.3,
+      "depthM": 0.8038,
+      "gapMm": -152.3,
+      "note": "sweep R hem column dy=+40mm z=1.346",
+      "occluderM": [
+        0.0851,
+        -0.052,
+        1.3741
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.3462
+      ],
+      "rowR": 732.3,
+      "rowT": 750.5,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 152.3 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.356": {
+      "bodyDepthM": 0.6596,
+      "colR": 697.9,
+      "colT": 690.4,
+      "depthM": 0.8035,
+      "gapMm": -143.9,
+      "note": "sweep R hem column dy=+40mm z=1.356",
+      "occluderM": [
+        0.0862,
+        -0.0436,
+        1.3808
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.3562
+      ],
+      "rowR": 714.7,
+      "rowT": 733.7,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 143.9 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.366": {
+      "bodyDepthM": 0.6687,
+      "colR": 697.9,
+      "colT": 690.5,
+      "depthM": 0.8032,
+      "gapMm": -134.5,
+      "note": "sweep R hem column dy=+40mm z=1.366",
+      "occluderM": [
+        0.0874,
+        -0.0343,
+        1.3875
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.3662
+      ],
+      "rowR": 697.0,
+      "rowT": 716.8,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 134.5 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.376": {
+      "bodyDepthM": 0.6834,
+      "colR": 698.0,
+      "colT": 690.5,
+      "depthM": 0.8029,
+      "gapMm": -119.5,
+      "note": "sweep R hem column dy=+40mm z=1.376",
+      "occluderM": [
+        0.0894,
+        -0.0195,
+        1.3937
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.3762
+      ],
+      "rowR": 679.4,
+      "rowT": 700.0,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 119.5 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.386": {
+      "bodyDepthM": 0.7021,
+      "colR": 698.1,
+      "colT": 690.6,
+      "depthM": 0.8026,
+      "gapMm": -100.5,
+      "note": "sweep R hem column dy=+40mm z=1.386",
+      "occluderM": [
+        0.0918,
+        -0.0006,
+        1.3997
+      ],
+      "pointM": [
+        0.105,
+        0.0996,
+        1.3862
+      ],
+      "rowR": 661.7,
+      "rowT": 683.2,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 100.5 mm in front of hair"
+    },
+    "sweepR_dy+40_z1.396": {
+      "bodyDepthM": null,
+      "colR": 698.1,
+      "colT": 690.7,
+      "depthM": 0.8023,
+      "gapMm": null,
+      "note": "sweep R hem column dy=+40mm z=1.396",
+      "occluderM": null,
+      "pointM": [
+        0.105,
+        0.0996,
+        1.3962
+      ],
+      "rowR": 644.1,
+      "rowT": 666.3,
+      "status": "visible",
+      "surface": null,
+      "why": "no body along ray"
+    },
+    "sweepR_dy-40_z1.256": {
+      "bodyDepthM": 0.5909,
+      "colR": 717.6,
+      "colT": 709.2,
+      "depthM": 0.7264,
+      "gapMm": -135.5,
+      "note": "sweep R hem column dy=-40mm z=1.256",
+      "occluderM": [
+        0.0854,
+        -0.1146,
+        1.3005
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.2562
+      ],
+      "rowR": 936.4,
+      "rowT": 945.3,
+      "status": "occluded",
+      "surface": "chest",
+      "why": "body 135.5 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.266": {
+      "bodyDepthM": 0.5952,
+      "colR": 717.7,
+      "colT": 709.3,
+      "depthM": 0.7261,
+      "gapMm": -130.9,
+      "note": "sweep R hem column dy=-40mm z=1.266",
+      "occluderM": [
+        0.0861,
+        -0.1102,
+        1.3072
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.2662
+      ],
+      "rowR": 917.0,
+      "rowT": 926.8,
+      "status": "occluded",
+      "surface": "chest",
+      "why": "body 130.9 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.276": {
+      "bodyDepthM": 0.5999,
+      "colR": 717.8,
+      "colT": 709.4,
+      "depthM": 0.7258,
+      "gapMm": -125.9,
+      "note": "sweep R hem column dy=-40mm z=1.276",
+      "occluderM": [
+        0.0868,
+        -0.1053,
+        1.3139
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.2762
+      ],
+      "rowR": 897.5,
+      "rowT": 908.2,
+      "status": "occluded",
+      "surface": "chest",
+      "why": "body 125.9 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.286": {
+      "bodyDepthM": 0.6047,
+      "colR": 717.8,
+      "colT": 709.5,
+      "depthM": 0.7255,
+      "gapMm": -120.8,
+      "note": "sweep R hem column dy=-40mm z=1.286",
+      "occluderM": [
+        0.0875,
+        -0.1003,
+        1.3207
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.2862
+      ],
+      "rowR": 878.1,
+      "rowT": 889.7,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 120.8 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.296": {
+      "bodyDepthM": 0.61,
+      "colR": 717.9,
+      "colT": 709.5,
+      "depthM": 0.7252,
+      "gapMm": -115.2,
+      "note": "sweep R hem column dy=-40mm z=1.296",
+      "occluderM": [
+        0.0883,
+        -0.0947,
+        1.3276
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.2962
+      ],
+      "rowR": 858.6,
+      "rowT": 871.1,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 115.2 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.306": {
+      "bodyDepthM": 0.6155,
+      "colR": 718.0,
+      "colT": 709.6,
+      "depthM": 0.7249,
+      "gapMm": -109.4,
+      "note": "sweep R hem column dy=-40mm z=1.306",
+      "occluderM": [
+        0.0892,
+        -0.089,
+        1.3345
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.3062
+      ],
+      "rowR": 839.2,
+      "rowT": 852.5,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 109.4 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.316": {
+      "bodyDepthM": 0.621,
+      "colR": 718.1,
+      "colT": 709.7,
+      "depthM": 0.7247,
+      "gapMm": -103.7,
+      "note": "sweep R hem column dy=-40mm z=1.316",
+      "occluderM": [
+        0.09,
+        -0.0834,
+        1.3416
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.3162
+      ],
+      "rowR": 819.7,
+      "rowT": 833.9,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 103.7 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.326": {
+      "bodyDepthM": 0.6268,
+      "colR": 718.2,
+      "colT": 709.8,
+      "depthM": 0.7244,
+      "gapMm": -97.6,
+      "note": "sweep R hem column dy=-40mm z=1.326",
+      "occluderM": [
+        0.0909,
+        -0.0774,
+        1.3487
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.3262
+      ],
+      "rowR": 800.2,
+      "rowT": 815.3,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 97.6 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.336": {
+      "bodyDepthM": 0.6325,
+      "colR": 718.2,
+      "colT": 709.9,
+      "depthM": 0.7241,
+      "gapMm": -91.6,
+      "note": "sweep R hem column dy=-40mm z=1.336",
+      "occluderM": [
+        0.0917,
+        -0.0715,
+        1.3561
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.3362
+      ],
+      "rowR": 780.6,
+      "rowT": 796.6,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 91.6 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.346": {
+      "bodyDepthM": 0.6395,
+      "colR": 718.3,
+      "colT": 709.9,
+      "depthM": 0.7238,
+      "gapMm": -84.3,
+      "note": "sweep R hem column dy=-40mm z=1.346",
+      "occluderM": [
+        0.0928,
+        -0.0642,
+        1.3634
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.3462
+      ],
+      "rowR": 761.1,
+      "rowT": 778.0,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 84.3 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.356": {
+      "bodyDepthM": 0.648,
+      "colR": 718.4,
+      "colT": 710.0,
+      "depthM": 0.7235,
+      "gapMm": -75.5,
+      "note": "sweep R hem column dy=-40mm z=1.356",
+      "occluderM": [
+        0.094,
+        -0.0555,
+        1.3705
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.3562
+      ],
+      "rowR": 741.6,
+      "rowT": 759.3,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 75.5 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.366": {
+      "bodyDepthM": 0.6578,
+      "colR": 718.5,
+      "colT": 710.1,
+      "depthM": 0.7232,
+      "gapMm": -65.4,
+      "note": "sweep R hem column dy=-40mm z=1.366",
+      "occluderM": [
+        0.0955,
+        -0.0455,
+        1.3777
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.3662
+      ],
+      "rowR": 722.0,
+      "rowT": 740.7,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 65.4 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.376": {
+      "bodyDepthM": 0.6678,
+      "colR": 718.6,
+      "colT": 710.2,
+      "depthM": 0.7229,
+      "gapMm": -55.1,
+      "note": "sweep R hem column dy=-40mm z=1.376",
+      "occluderM": [
+        0.097,
+        -0.0353,
+        1.3852
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.3762
+      ],
+      "rowR": 702.4,
+      "rowT": 722.0,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 55.1 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.386": {
+      "bodyDepthM": 0.6835,
+      "colR": 718.6,
+      "colT": 710.2,
+      "depthM": 0.7227,
+      "gapMm": -39.1,
+      "note": "sweep R hem column dy=-40mm z=1.386",
+      "occluderM": [
+        0.0993,
+        -0.0194,
+        1.392
+      ],
+      "pointM": [
+        0.105,
+        0.0196,
+        1.3862
+      ],
+      "rowR": 682.8,
+      "rowT": 703.3,
+      "status": "occluded",
+      "surface": "shoulder",
+      "why": "body 39.1 mm in front of hair"
+    },
+    "sweepR_dy-40_z1.396": {
+      "bodyDepthM": null,
+      "colR": 718.7,
+      "colT": 710.3,
+      "depthM": 0.7224,
+      "gapMm": null,
+      "note": "sweep R hem column dy=-40mm z=1.396",
+      "occluderM": null,
+      "pointM": [
+        0.105,
+        0.0196,
+        1.3962
+      ],
+      "rowR": 663.2,
+      "rowT": 684.5,
+      "status": "visible",
+      "surface": null,
+      "why": "no body along ray"
+    }
+  },
+  "silhouetteCrossings": {
+    "L": {
+      "coveredSpans": [
+        [
+          682,
+          1023
+        ]
+      ],
+      "deltaRows": 16,
+      "targetCol": 331,
+      "targetHemRow": 666.0,
+      "torsoTopRow": 682
+    },
+    "R": {
+      "coveredSpans": [
+        [
+          684,
+          1023
+        ]
+      ],
+      "deltaRows": 9,
+      "targetCol": 700,
+      "targetHemRow": 675.0,
+      "torsoTopRow": 684
+    }
+  },
+  "transitionsDy0": {
+    "L": {
+      "deepestVisible": {
+        "bodyDepthM": null,
+        "colR": 321.3,
+        "colT": 330.9,
+        "depthM": 0.78,
+        "gapMm": null,
+        "key": "sweepL_dy+0_z1.399",
+        "note": "sweep L hem column dy=+0mm z=1.399",
+        "occluderM": null,
+        "pointM": [
+          -0.1046,
+          0.0773,
+          1.3991
+        ],
+        "rowR": 643.7,
+        "rowT": 666.0,
+        "status": "visible",
+        "surface": null,
+        "why": "no body along ray"
+      },
+      "shallowestOccluded": {
+        "bodyDepthM": 0.7039,
+        "colR": 321.3,
+        "colT": 331.0,
+        "depthM": 0.7803,
+        "gapMm": -76.3,
+        "key": "sweepL_dy+0_z1.389",
+        "note": "sweep L hem column dy=+0mm z=1.389",
+        "occluderM": [
+          -0.0944,
+          0.0013,
+          1.3993
+        ],
+        "pointM": [
+          -0.1046,
+          0.0773,
+          1.3891
+        ],
+        "rowR": 661.9,
+        "rowT": 683.3,
+        "status": "occluded",
+        "surface": "shoulder",
+        "why": "body 76.3 mm in front of hair"
+      }
+    },
+    "R": {
+      "deepestVisible": {
+        "bodyDepthM": null,
+        "colR": 707.9,
+        "colT": 700.0,
+        "depthM": 0.7624,
+        "gapMm": null,
+        "key": "sweepR_dy+0_z1.396",
+        "note": "sweep R hem column dy=+0mm z=1.396",
+        "occluderM": null,
+        "pointM": [
+          0.105,
+          0.0596,
+          1.3962
+        ],
+        "rowR": 653.1,
+        "rowT": 674.9,
+        "status": "visible",
+        "surface": null,
+        "why": "no body along ray"
+      },
+      "shallowestOccluded": {
+        "bodyDepthM": 0.6926,
+        "colR": 707.8,
+        "colT": 699.9,
+        "depthM": 0.7626,
+        "gapMm": -70.0,
+        "key": "sweepR_dy+0_z1.386",
+        "note": "sweep R hem column dy=+0mm z=1.386",
+        "occluderM": [
+          0.0954,
+          -0.0102,
+          1.3961
+        ],
+        "pointM": [
+          0.105,
+          0.0596,
+          1.3862
+        ],
+        "rowR": 671.7,
+        "rowT": 692.7,
+        "status": "occluded",
+        "surface": "shoulder",
+        "why": "body 70.0 mm in front of hair"
+      }
+    }
+  },
+  "verdict": "NOT_EXPLAINED",
+  "visibleBelowHem": [
+    "sweepL_dy+40_z1.389"
+  ]
+}

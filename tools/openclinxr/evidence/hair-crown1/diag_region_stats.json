@@ -1,0 +1,62 @@
+{
+  "front": {
+    "base": {
+      "meanLum": 0.5527820196120616,
+      "meanHue": 31.385290852432956,
+      "meanSat": 0.2549019607843137,
+      "orangeFrac": 0.5208422977624785,
+      "greenFrac": 0.0
+    },
+    "green": {
+      "meanLum": 0.4518519766038946,
+      "meanHue": 116.75751367091664,
+      "meanSat": 0.9954545454545455,
+      "orangeFrac": 0.0,
+      "greenFrac": 0.6447127796901894
+    },
+    "haironly": {
+      "meanLum": 0.16271267800192366,
+      "meanHue": 24.40122836123486,
+      "meanSat": 0.12244897959183673,
+      "orangeFrac": 0.0,
+      "greenFrac": 0.0
+    },
+    "norim": {
+      "meanLum": 0.5496403303550336,
+      "meanHue": 31.217720430020442,
+      "meanSat": 0.2549019607843137,
+      "orangeFrac": 0.5194707401032702,
+      "greenFrac": 0.0
+    }
+  },
+  "back": {
+    "base": {
+      "meanLum": 0.3002775702009199,
+      "meanHue": 22.36555309749611,
+      "meanSat": 0.3770491803278689,
+      "orangeFrac": 0.19697971781305115,
+      "greenFrac": 0.0
+    },
+    "green": {
+      "meanLum": 0.39940315921430297,
+      "meanHue": 117.43331425096197,
+      "meanSat": 0.8151260504201681,
+      "orangeFrac": 0.0,
+      "greenFrac": 0.8051146384479718
+    },
+    "haironly": {
+      "meanLum": 0.15238291653698516,
+      "meanHue": 24.226358996731527,
+      "meanSat": 0.11764705882352941,
+      "orangeFrac": 0.0,
+      "greenFrac": 0.0
+    },
+    "norim": {
+      "meanLum": 0.28697066837846247,
+      "meanHue": 22.195181079508593,
+      "meanSat": 0.3757768770507624,
+      "orangeFrac": 0.17735890652557318,
+      "greenFrac": 0.0
+    }
+  }
+}

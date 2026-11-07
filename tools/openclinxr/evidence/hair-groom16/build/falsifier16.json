@@ -1,0 +1,7 @@
+{
+ "triggered": true,
+ "preInsideFracSamples": 0.190613,
+ "preChildrenWithInside": 132002,
+ "preChildInsideFracMax": 1.0,
+ "note": ">10% of children enter the body before the outside pass: Interpolate cuts through the skull between outside guides."
+}

@@ -1,0 +1,26 @@
+{
+  "tag": "c_fo2",
+  "base": "tilt5 s5 (b9) repaired strands.npz",
+  "deform": {
+    "cell": "c_fo2",
+    "dxMax": 0.008,
+    "rootSelMm": 55.0,
+    "capRule": "rearMaxX(z)-5mm-|x|, floor 0",
+    "appliedP50Mm": 2.243788690913082,
+    "appliedP95Mm": 8.0
+  },
+  "statsVsB9": {
+    "tangentRms": 1.541645391156516,
+    "tangentP95": 0.05866505095201675,
+    "tangentMax": 90.0,
+    "dispP50": 0.0,
+    "dispP95": 8.000000000000007,
+    "dispMax": 8.000000000000007
+  },
+  "endAngleDegPreRepair": {
+    "p50": 0.0,
+    "p95": 5.454649617403167,
+    "max": 14.288915495912457
+  },
+  "partGapMm": 1.0999999940395355
+}

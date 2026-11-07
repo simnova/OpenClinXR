@@ -1,0 +1,120 @@
+{
+ "gates": [
+  {
+   "gate": "G1",
+   "measured": "n=652 lay={0: 0.25, 1: 0.25, 2: 0.25, 3: 0.25} minpatch=3 fail=0",
+   "bar": "[550,800] \u2227 20-30% \u2227 patch>=3",
+   "verdict": "PASS"
+  },
+  {
+   "gate": "G2",
+   "measured": "inside=1265 min=0.03mm m12=0(0.0%)",
+   "bar": "0 \u2227 >=2mm \u2227 m12<=5%",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G3",
+   "measured": "s40=332/527(0.630) s80=1597/2775(0.575)",
+   "bar": "s40>=90% \u2227 s80>=95% \u00b13mm skull",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G4",
+   "measured": "p95=30.88 max=186.36 short=3",
+   "bar": "p95<=8 \u2227 max<=25 \u2227 0 short",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G5",
+   "measured": "max=9.25mm slitmax=3.94mm",
+   "bar": "<=9 \u2227 slit<=4",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G6",
+   "measured": "gap=51.2mm ratio=0.694 (ours 0.243H vs tgt 0.350H)",
+   "bar": "[0.85,1.10] x target",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G7",
+   "measured": "outer-ear=95.2mm ratio=1.103 vs 86.3mm",
+   "bar": "\u00b18%% of 86.3mm",
+   "verdict": "MISS"
+  },
+  {
+   "gate": "G8",
+   "measured": "splay-points=0",
+   "bar": "=0",
+   "verdict": "PASS"
+  }
+ ],
+ "z_hem": 1.3332169969558714,
+ "menton_z": 1.4492169969558715,
+ "crown_z": 1.6599169969558716,
+ "brow_z": 1.5303385257720947,
+ "ear_y": -0.03894279897212982,
+ "ear_top": 1.5542949438095093,
+ "yneck": -0.1130041554570198,
+ "shoulder_top_z": 1.3777603507041931,
+ "count": 652,
+ "contact_ended": 0,
+ "m12_truncated": 0,
+ "layers": {
+  "0": 163,
+  "1": 163,
+  "2": 163,
+  "3": 163
+ },
+ "target_gap_H": 0.35,
+ "g6_gap_H": 0.24293785310734464,
+ "g6_ratio": 0.6941081517352704,
+ "g6_outer_ear_mm": 95.23163841807909,
+ "g7_ratio": 1.1034952308004529,
+ "g8_splay": 0,
+ "g6_mmpx": 0.5951977401129943,
+ "target_inner_edge_profile": [
+  {
+   "row1024": 300,
+   "frac": 0.36041666666666666,
+   "innerL_px512": 203,
+   "innerR_px512": 311,
+   "gap_px1024": 216.0,
+   "half_gap_mm": 47.40749999999999
+  },
+  {
+   "row1024": 343,
+   "frac": 0.45,
+   "innerL_px512": 198,
+   "innerR_px512": 282,
+   "gap_px1024": 168.0,
+   "half_gap_mm": 36.872499999999995
+  },
+  {
+   "row1024": 415,
+   "frac": 0.6,
+   "innerL_px512": 196,
+   "innerR_px512": 319,
+   "gap_px1024": 246.0,
+   "half_gap_mm": 53.99187499999999
+  },
+  {
+   "row1024": 501,
+   "frac": 0.7791666666666667,
+   "innerL_px512": 200,
+   "innerR_px512": 305,
+   "gap_px1024": 210.0,
+   "half_gap_mm": 46.090624999999996
+  },
+  {
+   "row1024": 583,
+   "frac": 0.95,
+   "innerL_px512": 221,
+   "innerR_px512": 280,
+   "gap_px1024": 118.0,
+   "half_gap_mm": 25.898541666666663
+  }
+ ],
+ "hem_front_max_arc_mm": 611.4531362610738,
+ "hem_back_long": 2
+}

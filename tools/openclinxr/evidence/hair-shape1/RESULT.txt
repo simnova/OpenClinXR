@@ -1,0 +1,11 @@
+HAIR SHAPE 1 — BROW-RELATIVE HAIRLINE MEASUREMENT
+
+METHOD::solid T1 coverage is ID alpha>=230; TS uses judge-v6 white masks; front rows are 11px-window medians; skull height is 210.7mm.
+TS FRONT::brow_row=343.000; -0.2H row=286.0 d=0.1185H/24.97mm -0.1H row=217.0 d=0.2620H/55.19mm +0.0H row=187.0 d=0.3243H/68.34mm +0.1H row=217.0 d=0.2620H/55.19mm +0.2H row=279.0 d=0.1331H/28.03mm
+TS PROFILE::brow_row=345.000; hairline_edge=(373.0,198.0); d=0.3252H/68.52mm
+T1 FRONT::brow_row=269.133; -0.2H row=204.0 d=0.1357H/28.59mm -0.1H row=175.0 d=0.1961H/41.32mm +0.0H row=151.0 d=0.2461H/51.86mm +0.1H row=176.0 d=0.1940H/40.88mm +0.2H row=204.0 d=0.1357H/28.59mm
+T1 PROFILE::brow_row=312.280; hairline_edge=(220.0,228.5); d=0.1948H/41.05mm
+T1 HIGHER BY FRONT::-0.2H=+3.62mm -0.1H=-13.87mm +0.0H=-16.48mm +0.1H=-14.31mm +0.2H=+0.56mm
+T1 HIGHER BY PROFILE::-27.47mm
+VERDICT::PREMISE WRONG — T1 is not >=4mm higher at any measured front column; it is lower through the central 0.2H span and only 3.62mm higher at the -0.2H temple maximum.
+STOP::Per brief, stop after RESULT; cap v9, groom rebuild, renders, judge, DONE, and commit were not produced.

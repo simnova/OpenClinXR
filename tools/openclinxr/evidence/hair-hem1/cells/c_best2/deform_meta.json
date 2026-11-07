@@ -1,0 +1,12 @@
+{
+  "tag": "c_best2",
+  "base": "hair-hem1/base/strands.npz",
+  "deform": {
+    "cell": "best-combo-flat",
+    "sealedLower": 19056,
+    "dupFibres": 8000,
+    "sealedDups": 2994,
+    "totalFibres": 106549,
+    "rule": "blunt seal (shorten-only to TS-fitted smooth hem curve) on all lower tips + full-length edge dups sealed to same curve; no trim, no inward pull"
+  }
+}

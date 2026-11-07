@@ -1,0 +1,9 @@
+hair-hull1 DONE. Four-view hull (front, three_quarter, profile_90, back)
+carved from Imagine targets generated ON AISHA under identity registration
+(manifest v2). keptFinal 503,348 vox = 4,026,784 mm3, single
+scalp-connected component, excess p95 2.0 px all views, roots 98.87%
+within 6 mm, sensitivity clean both arms. Mirror variant removes 18% but
+worsens mask fidelity — not adopted. Mismatch poke is exposed-skin
+anatomy (part/hairline), dome covered by carve — no shell. Known limit:
+front-curtain length vetoed by inconsistent side views (front IoU 0.36).
+GATES 5/5 PASS. See E/RESULT.txt.

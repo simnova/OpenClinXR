@@ -1,0 +1,6 @@
+DONE. hair-hem2 steps 1-4 complete. KEPT: none. BEST-CANDIDATE: c_curve
+(cells/c_curve/strands.npz; production strands unchanged:
+base/strands.npz = hem1 c_best8, sha256 b47ec1d0...).
+Evidence: RESULT.txt, shape_base.json + shape_scores_*.json, shape-ruler.png
+(read before use), scores_summary.json, crops-best.png, look-sheet.png.
+Commit: evidence: hair hem 2, hem shape and edge.

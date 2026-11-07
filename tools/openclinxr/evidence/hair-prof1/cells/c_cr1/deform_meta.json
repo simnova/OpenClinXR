@@ -1,0 +1,23 @@
+{
+  "tag": "c_cr1",
+  "base": "tilt5 s5 (b9) repaired strands.npz",
+  "deform": {
+    "cell": "c_cr1",
+    "dz": -0.007,
+    "zone": "0 at z<=1.60, full above 1.62"
+  },
+  "statsVsB9": {
+    "tangentRms": 1.8324772436333425,
+    "tangentP95": 2.030987594051672,
+    "tangentMax": 90.0,
+    "dispP50": 6.860620356236247,
+    "dispP95": 6.999999999999895,
+    "dispMax": 6.999999999999895
+  },
+  "endAngleDegPreRepair": {
+    "p50": 0.0,
+    "p95": 0.45619235836708305,
+    "max": 14.288915495912457
+  },
+  "partGapMm": 1.0999999940395355
+}

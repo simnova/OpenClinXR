@@ -1,0 +1,1 @@
+hair-shell1 complete. GATES_PASS=yes {"ban": true, "clearance": true, "determinism": true, "facehole": true, "opacity": true}. outer=19220/39638 inner=39638 clearance=1.992/1.018

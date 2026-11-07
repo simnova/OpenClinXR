@@ -1,0 +1,91 @@
+hair-groom33 RESULT: build-31 children recipe WITHOUT --lobe-sweep-postcap
+(shas, paths, and provenance for every number; honest FAIL kept)
+
+Recipe: det_rebuild32 FLAGS (region-weight, uv-cutoff 0.15, pool60+guides-8a,
+temple-taper 0.5, lobe-drop-roots, sideburn-cap-lobe, cap-reproject,
+shirt-sdf + clear 0.5; NO --lobe-tuck per build-31 lobeTuck off) MINUS
+--lobe-sweep-postcap. No settle.py. Store strands-33.npz sha256
+4034cf7bead7f23f24c7c6f728a33ac90f169cd2c70bc2ef3c2893d69f470c89
+(E/SHA... = store SHA256SUMS). Build-33 build.json: sideburnCapLobe 426
+(=build-31), shirtKeepout on, capReproject on nPushed 10660 nInsideAfter 0,
+lobePostSweep OFF, projection nInsideAfter 0.
+
+VERDICT: SWEEP CONFIRMED AS SOLE CAUSE, near-full groom30 parity restored —
+but profile IoU misses its gate by 0.0025. Dropping the sweep recovers
+3q +0.151 / profile +0.110 vs groom32, restores segments, earlobe boxes,
+and front face-mask to groom30-exact, keeps insideBody 0 / concha 0 /
+crossings 935 / gradAniso 0.63 / bit-exact determinism. One hard gate
+still red: profile 0.8375 < 0.84.
+
+GATES (value | threshold | margin | provenance):
+- insideBody 0 | == 0 | 0 | PASS. E/score31-33.json insideBody.33.
+  Crude shirt path: 93198 (= build-31 crude, < groom30 crude 95836).
+- inside-shirt 79360 | report-only | - | E/shirt-gates33.json groom33
+  (groom30 235156, build-31 79300, settled 105365: pre-settle shirt
+  keepout holds; +60 vs build-31 is strand noise, reported only).
+- hem-behind-shirt L 0.0728 / R 0.3525 | report-only | E/shirt-gates33.json
+  (groom30 0.072/0.340; settled groom31 0.228/0.592).
+- segments > 30 mm 1789 | <= 1789 | 0 | PASS. near-horizontal 230
+  (= groom30 230/1789 exactly; build-31 was 36197/29578, max 201.6 mm vs
+  groom33 max 90.6 mm). Inline count over store .npz files.
+- profile ear box 0 px | == 0 | 0 | PASS. E/earlobe-gate31.json gatesImg.
+- 3q ear box 841 px | <= 842 | +1 | PASS. Same file (target's own 842 px
+  in the same box; groom32 was 4645).
+- earlobe 3D column xpos 26 + xneg 11 = 37 strands (38 samples, 6 tips;
+  25mm-bounded same) | reported, = groom30 26+11 | E/earlobe-gate31.json
+  gates3d.groom33. (0 preferred, not hard this card.)
+- concha 0/0/0 (front/3q/profile) | all 0 | - | PASS. E/score31-33.json.
+- front IoU 0.7997 | >= 0.79 | +0.0097 | PASS (groom30 0.7994).
+- 3q IoU 0.8514 | >= 0.83 | +0.0214 | PASS (groom30 0.8505).
+- profile IoU 0.8375 | >= 0.84 | -0.0025 | FAIL (groom30 0.8413).
+  Miss 4907 vs groom30 4253 (+654 px); excess IDENTICAL (23065 vs 23072).
+  Regional clusters match (545->554 miss, 3190->3183 excess); the gap is
+  profile-bot depth: missP95 18.0 vs 14.8, missN 342 vs 333 — hem bottom
+  edge sits a few px short of target. Not the sweep slab (excess equal).
+- back IoU 0.7753 | report-only (groom30 0.7878, -0.0125).
+- 3D back crossings 935 | <= 935 | 0 | PASS. E/metrics-cross33.json
+  (guides-30 unchanged; rerun, not cited).
+- gradAniso sigma 4: 0.6255 | <= 0.70 | +0.0745 | PASS.
+  E/metrics-grad31.json opt33 (opt30 repro 0.6257 exact, opt31 0.4886
+  exact, ctrl row bit-identical 0.7915/0.8406/0.8156/0.7959).
+- faceMaskFront 3131 <= allow 3424.9 | PASS (groom32 FAILed 6476 vs same
+  allow: the sweep slab was the face-curtain excess; also 3q report PASS
+  1996 <= 2127.3). knotHole 0, bareFrac 0.0.
+- determinism PASS: recipe rebuild (E/det_rebuild33.py, same flags, no
+  sweep/tuck/settle) sha256 identical 4034cf7b...89, points+radii hash
+  identical, maxAbsDiff 0.0 mm. E/det-33.json.
+
+VISUAL READ (citing E/crops.png rows, target | groom30 | groom33):
+- lobe-3q-xpos / lobe-profile-xpos (+60px margin on earlobe31 boxes):
+  clean visible ear in ALL three columns; the dense forward-projecting
+  slab of groom32 is gone.
+- 3q-ear-NATIVE / profile-ear-NATIVE: curtain falls behind a visible ear,
+  matching groom30 strand for strand at a glance.
+- front-hairline-band: part intact; face-mask metric back in gate.
+- back-knot-NATIVE + knotRead: enclosedHolePx 0, barePx 0; small dark
+  crown whorl visible in groom30 AND groom33 (pre-existing, outside gate).
+- back-hem-L/R-NATIVE: hem density and shirt overlap read like groom30
+  (L 7.3% vs 7.2%, R 35.3% vs 34.0%), not settled groom31 (22.8%/59.2%).
+- shoulders-NATIVE: back curtain falls clean to mid-back, no clumping
+  regression vs groom30.
+
+CALIBRATION: calibrate31.py rerun EXACT: groom8a 0.7446/0.8261/0.8543/
+0.8579, deltas 0. Render: Blender 5.1.1, 1024px/64spp/seed7, studio rig
+verbatim (E/renders-33, E/render33.log).
+
+SCOPE: measured only. No edits under tools/openclinxr/hair-groom/ (all
+scoring via import/patch drivers run_*.py + make_sheet33.py in E).
+settle.py NOT run. No .npz in git: only store/hair-groom33/ (+SHA256SUMS);
+E holds renders, JSON, PNG, logs, drivers.
+NOT TESTED: any settle variant or sweep re-tune; guide changes;
+profile-bot hem length fix; worn-headset/Quest evidence; IWSDK;
+clinical-validity or scoring claims.
+REMAINING: profile-bot hem-bottom miss depth (missP95 18.0 vs 14.8):
+hem sits a few px short in profile-bot; 654 px of miss at ~identical
+excess. Next card: lengthen/relax the bot-edge curtain OR accept 0.84
+gate miss as noise (margin is 0.3% of the union). Do NOT re-add the
+post-cap sweep in any form (it created 34k long segments from 1789).
+
+GATES_PASS: NO (1 of 11 hard gates fails: profile IoU -0.0025; passes:
+insideBody, segments, profile/3q ear boxes, concha, front, 3q, crossings,
+gradAniso, determinism; reported: inside-shirt, earlobe 3D, back).

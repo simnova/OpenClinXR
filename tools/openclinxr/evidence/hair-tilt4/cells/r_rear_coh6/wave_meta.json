@@ -1,0 +1,109 @@
+{
+  "tag": "r_rear_coh6",
+  "op": "rear-only lean-return (tilt4)",
+  "params": {
+    "sigma": 6.0,
+    "seed": 2026101921,
+    "coherent": true,
+    "comp": false
+  },
+  "wave": {
+    "sigmaDeg": 6.0,
+    "coherent": true,
+    "fieldSpacingMm": 10.0,
+    "thetaStdRear": 5.867808996742275,
+    "thetaMaxAbsRear": 24.269550954662407,
+    "rearFibres": 37647,
+    "tangentDevDeg": {
+      "rms": 7.489682338901721,
+      "p95": 13.80217157484669,
+      "max": 177.35650954452012
+    },
+    "tangentDevDegRear": {
+      "rms": 10.152935541605862,
+      "p95": 17.806232823744573
+    },
+    "maxDispMm": {
+      "p50": 0.2852543387265415,
+      "p95": 28.925709067482774,
+      "max": 102.14714828059013
+    },
+    "maxDispMmRear": {
+      "p50": 10.406283765186714,
+      "p95": 33.27762970056912,
+      "max": 102.14714828059013
+    },
+    "protectedFibres": 8949,
+    "seed": 2026101921
+  },
+  "curtainMaxAbsDiffMm": 0.0,
+  "halfwidthMm": [
+    {
+      "bin": 0,
+      "a1HalfMm": 84.416,
+      "leanedHalfMm": 84.265
+    },
+    {
+      "bin": 1,
+      "a1HalfMm": 95.647,
+      "leanedHalfMm": 95.89
+    },
+    {
+      "bin": 2,
+      "a1HalfMm": 96.078,
+      "leanedHalfMm": 100.745
+    },
+    {
+      "bin": 3,
+      "a1HalfMm": 95.662,
+      "leanedHalfMm": 99.089
+    },
+    {
+      "bin": 4,
+      "a1HalfMm": 94.937,
+      "leanedHalfMm": 96.646
+    },
+    {
+      "bin": 5,
+      "a1HalfMm": 94.795,
+      "leanedHalfMm": 94.576
+    },
+    {
+      "bin": 6,
+      "a1HalfMm": 95.117,
+      "leanedHalfMm": 94.307
+    },
+    {
+      "bin": 7,
+      "a1HalfMm": 96.338,
+      "leanedHalfMm": 94.893
+    },
+    {
+      "bin": 8,
+      "a1HalfMm": 87.732,
+      "leanedHalfMm": 86.949
+    },
+    {
+      "bin": 9,
+      "a1HalfMm": 83.333,
+      "leanedHalfMm": 85.16
+    },
+    {
+      "bin": 10,
+      "a1HalfMm": 79.981,
+      "leanedHalfMm": 85.227
+    },
+    {
+      "bin": 11,
+      "a1HalfMm": 68.453,
+      "leanedHalfMm": 68.119
+    }
+  ],
+  "compensation": null,
+  "endAngleDegPreRepair": {
+    "p50": 2.901413389519818,
+    "p95": 16.241929655021103,
+    "max": 42.2351434601268
+  },
+  "partGapMm": 1.0999999940395355
+}

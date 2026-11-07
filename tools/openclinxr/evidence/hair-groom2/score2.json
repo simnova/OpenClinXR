@@ -1,0 +1,851 @@
+{
+ "fitted": "fixed body-occluded ID alpha>=230, both grooms",
+ "grooms": {
+  "groom1": {
+   "contour": {
+    "front": {
+     "whole": {
+      "excessN": 1508,
+      "excessP50": 7.8,
+      "excessP95": 20.0,
+      "missN": 2021,
+      "missP50": 13.9,
+      "missP95": 43.1,
+      "empty": false
+     },
+     "crown": {
+      "excessN": 740,
+      "excessP50": 6.3,
+      "excessP95": 12.5,
+      "missN": 662,
+      "missP50": 12.5,
+      "missP95": 19.4,
+      "empty": false
+     },
+     "mid": {
+      "excessN": 713,
+      "excessP50": 14.0,
+      "excessP95": 21.0,
+      "missN": 717,
+      "missP50": 15.3,
+      "missP95": 40.0,
+      "empty": false
+     },
+     "hem": {
+      "excessN": 65,
+      "excessP50": 1.4,
+      "excessP95": 3.0,
+      "missN": 815,
+      "missP50": 22.0,
+      "missP95": 47.6,
+      "empty": false
+     },
+     "left": {
+      "excessN": 742,
+      "excessP50": 7.2,
+      "excessP95": 19.2,
+      "missN": 1027,
+      "missP50": 12.2,
+      "missP95": 45.7,
+      "empty": false
+     },
+     "right": {
+      "excessN": 766,
+      "excessP50": 8.5,
+      "excessP95": 20.0,
+      "missN": 1049,
+      "missP50": 15.5,
+      "missP95": 41.1,
+      "empty": false
+     }
+    },
+    "three_quarter": {
+     "whole": {
+      "excessN": 2063,
+      "excessP50": 12.7,
+      "excessP95": 44.1,
+      "missN": 1386,
+      "missP50": 18.4,
+      "missP95": 70.7,
+      "empty": false
+     },
+     "crown": {
+      "excessN": 607,
+      "excessP50": 5.0,
+      "excessP95": 13.6,
+      "missN": 634,
+      "missP50": 13.0,
+      "missP95": 25.0,
+      "empty": false
+     },
+     "mid": {
+      "excessN": 1119,
+      "excessP50": 26.0,
+      "excessP95": 47.0,
+      "missN": 470,
+      "missP50": 29.0,
+      "missP95": 52.4,
+      "empty": false
+     },
+     "hem": {
+      "excessN": 353,
+      "excessP50": 13.5,
+      "excessP95": 28.3,
+      "missN": 467,
+      "missP50": 57.5,
+      "missP95": 88.5,
+      "empty": false
+     },
+     "left": {
+      "excessN": 788,
+      "excessP50": 5.1,
+      "excessP95": 18.1,
+      "missN": 404,
+      "missP50": 8.1,
+      "missP95": 15.5,
+      "empty": false
+     },
+     "right": {
+      "excessN": 1278,
+      "excessP50": 23.3,
+      "excessP95": 46.0,
+      "missN": 1043,
+      "missP50": 26.0,
+      "missP95": 76.4,
+      "empty": false
+     }
+    },
+    "profile_90": {
+     "whole": {
+      "excessN": 2322,
+      "excessP50": 19.4,
+      "excessP95": 57.9,
+      "missN": 1590,
+      "missP50": 16.3,
+      "missP95": 42.1,
+      "empty": false
+     },
+     "crown": {
+      "excessN": 1261,
+      "excessP50": 20.2,
+      "excessP95": 56.0,
+      "missN": 639,
+      "missP50": 9.8,
+      "missP95": 29.1,
+      "empty": false
+     },
+     "mid": {
+      "excessN": 1070,
+      "excessP50": 19.2,
+      "excessP95": 61.2,
+      "missN": 446,
+      "missP50": 33.0,
+      "missP95": 38.3,
+      "empty": false
+     },
+     "hem": {
+      "excessN": 31,
+      "excessP50": 1.0,
+      "excessP95": 4.1,
+      "missN": 682,
+      "missP50": 39.0,
+      "missP95": 43.0,
+      "empty": false
+     },
+     "left": {
+      "excessN": 2220,
+      "excessP50": 21.4,
+      "excessP95": 58.0,
+      "missN": 271,
+      "missP50": 2.0,
+      "missP95": 7.8,
+      "empty": false
+     },
+     "right": {
+      "excessN": 170,
+      "excessP50": 5.0,
+      "excessP95": 8.9,
+      "missN": 1325,
+      "missP50": 30.0,
+      "missP95": 42.3,
+      "empty": false
+     }
+    },
+    "back": {
+     "whole": {
+      "excessN": 387,
+      "excessP50": 2.0,
+      "excessP95": 4.0,
+      "missN": 2134,
+      "missP50": 35.5,
+      "missP95": 125.0,
+      "empty": false
+     },
+     "crown": {
+      "excessN": 328,
+      "excessP50": 2.0,
+      "excessP95": 3.6,
+      "missN": 512,
+      "missP50": 8.1,
+      "missP95": 22.0,
+      "empty": false
+     },
+     "mid": {
+      "excessN": 14,
+      "excessP50": 1.2,
+      "excessP95": 3.3,
+      "missN": 897,
+      "missP50": 22.4,
+      "missP95": 66.0,
+      "empty": false
+     },
+     "hem": {
+      "excessN": 0,
+      "excessP50": 0.0,
+      "excessP95": 0.0,
+      "missN": 1346,
+      "missP50": 74.1,
+      "missP95": 127.6,
+      "empty": false
+     },
+     "left": {
+      "excessN": 174,
+      "excessP50": 2.0,
+      "excessP95": 4.0,
+      "missN": 1804,
+      "missP50": 14.9,
+      "missP95": 126.7,
+      "empty": false
+     },
+     "right": {
+      "excessN": 214,
+      "excessP50": 2.0,
+      "excessP95": 4.0,
+      "missN": 1763,
+      "missP50": 19.4,
+      "missP95": 97.0,
+      "empty": false
+     }
+    }
+   },
+   "iou": {
+    "front": {
+     "iou": 0.547,
+     "fPx": 49304,
+     "tPx": 78754,
+     "interPx": 45279
+    },
+    "three_quarter": {
+     "iou": 0.654,
+     "fPx": 77705,
+     "tPx": 103799,
+     "interPx": 71767
+    },
+    "profile_90": {
+     "iou": 0.7406,
+     "fPx": 123978,
+     "tPx": 149114,
+     "interPx": 116194
+    },
+    "back": {
+     "iou": 0.5636,
+     "fPx": 190361,
+     "tPx": 335684,
+     "interPx": 189619
+    }
+   },
+   "agree": {
+    "front": {
+     "wmean": 23.1,
+     "p50": 16.0,
+     "p95": 79.0,
+     "n": 45279
+    },
+    "three_quarter": {
+     "wmean": 28.97,
+     "p50": 23.0,
+     "p95": 80.0,
+     "n": 71767
+    },
+    "profile_90": {
+     "wmean": 26.13,
+     "p50": 21.0,
+     "p95": 74.0,
+     "n": 116194
+    },
+    "back": {
+     "wmean": 26.32,
+     "p50": 18.0,
+     "p95": 83.0,
+     "n": 189619
+    }
+   },
+   "color": {
+    "front": {
+     "target": {
+      "lumP50": 26.1,
+      "lumP90": 57.7,
+      "hueMean": 17.9,
+      "satMean": 0.485,
+      "n": 78754
+     },
+     "render": {
+      "lumP50": 14.4,
+      "lumP90": 43.6,
+      "hueMean": 18.9,
+      "satMean": 0.272,
+      "n": 49304
+     },
+     "renderInInter": {
+      "lumP50": 13.8,
+      "lumP90": 44.9,
+      "hueMean": 18.8,
+      "satMean": 0.267,
+      "n": 45279
+     }
+    },
+    "three_quarter": {
+     "target": {
+      "lumP50": 26.5,
+      "lumP90": 49.0,
+      "hueMean": 17.7,
+      "satMean": 0.423,
+      "n": 103799
+     },
+     "render": {
+      "lumP50": 10.8,
+      "lumP90": 34.4,
+      "hueMean": 20.5,
+      "satMean": 0.265,
+      "n": 77705
+     },
+     "renderInInter": {
+      "lumP50": 11.1,
+      "lumP90": 34.7,
+      "hueMean": 21.0,
+      "satMean": 0.252,
+      "n": 71767
+     }
+    },
+    "profile_90": {
+     "target": {
+      "lumP50": 31.5,
+      "lumP90": 56.0,
+      "hueMean": 22.5,
+      "satMean": 0.364,
+      "n": 149114
+     },
+     "render": {
+      "lumP50": 10.8,
+      "lumP90": 20.6,
+      "hueMean": 21.7,
+      "satMean": 0.271,
+      "n": 123978
+     },
+     "renderInInter": {
+      "lumP50": 10.6,
+      "lumP90": 20.4,
+      "hueMean": 22.0,
+      "satMean": 0.263,
+      "n": 116194
+     }
+    },
+    "back": {
+     "target": {
+      "lumP50": 35.5,
+      "lumP90": 49.9,
+      "hueMean": 21.4,
+      "satMean": 0.325,
+      "n": 335684
+     },
+     "render": {
+      "lumP50": 12.4,
+      "lumP90": 27.7,
+      "hueMean": 20.5,
+      "satMean": 0.231,
+      "n": 190361
+     },
+     "renderInInter": {
+      "lumP50": 12.4,
+      "lumP90": 27.5,
+      "hueMean": 20.4,
+      "satMean": 0.231,
+      "n": 189619
+     }
+    }
+   },
+   "seam": {
+    "maxGapPx": 47,
+    "p95GapPx": 36.0,
+    "rows": [
+     150,
+     950
+    ]
+   }
+  },
+  "groom2": {
+   "contour": {
+    "front": {
+     "whole": {
+      "excessN": 1052,
+      "excessP50": 5.8,
+      "excessP95": 14.7,
+      "missN": 2038,
+      "missP50": 14.9,
+      "missP95": 49.0,
+      "empty": false
+     },
+     "crown": {
+      "excessN": 815,
+      "excessP50": 7.1,
+      "excessP95": 14.3,
+      "missN": 652,
+      "missP50": 13.0,
+      "missP95": 18.2,
+      "empty": false
+     },
+     "mid": {
+      "excessN": 154,
+      "excessP50": 2.0,
+      "excessP95": 3.3,
+      "missN": 765,
+      "missP50": 20.0,
+      "missP95": 44.0,
+      "empty": false
+     },
+     "hem": {
+      "excessN": 90,
+      "excessP50": 2.0,
+      "excessP95": 16.5,
+      "missN": 830,
+      "missP50": 21.3,
+      "missP95": 50.0,
+      "empty": false
+     },
+     "left": {
+      "excessN": 558,
+      "excessP50": 5.8,
+      "excessP95": 14.9,
+      "missN": 1022,
+      "missP50": 13.0,
+      "missP95": 50.0,
+      "empty": false
+     },
+     "right": {
+      "excessN": 494,
+      "excessP50": 5.7,
+      "excessP95": 13.5,
+      "missN": 1071,
+      "missP50": 16.0,
+      "missP95": 47.0,
+      "empty": false
+     }
+    },
+    "three_quarter": {
+     "whole": {
+      "excessN": 834,
+      "excessP50": 6.4,
+      "excessP95": 29.0,
+      "missN": 1486,
+      "missP50": 17.4,
+      "missP95": 61.0,
+      "empty": false
+     },
+     "crown": {
+      "excessN": 363,
+      "excessP50": 4.5,
+      "excessP95": 9.4,
+      "missN": 639,
+      "missP50": 13.0,
+      "missP95": 22.8,
+      "empty": false
+     },
+     "mid": {
+      "excessN": 261,
+      "excessP50": 11.0,
+      "excessP95": 31.4,
+      "missN": 518,
+      "missP50": 19.0,
+      "missP95": 42.2,
+      "empty": false
+     },
+     "hem": {
+      "excessN": 210,
+      "excessP50": 9.6,
+      "excessP95": 38.0,
+      "missN": 499,
+      "missP50": 42.2,
+      "missP95": 79.6,
+      "empty": false
+     },
+     "left": {
+      "excessN": 396,
+      "excessP50": 4.2,
+      "excessP95": 9.3,
+      "missN": 488,
+      "missP50": 8.9,
+      "missP95": 25.7,
+      "empty": false
+     },
+     "right": {
+      "excessN": 438,
+      "excessP50": 11.2,
+      "excessP95": 32.6,
+      "missN": 1133,
+      "missP50": 21.8,
+      "missP95": 66.0,
+      "empty": false
+     }
+    },
+    "profile_90": {
+     "whole": {
+      "excessN": 1612,
+      "excessP50": 10.8,
+      "excessP95": 46.0,
+      "missN": 1105,
+      "missP50": 6.0,
+      "missP95": 14.2,
+      "empty": false
+     },
+     "crown": {
+      "excessN": 488,
+      "excessP50": 6.7,
+      "excessP95": 13.3,
+      "missN": 502,
+      "missP50": 6.4,
+      "missP95": 21.1,
+      "empty": false
+     },
+     "mid": {
+      "excessN": 1059,
+      "excessP50": 12.0,
+      "excessP95": 51.0,
+      "missN": 88,
+      "missP50": 5.4,
+      "missP95": 7.2,
+      "empty": false
+     },
+     "hem": {
+      "excessN": 95,
+      "excessP50": 7.0,
+      "excessP95": 12.5,
+      "missN": 530,
+      "missP50": 6.0,
+      "missP95": 8.6,
+      "empty": false
+     },
+     "left": {
+      "excessN": 973,
+      "excessP50": 10.0,
+      "excessP95": 52.0,
+      "missN": 336,
+      "missP50": 3.6,
+      "missP95": 23.6,
+      "empty": false
+     },
+     "right": {
+      "excessN": 694,
+      "excessP50": 11.0,
+      "excessP95": 14.0,
+      "missN": 785,
+      "missP50": 6.0,
+      "missP95": 10.6,
+      "empty": false
+     }
+    },
+    "back": {
+     "whole": {
+      "excessN": 706,
+      "excessP50": 5.9,
+      "excessP95": 26.6,
+      "missN": 1892,
+      "missP50": 14.6,
+      "missP95": 48.8,
+      "empty": false
+     },
+     "crown": {
+      "excessN": 114,
+      "excessP50": 2.0,
+      "excessP95": 9.3,
+      "missN": 639,
+      "missP50": 6.3,
+      "missP95": 22.6,
+      "empty": false
+     },
+     "mid": {
+      "excessN": 0,
+      "excessP50": 0.0,
+      "excessP95": 0.0,
+      "missN": 767,
+      "missP50": 20.1,
+      "missP95": 45.0,
+      "empty": false
+     },
+     "hem": {
+      "excessN": 592,
+      "excessP50": 7.1,
+      "excessP95": 27.2,
+      "missN": 818,
+      "missP50": 15.7,
+      "missP95": 51.5,
+      "empty": false
+     },
+     "left": {
+      "excessN": 326,
+      "excessP50": 4.5,
+      "excessP95": 22.8,
+      "missN": 1024,
+      "missP50": 19.0,
+      "missP95": 51.4,
+      "empty": false
+     },
+     "right": {
+      "excessN": 469,
+      "excessP50": 5.0,
+      "excessP95": 28.4,
+      "missN": 954,
+      "missP50": 10.0,
+      "missP95": 32.0,
+      "empty": false
+     }
+    }
+   },
+   "iou": {
+    "front": {
+     "iou": 0.5298,
+     "fPx": 46499,
+     "tPx": 78754,
+     "interPx": 43375
+    },
+    "three_quarter": {
+     "iou": 0.6922,
+     "fPx": 76859,
+     "tPx": 103799,
+     "interPx": 73898
+    },
+    "profile_90": {
+     "iou": 0.8831,
+     "fPx": 151902,
+     "tPx": 149114,
+     "interPx": 141167
+    },
+    "back": {
+     "iou": 0.8398,
+     "fPx": 287712,
+     "tPx": 335684,
+     "interPx": 284562
+    }
+   },
+   "agree": {
+    "front": {
+     "wmean": 20.82,
+     "p50": 14.0,
+     "p95": 74.0,
+     "n": 43375
+    },
+    "three_quarter": {
+     "wmean": 27.0,
+     "p50": 21.0,
+     "p95": 79.0,
+     "n": 73898
+    },
+    "profile_90": {
+     "wmean": 22.03,
+     "p50": 17.0,
+     "p95": 71.0,
+     "n": 141167
+    },
+    "back": {
+     "wmean": 21.16,
+     "p50": 11.0,
+     "p95": 86.0,
+     "n": 284562
+    }
+   },
+   "color": {
+    "front": {
+     "target": {
+      "lumP50": 26.1,
+      "lumP90": 57.7,
+      "hueMean": 17.9,
+      "satMean": 0.485,
+      "n": 78754
+     },
+     "render": {
+      "lumP50": 42.2,
+      "lumP90": 71.3,
+      "hueMean": 20.8,
+      "satMean": 0.333,
+      "n": 46499
+     },
+     "renderInInter": {
+      "lumP50": 42.1,
+      "lumP90": 72.1,
+      "hueMean": 20.8,
+      "satMean": 0.332,
+      "n": 43375
+     }
+    },
+    "three_quarter": {
+     "target": {
+      "lumP50": 26.5,
+      "lumP90": 49.0,
+      "hueMean": 17.7,
+      "satMean": 0.423,
+      "n": 103799
+     },
+     "render": {
+      "lumP50": 37.6,
+      "lumP90": 66.8,
+      "hueMean": 21.7,
+      "satMean": 0.301,
+      "n": 76859
+     },
+     "renderInInter": {
+      "lumP50": 38.0,
+      "lumP90": 67.1,
+      "hueMean": 21.9,
+      "satMean": 0.298,
+      "n": 73898
+     }
+    },
+    "profile_90": {
+     "target": {
+      "lumP50": 31.5,
+      "lumP90": 56.0,
+      "hueMean": 22.5,
+      "satMean": 0.364,
+      "n": 149114
+     },
+     "render": {
+      "lumP50": 36.5,
+      "lumP90": 53.8,
+      "hueMean": 21.8,
+      "satMean": 0.306,
+      "n": 151902
+     },
+     "renderInInter": {
+      "lumP50": 36.3,
+      "lumP90": 51.3,
+      "hueMean": 21.9,
+      "satMean": 0.305,
+      "n": 141167
+     }
+    },
+    "back": {
+     "target": {
+      "lumP50": 35.5,
+      "lumP90": 49.9,
+      "hueMean": 21.4,
+      "satMean": 0.325,
+      "n": 335684
+     },
+     "render": {
+      "lumP50": 42.3,
+      "lumP90": 53.8,
+      "hueMean": 21.5,
+      "satMean": 0.276,
+      "n": 287712
+     },
+     "renderInInter": {
+      "lumP50": 42.3,
+      "lumP90": 53.6,
+      "hueMean": 21.5,
+      "satMean": 0.275,
+      "n": 284562
+     }
+    }
+   },
+   "seam": {
+    "maxGapPx": 17,
+    "p95GapPx": 0.0,
+    "rows": [
+     150,
+     950
+    ]
+   }
+  }
+ },
+ "earBlob": {
+  "groom1/front/xpos": {
+   "idMean": 150.5,
+   "idPx": 49,
+   "beautyLum": 70.0,
+   "targetLum": 125.6
+  },
+  "groom1/front/xneg": {
+   "idMean": 75.1,
+   "idPx": 5,
+   "beautyLum": 127.9,
+   "targetLum": 163.0
+  },
+  "groom1/three_quarter/xpos": {
+   "idMean": 213.0,
+   "idPx": 60,
+   "beautyLum": 23.8,
+   "targetLum": 99.6
+  },
+  "groom1/three_quarter/xneg": {
+   "idMean": 0.0,
+   "idPx": 0,
+   "beautyLum": 155.2,
+   "targetLum": 152.5
+  },
+  "groom1/profile_90/xpos": {
+   "idMean": 178.0,
+   "idPx": 11,
+   "beautyLum": 37.2,
+   "targetLum": 113.1
+  },
+  "groom1/profile_90/xneg": {
+   "idMean": 219.8,
+   "idPx": 66,
+   "beautyLum": 25.5,
+   "targetLum": 122.1
+  },
+  "groom2/front/xpos": {
+   "idMean": 42.0,
+   "idPx": 0,
+   "beautyLum": 121.1,
+   "targetLum": 125.6
+  },
+  "groom2/front/xneg": {
+   "idMean": 54.8,
+   "idPx": 0,
+   "beautyLum": 151.2,
+   "targetLum": 163.0
+  },
+  "groom2/three_quarter/xpos": {
+   "idMean": 0.9,
+   "idPx": 0,
+   "beautyLum": 102.4,
+   "targetLum": 99.6
+  },
+  "groom2/three_quarter/xneg": {
+   "idMean": 0.0,
+   "idPx": 0,
+   "beautyLum": 155.2,
+   "targetLum": 152.5
+  },
+  "groom2/profile_90/xpos": {
+   "idMean": 0.0,
+   "idPx": 0,
+   "beautyLum": 115.8,
+   "targetLum": 113.1
+  },
+  "groom2/profile_90/xneg": {
+   "idMean": 14.7,
+   "idPx": 0,
+   "beautyLum": 121.8,
+   "targetLum": 122.1
+  }
+ },
+ "frizz": {
+  "groom1": {
+   "strayPx": 0
+  },
+  "groom2": {
+   "strayPx": 0
+  }
+ }
+}

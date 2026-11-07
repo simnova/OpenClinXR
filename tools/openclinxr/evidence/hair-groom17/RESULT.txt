@@ -1,0 +1,233 @@
+hair-groom17 — Interpolate toggle matrix: children that stay outside the skull
+=============================================================================
+Station: tools/openclinxr/hair-groom/strands/blender_children.py (reused) +
+         strands/body_clear.py (reused); E/interp_matrix.py (new runner)
+Evidence: tools/openclinxr/evidence/hair-groom17/  (this dir)
+Date: 2026-10-18   Branch: hair-tgt2   Blender 5.1.1
+Guides: hair-groom16/build/guides-cleared.npz (body-cleared, gate PASS 0 < 1.5 mm)
+Reference gates/scorer: hair-groom16 (E of groom16, reused unmodified)
+
+VERDICT: GATES_PASS = no. The card's condition for step 3 did not fire: NO cell
+of the 24-cell Interpolate matrix reaches inside < 1%. Best cell is 5.90% inside
+(still >1%) and needs 7.34% of children moved > 3 mm (gate <= 2%). So step 3
+(full stack + groom16 gates + render sheet) was NOT entered, exactly as the
+card directs ("if none qualifies ... stop with the table").
+
+FINDING (this is the result): the leading hypothesis is REFUTED. Toggling
+"Follow Surface Normal" 0->1 changes the inside fraction by only 0.60 pts on
+average (15.58% -> 14.98%); it does not fix penetration. The variable that
+moves inside% is INTERPOLATION GUIDES: 7.91% (ig1) -> 16.91% (ig3) ->
+21.02% (ig6), a 13.11-pt marginal range, 2.7x from ig1 to ig3. More guides =
+MORE penetration, because the blend pulls each child through the skull toward
+guides rooted elsewhere. This is groom16's "the Interpolate blend itself cuts
+through the skull" made causal by one-variable-at-a-time. The second candidate
+(3 depth classes) is also refuted as a penetration cause: cls3 marginally
+REDUCES inside% (15.92% -> 14.65%) though it strongly increases bangs
+(mean 5.5 -> 243.7 samples). The Interpolate node cannot be parameterised out
+of the body at this density and guide set.
+
+Honest headline: groom16's causal direction is confirmed AND localised. The
+dive-through is not "Follow Surface Normal"; it is the number of guides the
+Interpolate blend averages. Nearest-guide-only is the least-bad setting and
+still leaves 5.9% of samples inside.
+
+
+0. WHAT WAS BUILT (one runner, deterministic)
+---------------------------------------------
+E/interp_matrix.py runs 24 Blender builds of blender_children.py with ONLY the
+Interpolate stage toggled. Fixed for every cell:
+  --guides hair-groom16/build/guides-cleared.npz  (already body-cleared)
+  --clear-guides 0 --sideburn-tuck 0 --skip-drape 1
+  --density 850000 --seed 7 --part-by-islands 1
+  --skip-clump 1 --skip-noise 1 --skip-smooth 1 --skip-shrink 1
+  --outside-pass 0 --colliders ""
+Toggled: --follow-surface-normal {0,1} x --depth-classes {1,3} x
+         --interp-guides {1,3,6} x --distance-to-guides {1.0,0.02}
+Density calibration: 850000 -> 60968 children (target "~60k"). Full-density
+(3.9M) reference is 276984.
+Command:
+  mise exec -- python3 interp_matrix.py        # writes the 24 npz + json + md
+Reference command (baseline cell, matches groom16 stack minus Clump/Noise/
+Smooth/Shrinkwrap at 1/4.6 density):
+  Blender --background --python strands/blender_children.py -- \
+    --guides .../hair-groom16/build/guides-cleared.npz \
+    --out .../hair-groom17/build/matrix/fsn0_cls3_ig3_dtgdefault.npz \
+    --density 850000 --seed 7 --clear-guides 0 --sideburn-tuck 0 \
+    --skip-drape 1 --outside-pass 0 --depth-classes 3 --interp-guides 3 \
+    --distance-to-guides 1.0 --follow-surface-normal 0 \
+    --skip-clump 1 --skip-noise 1 --skip-smooth 1 --skip-shrink 1
+
+
+1. TRUSTWORTHINESS OF THE TABLE
+-------------------------------
+- Determinism: rebuild of cell fsn0_cls3_ig3_dtgdefault -> points+radii array
+  hash 21c9d8d389e762c3 identical to the first build (24-cell runner, seed 7).
+- Metric fidelity: the runner's measure() reproduces groom16's published
+  scalars on the groom16-equivalent stack. Baseline cell fsn0_cls3_ig3_
+  dtgdefault (no Clump/Noise/Smooth) reads insideSge1 18.46%; the groom16
+  full stack (with Clump 0.2 + Noise + Smooth) reads 19.06% (its falsifier
+  scalar). The ~0.6-pt delta is exactly the Clump/Noise/Smooth contribution,
+  so the measurement agrees with groom16 where the stacks agree.
+- Depth metric == groom16 guide_depth16.py / depthprobe16.py verbatim
+  (shell arc 10-80 mm, parietal |x| in [50,85) mm, temple |x| in [35,85) mm
+  & y in [-135,-40) mm). Bangs metric is new (section 2).
+
+
+2. THE MATRIX (full table: interp-matrix.md; raw: interp-matrix.json)
+--------------------------------------------------------------------
+insideAll% = share of ALL finite child samples with body SDF < 0.
+insideS1%  = same over samples s>=1 (groom16's falsifier scalar definition).
+need>3mm%  = share of children the groom16 outside pass (target 0.5 mm) would
+             move more than 3 mm (the groom16 step gate is <= 2%).
+bangs      = count of child samples forward of the forehead plane
+             (y < point3d/brow y = -0.14863 m) inside the face box
+             (|x| <= 0.080 m, z in [menton_z, crown_z] = [1.4493, 1.6599] m).
+
+  cell                       insideAll% insideS1% need>3mm% p90  pari p50 p90 std  temp p50 p90 std  bangs
+  fsn0_cls1_ig1_dtg0.02          6.85     5.97     5.43   1.20   4.53 14.06 7.13   2.46  7.62 4.55   21
+  fsn0_cls1_ig1_dtgdefault       8.29     7.43     9.51   2.76   4.32 14.41 7.25   2.38  8.65 5.26   21
+  fsn0_cls1_ig3_dtg0.02         18.31    17.71    27.84  17.75   3.92 15.84 10.29  0.88  8.41 8.54    5
+  fsn0_cls1_ig3_dtgdefault      18.49    17.89    29.92  16.76   3.77 15.42 9.88   1.29 10.25 8.49    5
+  fsn0_cls1_ig6_dtg0.02         23.39    22.92    37.09  23.04   3.34 16.24 11.16  0.04  8.16 9.67    0
+  fsn0_cls1_ig6_dtgdefault      23.27    22.79    38.71  21.60   3.16 15.51 10.47  0.48 10.15 9.32    0
+  fsn0_cls3_ig1_dtg0.02          8.65     7.82    10.87   3.35   5.04 15.51 7.17   3.15  9.81 5.40   10
+  fsn0_cls3_ig1_dtgdefault      13.16    12.43    21.05  11.19   5.18 17.84 7.92   3.68 15.29 7.51  819
+  fsn0_cls3_ig3_dtg0.02         15.31    14.64    24.51  13.92   4.32 15.07 9.21   2.22  8.82 7.87    3
+  fsn0_cls3_ig3_dtgdefault      19.04    18.46    32.53  24.47   4.49 18.30 9.66   2.95 15.85 9.49  168
+  fsn0_cls3_ig6_dtg0.02         18.40    17.81    30.75  19.56   3.90 15.05 9.93   1.84  8.51 8.65    0
+  fsn0_cls3_ig6_dtgdefault      21.64    21.12    37.60  28.09   4.17 18.34 10.22  2.81 15.93 10.03 148
+  fsn1_cls1_ig1_dtg0.02          6.86     5.98     5.23   0.97   4.49 13.76 7.38   2.39  7.19 4.67    7
+  fsn1_cls1_ig1_dtgdefault       8.56     7.71     8.59   2.21   4.36 14.76 8.14   2.30  8.37 6.49    7
+  fsn1_cls1_ig3_dtg0.02         18.52    17.93    27.97  18.13   3.84 15.73 10.68  0.65  7.24 8.85    0
+  fsn1_cls1_ig3_dtgdefault      18.66    18.07    29.00  17.67   3.99 16.58 10.71  1.21 10.83 9.60    0
+  fsn1_cls1_ig6_dtg0.02         23.98    23.52    37.25  23.19   3.21 16.24 11.56 -0.15  6.78 9.90    0
+  fsn1_cls1_ig6_dtgdefault      23.55    23.08    37.50  22.01   3.57 16.89 11.29  0.28 11.90 10.40   0
+  fsn1_cls3_ig1_dtg0.02          6.78     5.90     7.34   1.86   4.84 14.81 7.26   3.19  8.46 5.20   85
+  fsn1_cls3_ig1_dtgdefault      10.86    10.07    15.69   7.09   4.80 18.59 9.39   3.48 15.24 9.43 1571
+  fsn1_cls3_ig3_dtg0.02         14.21    13.52    21.72  12.95   4.19 14.62 9.41   1.89  7.74 7.96    3
+  fsn1_cls3_ig3_dtgdefault      17.67    17.05    28.67  21.08   4.21 19.55 11.35  2.45 17.48 11.79  90
+  fsn1_cls3_ig6_dtg0.02         17.61    17.00    28.53  17.93   3.79 14.57 10.13  1.14  7.43 8.75    3
+  fsn1_cls3_ig6_dtgdefault      20.50    19.96    34.60  24.77   3.86 19.48 11.99  1.90 17.61 12.55  24
+
+Marginal means (insideS1%):
+  follow-surface-normal  0:15.58  1:14.98  range 0.60 pts
+  depth-classes          1:15.92  3:14.65  range 1.27 pts
+  interp-guides          1: 7.91  3:16.91  6:21.02  range 13.11 pts  <- dominant
+  distance-to-guides   1.0:16.34  0.02:14.23  range 2.11 pts
+Marginal means (need>3mm%):
+  interp-guides          1:10.47  3:27.77  6:35.25  range 24.78 pts  <- dominant
+Bangs mean:
+  interp-guides          1:317.6  3: 34.2  6: 21.9   (ig1 worst)
+  depth-classes          1:  5.5  3:243.7
+  distance-to-guides   1.0:237.8  0.02: 11.4
+
+
+3. CHOICE AND WHY (card item 2)
+-------------------------------
+No cell qualifies (inside < 1% AND parietal+temple p50/p90 within +-20%):
+0 / 24. Best inside: fsn1_cls3_ig1_dtg0.02 -> 5.90% inside, 7.34% need>3mm,
+parietal p50 ratio 0.601, temple p50 ratio 0.578 (both far below the +-20%
+band). Best need>3mm: fsn1_cls1_ig1_dtg0.02 -> 5.23%, still >2%.
+=> stop with the table (valid result per card).
+
+Variable that moves inside% most: INTERPOLATION GUIDES (13.11-pt marginal
+range; 2.7x from ig1 to ig3). Mechanism: Interpolate averages the shape of the
+N nearest guides; with more guides a child's samples are pulled toward guide
+points rooted elsewhere on the curved skull, bending the strand through the
+body. Nearest-guide-only (ig1) is the only setting that materially reduces
+penetration, and it also raises temple p50 (3.15 mm vs 2.22 mm at ig3,
+cls3/dtg0.02) - i.e. it helps depth AND collision together by weakening the
+cross-guide blend. But ig1 still leaves 5.9% inside and p50 at ~0.58-0.60 of
+the guide reference, so even the best setting is not a fix.
+
+Two hypotheses from the card, adjudicated:
+  H1 (leading) "Follow Surface Normal = 0 makes root-relative world-offset
+     children point into a curved skull" -> REFUTED as the cause. fsn 0->1
+     moves inside% 0.60 pts (15.58 -> 14.98) and need>3mm 1.98 pts; it does
+     not cross under 1% in any row. It also WORSENS bangs 1.5x (100.0 -> 149.2)
+     and temple p90 at cls3 (15.29 -> 17.48). Not the lever.
+  H2 "3 depth classes leave fewer, farther guides per class (groom12 one class
+     had no bangs)" -> REFUTED as a penetration cause: cls3 lowers inside%
+     slightly (15.92 -> 14.65) and does not raise need>3mm (24.50 vs 24.49).
+     It IS the bangs driver (mean 5.5 -> 243.7 samples; cls3 with ig1 pushes
+     a forward fringe across the forehead). So depth classes affect SHAPE
+     (bangs), not penetration.
+
+Causal summary: penetration scales with how many guides the Interpolate blend
+averages. That is a property of the node, not of the guides (which already
+pass the 0-sample < 1.5 mm gate) and not of Follow Surface Normal. It confirms
+groom16 and adds a monotone dose-response (ig1<ig3<ig6).
+
+
+4. GATES WITH MARGINS (best cell fsn1_cls3_ig1_dtg0.02, honest)
+-------------------------------------------------------------
+STEP GATES
+  guideClearance       0 samples < 1.5 mm (cleared guides, inherited) PASS
+  insideSge1           5.90%  vs gate <1%  -> FAIL  (over by 4.90 pts; card)
+  need>3mm             7.34%  vs gate <=2% -> FAIL  (over by 5.34 pts)
+CARD DEPTH GATES (cleared-guide reference: parietal p50 8.059 / p90 17.065;
+temple p50 5.524 / p90 8.930; band +-20%)
+  parietal p50  4.84 vs band [6.447, 9.671]  FAIL  ratio 0.601
+  parietal p90 14.81 vs band [13.652,20.478] PASS  ratio 0.868
+  temple   p50  3.19 vs band [4.419, 6.629]  FAIL  ratio 0.578
+  temple   p90  8.46 vs band [7.144,10.716]  PASS  ratio 0.947
+  (spread: parietal std 7.26 >= 0.6*6.437=3.862 PASS; temple std 5.20 >=
+   0.6*2.742=1.645 PASS)
+  -> 2 of 4 p50/p90 gates fail, so the cell fails qualification on depth too.
+HARD GATES (groom16 set): insideBody / pinna / concha / faceMask / IoU /
+  outsidePass were NOT scored: step 3 was not entered (no qualifying cell).
+GATES_PASS = no.
+
+
+5. VISUAL READ
+--------------
+N/A. The card makes step 3 (full ~280k stack + 4 studio views + sheet.png
+target|groom8a|groom16|groom17 + crops.png) conditional on a qualifying cell.
+No cell qualified, so no renders or sheet were produced. The geometric bangs
+count stands in for the visual: bangs are negligible at ig3/ig6 (mean 22-34
+samples) and explode at cls3+ig1 (mean 244, up to 1571 at cls3+fsn1+ig1+
+dtgdefault), i.e. the forward fringe appears only when a few deep guides are
+weighted heavily at the hairline - consistent with groom15/16's observed
+fringe, and it is a depth-class/interp-guides effect, not a fsn effect.
+
+
+6. SCOPE / NOT TESTED / REMAINING
+---------------------------------
+SCOPE: local Blender build lane only, low density (~61k children, 1/4.6 of the
+groom16 product). No render, no scorer, no Quest/WebXR runtime, no on-headset
+evidence, no downstream (arena/iwsdk) load. The matrix varies the Interpolate
+stage only; Clump/Noise/Smooth/Shrinkwrap/outside-pass were held OFF so the
+stage under test is isolated (D4).
+NOT TESTED: full-density behaviour of the winning setting (density may shift
+the exact percentages); whether Clump/Noise/Smooth re-introduce or mask
+penetration; the groom16 hard gates; worn-headset / WebXR clip-through; whether
+the outside-pass spikes are stable under animation; interaction with the
+Shrinkwrap control groom15 used; other Interpolate knobs not in the grid
+(distribution method, density mask, part-by-islands off).
+REMAINING:
+  - The Interpolate stage has no setting in this grid that keeps children out
+    of the skull (<1%). Nearest-guide (ig1) + distance 0.02 + cls3 is the
+    least-bad cell (5.90% inside, 7.34% need>3mm) and should be the input to
+    any future fix, but it is not itself a fix.
+  - The fix must change the geometry model, not the Interpolate parameters:
+    either a shape-preserving collision (project each child's SHAPE, not each
+    sample - groom16 section 6) or a child generator that does not average
+    across distant guides (e.g. per-guide strand copies in the guide's own
+    local frame, then a bounded surface projection), or a guide-density
+    increase high enough that ig1 is well-sampled everywhere.
+  - Guide clearance (groom16) remains correct and is kept as the input.
+  - Bangs are a depth-class/interp-guides effect; any forward-fringe fix
+    (hairline guides, forehead tuck) is independent of the penetration fix.
+
+
+7. FILE MANIFEST
+----------------
+interp_matrix.py          matrix runner (24 cells) + metrics + md writer
+interp-matrix.json        raw per-cell metrics + face-box definition
+interp-matrix.md          the table above (full)
+build/matrix/*.npz        24 child builds, off-repo (NOT in git)
+build/matrix.log          full runner log (committed)
+build/matrix-asset.txt    build command + store SHA256SUMS location (committed)
+RESULT.txt, DONE.txt      this report
+store: /Volumes/files/openclinxr-assets/store/hair-groom17/matrix/*.npz +
+       ../SHA256SUMS (24 files), per the no-npz-in-git rule.

@@ -1,0 +1,36 @@
+{
+  "backHemPixel": [
+    823.0,
+    520.5
+  ],
+  "distBackEndToBackRayMm": 4.0,
+  "distCurtainEndToFrontRayMm": 99.1,
+  "frontCurtainHemPixel": [
+    670.5,
+    512.8
+  ],
+  "profileBackEndM": [
+    0.0,
+    0.0634,
+    1.3382
+  ],
+  "profileCurtainEndM": [
+    -0.0676,
+    -0.0006,
+    1.4793
+  ],
+  "stop": true,
+  "thresholdMm": 30.0,
+  "triangulatedBackM": [
+    -0.0002,
+    0.0581,
+    1.3228
+  ],
+  "triangulatedCurtainM": [
+    0.0047,
+    -0.1227,
+    1.49
+  ],
+  "triangulationGapBackMm": 23.7,
+  "triangulationGapCurtainMm": 136.4
+}

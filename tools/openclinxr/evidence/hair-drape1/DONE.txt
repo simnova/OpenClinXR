@@ -1,0 +1,1 @@
+COMPLETE: base re-score (v3+rig1 IoU 0.7147/0.6952/0.7698), depth.json (6 heights), 3 drape cells built/repaired/scored, look-sheet.png (TS|combo|d1-REV x front/profile/back/overlay/back-crop), RESULT.txt (all REVERTED, base retained). No KEPT cell; no *.blend written.

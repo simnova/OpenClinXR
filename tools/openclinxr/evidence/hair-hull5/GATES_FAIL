@@ -1,0 +1,22 @@
+hair-hull5 gates (6-view symmetric carve on ear-tucked aisha-v3; sensitivity redefined per hull3.py SENSITIVITY_REDEFINED)
+============================================================
+[PASS] excess-p95<=4px-every-view: reprojected carve excess p95 vs undilated mask <= 4 px in all views
+  {"back": {"p95": 2.0, "pass": true}, "front": {"p95": 2.0, "pass": true}, "profile_90": {"p95": 2.0, "pass": true}, "profile_90_mirror": {"p95": 3.0, "pass": true}, "three_quarter": {"p95": 2.0, "pass": true}, "three_quarter_mirror": {"p95": 2.0, "pass": true}}
+[PASS] roots>=95pct-within-6mm: scalp1 root proximity fracWithin6mm >= 0.95
+  {"fracWithin6mm": 0.9529, "n": 14155, "p50": 2.83, "p95": 6.0, "pass": true}
+[PASS] single-scalp-component: one scalp-touching component; droppedTouch total <= 0.1% of keptFinal
+  {"droppedTouchFrac": 0.00074, "droppedTouchMaxPieceVox": 25, "droppedTouchPieces": 109, "droppedTouchVox": 291, "largestFrac": 1.0, "nComponents": 1, "pass": true}
+[PASS] mismatch-protrusion<=2px-or-shell-justified: TUCK FORM (hull3.py note): hairlike poke beyond 3 px of the mask edge <= 15 px every view + dome covered by the carve (roots >= 95%), no shell
+  {"domeCoveredNoShell": true, "hairlikeBeyond3px": {"back": 0, "front": 0, "profile_90": 6, "three_quarter": 5}, "hairlikeBeyond3pxMax": 6, "pass": true, "shellAdded": false}
+[PASS] sensitivity-1mm-unchanged: 1 mm re-carve contour deltas <= 5 px, no fragile region
+  {"fragile": [], "maxDelta": 1.64, "pass": true}
+[FAIL] sensitivity-redefined-undilated: (i) single scalp-connected component + no region lost; (ii) regional (40 px row-band) contour deltas <= 5 px every non-hem region; (iii) hem-band miss reported
+  {"i": {"pass": true, "undilBelow": {"back": 109462, "front": 0, "sideL": 824, "sideR": 846}, "undilKeepLabel": 96, "undilSplatPx": {"back": 167926, "front": 37208, "profile_90": 72617, "profile_90_mirror": 72355, "three_quarter": 50402, "three_quarter_mirror": 50228}}, "ii": {"failingBands": ["front/bands12-14(rows57-216):missP50-d9.2/5.5/30.4,missP95-d42.3/51.8/48.2", "three_quarter/bands13-15(rows86-205):missP50-d7.2/5.5/9.8,missP95-d8.7/5.8/19.1", "three_quarter_mirror/bands13-15(rows86-205):missP50-d6.9/6.5/9.6,missP95-d8.8/4.7/18.4"], "hemBand0maxDelta": 2.9, "pass": false}, "iii": {"hemBandMiss": {"reported": true, "where": "RESULT.txt STEP 2(f)(iii)"}}}
+[PASS] back-symmetry-0.9-1.1: back-view reprojected-hull hair-area L/R within 0.9-1.1 (lineage hd reprojection)
+  {"L_over_R": 1.0026, "hullBackL": 156067, "hullBackR": 155669, "pass": true, "rawSplatL_over_R": 1.0016}
+[PASS] ear-coverage<=20pct: visible-ear projected-area coverage <= 20% (occlusion-aware, hull depth < ear depth + 1 mm)
+  {"clearanceMinMm": 2.17, "maxVisibleCoverageFrac": 0.0213, "pass": true}
+OVERALL: FAIL
+[PASS] below-shoulder-side-symmetry-0.8-1.25 (hull4 fix gate, carried): sideL/sideR within 0.8-1.25 + volumetric mirror IoU reported
+  {"L_over_R": 0.9856, "pass": true, "sideL": 1166, "sideR": 1183, "undilatedProbe": {"L_over_R": 0.974, "pass": true, "sideL": 824, "sideR": 846}, "volMirrorIoU": 0.9848}
+OVERALL with fix gate: FAIL (redefined sensitivity-(ii) only; see RESULT.txt recommendation — no re-carve needed)

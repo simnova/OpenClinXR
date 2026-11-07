@@ -1,0 +1,23 @@
+{
+  "blender": "5.1.1",
+  "node": "ShaderNodeBsdfHairPrincipled",
+  "correction": "The node has a model property with CHIANG and HUANG values. The previous claim that Blender 5.1 had no separate Huang selector was wrong.",
+  "q1": {
+    "model": "CHIANG",
+    "parametrization": "MELANIN",
+    "lobeSockets": {
+      "Reflection": {"identifier": "R lobe", "enabled": false, "value": 1.0},
+      "Transmission": {"identifier": "TT lobe", "enabled": false, "value": 1.0},
+      "Secondary Reflection": {"identifier": "TRT lobe", "enabled": false, "value": 1.0}
+    },
+    "conclusion": "r1-r3 lobe writes were inert because all three lobe sockets are disabled under CHIANG."
+  },
+  "huang": {
+    "model": "HUANG",
+    "supportedParametrizations": ["ABSORPTION", "MELANIN", "COLOR"],
+    "selectedParametrization": "MELANIN",
+    "enabledInputs": ["Melanin", "Melanin Redness", "Tint", "Aspect Ratio", "Roughness", "IOR", "Offset", "Random Color", "Random Roughness", "Random", "Reflection", "Transmission", "Secondary Reflection"],
+    "colorHandling": "MELANIN is available under HUANG, so q1 melanin 0.97 and redness 0.37295693048012835 are retained through the same intercept ramp; no absorption-to-Color conversion is required."
+  },
+  "rnaEvidence": "huang-rna.json"
+}
