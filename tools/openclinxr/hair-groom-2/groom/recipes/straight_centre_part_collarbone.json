@@ -42,7 +42,15 @@
     -50
    ]
   ],
-  "minUpwardNormal": -0.35
+  "minUpwardNormal": -0.35,
+  "earHairline": {
+   "minAbsXMm": 40,
+   "aboveEarClearMm": 0,
+   "sideburnWidthMm": 14,
+   "sideburnRampMm": 12,
+   "rampTopAboveEarMm": 20,
+   "behindEarMm": 0
+  }
  },
  "lengthMm": {
   "front": 665,
@@ -56,7 +64,8 @@
   "partAwayGain": 0.9,
   "partFadeBackMm": 40,
   "backConvergeGain": 0.3,
-  "backConvergeWidthMm": 40
+  "backConvergeWidthMm": 40,
+  "backConvergeStopAtMidline": true
  },
  "fall": {
   "rootLiftMm": 0.5,
@@ -100,13 +109,15 @@
  },
  "shading": {
   "model": "HUANG",
-  "melanin": 0.8,
+  "melanin": 0.66,
   "melaninRedness": 0.15,
   "roughness": 0.3,
   "radialRoughness": 0.3,
   "coat": 0.0,
   "randomColor": 0.05,
-  "randomRoughness": 0.1
+  "randomRoughness": 0.1,
+  "lobeTransmission": 0.08,
+  "lobeReflection": 0.75
  },
  "lighting": {
   "keyW": 55.0,
@@ -125,5 +136,13 @@
   "rampMm": 35,
   "gain": 6.0
  },
- "clearanceMm": 1.0
+ "clearanceMm": 1.0,
+ "earLift": {
+  "minAbsXMm": 40,
+  "frontOfEarMm": 26,
+  "behindEarMm": 4,
+  "clearMm": 10,
+  "rampMm": 8,
+  "gain": 6.0
+ }
 }

@@ -141,17 +141,103 @@ def to_local(p, origin, R):
     return np.array(R @ (Vector(p) - origin))
 
 
+# ---------------------------------------------------------------- ear landmarks
+EAR_CELL_MM = 3.0              # (y, z) cell size of the ear map
+EAR_EXCESS_MM = 5.0            # a cell is ear when its max |x| exceeds the skull reference by this much
+EAR_LATERAL_MM = 40.0          # only body surface with |x| >= this is lateral head
+EAR_Y_MM, EAR_Z_MM = (-45.0, 39.0), (-39.0, 72.0)   # head-local search window around the ear
+EAR_SAMPLES = 20               # barycentric grid per triangle side for the ear map
+
+
+def ear_landmarks(body, origin, R):
+    """Ear top, front, back and tragus (concha) per side in head-local mm, from the body
+    surface alone: a 3 mm (y, z) map of max |x| over the lateral head; the skull reference
+    per z row is linear in y between the max |x| in front of (y -45..-33) and behind
+    (y 24..36) the ear; ear = cells > 5 mm above it. Tragus z = the concha, the lowest
+    excess over the ear interior. Same rule as grade/back_probe.py (rubric v3 I11)."""
+    bm = world_bmesh(body)
+    bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=WELD_M)
+    V = np.array([(R @ (v.co - origin))[:] for v in bm.verts]) * 1000.0
+    F = np.array([[v.index for v in f.verts] for f in bm.faces if len(f.verts) == 3])
+    bm.free()
+    T = V[F]
+    keep = (np.abs(T[:, :, 0]).max(1) >= EAR_LATERAL_MM - 10) & (T[:, :, 2].max(1) > EAR_Z_MM[0] - 10) \
+        & (T[:, :, 2].min(1) < EAR_Z_MM[1] + 10)
+    T = T[keep]
+    n = EAR_SAMPLES
+    u, v = np.meshgrid(np.linspace(0, 1, n), np.linspace(0, 1, n))
+    m = (u + v) <= 1
+    W = np.stack([1 - u[m] - v[m], u[m], v[m]], 1)
+    P0 = np.einsum("kj,fjd->fkd", W, T).reshape(-1, 3)
+    G = EAR_CELL_MM
+    YS, ZS = np.arange(EAR_Y_MM[0], EAR_Y_MM[1], G), np.arange(EAR_Z_MM[0], EAR_Z_MM[1], G)
+    out = {}
+    for name, side in (("L", 1.0), ("R", -1.0)):
+        P = P0 * np.array([side, 1, 1])
+        iy = np.floor((P[:, 1] - YS[0]) / G).astype(int)
+        iz = np.floor((P[:, 2] - ZS[0]) / G).astype(int)
+        ok = (P[:, 0] >= EAR_LATERAL_MM) & (iy >= 0) & (iy < len(YS)) & (iz >= 0) & (iz < len(ZS))
+        M = np.full((len(ZS), len(YS)), -np.inf)
+        np.maximum.at(M, (iz[ok], iy[ok]), P[ok, 0])
+        fr, bk = M[:, :4].max(1), M[:, -4:].max(1)
+        yc = YS + G / 2
+        yf, yb = yc[:4].mean(), yc[-4:].mean()
+        ex = M - (fr[:, None] + (bk - fr)[:, None] * (yc[None] - yf) / (yb - yf))
+        E = ex > EAR_EXCESS_MM
+        zi, yi = np.where(E)
+        best = None
+        for k in range(len(ZS)):
+            js = np.where(E[k])[0]
+            if len(js) < 5:
+                continue
+            for j in range(js.min() + 2, js.max() - 1):
+                if best is None or ex[k, j] < best[0]:
+                    best = (float(ex[k, j]), float(ZS[k] + G / 2))
+        out[name] = {"zTopMm": float(ZS[zi].max() + G), "zBottomMm": float(ZS[zi].min()),
+                     "yFrontMm": float(YS[yi].min()), "yBackMm": float(YS[yi].max() + G),
+                     "zTragusMm": best[1]}
+    return out
+
+
+def ear_hairline_mm(p_mm, ear, eh):
+    """Hairline height (head-local z, mm) set by the ear landmarks at a lateral point, or
+    None outside the ear region. Over the ear (y between its front and back edges) the
+    hairline is the ear top + aboveEarClearMm (no roots on the ear itself); in front of
+    it a sideburn of sideburnWidthMm reaches down to the tragus, and its front edge rises
+    linearly over sideburnRampMm to meet the azimuth table."""
+    if abs(p_mm[0]) < eh["minAbsXMm"]:
+        return None
+    e = ear["L" if p_mm[0] >= 0 else "R"]
+    y = p_mm[1]
+    yf, yb = e["yFrontMm"], e["yBackMm"]
+    w, ramp = eh["sideburnWidthMm"], eh["sideburnRampMm"]
+    if yf <= y <= yb + eh.get("behindEarMm", 0.0):
+        return e["zTopMm"] + eh["aboveEarClearMm"], "over"
+    if yf - w <= y < yf:
+        return e["zTragusMm"] + eh.get("sideburnAboveTragusMm", 0.0), "min"
+    if yf - w - ramp <= y < yf - w:
+        t = (yf - w - y) / ramp
+        return e["zTragusMm"] + t * (e["zTopMm"] + eh.get("rampTopAboveEarMm", 20.0) - e["zTragusMm"]), "min"
+    return None
+
+
 # ---------------------------------------------------------------- scalp
-def build_scalp(body, origin, R, centre, rc):
+def build_scalp(body, origin, R, centre, rc, ear=None):
     bm = world_bmesh(body)
     table = np.array(rc["scalp"]["hairlineMmAboveHeadOriginByAzimuthDeg"], dtype=float)
     min_up = rc["scalp"]["minUpwardNormal"]
+    eh = rc["scalp"].get("earHairline")
 
     def is_scalp_v(co):
         p = to_local(co, origin, R)
         rel = p - centre
         az = math.degrees(math.atan2(abs(rel[0]), -rel[1]))
         h = np.interp(az, table[:, 0], table[:, 1]) / 1000.0
+        if eh and ear:
+            r = ear_hairline_mm(p * 1000.0, ear, eh)
+            if r is not None:
+                he, mode = r[0] / 1000.0, r[1]
+                h = he if mode == "over" else min(h, he)
         return p[2] > h
 
     # the shipped body is decimated (large head triangles), so faces straddling the
@@ -411,8 +497,9 @@ def region_length(local_rel, rc):
     return ((1 - w_crown) * ring + w_crown * L["crown"]) / 1000.0, az
 
 
-def march_guide(root, normal, origin, R, centre, collider, rc):
+def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
     f = rc["fall"]
+    lift = rc.get("earLift") if ear else None
     ds = rc["guides"]["marchStepMm"] / 1000.0
     right, back, up = Vector(R[0]), Vector(R[1]), Vector(R[2])
     down = -up
@@ -448,6 +535,7 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
     # sides are drawn toward the midline so the back is one curtain, not a split
     conv = rc["part"].get("backConvergeGain", 0.0)
     conv_w = rc["part"].get("backConvergeWidthMm", 40.0) / 1000.0
+    conv_stop = rc["part"].get("backConvergeStopAtMidline", False)
     back_root = rel[1] > rc["part"]["partFadeBackMm"] / 1000.0
     table = np.array(rc["scalp"]["hairlineMmAboveHeadOriginByAzimuthDeg"], dtype=float)
     p = p + Vector(normal) * (f["rootLiftMm"] / 1000.0)
@@ -490,13 +578,33 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
         # ear tuck: a strand reaching the ear band (head-local z) ahead of the ear's back
         # edge (behindYMm) is steered back, ramping in over rampMm above the ear top, so
         # it passes behind the ear and leaves the ear visible
+        # ear lift (earLift, landmarks from ear_landmarks): a strand below the ear top +
+        # clearMm, between the sideburn front and the ear back, is steered up so sideburn
+        # and above-ear strands rise over the ear top before the tuck takes them back;
+        # in front of the ear the back tuck is held off while it climbs, so it does not
+        # slide over the tragus and helix
+        w_lift, in_front = 0.0, False
+        if lift and abs(lp[0]) * 1000.0 >= lift["minAbsXMm"]:
+            e = ear["L" if lp[0] >= 0 else "R"]
+            ym, zm = lp[1] * 1000.0, lp[2] * 1000.0
+            if e["yFrontMm"] - lift["frontOfEarMm"] <= ym < e["yBackMm"] + lift["behindEarMm"]:
+                ztop = e["zTopMm"] + lift["clearMm"]
+                if zm < ztop:
+                    w_lift = min(1.0, (ztop - zm) / lift["rampMm"])
+                    in_front = ym < e["yFrontMm"]
+                    steer += up * (lift["gain"] * g * w_lift)
         if tuck and abs(lp[0]) > tuck["minAbsXMm"] / 1000.0 and lp[1] < tuck["behindYMm"] / 1000.0:
             top, bot = tuck["topZMm"] / 1000.0, tuck["bottomZMm"] / 1000.0
             ramp = tuck["rampMm"] / 1000.0
             if bot < lp[2] < top + ramp:
                 w = min(1.0, (top + ramp - lp[2]) / ramp)
+                if in_front:
+                    w *= 1.0 - w_lift
                 steer += back * (tuck["gain"] * g * w)
-        if conv > 0.0 and back_root and abs(lp[0]) < conv_w:
+        # the pull acts only while the strand is still on its root's side: with a fixed
+        # direction a strand that reached the midline kept being pushed across it, and
+        # the two sides crossed as an X down the back (rubric D1); backConvergeStopAtMidline
+        if conv > 0.0 and back_root and abs(lp[0]) < conv_w and (lp[0] * side > 0.0 or not conv_stop):
             steer += -away * (conv * g * (1.0 - abs(lp[0]) / conv_w))
         if sh_bot < lp[2] < sh_z:
             steer += (-back if frontish else back * BACK_FIELD_RATIO) * (f["shoulderForwardGain"] * g)
@@ -630,6 +738,14 @@ def hair_material(rc):
         h.inputs["Coat"].default_value = sh["coat"]
     h.inputs["Random Color"].default_value = sh["randomColor"]
     h.inputs["Random Roughness"].default_value = sh["randomRoughness"]
+    # HUANG lobe multipliers (R, TT, TRT); 1.0 = physical. The back view's key light sits
+    # behind the head, so the TT lobe lights the silhouette strands copper (rubric D4)
+    if "tint" in sh:   # dye colour over the melanin absorption (all lobes)
+        h.inputs["Tint"].default_value = tuple(sh["tint"]) + (1.0,)
+    for k, name in (("lobeReflection", "Reflection"), ("lobeTransmission", "Transmission"),
+                    ("lobeSecondaryReflection", "Secondary Reflection")):
+        if k in sh and name in h.inputs:
+            h.inputs[name].default_value = sh[k]
     o = nt.nodes.new("ShaderNodeOutputMaterial")
     nt.links.new(h.outputs[0], o.inputs["Surface"])
     return m, h.model
@@ -724,7 +840,9 @@ def main():
     bbm = world_bmesh(body)
     origin, R, centre, ztop_local = head_frame(rig, bbm)
     bbm.free()
-    scalp, islands, area, dropped = build_scalp(body, origin, R, centre, rc)
+    ear = ear_landmarks(body, origin, R) if (rc["scalp"].get("earHairline") or rc.get("earLift")) else None
+    print("EAR_LANDMARKS", json.dumps(ear), flush=True)
+    scalp, islands, area, dropped = build_scalp(body, origin, R, centre, rc, ear)
     if islands != 2:
         raise RuntimeError("scalp islands = %d, centre part needs 2" % islands)
     roots, uvs, nrms, prad = sample_roots(scalp, rc["guides"]["count"], seed)
@@ -735,7 +853,7 @@ def main():
     P = rc["guides"]["pointsPerStrand"]
     guides, lens = [], []
     for r, n in zip(roots, nrms):
-        path, L = march_guide(r, n, origin, R, centre, collider, rc)
+        path, L = march_guide(r, n, origin, R, centre, collider, rc, ear)
         guides.append(relax_guide(resample(path, P), collider, rc["fall"]["volumeMm"] / 1000.0,
                                   rc["fall"]["relaxIterations"]))
         lens.append(L)
@@ -821,7 +939,9 @@ def main():
                   "rule": "body faces whose every vertex sits above the head-local hairline table "
                           "(mm above head-bone origin, interpolated by azimuth around the head centre, "
                           "0=front 180=back) and whose normal has head-up component >= minUpwardNormal; "
-                          "cut by two bisect planes at +-partWidthMm/2 from the mid-sagittal plane"},
+                          "cut by two bisect planes at +-partWidthMm/2 from the mid-sagittal plane; with scalp.earHairline, "
+                          "lateral points (|x| >= minAbsXMm) over the ear take the ear top + aboveEarClearMm as hairline, "
+                          "and a sideburn sideburnWidthMm in front of the ear reaches down to the tragus (ear_landmarks)"},
         "headFrame": {"origin": list(origin), "centreLocal": centre.tolist()},
         "guides": {"count": int(len(guides)), "pointsPerStrand": P, "poissonRadiusMm": prad * 1000,
                    "lengthMmMin": min(lens) * 1000, "lengthMmMax": max(lens) * 1000},
@@ -831,6 +951,7 @@ def main():
         "clearance": {"pushedPoints": int(pushed), "minSignedMmBody": dmin_body * 1000,
                       "minSignedMmBodyGarments": dmin_all * 1000, "negativePointsBody": int(neg)},
         "earShell": {"recipe": rc.get("earShell"), "hulls": shell_info},
+        "earLandmarksMm": ear, "earHairline": rc["scalp"].get("earHairline"), "earLift": rc.get("earLift"),
         "groomSeconds": groom_s,
     }
     views = [v for v in a.views.split(",") if v]
