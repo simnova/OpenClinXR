@@ -63,14 +63,14 @@ def encode_glb(document: dict[str, Any], binary: bytes) -> bytes:
     )
 
 
-def find_brow(document: dict[str, Any]) -> tuple[int, dict[str, Any], int]:
+def find_brow(document: dict[str, Any], mesh_token: str = BROW_TOKEN) -> tuple[int, dict[str, Any], int]:
     matches = [
         (index, mesh)
         for index, mesh in enumerate(document.get("meshes", []))
-        if BROW_TOKEN in str(mesh.get("name", ""))
+        if mesh_token in str(mesh.get("name", ""))
     ]
     if len(matches) != 1:
-        raise RuntimeError(f"expected one fitted eyebrow mesh, found {len(matches)}")
+        raise RuntimeError(f"expected one mesh named *{mesh_token}*, found {len(matches)}")
     mesh_index, mesh = matches[0]
     primitives = mesh.get("primitives", [])
     if len(primitives) != 1:
@@ -219,11 +219,12 @@ def transplant(
     shipped_binary: bytes,
     bake_document: dict[str, Any],
     bake_binary: bytes,
+    mesh_token: str = BROW_TOKEN,
 ) -> tuple[dict[str, Any], bytes, dict[str, Any]]:
     output = copy.deepcopy(shipped_document)
-    shipped_mesh_index, shipped_mesh, shipped_skin_index = find_brow(output)
+    shipped_mesh_index, shipped_mesh, shipped_skin_index = find_brow(output, mesh_token)
     source_brow_mesh_name = str(shipped_mesh["name"])
-    _, bake_mesh, bake_skin_index = find_brow(bake_document)
+    _, bake_mesh, bake_skin_index = find_brow(bake_document, mesh_token)
     old_accessor_indices = brow_accessor_indices(shipped_mesh)
 
     donor_targets = bake_mesh["primitives"][0].get("targets", [])

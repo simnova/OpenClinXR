@@ -1248,6 +1248,8 @@ export type HeadCropSpec = {
   role: string;
   glb: string;
   outName: string;
+  /** Pack view; absent = front. hair-groom-2 grades hair at front, three-quarter and side. */
+  view?: CaptureView;
 };
 
 /** #358 shipped actors — one per rail, the same GLBs the #222/#341 hair contracts measure. */
@@ -1349,14 +1351,15 @@ export async function renderHeadFocusCrops(options?: {
     });
 
     for (const spec of specs) {
+      const view = spec.view ?? "front";
       const subjectSpec: SubjectSpec = {
-        subjectId: `${spec.rail}_head_front`,
+        subjectId: `${spec.rail}_head_${view}`,
         subjectKind: "glb",
         bodyGlb: spec.glb,
-        view: "front",
+        view,
         focus: "head",
         subjectOnly: true,
-        label: `${spec.rail} head front`,
+        label: `${spec.rail} head ${view}`,
       };
       const imagePath = path.join(outDir, spec.outName);
       const rendered = await captureSubject({
@@ -1369,7 +1372,7 @@ export async function renderHeadFocusCrops(options?: {
       crops.push({
         rail: spec.rail,
         role: spec.role,
-        view: "front",
+        view,
         imagePath: path.relative(cwd, imagePath).replaceAll("\\", "/"),
         bytes,
         pngDimensions: pngSizeFromFile(imagePath),
