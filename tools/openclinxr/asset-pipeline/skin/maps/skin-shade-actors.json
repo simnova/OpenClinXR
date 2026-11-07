@@ -7,7 +7,7 @@
     "cavitySrc": "/Volumes/files/openclinxr-assets/store/skin-maps/aisha-cavity-1024.png",
     "cavitySha256": "140345e1001dce61c798565871e8381f534618c1833c7cfca10b8e1e5f580edf",
     "faceDetailNormalStrength": 0.15,
-    "bodyDetailNormalStrength": 1.0
+    "bodyDetailNormalStrength": 0.3
   },
   "ed_chest_pain_nurse_adult": {
     "skinMaterialName": "mpfb_skin_ed_chest_pain_nurse_adult",
