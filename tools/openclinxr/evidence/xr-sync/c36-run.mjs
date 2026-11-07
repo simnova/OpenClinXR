@@ -134,7 +134,10 @@ async function main(argv) {
     const TYPED_HELLO = "Hello, I am the student doctor.";
     const label = (tag) => tag.replaceAll("_", " ");
     const expectedCast = `Cast: ${edChestPainScenario.actors.map((a) => `${a.displayName} (${a.role})`).join("; ")}`;
-    const expectedTopics = `Ask about: ${[...new Set(edChestPainScenario.requiredTraceTags)].filter((t) => t !== "patient_note_submitted").map(label).join(", ")}`;
+    // C37: the menu is one button per tag, labelled by the server (first shipped seed phrase covering the tag, else the tag text).
+    const castIds = new Set(edChestPainScenario.actors.map((x) => x.actorId));
+    const topicLabel = (tag) => entry.seeds.find((s) => s.safetyExpectation === "responds_from_visible_facts" && castIds.has(s.actorId) && (s.caption !== undefined || s.spokenText !== undefined) && s.expectedTraceTags.includes(tag) && (s.utterancePhrases ?? []).length > 0)?.utterancePhrases[0] ?? tag;
+    const expectedTopics = [...new Set(edChestPainScenario.requiredTraceTags)].filter((t) => t !== "patient_note_submitted").map(topicLabel).join(", ");
     run.expected = { expectedCast, expectedTopics, actorId: actor.actorId, seedReplyId: `${actor.actorId}:seed:${seed.seedId}` };
 
     const audioDir = join(outDir, "audio");
@@ -172,7 +175,7 @@ async function main(argv) {
       const text = (id) => document.getElementById(id)?.textContent ?? null;
       const e = globalThis.__openClinXrEncounterSync;
       return {
-        cast: text("room-cast"), topics: text("room-topics"), countdown: text("room-countdown"), refusal: text("room-refusal"),
+        cast: text("room-cast"), topics: [...document.querySelectorAll("#room-topics button")].map((b) => b.textContent).join(", "), countdown: text("room-countdown"), refusal: text("room-refusal"),
         state: e?.state ?? null, error: e?.error ?? "",
         turns: JSON.parse(JSON.stringify((e?.turns ?? []).map((t) => ({ actorId: t.actorId, replyId: t.replyId, caption: t.caption })))),
         utterances: JSON.parse(JSON.stringify(e?.utterances ?? [])),
@@ -243,7 +246,7 @@ async function main(argv) {
     run.consoleErrors.push(...out.consoleErrors);
     check("S2 the shell joined the dev stack's room", p.doorwayA?.state === "joined", JSON.stringify({ state: p.doorwayA?.state, error: p.doorwayA?.error }));
     check("S3 #room-cast lists each shipped scenario actor as `<displayName> (<role>)`", p.doorwayA?.cast === expectedCast, `${p.doorwayA?.cast} | expected ${expectedCast}`);
-    check("S4 #room-topics lists the shipped scenario's authored topics (requiredTraceTags minus the note tag)", p.doorwayA?.topics === expectedTopics, `${p.doorwayA?.topics} | expected ${expectedTopics}`);
+    check("S4 #room-topics buttons carry the server labels of the shipped scenario's topics (requiredTraceTags minus the note tag)", p.doorwayA?.topics === expectedTopics, `${p.doorwayA?.topics} | expected ${expectedTopics}`);
     const secondsOf = (text) => Number(/(\d+) s/u.exec(text ?? "")?.[1] ?? Number.NaN);
     const a = secondsOf(p.doorwayA?.countdown), b = secondsOf(p.doorwayB?.countdown);
     check("S5 the doorway countdown reads `Encounter opens in N s` and falls between two reads", /^Encounter opens in \d+ s$/u.test(p.doorwayA?.countdown ?? "") && /^Encounter opens in \d+ s$/u.test(p.doorwayB?.countdown ?? "") && b < a && a <= DOORWAY_SECONDS, `${p.doorwayA?.countdown} -> ${p.doorwayB?.countdown}`);
