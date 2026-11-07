@@ -64,7 +64,7 @@ async function joined() {
 }
 
 describe("room panel topic buttons (C37)", () => {
-  it.fails("renders one button per menu entry with the server label and the snapshot's asked flag", async () => {
+  it("renders one button per menu entry with the server label and the snapshot's asked flag", async () => {
     const { topics, snapshot } = await joined();
     snapshot(SNAP);
     expect(topics().map((button) => button.tag)).toEqual(["button", "button", "button"]);
@@ -72,7 +72,7 @@ describe("room panel topic buttons (C37)", () => {
     expect(topics().map((button) => button.attributes.get("data-asked"))).toEqual(["false", "false", "false"]);
   });
 
-  it.fails("data-asked follows the snapshot only: asked:true for a tag never sent renders true, and a later false renders false", async () => {
+  it("data-asked follows the snapshot only: asked:true for a tag never sent renders true, and a later false renders false", async () => {
     const { topics, snapshot, handle } = await joined();
     snapshot({ ...SNAP, topicMenu: [MENU[0], { ...MENU[1], asked: true }, MENU[2]] });
     expect(topics().map((button) => button.attributes.get("data-asked"))).toEqual(["false", "true", "false"]);
@@ -83,7 +83,7 @@ describe("room panel topic buttons (C37)", () => {
     expect(topics().map((button) => button.attributes.get("data-asked"))).toEqual(["false", "false", "false"]);
   });
 
-  it.fails("a click sends the trace action for that entry's tag exactly once", async () => {
+  it("a click sends the trace action for that entry's tag exactly once", async () => {
     const { topics, snapshot, handle, sent } = await joined();
     snapshot(SNAP);
     topics()[1]?.click();
@@ -96,7 +96,7 @@ describe("room panel topic buttons (C37)", () => {
     expect(handle?.intents.length).toBe(2);
   });
 
-  it.fails("a menu change rebuilds the buttons; an unchanged menu keeps the same button elements", async () => {
+  it("a menu change rebuilds the buttons; an unchanged menu keeps the same button elements", async () => {
     const { topics, snapshot } = await joined();
     snapshot(SNAP);
     const first = topics();

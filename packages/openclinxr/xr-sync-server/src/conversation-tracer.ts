@@ -90,9 +90,18 @@ export class ConversationTracer {
     });
   }
 
+  /** C37 listener invoked after each pushed trace event (null clears). */
+  private pushListener: ((event: ConversationTraceEvent) => void) | null = null;
+
   /** Append one conversation event, in application order. */
   push(event: ConversationTraceEvent): void {
     this.events.push(event);
+    this.pushListener?.(event);
+  }
+
+  /** C37: bind (or clear) the push listener. */
+  setPushListener(listener: ((event: ConversationTraceEvent) => void) | null): void {
+    this.pushListener = listener;
   }
 
   /** Resolve one emotion transition for an actor, advancing its engine. */

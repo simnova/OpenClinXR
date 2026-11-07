@@ -71,7 +71,7 @@ async function say(learner: SyncConnection, actorId: string, payload: Record<str
   expect(started.status === "ack" || (started.status === "reject" && started.reason === "utterance-already-open")).toBe(true);
   return learner.sendIntent("utterance-end", payload);
 }
-const fallbackMin = scenarioDialogueSeedBank.find((entry) => entry.scenarioId === CHEST.scenarioId)?.utteranceFallback?.minSpeechConfidence ?? 0;
+const fallbackMin = (scenarioDialogueSeedBank.find((entry) => entry.scenarioId === CHEST.scenarioId) as { utteranceFallback?: { minSpeechConfidence?: number } } | undefined)?.utteranceFallback?.minSpeechConfidence ?? 0;
 
 interface Recorded {
   steps: Record<string, string[]>;
@@ -119,7 +119,7 @@ function recordSession(): Promise<Recorded> {
 }
 
 describe("xr-sync-server C37 topic menu asked state", () => {
-  it.fails("asked equals the review's observed set for a scripted session, scheduled tags included", async () => {
+  it("asked equals the review's observed set for a scripted session, scheduled tags included", async () => {
     const session = await recordSession();
     expect([...session.finalAsked].sort()).toEqual([...session.reviewObserved].sort());
     // Anchor: the script produced tags from taps, typed text, speech and the schedule, so the equality is not over an empty set.
@@ -127,7 +127,7 @@ describe("xr-sync-server C37 topic menu asked state", () => {
     expect(session.finalAsked.length).toBeGreaterThanOrEqual(4);
   }, 120000);
 
-  it.fails("counterweight B: refusals, off-menu tags, unmatched text and low-confidence speech leave asked false", async () => {
+  it("counterweight B: refusals, off-menu tags, unmatched text and low-confidence speech leave asked false", async () => {
     const session = await recordSession();
     expect(fallbackMin).toBeGreaterThan(0.1);
     expect(session.statusOf["unknown-topic"]).toBe("reject");
@@ -142,7 +142,7 @@ describe("xr-sync-server C37 topic menu asked state", () => {
     expect(session.steps["typed-match"]).toContain("history_opqrst");
   }, 120000);
 
-  it.fails("a typed turn and a matched speech turn mark the tag they resolve to; a tap marks its tag; a multi-tag answer marks the tag the trace records", async () => {
+  it("a typed turn and a matched speech turn mark the tag they resolve to; a tap marks its tag; a multi-tag answer marks the tag the trace records", async () => {
     const session = await recordSession();
     expect(session.steps["typed-match"]).toEqual(["history_opqrst"]);
     expect(session.steps["speech-match"]).toEqual(["history_opqrst", "team_communication"]);
@@ -152,7 +152,7 @@ describe("xr-sync-server C37 topic menu asked state", () => {
     expect(session.steps["scheduled"]).toEqual(expect.arrayContaining([...session.steps["tap"] ?? [], ...SCHEDULED_TAGS]));
   }, 120000);
 
-  it.fails("a reconnect and a second join into the same room keep asked=true", async () => {
+  it("a reconnect and a second join into the same room keep asked=true", async () => {
     const session = await recordSession();
     // Anchor: something was asked before the rejoin.
     expect(session.steps["tap"]?.length).toBeGreaterThan(0);
@@ -160,7 +160,7 @@ describe("xr-sync-server C37 topic menu asked state", () => {
     expect(session.rejoin.secondJoin).toEqual(session.steps["tap"]);
   }, 120000);
 
-  it.fails("asked is false in a new session", async () => {
+  it("asked is false in a new session", async () => {
     const first = await boot({ examBlueprint: blueprint, scenarios: [CHEST], dialogueSeeds: scenarioDialogueSeedBank });
     const learner = await joinRoom(first);
     await waitFor(() => live(first).phase === "encounter", 10000, "encounter");

@@ -304,6 +304,7 @@ export interface UtteranceBoxElement {
   disabled?: boolean;
   hidden?: boolean;
   appendChild(child: UtteranceBoxElement): unknown;
+  setAttribute?(name: string, value: string): void;
   addEventListener(type: string, listener: (event: { key?: string; isComposing?: boolean; shiftKey?: boolean; preventDefault?: () => void; stopPropagation?: () => void }) => void): void;
 }
 
@@ -428,7 +429,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     sendSelect = (stationId) => handle.sendIntent("select-station", { stationId });
     sendReturn = () => handle.sendIntent("return-to-lobby", {});
     if (deps.utteranceBox !== undefined && !isReplayRoom && !isLobby) {
-      roomPanel = mountRoomPanel(deps.utteranceBox);
+      roomPanel = mountRoomPanel(deps.utteranceBox, (tag) => { const actorId = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId }); if (actorId === undefined || actorId === "") return; lastAddressedActorId = actorId; void handle.sendTraceAction(actorId, tag); });
       if (lastSnapshot !== undefined) roomPanel.render(lastSnapshot);
       repeatPrompt = deps.utteranceBox.doc.createElement("div");
       repeatPrompt.id = "repeat-prompt";

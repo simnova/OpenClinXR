@@ -47,7 +47,7 @@ export async function runC23Probe(deps: {
   const stationId = typeof snapshot.stationId === "string" ? snapshot.stationId : "";
   const actorId = Object.keys(snapshot.actors ?? {})[0] ?? "";
   const rawMenu = snapshot.topicMenu;
-  const menu = Array.isArray(rawMenu) ? rawMenu.filter((tag: unknown): tag is string => typeof tag === "string") : [];
+  const menu = Array.isArray(rawMenu) ? rawMenu.flatMap((entry: unknown): string[] => typeof entry === "string" ? [entry] : (typeof entry === "object" && entry !== null && typeof (entry as { tag?: unknown }).tag === "string" ? [(entry as { tag: string }).tag] : [])) : [];
   if (![...seedTopics, fallbackTopic].every((topic) => menu.includes(topic))) {
     throw new Error("c23 harness-selected topics are not all in the server menu");
   }

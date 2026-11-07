@@ -52,7 +52,10 @@ export interface C22ScriptDeps {
 }
 
 function menuOf(view: C22View): string[] {
-  return Array.isArray(view.topicMenu) ? view.topicMenu.filter((tag): tag is string => typeof tag === "string") : [];
+  if (!Array.isArray(view.topicMenu)) return [];
+  return view.topicMenu.flatMap((entry): string[] =>
+    typeof entry === "string" ? [entry] : (typeof entry === "object" && entry !== null && typeof (entry as { tag?: unknown }).tag === "string" ? [(entry as { tag: string }).tag] : []),
+  );
 }
 
 function renderTopicTiles(scene: THREE.Scene, evidence: C22Evidence, stationId: string, menu: string[]): void {

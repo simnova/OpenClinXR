@@ -73,13 +73,13 @@ function shippedPhrase(tag: string): string | undefined {
 const expectedTags = [...new Set(CHEST.requiredTraceTags)].filter((tag) => tag !== NOTE_TAG);
 
 describe("xr-sync-server C37 topic menu labels", () => {
-  it.fails("a cast station lists the C22 tags in order and starts with nothing asked", async () => {
+  it("a cast station lists the C22 tags in order and starts with nothing asked", async () => {
     const menu = await castMenu();
     expect(menu.map((entry) => entry.tag)).toEqual(expectedTags);
     expect(menu.every((entry) => entry.asked === false)).toBe(true);
   }, 20000);
 
-  it.fails("an entry with a shipped seed phrase carries it byte for byte; every other entry carries the tag text", async () => {
+  it("an entry with a shipped seed phrase carries it byte for byte; every other entry carries the tag text", async () => {
     const menu = await castMenu();
     for (const entry of menu) {
       const phrase = shippedPhrase(entry.tag);
@@ -94,7 +94,7 @@ describe("xr-sync-server C37 topic menu labels", () => {
     expect(menu.filter((entry) => entry.labelSource === "tag").length).toBeGreaterThan(0);
   }, 20000);
 
-  it.fails("counterweight A: tag-labelled entries are exactly those pre-fix.json lists, and a shipped label differs from the prettified tag", async () => {
+  it("counterweight A: tag-labelled entries are exactly those pre-fix.json lists, and a shipped label differs from the prettified tag", async () => {
     expect(existsSync(PRE_FIX), `missing ${PRE_FIX}`).toBe(true);
     const preFix = JSON.parse(readFileSync(PRE_FIX, "utf8")) as { tagOnly: string[]; withPhrase: number };
     const menu = await castMenu();
@@ -105,7 +105,7 @@ describe("xr-sync-server C37 topic menu labels", () => {
     expect(menu.some((entry) => entry.label !== entry.tag.replaceAll("_", " "))).toBe(true);
   }, 20000);
 
-  it.fails("labelSource is one of the enum values and `other` carries a note", async () => {
+  it("labelSource is one of the enum values and `other` carries a note", async () => {
     const menu = await castMenu();
     for (const entry of menu) {
       expect(["seed-phrase", "tag", "other"]).toContain(entry.labelSource);

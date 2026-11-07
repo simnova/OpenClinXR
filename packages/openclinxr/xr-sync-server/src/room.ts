@@ -29,7 +29,7 @@ import { handleSpeechAudioIntent, type SpeechRecognizer } from "./speech-audio.j
 import { createScheduleDriver } from "./scenario-schedule.js";
 import { DEFAULT_NOTE_MAX_CHARS, validateNoteSubmit } from "./patient-note.js";
 import { applyUtteranceIntent } from "./actor-turns.js";
-import { setTopicMenuState, topicMenuForCast } from "./topic-menu.js";
+import { setTopicMenuState, topicMenuForCast, topicMenuTags, trackAskedTopics } from "./topic-menu.js";
 import type { TopicAnswer } from "./topic-answers.js";
 import {
   assertStationJoinAllowed,
@@ -192,10 +192,12 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       this.utteranceFallbackMinConfidence = cast.utteranceFallback?.minSpeechConfidence ?? 0;
       const policy = stationEmotionPolicy(cast);
       this.tracer.setStationCast({ scenarioId: cast.scenarioId, actors: [...cast.actorIds], baseline: policy.baseline as string, emotionPolicy: policy, topicAnswers: cast.topicAnswers.map(({ actorId, topicTags, replyId, affect }) => ({ actorId, topicTags: [...topicTags], replyId, ...(affect === undefined ? {} : { affect }) })) });
+      trackAskedTopics(this.state, this.tracer, cast);
     } else {
       populateActorRoster(this.state.actors, options);
       this.utteranceFallbackLine = null; this.utteranceFallbackMinConfidence = 0;
       this.tracer.setStationCast(null);
+      trackAskedTopics(this.state, this.tracer, null);
     }
     this.state.learners = new MapSchema<LearnerStateInstance>();
     // C19: a cast station runs its schedule on the room clock (see the driver).
@@ -481,7 +483,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         },
         reject: this.reject.bind(this),
         castVoice: this.castVoice === null ? null : { actors: this.castVoice },
-        topicMenu: this.castVoice === null ? null : [...this.state.topicMenu],
+        topicMenu: this.castVoice === null ? null : topicMenuTags(this.state),
         topicAnswers: this.topicAnswers,
         utteranceFallbackLine: this.utteranceFallbackLine,
         utteranceFallbackMinConfidence: this.utteranceFallbackMinConfidence,
