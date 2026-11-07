@@ -1,4 +1,4 @@
-# Rubric instrument v3 (+ v3.1 I12-I14) for hair-groom-2 (tools/openclinxr/hair-groom-2/briefs/accuracy-rubric.md).
+# Rubric instrument v3 (+ v3.1 I12-I15, v3.2 F1) for hair-groom-2 (tools/openclinxr/hair-groom-2/briefs/accuracy-rubric.md).
 # Usage: <blender python> grade.py <round-dir> [out-dir]. Writes measures.json to out-dir (default: round-dir).
 # A round dir holds front.png, three_quarter_left.png, side.png, back.png (+ stats.json, strands.npz when produced by
 # groom.py). v2 items (A, B, C) are computed exactly as in v2; v3 adds the back-view items D1-D5 (vs target-back-a1)
@@ -704,6 +704,46 @@ else:
          'widest pale crown run %.1f px at row %d vs target %.1f px [box rows %d-%d cols %d-%d]' % (
              rB['D5']['maxRunCanonPx'], rB['D5']['atRow'], tB['D5']['maxRunCanonPx'], *rB['D5']['box']),
          '<= 2x target')
+
+# ---- v3.2: F1 strand individuality, REPORT-ONLY (not scored; rubric F1). Op 2026-11-07 on cards-r2/s5: "clumps of hair
+# ribbons ... lost the individual strands feeling". Per px q = L / gaussian(L, 3 canonical px) (the I6 low-pass); cut =
+# the target view's 1st percentile of q; value = fraction of the round's hair px below the cut (target 1% by
+# construction); the would-be rule is <= 2% (D4's target-percentile construction and limit). Masks: front = A10's head
+# mask, tq/side = B8's mask, 3 px-eroded (I6); tq excludes canonical rows 440-640 cols 620-740 in round and target alike
+# (the target's neck shadow under the hair, its L <= 0.004 hair-mask px at canonical rows 455-623 cols 633-729, p1-p99,
+# holds > 1% of its mask and would put the cut at 0). It separates cards-r2/s5 from the targets and groom-r3/s6, r4/s4
+# in all three views, but it bounds the depth of dark gaps, an amplitude: probe_f1.py plants card-like ribbons with the
+# region's mean and high-pass RMS into r4/s4 side and F1 does not move. So it is reported, not scored. No back view: with
+# the I4 hair rule (L < 0.47, not green) r4/s4 back reads 3.15% (its shadowed lower hair, L ~0.025).
+F1_SIGMA, F1_PCT, F1_LIMIT = 3.0, 1.0, 0.02
+F1_TQ_EXCL = (440, 640, 620, 740)
+F1_VIEWS = (('front', 'F1.front'), ('three_quarter', 'F1.tq'), ('side', 'F1.side'))
+
+
+def f1_q(A, f, view):
+    L, hair, _ = masks(A, f, view)
+    m = head_mask(hair, f) if view == 'front' else hair.copy()
+    m[:max(0, f.r(60))] = False
+    m = erode(m, 3)
+    if view == 'three_quarter':
+        r0, r1, c0, c1 = f.box(F1_TQ_EXCL); m[r0:r1, c0:c1] = False
+    return (L / np.maximum(gblur(L, F1_SIGMA * f.s), 1e-6))[m]
+
+
+def measure_f1(q, cut):
+    return dict(n=int(len(q)), cut=float(cut), frac=float(np.mean(q < cut)),
+                qPercentiles={str(p): float(np.percentile(q, p)) for p in (0.5, 1, 2, 5, 50)})
+
+
+F1 = dict(scored=False, rule='fraction of hair px with L/gaussian(L, 3 px) below the target p1; would-be limit <= 2%',
+          target={}, round={}, wouldBe={})
+for v, k in F1_VIEWS:
+    qt = f1_q(load(os.path.join(TG, TARGETS[v])), tf[v], v); cut = float(np.percentile(qt, F1_PCT))
+    F1['target'][v] = measure_f1(qt, cut)
+    F1['round'][v] = r_ = measure_f1(f1_q(load(os.path.join(RD, ROUND[v])), rf[v], v), cut)
+    F1['wouldBe'][k] = '%s %.2f%% (cut %.3f, n %d; target %.2f%%)' % ('pass' if r_['frac'] <= F1_LIMIT else 'fail', 100 * r_['frac'], cut, r_['n'],
+                                                                     100 * F1['target'][v]['frac'])
+
 E1, E1_ERR = None, None
 if CARD:
     E1, E1_ERR = measure_e1_cards(os.path.join(WT, CARD['cards']), os.path.join(WT, CARD['groomRound']))
@@ -727,7 +767,7 @@ if os.path.exists(strands):
     d = np.load(strands); P = d['positions']; o = d['offsets']; tips = P[o[1:] - 1][:, 2]
     extra['cardCentrelineTipsZ' if CARD else 'strandTipsZ'] = dict(median=float(np.median(tips)), p10=float(np.percentile(tips, 10)), p90=float(np.percentile(tips, 90)),
                                 targetHairBottomZ=tS['A3']['z'])
-out = dict(rubric='v3', e1=E1, round=os.path.relpath(RD, WT) if RD.startswith(WT) else RD, frames=dict(round={v: rf[v].d() for v in rf},
+out = dict(rubric='v3.2', e1=E1, f1=F1, round=os.path.relpath(RD, WT) if RD.startswith(WT) else RD, frames=dict(round={v: rf[v].d() for v in rf},
            target={v: tf[v].d() for v in tf}), numericItems=items, numericPass=sum(v['result'] == 'PASS' for v in items.values()),
            numericCount=len(items), round_measures=R, target_measures=T, **extra)
 os.makedirs(OUT_DIR, exist_ok=True)
@@ -736,3 +776,4 @@ for k_ in sorted(items):
     print('%-8s %s  %s  [%s]' % (k_, items[k_]['result'], items[k_]['value'], items[k_]['threshold']))
 _inc = sum(v['result'] == 'INCONCLUSIVE' for v in items.values())
 print('NUMERIC %d/%d' % (out['numericPass'], out['numericCount']) + (' (%d INCONCLUSIVE, grader scores visually)' % _inc if _inc else ''))
+print('F1 report-only (not scored): ' + ' | '.join('%s %s' % kv for kv in F1['wouldBe'].items()))
