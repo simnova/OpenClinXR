@@ -3,9 +3,9 @@
   "name": "straight_centre_part_collarbone",
   "seed": 1107,
   "guides": { "count": 420, "pointsPerStrand": 32, "marchStepMm": 3.0 },
-  "children": { "densityPerM2": 900000, "interpolationGuides": 4 },
+  "children": { "densityPerM2": 1200000, "interpolationGuides": 4 },
   "scalp": {
-    "hairlineMmAboveHeadOriginByAzimuthDeg": [[0, 100], [40, 96], [70, 80], [90, 66], [110, 30], [140, -25], [180, -50]],
+    "hairlineMmAboveHeadOriginByAzimuthDeg": [[0, 100], [40, 96], [70, 65], [90, 55], [110, 30], [140, -25], [180, -50]],
     "minUpwardNormal": -0.35
   },
   "lengthMm": { "front": 400, "temples": 380, "crown": 420, "nape": 210 },
