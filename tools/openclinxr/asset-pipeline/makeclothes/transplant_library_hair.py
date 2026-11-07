@@ -12,6 +12,10 @@ the hair from a fresh materializer bake of the same actor:
 - textures: each image the bake's hair material references is downscaled to
   `--max-texture` (Pillow LANCZOS, PNG, compress_level 9) and appended.
 
+Alpha: the bake's alphaMode is kept unless --alpha-mode is given. `--alpha-mode MASK
+--alpha-cutoff 0.2` is peds-parent-aisha's shipped hair setting; it removes the BLEND
+sort-order strip along the crown part (lane handoff, t1024mask crops).
+
 Colour is not set here. Run apply_actor_hair_colour.py afterwards: it tints textured hair
 through baseColorFactor from the case-authored hair_color token.
 
@@ -123,6 +127,8 @@ def carry_material(
     bake: dict[str, Any],
     bake_binary: bytes,
     max_texture: int,
+    alpha_mode: str | None = None,
+    alpha_cutoff: float | None = None,
 ) -> tuple[bytes, dict[str, Any]]:
     target_index = hair_material_index(output)
     source_index = hair_material_index(bake)
@@ -171,6 +177,11 @@ def carry_material(
             }
         )
 
+    if alpha_mode is not None:
+        material["alphaMode"] = alpha_mode
+        material.pop("alphaCutoff", None)
+        if alpha_mode == "MASK":
+            material["alphaCutoff"] = alpha_cutoff
     output["materials"][target_index] = material
     new_binary = b"".join(parts)
     output["buffers"][0]["byteLength"] = len(new_binary)
@@ -188,15 +199,23 @@ def main() -> None:
     parser.add_argument("--bake", type=Path, required=True, help="fresh materializer bake of the same actor")
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--max-texture", type=int, default=1024)
+    parser.add_argument("--alpha-mode", choices=("OPAQUE", "MASK", "BLEND"))
+    parser.add_argument("--alpha-cutoff", type=float)
     parser.add_argument("--provenance", type=Path)
     parser.add_argument("--output-provenance", type=Path)
     parser.add_argument("--no-provenance", action="store_true")
     args = parser.parse_args()
+    if (args.alpha_mode == "MASK") != (args.alpha_cutoff is not None):
+        parser.error("--alpha-cutoff is required with --alpha-mode MASK and refused otherwise")
+    if args.alpha_cutoff is not None and not 0.0 <= args.alpha_cutoff <= 1.0:
+        parser.error("--alpha-cutoff must be in [0, 1]")
 
     shipped, shipped_binary, shipped_raw = parse_glb(args.input)
     bake, bake_binary, bake_raw = parse_glb(args.bake)
     output, output_binary, geometry = transplant(shipped, shipped_binary, bake, bake_binary, HAIR_MESH_TOKEN)
-    output_binary, material = carry_material(output, output_binary, bake, bake_binary, args.max_texture)
+    output_binary, material = carry_material(
+        output, output_binary, bake, bake_binary, args.max_texture, args.alpha_mode, args.alpha_cutoff
+    )
     output_raw = encode_glb(output, output_binary)
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(output_raw)

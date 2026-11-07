@@ -701,6 +701,17 @@ def camera_rig(origin, R, centre, ztop, eye_z, lights=None):
     return place, {"distM": dist, "targetZ": zc, "focalMm": FOCAL_MM, "frameHeightM": FRAME_HEIGHT_M}
 
 
+def eye_height():
+    eye_z = None
+    for o in bpy.data.objects:
+        if o.type == "MESH" and "eyebrow" in o.name:
+            bm = world_bmesh(o)
+            zs = [v.co.z for v in bm.verts]
+            eye_z = 0.5 * (min(zs) + max(zs)) - 0.022   # eye centre ~22 mm below brow centre
+            bm.free()
+    return eye_z
+
+
 # ---------------------------------------------------------------- main
 def main():
     a = cli()
@@ -801,13 +812,7 @@ def main():
                         scalpFaceAreas=np.array([f.area for f in scalp.data.polygons]),
                         scalpFaceNormals=np.array([f.normal[:] for f in scalp.data.polygons]))
     groom_s = time.time() - t0
-    eye_z = None
-    for o in bpy.data.objects:
-        if o.type == "MESH" and "eyebrow" in o.name:
-            bm = world_bmesh(o)
-            zs = [v.co.z for v in bm.verts]
-            eye_z = 0.5 * (min(zs) + max(zs)) - 0.022   # eye centre ~22 mm below brow centre
-            bm.free()
+    eye_z = eye_height()
     stats = {
         "recipe": Path(a.recipe).name, "recipeSha256": sha256_file(a.recipe),
         "body": str(a.body), "bodySha256": sha256_file(a.body), "seed": seed,
@@ -846,4 +851,5 @@ def main():
     print("GROOM_DONE", json.dumps({k: stats[k] for k in ("strands", "positionsSha256", "clearance", "guides")}), flush=True)
 
 
-main()
+if __name__ == "__main__":   # Blender --python runs as __main__; cards/ imports the helpers
+    main()

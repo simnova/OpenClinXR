@@ -12,7 +12,9 @@ import { describe, expect, it } from "vitest";
  *
  * Clauses: (1) the hair primitive, material and image come from the bake; (2) counterweight:
  * every other shipped bufferView, mesh, node and skin is unchanged; (3) joints are remapped by
- * name; (4) a hair material shared with another mesh is refused; (5) two runs are byte-identical.
+ * name; (4) a hair material shared with another mesh is refused; (5) two runs are byte-identical;
+ * (6) --alpha-mode MASK --alpha-cutoff 0.2 sets the hair material to MASK at 0.2 (peds-parent-aisha's
+ * shipped value); a cutoff without MASK is refused, and without the flag the bake's BLEND stays (1).
  *
  * Fixture values are illustrative. The fixture PNG is 2x2, under --max-texture, so it passes
  * through without Pillow. NOT TESTED here: the Pillow downscale branch (runs on real GLBs only).
@@ -145,9 +147,9 @@ function fixture(opts: { bake: boolean; jointOrder: number[]; sharedMaterial?: b
   );
 }
 
-function run(dir: string, input: string, bake: string, output: string) {
+function run(dir: string, input: string, bake: string, output: string, extra: string[] = []) {
   return spawnSync("mise", ["exec", "--", "python3", TOOL, "--input", input, "--bake", bake,
-    "--output", output, "--no-provenance"], { cwd: ROOT, encoding: "utf8" });
+    "--output", output, "--no-provenance", ...extra], { cwd: ROOT, encoding: "utf8" });
 }
 
 describe("library hair transplant", () => {
@@ -212,5 +214,20 @@ describe("library hair transplant", () => {
         "--output", target, "--no-provenance"], { cwd: ROOT });
     }
     expect(readFileSync(a).equals(readFileSync(b))).toBe(true);
+  });
+
+  it("(6) --alpha-mode MASK --alpha-cutoff 0.2 sets the hair material only; a lone cutoff is refused", () => {
+    const outPath = join(dir, "mask.glb");
+    const result = run(dir, shippedPath, bakePath, outPath, ["--alpha-mode", "MASK", "--alpha-cutoff", "0.2"]);
+    expect(result.status, result.stderr).toBe(0);
+    const shipped = parseGlb(shippedPath);
+    const out = parseGlb(outPath);
+    const hair = out.doc.materials[out.doc.meshes.find((m) => m.name === HAIR)!.primitives[0].material];
+    expect(hair.alphaMode).toBe("MASK");
+    expect(hair.alphaCutoff).toBe(0.2);
+    expect(out.doc.materials[0], "body material untouched").toEqual(shipped.doc.materials[0]);
+    const lone = run(dir, shippedPath, bakePath, join(dir, "lone.glb"), ["--alpha-cutoff", "0.2"]);
+    expect(lone.status).not.toBe(0);
+    expect(lone.stderr).toContain("--alpha-cutoff is required with --alpha-mode MASK");
   });
 });
