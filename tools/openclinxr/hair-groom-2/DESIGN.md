@@ -76,8 +76,10 @@ are excluded from counts below.
    worktree (only `eyes/`, `garments/`), so no library hair bake can run until it is re-acquired.
 7. **The library catalogue was under-assessed.** Rounds 1-2 rejected the library route as "five styles".
    Since the 2026-09-17 catalogue ruling all 25 hair01 styles are licence-permitted
-   (`third-party-asset-licence-ledger.md:116-119` and the hair01 row); `faydaen_hair_1` and
-   `culturalibre_hair_05` stay excluded on helper-vertex topology. MakeHuman's Hair 02 and Hair 03 packs
+   (`third-party-asset-licence-ledger.md:116-119` and the hair01 row). 21 are usable; 4 are excluded on
+   helper-vertex topology (`culturalibre_hair_01`, `culturalibre_hair_05`, `faydaen_hair_1`,
+   `sonntag78_junglebook_hair`), per `.openclinxr/evidence/issue-330/hair-licence-classification.json`
+   and a re-run on 2026-11-07. MakeHuman's Hair 02 and Hair 03 packs
    are unassessed (INFERRED from the reviewer; not yet fetched).
 
 ## Goals
@@ -213,7 +215,7 @@ hair-groom-2 does not use it.
   as two-triangle ribbons is about 16.7 M (269,480 strands × 31 segments of a 32-point resample × 2),
   INFERRED from the strand count.
 - **Library hair only, alpha restored.** Kept as Phase 0 and as the fallback, and assessed in full in
-  Phase 0c: 23 topology-clean hair01 styles plus Hair 02/03 once fetched and classified. It loses only
+  Phase 0c: the 21 usable hair01 styles plus Hair 02/03 once fetched and classified. It loses only
   if Phase 0c's gate fails. The three `mhair02` actors have no source texture to restore.
 - **New card generator from Curve to Mesh.** Rejected: duplicates v1 `cards.py`.
 - **HairDeck.** Rejected: photo input, unresolved dependency licences.
@@ -246,15 +248,18 @@ hair-groom-2 does not use it.
   `hair-licence-classify.ts`, and diff against the tracked
   `.openclinxr/evidence/issue-330/hair-licence-classification.json`; no library bake runs without it. Then re-bake the 6 untextured
   toigo actors (peds-parent-aisha is already textured), confirm the texture survives, and find the step
-  that drops it if it does not. Key `robert_reference` in `HAIR_STYLE_BY_REFERENCE` to a male style so
+  that drops it if it does not. Bakes also need the MPFB Blender extension
+  (`bl_ext.user_default.mpfb`), which is not installed in this machine's Blender 5.2.3.
+  `mhair02`'s source page (`makehumancommunity.org/clothes/mhair02.html`) returned 404 on 2026-11-07,
+  so `makehuman-community-male` cannot be re-acquired and the 3 `mhair02` actors cannot be re-baked. Key `robert_reference` in `HAIR_STYLE_BY_REFERENCE` to a male style so
   gown-ed-robert-hayes and gown-adult-patient stop wearing the female bob: the textured male-reading
-  style Phase 0c ranks first, or `mhair02` until 0c has run. The 3 `mhair02` actors stay untextured
+  style Phase 0c ranks first, or `cortu_short_messy_hair` (hair01, catalogue CC0, short, textured) until 0c has run. The 3 `mhair02` actors stay untextured
   and are excluded from Phase 4. The Phase 0a GLBs are the known-good column for V5.
 - **Phase 0b.** For the 4 actors with full brows, check bake dates against #597 first: the
   materializer's default budget is 9,000 and `--eyebrow-tris-budget` can keep the full brow on purpose
   (`:7643-7647`); re-reduce only GLBs that predate it. Find where lashes went from 368 to 16,632
   (5 actors) and why family-partner carries 3,239 (UNKNOWN).
-- **Phase 0c.** Classify the 23 topology-clean hair01 styles with `hair-licence-classify.ts`; fetch
+- **Phase 0c.** Classify the 21 usable hair01 styles with `hair-licence-classify.ts`; fetch
   Hair 02 and Hair 03, record them in the ledger, and classify them the same way. Fit every permitted
   textured style on ob-patient-aisha, peds-patient-child and gown-ed-robert-hayes and grade V5, V7 and
   V8 under the Phase 0a instrument. **Gate:** if the library gives each of those three actors a
