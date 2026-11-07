@@ -146,7 +146,8 @@ describe("xr-sync-server C37 topic menu asked state", () => {
     const session = await recordSession();
     expect(session.steps["typed-match"]).toEqual(["history_opqrst"]);
     expect(session.steps["speech-match"]).toEqual(["history_opqrst", "team_communication"]);
-    expect(session.steps["speech-match"]).not.toContain("urgent_escalation");
+    // INVERTED GUARD (ruling F1): holds while the trace records one tag per matched turn. When the trace changes, flip it to assert both marked.
+    expect(session.steps["speech-match"], "trace records every menu tag the matched answer covers; then assert both marked").not.toContain("urgent_escalation");
     expect(session.steps["tap"]).toEqual(["history_opqrst", "team_communication", "empathy_statement"]);
     expect(session.steps["tap"]).not.toContain("family_communication");
     expect(session.steps["scheduled"]).toEqual(expect.arrayContaining([...session.steps["tap"] ?? [], ...SCHEDULED_TAGS]));

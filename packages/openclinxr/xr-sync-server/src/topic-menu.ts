@@ -18,19 +18,31 @@ export interface TopicMenuEntry {
   asked: boolean;
 }
 
-/** Scenario-owned history topics shown to the learner for one cast station. */
+/** Scenario-owned history topics shown to the learner for one cast station.
+ * A seed phrase shared by 2 or more tags labels none of those tags. */
 export function topicMenuForCast(cast: ScenarioCast | null): TopicMenuEntry[] {
   if (cast === null) {
     return [];
   }
   const tags = [...new Set(cast.requiredTraceTags)].filter((tag) => tag !== NOTE_TRACE_TAG);
-  return tags.map((tag) => {
+  const entries = tags.map((tag): TopicMenuEntry => {
     const seed = cast.topicAnswers.find((answer) => answer.topicTags.includes(tag) && answer.phrases.length > 0);
     if (seed !== undefined) {
       return { tag, label: seed.phrases[0] as string, labelSource: "seed-phrase" as TopicLabelSource, note: "", asked: false };
     }
     return { tag, label: tag, labelSource: "tag" as TopicLabelSource, note: "", asked: false };
   });
+  const phraseCounts = new Map<string, number>();
+  for (const entry of entries) {
+    if (entry.labelSource === "seed-phrase") {
+      phraseCounts.set(entry.label, (phraseCounts.get(entry.label) ?? 0) + 1);
+    }
+  }
+  return entries.map((entry) =>
+    entry.labelSource === "seed-phrase" && (phraseCounts.get(entry.label) ?? 0) >= 2
+      ? { tag: entry.tag, label: entry.tag, labelSource: "tag" as TopicLabelSource, note: "", asked: false }
+      : entry,
+  );
 }
 
 /** Tags of a synced topic menu, in order (for trace validation). */

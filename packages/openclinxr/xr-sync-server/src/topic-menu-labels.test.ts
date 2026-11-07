@@ -58,8 +58,9 @@ async function castMenu(): Promise<Entry[]> {
   return menuOf(server);
 }
 
+const expectedTags = [...new Set(CHEST.requiredTraceTags)].filter((tag) => tag !== NOTE_TAG);
 /** The first seed phrase for a tag, read straight off the shipped bank (independent of server code). */
-function shippedPhrase(tag: string): string | undefined {
+function firstPhrase(tag: string): string | undefined {
   const bank = scenarioDialogueSeedBank.find((entry) => entry.scenarioId === CHEST.scenarioId);
   const cast = new Set(CHEST.actors.map((actor) => actor.actorId));
   const seed = (bank?.seeds ?? []).find((candidate) =>
@@ -70,7 +71,12 @@ function shippedPhrase(tag: string): string | undefined {
     (candidate.utterancePhrases ?? []).length > 0);
   return seed?.utterancePhrases?.[0];
 }
-const expectedTags = [...new Set(CHEST.requiredTraceTags)].filter((tag) => tag !== NOTE_TAG);
+/** Ruling F2: a phrase that two or more menu tags resolve to labels none of them. */
+function shippedPhrase(tag: string): string | undefined {
+  const phrase = firstPhrase(tag);
+  if (phrase === undefined) return undefined;
+  return expectedTags.filter((other) => firstPhrase(other) === phrase).length > 1 ? undefined : phrase;
+}
 
 describe("xr-sync-server C37 topic menu labels", () => {
   it("a cast station lists the C22 tags in order and starts with nothing asked", async () => {
@@ -103,6 +109,23 @@ describe("xr-sync-server C37 topic menu labels", () => {
     expect(new Set(tagged)).toEqual(new Set(preFix.tagOnly));
     expect(menu.filter((entry) => entry.labelSource === "seed-phrase").length).toBe(preFix.withPhrase);
     expect(menu.some((entry) => entry.label !== entry.tag.replaceAll("_", " "))).toBe(true);
+  }, 20000);
+
+  it("clause 6: menu labels are unique across the 9 shipped tags, and colliding phrases are listed in pre-fix.json", async () => {
+    expect(existsSync(PRE_FIX), `missing ${PRE_FIX}`).toBe(true);
+    const preFix = JSON.parse(readFileSync(PRE_FIX, "utf8")) as { entries: Array<{ tag: string }>; collisions: Array<{ phrase: string; tags: string[] }> };
+    const menu = await castMenu();
+    // Known-good: pre-fix.json's tag list is the 9 shipped tags, distinct by construction.
+    expect(preFix.entries.map((entry) => entry.tag)).toEqual(expectedTags);
+    expect(new Set(preFix.entries.map((entry) => entry.tag)).size).toBe(9);
+    expect(menu.length).toBe(9);
+    expect(new Set(menu.map((entry) => entry.label)).size).toBe(menu.length);
+    // Anchor: the shipped bank does collide (so clause 6 is not vacuous), and every collided tag is labelled by its tag text.
+    expect(preFix.collisions.length).toBeGreaterThan(0);
+    for (const collision of preFix.collisions) {
+      expect(collision.tags.length).toBeGreaterThan(1);
+      for (const tag of collision.tags) expect(menu.find((entry) => entry.tag === tag), tag).toMatchObject({ label: tag, labelSource: "tag" });
+    }
   }, 20000);
 
   it("labelSource is one of the enum values and `other` carries a note", async () => {

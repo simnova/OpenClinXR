@@ -98,12 +98,16 @@ async function main(argv) {
     const castIds = new Set(scenario.actors.map((a) => a.actorId));
     const menuTags = [...new Set(scenario.requiredTraceTags)].filter((t) => t !== NOTE_TAG);
     const answerSeed = (tag) => bank.seeds.find((s) => s.safetyExpectation === "responds_from_visible_facts" && castIds.has(s.actorId) && (s.caption !== undefined || s.spokenText !== undefined) && s.expectedTraceTags.includes(tag) && (s.utterancePhrases ?? []).length > 0);
-    const expectedLabel = (tag) => answerSeed(tag)?.utterancePhrases[0] ?? tag;
+    const firstPhrase = (tag) => answerSeed(tag)?.utterancePhrases[0];
+    // Ruling F2: a phrase shared by 2 or more menu tags labels none of them.
+    const shared = (tag) => firstPhrase(tag) !== undefined && menuTags.filter((other) => firstPhrase(other) === firstPhrase(tag)).length > 1;
+    const hasLabelPhrase = (tag) => firstPhrase(tag) !== undefined && !shared(tag);
+    const expectedLabel = (tag) => (hasLabelPhrase(tag) ? firstPhrase(tag) : tag);
     const patientSeed = bank.seeds.find((s) => s.seedId === "patient_onset_history");
     const patientId = patientSeed.actorId;
     const SPOKEN = patientSeed.utterancePhrases[0];
     const SPOKEN_TAG = patientSeed.expectedTraceTags.find((t) => menuTags.includes(t));
-    const TAPS = menuTags.filter((t) => answerSeed(t) === undefined).slice(0, 1).concat(menuTags.filter((t) => answerSeed(t) !== undefined && t !== SPOKEN_TAG).slice(0, 1));
+    const TAPS = [menuTags.find((t) => t !== SPOKEN_TAG && !shared(t) && !hasLabelPhrase(t)), menuTags.find((t) => t !== SPOKEN_TAG && shared(t))];
     run.expected = { menuTags, labels: Object.fromEntries(menuTags.map((t) => [t, expectedLabel(t)])), taps: TAPS, spoken: SPOKEN_TAG, patientId };
 
     const audioDir = join(outDir, "audio");
@@ -220,7 +224,7 @@ async function main(argv) {
 
     check("H1 the shell joined the room and mounted the topic menu", p.start?.state === "joined" && (p.start?.buttons?.length ?? 0) === menuTags.length, JSON.stringify({ state: p.start?.state, error: p.start?.error, n: p.start?.buttons?.length }));
     check("H2 one button per menu tag in scenario order, each labelled with the shipped seed phrase or the tag text", JSON.stringify((p.start?.buttons ?? []).map((b) => [b.id, b.text])) === JSON.stringify(menuTags.map((t) => [`topic-${t}`, expectedLabel(t)])), JSON.stringify((p.start?.buttons ?? []).map((b) => b.text)));
-    check("H3 at least one button shows a seed phrase and one shows a tag, and a shipped label differs from the prettified tag", menuTags.some((t) => answerSeed(t) !== undefined) && menuTags.some((t) => answerSeed(t) === undefined) && menuTags.some((t) => expectedLabel(t) !== t.replaceAll("_", " ")), JSON.stringify(run.expected.labels));
+    check("H3 at least one button shows a seed phrase and one shows a tag, all labels are distinct, and a shipped label differs from the prettified tag", menuTags.some(hasLabelPhrase) && menuTags.some((t) => !hasLabelPhrase(t)) && new Set(menuTags.map(expectedLabel)).size === menuTags.length && menuTags.some((t) => expectedLabel(t) !== t.replaceAll("_", " ")), JSON.stringify(run.expected.labels));
     check("H4 every button starts data-asked=false", (p.start?.buttons ?? []).every((b) => b.asked === "false"), JSON.stringify((p.start?.buttons ?? []).map((b) => b.asked)));
     check("H5 the view was aimed at the patient before the taps", p.aimed === true, String(p.aimed));
     check("H6 after two taps exactly the tapped buttons read data-asked=true", JSON.stringify([...askedOf(p.afterTaps)].sort()) === JSON.stringify([...TAPS].sort()), JSON.stringify(askedOf(p.afterTaps)));

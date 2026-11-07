@@ -136,8 +136,11 @@ async function main(argv) {
     const expectedCast = `Cast: ${edChestPainScenario.actors.map((a) => `${a.displayName} (${a.role})`).join("; ")}`;
     // C37: the menu is one button per tag, labelled by the server (first shipped seed phrase covering the tag, else the tag text).
     const castIds = new Set(edChestPainScenario.actors.map((x) => x.actorId));
-    const topicLabel = (tag) => entry.seeds.find((s) => s.safetyExpectation === "responds_from_visible_facts" && castIds.has(s.actorId) && (s.caption !== undefined || s.spokenText !== undefined) && s.expectedTraceTags.includes(tag) && (s.utterancePhrases ?? []).length > 0)?.utterancePhrases[0] ?? tag;
-    const expectedTopics = [...new Set(edChestPainScenario.requiredTraceTags)].filter((t) => t !== "patient_note_submitted").map(topicLabel).join(", ");
+    const menuTagList = [...new Set(edChestPainScenario.requiredTraceTags)].filter((t) => t !== "patient_note_submitted");
+    const phraseOf = (tag) => entry.seeds.find((s) => s.safetyExpectation === "responds_from_visible_facts" && castIds.has(s.actorId) && (s.caption !== undefined || s.spokenText !== undefined) && s.expectedTraceTags.includes(tag) && (s.utterancePhrases ?? []).length > 0)?.utterancePhrases[0];
+    // A phrase shared by 2 or more menu tags labels none of them (C37 ruling F2).
+    const topicLabel = (tag) => (phraseOf(tag) !== undefined && menuTagList.filter((other) => phraseOf(other) === phraseOf(tag)).length === 1 ? phraseOf(tag) : tag);
+    const expectedTopics = menuTagList.map(topicLabel).join(", ");
     run.expected = { expectedCast, expectedTopics, actorId: actor.actorId, seedReplyId: `${actor.actorId}:seed:${seed.seedId}` };
 
     const audioDir = join(outDir, "audio");
