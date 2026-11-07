@@ -12,11 +12,14 @@
   "part": { "type": "centre", "partWidthMm": 3.0, "partAwayGain": 1.4, "partFadeBackMm": 90 },
   "fall": {
     "rootLiftMm": 2.0,
-    "volumeMm": 5.0,
+    "volumeMm": 8.0,
     "gravityPerM": 55.0,
-    "combRailMm": 78.0,
+    "combRailMm": 90.0,
     "combRailGain": 0.9,
-    "shoulderForwardGain": 0.8,
+    "combRailBackTargetMm": -55,
+    "combRailBackGain": 0.6,
+    "relaxIterations": 12,
+    "shoulderForwardGain": 0.35,
     "shoulderFieldBelowHeadOriginMm": -60,
     "frontAzimuthMaxDeg": 125
   },
@@ -24,7 +27,7 @@
   "curl": { "factor": 0.0 },
   "frizz": { "factor": 0.25, "distanceMm": 0.8, "shape": 0.7 },
   "trim": { "randomOffset": 0.07 },
-  "shading": { "model": "HUANG", "melanin": 0.92, "melaninRedness": 0.35, "roughness": 0.3, "radialRoughness": 0.3, "coat": 0.0, "randomColor": 0.05, "randomRoughness": 0.1 },
+  "shading": { "model": "HUANG", "melanin": 0.97, "melaninRedness": 0.2, "roughness": 0.3, "radialRoughness": 0.3, "coat": 0.0, "randomColor": 0.05, "randomRoughness": 0.1 },
   "strand": { "rootRadiusMm": 0.045, "tipRadiusMm": 0.02 },
-  "clearanceMm": 0.5
+  "clearanceMm": 1.5
 }

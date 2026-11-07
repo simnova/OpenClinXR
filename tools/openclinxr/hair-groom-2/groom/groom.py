@@ -42,6 +42,9 @@ GARMENT_TAGS = ("shirt", "pants", "shoe", "footwear")
 MIN_ISLAND_FRACTION = 0.05         # scalp islands below this area share are hairline-cut fragments
 GARMENT_PUSH_RADIUS_M = 0.015      # garment sign trusted only this close to the cloth
 WELD_M = 1e-5                      # seam weld distance (glTF split vertices are coincident)
+RAIL_CLEARED = 0.9                 # fraction of the comb rail after which the back pull starts
+RAIL_BACK_RAMP_M = 0.03            # back pull reaches full gain this far ahead of its target
+SIDE_SEED_STRIDE = 101             # seed offset of the right-side child pass
 PART_BY_ISLANDS = True             # children interpolate only from guides on their side of the part
 STAGES = ["interpolate", "clump", "frizz", "trim"]
 SCALP_UV = "UVMap"                 # spherical scalp UV; the bundled assets read the name "UVMap"
@@ -226,6 +229,25 @@ def build_scalp(body, origin, R, centre, rc):
     return ob, len(islands) - dropped, area, dropped
 
 
+def side_scalp(scalp, origin, R, side):
+    """Copy of the scalp holding one island (side = +1 subject left, -1 right).
+    Interpolate runs once per side so children can only blend guides of their own
+    side; its 'Part by Mesh Islands' option still mixed sides at the front hairline."""
+    bm = bmesh.new()
+    bm.from_mesh(scalp.data)
+    kill = [f for f in bm.faces if to_local(f.calc_center_median(), origin, R)[0] * side < 0]
+    bmesh.ops.delete(bm, geom=kill, context="FACES")
+    bmesh.ops.delete(bm, geom=[v for v in bm.verts if not v.link_faces], context="VERTS")
+    name = "groom_scalp_%s" % ("L" if side > 0 else "R")
+    me = bpy.data.meshes.new(name)
+    bm.to_mesh(me)
+    bm.free()
+    ob = bpy.data.objects.new(name, me)
+    bpy.context.scene.collection.objects.link(ob)
+    ob.hide_render = True
+    return ob
+
+
 def sample_roots(scalp, n, seed):
     me = scalp.data
     me.calc_loop_triangles()
@@ -347,6 +369,7 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
     g = f["gravityPerM"]
     vol = f["volumeMm"] / 1000.0
     sh_z = f["shoulderFieldBelowHeadOriginMm"] / 1000.0
+    back_target = f["combRailBackTargetMm"] / 1000.0
     p = p + Vector(normal) * (f["rootLiftMm"] / 1000.0)
     d = (Vector(normal) * ROOT_NORMAL_WEIGHT + away * rc["part"]["partAwayGain"] * w_part
          + down * ROOT_DOWN_WEIGHT).normalized()
@@ -361,6 +384,11 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
             steer += away * (f["combRailGain"] * g * lack)
             g_scale = (abs(lp[0]) / rail) ** 2
         steer += down * (g * g_scale)
+        # anterior hair that has cleared the face laterally is drawn back to the cheek
+        # plane (combRailBackTargetMm, head-centre y) so it hangs beside, not ahead of, the face
+        y_rel = lp[1] - centre[1]
+        if anterior and abs(lp[0]) >= RAIL_CLEARED * rail and y_rel < back_target:
+            steer += back * (f["combRailBackGain"] * g * min(1.0, (back_target - y_rel) / RAIL_BACK_RAMP_M))
         if lp[2] < sh_z:
             steer += (-back if frontish else back * BACK_FIELD_RATIO) * (f["shoulderForwardGain"] * g)
         d = (d + steer * ds).normalized()
@@ -375,6 +403,18 @@ def march_guide(root, normal, origin, R, centre, collider, rc):
         if len(pts) > 2000:
             break
     return np.array([v[:] for v in pts]), L
+
+
+def relax_guide(path, collider, offset, iterations):
+    """Taut-strand relaxation: Laplacian smoothing (root fixed) alternating with the
+    signed-distance push, so a strand spans concavities (under the ear lobe, jaw)
+    instead of wrapping into them."""
+    pts = path.copy()
+    for _ in range(iterations):
+        pts[1:-1] = 0.5 * pts[1:-1] + 0.25 * (pts[:-2] + pts[2:])
+        for i in range(1, len(pts)):
+            pts[i] = push_out(Vector(pts[i]), collider, offset)[:]
+    return pts
 
 
 def resample(path, P):
@@ -568,16 +608,26 @@ def main():
     guides, lens = [], []
     for r, n in zip(roots, nrms):
         path, L = march_guide(r, n, origin, R, centre, collider, rc)
-        guides.append(resample(path, P))
+        guides.append(relax_guide(resample(path, P), collider, rc["fall"]["volumeMm"] / 1000.0,
+                                  rc["fall"]["relaxIterations"]))
         lens.append(L)
     guides = np.array(guides)
     load_assets()
-    gob = make_curves("groom_guides", [P] * len(guides), guides.reshape(-1, 3), uv=uvs)
-    gob.data.surface = scalp
-    gob.data.surface_uv_map = SCALP_UV
-    mod = gob.modifiers.new("children", "NODES")
-    mod.node_group = groom_tree(rc, seed, a.stop_after)
-    pos, off = read_curves(gob)
+    gside = np.array([1 if to_local(r, origin, R)[0] >= 0 else -1 for r in roots])
+    parts, gobs = [], []
+    for side in (1, -1):
+        m = gside == side
+        sob = side_scalp(scalp, origin, R, side)
+        gob = make_curves("groom_guides_%d" % side, [P] * int(m.sum()), guides[m].reshape(-1, 3), uv=uvs[m])
+        gob.data.surface = sob
+        gob.data.surface_uv_map = SCALP_UV
+        mod = gob.modifiers.new("children", "NODES")
+        # one seed per side so the two child distributions are independent
+        mod.node_group = groom_tree(rc, seed + (0 if side > 0 else SIDE_SEED_STRIDE), a.stop_after)
+        parts.append(read_curves(gob))
+        gobs.append(gob)
+    pos = np.concatenate([p for p, _ in parts])
+    off = np.concatenate([[0], np.cumsum(np.concatenate([np.diff(o) for _, o in parts]))]).astype(np.int64)
     raw_pos = pos.copy()
     sizes = np.diff(off)
     # final signed-distance push (fixed offset), all points
@@ -600,8 +650,9 @@ def main():
         if (q - p).length > 0.0:
             pos[i] = q
             pushed += 1
-    gob.hide_render = True
-    gob.hide_viewport = True
+    for gob in gobs:
+        gob.hide_render = True
+        gob.hide_viewport = True
     # strand radius taper root -> tip
     rr, tr = rc["strand"]["rootRadiusMm"] / 1000.0, rc["strand"]["tipRadiusMm"] / 1000.0
     rad = np.concatenate([np.linspace(rr, tr, s) for s in sizes])
