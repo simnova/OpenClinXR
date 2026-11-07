@@ -12,11 +12,11 @@
   "part": { "type": "centre", "partWidthMm": 3.0, "partAwayGain": 1.4, "partFadeBackMm": 90 },
   "fall": {
     "rootLiftMm": 2.0,
-    "volumeMm": 8.0,
+    "volumeMm": 10.0,
     "gravityPerM": 55.0,
     "combRailMm": 90.0,
     "combRailGain": 0.9,
-    "combRailBackTargetMm": -55,
+    "combRailBackTargetMm": -40,
     "combRailBackGain": 0.6,
     "relaxIterations": 12,
     "shoulderForwardGain": 0.35,
@@ -29,5 +29,5 @@
   "trim": { "randomOffset": 0.07 },
   "shading": { "model": "HUANG", "melanin": 0.97, "melaninRedness": 0.2, "roughness": 0.3, "radialRoughness": 0.3, "coat": 0.0, "randomColor": 0.05, "randomRoughness": 0.1 },
   "strand": { "rootRadiusMm": 0.045, "tipRadiusMm": 0.02 },
-  "clearanceMm": 1.5
+  "clearanceMm": 3.0
 }
