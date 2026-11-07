@@ -103,6 +103,8 @@ async function main(argv) {
     const shared = (tag) => firstPhrase(tag) !== undefined && menuTags.filter((other) => firstPhrase(other) === firstPhrase(tag)).length > 1;
     const hasLabelPhrase = (tag) => firstPhrase(tag) !== undefined && !shared(tag);
     const expectedLabel = (tag) => (hasLabelPhrase(tag) ? firstPhrase(tag) : tag);
+    // Client display (grade B1/B2): tag-labelled entries show the tag with underscores as spaces; an asked entry leads with a check mark.
+    const displayOf = (tag, asked) => `${asked ? "\u2713 " : ""}${hasLabelPhrase(tag) ? firstPhrase(tag) : tag.replaceAll("_", " ")}`;
     const patientSeed = bank.seeds.find((s) => s.seedId === "patient_onset_history");
     const patientId = patientSeed.actorId;
     const SPOKEN = patientSeed.utterancePhrases[0];
@@ -148,7 +150,7 @@ async function main(argv) {
     const probeFn = (drive) => (options.mode === "host" ? runHostProbe({ pageUrl, outDir, drive, launchArgs, initScript }) : runQuestProbe({ pageUrl, outDir, serial: options.serial, drive, initScript }));
     const readMenu = (page) => page.evaluate(() => {
       const e = globalThis.__openClinXrEncounterSync;
-      const buttons = [...document.querySelectorAll("#room-topics button")].map((b) => ({ id: b.id, text: b.textContent, asked: b.getAttribute("data-asked") }));
+      const buttons = [...document.querySelectorAll("#room-topics button")].map((b) => ({ id: b.id, text: b.textContent, asked: b.getAttribute("data-asked"), bg: b.style.background }));
       return { buttons, state: e?.state ?? null, error: e?.error ?? "", intents: JSON.parse(JSON.stringify(e?.intents ?? [])), turns: JSON.parse(JSON.stringify((e?.turns ?? []).map((t) => ({ actorId: t.actorId, replyId: t.replyId })))), captures: JSON.parse(JSON.stringify(e?.speech?.captures ?? [])) };
     });
     const serverPhase = () => JSON.parse(syncServer.getStateJSON()).phase;
@@ -223,7 +225,7 @@ async function main(argv) {
     run.finalAsked = finalAsked;
 
     check("H1 the shell joined the room and mounted the topic menu", p.start?.state === "joined" && (p.start?.buttons?.length ?? 0) === menuTags.length, JSON.stringify({ state: p.start?.state, error: p.start?.error, n: p.start?.buttons?.length }));
-    check("H2 one button per menu tag in scenario order, each labelled with the shipped seed phrase or the tag text", JSON.stringify((p.start?.buttons ?? []).map((b) => [b.id, b.text])) === JSON.stringify(menuTags.map((t) => [`topic-${t}`, expectedLabel(t)])), JSON.stringify((p.start?.buttons ?? []).map((b) => b.text)));
+    check("H2 one button per menu tag in scenario order, each labelled with the shipped seed phrase or the tag text", JSON.stringify((p.start?.buttons ?? []).map((b) => [b.id, b.text])) === JSON.stringify(menuTags.map((t) => [`topic-${t}`, displayOf(t, false)])), JSON.stringify((p.start?.buttons ?? []).map((b) => b.text)));
     check("H3 at least one button shows a seed phrase and one shows a tag, all labels are distinct, and a shipped label differs from the prettified tag", menuTags.some(hasLabelPhrase) && menuTags.some((t) => !hasLabelPhrase(t)) && new Set(menuTags.map(expectedLabel)).size === menuTags.length && menuTags.some((t) => expectedLabel(t) !== t.replaceAll("_", " ")), JSON.stringify(run.expected.labels));
     check("H4 every button starts data-asked=false", (p.start?.buttons ?? []).every((b) => b.asked === "false"), JSON.stringify((p.start?.buttons ?? []).map((b) => b.asked)));
     check("H5 the view was aimed at the patient before the taps", p.aimed === true, String(p.aimed));
@@ -232,6 +234,8 @@ async function main(argv) {
     const ends = (trace.events ?? []).filter((e) => e.kind === "utterance-end");
     check("H8 the persisted trace holds the tap tags in order, then the spoken turn's tag (speech modality, matched)", JSON.stringify(ends.map((e) => e.tag)) === JSON.stringify([...TAPS, SPOKEN_TAG]) && ends.at(-1)?.modality === "speech", JSON.stringify(ends.map((e) => [e.tag, e.modality, e.match, e.confidence])));
     check("H9 the page's asked set equals the review's observed set (traceTagCoverage on the persisted trace, note tag excluded)", JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()) && finalAsked.length === TAPS.length + 1, JSON.stringify({ finalAsked, reviewObserved }));
+    const finalButtons = p.afterSpeech?.buttons ?? [];
+    check("H12 after the turns each button shows the display form: asked buttons lead with a check mark and carry a background, unasked buttons neither", finalButtons.length === menuTags.length && finalButtons.every((b, i) => b.text === displayOf(menuTags[i], b.asked === "true") && (b.asked === "true" ? b.bg !== "" : b.bg === "")) && finalButtons.some((b) => b.asked === "true") && finalButtons.some((b) => b.asked !== "true"), JSON.stringify(finalButtons.map((b) => [b.text, b.bg])));
     const ownSource = await readFile(fileURLToPath(import.meta.url), "utf8");
     const literals = [...menuTags, ...bank.seeds.flatMap((s) => s.utterancePhrases ?? [])].filter((t) => t.length > 6);
     const copied = literals.filter((text) => ownSource.includes(`"${text}"`) || ownSource.includes(`'${text}'`));

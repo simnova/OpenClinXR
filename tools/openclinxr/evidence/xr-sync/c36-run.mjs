@@ -139,7 +139,7 @@ async function main(argv) {
     const menuTagList = [...new Set(edChestPainScenario.requiredTraceTags)].filter((t) => t !== "patient_note_submitted");
     const phraseOf = (tag) => entry.seeds.find((s) => s.safetyExpectation === "responds_from_visible_facts" && castIds.has(s.actorId) && (s.caption !== undefined || s.spokenText !== undefined) && s.expectedTraceTags.includes(tag) && (s.utterancePhrases ?? []).length > 0)?.utterancePhrases[0];
     // A phrase shared by 2 or more menu tags labels none of them (C37 ruling F2).
-    const topicLabel = (tag) => (phraseOf(tag) !== undefined && menuTagList.filter((other) => phraseOf(other) === phraseOf(tag)).length === 1 ? phraseOf(tag) : tag);
+    const topicLabel = (tag) => (phraseOf(tag) !== undefined && menuTagList.filter((other) => phraseOf(other) === phraseOf(tag)).length === 1 ? phraseOf(tag) : tag.replaceAll("_", " "));
     const expectedTopics = menuTagList.map(topicLabel).join(", ");
     run.expected = { expectedCast, expectedTopics, actorId: actor.actorId, seedReplyId: `${actor.actorId}:seed:${seed.seedId}` };
 

@@ -72,7 +72,7 @@ describe("room panel (C36)", () => {
     expect(text(parent, "room-cast")).toBe("");
     snapshot(SNAP);
     expect(text(parent, "room-cast")).toBe("Cast: Robert Hayes (patient); Anna Hayes (family)");
-    expect((parent.find("room-topics") as FakeElement).children.map((button) => button.textContent)).toEqual(["when did the chest pressure start", "ecg_request"]);
+    expect((parent.find("room-topics") as FakeElement).children.map((button) => button.textContent)).toEqual(["when did the chest pressure start", "ecg request"]);
     expect(text(parent, "room-countdown")).toBe("Encounter opens in 7 s");
     snapshot({ ...SNAP, phase: "encounter", phaseRemainingS: 120 });
     expect(text(parent, "room-countdown")).toBe("Encounter: 120 s left");

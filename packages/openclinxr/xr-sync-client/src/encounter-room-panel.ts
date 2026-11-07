@@ -59,8 +59,10 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
     for (const entry of menu) {
       const button = buttons.get(entry.tag);
       if (button === undefined) continue;
-      button.textContent = entry.label;
+      const display = entry.labelSource === "tag" ? entry.tag.replaceAll("_", " ") : entry.label;
+      button.textContent = (entry.asked ? "✓ " : "") + display;
       button.setAttribute?.("data-asked", String(entry.asked));
+      if (button.style !== undefined) button.style.background = entry.asked ? "#2e7d32" : "";
     }
     if (phase === "doorway") {
       countdown.textContent = `Encounter opens in ${remaining} s`;

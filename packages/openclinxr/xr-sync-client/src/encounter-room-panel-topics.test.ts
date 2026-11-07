@@ -3,7 +3,8 @@ import { type EncounterSyncEvidence, startEncounterSyncFromUrl } from "./headset
 
 // C37 RED client clause 5: the panel renders the server's topic menu as buttons.
 //   #room-topics holds one <button> per snapshot topicMenu entry {tag, label, labelSource, note, asked}, in snapshot order.
-//   Button textContent === entry.label. Button attribute data-asked === String(entry.asked), taken only from the latest snapshot
+//   Button textContent === entry.label for labelSource "seed-phrase", and tag.replaceAll("_", " ") for labelSource "tag" (C37 grade B1); an asked entry
+//   carries a leading "✓ " in textContent and a distinct background style (B2), an unasked entry neither. Button attribute data-asked === String(entry.asked), taken only from the latest snapshot
 //   (a snapshot saying asked:true for a tag the client never sent renders "true"; a later snapshot saying false renders "false").
 //   A click calls sendTraceAction(actorId, entry.tag) once (one entry in handle.intents, one utterance-end{topicTag}); a click
 //   never changes data-asked. An empty or absent menu renders no buttons. The actor is picked as the typed box picks it.
@@ -12,6 +13,7 @@ class FakeElement {
   id = ""; value = ""; type = ""; placeholder = ""; disabled = false; hidden = false;
   children: FakeElement[] = [];
   attributes = new Map<string, string>();
+  style: Record<string, string> = {};
   handlers = new Map<string, Handler[]>();
   private text: string | null = "";
   constructor(readonly tag: string) {}
@@ -68,7 +70,7 @@ describe("room panel topic buttons (C37)", () => {
     const { topics, snapshot } = await joined();
     snapshot(SNAP);
     expect(topics().map((button) => button.tag)).toEqual(["button", "button", "button"]);
-    expect(topics().map((button) => button.textContent)).toEqual(MENU.map((item) => item.label));
+    expect(topics().map((button) => button.textContent)).toEqual(["when did the chest pressure start", "ecg request", "i can see you are worried"]);
     expect(topics().map((button) => button.attributes.get("data-asked"))).toEqual(["false", "false", "false"]);
   });
 
@@ -104,7 +106,36 @@ describe("room panel topic buttons (C37)", () => {
     expect(topics()).toEqual(first);
     expect(topics()[2]?.attributes.get("data-asked")).toBe("true");
     snapshot({ ...SNAP, serverTick: 3, topicMenu: [MENU[1]] });
-    expect(topics().map((button) => button.textContent)).toEqual(["ecg_request"]);
+    expect(topics().map((button) => button.textContent)).toEqual(["ecg request"]);
+  });
+
+  it("a labelSource tag entry renders the tag with underscores as spaces; a seed-phrase entry keeps its label bytes", async () => {
+    const { topics, snapshot } = await joined();
+    snapshot({ ...SNAP, topicMenu: [entry("risk_factor_question", "risk_factor_question", "tag"), entry("history_opqrst", "when did the chest pressure start", "seed-phrase")] });
+    expect(topics().map((button) => button.textContent)).toEqual(["risk factor question", "when did the chest pressure start"]);
+  });
+
+  it("display form is client-only: the snapshot's server label bytes are untouched while textContent carries the display form", async () => {
+    const { topics, snapshot } = await joined();
+    const menu = [entry("risk_factor_question", "risk_factor_question", "tag", true), entry("history_opqrst", "when did the chest pressure start", "seed-phrase", true)];
+    const before = JSON.stringify(menu);
+    snapshot({ ...SNAP, topicMenu: menu });
+    expect(JSON.stringify(menu)).toBe(before);
+    expect(menu[0]?.label).toBe("risk_factor_question");
+    expect(topics()[0]?.textContent).toBe("\u2713 risk factor question");
+    expect(topics()[0]?.textContent).not.toBe(menu[0]?.label);
+    expect(topics()[1]?.textContent).toBe(`\u2713 ${menu[1]?.label}`);
+  });
+
+  it("an asked entry renders a leading check mark and a distinct background; an unasked entry renders neither", async () => {
+    const { topics, snapshot } = await joined();
+    snapshot({ ...SNAP, topicMenu: [entry("risk_factor_question", "risk_factor_question", "tag", true), entry("history_opqrst", "when did the chest pressure start", "seed-phrase", true), entry("ecg_request", "ecg_request", "tag", false)] });
+    expect(topics().map((button) => button.textContent)).toEqual(["\u2713 risk factor question", "\u2713 when did the chest pressure start", "ecg request"]);
+    expect(topics()[0]?.style["background"]).toBeTruthy();
+    expect(topics()[2]?.style["background"] ?? "").not.toBe(topics()[0]?.style["background"]);
+    snapshot({ ...SNAP, serverTick: 2, topicMenu: [entry("risk_factor_question", "risk_factor_question", "tag", false), entry("history_opqrst", "when did the chest pressure start", "seed-phrase", false), entry("ecg_request", "ecg_request", "tag", false)] });
+    expect(topics().map((button) => button.textContent)).toEqual(["risk factor question", "when did the chest pressure start", "ecg request"]);
+    expect(topics()[0]?.style["background"] ?? "").toBe(topics()[2]?.style["background"] ?? "");
   });
 
   it("known-good: an empty or absent menu renders no buttons", async () => {

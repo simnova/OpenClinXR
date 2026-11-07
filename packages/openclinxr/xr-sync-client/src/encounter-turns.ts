@@ -304,6 +304,7 @@ export interface UtteranceBoxElement {
   disabled?: boolean;
   hidden?: boolean;
   appendChild(child: UtteranceBoxElement): unknown;
+  style?: { background?: string };
   setAttribute?(name: string, value: string): void;
   addEventListener(type: string, listener: (event: { key?: string; isComposing?: boolean; shiftKey?: boolean; preventDefault?: () => void; stopPropagation?: () => void }) => void): void;
 }
