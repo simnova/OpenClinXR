@@ -242,22 +242,37 @@ hair-groom-2 does not use it.
 | 4 | all | one recipe on three actors |
 | 5 | S7 | runtime shading in both renderers; first Quest measurement |
 
-- **Phase 0a.** Prerequisite: re-acquire `makehuman-hair01` and `makehuman-community-male` into
-  `.openclinxr-local/provider-cache/hair/sources/` from the sources in
-  `docs/openclinxr/asset-licence-records/row-13-*.json` and `row-14-*.json`, re-run
-  `hair-licence-classify.ts`, and diff against the tracked
-  `.openclinxr/evidence/issue-330/hair-licence-classification.json`; no library bake runs without it. Then re-bake the 6 untextured
-  toigo actors (peds-parent-aisha is already textured), confirm the texture survives, and find the step
-  that drops it if it does not. MPFB 2.0.15 is installed in Blender 5.2.3 (manifest sha256 matches
-  the licence record); bakes still stop on absent provider caches: visemes02, eyebrows01,
-  eyelashes01, teeth/tongue, system-asset and high-poly eyes, skins01, pants02, the scrub pants and the
-  female lab coat. No bootstrap command restores them, and the asset store named in
-  `hair-pack-inputs.manifest.json` (`/Volumes/files/openclinxr-assets/store/`) does not exist.
-  `mhair02`'s source page (`makehumancommunity.org/clothes/mhair02.html`) returned 404 on 2026-11-07,
-  so `makehuman-community-male` cannot be re-acquired and the 3 `mhair02` actors cannot be re-baked. Key output stem `mpfb-gown-adult-patient` in `HAIR_STYLE_BY_OUTPUT_STEM` to a male style (he is baked with `--eye-colour-reference robert_reference` and no `--reference`, so the reference table never sees him) so
-  gown-ed-robert-hayes and gown-adult-patient stop wearing the female bob: the textured male-reading
-  style Phase 0c ranks first, or `cortu_short_messy_hair` (hair01, catalogue CC0, short, textured) until 0c has run. The 3 `mhair02` actors stay untextured
-  and are excluded from Phase 4. The Phase 0a GLBs are the known-good column for V5.
+- **Phase 0a.** Prerequisite: the local provider caches and Blender tooling. Restored 2026-11-07 into
+  the worktree from makehumancommunity.org (hashes in the lane handoff): hair01, visemes02, eyebrows01,
+  eyelashes01, system-asset eyes/teeth/tongue, skins01, and the named shirts01, shoes01, pants01 and
+  pants02 styles; MPFB 2.0.15 (manifest sha256 = licence record) and Pillow 11.3.0 into Blender 5.2.3.
+  Not restorable: `makehuman-community-male` (mhair02), community scrub pants and female lab coat (pages
+  404), and the `retarget_bvh` extension (no recorded source or version), which the materializer's final
+  seated-rest replay needs.
+
+  Measured on probe bakes of ob-patient-aisha and the ED male (`mpfb-gown-adult-patient` stem):
+
+  | GLB | hair style | hair tris | alphaMode | baseColorTexture | brow tris | lash tris |
+  |---|---|---|---|---|---|---|
+  | shipped ob-patient-aisha | toigo_blunt_bob_with_bangs | 1,989 | OPAQUE | no | 35,334 | 16,632 |
+  | probe ob-patient-aisha | toigo_blunt_bob_with_bangs | 4,976 | BLEND | yes | 9,000 | 16,632 |
+  | shipped gown-adult-patient | toigo_blunt_bob_with_bangs | 3,155 | OPAQUE | no | 13,187 | 386 |
+  | probe gown-adult-patient | cortu_short_messy_hair | 1,092 | BLEND | yes | 8,988 | 16,632 |
+  | probe → meshopt 0.4 | cortu_short_messy_hair | 1,090 | BLEND | yes | 1,956 | 3,235 |
+  | probe → meshopt → albedo bake | cortu_short_messy_hair | 1,090 | BLEND | yes | 1,956 | 3,235 |
+
+  The current materializer exports textured hair, and the meshopt and albedo steps keep it. The shipped
+  aisha GLB's hair material is the pre-wiring flat one (roughness 0.9, factor 0.13/0.09/0.07, no hair
+  image), and its 2026-11-06 lineage is a copy of an earlier GLB plus teeth/tongue offsets, so the
+  untextured hair is carried forward from a bake older than texture wiring. A re-bake through each
+  actor's recorded post-chain fixes it. The materializer emits `BLEND`, not the `MASK` that
+  peds-parent-aisha ships (cutoff 0.2); which step sets `MASK` there is UNKNOWN. Lashes leave the
+  materializer at 16,632 tris on both actors (Phase 0b).
+
+  The ED male now gets `cortu_short_messy_hair` through `HAIR_STYLE_BY_OUTPUT_STEM` (he is baked with
+  `--eye-colour-reference robert_reference` and no `--reference`). Remaining: re-bake the 6 toigo actors
+  through their recorded post-chains once `retarget_bvh` is installed; the 3 `mhair02` actors are
+  excluded from Phase 4 and cannot be re-baked. The Phase 0a GLBs are the known-good column for V5.
 - **Phase 0b.** For the 4 actors with full brows, check bake dates against #597 first: the
   materializer's default budget is 9,000 and `--eyebrow-tris-budget` can keep the full brow on purpose
   (`:7643-7647`); re-reduce only GLBs that predate it. Find where lashes went from 368 to 16,632

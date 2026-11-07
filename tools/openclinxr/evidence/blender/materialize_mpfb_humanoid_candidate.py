@@ -6103,6 +6103,10 @@ def _resolve_blender_binary():
     for cand in ("/opt/homebrew/bin/blender", "/usr/local/bin/blender"):
         if pathlib.Path(cand).is_file():
             return cand
+    # hair-groom-2 (2026-11-07): this script always runs inside Blender, so the running
+    # binary is known; a machine with only /Applications/Blender.app has no PATH blender.
+    if bpy.app.binary_path and pathlib.Path(bpy.app.binary_path).is_file():
+        return bpy.app.binary_path
     return "blender"
 
 
