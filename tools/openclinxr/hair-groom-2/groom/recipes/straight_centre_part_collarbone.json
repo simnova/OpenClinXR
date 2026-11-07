@@ -1,0 +1,30 @@
+{
+  "schema": "hair-groom-2.strand-recipe.v0",
+  "name": "straight_centre_part_collarbone",
+  "seed": 1107,
+  "guides": { "count": 420, "pointsPerStrand": 32, "marchStepMm": 3.0 },
+  "children": { "densityPerM2": 900000, "interpolationGuides": 4 },
+  "scalp": {
+    "hairlineMmAboveHeadOriginByAzimuthDeg": [[0, 100], [40, 96], [70, 80], [90, 66], [110, 30], [140, -25], [180, -50]],
+    "minUpwardNormal": -0.35
+  },
+  "lengthMm": { "front": 400, "temples": 380, "crown": 420, "nape": 210 },
+  "part": { "type": "centre", "partWidthMm": 3.0, "partAwayGain": 1.4, "partFadeBackMm": 90 },
+  "fall": {
+    "rootLiftMm": 2.0,
+    "volumeMm": 5.0,
+    "gravityPerM": 55.0,
+    "combRailMm": 78.0,
+    "combRailGain": 0.9,
+    "shoulderForwardGain": 0.8,
+    "shoulderFieldBelowHeadOriginMm": -60,
+    "frontAzimuthMaxDeg": 125
+  },
+  "clump": { "factor": 0.35, "shape": 0.4, "tipSpreadMm": 0.6, "distanceThresholdMm": 0.0, "guideDistanceMm": 6.0 },
+  "curl": { "factor": 0.0 },
+  "frizz": { "factor": 0.25, "distanceMm": 0.8, "shape": 0.7 },
+  "trim": { "randomOffset": 0.07 },
+  "shading": { "model": "HUANG", "melanin": 0.92, "melaninRedness": 0.35, "roughness": 0.3, "radialRoughness": 0.3, "coat": 0.0, "randomColor": 0.05, "randomRoughness": 0.1 },
+  "strand": { "rootRadiusMm": 0.045, "tipRadiusMm": 0.02 },
+  "clearanceMm": 0.5
+}
