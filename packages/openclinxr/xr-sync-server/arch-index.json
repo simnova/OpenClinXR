@@ -31,6 +31,8 @@
     "@openclinxr/shared-schemas"
   ],
   "tests": [
+    "src/topic-menu-asked.test.ts",
+    "src/topic-menu-labels.test.ts",
     "src/xr-sync-c10-station-replay.test.ts",
     "src/xr-sync-c11-patient-note.test.ts",
     "src/xr-sync-c12-review-lobby.test.ts",

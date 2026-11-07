@@ -37,6 +37,7 @@
     "src/encounter-repeat-prompt.test.ts",
     "src/encounter-replay-station.test.ts",
     "src/encounter-review-lobby.test.ts",
+    "src/encounter-room-panel-topics.test.ts",
     "src/encounter-room-panel.test.ts",
     "src/encounter-speech-capture-grade.test.ts",
     "src/encounter-speech-capture.test.ts",
