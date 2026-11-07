@@ -248,10 +248,13 @@ hair-groom-2 does not use it.
   `hair-licence-classify.ts`, and diff against the tracked
   `.openclinxr/evidence/issue-330/hair-licence-classification.json`; no library bake runs without it. Then re-bake the 6 untextured
   toigo actors (peds-parent-aisha is already textured), confirm the texture survives, and find the step
-  that drops it if it does not. Bakes also need the MPFB Blender extension
-  (`bl_ext.user_default.mpfb`), which is not installed in this machine's Blender 5.2.3.
+  that drops it if it does not. MPFB 2.0.15 is installed in Blender 5.2.3 (manifest sha256 matches
+  the licence record); bakes still stop on absent provider caches: visemes02, eyebrows01,
+  eyelashes01, teeth/tongue, system-asset and high-poly eyes, skins01, pants02, the scrub pants and the
+  female lab coat. No bootstrap command restores them, and the asset store named in
+  `hair-pack-inputs.manifest.json` (`/Volumes/files/openclinxr-assets/store/`) does not exist.
   `mhair02`'s source page (`makehumancommunity.org/clothes/mhair02.html`) returned 404 on 2026-11-07,
-  so `makehuman-community-male` cannot be re-acquired and the 3 `mhair02` actors cannot be re-baked. Key `robert_reference` in `HAIR_STYLE_BY_REFERENCE` to a male style so
+  so `makehuman-community-male` cannot be re-acquired and the 3 `mhair02` actors cannot be re-baked. Key output stem `mpfb-gown-adult-patient` in `HAIR_STYLE_BY_OUTPUT_STEM` to a male style (he is baked with `--eye-colour-reference robert_reference` and no `--reference`, so the reference table never sees him) so
   gown-ed-robert-hayes and gown-adult-patient stop wearing the female bob: the textured male-reading
   style Phase 0c ranks first, or `cortu_short_messy_hair` (hair01, catalogue CC0, short, textured) until 0c has run. The 3 `mhair02` actors stay untextured
   and are excluded from Phase 4. The Phase 0a GLBs are the known-good column for V5.
@@ -296,7 +299,7 @@ lands them. v1's `evidence/hair-cards0/renders/sheet.png` is not in this tree (o
   (`:30-31`, `:37`).
 - Modify `tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py`: when
   `hair.source == "cards"`, write `head-dump.npz` beside the hair fit at `:7444-7456`, run `run.py`,
-  re-import `cards-shell.npz` and skip the library fit. Key `robert_reference` (Phase 0a).
+  re-import `cards-shell.npz` and skip the library fit. Key output stem `mpfb-gown-adult-patient` (Phase 0a).
 - Create `packages/openclinxr/factory-stations/src/hair_cards/{plan.ts,run.ts}` and tests, mirroring
   `hair_editor/`; Modify `factory-station-core/src/catalog-mod.ts` and `factory-stations/src/station-runners.ts`.
 - Modify `packages/openclinxr/shared-schemas/src/face-phenotype/actor-phenotype.ts` (`:30` has

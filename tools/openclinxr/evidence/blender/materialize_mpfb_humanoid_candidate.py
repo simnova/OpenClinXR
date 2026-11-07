@@ -249,12 +249,6 @@ HAIR_STYLE_BY_REFERENCE = {
     # #441 — the street-casual adult male patient wears the same male style kevin
     # proved (mhair02; named page-CC0/header-AGPL3 uuid allowlist, no new permit).
     "adult_male_street_casual": "mhair02",
-    # hair-groom-2 Phase 0a (2026-11-07): the two adult males baked from robert_reference
-    # (gown-ed-robert-hayes, gown-adult-patient) fell through to the None default and wore
-    # the female blunt bob with bangs. cortu_short_messy_hair: hair01, catalogue CC0, 0
-    # helper-vertex refs (issue-330 classification), ships its own diffuse texture.
-    # Placeholder until Phase 0c grades the full library.
-    "robert_reference": "cortu_short_messy_hair",
 }
 
 # #665 — per-output-stem hair override for actors the reference tables cannot key.
@@ -265,6 +259,13 @@ HAIR_STYLE_BY_REFERENCE = {
 # output GLB stem, the same convention as EYE_DIAMETER_TARGET_MM.
 HAIR_STYLE_BY_OUTPUT_STEM = {
     "mpfb-clinical-physician-adult": "mhair02",
+    # hair-groom-2 Phase 0a (2026-11-07): the ED male patient is baked on the default-macro
+    # path (--eye-colour-reference robert_reference, no --reference), so the reference
+    # table sees None and he wore the female blunt bob with bangs; gown-ed-robert-hayes is
+    # derived from this GLB and inherited it. cortu_short_messy_hair: hair01, catalogue
+    # CC0, 0 helper-vertex refs (issue-330 classification), ships its own diffuse texture.
+    # Placeholder until Phase 0c grades the full library.
+    "mpfb-gown-adult-patient": "cortu_short_messy_hair",
 }
 
 # Patrick 2026-08-14 pointed at http://www.makehumancommunity.org/clothes/mhair02.html
