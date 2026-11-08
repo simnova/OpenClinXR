@@ -193,4 +193,24 @@ describe("xr-sync-server C45 note draft promotion", () => {
     const { events } = await closedArtifacts(traceDir);
     expect(events.filter((e) => e.kind === "note-submitted")).toHaveLength(1);
   }, 60000);
+
+  it("a rotation to a second station promotes that station's own draft once: each station trace holds exactly one note-submitted with its own chars", async () => {
+    const traceDir = mkdtempSync(join(tmpdir(), "xr-sync-c45-rot-"));
+    const server = await boot({ timing: { doorwaySeconds: 1, encounterSeconds: 1, noteSeconds: 3 }, noteMaxChars: NOTE_MAX, traceDir, stations: ["station-1", "station-2"] });
+    const { c, last } = await joinRoom(server);
+    await waitFor(() => last()?.stationId === "station-1" && last()?.phase === "note", PHASE_TIMEOUT_MS, "station-1 note");
+    expect(await draft(c, DRAFT)).toMatchObject({ status: "ack" });
+    await waitFor(() => last()?.stationId === "station-2" && last()?.phase === "note", PHASE_TIMEOUT_MS * 2, "station-2 note");
+    expect(last()?.noteSource ?? "").toBe("");
+    expect(await draft(c, DRAFT_B)).toMatchObject({ status: "ack" });
+    await waitFor(() => last()?.phase === "closed" && last()?.noteSource === "draft", PHASE_TIMEOUT_MS * 2, "station-2 closed with its draft");
+    await waitFor(() => readdirSync(traceDir).includes("exam-session.review-index.json"), PHASE_TIMEOUT_MS * 2, "review index");
+    const byStation = new Map<string, TraceEvent[]>();
+    for (const name of readdirSync(traceDir).filter((f) => f.endsWith(".conversation-trace.json"))) {
+      const parsed = JSON.parse(readFileSync(join(traceDir, name), "utf8")) as { stationId: string; events: TraceEvent[] };
+      byStation.set(parsed.stationId, parsed.events.filter((e) => e.kind === "note-submitted"));
+    }
+    expect(byStation.get("station-1")).toEqual([expect.objectContaining({ chars: DRAFT.length, source: "draft" })]);
+    expect(byStation.get("station-2")).toEqual([expect.objectContaining({ chars: DRAFT_B.length, source: "draft" })]);
+  }, 90000);
 });

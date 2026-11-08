@@ -28,7 +28,7 @@ const SNAP = {
   topicMenu: [], noteStatus: "none", noteChars: 0,
 };
 const NOTE = "Chest pressure for two hours, radiating to the left arm.";
-type Reply = "ack" | "rate-limited" | "invalid" | "transport" | "pending";
+type Reply = "ack" | "rate-limited" | "invalid" | "too-long" | "transport" | "pending";
 
 async function joined(replyFor: (call: number, text: string) => Reply) {
   const parent = new FakeElement("div");
@@ -55,6 +55,7 @@ async function joined(replyFor: (call: number, text: string) => Reply) {
         if (reply === "transport") throw new Error("intent 1 timed out after 5000ms");
         if (reply === "pending") return new Promise((resolve) => { pendingResolvers.push(resolve); });
         if (reply === "rate-limited") return { status: "reject", reason: "draft-rate-limited", seq: 1 };
+        if (reply === "too-long") return { status: "reject", reason: "note-too-long", seq: 1 };
         if (reply === "invalid") return { status: "reject", reason: "invalid-note", seq: 1 };
         return { status: "ack", seq: 1, serverTs: 0, rttMs: 1 };
       },
@@ -160,5 +161,46 @@ describe("the panel sends the unsubmitted note as a draft and shows the auto-col
     expect(el("room-note-status").textContent).toBe("Note accepted, 7 characters");
     await snapshot({ ...SNAP, phase: "closed", noteStatus: "none", noteChars: 0, noteSource: "draft" });
     expect(el("room-note-status").textContent).toBe("");
+  });
+
+  it("an invalid-note or note-too-long reject is final until the text changes: sent once, then not again on later snapshots (C45 fix)", async () => {
+    for (const reply of ["invalid", "too-long"] as const) {
+      text = NOTE;
+      const { drafts, snapshot } = await joined((_call, sent) => (sent === NOTE ? reply : "ack"));
+      await snapshot(SNAP);
+      await snapshot({ ...SNAP, phaseRemainingS: 99 });
+      await snapshot({ ...SNAP, phaseRemainingS: 98 });
+      await snapshot({ ...SNAP, phaseRemainingS: 97 });
+      expect(drafts).toEqual([NOTE]);
+      text = `${NOTE} Shorter.`;
+      await snapshot({ ...SNAP, phaseRemainingS: 96 });
+      expect(drafts).toEqual([NOTE, `${NOTE} Shorter.`]);
+      await snapshot({ ...SNAP, phaseRemainingS: 95 });
+      expect(drafts).toEqual([NOTE, `${NOTE} Shorter.`]);
+    }
+  });
+
+  it("a station rotation and a visit to the lobby each reset the acked draft: the same text is sent again in the next note phase (C45 fix)", async () => {
+    text = NOTE;
+    const { drafts, snapshot } = await joined(() => "ack");
+    await snapshot({ ...SNAP, stationId: "station-1" });
+    expect(drafts).toEqual([NOTE]);
+    await snapshot({ ...SNAP, stationId: "station-1", phase: "closed", noteStatus: "submitted", noteChars: NOTE.length, noteSource: "draft" });
+    await snapshot({ ...SNAP, stationId: "station-2", phase: "doorway" });
+    await snapshot({ ...SNAP, stationId: "station-2" });
+    expect(drafts).toEqual([NOTE, NOTE]);
+    await snapshot({ ...SNAP, stationId: "station-2", phaseRemainingS: 99 });
+    expect(drafts).toEqual([NOTE, NOTE]);
+    await snapshot({ ...SNAP, stationId: "", phase: "" });
+    await snapshot({ ...SNAP, stationId: "station-3" });
+    expect(drafts).toEqual([NOTE, NOTE, NOTE]);
+  });
+
+  it("a station change inside the note phase (no intermediate phase seen) also resets the acked draft (C45 fix)", async () => {
+    text = NOTE;
+    const { drafts, snapshot } = await joined(() => "ack");
+    await snapshot({ ...SNAP, stationId: "station-1" });
+    await snapshot({ ...SNAP, stationId: "station-2" });
+    expect(drafts).toEqual([NOTE, NOTE]);
   });
 });

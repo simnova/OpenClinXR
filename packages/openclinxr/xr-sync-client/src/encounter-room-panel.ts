@@ -26,7 +26,9 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
   let noteButton: UtteranceBoxElement | undefined;
   let noteStatus: UtteranceBoxElement | undefined;
   let refusalFromNote = false;
-  let lastAckedDraft: string | null = "";
+  let settledDraft: string | null = "";
+  let draftEpoch = 0;
+  let lastStation: string | undefined;
   let draftInFlight = false;
   let submitSeq = 0;
   let settledSeq = 0;
@@ -81,6 +83,14 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
   let lastOrder: string[] = [];
   const render = (snapshot: EncounterSnapshot): void => {
     phase = snapshot.phase;
+    if (snapshot.stationId !== lastStation) {
+      lastStation = snapshot.stationId;
+      settledDraft = "";
+      draftEpoch += 1;
+    } else if (snapshot.phase !== "note" && settledDraft !== "") {
+      settledDraft = "";
+      draftEpoch += 1;
+    }
     remaining = snapshot.phaseRemainingS ?? 0;
     const entries = Object.values(snapshot.actors ?? {}).filter(
       (actor) => actor.displayName !== "" && actor.displayName !== undefined,
@@ -134,12 +144,19 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
       noteStatus.textContent = snapshot.noteStatus === "submitted" ? (snapshot.noteSource === "draft" ? `Note auto-collected at time end, ${snapshot.noteChars ?? 0} characters` : `Note accepted, ${snapshot.noteChars ?? 0} characters`) : "";
       if (note?.draft !== undefined && phase === "note" && !draftInFlight) {
         const current = note.text();
-        if (current !== lastAckedDraft) {
+        if (current !== settledDraft) {
           draftInFlight = true;
+          const epoch = draftEpoch;
           void note.draft(current).then((result) => {
-            // Any non-ack: the room may have dropped its held draft, so the next render resends whatever text is there.
-            lastAckedDraft = result.status === "ack" ? current : null;
-          }).catch(() => { lastAckedDraft = null; }).finally(() => {
+            if (epoch !== draftEpoch) return;
+            if (result.status === "ack") {
+              settledDraft = current;
+            } else if (result.status === "reject" && result.reason !== "draft-rate-limited") {
+              settledDraft = current;
+            } else {
+              settledDraft = null;
+            }
+          }).catch(() => { if (epoch === draftEpoch) settledDraft = null; }).finally(() => {
             draftInFlight = false;
           });
         }
