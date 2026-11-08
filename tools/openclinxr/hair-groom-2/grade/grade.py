@@ -558,6 +558,49 @@ def card_side_silhouette(rd, st, rows=1600):
     return dict(error='silhouette still >= 20 px at geometric row %d' % (rows - 1))
 
 
+def tip_median_a3(tips_z, target_z):
+    # I7 statistic, shared by strand tips (I7) and card-borne member tips (I19): median tip z vs the target hair bottom,
+    # PASS iff within +-25 mm (A3 v1 tolerance; band 1.146-1.196 m from the targets, I2 / 1b9040259).
+    med = float(np.median(tips_z))
+    return dict(median=med, p10=float(np.percentile(tips_z, 10)), p90=float(np.percentile(tips_z, 90)),
+                dzMm=(med - target_z) * 1000, ok=bool(abs(med - target_z) * 1000 <= 25))
+
+
+def card_member_tips(st):
+    # I19: A3 for a censored card round on the I7 quantity. card-members.npz (cards_from_strands.py --members-out, the
+    # file atlas_from_members.py drew the atlas from: sha256 must equal atlas-record.json membersSha256 beside cards.npz)
+    # holds every groom strand assigned to a card, in that card's frame: u across (0..1 between the card edges), v along
+    # (card_uv v, 0 root .. 1 card tip). Each member's tip (last point) is placed on the card surface of cards.npz at
+    # (u, v) clipped to the card (the atlas cell cannot draw past it): stations at v = j/(S-1), edges interpolated by u.
+    # Depth along the card normal is dropped (the card is flat; the drawn strand lies in its plane). The tip z of the
+    # strand as the card draws it then follows the card geometry: a shorter card moves every member tip up.
+    import hashlib
+    cards = os.path.join(WT, st['cards']); d0 = os.path.dirname(cards)
+    mp, ap = os.path.join(d0, 'card-members.npz'), os.path.join(d0, 'atlas-record.json')
+    if not os.path.exists(mp):
+        return None                    # cards-r1/r2: no member file; A3 stays on I13
+    if not os.path.exists(ap):
+        return dict(error='missing %s' % ap)
+    sha = hashlib.sha256(open(mp, 'rb').read()).hexdigest()
+    if sha != json.load(open(ap)).get('membersSha256'):
+        return dict(error='card-members.npz sha256 differs from atlas-record.json membersSha256')
+    c, m = np.load(cards), np.load(mp)
+    n = int(c['n_cards']); V = c['card_verts']; S = len(V) // n // 2
+    uv = c['card_uv'].reshape(n, S, 2, 2)
+    if not ((uv[:, :, 0, 0] == 0).all() and (uv[:, :, 1, 0] == 1).all() and np.allclose(uv[:, :, 0, 1], np.linspace(0, 1, S)[None])):
+        return dict(error='cards.npz vertex layout is not 2 edge vertices per station, v = j/(S-1)')
+    if len(m['card_members']) != n or not (np.bincount(m['card'], minlength=n) == m['card_members']).all():
+        return dict(error='card-members.npz card count / membership differs from cards.npz')
+    Vr = V.reshape(n, S, 2, 3); cm = m['card']
+    u = np.clip(m['u'][:, -1].astype(float), 0, 1); v = np.clip(m['v'][:, -1].astype(float), 0, 1)
+    f = v * (S - 1); j = np.minimum(np.floor(f).astype(int), S - 2); t = (f - j)[:, None, None]
+    E = Vr[cm, j] * (1 - t) + Vr[cm, j + 1] * t
+    z = E[:, 0, 2] * (1 - u) + E[:, 1, 2] * u
+    return dict(rule='card-borne member strand tip z (I19)', members=int(len(z)), cards=n, stations=S, membersSha256=sha,
+                vClippedFrac=float((m['v'][:, -1] > 1).mean()), uClippedFrac=float(((m['u'][:, -1] < 0) | (m['u'][:, -1] > 1)).mean()),
+                tipsZ=z)
+
+
 def measure_e1_cards(cards_path, groom_dir, step_mm=1.0):
     # I15: E1 on a card round. Card root edge = the two vertices of each card with card_uv v = 0 (cards are built with
     # v running root -> tip; their midpoint is card_root). World -> groom head-local frame: the rigid transform fitted
@@ -616,7 +659,20 @@ item('A1', mult <= 2.0, 'part/face at hairline %.4f vs target %.4f = %.2fx' % (r
 item('A2', rF['A2']['frac'] <= 0.01, 'hair px below hairline %d = %.2f%% of band (target %.2f%%)' % (
     rF['A2']['hairPx'], 100 * rF['A2']['frac'], 100 * tF['A2']['frac']), '<= 1% of band')
 CARD = card_round(RD)
-if CARD and rS['A3']['censored']:
+if CARD:
+    _mt = card_member_tips(CARD)
+    if _mt is not None and 'tipsZ' in _mt:
+        _mt.update(tip_median_a3(_mt.pop('tipsZ'), tS['A3']['z']))
+        _mt['scored'] = bool(rS['A3']['censored'])
+    if _mt is not None:
+        rS['A3']['cardMemberTips'] = _mt
+if CARD and rS['A3']['censored'] and 'median' in rS['A3'].get('cardMemberTips', {}):
+    rS['A3']['cardSilhouette'] = card_side_silhouette(RD, CARD)   # I13, reported only once I19 applies
+    _mt = rS['A3']['cardMemberTips']
+    item('A3', _mt['ok'], 'card round (I19): side censored; card-borne member tip median z %.4f m (p10 %.4f, p90 %.4f, %d strands) '
+         'vs target %.3f m = %+.1f mm' % (_mt['median'], _mt['p10'], _mt['p90'], _mt['members'], tS['A3']['z'], _mt['dzMm']),
+         '+-25 mm (I7 band 1.146-1.196 m)')
+elif CARD and rS['A3']['censored']:
     rS['A3']['cardSilhouette'] = cs_ = card_side_silhouette(RD, CARD)
     if cs_.get('z') is None:
         item('A3', False, 'card round, side silhouette censored and not measurable from geometry: %s' % cs_['error'], 'I13')
