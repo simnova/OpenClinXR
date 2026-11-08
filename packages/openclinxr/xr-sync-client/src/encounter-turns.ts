@@ -328,6 +328,7 @@ export interface StartEncounterSyncDeps {
   gazeView?(): GazeView | undefined;
   /** C27 learner free-text box mount; unset mounts nothing. */
   utteranceBox?: UtteranceBoxDeps;
+  noteText?(): string; // C41 the shell's patient-note text; unset mounts no note control.
   /** C33 learner speech capture; unset mounts no hold-to-speak button. */
   speech?: { recorder?: SpeechRecorder; xrSession?: () => XrSessionLike | null | undefined; inject?: boolean };
   /** C30 on-device actor voice wired to the shell's existing speech slot. */
@@ -430,7 +431,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     sendSelect = (stationId) => handle.sendIntent("select-station", { stationId });
     sendReturn = () => handle.sendIntent("return-to-lobby", {});
     if (deps.utteranceBox !== undefined && !isReplayRoom && !isLobby) {
-      roomPanel = mountRoomPanel(deps.utteranceBox, (tag) => { const actorId = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId }); if (actorId === undefined || actorId === "") return; lastAddressedActorId = actorId; void handle.sendTraceAction(actorId, tag); });
+      roomPanel = mountRoomPanel(deps.utteranceBox, (tag) => { const actorId = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId }); if (actorId === undefined || actorId === "") return; lastAddressedActorId = actorId; void handle.sendTraceAction(actorId, tag); }, deps.noteText === undefined ? undefined : { text: () => deps.noteText?.() ?? "", submit: (text) => { void handle.sendIntent("note-submit", { text }); } });
       if (lastSnapshot !== undefined) roomPanel.render(lastSnapshot);
       repeatPrompt = deps.utteranceBox.doc.createElement("div");
       repeatPrompt.id = "repeat-prompt";

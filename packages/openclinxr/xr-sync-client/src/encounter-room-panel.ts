@@ -6,7 +6,7 @@ export interface RoomPanel {
   refuse(reason: string): void;
 }
 
-export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => void): RoomPanel {
+export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => void, note?: { text(): string; submit(text: string): void }): RoomPanel {
   const panel: UtteranceBoxElement = box.doc.createElement("div");
   panel.id = "room-panel";
   const cast: UtteranceBoxElement = box.doc.createElement("div");
@@ -21,13 +21,41 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
   const refusal: UtteranceBoxElement = box.doc.createElement("div");
   refusal.id = "room-refusal";
   refusal.textContent = "";
+  let phase: string = "";
+  let remaining: number = 0;
+  let noteButton: UtteranceBoxElement | undefined;
+  let noteStatus: UtteranceBoxElement | undefined;
+  let lastNoteKey = "";
+  let noteBoxElement: UtteranceBoxElement | undefined;
+  if (note !== undefined) {
+    const noteBox: UtteranceBoxElement = box.doc.createElement("div");
+    noteBox.id = "room-note";
+    noteBox.textContent = "";
+    const submitButton: UtteranceBoxElement = box.doc.createElement("button");
+    submitButton.id = "room-note-submit";
+    submitButton.type = "button";
+    submitButton.textContent = "Submit note";
+    submitButton.hidden = true;
+    submitButton.disabled = true;
+    submitButton.addEventListener("click", () => {
+      if (phase !== "note") return;
+      note.submit(note.text());
+    });
+    const status: UtteranceBoxElement = box.doc.createElement("div");
+    status.id = "room-note-status";
+    status.textContent = "";
+    noteBox.appendChild(submitButton);
+    noteBox.appendChild(status);
+    noteButton = submitButton;
+    noteStatus = status;
+    noteBoxElement = noteBox;
+  }
   panel.appendChild(cast);
   panel.appendChild(topics);
   panel.appendChild(countdown);
+  if (noteBoxElement !== undefined) panel.appendChild(noteBoxElement);
   panel.appendChild(refusal);
   box.parent.appendChild(panel);
-  let phase: string = "";
-  let remaining: number = 0;
   const buttons = new Map<string, UtteranceBoxElement>();
   let lastOrder: string[] = [];
   const render = (snapshot: EncounterSnapshot): void => {
@@ -77,6 +105,16 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
     }
     if (phase === "encounter") {
       refusal.textContent = "";
+    }
+    if (noteButton !== undefined && noteStatus !== undefined) {
+      const inWindow = phase === "note";
+      noteButton.hidden = !inWindow;
+      noteButton.disabled = !inWindow;
+      noteStatus.textContent = snapshot.noteStatus === "submitted" ? `Note accepted, ${snapshot.noteChars ?? 0} characters` : "";
+      const noteKey = `${snapshot.noteStatus ?? ""}:${snapshot.noteChars ?? 0}`;
+      // An accepted note clears an earlier note reject once; later snapshots leave a fresh reject on screen.
+      if (snapshot.noteStatus === "submitted" && noteKey !== lastNoteKey) refusal.textContent = "";
+      lastNoteKey = noteKey;
     }
   };
   const refuse = (reason: string): void => {
