@@ -51,6 +51,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import sys
 import time
 from pathlib import Path
@@ -93,6 +94,16 @@ def cli():
     p.add_argument("--cyl-band-mm", type=float, default=0.0,
                    help="cards-r4: card outward blends from the head radial to the horizontal radial over this "
                         "band below the head centre (0 = spherical radial, cards-r3)")
+    p.add_argument("--short-split", default="",
+                   help="cards-r5 M4: 'MM:N' - a cluster whose member median length is under MM mm is split by "
+                        "k-means on member roots into ceil(members / N) narrower cards (sideburn blades)")
+    p.add_argument("--station-power", type=float, default=1.0,
+                   help="station arc fractions = linspace(0, 1, S) ** this (1 = even, cards-r3/r4)")
+    p.add_argument("--normals-blend-mm", type=float, default=None,
+                   help="surface blend (mm) used for card_vnormal; default = --surface-blend-mm")
+    p.add_argument("--vertex-normals", choices=("faces", "outward"), default="faces",
+                   help="cards-r5: 'outward' stores card_vnormal = the outward field at every vertex (continuous "
+                        "across neighbouring cards, so a specular highlight forms one band instead of per-card tiles)")
     p.add_argument("--surface-blend-mm", type=float, default=SURFACE_BLEND_M * 1000.0,
                    help="card normal follows the nearest body/garment face within this distance (mm)")
     p.add_argument("--push-smooth", type=int, default=0,
@@ -222,7 +233,7 @@ def atlas_layout(n, A, cw):
     return np.stack([(c % cols) * cw, (c // cols) * ch, np.full(n, cw), np.full(n, ch)], 1).astype(np.int64)
 
 
-def project_members(P, s, off, Lc, Cl, W, N, le, he):
+def project_members(P, s, off, Lc, Cl, W, N, le, he, frac=None):
     """Member strand points (M,K,3 world; s their arc lengths) in the card's own frame.
     Station j of the card holds the members at arc j/(S-1) x Lc (step 2), so a point at arc s sits at
     fractional station s/seg; on the first segment, which runs from the moved root end Cl[0] to Cl[1],
@@ -230,10 +241,21 @@ def project_members(P, s, off, Lc, Cl, W, N, le, he):
     Returns u (0..1 between the card edges le..he), v (0..1 root..tip = card_uv v; > 1 past the card
     tip), depth (m along the card normal N from the card plane)."""
     S = len(Cl)
-    seg = Lc / (S - 1)
     seg0 = max(float(np.linalg.norm(Cl[1] - Cl[0])), 1e-9)
     o = np.clip(off, 0.0, seg0)[:, None]
-    f = np.where(s < seg, (o + (s / seg) * (seg0 - o)) / seg0, s / seg)
+    if frac is None or np.allclose(frac, np.linspace(0.0, 1.0, S)):
+        seg = Lc / (S - 1)
+        f = np.where(s < seg, (o + (s / seg) * (seg0 - o)) / seg0, s / seg)
+        vv = None
+    else:
+        # uneven stations (--station-power): fractional station index from the station arcs frac x Lc
+        st = frac * Lc
+        idx = np.arange(S, dtype=np.float64)
+        fin = np.interp(s, st, idx)
+        fout = (S - 1) + (s - st[-1]) / max(st[-1] - st[-2], 1e-9)
+        f = np.where(s <= st[-1], fin, fout)
+        f = np.where(s < st[1], (o + (s / st[1]) * (seg0 - o)) / seg0, f)
+        vv = None   # v = station index fraction, as card_uv v (= j/(S-1) at every station; grade.py I19)
     fc = np.clip(f, 0.0, S - 1)
     j0 = np.minimum(np.floor(fc).astype(np.int64), S - 2)
     t = (fc - j0)[..., None]
@@ -245,7 +267,8 @@ def project_members(P, s, off, Lc, Cl, W, N, le, he):
     d = P - at(Cl)
     uo = (d * at(W)).sum(-1)
     lo, hi = at(le), at(he)
-    return (uo - lo) / np.maximum(hi - lo, 1e-9), f / (S - 1), (d * at(N)).sum(-1)
+    v = f / (S - 1) if vv is None else vv
+    return (uo - lo) / np.maximum(hi - lo, 1e-9), v, (d * at(N)).sum(-1)
 
 
 def smooth1d(x, k):
@@ -298,6 +321,26 @@ def main():
         labels[idx] = lab + base
         base += k
     print("KMEANS_DONE", side_k, round(time.time() - t0, 1), flush=True)
+    split_rec = None
+    if a.short_split:
+        mm, nmax = a.short_split.split(":")
+        mm, nmax = float(mm), int(nmax)
+        lens_mm = arc(Pl)[:, -1]
+        nxt = int(labels.max()) + 1
+        split_rec = {"thresholdMm": mm, "maxMembers": nmax, "clustersSplit": 0, "cardsAdded": 0}
+        for k in np.unique(labels[labels >= 0]):
+            mi = np.where(labels == k)[0]
+            if len(mi) <= nmax or float(np.median(lens_mm[mi])) >= mm:
+                continue
+            kk = int(math.ceil(len(mi) / nmax))
+            sub = kmeans(Pl[mi, 0], kk)
+            for j in range(1, kk):
+                if (sub == j).any():
+                    labels[mi[sub == j]] = nxt
+                    nxt += 1
+                    split_rec["cardsAdded"] += 1
+            split_rec["clustersSplit"] += 1
+        print("SHORT_SPLIT", split_rec, flush=True)
 
     # 2-4. cards
     S = a.stations
@@ -306,7 +349,9 @@ def main():
     hold = float(rc["clearanceMm"]) / 1000.0
     seat = []
     sw = arc(Pw)
-    frac = np.linspace(0.0, 1.0, S)
+    # cards-r5: frac^p puts stations closer near the root, where the strands curve over the crown
+    # (24 even stations = 23 mm segments: the back outline turned a corner at row 250, S3)
+    frac = np.linspace(0.0, 1.0, S) ** a.station_power
     floor = 4.0 * rc["strand"]["rootRadiusMm"] / 1000.0
     V, UV, VC, F = [], [], [], []
     card_width, card_root, card_local, members_n, twist_max = [], [], [], [], 0.0
@@ -401,7 +446,7 @@ def main():
             verts[1::2] = Cl + he[:, None] * W
             uv = np.empty((2 * S, 2))
             uv[0::2, 0], uv[1::2, 0] = 0.0, 1.0
-            uv[:, 1] = np.repeat(frac, 2)
+            uv[:, 1] = np.repeat(np.linspace(0.0, 1.0, S), 2)   # station index fraction (even frac: = arc)
             ci = len(card_layer)
             vo = 2 * S * ci
             for i in range(S - 1):
@@ -419,7 +464,7 @@ def main():
             depth_spread.append(spread)
             if a.members_out:
                 sel = m[mem_sets[li]]
-                u, v, dd = project_members(Pw[sel], sw[sel], roff[mem_sets[li]], Lc, Cl, W, N, le, he)
+                u, v, dd = project_members(Pw[sel], sw[sel], roff[mem_sets[li]], Lc, Cl, W, N, le, he, frac)
                 mem_u.append(u.astype(np.float32))
                 mem_v.append(v.astype(np.float32))
                 mem_d.append(dd.astype(np.float32))
@@ -492,6 +537,7 @@ def main():
         "edgeHalvings": shrunk[0],
         "insideCut": {"cards": len(cut), "maxMm": float(max(cut) * 1000) if cut else 0.0},
         "rootSeat": {"cards": len(seat), "maxMm": float(max(seat) * 1000) if seat else 0.0},
+        "shortSplit": split_rec, "vertexNormals": a.vertex_normals,
         "push": {"holdMm": clr * 1000, "count": int((push > 0).sum()), "maxMm": float(push.max() * 1000),
                  "against": "garments open cloth, then posed body (groom.load_body), groom.push_out",
                  "prePushBodyMinMm": float(sd0.min() * 1000), "prePushBodyBelowHold": int((sd0 < clr).sum()),
@@ -520,6 +566,10 @@ def main():
         "garment_prox_min_mm": np.float64(np.nan), "twist_max_deg": np.float64(twist_max),
         "signed_body_m": sd, "prepush_signed_body_m": sd0, "push_m": push, "push_body_m": pushes[1], "push_garment_m": pushes[0],
     }
+    if a.vertex_normals == "outward":
+        nb = a.surface_blend_mm if a.normals_blend_mm is None else a.normals_blend_mm
+        payload["card_vnormal"] = outward(verts, centre_w, colliders if nb > 0 else [], a.cyl_band_mm / 1000.0,
+                                          max(nb, 1e-6) / 1000.0)
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
     cells = atlas_layout(nc, a.atlas_px, a.cell_w)

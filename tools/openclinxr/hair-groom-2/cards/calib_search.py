@@ -36,12 +36,17 @@ def run(cmd):
     return r.stdout
 
 
+E_P95 = False   # cards-r5: --e-p95 adds the highlight percentile to the criterion
+
+
 def err(rec):
     e = 0.0
     for v, pv in rec["perView"].items():
         ms = float(np.dot(pv["strands"]["meanLin"], LUM))
         mc = float(np.dot(pv["cards"]["meanLin"], LUM))
         e += np.log(mc / ms) ** 2 + np.log(pv["cards"]["lumSrgbP50P95P99"][0] / pv["strands"]["lumSrgbP50P95P99"][0]) ** 2
+        if E_P95:
+            e += np.log(pv["cards"]["lumSrgbP50P95P99"][1] / pv["strands"]["lumSrgbP50P95P99"][1]) ** 2
     return float(e)
 
 
@@ -53,7 +58,11 @@ def main():
     ap.add_argument("--roughness", type=float, default=None)
     ap.add_argument("--iters", type=int, default=3)
     ap.add_argument("--render-args", default="", help="extra render_cards.py arguments, space separated (cards-r3: alpha mode)")
+    ap.add_argument("--e-p95", action="store_true",
+                    help="criterion also matches the p95 luminance (the highlight band) per view")
     a = ap.parse_args()
+    global E_P95
+    E_P95 = a.e_p95
     out = Path(a.out_dir)
     out.mkdir(parents=True, exist_ok=True)
     py = sys.executable
@@ -94,7 +103,8 @@ def main():
     shutil.copyfile(best["atlas"], out / "strand-atlas-cal.png")
     cal = {"tool": "tools/openclinxr/hair-groom-2/cards/calib_search.py", "roughness": a.roughness,
            "iters": a.iters, "renderArgs": a.render_args, "grid": results, "kept": best,
-           "criterion": "min over specular levels of sum_views log(mean lum ratio)^2 + log(p50 lum ratio)^2"}
+           "criterion": "min over specular levels of sum_views log(mean lum ratio)^2 + log(p50 lum ratio)^2"
+                        + (" + log(p95 lum ratio)^2" if a.e_p95 else "")}
     (out / "calibration.json").write_text(json.dumps(cal, indent=1))
     print("CALIB_SEARCH_DONE", json.dumps({"specular": best["specular"], "E": best["E"], "gain": best["gain"]}))
 

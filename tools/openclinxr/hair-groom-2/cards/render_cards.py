@@ -67,6 +67,10 @@ def cli():
     p.add_argument("--anisotropic", type=float, default=0.0,
                    help="cards-r4: Principled Anisotropic with the tangent along the strand (UV v, rotation 0.25); "
                         "exports as KHR_materials_anisotropy. 0 = isotropic (cards-r3)")
+    p.add_argument("--edge-fade", type=float, default=0.0,
+                   help="Cycles render only: card alpha x clamp(|true normal . view| / this, 0, 1); 0 = off")
+    p.add_argument("--custom-normals", action="store_true",
+                   help="cards-r5: vertex normals = cards.npz card_vnormal (outward field, continuous across cards)")
     p.add_argument("--hide-cards", action="store_true",
                    help="render the body without hair (calibration base); no donor GLB, no strands.npz")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -77,9 +81,19 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def card_mesh(cards, name):
+def card_mesh(cards, name, custom_normals=False):
     V = cards["card_verts"]
     F = cards["card_tris"]
+    flipped = 0
+    if custom_normals:
+        # winding follows the stored outward normal, so the front face is the one seen from outside
+        # (three.js DOUBLE_SIDED flips the shading normal on back faces)
+        Nv = cards["card_vnormal"]
+        fn = np.cross(V[F[:, 1]] - V[F[:, 0]], V[F[:, 2]] - V[F[:, 0]])
+        bad = (fn * (Nv[F[:, 0]] + Nv[F[:, 1]] + Nv[F[:, 2]])).sum(1) < 0
+        F = F.copy()
+        F[bad] = F[bad][:, [0, 2, 1]]
+        flipped = int(bad.sum())
     uv = cards["card_uv"]
     vc = cards["vert_card"]
     cell = cards["card_cell"]
@@ -98,10 +112,15 @@ def card_mesh(cards, name):
     ul.data.foreach_set("uv", auv.ravel().astype(np.float32))
     for poly in me.polygons:
         poly.use_smooth = True
+    if custom_normals:
+        nv = cards["card_vnormal"]
+        me.normals_split_custom_set_from_vertices([tuple(float(x) for x in v) for v in nv])
+    me["flippedTris"] = flipped
     return me
 
 
-def card_material(atlas, roughness, cutoff, specular=None, mode="mask", shadow_alpha=1.0, anisotropic=0.0):
+def card_material(atlas, roughness, cutoff, specular=None, mode="mask", shadow_alpha=1.0, anisotropic=0.0,
+                  edge_fade=0.0):
     m = bpy.data.materials.new("hair_cards" if cutoff is None else "hair_cards_render")
     m.use_nodes = True
     nt = m.node_tree
@@ -136,7 +155,29 @@ def card_material(atlas, roughness, cutoff, specular=None, mode="mask", shadow_a
             mul = nt.nodes.new("ShaderNodeMath")
             mul.operation = "MULTIPLY"
             nt.links.new(g.outputs[0], mul.inputs[0])
-            nt.links.new(t.outputs["Alpha"], mul.inputs[1])
+            alpha_src = t.outputs["Alpha"]
+            if edge_fade > 0:
+                # cards-r5: a flat card seen edge-on draws a dark line along the silhouette that the strand
+                # bundle it stands for does not; alpha x clamp(|true normal . view| / edge_fade, 0, 1)
+                geo = nt.nodes.new("ShaderNodeNewGeometry")
+                dot = nt.nodes.new("ShaderNodeVectorMath")
+                dot.operation = "DOT_PRODUCT"
+                nt.links.new(geo.outputs["True Normal"], dot.inputs[0])
+                nt.links.new(geo.outputs["Incoming"], dot.inputs[1])
+                ab = nt.nodes.new("ShaderNodeMath")
+                ab.operation = "ABSOLUTE"
+                nt.links.new(dot.outputs["Value"], ab.inputs[0])
+                dv = nt.nodes.new("ShaderNodeMath")
+                dv.operation = "DIVIDE"
+                dv.use_clamp = True
+                dv.inputs[1].default_value = edge_fade
+                nt.links.new(ab.outputs[0], dv.inputs[0])
+                fm = nt.nodes.new("ShaderNodeMath")
+                fm.operation = "MULTIPLY"
+                nt.links.new(t.outputs["Alpha"], fm.inputs[0])
+                nt.links.new(dv.outputs[0], fm.inputs[1])
+                alpha_src = fm.outputs[0]
+            nt.links.new(alpha_src, mul.inputs[1])
             if shadow_alpha != 1.0:
                 # shadow rays see the card at shadow_alpha x its alpha (Light Path Is Shadow Ray)
                 lp = nt.nodes.new("ShaderNodeLightPath")
@@ -177,12 +218,12 @@ def main():
     bbm.free()
 
     # 1-2: render object (world space, unparented)
-    me = card_mesh(cards, "cards_render")
+    me = card_mesh(cards, "cards_render", a.custom_normals)
     ob = bpy.data.objects.new("cards_render", me)
     bpy.context.scene.collection.objects.link(ob)
     rough = float(rc["shading"]["roughness"]) if a.roughness is None else a.roughness
     me.materials.append(card_material(Path(a.atlas), rough, a.alpha_cutoff, a.specular, a.alpha_mode,
-                                    a.shadow_alpha, a.anisotropic))
+                                    a.shadow_alpha, a.anisotropic, a.edge_fade))
     ob.visible_shadow = a.card_shadow == "on"
 
     # 3: signed clearance to the body
@@ -214,7 +255,8 @@ def main():
         "material": {"model": "Principled BSDF", "baseColor": "atlas RGB (sRGB)", "alpha": "atlas A",
                      "roughness": rough, "renderAlphaCutoff": a.alpha_cutoff, "renderAlphaMode": a.alpha_mode, "cardShadow": a.card_shadow, "shadowAlpha": a.shadow_alpha,
                      "specularIorLevel": 0.5 if a.specular is None else a.specular,
-                     "anisotropic": a.anisotropic},
+                     "anisotropic": a.anisotropic, "customNormals": a.custom_normals, "edgeFade": a.edge_fade,
+                     "flippedTris": int(me["flippedTris"])},
         "hiddenObjects": hidden,
     }
 
@@ -250,7 +292,7 @@ def main():
     head = max(weights, key=weights.get)
     share = weights[head] / max(sum(weights.values()), 1e-12)
     lib_world = lib.matrix_world.copy()
-    dme = card_mesh(cards, lib.data.name)
+    dme = card_mesh(cards, lib.data.name, a.custom_normals)
     dme.transform(lib_world.inverted())
     old = lib.data
     lib.data = dme

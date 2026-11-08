@@ -99,6 +99,8 @@ def cli():
     p.add_argument("--alpha-k-depth", action="store_true",
                    help="cards-r4 M4: per-card k = 1 + (k - 1) x clip(card member depth spread / median spread, 0, 1); "
                         "a card whose members lie flat (sideburn, spread p5) shows its coverage at normal incidence")
+    p.add_argument("--alpha-k-min", type=float, default=1.0,
+                   help="--alpha-k-depth floor (cards-r5: sideburn cards at k 1 ended above the ear top, S2 -7 mm)")
     p.add_argument("--drift-sigma", type=float, default=DRIFT_SIGMA_PTS, help="0 keeps the raw member u")
     p.add_argument("--anchor", choices=("root", "mean"), default="root",
                    help="u each member runs down from after the drift is removed")
@@ -204,6 +206,7 @@ def main():
     k_card = np.full(n, a.alpha_k)
     if a.alpha_k_depth:
         k_card = 1.0 + (a.alpha_k - 1.0) * np.clip(spread / max(spread_med, 1e-9), 0.0, 1.0)
+        k_card = np.maximum(k_card, a.alpha_k_min)
 
     # 1b. drift removal (u only)
     if a.drift_sigma > 0:

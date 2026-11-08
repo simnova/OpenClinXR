@@ -32,7 +32,7 @@ fi
 $B --background --factory-startup --python $C/render_cards.py -- --body $BODY --groom-round $GR \
   --cards $EV/cards.npz --atlas $EV/strand-atlas.png --out-dir $EV/base --hide-cards 2>&1 | grep -q CARDS_RENDER_DONE
 $PY $C/calib_search.py --blender $B --body $BODY --groom-round $GR --cards $EV/cards.npz \
-  --atlas $EV/strand-atlas.png --base $EV/base --out-dir $EV/calib --specular $SPEC --render-args "$RARGS" > $EV/calib.log
+  --atlas $EV/strand-atlas.png --base $EV/base --out-dir $EV/calib --specular $SPEC --render-args "$RARGS" ${=CALIB_ARGS:-} > $EV/calib.log
 SP=$($PY -c "import json;print(json.load(open('$EV/calib/calibration.json'))['kept']['specular'])")
 $B --background --factory-startup --python $C/render_cards.py -- --body $BODY --groom-round $GR \
   --cards $EV/cards.npz --atlas $EV/calib/strand-atlas-cal.png --out-dir $EV/round \
