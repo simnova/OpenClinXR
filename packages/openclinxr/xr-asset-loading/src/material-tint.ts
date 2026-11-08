@@ -45,6 +45,13 @@ export function generatedHumanoidSurfaceMaterialOverride(object: Mesh, actorId?:
   return null;
 }
 
+function isShippedMpfbAuthoredMaterial(name: string): boolean {
+  return name.startsWith("mpfb_skin_")
+    || name.startsWith("mat_makeclothes_library_")
+    || name.startsWith("openclinxr_fitted_")
+    || name.startsWith("mat_openclinxr_hm08_");
+}
+
 export function tintGeneratedMaterial(material: Mesh["material"], tint: Color): Mesh["material"] {
   if (!(material instanceof MeshStandardMaterial)) {
     return material;
@@ -85,6 +92,13 @@ export function tintGeneratedMaterial(material: Mesh["material"], tint: Color): 
   if (material.name.startsWith("anny_") || material.name.includes("review")) {
     const preserved = material.clone();
     preserved.userData["openClinXrMaterialPolicy"] = "preserve_anny_authored_skin_face_clothing_contrast";
+    return preserved;
+  }
+  if (isShippedMpfbAuthoredMaterial(material.name)) {
+    const preserved = material.clone();
+    preserved.onBeforeCompile = material.onBeforeCompile;
+    preserved.customProgramCacheKey = material.customProgramCacheKey;
+    preserved.userData["openClinXrMaterialPolicy"] = "preserve_shipped_mpfb_makeclothes_authored_material_colour";
     return preserved;
   }
   const cloned = material.clone();
