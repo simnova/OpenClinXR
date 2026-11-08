@@ -51,7 +51,14 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
         } else if (result.reason !== undefined) {
           showRefusal(result.reason, "note-submit");
         }
-      }).catch(() => undefined);
+      }).catch(() => {
+        // No reply (timeout or transport error): same click-id ordering; the server never answered, so no "Not accepted:" prefix and no status change.
+        if (id < settledSeq) return;
+        settledSeq = id;
+        if (refusal.textContent !== "" && !refusalFromNote) return;
+        refusal.textContent = "Note not sent: no reply from the room";
+        refusalFromNote = true;
+      });
     });
     const status: UtteranceBoxElement = box.doc.createElement("div");
     status.id = "room-note-status";

@@ -29,6 +29,7 @@
   },
   "workspaceDependencies": [],
   "tests": [
+    "src/a-note-submit-with-no-reply-tells-the-learner.test.ts",
     "src/a-same-length-note-accepted-after-a-reject-clears-it.test.ts",
     "src/actor-voice.test.ts",
     "src/client-connect.test.ts",
