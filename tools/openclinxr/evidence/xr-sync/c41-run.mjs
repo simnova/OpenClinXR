@@ -181,12 +181,16 @@ async function main(argv) {
       probe.secondAccepted = await readNote(page);
       probe.secondAccepted.server = serverNote();
       // (d) an empty note is refused by the server and leaves the accepted state unchanged.
-      probe.emptyDirect = await directSend(page, "");
+      // The click goes first, alone: it must put one note-submit frame on the wire and the refusal on screen without help from a direct send.
       await setNoteText(page, "");
+      probe.framesBeforeEmptyClick = await noteFrames(page);
+      probe.refusalBeforeEmptyClick = (await readNote(page)).refusal;
       await clickSubmit(page);
       await waitNote(page, () => document.getElementById("room-refusal").textContent === "Not accepted: invalid-note").catch(() => undefined);
       probe.emptyClick = await readNote(page);
       probe.emptyClick.server = serverNote();
+      probe.framesAfterEmptyClick = await noteFrames(page);
+      probe.emptyDirect = await directSend(page, "");
       probe.phaseAtEnd = serverPhase();
       if (emulated) {
         probe.xr.ended = await page.evaluate(() => globalThis.__c41Xr.ended);
@@ -216,7 +220,7 @@ async function main(argv) {
     check("N5 note phase: the control is visible, enabled and labelled Submit note, with no accepted line before the submit", p.noteBefore?.hidden === false && p.noteBefore?.disabled === false && p.noteBefore?.label === "Submit note" && p.noteBefore?.status === "" && p.noteBefore?.server?.status === "none", JSON.stringify(p.noteBefore));
     check("N6 after one submit the panel reads Note accepted, N characters with N == the server noteChars == the first note length", p.firstAccepted?.status === `Note accepted, ${NOTE_A.length} characters` && p.firstAccepted?.server?.status === "submitted" && p.firstAccepted?.server?.chars === NOTE_A.length, JSON.stringify(p.firstAccepted));
     check("N7 counterweight (c): the second in-phase submit replaces the first (noteChars and panel N == the second length)", NOTE_B.length !== NOTE_A.length && p.secondAccepted?.status === `Note accepted, ${NOTE_B.length} characters` && p.secondAccepted?.server?.chars === NOTE_B.length, JSON.stringify(p.secondAccepted));
-    check("N8 counterweight (d): an empty note is refused invalid-note by the server reply and by the panel click, and the accepted state is unchanged", p.emptyDirect?.status === "reject" && p.emptyDirect?.reason === "invalid-note" && p.emptyClick?.refusal === "Not accepted: invalid-note" && p.emptyClick?.status === `Note accepted, ${NOTE_B.length} characters` && p.emptyClick?.server?.chars === NOTE_B.length && p.phaseAtEnd === "note", JSON.stringify({ direct: p.emptyDirect, click: p.emptyClick }));
+    check("N8 counterweight (d): an empty note is refused invalid-note by the server reply and by the panel click, and the accepted state is unchanged", p.emptyDirect?.status === "reject" && p.emptyDirect?.reason === "invalid-note" && p.refusalBeforeEmptyClick !== "Not accepted: invalid-note" && p.framesAfterEmptyClick === p.framesBeforeEmptyClick + 1 && p.emptyClick?.refusal === "Not accepted: invalid-note" && p.emptyClick?.status === `Note accepted, ${NOTE_B.length} characters` && p.emptyClick?.server?.chars === NOTE_B.length && p.phaseAtEnd === "note", JSON.stringify({ direct: p.emptyDirect, click: p.emptyClick }));
     const noteEvents = (trace.events ?? []).filter((e) => e.kind === "note-submitted");
     check("N9 counterweight (c): the trace holds exactly 2 note-submitted events with those chars in order", JSON.stringify(noteEvents.map((e) => e.chars)) === JSON.stringify([NOTE_A.length, NOTE_B.length]), JSON.stringify(noteEvents));
     const leaked = [];
