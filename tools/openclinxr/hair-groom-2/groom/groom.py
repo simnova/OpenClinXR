@@ -531,6 +531,10 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
     bh_z = f.get("backHugBelowMm", -1e6) / 1000.0
     bh_gain = f.get("backHugGain", 0.0)
     tuck = rc.get("earTuck")
+    route = f.get("shoulderRoute")   # replaces the shoulder field when present (groom-r5)
+    if route:
+        r_y, r_top, r_bot = (route[k] / 1000.0 for k in ("behindYMm", "topMm", "bottomMm"))
+        r_ramp, r_hw = route["rampMm"] / 1000.0, route.get("medialHalfWidthMm", 1e6) / 1000.0
     # behind the part (root more than partFadeBackMm behind the head centre) the two
     # sides are drawn toward the midline so the back is one curtain, not a split
     conv = rc["part"].get("backConvergeGain", 0.0)
@@ -542,12 +546,34 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
     d = (Vector(normal) * f.get("rootNormalWeight", ROOT_NORMAL_WEIGHT)
          + away * rc["part"]["partAwayGain"] * w_part
          + down * ROOT_DOWN_WEIGHT).normalized()
+    # sideburn roots combed up and back (groom-r5, earLift.rootUpWeight/rootBackWeight):
+    # a root inside the ear-lift zone starts toward up+back instead of down, so the strand
+    # does not dip below its root before the lift turns it (the dip read as a dark wedge
+    # with blunt tips in front of the ear)
+    if lift and abs(pl[0]) * 1000.0 >= lift["minAbsXMm"]:
+        e0 = ear["L" if pl[0] >= 0 else "R"]
+        if (e0["yFrontMm"] - lift["frontOfEarMm"] <= pl[1] * 1000.0 < e0["yBackMm"] + lift["behindEarMm"]
+                and pl[2] * 1000.0 < e0["zTopMm"] + lift["clearMm"]):
+            d = (d + up * lift.get("rootUpWeight", 0.0) + back * lift.get("rootBackWeight", 0.0)).normalized()
     pts = [Vector(root), p.copy()]
     arc = (p - Vector(root)).length
+    # layer stacking (groom-r5): strands collide only with the body, so without it every
+    # layer lies at the same volume offset and the outermost (crown) layer wraps into the
+    # nape and over the shoulder top. A strand's offset grows with the arc it has run over
+    # the rooted scalp (the strands rooted under that arc lie beneath it), capped at
+    # layerCapMm of arc, and is kept below the hairline (it lies on the hair under it)
+    lay_gain = f.get("layerMmPerMm", 0.0)
+    lay_cap = f.get("layerCapMm", 0.0) / 1000.0
+    arc_scalp = 0.0
+    lay_below = f.get("layerApplyBelowMm", 1e6) / 1000.0
+    offs = [0.0, vol]
     while arc < L:
         lp = to_local(p, origin, R)
         steer = Vector((0, 0, 0))
-        off_here = vol
+        # layerApplyBelowMm: the stacked offset acts only on the hanging part (head-local z
+        # below it), so the scalp, ear and crown keep their layout
+        lay = lay_gain * min(arc_scalp, lay_cap) if lp[2] < lay_below else 0.0
+        off_here = vol + lay
         g_scale = 1.0
         if anterior and lp[2] > sh_z and abs(lp[0]) < rail:
             lack = (rail - abs(lp[0])) / rail
@@ -566,10 +592,10 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
             if lp[2] > np.interp(haz, table[:, 0], table[:, 1]) / 1000.0:
                 # over the scalp the hugged layer may sit closer than volumeMm
                 # (scalpHugOffsetMm), so the head top stays flat (rubric C1)
-                off_here = hug_off
+                off_here = hug_off + lay
                 sb, _, nb = collider[0].signed(p)
-                if nb is not None and sb > hug_off:
-                    steer += -nb * (hug * g * min(1.0, (sb - hug_off) / hug_off))
+                if nb is not None and sb > off_here:
+                    steer += -nb * (hug * g * min(1.0, (sb - off_here) / hug_off))
         # anterior hair that has cleared the face laterally is drawn back to the cheek
         # plane (combRailBackTargetMm, head-centre y) so it hangs beside, not ahead of, the face
         y_rel = lp[1] - centre[1]
@@ -606,7 +632,18 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
         # the two sides crossed as an X down the back (rubric D1); backConvergeStopAtMidline
         if conv > 0.0 and back_root and abs(lp[0]) < conv_w and (lp[0] * side > 0.0 or not conv_stop):
             steer += -away * (conv * g * (1.0 - abs(lp[0]) / conv_w))
-        if sh_bot < lp[2] < sh_z:
+        if route:
+            # shoulder route (groom-r5): a strand is steered back only while it is still in
+            # front of the plane behind the shoulders (behindYMm, head-local y), ramping out
+            # over rampMm, so strands already behind it (the occiput sheet) hang under
+            # gravity alone; below topMm, strands lateral of medialHalfWidthMm are drawn
+            # toward the midline so they do not slide out along the shoulder slope
+            if r_bot < lp[2] < r_top and lp[1] < r_y:
+                steer += back * (route["gain"] * g * min(1.0, (r_y - lp[1]) / r_ramp))
+            if lp[2] < r_top and abs(lp[0]) > r_hw:
+                sgn = 1.0 if lp[0] >= 0 else -1.0
+                steer += -right * sgn * (route.get("medialGain", 0.0) * g * min(1.0, (abs(lp[0]) - r_hw) / r_ramp))
+        elif sh_bot < lp[2] < sh_z:
             steer += (-back if frontish else back * BACK_FIELD_RATIO) * (f["shoulderForwardGain"] * g)
         if bh_gain > 0.0 and lp[2] < bh_z:
             steer += -back * (bh_gain * g)
@@ -617,23 +654,40 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
         if step.length > 1e-9:
             d = step.normalized()
         arc += step.length
+        if lay_gain > 0.0:
+            r3 = lp - centre
+            if lp[2] > np.interp(math.degrees(math.atan2(abs(r3[0]), -r3[1])), table[:, 0], table[:, 1]) / 1000.0:
+                arc_scalp += step.length
         p = q
         pts.append(p.copy())
+        offs.append(off_here)
         if len(pts) > 2000:
             break
-    return np.array([v[:] for v in pts]), L
+    return np.array([v[:] for v in pts]), L, np.array(offs)
 
 
-def relax_guide(path, collider, offset, iterations):
+def relax_guide(path, collider, offset, iterations, movable=None):
     """Taut-strand relaxation: Laplacian smoothing (root fixed) alternating with the
     signed-distance push, so a strand spans concavities (under the ear lobe, jaw)
-    instead of wrapping into them."""
+    instead of wrapping into them. offset: scalar or one value per point. movable:
+    optional callable(points) -> bool mask of the points the smoothing may move."""
     pts = path.copy()
+    offs = np.broadcast_to(np.asarray(offset, dtype=float), (len(pts),))
     for _ in range(iterations):
-        pts[1:-1] = 0.5 * pts[1:-1] + 0.25 * (pts[:-2] + pts[2:])
+        sm = 0.5 * pts[1:-1] + 0.25 * (pts[:-2] + pts[2:])
+        if movable is not None:
+            m = movable(pts)[1:-1]
+            sm = np.where(m[:, None], sm, pts[1:-1])
+        pts[1:-1] = sm
         for i in range(1, len(pts)):
-            pts[i] = push_out(Vector(pts[i]), collider, offset)[:]
+            pts[i] = push_out(Vector(pts[i]), collider, offs[i])[:]
     return pts
+
+
+def resample_offsets(path, offs, P):
+    seg = np.linalg.norm(np.diff(path, axis=0), axis=1)
+    s = np.concatenate([[0.0], np.cumsum(seg)])
+    return np.interp(np.linspace(0.0, s[-1], P), s, offs)
 
 
 def resample(path, P):
@@ -641,6 +695,61 @@ def resample(path, P):
     s = np.concatenate([[0.0], np.cumsum(seg)])
     t = np.linspace(0.0, s[-1], P)
     return np.stack([np.interp(t, s, path[:, k]) for k in range(3)], 1)
+
+
+def cut_children(pos, off, rc, origin, R, ear, seed):
+    """Procedural cut of the child strands (groom-r5), two recipe rules:
+      hem: a U-shaped haircut. A strand ends where it first drops below
+           z_hem(x) = centreZMm + risePerMm2 * x^2 (head-local mm) plus a seeded per-strand
+           jitter (jitterMm, normal), so lateral strands end higher than the centre.
+      hairlineTaper: vellus falloff at the sideburn. A strand rooted in front of the ear
+           (|x| >= minAbsXMm, ear front - depthMm <= y < ear front + behindMm) below
+           ear top - fullBelowEarTopMm gets t = (root z - tragus z) / (full z - tragus z)
+           in [0, 1], raised to power: length min(L, minLengthMm + t * (L - minLengthMm)) and radius scale
+           minRadiusScale + t * (1 - minRadiusScale). Roots are kept (rubric E1).
+    Each cut strand is resampled to its original point count. Returns positions and a
+    per-strand radius scale."""
+    hem, tap = rc.get("hem"), rc.get("hairlineTaper")
+    n_c = len(off) - 1
+    rscale = np.ones(n_c)
+    if not hem and not tap:
+        return pos, rscale
+    Rm, o = np.array(R), np.array(origin)
+    loc = (pos - o) @ Rm.T * 1000.0
+    rng = np.random.default_rng(seed + 4)
+    jit = rng.normal(0.0, hem.get("jitterMm", 0.0), n_c) if hem else np.zeros(n_c)
+    out = pos.copy()
+    cut_n = tap_n = 0
+    for c in range(n_c):
+        a, b = off[c], off[c + 1]
+        q = loc[a:b]
+        seg = np.linalg.norm(np.diff(q, axis=0), axis=1)
+        s = np.concatenate([[0.0], np.cumsum(seg)])
+        keep = s[-1]
+        if hem:
+            zh = hem["centreZMm"] + hem["risePerMm2"] * q[:, 0] ** 2 + jit[c]
+            below = np.where(q[:, 2] < zh)[0]
+            if len(below) and below[0] > 0:
+                i = below[0]
+                d0, d1 = q[i - 1, 2] - zh[i - 1], q[i, 2] - zh[i]
+                keep = min(keep, s[i - 1] + seg[i - 1] * d0 / max(d0 - d1, 1e-9))
+        if tap and ear:
+            r0 = q[0]
+            e = ear["L" if r0[0] >= 0 else "R"]
+            if abs(r0[0]) >= tap["minAbsXMm"] and e["yFrontMm"] - tap["depthMm"] <= r0[1] < e["yFrontMm"] + tap.get("behindMm", 0.0):
+                zf = e["zTopMm"] - tap["fullBelowEarTopMm"]
+                if r0[2] < zf:
+                    t = float(np.clip((r0[2] - e["zTragusMm"]) / (zf - e["zTragusMm"]), 0.0, 1.0)) ** tap.get("power", 1.0)
+                    keep = min(keep, tap["minLengthMm"] + t * (s[-1] - tap["minLengthMm"]))
+                    rscale[c] = tap["minRadiusScale"] + t * (1.0 - tap["minRadiusScale"])
+                    tap_n += 1
+        if keep < s[-1] - 1e-6:
+            t_new = np.linspace(0.0, keep, b - a)
+            P = pos[a:b]
+            out[a:b] = np.stack([np.interp(t_new, s, P[:, k]) for k in range(3)], 1)
+            cut_n += 1
+    print("CUT_CHILDREN shortened=%d hairlineTapered=%d" % (cut_n, tap_n), flush=True)
+    return out, rscale
 
 
 # ---------------------------------------------------------------- node groups
@@ -853,9 +962,21 @@ def main():
     P = rc["guides"]["pointsPerStrand"]
     guides, lens = [], []
     for r, n in zip(roots, nrms):
-        path, L = march_guide(r, n, origin, R, centre, collider, rc, ear)
-        guides.append(relax_guide(resample(path, P), collider, rc["fall"]["volumeMm"] / 1000.0,
-                                  rc["fall"]["relaxIterations"]))
+        path, L, offs = march_guide(r, n, origin, R, centre, collider, rc, ear)
+        # relax keeps volumeMm as the floor (as before groom-r5); the stacked layer offset adds to it
+        vol_m = rc["fall"]["volumeMm"] / 1000.0
+        roff = np.maximum(resample_offsets(path, offs, P), vol_m) if rc["fall"].get("layerMmPerMm", 0.0) > 0.0 \
+            else vol_m
+        g_ = relax_guide(resample(path, P), collider, roff, rc["fall"]["relaxIterations"])
+        # hang relaxation (groom-r5): extra taut-strand iterations on the points below
+        # relaxBelowMm (head-local z) only, so the hanging sheet spans the nape and the
+        # upper back as one taut curve while the scalp, ear and crown layout stay as marched
+        rb = rc["fall"].get("relaxBelow")
+        if rb:
+            zb = rb["belowMm"] / 1000.0
+            g_ = relax_guide(g_, collider, roff, rb["iterations"],
+                             movable=lambda q: (q - np.array(origin)) @ np.array(R)[2] < zb)
+        guides.append(g_)
         lens.append(L)
     guides = np.array(guides)
     load_assets()
@@ -876,6 +997,7 @@ def main():
     off = np.concatenate([[0], np.cumsum(np.concatenate([np.diff(o) for _, o in parts]))]).astype(np.int64)
     raw_pos = pos.copy()
     sizes = np.diff(off)
+    pos, rscale = cut_children(pos, off, rc, origin, R, ear, seed)
     # final signed-distance push (fixed offset), all points
     clr = rc["clearanceMm"] / 1000.0
     pushed = 0
@@ -903,7 +1025,7 @@ def main():
         gob.hide_viewport = True
     # strand radius taper root -> tip
     rr, tr = rc["strand"]["rootRadiusMm"] / 1000.0, rc["strand"]["tipRadiusMm"] / 1000.0
-    rad = np.concatenate([np.linspace(rr, tr, s) for s in sizes])
+    rad = np.concatenate([np.linspace(rr, tr, s) * k for s, k in zip(sizes, rscale)])
     hob = make_curves("groom_hair", sizes, pos, radius=rad)
     mat, model = hair_material(rc)
     hob.data.materials.append(mat)
