@@ -102,6 +102,7 @@ async function main(argv) {
   };
   const startedMs = Date.now();
   let syncServer = null;
+  let traceActivity = null;
   let staticServer = null;
   let closeSpeech = () => undefined;
   const isAsset404 = (text) => /Failed to load resource.*404/iu.test(text);
@@ -145,7 +146,7 @@ async function main(argv) {
     const speech = await bootSidecarRecognizer(process.env, { script: join(HERE, "stt", "transcribe.py"), python: STT_PYTHON }, { onCreated: (close) => { closeSpeech = close; } });
     run.speech = { available: speech.recognizer !== null, reason: speech.reason };
     syncServer = await createEncounterServer({ examBlueprint: blueprint, scenarios: [scenario], dialogueSeeds: scenarioDialogueSeedBank, traceDir, ...(speech.recognizer === null ? {} : { speechRecognizer: speech.recognizer }) });
-    const traceActivity = watchTraceActivity(() => syncServer.getConversationTrace());
+    traceActivity = watchTraceActivity(() => syncServer.getConversationTrace());
     staticServer = await startStaticServer(APP_DIST);
     const pageUrl = `http://127.0.0.1:${staticServer.port}/?${new URLSearchParams({ encounterSync: syncServer.url, encounterMicInject: "1" })}`;
     run.pageUrl = pageUrl;
@@ -299,9 +300,9 @@ async function main(argv) {
     closeSpeech();
     const settle = await listTraceFiles(traceDir, { lastEventAt });
     const traceFiles = settle.files;
-    run.traceSettle = { windowMs: settle.windowMs, waitedMs: settle.waitedMs, derivation: settle.derivation };
+    run.traceSettle = { windowMs: settle.windowMs, waitedMs: settle.waitedMs, refusal: settle.refusal, derivation: settle.derivation };
     console.log(`trace-settle ${JSON.stringify(run.traceSettle)}`);
-    check("T1 exactly 1 conversation-trace file persisted before it is read", traceFiles.length === 1, `${traceFiles.join(",")} | ${settle.derivation}; waited ${settle.waitedMs} ms`);
+    check("T1 exactly 1 conversation-trace file persisted before it is read", settle.refusal === null && traceFiles.length === 1, `${settle.refusal === null ? "" : `REFUSED: ${settle.refusal}; `}${traceFiles.join(",")} | ${settle.derivation}; waited ${settle.waitedMs} ms`);
     const trace = traceFiles.length === 1 ? JSON.parse(await readFile(join(traceDir, traceFiles[0]), "utf8")) : { events: [] };
     const coverage = traceTagCoverage(trace, scenario);
     const reviewObserved = coverage.observedTraceTags.filter((t) => t !== NOTE_TAG);
@@ -384,6 +385,7 @@ async function main(argv) {
     process.exitCode = 1;
     run.fatal = String(error?.stack ?? error).slice(0, 1600);
   } finally {
+    traceActivity?.stop();
     await syncServer?.close().catch(() => undefined);
     closeSpeech();
     await staticServer?.close().catch(() => undefined);

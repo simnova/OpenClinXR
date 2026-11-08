@@ -570,11 +570,14 @@ export async function listTraceFiles(dir, { waitMs = 20000, lastEventAt = null }
     await new Promise((resolve) => setTimeout(resolve, 200));
   }
   if (files.length === 0) {
-    return { files, windowMs: 0, persistedAt: 0, waitedMs: Date.now() - startedAt, derivation: "settle window 0 ms = file mtime - last trace event (watched in this run)" };
+    return { files, windowMs: 0, persistedAt: 0, waitedMs: Date.now() - startedAt, refusal: `no trace file appeared within ${waitMs} ms`, derivation: "no settle window: no trace file appeared" };
   }
   const mtimes = await Promise.all(files.map(async (name) => (await stat(joinPath(dir, name))).mtimeMs));
   const persistedAt = Math.max(...mtimes);
-  const windowMs = lastEventAt === null ? 0 : Math.max(0, Math.round(persistedAt - lastEventAt));
+  const rawGapMs = lastEventAt === null ? null : Math.round(persistedAt - lastEventAt);
+  // A window that cannot be measured is a refusal: the caller fails T1 instead of counting at first sight.
+  const refusal = lastEventAt === null ? "lastEventAt is null: no trace event was watched, so no settle window can be derived" : rawGapMs <= 0 ? `measured gap ${rawGapMs} ms <= 0: trace file mtime is not after the last trace event seen, so no settle window can be derived` : null;
+  const windowMs = refusal === null ? rawGapMs : 0;
   // Probe hook: when C43_LATE_COPY_MS is a positive number, copy the first
   // trace file as late-copy.conversation-trace.json after that delay so the
   // harness can prove a late second file fails T1.
@@ -594,5 +597,5 @@ export async function listTraceFiles(dir, { waitMs = 20000, lastEventAt = null }
     await new Promise((resolve) => setTimeout(resolve, 100));
   }
   files = await readNames();
-  return { files, windowMs, persistedAt, waitedMs: Date.now() - startedAt, derivation: `settle window ${windowMs} ms = file mtime - last trace event (watched in this run)` };
+  return { files, windowMs, persistedAt, waitedMs: Date.now() - startedAt, refusal, derivation: refusal === null ? `settle window ${windowMs} ms = trace file mtime - last trace event seen by the harness (harness idle before close, not a persist latency)` : "no settle window derived" };
 }
