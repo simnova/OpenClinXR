@@ -1327,6 +1327,23 @@ function diagnosticsForPage(page: Page): StationCapturePageDiagnostics | undefin
   return undefined;
 }
 
+const ENTRY_MODULE_SCRIPT_SELECTOR = 'script[type="module"][src]';
+
+/** True when url is a module script the page's HTML loads directly. False when unreadable. */
+async function isEntryModuleScript(page: Page, url: string): Promise<boolean> {
+  try {
+    const entries = await page.evaluate((selector) => {
+      const doc = (globalThis as unknown as {
+        document: { querySelectorAll: (s: string) => ArrayLike<{ src?: string }> };
+      }).document;
+      return Array.from(doc.querySelectorAll(selector), (script) => script.src ?? "");
+    }, ENTRY_MODULE_SCRIPT_SELECTOR);
+    return Array.isArray(entries) && entries.includes(url);
+  } catch {
+    return false;
+  }
+}
+
 /** Wait until station shell is present (exported for #83 measure). */
 export async function waitForStationShell(page: Page, timeoutMs = 180_000): Promise<LiveShellFromPage> {
   const diagnostics = diagnosticsForPage(page);
@@ -1432,7 +1449,16 @@ export async function waitForStationShell(page: Page, timeoutMs = 180_000): Prom
       // rejection handled before reloading so it cannot become an unhandled rejection.
       void wait.catch(() => {});
       pendingScriptError = nextScriptError();
+      // Only a 5xx on the page's own entry module leaves the page dead. A failed
+      // dependency module is Vite's to recover (its client full-reloads the page),
+      // and a reload from here stacks a second navigation that lands after the
+      // shell is up (pre-push 2026-11-08: actor-prop-intersection and
+      // the-room-camera-lands-in-the-same-place-twice lost their page.evaluate).
       if (reloaded) throw scriptServerError(outcome.error);
+      if (!(await isEntryModuleScript(page, outcome.error.url))) continue;
+      console.error(
+        `station shell: reloading once after HTTP ${outcome.error.status} on entry module ${outcome.error.url}`,
+      );
       reloaded = true;
       try {
         const reloadRemaining = timeoutMs - (Date.now() - startedAt);

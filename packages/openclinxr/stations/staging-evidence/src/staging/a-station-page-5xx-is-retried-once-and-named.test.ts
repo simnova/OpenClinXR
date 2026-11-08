@@ -50,7 +50,10 @@ class FakePage {
     return wait.promise;
   }
 
-  evaluate(): Promise<unknown> {
+  entryScripts: string[] = ["http://127.0.0.1:4173/src/main.ts"];
+
+  evaluate(_fn: unknown, arg?: unknown): Promise<unknown> {
+    if (arg === 'script[type="module"][src]') return Promise.resolve(this.entryScripts);
     return Promise.resolve({ ready: true, environmentId: "exam-room" });
   }
 
@@ -134,6 +137,18 @@ describe("a station page script 5xx is retried once and named", () => {
     const message = await messageFrom(waiting);
     expect(page.reloadCount).toBe(0);
     expect(message).toContain("HTTP 504");
+  });
+
+  it("does not reload for a 5xx on a dependency module, which Vite's client recovers", async () => {
+    const page = new FakePage();
+    const waiting = waitForStationShell(page as never, 100);
+    await page.respond({ status: 500, resourceType: "script", url: "http://127.0.0.1:4173/src/lazy-panel.ts" });
+    await waitUntil(() => page.waits.length === 2);
+    page.waits[1]?.reject(new Error("page.waitForFunction: Timeout 100ms exceeded."));
+    const message = await messageFrom(waiting);
+    expect(page.reloadCount).toBe(0);
+    expect(message).toContain("HTTP 500");
+    expect(message).toContain("/src/lazy-panel.ts");
   });
 
   it("does not reload a 404 script response and carries it into the timeout", async () => {
