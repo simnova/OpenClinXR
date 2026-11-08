@@ -35,7 +35,7 @@ async function joined(outcomeFor: (text: string) => Outcome) {
   const parent = new FakeElement("div");
   const lateFailures: Array<() => void> = [];
   let stateListener: ((s: unknown) => void) | undefined;
-  await startEncounterSyncFromUrl({
+  const handle = await startEncounterSyncFromUrl({
     search: "?encounterSync=ws://127.0.0.1:9",
     actorIds: () => ["p"],
     register: () => undefined,
@@ -46,7 +46,8 @@ async function joined(outcomeFor: (text: string) => Outcome) {
     noteText: () => text,
     connectFn: async () => ({
       sessionId: "s",
-      sendIntent: async (_kind: string, payload: Record<string, unknown>) => {
+      sendIntent: async (kind: string, payload: Record<string, unknown>) => {
+        if (kind !== "note-submit") return { status: "reject", reason: "bad-topic", seq: 1 };
         const outcome = outcomeFor(String(payload["text"] ?? ""));
         if (outcome === "timeout") throw new Error("intent 1 timed out after 5000ms");
         if (outcome === "late-timeout") return new Promise((_resolve, reject) => { lateFailures.push(() => reject(new Error("intent 2 timed out after 5000ms"))); });
@@ -57,7 +58,7 @@ async function joined(outcomeFor: (text: string) => Outcome) {
     }) as never,
   } as never);
   const el = (id: string): FakeElement => parent.find(id) as FakeElement;
-  return { el, lateFailures, snapshot: (s: unknown) => stateListener?.(s) };
+  return { handle, el, lateFailures, snapshot: (s: unknown) => stateListener?.(s) };
 }
 let text = "";
 const NOT_SENT = "Note not sent: no reply from the room";
@@ -116,5 +117,31 @@ describe("a note submit that gets no reply tells the learner it was not sent (C4
     el("room-note-submit").click();
     await flush();
     expect(el("room-refusal").textContent).not.toMatch(/^Not accepted/u);
+  });
+
+  it("a failed note submit does not replace a topic refusal already on screen", async () => {
+    text = "LOST";
+    const { el, handle, snapshot } = await joined(() => "timeout");
+    snapshot({ ...SNAP, phase: "encounter" });
+    await handle?.sendIntent("utterance-end", { topicTag: "x" });
+    expect(el("room-refusal").textContent).toBe("Not accepted: bad-topic");
+    snapshot({ ...SNAP, phase: "note", noteStatus: "none", noteChars: 0 });
+    el("room-note-submit").click();
+    await flush();
+    expect(el("room-refusal").textContent).toBe("Not accepted: bad-topic");
+  });
+
+  it("click A failing late after click B was rejected does not replace B's reject with the not-sent line", async () => {
+    text = "SLOW";
+    const { el, lateFailures, snapshot } = await joined((t) => (t === "SLOW" ? "late-timeout" : "invalid"));
+    snapshot({ ...SNAP, phase: "note", noteStatus: "none", noteChars: 0 });
+    el("room-note-submit").click();
+    text = "";
+    el("room-note-submit").click();
+    await flush();
+    expect(el("room-refusal").textContent).toBe("Not accepted: invalid-note");
+    lateFailures[0]?.();
+    await flush();
+    expect(el("room-refusal").textContent).toBe("Not accepted: invalid-note");
   });
 });
