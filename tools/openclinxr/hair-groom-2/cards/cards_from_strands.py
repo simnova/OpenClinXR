@@ -110,6 +110,12 @@ def cli():
                    help="cards-r4: garment push applied per station to both card edges (larger of the two) and "
                         "averaged over this many stations, then re-pushed; 0 = per-vertex push (cards-r3). "
                         "Per-vertex pushes of one edge folded the cards over the collar back (D3 shelf)")
+    p.add_argument("--member-ids", action="store_true",
+                   help="cards-r6: card-members.npz also holds 'strand' (groom strand index of each member, same order)")
+    p.add_argument("--width-pct", type=float, default=WIDTH_PCT[0],
+                   help="cards-r6: card edges at this percentile and 100 minus it of the member offsets (cards-r3..r5: 2)")
+    p.add_argument("--outer-q", type=float, default=LAYER_Q[1],
+                   help="cards-r6: member depth percentile of the outer layer card (cards-r3..r5: 90)")
     p.add_argument("--layers", type=int, default=2, choices=(1, 2),
                    help="cards per cluster, at the member depth quantiles LAYER_Q along the card normal")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -401,8 +407,8 @@ def main():
                                        a.surface_blend_mm / 1000.0))
         twist_max = max(twist_max, tw)
         offs = np.where(reach, ((Pm - C[None]) * W[None]).sum(2), np.nan)   # (members, S)
-        lo = smooth1d(np.nanpercentile(offs, WIDTH_PCT[0], axis=0), WIDTH_SMOOTH)
-        hi = smooth1d(np.nanpercentile(offs, WIDTH_PCT[1], axis=0), WIDTH_SMOOTH)
+        lo = smooth1d(np.nanpercentile(offs, a.width_pct, axis=0), WIDTH_SMOOTH)
+        hi = smooth1d(np.nanpercentile(offs, 100.0 - a.width_pct, axis=0), WIDTH_SMOOTH)
         short = (hi - lo) < floor
         mid = 0.5 * (hi + lo)
         lo[short], hi[short] = mid[short] - floor / 2, mid[short] + floor / 2
@@ -414,19 +420,21 @@ def main():
     # outer layer only where the members fill depth: spread above the median over clusters
     spread_cut = float(np.median([c[8] for c in clus]))
     mem_u, mem_v, mem_d, mem_card, card_wm, card_arc, card_nmem = [], [], [], [], [], [], []
+    mem_strand = []
     for (C, W, N, lo, hi, dep, nm, rdep, spread, m, roff, Lc) in clus:
         nl = 2 if (a.layers == 2 and spread > spread_cut) else 1
         # members split between the layer cards by their mean depth: the outer card (member depth p90)
         # stands for the members past the midpoint of the two card planes, the inner card for the rest
         mdep = np.nanmean(dep, 1)
-        dqs = [smooth1d(np.nan_to_num(np.nanpercentile(dep, LAYER_Q[li], axis=0)), WIDTH_SMOOTH) for li in range(nl)]
+        lq = (LAYER_Q[0], a.outer_q)
+        dqs = [smooth1d(np.nan_to_num(np.nanpercentile(dep, lq[li], axis=0)), WIDTH_SMOOTH) for li in range(nl)]
         if nl == 2:
             thr = 0.5 * (float(np.median(np.maximum(dqs[0], 0.0))) + float(np.median(dqs[1])))
             mem_sets = [mdep <= thr, mdep > thr]
         else:
             mem_sets = [np.ones(len(m), bool)]
         for li in range(nl):
-            q = LAYER_Q[li]
+            q = lq[li]
             dq = smooth1d(np.nan_to_num(np.nanpercentile(dep, q, axis=0)), WIDTH_SMOOTH)
             dq = np.maximum(dq, 0.0)      # never inward of the member mean (body side; s3 probe 4.6 mm push)
             dq[0] = 0.0                                   # roots stay on the seated root line
@@ -469,6 +477,7 @@ def main():
                 mem_v.append(v.astype(np.float32))
                 mem_d.append(dd.astype(np.float32))
                 mem_card.append(np.full(len(sel), ci, np.int64))
+                mem_strand.append(sel.astype(np.int64))
                 card_nmem.append(len(sel))
                 card_wm.append(float(np.median(he - le)))
                 card_arc.append(float(np.linalg.norm(np.diff(Cl, axis=0), axis=1).sum()))
@@ -587,9 +596,10 @@ def main():
                     "rule": "unique cell per card; columns of --cell-w px, rows of equal height; 1 px gutter"}
     np.savez(str(out), **dict(sorted(payload.items())))
     if a.members_out:
+        extra = {"strand": np.concatenate(mem_strand)} if a.member_ids else {}
         np.savez(a.members_out, u=np.concatenate(mem_u), v=np.concatenate(mem_v), depth_m=np.concatenate(mem_d),
                  card=np.concatenate(mem_card), card_width_m=np.array(card_wm), card_arc_m=np.array(card_arc),
-                 card_members=np.array(card_nmem, np.int64))
+                 card_members=np.array(card_nmem, np.int64), **extra)
         rec["membersOut"] = {"path": a.members_out, "sha256": sha(a.members_out), "strands": int(sum(card_nmem)),
                              "perCard": {"min": int(min(card_nmem)), "median": float(np.median(card_nmem)),
                                          "max": int(max(card_nmem))}}

@@ -67,6 +67,12 @@ def cli():
     p.add_argument("--anisotropic", type=float, default=0.0,
                    help="cards-r4: Principled Anisotropic with the tangent along the strand (UV v, rotation 0.25); "
                         "exports as KHR_materials_anisotropy. 0 = isotropic (cards-r3)")
+    p.add_argument("--export-tangents", action="store_true",
+                   help="cards-r6: donor GLB carries TANGENT (Blender's MikkTSpace from the atlas UVs), so three.js "
+                        "anisotropy uses vertex tangents instead of its screen-derivative frame")
+    p.add_argument("--edge-fade-tip", type=float, default=None,
+                   help="cards-r6: edge-fade threshold at the card tip (card_uv v = 1), linear in v from --edge-fade at "
+                        "the root; render mesh only (a 'CardV' UV layer), the donor GLB is unchanged")
     p.add_argument("--edge-fade", type=float, default=0.0,
                    help="Cycles render only: card alpha x clamp(|true normal . view| / this, 0, 1); 0 = off")
     p.add_argument("--custom-normals", action="store_true",
@@ -81,7 +87,7 @@ def sha(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
-def card_mesh(cards, name, custom_normals=False):
+def card_mesh(cards, name, custom_normals=False, card_v=False):
     V = cards["card_verts"]
     F = cards["card_tris"]
     flipped = 0
@@ -110,6 +116,10 @@ def card_mesh(cards, name, custom_normals=False):
         cx, cy = c % 2, c // 2
         auv = np.stack([(cx + uv[li, 0]) / 2.0, 1.0 - (cy + uv[li, 1]) / 2.0], 1)
     ul.data.foreach_set("uv", auv.ravel().astype(np.float32))
+    if card_v:
+        cl = me.uv_layers.new(name="CardV")
+        cl.data.foreach_set("uv", np.stack([uv[li, 0], uv[li, 1]], 1).ravel().astype(np.float32))
+        me.uv_layers.active = ul
     for poly in me.polygons:
         poly.use_smooth = True
     if custom_normals:
@@ -120,7 +130,7 @@ def card_mesh(cards, name, custom_normals=False):
 
 
 def card_material(atlas, roughness, cutoff, specular=None, mode="mask", shadow_alpha=1.0, anisotropic=0.0,
-                  edge_fade=0.0):
+                  edge_fade=0.0, edge_fade_tip=None):
     m = bpy.data.materials.new("hair_cards" if cutoff is None else "hair_cards_render")
     m.use_nodes = True
     nt = m.node_tree
@@ -171,6 +181,19 @@ def card_material(atlas, roughness, cutoff, specular=None, mode="mask", shadow_a
                 dv.operation = "DIVIDE"
                 dv.use_clamp = True
                 dv.inputs[1].default_value = edge_fade
+                if edge_fade_tip is not None:
+                    # cards-r6 C3: threshold = edge_fade + (edge_fade_tip - edge_fade) x v (root -> tip): the crown
+                    # (S4.front, roots) keeps the fade, the hanging tips (S1 rear silhouette band 950) lose less
+                    uvn = nt.nodes.new("ShaderNodeUVMap")
+                    uvn.uv_map = "CardV"
+                    sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+                    nt.links.new(uvn.outputs["UV"], sep.inputs[0])
+                    th = nt.nodes.new("ShaderNodeMath")
+                    th.operation = "MULTIPLY_ADD"
+                    th.inputs[1].default_value = edge_fade_tip - edge_fade
+                    th.inputs[2].default_value = edge_fade
+                    nt.links.new(sep.outputs["Y"], th.inputs[0])
+                    nt.links.new(th.outputs[0], dv.inputs[1])
                 nt.links.new(ab.outputs[0], dv.inputs[0])
                 fm = nt.nodes.new("ShaderNodeMath")
                 fm.operation = "MULTIPLY"
@@ -218,12 +241,12 @@ def main():
     bbm.free()
 
     # 1-2: render object (world space, unparented)
-    me = card_mesh(cards, "cards_render", a.custom_normals)
+    me = card_mesh(cards, "cards_render", a.custom_normals, a.edge_fade_tip is not None)
     ob = bpy.data.objects.new("cards_render", me)
     bpy.context.scene.collection.objects.link(ob)
     rough = float(rc["shading"]["roughness"]) if a.roughness is None else a.roughness
     me.materials.append(card_material(Path(a.atlas), rough, a.alpha_cutoff, a.specular, a.alpha_mode,
-                                    a.shadow_alpha, a.anisotropic, a.edge_fade))
+                                    a.shadow_alpha, a.anisotropic, a.edge_fade, a.edge_fade_tip))
     ob.visible_shadow = a.card_shadow == "on"
 
     # 3: signed clearance to the body
@@ -255,7 +278,7 @@ def main():
         "material": {"model": "Principled BSDF", "baseColor": "atlas RGB (sRGB)", "alpha": "atlas A",
                      "roughness": rough, "renderAlphaCutoff": a.alpha_cutoff, "renderAlphaMode": a.alpha_mode, "cardShadow": a.card_shadow, "shadowAlpha": a.shadow_alpha,
                      "specularIorLevel": 0.5 if a.specular is None else a.specular,
-                     "anisotropic": a.anisotropic, "customNormals": a.custom_normals, "edgeFade": a.edge_fade,
+                     "anisotropic": a.anisotropic, "customNormals": a.custom_normals, "edgeFade": a.edge_fade, "edgeFadeTip": a.edge_fade_tip,
                      "flippedTris": int(me["flippedTris"])},
         "hiddenObjects": hidden,
     }
@@ -307,7 +330,8 @@ def main():
     Path(a.bake_glb).parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.export_scene.gltf(filepath=str(a.bake_glb), export_format="GLB", export_skins=True,
                               export_animations=False, export_morph=False, export_image_format="AUTO",
-                              export_yup=True, export_apply=False)
+                              export_yup=True, export_apply=False,
+                              **({"export_tangents": True} if a.export_tangents else {}))
     stats["donor"] = {"glb": str(a.bake_glb), "sha256": sha(a.bake_glb), "object": lib.name,
                       "weightGroup": head, "libraryHairWeightShareOfThatGroup": share,
                       "note": "100% one group; DESIGN S6 neck01/spine05 weighting for long recipes not done"}

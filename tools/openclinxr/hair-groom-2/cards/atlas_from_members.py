@@ -101,6 +101,8 @@ def cli():
                         "a card whose members lie flat (sideburn, spread p5) shows its coverage at normal incidence")
     p.add_argument("--alpha-k-min", type=float, default=1.0,
                    help="--alpha-k-depth floor (cards-r5: sideburn cards at k 1 ended above the ear top, S2 -7 mm)")
+    p.add_argument("--short-k", default="",
+                   help="cards-r6: 'MM:K' - cards whose arc is under MM mm use alpha power K (1 = raw coverage)")
     p.add_argument("--drift-sigma", type=float, default=DRIFT_SIGMA_PTS, help="0 keeps the raw member u")
     p.add_argument("--anchor", choices=("root", "mean"), default="root",
                    help="u each member runs down from after the drift is removed")
@@ -207,6 +209,12 @@ def main():
     if a.alpha_k_depth:
         k_card = 1.0 + (a.alpha_k - 1.0) * np.clip(spread / max(spread_med, 1e-9), 0.0, 1.0)
         k_card = np.maximum(k_card, a.alpha_k_min)
+    if a.short_k:
+        # cards-r6: a short card (sideburn, nape wisps) lies flat on the skin and stands for no depth volume, so
+        # the power that thickens a hanging card's coverage double counts where the short cards overlap
+        # (cards-r5/s6: 15 short cards stack to composite alpha 0.9 at rows 365-385 where the strands read as skin)
+        mm, kk = (float(x) for x in a.short_k.split(":"))
+        k_card = np.where(arcm * 1000.0 < mm, kk, k_card)
 
     # 1b. drift removal (u only)
     if a.drift_sigma > 0:
@@ -352,7 +360,7 @@ def main():
                         "rule": "rig area light P/(pi d^2) at the head, elevation toward the card root, azimuth dropped"},
            "alphaNorm": {"mode": a.alpha_norm, "AREF": a_ref, "k": a.alpha_k, "kDepth": a.alpha_k_depth,
                          "depthSpreadMedianMm": spread_med * 1000,
-                         "kCard": {"min": float(k_card.min()), "p10": float(np.percentile(k_card, 10)),
+                         "shortK": a.short_k or None, "kCard": {"min": float(k_card.min()), "p10": float(np.percentile(k_card, 10)),
                                    "median": float(np.median(k_card))}},
            "cellAlphaRaw": {"meanMedian": float(np.median(cs[:, 0])), "edgeColsMedian": float(np.median(cs[:, 1])),
                          "centreColsMedian": float(np.median(cs[:, 2]))},

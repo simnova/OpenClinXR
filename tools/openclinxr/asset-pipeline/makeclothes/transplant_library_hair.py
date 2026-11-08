@@ -250,6 +250,8 @@ def main() -> None:
                         help="copy the bake hair material's extensions (and their textures) instead of refusing them")
     parser.add_argument("--fringe-blend", action="store_true",
                         help="add a BLEND copy of the MASK hair primitive for soft card edges (needs --alpha-mode MASK)")
+    parser.add_argument("--carry-tangents", action="store_true",
+                        help="carry the bake hair primitive's TANGENT attribute when it has one (hair-groom-2 cards-r6)")
     parser.add_argument("--provenance", type=Path)
     parser.add_argument("--output-provenance", type=Path)
     parser.add_argument("--no-provenance", action="store_true")
@@ -263,7 +265,8 @@ def main() -> None:
 
     shipped, shipped_binary, shipped_raw = parse_glb(args.input)
     bake, bake_binary, bake_raw = parse_glb(args.bake)
-    output, output_binary, geometry = transplant(shipped, shipped_binary, bake, bake_binary, HAIR_MESH_TOKEN)
+    output, output_binary, geometry = transplant(shipped, shipped_binary, bake, bake_binary, HAIR_MESH_TOKEN,
+                                                    carry_tangent=args.carry_tangents)
     output_binary, material = carry_material(
         output, output_binary, bake, bake_binary, args.max_texture, args.alpha_mode, args.alpha_cutoff,
         args.carry_extensions, args.fringe_blend,

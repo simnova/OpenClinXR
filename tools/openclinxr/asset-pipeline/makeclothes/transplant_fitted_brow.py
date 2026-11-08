@@ -220,6 +220,7 @@ def transplant(
     bake_document: dict[str, Any],
     bake_binary: bytes,
     mesh_token: str = BROW_TOKEN,
+    carry_tangent: bool = False,
 ) -> tuple[dict[str, Any], bytes, dict[str, Any]]:
     output = copy.deepcopy(shipped_document)
     shipped_mesh_index, shipped_mesh, shipped_skin_index = find_brow(output, mesh_token)
@@ -235,9 +236,11 @@ def transplant(
     carry_targets = bool(donor_targets) and not missing_targets
 
     donor_primitive = bake_mesh["primitives"][0]
+    # hair-groom-2 cards-r6: opt-in TANGENT carry (three.js anisotropy reads vertex tangents when present)
+    attrs = ATTRIBUTES + (("TANGENT",) if carry_tangent and "TANGENT" in donor_primitive["attributes"] else ())
     donor_refs = [
         int(donor_primitive["indices"]),
-        *(int(donor_primitive["attributes"][name]) for name in ATTRIBUTES),
+        *(int(donor_primitive["attributes"][name]) for name in attrs),
     ]
     donor_target_shapes: list[dict[str, int]] = []
     if carry_targets:
@@ -323,10 +326,10 @@ def transplant(
 
     primitive = output["meshes"][shipped_mesh_index]["primitives"][0]
     primitive["indices"] = replacement_slots[0]
-    primitive["attributes"] = dict(zip(ATTRIBUTES, replacement_slots[1:6], strict=True))
+    primitive["attributes"] = dict(zip(attrs, replacement_slots[1:1 + len(attrs)], strict=True))
     primitive["material"] = shipped_mesh["primitives"][0]["material"]
     if carry_targets:
-        cursor = 6
+        cursor = 1 + len(attrs)
         primitive["targets"] = []
         for shape in donor_target_shapes:
             target: dict[str, int] = {}
