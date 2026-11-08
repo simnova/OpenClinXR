@@ -1,4 +1,4 @@
-# Rubric instrument v3 (+ v3.1 I12-I15, v3.2 F1) for hair-groom-2 (tools/openclinxr/hair-groom-2/briefs/accuracy-rubric.md).
+# Rubric instrument v3 (+ v3.1 I12-I15, v3.2 F1, v4 S1-S4) for hair-groom-2 (tools/openclinxr/hair-groom-2/briefs/accuracy-rubric.md).
 # Usage: <blender python> grade.py <round-dir> [out-dir]. Writes measures.json to out-dir (default: round-dir).
 # A round dir holds front.png, three_quarter_left.png, side.png, back.png (+ stats.json, strands.npz when produced by
 # groom.py). v2 items (A, B, C) are computed exactly as in v2; v3 adds the back-view items D1-D5 (vs target-back-a1)
@@ -762,6 +762,217 @@ for side in 'LR':
              e['aboveEar']['ratioToReference'], e['sideburn']['ratioToReference']),
          'each >= 0.5 x reference')
 
+# ---- v4: SHAPE items S1-S4 (rubric SHAPE; groom-r5-shape.md defects S1-S4) -------------------------------------
+# Outlines are measured per canonical row (S1, S3) or column (S4) in round and target through the same code, the target
+# mapped through frames.json. Shape = outline DIRECTION per band: angle of the least-squares line through the band's
+# outline points. Uniform scale error and a constant offset of the frame leave it unchanged. A band passes when the
+# round's angle lies within SHAPE_TILT of the range of target angles over the band shifted by up to the frame's
+# registration residual (SHAPE_TILT = D1's limit: 10 deg = 2x the target's largest strand tilt below its crown, 4.6 deg;
+# 2x = A1's multiple). An item passes when every band passes (plus S1's offset clause); per-band values are stored.
+SHAPE_TILT = D1_TILT
+SHAPE_MIN_FRAC = 0.6                       # a band (or shifted target band) needs outline points on >= 60% of its rows
+S1_ROWS, S1_BAND = (150, 1000), 50         # side: hair top (~140) to the target frame bottom (canonical 997)
+S1_OFF_MM = 25.0                           # A3's side-silhouette position tolerance (v1)
+S2_START = 40                              # sideburn scan starts 40 canonical px (21 mm) above the ear top
+S2_TOL = 0.15                              # A6/A9 hair-outline extent tolerance (v1)
+S3_ROWS, S3_BAND, S3_FITROW = (150, 850), 50, 330   # back: hair top to the target frame bottom (canonical 864)
+S4_COLS, S4_BAND, S4_ROWMAX = (392, 632), 40, 400   # crown: 6 bands symmetric about col 512, top outline above row 400
+SL = json.load(open(os.path.join(HERE, 'shape_landmarks.json')))
+
+
+def hair_back(A):
+    # back-view hair: the I4 hair rule without skin calibration (no cheek in the back view): L < 0.47, not green garment.
+    # Both backgrounds (L ~0.57 round, ~0.75 target) and the target's skin/pink garment (L ~0.7) are above 0.47.
+    return ((A @ W709) < 0.47) & ((A[..., 1] - A[..., 0]) <= 0.02)
+
+
+def edge_walk(row, c, reach, gap=4):
+    # left/right outer edge of the hair connected (gaps <= 4 px, the D3 walk) to the hair px nearest col c on each side
+    # within `reach` px (a pale part line at c does not stop the walk)
+    out = []
+    for sg in (-1, 1):
+        cs = [x for x in range(c, c + sg * (reach + 1), sg) if 0 <= x < len(row) and row[x]]
+        if not cs:
+            return None
+        e = cs[0]
+        if sg < 0:
+            while e > 0 and row[max(0, e - gap):e].any():
+                e -= 1
+        else:
+            while e < len(row) - 1 and row[e + 1:e + 1 + gap].any():
+                e += 1
+        out.append(e)
+    return out
+
+
+def band_angle(o, b0, b1, sign=1.0):
+    ks = [k for k in range(b0, b1) if k in o]
+    if len(ks) < SHAPE_MIN_FRAC * (b1 - b0):
+        return None
+    a = np.polyfit(np.array(ks, float), np.array([o[k] for k in ks]), 1)[0]
+    return float(np.degrees(np.arctan(sign * a)))
+
+
+def shape_bands(oT, oR, lo, hi, n, win, sign=1.0):
+    # win(b): registration window (canonical px) for band b; the target band is shifted by -win..+win
+    res = []
+    for b in range(lo, hi, n):
+        ra = band_angle(oR, b, b + n, sign); w = win(b)
+        ta = [x for x in (band_angle(oT, b + d, b + d + n, sign) for d in range(-w, w + 1)) if x is not None]
+        if ra is None or not ta:
+            res.append(dict(band=[b, b + n], roundDeg=ra, targetDeg=None, devDeg=None, ok=False)); continue
+        t0, t1 = min(ta), max(ta); dev = max(0.0, t0 - ra, ra - t1)
+        res.append(dict(band=[b, b + n], roundDeg=round(ra, 2), targetDeg=[round(t0, 2), round(t1, 2)], windowPx=w,
+                        devDeg=round(dev, 2), ok=bool(dev <= SHAPE_TILT)))
+    return res
+
+
+def s1_rear(A, f):
+    # profile rear silhouette: rearmost (max col) hair px per canonical row, canonical col of its outer edge
+    _, hair, _ = masks(A, f, 'side'); o = {}
+    for rc in range(*S1_ROWS):
+        r = f.r(rc)
+        if 0 <= r < 1024:
+            cs = np.where(hair[r])[0]
+            if len(cs):
+                o[rc] = (cs.max() + 0.5 - f.dx) / f.s
+    return o
+
+
+def s2_sideburn(A, f):
+    # hair coverage per canonical row over the left sideburn patch columns (shape_landmarks.json), from 40 px above the
+    # ear top down to the tragus row; the sideburn ends where coverage first drops below 0.5 (half-max edge), linearly
+    # interpolated. Length = that row - ear-top row, in mm at the patch depth. Softness (report-only): per column, rows
+    # within +-15 px of the column's first hair->skin crossing whose luminance is 30-70% of the way from the patch hair
+    # median to the patch skin median (D2's 30-70% construction), median over columns, canonical px.
+    L, hair, skin = masks(A, f, 'side')
+    c0, c1 = f.c(SL['cols'][0]), f.c(SL['cols'][1]); top, trag = SL['earTopRow'], SL['tragusRow']
+    rows = list(range(int(np.floor(top)) - S2_START, int(np.floor(trag))))
+    cov = [float(hair[f.r(rc), c0:c1].mean()) for rc in rows]
+    end = None
+    for i, v in enumerate(cov):
+        if v < 0.5:
+            end = rows[0] - 0.5 if i == 0 else rows[i - 1] + (cov[i - 1] - 0.5) / (cov[i - 1] - v)
+            break
+    if end is None:
+        end = float(rows[-1])                # covered down to the tragus row: censored at the tragus
+    r0, r1 = f.r(rows[0]), f.r(trag)
+    box, hb, sb = L[r0:r1, c0:c1], hair[r0:r1, c0:c1], skin[r0:r1, c0:c1]
+    soft = None
+    if hb.any() and sb.any():
+        Lh, Ls = float(np.median(box[hb])), float(np.median(box[sb])); al = (box - Lh) / (Ls - Lh); w = []
+        for j in range(box.shape[1]):
+            idx = np.where(al[:, j] >= 0.5)[0]
+            if len(idx) and idx[0] > 0:
+                lo_, hi_ = max(0, idx[0] - f.px(15)), min(len(al), idx[0] + f.px(15))
+                w.append(float(np.sum((al[lo_:hi_, j] >= 0.3) & (al[lo_:hi_, j] <= 0.7)) / f.s))
+        soft = dict(hairMedianL=Lh, skinMedianL=Ls, columns=len(w), medianTransitionCanonPx=float(np.median(w)) if w else None)
+    return dict(cols=[c0, c1], rows=[rows[0], rows[-1]], earTopRow=top, tragusRow=trag, endRow=round(float(end), 2),
+                censoredAtTragus=bool(cov[-1] >= 0.5), lengthMm=round((end - top) * SL['mmPerPx'], 2),
+                coverageEvery4Rows=[(rows[i], round(cov[i], 2)) for i in range(0, len(rows), 4)], softness=soft)
+
+
+def s3_back(A, f):
+    hair = hair_back(A); o = {}
+    for rc in range(*S3_ROWS):
+        r = f.r(rc)
+        if 0 <= r < 1024:
+            e = edge_walk(hair[r], f.c(512), f.px(40))
+            if e:
+                o[rc] = ((e[0] - f.dx) / f.s, (e[1] + 1 - f.dx) / f.s)
+    return o
+
+
+def s4_top(A, f, view):
+    hair = masks(A, f, 'front')[1] if view == 'front' else hair_back(A); o = {}
+    for cc in range(S4_COLS[0] - 40, S4_COLS[1] + 40):
+        c = f.c(cc)
+        if 0 <= c < 1024:
+            rs = np.where(hair[:max(0, f.r(S4_ROWMAX)), c])[0]
+            if len(rs):
+                o[cc] = f.rc(rs.min() - 0.5)
+    return o
+
+
+def resid_canon(view):
+    # frames.json registration residual of the view, canonical px, rounded up
+    return int(np.ceil(FR[view]['fit']['meanAbsErrPx'] / FR[view]['s']))
+
+
+SH = dict(target={}, round={}, reportOnly={})
+_imgs = {v: (load(os.path.join(TG, t)), load(os.path.join(RD, r_)) if os.path.exists(os.path.join(RD, r_)) else None)
+         for v, t, r_ in (('side', TARGETS['side'], ROUND['side']), ('front', TARGETS['front'], ROUND['front']),
+                          ('back', 'target-back-a1.png', 'back.png'))}
+# S1 profile rear silhouette
+oT, oR = s1_rear(_imgs['side'][0], tf['side']), s1_rear(_imgs['side'][1], rf['side'])
+w1 = resid_canon('side')
+s1 = shape_bands(oT, oR, S1_ROWS[0], S1_ROWS[1], S1_BAND, lambda b: w1)
+for bd in s1:
+    ks = [k for k in range(*bd['band']) if k in oT and k in oR]
+    bd['offsetMm'] = round(float(np.mean([oR[k] - oT[k] for k in ks])) * K * 1000, 2) if ks else None
+    bd['offOk'] = bd['offsetMm'] is not None and abs(bd['offsetMm']) <= S1_OFF_MM
+SH['round']['S1'] = s1
+SH['target']['S1'] = {'rearColEvery10Rows': [(k, round(oT[k], 1)) for k in range(*S1_ROWS, 10) if k in oT]}
+_bad = [b for b in s1 if not (b['ok'] and b['offOk'])]
+item('S1', not _bad,
+     'profile rear outline per 50-row band (canonical rows %d-%d): max |angle dev| %.1f deg, offsets %+.1f..%+.1f mm; failing bands %s' % (
+         S1_ROWS[0], S1_ROWS[1], max(b['devDeg'] if b['devDeg'] is not None else 99 for b in s1),
+         min(b['offsetMm'] for b in s1 if b['offsetMm'] is not None), max(b['offsetMm'] for b in s1 if b['offsetMm'] is not None),
+         ['%d: %s deg, %s mm' % (b['band'][0], b['devDeg'], b['offsetMm']) for b in _bad] or 'none'),
+     'each band: rear-outline angle within 10 deg of the target range (D1 tilt limit; target band shifted +-%d px = side frame '
+     'residual 1.87 target px) AND mean offset within +-25 mm (A3 side-silhouette tolerance)' % w1)
+# S2 sideburn length below the ear top
+s2t, s2r = s2_sideburn(_imgs['side'][0], tf['side']), s2_sideburn(_imgs['side'][1], rf['side'])
+SH['target']['S2'], SH['round']['S2'] = s2t, s2r
+s2tol = max(S2_TOL * abs(s2t['lengthMm']), w1 * SL['mmPerPx'])
+item('S2', abs(s2r['lengthMm'] - s2t['lengthMm']) <= s2tol,
+     'left sideburn (cols %d-%d) ends %.1f mm below the ear top (row %.1f) vs target %.1f mm = %+.1f mm%s' % (
+         s2r['cols'][0], s2r['cols'][1], s2r['lengthMm'], s2r['endRow'], s2t['lengthMm'], s2r['lengthMm'] - s2t['lengthMm'],
+         ' (censored at the tragus)' if s2r['censoredAtTragus'] else ''),
+     '+-%.1f mm = 15%% of target (A6/A9 hair-outline extent tolerance; floor = side frame residual %.1f mm)' % (s2tol, w1 * SL['mmPerPx']))
+SH['reportOnly']['S2.softness'] = dict(rule='median hair->skin transition (30-70%%) at the sideburn tip, canonical px; not scored',
+                                       target=s2t['softness'], round=s2r['softness'])
+# S3 back outline, both edges
+if _imgs['back'][1] is None:
+    item('S3', False, 'no back.png in the round dir', 'back.png required (v3 INPUT)')
+    item('S4.back', False, 'no back.png in the round dir', 'back.png required (v3 INPUT)')
+else:
+    oT, oR = s3_back(_imgs['back'][0], tf['back']), s3_back(_imgs['back'][1], rf['back'])
+    w3a, w3b = resid_canon('back'), int(np.ceil(FR['back']['shoulderCheck']['meanAbsErrPx'] / FR['back']['s']))
+    s3 = {}
+    for side, ix, sg in (('L', 0, -1.0), ('R', 1, 1.0)):
+        s3[side] = shape_bands({k: v[ix] for k, v in oT.items()}, {k: v[ix] for k, v in oR.items()}, S3_ROWS[0], S3_ROWS[1], S3_BAND,
+                               lambda b: w3a if b + S3_BAND <= S3_FITROW else w3b, sg)
+    SH['round']['S3'] = s3
+    SH['target']['S3'] = {'edgesEvery10Rows': [(k, round(oT[k][0], 1), round(oT[k][1], 1)) for k in range(*S3_ROWS, 10) if k in oT]}
+    SH['reportOnly']['S3.widthOffset'] = dict(rule='round - target outline width per 50-row band, canonical px; not scored (back frame '
+                                              'width is not reliable: round back/front width 1.12 at row 480, target 0.97)',
+                                              bands=[(b, round(float(np.mean([(oR[k][1] - oR[k][0]) - (oT[k][1] - oT[k][0]) for k in range(b, b + S3_BAND) if k in oT and k in oR])), 1))
+                                                     for b in range(S3_ROWS[0], S3_ROWS[1], S3_BAND) if any(k in oT and k in oR for k in range(b, b + S3_BAND))])
+    _bad = ['%s%d: %s' % (s, b['band'][0], b['devDeg']) for s in 'LR' for b in s3[s] if not b['ok']]
+    item('S3', not _bad,
+         'back outline edge angle per 50-row band (canonical rows %d-%d, both edges): max |dev| %.1f deg; failing %s' % (
+             S3_ROWS[0], S3_ROWS[1], max(b['devDeg'] if b['devDeg'] is not None else 99 for s in 'LR' for b in s3[s]), _bad or 'none'),
+         'each band and edge within 10 deg of the target range (D1 tilt limit; target shifted +-%d px above row %d = back frame fit '
+         'residual 2.7 target px, +-%d px below = I8 shoulder check residual 34.9 target px)' % (w3a, S3_FITROW, w3b))
+# S4 crown top outline, front and back
+for view, cr in (('front', 'front'), ('back', 'back')):
+    if view == 'back' and _imgs['back'][1] is None:
+        continue
+    oT, oR = s4_top(_imgs[view][0], tf[view], view), s4_top(_imgs[view][1], rf[view], view)
+    w4 = resid_canon(view)
+    s4 = shape_bands(oT, oR, S4_COLS[0], S4_COLS[1], S4_BAND, lambda b: w4)
+    for bd in s4:
+        ks = [k for k in range(*bd['band']) if k in oT and k in oR]
+        bd['offsetCanonPx'] = round(float(np.mean([oR[k] - oT[k] for k in ks])), 1) if ks else None
+    SH['round']['S4.' + view] = s4
+    SH['target']['S4.' + view] = {'topRowEvery8Cols': [(k, round(oT[k], 1)) for k in range(S4_COLS[0], S4_COLS[1], 8) if k in oT]}
+    _bad = ['%d: %s' % (b['band'][0], b['devDeg']) for b in s4 if not b['ok']]
+    item('S4.' + view, not _bad,
+         'crown top outline angle per 40-col band (canonical cols %d-%d): max |dev| %.1f deg; failing %s; top offsets %s px (reported)' % (
+             S4_COLS[0], S4_COLS[1], max(b['devDeg'] if b['devDeg'] is not None else 99 for b in s4), _bad or 'none',
+             [b['offsetCanonPx'] for b in s4]),
+         'each band within 10 deg of the target range (D1 tilt limit; target shifted +-%d px = %s frame residual)' % (w4, view))
 
 strands = os.path.join(RD, 'strands.npz')
 extra = {}
@@ -769,7 +980,7 @@ if os.path.exists(strands):
     d = np.load(strands); P = d['positions']; o = d['offsets']; tips = P[o[1:] - 1][:, 2]
     extra['cardCentrelineTipsZ' if CARD else 'strandTipsZ'] = dict(median=float(np.median(tips)), p10=float(np.percentile(tips, 10)), p90=float(np.percentile(tips, 90)),
                                 targetHairBottomZ=tS['A3']['z'])
-out = dict(rubric='v3.2', e1=E1, f1=F1, round=os.path.relpath(RD, WT) if RD.startswith(WT) else RD, frames=dict(round={v: rf[v].d() for v in rf},
+out = dict(rubric='v4', e1=E1, f1=F1, shape=SH, round=os.path.relpath(RD, WT) if RD.startswith(WT) else RD, frames=dict(round={v: rf[v].d() for v in rf},
            target={v: tf[v].d() for v in tf}), numericItems=items, numericPass=sum(v['result'] == 'PASS' for v in items.values()),
            numericCount=len(items), round_measures=R, target_measures=T, **extra)
 os.makedirs(OUT_DIR, exist_ok=True)
