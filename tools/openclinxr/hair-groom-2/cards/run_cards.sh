@@ -13,14 +13,14 @@ SPEC=${SPEC:-0,0.05}
 ATLAS=${ATLAS:-members}
 CELL_W=${CELL_W:-16}
 ALPHA=${ALPHA:-blend}; CUTOFF=${CUTOFF:-0.2}; CARD_SHADOW=${CARD_SHADOW:-on}; SHADOW_ALPHA=${SHADOW_ALPHA:-0.2}
-ATLAS_ARGS=${ATLAS_ARGS:-}
+ATLAS_ARGS=${ATLAS_ARGS:-}; CARDS_ARGS=${CARDS_ARGS:-}; RENDER_ARGS=${RENDER_ARGS:-}
 BODY=$W/apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb
 C=$W/tools/openclinxr/hair-groom-2/cards
-RARGS="--alpha-mode $ALPHA --alpha-cutoff $CUTOFF --card-shadow $CARD_SHADOW --shadow-alpha $SHADOW_ALPHA"
+RARGS="--alpha-mode $ALPHA --alpha-cutoff $CUTOFF --card-shadow $CARD_SHADOW --shadow-alpha $SHADOW_ALPHA $RENDER_ARGS"
 cd $W
 mkdir -p $EV
 $B --background --factory-startup --python $C/cards_from_strands.py -- --body $BODY --groom-round $GR \
-  --out $EV/cards.npz --budget $BUDGET --clusters $CLUSTERS --cell-w $CELL_W --members-out $EV/card-members.npz \
+  --out $EV/cards.npz --budget $BUDGET --clusters $CLUSTERS --cell-w $CELL_W --members-out $EV/card-members.npz ${=CARDS_ARGS} \
   2>&1 | grep -E "^CARDS_DONE" > $EV/cards.log
 if [[ $ATLAS == members ]]; then
   $B --background --factory-startup --python $C/atlas_from_members.py -- --round $GR --cards $EV/cards.npz \

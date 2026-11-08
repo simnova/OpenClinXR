@@ -90,6 +90,15 @@ def cli():
     p.add_argument("--cell-w", type=int, default=16, help="atlas cell width (px, across the card)")
     p.add_argument("--members-out", default=None,
                    help="card-members.npz: each card's member strands in its own frame (atlas_from_members.py)")
+    p.add_argument("--cyl-band-mm", type=float, default=0.0,
+                   help="cards-r4: card outward blends from the head radial to the horizontal radial over this "
+                        "band below the head centre (0 = spherical radial, cards-r3)")
+    p.add_argument("--surface-blend-mm", type=float, default=SURFACE_BLEND_M * 1000.0,
+                   help="card normal follows the nearest body/garment face within this distance (mm)")
+    p.add_argument("--push-smooth", type=int, default=0,
+                   help="cards-r4: garment push applied per station to both card edges (larger of the two) and "
+                        "averaged over this many stations, then re-pushed; 0 = per-vertex push (cards-r3). "
+                        "Per-vertex pushes of one edge folded the cards over the collar back (D3 shelf)")
     p.add_argument("--layers", type=int, default=2, choices=(1, 2),
                    help="cards per cluster, at the member depth quantiles LAYER_Q along the card normal")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -141,22 +150,33 @@ def kmeans(X, K):
     return lab
 
 
-def outward(C, centre, colliders):
+def outward(C, centre, colliders, cyl_band_m=0.0, blend_m=SURFACE_BLEND_M):
     """Card normal field: head radial from the head centre, blended toward the nearest collider
     face normal (body, garments) by w = 1 - d / SURFACE_BLEND_M, so a card lying on the upper back
     or shirt is tangent to that surface instead of to a sphere around the head."""
     O = C - centre[None]
     O /= np.linalg.norm(O, axis=1, keepdims=True).clip(1e-12, None)
+    if cyl_band_m > 0.0:
+        # cards-r4: below the head centre the spherical radial turns parallel to a hanging strand
+        # (down-back at the nape), so W = O x T flips there (s1: 1,114 station steps > 20 deg twist at
+        # z 1.40-1.45 on the back, the D3 shelf crumples). Blend to the horizontal (cylindrical)
+        # radial over cyl_band_m below the centre: a hanging card then faces straight out.
+        Oc = C - centre[None]
+        Oc[:, 2] = 0.0
+        Oc /= np.linalg.norm(Oc, axis=1, keepdims=True).clip(1e-12, None)
+        t = np.clip((centre[2] - C[:, 2]) / cyl_band_m, 0.0, 1.0)[:, None]
+        O = (1.0 - t) * O + t * Oc
+        O /= np.linalg.norm(O, axis=1, keepdims=True).clip(1e-12, None)
     for i in range(len(C)):
         best = None
         for c in colliders:
             loc, nrm, _, dist = c.tree.find_nearest(Vector(C[i]))
             if loc is not None and (best is None or dist < best[0]):
                 best = (dist, np.array(nrm[:]))
-        if best is None or best[0] >= SURFACE_BLEND_M:
+        if best is None or best[0] >= blend_m:
             continue
         nr = best[1] if np.dot(best[1], O[i]) >= 0 else -best[1]
-        w = 1.0 - best[0] / SURFACE_BLEND_M
+        w = 1.0 - best[0] / blend_m
         o = (1.0 - w) * O[i] + w * nr
         O[i] = o / max(np.linalg.norm(o), 1e-12)
     return O
@@ -332,7 +352,8 @@ def main():
                 seat.append(hold - sd_r)
                 C[0] = np.array((loc_r + nrm_r * hold)[:])
             Pm[:, 0] = Pm[:, 0] - np.outer((Pm[:, 0] - C[0]) @ tg, tg)   # member roots on that line
-        T, W, tw = frames(C, outward(C, centre_w, colliders))
+        T, W, tw = frames(C, outward(C, centre_w, colliders, a.cyl_band_mm / 1000.0,
+                                       a.surface_blend_mm / 1000.0))
         twist_max = max(twist_max, tw)
         offs = np.where(reach, ((Pm - C[None]) * W[None]).sum(2), np.nan)   # (members, S)
         lo = smooth1d(np.nanpercentile(offs, WIDTH_PCT[0], axis=0), WIDTH_SMOOTH)
@@ -417,8 +438,22 @@ def main():
     clr = float(rc["clearanceMm"]) / 1000.0
     before = verts.copy()
     pushes = []
-    for cs in (colliders[1:], colliders[:1]):
+    for ci_, cs in enumerate((colliders[1:], colliders[:1])):
         b0 = verts.copy()
+        if ci_ == 0 and a.push_smooth > 0:
+            # one rigid push per station: the pushed displacement of the two edges, the larger one for
+            # both, averaged along the card; the per-vertex pass below then only tops up the remainder
+            q0 = verts.copy()
+            for i in range(len(verts)):
+                q = groom.push_out(Vector(verts[i]), cs, clr)
+                q0[i] = q[:]
+            d = (q0 - verts).reshape(nc, -1, 2, 3)
+            nrm = np.linalg.norm(d, axis=3)
+            pick = np.where((nrm[..., 0] >= nrm[..., 1])[..., None], d[..., 0, :], d[..., 1, :])
+            k = a.push_smooth
+            sm = np.stack([np.stack([smooth1d(pick[c, :, j], k) for j in range(3)], 1) for c in range(nc)])
+            sm = np.where((np.linalg.norm(sm, axis=2) < np.linalg.norm(pick, axis=2))[..., None], pick, sm)
+            verts = verts + np.repeat(sm, 2, axis=1).reshape(-1, 3)
         for _ in range(PUSH_PASSES):
             moved = 0
             for i in range(len(verts)):

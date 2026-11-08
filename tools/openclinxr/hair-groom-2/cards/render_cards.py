@@ -64,6 +64,9 @@ def cli():
                    help="blend mode: the card's alpha as seen by shadow rays, x this factor")
     p.add_argument("--card-shadow", choices=("on", "off"), default="on",
                    help="off: the card object casts no Cycles shadow (the atlas already carries the members' occlusion)")
+    p.add_argument("--anisotropic", type=float, default=0.0,
+                   help="cards-r4: Principled Anisotropic with the tangent along the strand (UV v, rotation 0.25); "
+                        "exports as KHR_materials_anisotropy. 0 = isotropic (cards-r3)")
     p.add_argument("--hide-cards", action="store_true",
                    help="render the body without hair (calibration base); no donor GLB, no strands.npz")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -98,7 +101,7 @@ def card_mesh(cards, name):
     return me
 
 
-def card_material(atlas, roughness, cutoff, specular=None, mode="mask", shadow_alpha=1.0):
+def card_material(atlas, roughness, cutoff, specular=None, mode="mask", shadow_alpha=1.0, anisotropic=0.0):
     m = bpy.data.materials.new("hair_cards" if cutoff is None else "hair_cards_render")
     m.use_nodes = True
     nt = m.node_tree
@@ -113,6 +116,14 @@ def card_material(atlas, roughness, cutoff, specular=None, mode="mask", shadow_a
     p.inputs["Metallic"].default_value = 0.0
     if specular is not None:
         p.inputs["Specular IOR Level"].default_value = specular
+    if anisotropic > 0:
+        # strand direction = UV v (card root -> tip); the UV tangent is u (across), so rotate 90 deg
+        tg = nt.nodes.new("ShaderNodeTangent")
+        tg.direction_type = "UV_MAP"
+        tg.uv_map = "UVMap"
+        p.inputs["Anisotropic"].default_value = anisotropic
+        p.inputs["Anisotropic Rotation"].default_value = 0.25
+        nt.links.new(tg.outputs["Tangent"], p.inputs["Tangent"])
     nt.links.new(t.outputs["Color"], p.inputs["Base Color"])
     if cutoff is None:
         nt.links.new(t.outputs["Alpha"], p.inputs["Alpha"])
@@ -171,7 +182,7 @@ def main():
     bpy.context.scene.collection.objects.link(ob)
     rough = float(rc["shading"]["roughness"]) if a.roughness is None else a.roughness
     me.materials.append(card_material(Path(a.atlas), rough, a.alpha_cutoff, a.specular, a.alpha_mode,
-                                    a.shadow_alpha))
+                                    a.shadow_alpha, a.anisotropic))
     ob.visible_shadow = a.card_shadow == "on"
 
     # 3: signed clearance to the body
@@ -202,7 +213,8 @@ def main():
                       "rule": "every card vertex, groom.Collider([body]).signed (BVH nearest, face-normal sign)"},
         "material": {"model": "Principled BSDF", "baseColor": "atlas RGB (sRGB)", "alpha": "atlas A",
                      "roughness": rough, "renderAlphaCutoff": a.alpha_cutoff, "renderAlphaMode": a.alpha_mode, "cardShadow": a.card_shadow, "shadowAlpha": a.shadow_alpha,
-                     "specularIorLevel": 0.5 if a.specular is None else a.specular},
+                     "specularIorLevel": 0.5 if a.specular is None else a.specular,
+                     "anisotropic": a.anisotropic},
         "hiddenObjects": hidden,
     }
 
@@ -246,7 +258,7 @@ def main():
     lib.vertex_groups.clear()
     vg = lib.vertex_groups.new(name=head)
     vg.add(list(range(len(dme.vertices))), 1.0, "REPLACE")
-    dme.materials.append(card_material(Path(a.atlas), rough, None, a.specular))
+    dme.materials.append(card_material(Path(a.atlas), rough, None, a.specular, anisotropic=a.anisotropic))
     lib.hide_render = False
     lib.hide_viewport = False
     lib.hide_set(False)
