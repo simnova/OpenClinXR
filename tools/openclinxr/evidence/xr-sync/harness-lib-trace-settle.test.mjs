@@ -87,7 +87,7 @@ describe("C43 fix2 trace settle", () => {
     await new Promise((resolve) => setTimeout(resolve, 60));
     watcher.stop();
     expect(watcher.lastEventAt()).toBeNull();
-    expect(watcher.errorCount()).toBeGreaterThan(0);
+    expect(watcher.preAttachErrorCount()).toBeGreaterThan(0);
     const out = await listTraceFiles(dir, { lastEventAt: watcher.lastEventAt(), watchErrors: watcher.errorCount(), persisted: Promise.resolve(), clock: fakeClock(), list: async () => [{ name: `room-a${SUFFIX}`, size: 1 }] });
     expect(out.refusal).not.toBeNull();
   });

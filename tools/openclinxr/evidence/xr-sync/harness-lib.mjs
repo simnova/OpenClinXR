@@ -529,21 +529,26 @@ export async function checkStills(names, shots) {
   return { pass: rows.length > 0 && rows.every((row) => row.ok), rows };
 }
 
-/** Watch the live conversation trace for activity: polls getTrace().events.length and stamps lastEventAt only when the length changes. */
+/** Watch the live conversation trace for activity: polls getTrace().events.length and stamps lastEventAt only when the length changes; errorCount() counts read errors after the first successful read. */
 export function watchTraceActivity(getTrace, intervalMs = 100) {
   let lastEventAt = null;
   let lastLen = 0;
   let errors = 0;
+  let preAttachErrors = 0;
+  let attached = false;
   const read = () => {
     try {
       const trace = getTrace();
+      attached = true;
       const len = trace?.events?.length ?? 0;
       if (len !== lastLen) {
         lastLen = len;
         lastEventAt = Date.now();
       }
     } catch {
-      errors += 1;
+      // Before the first successful read the room does not exist yet (getConversationTrace throws until the learner joins): counted apart, and a watcher that never attaches never stamps lastEventAt, so it is refused there.
+      if (attached) errors += 1;
+      else preAttachErrors += 1;
     }
   };
   read();
@@ -557,6 +562,9 @@ export function watchTraceActivity(getTrace, intervalMs = 100) {
     },
     errorCount() {
       return errors;
+    },
+    preAttachErrorCount() {
+      return preAttachErrors;
     },
   };
 }

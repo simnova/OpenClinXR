@@ -207,6 +207,7 @@ async function main(argv) {
     run.consoleErrors.push(...out.consoleErrors);
     const lastEventAt = traceActivity.lastEventAt();
     const watchErrors = traceActivity.errorCount();
+    const preAttachErrors = traceActivity.preAttachErrorCount();
     traceActivity.stop();
     const closing = syncServer.close();
     syncServer = null;
@@ -214,7 +215,7 @@ async function main(argv) {
     const settle = await listTraceFiles(traceDir, { lastEventAt, watchErrors, persisted: closing });
     if (settle.refusal !== null) lateCopy.cancel();
     const traceFiles = settle.files;
-    run.traceSettle = { mechanism: settle.mechanism, quietMs: settle.quietMs, quietSource: settle.quietSource, pollCounts: settle.pollCounts, waitedMs: settle.waitedMs, refusal: settle.refusal, derivation: settle.derivation };
+    run.traceSettle = { watchErrors, preAttachErrors, mechanism: settle.mechanism, quietMs: settle.quietMs, quietSource: settle.quietSource, pollCounts: settle.pollCounts, waitedMs: settle.waitedMs, refusal: settle.refusal, derivation: settle.derivation };
     console.log(`trace-settle ${JSON.stringify(run.traceSettle)}`);
     check("T1 exactly 1 conversation-trace file persisted before it is read", settle.refusal === null && traceFiles.length === 1, `${settle.refusal === null ? "" : `REFUSED: ${settle.refusal}; `}${traceFiles.join(",")} | ${settle.derivation}; mechanism ${settle.mechanism}; waited ${settle.waitedMs} ms`);
     const trace = traceFiles.length === 1 ? JSON.parse(await readFile(join(traceDir, traceFiles[0]), "utf8")) : { events: [] };
