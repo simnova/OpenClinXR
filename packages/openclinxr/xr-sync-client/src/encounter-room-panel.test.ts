@@ -108,9 +108,10 @@ describe("room panel (C36)", () => {
     expect(text(parent, "room-countdown")).toBe("");
   });
 
-  it("replay and lobby rooms mount no panel", async () => {
+  it("a replay room mounts only the read-only panel (no note box, C46) and a lobby room mounts none", async () => {
     const replay = await joined(new Set(), "x", "?encounterSync=ws://127.0.0.1:9&encounterReplayStation=slot-a");
-    expect(replay.parent.find("room-panel")).toBeUndefined();
+    expect(replay.parent.find("room-panel")).toBeDefined();
+    expect(replay.parent.find("room-note")).toBeUndefined();
     const lobby = await joined(new Set(), "x", "?encounterSync=ws://127.0.0.1:9&encounterReviewLobby=1");
     expect(lobby.parent.find("room-panel")).toBeUndefined();
   });

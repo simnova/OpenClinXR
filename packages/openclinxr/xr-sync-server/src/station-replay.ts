@@ -44,6 +44,7 @@ import {
 import { ENCOUNTER_ROOM_NAME, EncounterRoom } from "./room.js";
 import { ActorState, type ActorStateInstance, EncounterState, LearnerState, type LearnerStateInstance } from "./schema.js";
 import { setReplayRubricCoverageState, setReplayRubricState } from "./station-replay-rubric-state.js";
+import { markReplayTopics, setTopicMenuState } from "./topic-menu.js";
 import type { LoadedReplayStation, LoadedStationReplay } from "./station-replay-loading.js";
 import { applyScheduledReplayEvent } from "./station-replay-loading.js";
 import type { ReplayCaptionBank } from "./replay-captions.js";
@@ -115,6 +116,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
     private replayCursor = 0;
     private replayEmotionCursor = 0;
     private replayOpenTurn: { turnId: number; actorId: string } | null = null;
+    private replayApplied: ConversationTraceEvent[] = [];
     private replayTimer: { clear(): void } | null = null;
     /** C13 per-lobby launch guard: a lobby launches at most once. */
     private lobbyLaunchPending = false;
@@ -219,6 +221,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       this.state.scoreChecked = replayScoreChecked(binding.score.scoreDir, station.stationId, scenarioBank, scenarioResolved);
       setReplayRubricState(this.state, scenarioResolved?.rubric ?? null);
       setReplayRubricCoverageState(this.state, scenarioResolved === null ? null : station.entry.rubricCoverage ?? [], scenarioResolved?.rubric ?? null);
+      setTopicMenuState(this.state, binding.captions?.menu(station.scenarioId) ?? []);
       // One station per room: lock at create so a concurrent reviewer of a
       // different station creates anew instead of sharing this room. The
       // creating client's seat is already reserved, so it still joins.
@@ -374,6 +377,8 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       }
       this.replayCursor += 1;
       this.applyReplayEvent(event);
+      this.replayApplied.push(event);
+      if (typeof event.tag === "string" || event.coveredTags !== undefined) markReplayTopics(this.state, this.replayApplied);
       this.state.serverTick += 1;
       if (this.replayCursor >= station.events.length) {
         this.state.replayDone = true;

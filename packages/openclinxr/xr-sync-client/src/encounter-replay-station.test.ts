@@ -59,8 +59,8 @@ describe("?encounterReplayStation (C31)", () => {
     expect(played).toEqual([["p", "Pat: Hello there", "concerned"]]);
     expect(published[0]?.turns.map((turn) => [turn.replyId, turn.spoken])).toEqual([["p:opening", true]]);
   });
-  it("mounts no learner input in a replay room", async () => {
+  it("mounts no learner input in a replay room, only the read-only topic panel (C46)", async () => {
     const { parent } = await joinWith("?encounterSync=ws://127.0.0.1:9&encounterReplayStation=slot-a", true);
-    expect(parent.children).toEqual([]);
+    expect(parent.children.map((child) => child.id)).toEqual(["room-panel"]);
   });
 });

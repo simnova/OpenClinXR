@@ -1,4 +1,4 @@
-import type { ConversationTrace } from "./conversation-trace.js";
+import type { ConversationTrace, ConversationTraceEvent } from "./conversation-trace.js";
 
 /** Review-safe scenario fields needed to evaluate required trace tag coverage. */
 export interface TraceTagCoverageScenario {
@@ -32,9 +32,9 @@ export function splitRequiredTraceTags(required: readonly string[], produced: Re
 }
 
 /** Produced tags come only from persisted trace events, never scenario config. */
-export function producedTraceTags(trace: ConversationTrace): Set<string> {
+export function producedTraceTagsOfEvents(events: readonly ConversationTraceEvent[]): Set<string> {
   const produced = new Set<string>();
-  for (const event of trace.events) {
+  for (const event of events) {
     if (typeof event.tag === "string") {
       produced.add(event.tag);
     }
@@ -48,6 +48,11 @@ export function producedTraceTags(trace: ConversationTrace): Set<string> {
     }
   }
   return produced;
+}
+
+/** Produced tags come only from persisted trace events, never scenario config. */
+export function producedTraceTags(trace: ConversationTrace): Set<string> {
+  return producedTraceTagsOfEvents(trace.events);
 }
 
 /** Build station-level and per-rubric coverage from one tracer snapshot. */

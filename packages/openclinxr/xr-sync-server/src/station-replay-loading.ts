@@ -151,6 +151,7 @@ interface RawReplayEvent {
   source?: unknown;
   eventId?: unknown;
   tag?: unknown;
+  coveredTags?: unknown;
   match?: unknown;
 }
 
@@ -279,6 +280,12 @@ export function loadReplayStationTrace(
     }
     if (typeof item.tag === "string") {
       event.tag = item.tag;
+    }
+    if (item.coveredTags !== undefined) {
+      if (item.kind !== "utterance-end" || !Array.isArray(item.coveredTags) || (item.coveredTags as unknown[]).some((covered) => typeof covered !== "string")) {
+        throw new Error(`replay-bad-trace: ${entry.traceFile} holds a malformed coveredTags`);
+      }
+      event.coveredTags = [...new Set(item.coveredTags as string[])];
     }
     // C31: the recorded free-text match kind (never text) lets a replay recompute a fallback caption.
     if (item.match === "exact" || item.match === "phrase" || item.match === "fallback") {

@@ -12,6 +12,7 @@ import { C3_REPLY_TABLE } from "./conversation-trace.js";
 import { scheduledReplyId } from "./scheduled-event.js";
 import { openingCaption, parseScenarioCasts } from "./scenario-cast.js";
 import type { LoadedReplayStation } from "./station-replay-loading.js";
+import { type TopicMenuEntry, topicMenuForCast } from "./topic-menu.js";
 import { applyDialogueSeeds } from "./topic-answers.js";
 
 /** Replay-room caption bank: replyId (+ recorded match) back to a caption. */
@@ -22,6 +23,7 @@ export interface ReplayCaptionBank {
     replyId: string,
     match: "exact" | "phrase" | "fallback" | undefined,
   ): string | null;
+  menu(scenarioId: string): TopicMenuEntry[] | null;
 }
 
 /**
@@ -42,6 +44,10 @@ export function createReplayCaptionBank(
   );
   const byScenario = new Map(casts.map((cast) => [cast.scenarioId, cast]));
   return {
+    menu(scenarioId: string) {
+      const cast = byScenario.get(scenarioId);
+      return cast === undefined ? null : topicMenuForCast(cast);
+    },
     resolve(scenarioId, actorId, replyId, match) {
       const cast = byScenario.get(scenarioId);
       if (cast === undefined) {

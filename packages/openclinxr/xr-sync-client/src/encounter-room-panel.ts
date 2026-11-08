@@ -6,7 +6,7 @@ export interface RoomPanel {
   refuse(reason: string, kind?: string): void;
 }
 
-export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => void, note?: { text(): string; submit(text: string): Promise<{ status: string; reason?: string }>; draft?(text: string): Promise<{ status: string; reason?: string }> }): RoomPanel {
+export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => void, note?: { text(): string; submit(text: string): Promise<{ status: string; reason?: string }>; draft?(text: string): Promise<{ status: string; reason?: string }> }, readOnly = false): RoomPanel {
   const panel: UtteranceBoxElement = box.doc.createElement("div");
   panel.id = "room-panel";
   const cast: UtteranceBoxElement = box.doc.createElement("div");
@@ -109,7 +109,11 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
         const button: UtteranceBoxElement = box.doc.createElement("button");
         button.id = "topic-" + entry.tag;
         button.type = "button";
-        button.addEventListener("click", () => onTopic(entry.tag));
+        if (readOnly) {
+          button.disabled = true;
+        } else {
+          button.addEventListener("click", () => onTopic(entry.tag));
+        }
         topics.appendChild(button);
         buttons.set(entry.tag, button);
       }

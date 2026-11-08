@@ -1,7 +1,8 @@
 import { ArraySchema } from "@colyseus/schema";
+import type { ConversationTraceEvent } from "./conversation-trace.js";
 import type { ConversationTracer } from "./conversation-tracer.js";
 import type { ScenarioCast } from "./scenario-cast.js";
-import { traceTagCoverage } from "./trace-tag-coverage.js";
+import { producedTraceTagsOfEvents, traceTagCoverage } from "./trace-tag-coverage.js";
 import { TopicMenuEntryState, type TopicMenuEntryStateInstance } from "./schema.js";
 
 const NOTE_TRACE_TAG = "patient_note_submitted";
@@ -58,6 +59,17 @@ export function topicMenuTags(state: { topicMenu: Iterable<{ tag: string }> }): 
 function markAskedTopics(state: { topicMenu: Iterable<{ tag: string; asked: boolean }> }, observedTags: readonly string[]): void {
   for (const entry of state.topicMenu) {
     const asked = observedTags.includes(entry.tag);
+    if (entry.asked !== asked) {
+      entry.asked = asked;
+    }
+  }
+}
+
+/** C46 mark each replayed topic-menu entry asked from the events applied so far. */
+export function markReplayTopics(state: { topicMenu: Iterable<{ tag: string; asked: boolean }> }, events: readonly ConversationTraceEvent[]): void {
+  const produced = producedTraceTagsOfEvents(events);
+  for (const entry of state.topicMenu) {
+    const asked = produced.has(entry.tag);
     if (entry.asked !== asked) {
       entry.asked = asked;
     }
