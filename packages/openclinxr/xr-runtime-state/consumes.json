@@ -225,6 +225,11 @@
         "via": "own-test"
       },
       {
+        "name": "buildManualPerformanceInputEvidence",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "composedIdleBodyHeading",
         "kind": "runtime",
         "via": "own-test"

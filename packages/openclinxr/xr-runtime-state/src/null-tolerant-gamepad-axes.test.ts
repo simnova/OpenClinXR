@@ -31,7 +31,7 @@ function rawAxesAfterRounding(axes: unknown[]): unknown[] {
           xAxisAfterDeadzone: 0,
           yAxisAfterDeadzone: 0,
           activeAfterDeadzone: false,
-          contribution: "none",
+          contribution: "move",
         },
       ],
       handGestureHands: [],
@@ -46,7 +46,7 @@ describe("gamepad rawAxes rounding tolerates null and undefined axes", () => {
     expect(JSON.stringify(rawAxesAfterRounding([0.12345, -0.5, 0.2, 0.0004]))).toBe("[0.123,-0.5,0.2,0]");
   });
 
-  it.fails("does not throw, keeps the length, rounds numbers as before and maps null and undefined to 0", () => {
+  it("does not throw, keeps the length, rounds numbers as before and maps null and undefined to 0", () => {
     let rounded: unknown[] = [];
     expect(() => {
       rounded = rawAxesAfterRounding([0.12345, null, undefined, -0.5]);

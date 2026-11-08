@@ -243,7 +243,6 @@ async function main(argv) {
       probe.afterTaps = await readMenu(page);
       await shootPanel(page, join(outDir, "c37-menu-after-taps.png"));
       if (emulated) {
-        // The shell's gaze camera is the desktop camera: an immersive head pose does not move it (probe.gazeAfterYaw), so gaze cannot address the nurse here.
         // The shell also addresses the last actor that spoke, so open with a typed line to the nurse through the shell's own typed path, after the taps; the nurse's reply makes it the addressed actor.
         probe.openerVia = "evidence.sendUtterance (typed opener to the speaking actor)";
         probe.gazeAfterYaw = await page.evaluate(() => {
@@ -344,39 +343,10 @@ async function main(argv) {
     const literals = [...menuTags, ...bank.seeds.flatMap((s) => s.utterancePhrases ?? [])].filter((t) => t.length > 6);
     const copied = literals.filter((text) => ownSource.includes(`"${text}"`) || ownSource.includes(`'${text}'`));
     check("H10 the harness source holds none of the shipped tags or phrases (expected values come from the shipped bank)", copied.length === 0, copied.join(", "));
-    // IWER's Quest 3 controller gamepad lists placeholder axes as null; the shell's per-frame gamepad evidence rounds every axis, so each frame
-    // throws `Cannot read properties of null (reading 'toFixed')`. A real Quest reports 0 for those axes. Emulated runs tolerate exactly that signature and count it.
-    // Proof per error, from the page's own error events (stack included): an error is tolerated only when (a) IWER's input-source gamepad has null axes, (b) its message is the null toFixed TypeError,
-    // (c) its first frame lies in code that calls toFixed and a later frame lies in code that names rawAxes (the shell's per-frame gamepad axis rounding), both read from the served bundle.
-    const nullAxes = p.xr?.nullAxes === true;
-    const bundleCache = new Map();
-    const frameSource = async (frame) => {
-      const match = /http:\/\/[^\s)]+\/assets\/([^\s):\/]+\.js):(\d+):(\d+)/u.exec(frame);
-      if (match === null) return "";
-      if (!bundleCache.has(match[1])) bundleCache.set(match[1], (await readFile(join(APP_DIST, "assets", match[1]), "utf8")).split("\n"));
-      const line = bundleCache.get(match[1])[Number(match[2]) - 1] ?? "";
-      const col = Number(match[3]) - 1;
-      return line.slice(Math.max(0, col - 160), col + 160);
-    };
-    const provenAxisRounding = async (stack) => {
-      const frames = stack.split("\n").filter((line) => /^\s+at /u.test(line));
-      if (!nullAxes || emulated !== true || !stack.startsWith("TypeError: Cannot read properties of null (reading 'toFixed')") || frames.length < 3) return false;
-      const sources = await Promise.all(frames.slice(0, 6).map(frameSource));
-      return sources[0].includes("toFixed") && sources.slice(1).some((text) => text.includes("rawAxes"));
-    };
-    const stackVerdicts = emulated ? await Promise.all((p.xr?.errorStacks ?? []).map(provenAxisRounding)) : [];
-    const stackNullAxisCount = stackVerdicts.filter(Boolean).length;
-    const toFixedMessage = "TypeError: Cannot read properties of null (reading 'toFixed')";
-    const barePageErrors = out.pageErrors.filter((text) => text === toFixedMessage).length;
-    const unprovenStacks = (p.xr?.errorStacks ?? []).filter((_, i) => !stackVerdicts[i]);
-    // Every bare page error must be matched by a proven stack from the same page; any unproven stack is a failure.
-    const emulatorNullAxis = (text) => emulated && text === toFixedMessage && barePageErrors === stackNullAxisCount && unprovenStacks.length === 0;
-    const stackProven = stackNullAxisCount > 0;
-    const consoleStackOnly = (text) => emulated && text.startsWith(toFixedMessage) && stackProven && unprovenStacks.length === 0;
-    run.emulatorArtifacts = emulated ? { nullAxes, stackProven, provenStacks: stackNullAxisCount, unprovenStacks: unprovenStacks.length, barePageErrors, nullAxisConsoleErrors: out.consoleErrors.filter(consoleStackOnly).length } : undefined;
-    const other = out.consoleErrors.filter((text) => !isAsset404(text) && !consoleStackOnly(text));
-    const otherPageErrors = out.pageErrors.filter((text) => !emulatorNullAxis(text));
-    check("H11 no page errors and no console errors other than missing-asset 404s", otherPageErrors.length === 0 && other.length === 0, [...otherPageErrors, ...other].join(" | ") || `${out.consoleErrors.length} console errors tolerated (asset 404s${emulated ? " and the IWER null-axis signature" : ""})`);
+    // C38: the shell rounds null gamepad axes to 0, so no page error is tolerated in any mode; any page error or non-404 console error fails the run.
+    run.emulatorArtifacts = emulated ? { toleratedPageErrors: 0, pageErrors: out.pageErrors.length } : undefined;
+    const other = out.consoleErrors.filter((text) => !isAsset404(text));
+    check("H11 no page errors and no console errors other than missing-asset 404s", out.pageErrors.length === 0 && other.length === 0, [...out.pageErrors, ...other].join(" | ") || `${out.consoleErrors.length} console errors tolerated (asset 404s)`);
     if (options.mode === "quest") {
       const lists = await collectQuestCleanupLists({ staticPort: staticServer.port, syncPort: new URL(pageUrl).searchParams.get("encounterSync").split(":").at(-1), serial: options.serial });
       run.adbReverseList = lists.adbReverseList;
