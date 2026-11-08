@@ -530,11 +530,17 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
     # as a vertical slab
     bh_z = f.get("backHugBelowMm", -1e6) / 1000.0
     bh_gain = f.get("backHugGain", 0.0)
+    tcv = f.get("tipConverge")
+    if tcv:
+        tcv_z, tcv_y, tcv_ramp = tcv["belowMm"] / 1000.0, tcv["yMm"] / 1000.0, tcv["rampMm"] / 1000.0
     tuck = rc.get("earTuck")
     route = f.get("shoulderRoute")   # replaces the shoulder field when present (groom-r5)
     if route:
         r_y, r_top, r_bot = (route[k] / 1000.0 for k in ("behindYMm", "topMm", "bottomMm"))
         r_ramp, r_hw = route["rampMm"] / 1000.0, route.get("medialHalfWidthMm", 1e6) / 1000.0
+        r_tap = route.get("medialTaper")
+        if r_tap:
+            r_tap_top, r_tap_min = r_tap["topMm"] / 1000.0, r_tap["minHalfWidthMm"] / 1000.0
     # behind the part (root more than partFadeBackMm behind the head centre) the two
     # sides are drawn toward the midline so the back is one curtain, not a split
     conv = rc["part"].get("backConvergeGain", 0.0)
@@ -643,13 +649,25 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
             # toward the midline so they do not slide out along the shoulder slope
             if r_bot < lp[2] < r_top and lp[1] < r_y:
                 steer += back * (route["gain"] * g * min(1.0, (r_y - lp[1]) / r_ramp))
-            if lp[2] < r_top and abs(lp[0]) > r_hw:
+            # medialTaper (groom-r6): below taperTopMm the medial half-width shrinks by
+            # mmPerMm per mm of descent down to minHalfWidthMm, so the back outline tapers
+            # inward toward the tips (U-shaped tail) while strand lengths stay as grown
+            hw_here = r_hw
+            if r_tap and lp[2] < r_tap_top:
+                hw_here = max(r_tap_min, r_hw - r_tap["mmPerMm"] * (r_tap_top - lp[2]))
+            if lp[2] < r_top and abs(lp[0]) > hw_here:
                 sgn = 1.0 if lp[0] >= 0 else -1.0
-                steer += -right * sgn * (route.get("medialGain", 0.0) * g * min(1.0, (abs(lp[0]) - r_hw) / r_ramp))
+                gm = route.get("medialGain", 0.0) if hw_here >= r_hw else r_tap.get("gain", route.get("medialGain", 0.0))
+                steer += -right * sgn * (gm * g * min(1.0, (abs(lp[0]) - hw_here) / r_ramp))
         elif sh_bot < lp[2] < sh_z:
             steer += (-back if frontish else back * BACK_FIELD_RATIO) * (f["shoulderForwardGain"] * g)
         if bh_gain > 0.0 and lp[2] < bh_z:
             steer += -back * (bh_gain * g)
+        # tip convergence (groom-r6, fall.tipConverge): below belowMm every strand is steered
+        # toward the head-local plane y = yMm (forward from behind it, back from in front),
+        # ramped over rampMm, so the hanging tail narrows in profile toward the tips
+        if tcv and lp[2] < tcv_z:
+            steer += back * (tcv["gain"] * g * max(-1.0, min(1.0, (tcv_y - lp[1]) / tcv_ramp)))
         d = (d + steer * ds).normalized()
         q = p + d * ds
         q = push_out(q, collider, off_here)

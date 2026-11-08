@@ -53,16 +53,16 @@
   }
  },
  "lengthMm": {
-  "front": 665,
-  "temples": 645,
-  "crown": 685,
-  "nape": 475
+  "front": 695,
+  "temples": 675,
+  "crown": 715,
+  "nape": 500
  },
  "part": {
   "type": "centre",
   "partWidthMm": 1.2,
   "partAwayGain": 0.9,
-  "partFadeBackMm": 40,
+  "partFadeBackMm": 50,
   "backConvergeGain": 0.3,
   "backConvergeWidthMm": 40,
   "backConvergeStopAtMidline": true
@@ -85,26 +85,38 @@
   "scalpHugMinZMm": 60,
   "scalpHugCrownHalfWidthMm": 60,
   "shoulderFieldBottomMm": -180,
-  "backHugBelowMm": -280,
-  "backHugGain": 0.3,
+  "backHugBelowMm": -300,
+  "backHugGain": 0.8,
   "scalpHugOffsetMm": 1.5,
   "shoulderRoute": {
    "behindYMm": 70,
-   "topMm": -60,
+   "topMm": -95,
    "bottomMm": -200,
    "gain": 0.8,
    "rampMm": 30,
    "medialHalfWidthMm": 100,
-   "medialGain": 0.5
+   "medialGain": 0.5,
+   "medialTaper": {
+    "topMm": -160,
+    "mmPerMm": 0.6,
+    "minHalfWidthMm": 45,
+    "gain": 1.0
+   }
   },
   "relaxBelow": {
    "belowMm": -30,
    "iterations": 40
   },
   "layerMmPerMm": 0.09,
-  "layerCapMm": 200,
+  "layerCapMm": 150,
   "layerApplyBelowMm": -60,
-  "layerMaxAbsXMm": 70
+  "layerMaxAbsXMm": 70,
+  "tipConverge": {
+   "belowMm": -310,
+   "yMm": 108,
+   "gain": 1.5,
+   "rampMm": 10
+  }
  },
  "clump": {
   "factor": 0.35,
@@ -147,7 +159,7 @@
  },
  "earTuck": {
   "minAbsXMm": 40,
-  "behindYMm": 30,
+  "behindYMm": 15,
   "topZMm": 50,
   "bottomZMm": -20,
   "rampMm": 35,
