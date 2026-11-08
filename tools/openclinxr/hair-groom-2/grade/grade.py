@@ -541,7 +541,9 @@ def card_side_silhouette(rd, st, rows=1600):
         ri, ci, d = pix(P); np.minimum.at(zb, (ri, ci), d)
     sil = np.zeros((rows, 1024), bool)
     F = c['card_tris']
-    for P, Q in samples(c['card_verts'][F], c['card_uv'][F]):
+    # card_atlas_uv (cards-r3+: one atlas cell per card, cards_from_strands.py) when present, card_uv otherwise
+    auv = c['card_atlas_uv'] if 'card_atlas_uv' in c.files else c['card_uv']
+    for P, Q in samples(c['card_verts'][F], auv[F]):
         a = al[np.clip(((1 - Q[:, 1]) * H).astype(int), 0, H - 1), np.clip((Q[:, 0] * W).astype(int), 0, W - 1)]
         ri, ci, d = pix(P[a >= cut]); vis = d < zb[ri, ci]; sil[ri[vis], ci[vis]] = True
     cnt = sil.sum(1)
