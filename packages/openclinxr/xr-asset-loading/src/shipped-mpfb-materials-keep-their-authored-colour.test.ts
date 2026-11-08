@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { BufferGeometry, Color, Group, Mesh, MeshStandardMaterial } from "three";
 import { describe, expect, it } from "vitest";
-import { tintGeneratedSceneMaterials } from "./material-tint.js";
+import { tintGeneratedSceneMaterials } from "./index.js";
 
 const AISHA_GLB = new URL("../../../../apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb", import.meta.url);
 const ROLE_TINT = 0x8fb9aa;
