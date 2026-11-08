@@ -1,0 +1,171 @@
+{
+ "provenance": {
+  "mainSha": "92fe4a2bc",
+  "command": "node jobs/c47-fixture-draft.mjs --mode emulated (c45-capture.mjs with paths pointed at a 92fe4a2bc worktree): types a note, never submits"
+ },
+ "index": {
+  "schema": "openclinxr.xr-sync.exam-session-review-index.v1",
+  "complete": true,
+  "stationCount": 1,
+  "blueprintId": "bp-evidence-c45",
+  "stations": [
+   {
+    "stationId": "slot-a",
+    "stationIndex": 0,
+    "stationLabel": "C45 chest",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "traceFile": "4A0xWPbe4.conversation-trace.json",
+    "phases": [
+     "doorway",
+     "encounter",
+     "note",
+     "closed"
+    ],
+    "turnCount": 0,
+    "turnEnds": [],
+    "observerPresent": false,
+    "notePresent": true,
+    "noteChars": 63,
+    "noteFile": "4A0xWPbe4.patient-note.json",
+    "observedTraceTags": [
+     "patient_note_submitted"
+    ],
+    "missingRequiredTraceTags": [
+     "history_opqrst",
+     "risk_factor_question",
+     "associated_symptom_question",
+     "vitals_review",
+     "ecg_request",
+     "urgent_escalation",
+     "team_communication",
+     "family_communication",
+     "empathy_statement"
+    ],
+    "rubricCoverage": [
+     {
+      "rubricId": "history_focus",
+      "observedTags": [],
+      "missingTags": [
+       "history_opqrst",
+       "risk_factor_question",
+       "associated_symptom_question"
+      ]
+     },
+     {
+      "rubricId": "urgent_recognition",
+      "observedTags": [],
+      "missingTags": [
+       "vitals_review",
+       "ecg_request",
+       "urgent_escalation"
+      ]
+     },
+     {
+      "rubricId": "communication_team_family",
+      "observedTags": [],
+      "missingTags": [
+       "team_communication",
+       "family_communication",
+       "empathy_statement"
+      ]
+     },
+     {
+      "rubricId": "documentation",
+      "observedTags": [
+       "patient_note_submitted"
+      ],
+      "missingTags": []
+     }
+    ]
+   }
+  ]
+ },
+ "trace": {
+  "schema": "openclinxr.xr-sync.conversation-trace.v1",
+  "stationId": "slot-a",
+  "scenarioId": "ed_chest_pain_priority_v1",
+  "events": [
+   {
+    "seq": null,
+    "kind": "phase-changed",
+    "actorId": "",
+    "turnId": null,
+    "phase": "doorway"
+   },
+   {
+    "seq": null,
+    "kind": "phase-changed",
+    "actorId": "",
+    "turnId": null,
+    "phase": "encounter"
+   },
+   {
+    "seq": null,
+    "kind": "phase-changed",
+    "actorId": "",
+    "turnId": null,
+    "phase": "note"
+   },
+   {
+    "seq": null,
+    "kind": "phase-changed",
+    "actorId": "",
+    "turnId": null,
+    "phase": "closed"
+   },
+   {
+    "seq": null,
+    "kind": "note-submitted",
+    "actorId": "",
+    "turnId": null,
+    "chars": 63,
+    "source": "draft"
+   }
+  ],
+  "turns": [],
+  "emotions": [],
+  "cast": {
+   "scenarioId": "ed_chest_pain_priority_v1",
+   "actors": [
+    "patient_robert_hayes_v1",
+    "spouse_anna_hayes_v1",
+    "nurse_maria_alvarez_v1"
+   ],
+   "baseline": "neutral",
+   "emotionPolicy": {
+    "baseline": "neutral",
+    "upperBound": "anxious",
+    "lowerBound": "reassured",
+    "transitions": []
+   },
+   "topicAnswers": [
+    {
+     "actorId": "patient_robert_hayes_v1",
+     "topicTags": [
+      "history_opqrst"
+     ],
+     "replyId": "patient_robert_hayes_v1:seed:patient_onset_history",
+     "affect": "concerned"
+    },
+    {
+     "actorId": "nurse_maria_alvarez_v1",
+     "topicTags": [
+      "team_communication",
+      "urgent_escalation"
+     ],
+     "replyId": "nurse_maria_alvarez_v1:seed:nurse_team_escalation",
+     "affect": "concerned"
+    },
+    {
+     "actorId": "spouse_anna_hayes_v1",
+     "topicTags": [
+      "family_communication",
+      "empathy_statement"
+     ],
+     "replyId": "spouse_anna_hayes_v1:seed:spouse_family_communication",
+     "affect": "anxious"
+    }
+   ]
+  }
+ }
+}

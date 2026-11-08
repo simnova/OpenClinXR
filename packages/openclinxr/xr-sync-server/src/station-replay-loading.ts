@@ -41,7 +41,32 @@ export interface LoadedStationReplay {
   /** C12 index complete flag, copied for the lobby state. */
   complete: boolean;
   /** C12 lobby entries in index order, copied from the review index. */
-  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number }[];
+  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number; noteSource: "explicit" | "draft" | "" | null }[];
+}
+
+function parseNoteSource(stationId: string, notePresent: boolean, raw: unknown): "explicit" | "draft" | "" | null {
+  if (raw === undefined) {
+    return notePresent ? "" : null;
+  }
+  if (raw === null) {
+    if (!notePresent) {
+      return null;
+    }
+    throw new Error(`replay-bad-index: station ${stationId} holds a malformed note source`);
+  }
+  if (raw === "") {
+    if (notePresent) {
+      return "";
+    }
+    throw new Error(`replay-bad-index: station ${stationId} holds a malformed note source`);
+  }
+  if (raw === "explicit" || raw === "draft") {
+    if (notePresent) {
+      return raw;
+    }
+    throw new Error(`replay-bad-index: station ${stationId} holds a malformed note source`);
+  }
+  throw new Error(`replay-bad-index: station ${stationId} holds a malformed note source`);
 }
 
 /**
@@ -89,6 +114,7 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
       turnCount: typeof typed.turnCount === "number" ? typed.turnCount : 0,
       notePresent: typed.notePresent === true,
       noteChars: typeof typed.noteChars === "number" ? typed.noteChars : 0,
+      noteSource: parseNoteSource(typed.stationId, typed.notePresent === true, (entry as { noteSource?: unknown }).noteSource),
     });
     // C11: a bad TRACE refuses only its own station (the error is stored
     // against it and surfaces at join); every other station still replays.

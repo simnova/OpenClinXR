@@ -132,9 +132,9 @@ describe("xr-sync-server C12 review lobby", () => {
     expect(last()?.mode).toBe("lobby");
     expect(last()?.sessionComplete).toBe(false);
     expect(last()?.lobbyStations).toEqual([
-      { stationId: "station-1", stationIndex: 0, turnCount: 1, notePresent: false, noteChars: 0, available: true, unavailableReason: "" },
-      { stationId: "station-2", stationIndex: 1, turnCount: 2, notePresent: true, noteChars: 29, available: true, unavailableReason: "" },
-      { stationId: "station-3", stationIndex: 2, turnCount: 1, notePresent: false, noteChars: 0, available: false, unavailableReason: expect.stringMatching(/^replay-/u) },
+      { stationId: "station-1", stationIndex: 0, turnCount: 1, notePresent: false, noteChars: 0, noteSource: "", available: true, unavailableReason: "" },
+      { stationId: "station-2", stationIndex: 1, turnCount: 2, notePresent: true, noteChars: 29, noteSource: "", available: true, unavailableReason: "" },
+      { stationId: "station-3", stationIndex: 2, turnCount: 1, notePresent: false, noteChars: 0, noteSource: "", available: false, unavailableReason: expect.stringMatching(/^replay-/u) },
     ]);
   }, 40000);
 

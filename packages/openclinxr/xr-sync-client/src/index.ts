@@ -102,7 +102,7 @@ export interface EncounterSnapshot {
   /** C12 true when the recorded session ran to completion (lobby only). */
   sessionComplete?: boolean;
   /** C12 one entry per index station, in index order (lobby only). */
-  lobbyStations?: Array<{ stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number; available?: boolean; unavailableReason?: string }>;
+  lobbyStations?: Array<{ stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number; noteSource?: string; available?: boolean; unavailableReason?: string }>;
   /** C13 checked rubric count for the replayed station (replay only). */
   scoreChecked?: number;
   /** C13 one badge per scored index station, in index order (lobby only). */

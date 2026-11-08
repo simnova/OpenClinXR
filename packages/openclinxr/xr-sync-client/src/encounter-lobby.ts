@@ -24,6 +24,9 @@ interface LobbyRow {
   turnCount?: number;
   available?: boolean;
   unavailableReason?: string;
+  notePresent?: boolean;
+  noteChars?: number;
+  noteSource?: string;
 }
 
 /** C32 review-lobby station picker: one button per lobby station in the utteranceBox mount. */
@@ -84,6 +87,19 @@ export function createLobbyPicker(deps: {
       const reasonDiv = deps.box.doc.createElement("div");
       reasonDiv.id = `lobby-reason-${entry.stationId}`;
       reasonDiv.textContent = entry.available ? "" : entry.reason;
+      let noteDiv: ReturnType<typeof deps.box.doc.createElement> | null = null;
+      if (source?.notePresent === true) {
+        const note = deps.box.doc.createElement("div");
+        note.id = `lobby-note-${entry.stationId}`;
+        const chars = typeof source.noteChars === "number" ? source.noteChars : 0;
+        note.textContent =
+          source.noteSource === "explicit"
+            ? `Note ${chars} characters, submitted`
+            : source.noteSource === "draft"
+              ? `Note ${chars} characters, auto-collected at time end`
+              : `Note ${chars} characters`;
+        noteDiv = note;
+      }
       const stationId = entry.stationId;
       const stationAvailable = entry.available;
       button.addEventListener("click", () => {
@@ -103,6 +119,9 @@ export function createLobbyPicker(deps: {
       });
       rowDiv.appendChild(button);
       rowDiv.appendChild(reasonDiv);
+      if (noteDiv !== null) {
+        rowDiv.appendChild(noteDiv);
+      }
       container.appendChild(rowDiv);
     }
     back.hidden = true;

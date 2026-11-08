@@ -21,6 +21,10 @@ export interface SessionReviewStationEntry {
   notePresent: boolean;
   /** C11 length of the last accepted note (0 when none). */
   noteChars: number;
+  // null = no note in this station (notePresent false);
+  // '' = note present, source unrecorded (index written before C45);
+  // 'explicit' | 'draft' = the C45 note-submitted source enum.
+  noteSource?: "explicit" | "draft" | "" | null;
   /** C11 basename of the station's <roomId>.patient-note.json, or null when no note was accepted. */
   noteFile: string | null;
   /** C21 required tags produced by this station's trace (cast stations only). */
