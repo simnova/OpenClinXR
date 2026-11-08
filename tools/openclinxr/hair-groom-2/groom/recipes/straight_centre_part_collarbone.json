@@ -83,11 +83,28 @@
   "rootNormalWeight": 0.1,
   "scalpHugAnteriorOnly": false,
   "scalpHugMinZMm": 60,
-  "scalpHugCrownHalfWidthMm": 40,
+  "scalpHugCrownHalfWidthMm": 60,
   "shoulderFieldBottomMm": -180,
-  "backHugBelowMm": -200,
-  "backHugGain": 0.5,
-  "scalpHugOffsetMm": 1.5
+  "backHugBelowMm": -280,
+  "backHugGain": 0.3,
+  "scalpHugOffsetMm": 1.5,
+  "shoulderRoute": {
+   "behindYMm": 70,
+   "topMm": -60,
+   "bottomMm": -200,
+   "gain": 0.8,
+   "rampMm": 30,
+   "medialHalfWidthMm": 100,
+   "medialGain": 0.5
+  },
+  "relaxBelow": {
+   "belowMm": -30,
+   "iterations": 40
+  },
+  "layerMmPerMm": 0.09,
+  "layerCapMm": 200,
+  "layerApplyBelowMm": -60,
+  "layerMaxAbsXMm": 70
  },
  "clump": {
   "factor": 0.35,
@@ -143,6 +160,17 @@
   "behindEarMm": 4,
   "clearMm": 10,
   "rampMm": 8,
-  "gain": 6.0
+  "gain": 6.0,
+  "rootUpWeight": 0.5,
+  "rootBackWeight": 0.3
+ },
+ "hairlineTaper": {
+  "minAbsXMm": 40,
+  "depthMm": 26,
+  "behindMm": 0,
+  "fullBelowEarTopMm": 4,
+  "minLengthMm": 10,
+  "minRadiusScale": 0.15,
+  "power": 3
  }
 }

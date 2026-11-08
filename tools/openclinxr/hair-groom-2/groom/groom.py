@@ -566,13 +566,16 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
     lay_cap = f.get("layerCapMm", 0.0) / 1000.0
     arc_scalp = 0.0
     lay_below = f.get("layerApplyBelowMm", 1e6) / 1000.0
+    lay_max_x = f.get("layerMaxAbsXMm", 1e6) / 1000.0
     offs = [0.0, vol]
     while arc < L:
         lp = to_local(p, origin, R)
         steer = Vector((0, 0, 0))
         # layerApplyBelowMm: the stacked offset acts only on the hanging part (head-local z
         # below it), so the scalp, ear and crown keep their layout
-        lay = lay_gain * min(arc_scalp, lay_cap) if lp[2] < lay_below else 0.0
+        # layerMaxAbsXMm: and only within that distance of the midline (the back sheet), so the
+        # strands over the shoulders keep the volume offset and the back outline its width
+        lay = lay_gain * min(arc_scalp, lay_cap) if (lp[2] < lay_below and abs(lp[0]) < lay_max_x) else 0.0
         off_here = vol + lay
         g_scale = 1.0
         if anterior and lp[2] > sh_z and abs(lp[0]) < rail:
