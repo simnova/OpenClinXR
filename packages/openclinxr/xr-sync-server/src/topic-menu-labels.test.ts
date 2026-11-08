@@ -14,12 +14,13 @@ import { createEncounterServer, type EncounterServer } from "./index.js";
 //   labelSource is "seed-phrase" | "tag" | "other"; "other" requires a non-empty note, the others carry note "".
 //   Counterweight A: every "tag" entry is listed in pre-fix.json (evidence/c37), which records the same split computed
 //   from the shipped bank before this change; at least one shipped label differs from tag.replaceAll("_", " ").
-// pre-fix.json is gitignored (lane convention); this test reads it from the checkout root.
+// pre-fix.json is the C37 measurement (evidence/c37, gitignored); its bytes are committed here as a fixture so the
+// test passes in any checkout. The C37 landing on main read the gitignored path and was red outside the shared checkout.
 
 const TIMING = { doorwaySeconds: 1, encounterSeconds: 5, noteSeconds: 1, breakAfterStationOrders: [] };
 const CHEST = { ...edChestPainScenario, status: "approved" as const, eventSchedule: edChestPainScenario.eventSchedule.map((entry) => ({ ...entry, atSecond: TIMING.encounterSeconds })) };
 const NOTE_TAG = "patient_note_submitted";
-const PRE_FIX = join(dirname(fileURLToPath(import.meta.url)), "../../../../.openclinxr/slices/xr-sync-colyseus/evidence/c37/pre-fix.json");
+const PRE_FIX = join(dirname(fileURLToPath(import.meta.url)), "topic-menu-pre-fix.fixture.json");
 
 const blueprint = {
   blueprintId: "bp-fixture-c37-labels",
