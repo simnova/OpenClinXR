@@ -1336,6 +1336,11 @@ export async function waitForStationShell(page: Page, timeoutMs = 180_000): Prom
   const unsubscribe = diagnostics
     ? subscribeToStationCaptureServerErrors(diagnostics, (error) => {
       if (error.resourceType !== "script") return;
+      // Vite answers a stale optimized-dep import with 504 "Outdated Optimize Dep"
+      // and then full-reloads the page itself; a second reload from here lands
+      // after the shell is up and destroys the next page.evaluate (pre-push
+      // 2026-11-08, the-room-camera-lands-in-the-same-place-twice). Record only.
+      if (error.status === 504) return;
       const resolve = resolveNextScriptError;
       if (resolve) {
         resolveNextScriptError = undefined;

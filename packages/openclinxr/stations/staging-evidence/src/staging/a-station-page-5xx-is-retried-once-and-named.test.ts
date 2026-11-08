@@ -126,6 +126,16 @@ describe("a station page script 5xx is retried once and named", () => {
     expect(message).toContain("station shell wait failed: HTTP 503 http://127.0.0.1:4173/src/station.ts second transform failed");
   });
 
+  it("does not reload on Vite's 504 Outdated Optimize Dep, which reloads the page itself", async () => {
+    const page = new FakePage();
+    const waiting = waitForStationShell(page as never, 100);
+    await page.respond({ status: 504, resourceType: "script", body: "Outdated Optimize Dep" });
+    page.waits[0]?.reject(new Error("page.waitForFunction: Timeout 100ms exceeded."));
+    const message = await messageFrom(waiting);
+    expect(page.reloadCount).toBe(0);
+    expect(message).toContain("HTTP 504");
+  });
+
   it("does not reload a 404 script response and carries it into the timeout", async () => {
     const page = new FakePage();
     const waiting = waitForStationShell(page as never, 100);
