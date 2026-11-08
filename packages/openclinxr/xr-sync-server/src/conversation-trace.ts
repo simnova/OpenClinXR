@@ -148,6 +148,8 @@ export interface ConversationTraceEvent {
   modality?: "typed" | "speech"; confidence?: number;
   /** C30, utterance-end only; consecutive low-confidence results before this one; integer 1..99; never text. */
   retry?: number;
+  /** C39, utterance-end only; every on-menu tag of the matched answer (deduped, authored order); first equals tag; only set when length > 1. */
+  coveredTags?: string[];
 }
 
 /** One server-driven actor turn, recomputed from events alone. */
@@ -389,6 +391,20 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     }
     if (typeof event.tag === "string") {
       out.tag = event.tag;
+    }
+    const rawCovered = (event as { coveredTags?: unknown }).coveredTags;
+    if (rawCovered !== undefined) {
+      if (event.kind !== "utterance-end") {
+        throw new Error("replay-bad-trace: only an utterance-end may carry coveredTags");
+      }
+      if (!Array.isArray(rawCovered) || rawCovered.some((entry) => typeof entry !== "string")) {
+        throw new Error("replay-bad-trace: malformed coveredTags");
+      }
+      const deduped = [...new Set(rawCovered as string[])];
+      if (out.tag === undefined || !deduped.includes(out.tag)) {
+        throw new Error("replay-bad-trace: malformed coveredTags");
+      }
+      out.coveredTags = deduped;
     }
     const match = (event as { match?: unknown }).match;
     if (match === "exact" || match === "phrase" || match === "fallback") {

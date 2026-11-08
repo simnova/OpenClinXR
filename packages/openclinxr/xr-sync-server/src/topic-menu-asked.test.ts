@@ -15,6 +15,9 @@ import { createEncounterServer, type EncounterServer } from "./index.js";
 //   of the answer's tags on the menu), so the review observes one tag and asked marks that one; the sibling tag stays false
 //   until a tap on it. (The approved contract also said "both are marked"; both cannot hold with clause 2's equality, and
 //   clause 2 wins. Recorded in the C37 ledger section.)
+//   FIXED (C39, card tsk_9f6a3b8418ba3b6d): a matched turn now traces EVERY menu tag its answer covers (the utterance-end event
+//   carries coveredTags), so the review observes and asked marks both siblings; clause 2's equality holds. The paragraph above
+//   is the C37 ruling that preceded the fix.
 //   asked stays false after: an unknown-topic refusal, an off-menu tag (patient_note_submitted via topicTag), unmatched typed
 //   text, and a low-confidence speech turn (even when its text would match). asked is false at the start of a new session and
 //   survives a reconnect and a second join into the same room. asked turns true on a typed turn and a matched speech turn.
@@ -142,13 +145,13 @@ describe("xr-sync-server C37 topic menu asked state", () => {
     expect(session.steps["typed-match"]).toContain("history_opqrst");
   }, 120000);
 
-  it("a typed turn and a matched speech turn mark the tag they resolve to; a tap marks its tag; a multi-tag answer marks the tag the trace records", async () => {
+  it("a typed turn and a matched speech turn mark the tag they resolve to; a tap marks its tag; a multi-tag answer marks every menu tag it covers", async () => {
     const session = await recordSession();
     expect(session.steps["typed-match"]).toEqual(["history_opqrst"]);
-    expect(session.steps["speech-match"]).toEqual(["history_opqrst", "team_communication"]);
-    // INVERTED GUARD (ruling F1): holds while the trace records one tag per matched turn. When the trace changes, flip it to assert both marked.
-    expect(session.steps["speech-match"], "trace records every menu tag the matched answer covers; then assert both marked").not.toContain("urgent_escalation");
-    expect(session.steps["tap"]).toEqual(["history_opqrst", "team_communication", "empathy_statement"]);
+    expect([...(session.steps["speech-match"] ?? [])].sort()).toEqual(["history_opqrst", "team_communication", "urgent_escalation"]);
+    // FIXED (C39, card tsk_9f6a3b8418ba3b6d): a matched turn traces every menu tag its answer covers, so both nurse-answer tags are marked.
+    expect(session.steps["speech-match"]).toEqual(expect.arrayContaining(["team_communication", "urgent_escalation"]));
+    expect([...(session.steps["tap"] ?? [])].sort()).toEqual(["empathy_statement", "history_opqrst", "team_communication", "urgent_escalation"]);
     expect(session.steps["tap"]).not.toContain("family_communication");
     expect(session.steps["scheduled"]).toEqual(expect.arrayContaining([...session.steps["tap"] ?? [], ...SCHEDULED_TAGS]));
   }, 120000);

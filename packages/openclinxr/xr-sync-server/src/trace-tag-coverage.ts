@@ -38,6 +38,11 @@ export function producedTraceTags(trace: ConversationTrace): Set<string> {
     if (typeof event.tag === "string") {
       produced.add(event.tag);
     }
+    if (Array.isArray(event.coveredTags)) {
+      for (const entry of event.coveredTags) {
+        if (typeof entry === "string") produced.add(entry);
+      }
+    }
     if (event.kind === "note-submitted") {
       produced.add("patient_note_submitted");
     }

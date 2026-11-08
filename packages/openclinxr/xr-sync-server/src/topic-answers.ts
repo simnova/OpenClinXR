@@ -172,28 +172,29 @@ export function matchUtterance(
   answers: readonly TopicAnswer[] | null | undefined,
   actorId: string,
   menu: readonly string[],
-): { kind: "exact" | "phrase"; tag: string } | { kind: "fallback" } {
+): { kind: "exact" | "phrase"; tag: string; tags: string[] } | { kind: "fallback" } {
   const text = normalizeUtterance(rawText);
-  const candidates: Array<{ answer: TopicAnswer; tag: string }> = [];
+  const candidates: Array<{ answer: TopicAnswer; tag: string; tags: string[] }> = [];
   for (const answer of answers ?? []) {
     if (answer.actorId !== actorId) continue;
-    const tag = answer.topicTags.find((entry) => menu.includes(entry));
-    if (tag === undefined) continue;
-    candidates.push({ answer, tag });
+    const tags = [...new Set(answer.topicTags.filter((entry) => menu.includes(entry)))];
+    if (tags.length === 0) continue;
+    const tag = tags[0] as string;
+    candidates.push({ answer, tag, tags });
   }
-  for (const { answer, tag } of candidates) {
+  for (const { answer, tag, tags } of candidates) {
     for (const phrase of answer.phrases) {
-      if (text === phrase) return { kind: "exact", tag };
+      if (text === phrase) return { kind: "exact", tag, tags };
     }
   }
-  let best: { kind: "phrase"; tag: string; words: number } | null = null;
-  for (const { answer, tag } of candidates) {
+  let best: { kind: "phrase"; tag: string; tags: string[]; words: number } | null = null;
+  for (const { answer, tag, tags } of candidates) {
     for (const phrase of answer.phrases) {
       if (phrase === "" || !` ${text} `.includes(` ${phrase} `)) continue;
       const words = phrase.split(" ").length;
-      if (best === null || words > best.words) best = { kind: "phrase", tag, words };
+      if (best === null || words > best.words) best = { kind: "phrase", tag, tags, words };
     }
   }
-  if (best !== null) return { kind: best.kind, tag: best.tag };
+  if (best !== null) return { kind: best.kind, tag: best.tag, tags: best.tags };
   return { kind: "fallback" };
 }

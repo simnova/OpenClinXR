@@ -201,6 +201,7 @@ export function applyUtteranceIntent(
   }
   let resolvedTag = topic.tag;
   let matchKind: "exact" | "phrase" | "fallback" | undefined;
+  let coveredTags: string[] | undefined;
   if (modality === "speech" && bindings.topicMenu != null && (confidence as number) < (bindings.utteranceFallbackMinConfidence ?? 0)) {
     matchKind = "fallback";
     resolvedTag = SPEECH_LOW_CONFIDENCE_TAG;
@@ -208,6 +209,7 @@ export function applyUtteranceIntent(
     const matched = matchUtterance(rawText, bindings.topicAnswers, actorId ?? "", bindings.topicMenu);
     matchKind = matched.kind;
     resolvedTag = matched.kind === "fallback" ? UNMATCHED_TOPIC_TAG : matched.tag;
+    coveredTags = matched.kind === "fallback" ? undefined : (matched.tags.length > 1 ? matched.tags : undefined);
   }
   if (!learner.speaking) {
     bindings.reject(client, seq, "no-open-utterance");
@@ -256,7 +258,7 @@ export function applyUtteranceIntent(
   const acknowledgement: EmotionEventKind = "learner_acknowledgement";
   actor.emotion = bindings.tracer.transition(actorId, acknowledgement, turnId, answer?.affect).to;
   const priorLow = actor.retries;
-  bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(resolvedTag === undefined ? {} : { tag: resolvedTag }), ...(matchKind === undefined ? {} : { match: matchKind }), modality: modality === "speech" ? "speech" : "typed", ...(modality === "speech" ? { confidence: Math.round((confidence as number) * 100) / 100 } : {}), ...(priorLow > 0 ? { retry: Math.min(priorLow, 99) } : {}) });
+  bindings.tracer.push({ seq, kind: "utterance-end", actorId, turnId, ...(resolvedTag === undefined ? {} : { tag: resolvedTag }), ...(matchKind === undefined ? {} : { match: matchKind }), ...(coveredTags === undefined ? {} : { coveredTags }), modality: modality === "speech" ? "speech" : "typed", ...(modality === "speech" ? { confidence: Math.round((confidence as number) * 100) / 100 } : {}), ...(priorLow > 0 ? { retry: Math.min(priorLow, 99) } : {}) });
   actor.intake = resolvedTag ?? "";
   actor.retries = resolvedTag === SPEECH_LOW_CONFIDENCE_TAG ? Math.min(priorLow + 1, 99) : 0;
   bindings.setTurnOwner("actor");
