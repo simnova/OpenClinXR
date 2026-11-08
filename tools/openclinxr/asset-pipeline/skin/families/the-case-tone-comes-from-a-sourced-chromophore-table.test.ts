@@ -11,7 +11,10 @@ type KnownGood = {
   measuredLab: Lab;
   derivedLab: Lab;
   Cm: number;
+  betaM: number;
+  Ch: number;
   dE76: number;
+  onRangeBound: { Cm: boolean; betaM: boolean; Ch: boolean };
 };
 type TableRow = {
   token: string;
@@ -24,6 +27,25 @@ type TableRow = {
 type Report = {
   decision: "table" | "falsified" | "inconclusive";
   reason?: string;
+  control: {
+    fit: { Cm: number; betaM: number; Ch: number };
+    values: Array<{ wavelengthNm: number; reflectance: number; populationSd: number }>;
+    tolerance: { value: number; source: string };
+    rmsReflectanceError: number;
+    qBandMinimaNm: { control: number[]; model: number[] };
+    Lab: { control: Lab; model: Lab; dE76: number };
+    pass: boolean;
+  };
+  counterweight: {
+    Cm: number;
+    betaM: number;
+    "aStarAtCh0.001": number;
+    "aStarAtCh0.1": number;
+    deltaAStar: number;
+    threshold: number;
+    thresholdSource: string;
+    pass: boolean;
+  };
   parameters: {
     betaM: { value: number; citation: string; range: [number, number] };
     Ch: { value: number; citation: string; range: [number, number] };
@@ -97,7 +119,7 @@ function runDerivation(args: string[]): string {
       "--with",
       "colour-science==0.4.7",
       "--with",
-      "numpy",
+      "numpy==2.2.6",
       "python",
       path.join(HERE, "derive_chromophore_lab.py"),
       ...args,
@@ -147,6 +169,8 @@ describe("case skin_tone comes from a sourced chromophore table", () => {
       const again = byId.get(point.id);
       expect(again, `derivation did not emit ${point.id}`).toBeDefined();
       expect(Math.abs(again!.Cm - point.Cm)).toBeLessThanOrEqual(1e-9);
+      expect(Math.abs(again!.betaM - point.betaM)).toBeLessThanOrEqual(1e-9);
+      expect(Math.abs(again!.Ch - point.Ch)).toBeLessThanOrEqual(1e-9);
       expectLabClose(point.derivedLab, again!.derivedLab, 1e-6);
     }
   }, 180_000);
@@ -243,5 +267,91 @@ describe("case skin_tone comes from a sourced chromophore table", () => {
       ranked[1]!.distance - ranked[0]!.distance,
       6,
     );
+  });
+
+  it("T8 passes the published in-vivo control RMS and both oxy-Hb Q-band minima", () => {
+    const report = requireReport();
+    const fresh = JSON.parse(runDerivation(["--control"])) as {
+      values: Array<{ wavelengthNm: number; reflectance: number }>;
+      modelReflectance: number[];
+      rmsReflectanceError: number;
+      populationSdRmsTolerance: number;
+      controlQBandMinimaNm: number[];
+      modelQBandMinimaNm: number[];
+      controlLab: Lab;
+      modelLab: Lab;
+    };
+    expect(report.control.tolerance.source.trim()).toBeTruthy();
+    expect(fresh.values.map((value) => value.wavelengthNm)).toEqual(
+      report.control.values.map((value) => value.wavelengthNm),
+    );
+    const rms = Math.sqrt(
+      report.control.values.reduce((sum, value, index) => {
+        const error = fresh.modelReflectance[index]! - value.reflectance;
+        return sum + error * error;
+      }, 0) / report.control.values.length,
+    );
+    expect(rms).toBeCloseTo(report.control.rmsReflectanceError, 9);
+    expect(rms).toBeLessThanOrEqual(report.control.tolerance.value);
+    expect(fresh.populationSdRmsTolerance).toBeCloseTo(report.control.tolerance.value, 9);
+    expect(fresh.controlQBandMinimaNm).toEqual(report.control.qBandMinimaNm.control);
+    expect(fresh.modelQBandMinimaNm).toEqual(report.control.qBandMinimaNm.model);
+    for (const [index, center] of [542, 577].entries()) {
+      expect(Math.abs(fresh.controlQBandMinimaNm[index]! - center)).toBeLessThanOrEqual(10);
+      expect(Math.abs(fresh.modelQBandMinimaNm[index]! - center)).toBeLessThanOrEqual(10);
+    }
+    expectLabClose(fresh.controlLab, report.control.Lab.control);
+    expectLabClose(fresh.modelLab, report.control.Lab.model);
+    expect(dLab(fresh.controlLab, fresh.modelLab)).toBeCloseTo(report.control.Lab.dE76, 9);
+  }, 180_000);
+
+  it("T9 refuses a blood-blind model using a threshold computed from tone-report.json", () => {
+    const report = requireReport();
+    const measuredA = [...expectedKnownGood.values()].map((lab) => lab[1]);
+    const threshold = Math.max(...measuredA) - Math.min(...measuredA);
+    const low = JSON.parse(
+      runDerivation(["--lab", String(report.counterweight.Cm), String(report.counterweight.betaM), "0.001"]),
+    ) as Lab;
+    const high = JSON.parse(
+      runDerivation(["--lab", String(report.counterweight.Cm), String(report.counterweight.betaM), "0.1"]),
+    ) as Lab;
+    const delta = high[1] - low[1];
+    expect(threshold).toBe(report.counterweight.threshold);
+    expect(report.counterweight.thresholdSource).toMatch(/tone-report\.json/);
+    expect(low[1]).toBeCloseTo(report.counterweight["aStarAtCh0.001"], 9);
+    expect(high[1]).toBeCloseTo(report.counterweight["aStarAtCh0.1"], 9);
+    expect(delta).toBeCloseTo(report.counterweight.deltaAStar, 9);
+    expect(delta).toBeGreaterThanOrEqual(threshold);
+  }, 180_000);
+
+  it("T10 makes the closed decision exactly consistent with G1, G2, and G3", () => {
+    const report = requireReport();
+    const halfInterToneGap =
+      dLab(TONE.tone_anchors_Lab.warm_light, TONE.tone_anchors_Lab.warm_medium) / 2;
+    const measuredA = [...expectedKnownGood.values()].map((lab) => lab[1]);
+    const bloodThreshold = Math.max(...measuredA) - Math.min(...measuredA);
+    const g1 =
+      report.control.rmsReflectanceError <= report.control.tolerance.value &&
+      [542, 577].every(
+        (center, index) =>
+          Math.abs(report.control.qBandMinimaNm.control[index]! - center) <= 10 &&
+          Math.abs(report.control.qBandMinimaNm.model[index]! - center) <= 10,
+      );
+    const g2 = report.counterweight.deltaAStar >= bloodThreshold;
+    const g3Complete =
+      report.knownGood.length === expectedKnownGood.size &&
+      report.knownGood.every(
+        (point) =>
+          inRange(point.Cm, report.parameters.Cm.range) &&
+          inRange(point.betaM, report.parameters.betaM.range) &&
+          inRange(point.Ch, report.parameters.Ch.range),
+      );
+    const anyG3Miss = report.knownGood.some(
+      (point) => dLab(point.measuredLab, point.derivedLab) > halfInterToneGap,
+    );
+    const expectedDecision = !g1 || !g2 || !g3Complete ? "inconclusive" : anyG3Miss ? "falsified" : "table";
+    expect(report.control.pass).toBe(g1);
+    expect(report.counterweight.pass).toBe(g2);
+    expect(report.decision).toBe(expectedDecision);
   });
 });
