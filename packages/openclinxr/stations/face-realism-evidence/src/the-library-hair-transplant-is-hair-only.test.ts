@@ -14,7 +14,10 @@ import { describe, expect, it } from "vitest";
  * every other shipped bufferView, mesh, node and skin is unchanged; (3) joints are remapped by
  * name; (4) a hair material shared with another mesh is refused; (5) two runs are byte-identical;
  * (6) --alpha-mode MASK --alpha-cutoff 0.2 sets the hair material to MASK at 0.2 (peds-parent-aisha's
- * shipped value); a cutoff without MASK is refused, and without the flag the bake's BLEND stays (1).
+ * shipped value); a cutoff without MASK is refused, and without the flag the bake's BLEND stays (1);
+ * (7) cards-r4: a bake material with extensions is refused without --carry-extensions; with it the
+ * extensions, their texture and extensionsUsed are carried; (8) --fringe-blend adds a BLEND copy of the
+ * MASK hair primitive on the same accessors and is refused without MASK.
  *
  * Fixture values are illustrative. The fixture PNG is 2x2, under --max-texture, so it passes
  * through without Pillow. NOT TESTED here: the Pillow downscale branch (runs on real GLBs only).
@@ -86,7 +89,7 @@ function png(rgba: number[]): Buffer {
 
 const DONOR_PNG = png([200, 120, 60, 255, 10, 20, 30, 0, 90, 80, 70, 128, 1, 2, 3, 4]);
 
-function fixture(opts: { bake: boolean; jointOrder: number[]; sharedMaterial?: boolean }): Buffer {
+function fixture(opts: { bake: boolean; jointOrder: number[]; sharedMaterial?: boolean; ext?: boolean }): Buffer {
   const chunks: Buffer[] = [];
   const bufferViews: Array<Record<string, number>> = [];
   const add = (payload: Buffer) => {
@@ -117,7 +120,9 @@ function fixture(opts: { bake: boolean; jointOrder: number[]; sharedMaterial?: b
   ];
   const hairMaterial = opts.bake
     ? { name: "openclinxr_fitted_hair_fixture_mat", alphaMode: "BLEND", doubleSided: true,
-        pbrMetallicRoughness: { baseColorTexture: { index: 0 }, roughnessFactor: 0.9 } }
+        pbrMetallicRoughness: { baseColorTexture: { index: 0 }, roughnessFactor: 0.9 },
+        ...(opts.ext ? { extensions: { KHR_materials_specular: { specularFactor: 0.25 },
+          KHR_materials_anisotropy: { anisotropyStrength: 0.5, anisotropyRotation: 1.5708, anisotropyTexture: { index: 0 } } } } : {}) }
     : { name: "openclinxr_fitted_hair_fixture_mat", doubleSided: true,
         pbrMetallicRoughness: { baseColorFactor: [0.13, 0.09, 0.07, 1], roughnessFactor: 0.9 } };
   const extra = opts.bake
@@ -141,6 +146,7 @@ function fixture(opts: { bake: boolean; jointOrder: number[]; sharedMaterial?: b
       skins: [{ joints: opts.jointOrder }],
       scenes: [{ nodes: [0, 1, 2, 3] }],
       scene: 0,
+      ...(opts.ext ? { extensionsUsed: ["KHR_materials_specular", "KHR_materials_anisotropy"] } : {}),
       ...extra,
     },
     binary,
@@ -229,5 +235,54 @@ describe("library hair transplant", () => {
     const lone = run(dir, shippedPath, bakePath, join(dir, "lone.glb"), ["--alpha-cutoff", "0.2"]);
     expect(lone.status).not.toBe(0);
     expect(lone.stderr).toContain("--alpha-cutoff is required with --alpha-mode MASK");
+  });
+
+  const extPath = join(dir, "bake-ext.glb");
+  writeFileSync(extPath, fixture({ bake: true, jointOrder: [1, 0], ext: true }));
+
+  it("(7) material extensions are refused unless --carry-extensions; then carried with their texture", () => {
+    const refused = run(dir, shippedPath, extPath, join(dir, "ext-refused.glb"));
+    expect(refused.status).not.toBe(0);
+    expect(refused.stderr).toContain("bake hair material has extensions");
+    const outPath = join(dir, "ext.glb");
+    const result = run(dir, shippedPath, extPath, outPath, ["--carry-extensions"]);
+    expect(result.status, result.stderr).toBe(0);
+    const out = parseGlb(outPath);
+    const doc = out.doc as Doc & { extensionsUsed?: string[] };
+    const hair = doc.materials[doc.meshes.find((m) => m.name === HAIR)!.primitives[0].material] as {
+      extensions?: { KHR_materials_specular?: { specularFactor: number };
+        KHR_materials_anisotropy?: { anisotropyStrength: number; anisotropyTexture: { index: number } } };
+      pbrMetallicRoughness?: { baseColorTexture?: { index: number } };
+    };
+    expect(hair.extensions?.KHR_materials_specular?.specularFactor).toBe(0.25);
+    expect(hair.extensions?.KHR_materials_anisotropy?.anisotropyStrength).toBe(0.5);
+    const texIndex = hair.extensions!.KHR_materials_anisotropy!.anisotropyTexture.index;
+    expect(texIndex, "extension texture is a new output texture, not the bake index")
+      .not.toBe(hair.pbrMetallicRoughness?.baseColorTexture?.index);
+    expect(view(out, doc.images![doc.textures![texIndex].source].bufferView).equals(DONOR_PNG)).toBe(true);
+    expect(doc.extensionsUsed).toEqual(["KHR_materials_anisotropy", "KHR_materials_specular"]);
+  });
+
+  it("(8) --fringe-blend adds a BLEND primitive on the same accessors; refused without MASK", () => {
+    const outPath = join(dir, "fringe.glb");
+    const result = run(dir, shippedPath, bakePath, outPath,
+      ["--alpha-mode", "MASK", "--alpha-cutoff", "0.5", "--fringe-blend"]);
+    expect(result.status, result.stderr).toBe(0);
+    const out = parseGlb(outPath);
+    const prims = out.doc.meshes.find((m) => m.name === HAIR)!.primitives as Array<{
+      material: number; attributes: Record<string, number>; indices?: number }>;
+    expect(prims).toHaveLength(2);
+    expect(prims[1].attributes).toEqual(prims[0].attributes);
+    expect(prims[1].indices).toBe(prims[0].indices);
+    const core = out.doc.materials[prims[0].material];
+    const fringe = out.doc.materials[prims[1].material];
+    expect(core.alphaMode).toBe("MASK");
+    expect(core.alphaCutoff).toBe(0.5);
+    expect(fringe.alphaMode).toBe("BLEND");
+    expect(fringe.alphaCutoff).toBeUndefined();
+    expect(fringe.pbrMetallicRoughness).toEqual(core.pbrMetallicRoughness);
+    const refused = run(dir, shippedPath, bakePath, join(dir, "fringe-refused.glb"), ["--fringe-blend"]);
+    expect(refused.status).not.toBe(0);
+    expect(refused.stderr).toContain("--fringe-blend needs --alpha-mode MASK");
   });
 });

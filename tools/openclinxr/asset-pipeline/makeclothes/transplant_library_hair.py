@@ -16,6 +16,19 @@ Alpha: the bake's alphaMode is kept unless --alpha-mode is given. `--alpha-mode 
 --alpha-cutoff 0.2` is peds-parent-aisha's shipped hair setting; it removes the BLEND
 sort-order strip along the crown part (lane handoff, t1024mask crops).
 
+Material extensions (cards-r4): the bake's hair material is refused if it carries extensions,
+unless --carry-extensions is given; then every extension is copied (KHR_materials_specular,
+KHR_materials_anisotropy, ...), any texture an extension references is carried like the core
+slots, and the extension names are added to extensionsUsed.
+
+Soft card edges (cards-r4): --fringe-blend (needs --alpha-mode MASK) adds a second primitive to
+the hair mesh on the same accessors with a copy of the hair material in BLEND mode. The MASK
+primitive draws the opaque core with depth writes; the BLEND primitive (three.js GLTFLoader:
+transparent, depthWrite false, drawn after opaque) draws the partial-alpha fringe over it. glTF has
+no alpha-to-coverage flag, so this two-pass split is the soft edge any glTF viewer draws.
+
+Without these flags the output is byte-identical to the tool before they existed.
+
 Colour is not set here. Run apply_actor_hair_colour.py afterwards: it tints textured hair
 through baseColorFactor from the case-authored hair_color token.
 
@@ -129,21 +142,30 @@ def carry_material(
     max_texture: int,
     alpha_mode: str | None = None,
     alpha_cutoff: float | None = None,
+    carry_extensions: bool = False,
+    fringe_blend: bool = False,
 ) -> tuple[bytes, dict[str, Any]]:
     target_index = hair_material_index(output)
     source_index = hair_material_index(bake)
     shipped_material = output["materials"][target_index]
     material = copy.deepcopy(bake["materials"][source_index])
-    if material.get("extensions"):
+    if material.get("extensions") and not carry_extensions:
         raise RuntimeError(f"bake hair material has extensions {sorted(material['extensions'])}")
 
     parts = [binary]
     images: list[dict[str, Any]] = []
+    slots: list[tuple[dict[str, Any], str]] = []
     for parent, slot in TEXTURE_SLOTS:
         holder = material.get(parent, {}) if parent else material
-        ref = holder.get(slot)
-        if ref is None:
-            continue
+        if holder.get(slot) is not None:
+            slots.append((holder, slot))
+    if carry_extensions:
+        for name in sorted(material.get("extensions", {})):
+            ext = material["extensions"][name]
+            for slot in sorted(k for k in ext if k.endswith("Texture") and isinstance(ext[k], dict)):
+                slots.append((ext, slot))
+    for holder, slot in slots:
+        ref = holder[slot]
         texture = bake["textures"][int(ref["index"])]
         image = bake["images"][int(texture["source"])]
         if image.get("mimeType") != "image/png" or "bufferView" not in image:
@@ -183,14 +205,37 @@ def carry_material(
         if alpha_mode == "MASK":
             material["alphaCutoff"] = alpha_cutoff
     output["materials"][target_index] = material
-    new_binary = b"".join(parts)
-    output["buffers"][0]["byteLength"] = len(new_binary)
-    return new_binary, {
+    record: dict[str, Any] = {
         "materialIndex": target_index,
         "materialBefore": shipped_material,
         "materialAfter": material,
         "images": images,
     }
+    if carry_extensions and material.get("extensions"):
+        used = output.setdefault("extensionsUsed", [])
+        for name in sorted(material["extensions"]):
+            if name not in used:
+                used.append(name)
+        record["carriedExtensions"] = sorted(material["extensions"])
+    if fringe_blend:
+        if material.get("alphaMode") != "MASK":
+            raise RuntimeError("--fringe-blend needs the hair material in MASK mode")
+        fringe = copy.deepcopy(material)
+        fringe["alphaMode"] = "BLEND"
+        fringe.pop("alphaCutoff", None)
+        fringe["name"] = str(material.get("name", "hair")) + "_fringe"
+        output["materials"].append(fringe)
+        hair_mesh = next(m for m in output["meshes"] if HAIR_MESH_TOKEN in str(m.get("name", "")))
+        if len(hair_mesh["primitives"]) != 1:
+            raise RuntimeError("--fringe-blend expects one hair primitive")
+        second = copy.deepcopy(hair_mesh["primitives"][0])
+        second["material"] = len(output["materials"]) - 1
+        hair_mesh["primitives"].append(second)
+        record["fringe"] = {"materialIndex": len(output["materials"]) - 1, "material": fringe,
+                            "rule": "same accessors; MASK core primitive + BLEND fringe primitive"}
+    new_binary = b"".join(parts)
+    output["buffers"][0]["byteLength"] = len(new_binary)
+    return new_binary, record
 
 
 def main() -> None:
@@ -201,6 +246,10 @@ def main() -> None:
     parser.add_argument("--max-texture", type=int, default=1024)
     parser.add_argument("--alpha-mode", choices=("OPAQUE", "MASK", "BLEND"))
     parser.add_argument("--alpha-cutoff", type=float)
+    parser.add_argument("--carry-extensions", action="store_true",
+                        help="copy the bake hair material's extensions (and their textures) instead of refusing them")
+    parser.add_argument("--fringe-blend", action="store_true",
+                        help="add a BLEND copy of the MASK hair primitive for soft card edges (needs --alpha-mode MASK)")
     parser.add_argument("--provenance", type=Path)
     parser.add_argument("--output-provenance", type=Path)
     parser.add_argument("--no-provenance", action="store_true")
@@ -209,12 +258,15 @@ def main() -> None:
         parser.error("--alpha-cutoff is required with --alpha-mode MASK and refused otherwise")
     if args.alpha_cutoff is not None and not 0.0 <= args.alpha_cutoff <= 1.0:
         parser.error("--alpha-cutoff must be in [0, 1]")
+    if args.fringe_blend and args.alpha_mode != "MASK":
+        parser.error("--fringe-blend needs --alpha-mode MASK")
 
     shipped, shipped_binary, shipped_raw = parse_glb(args.input)
     bake, bake_binary, bake_raw = parse_glb(args.bake)
     output, output_binary, geometry = transplant(shipped, shipped_binary, bake, bake_binary, HAIR_MESH_TOKEN)
     output_binary, material = carry_material(
-        output, output_binary, bake, bake_binary, args.max_texture, args.alpha_mode, args.alpha_cutoff
+        output, output_binary, bake, bake_binary, args.max_texture, args.alpha_mode, args.alpha_cutoff,
+        args.carry_extensions, args.fringe_blend,
     )
     output_raw = encode_glb(output, output_binary)
     args.output.parent.mkdir(parents=True, exist_ok=True)
