@@ -18,6 +18,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { copyFile, mkdir, readdir, writeFile } from "node:fs/promises";
 import path from "node:path";
+import { pathToFileURL } from "node:url";
 import { createLocalComputeServices } from "@openclinxr/service-local-compute/local";
 import { spawnPortlessDevServer, stopPortlessDevServer } from "../lib/portless-server.js";
 import { chromium, type Page } from "../lib/slotted-playwright.js";
@@ -47,14 +48,16 @@ type Cli = {
   region: "head" | "forearm" | "neck" | "shin" | "forearm-close" | "neck-close";
   boxes?: string;
   noiseFloorManifest?: string;
+  greyCard: boolean;
 };
 
 type Point = { x: number; y: number };
 type Rect = { x0: number; y0: number; x1: number; y1: number };
-type Mask =
+type Mask = ({ excludeRects?: Rect[] } & (
   | { kind: "rects"; rects: Rect[] }
   | { kind: "discs"; discs: Array<{ cx: number; cy: number; r0: number; r1: number }> }
-  | { kind: "bitmap"; w: number; h: number; bits: Uint8Array };
+  | { kind: "bitmap"; w: number; h: number; bits: Uint8Array }
+));
 
 type LiveReadback = {
   renderer: {
@@ -81,7 +84,19 @@ type CaptureEvidence = LabEvidence & {
     kind?: string;
     boundsMeters?: { min: { x: number; y: number; z: number }; max: { x: number; y: number; z: number } };
   } | null;
-  packFraming?: unknown;
+  packFraming?: {
+    packCamera?: {
+      fov: number;
+      distance: number;
+      position: { x: number; y: number; z: number };
+      target: { x: number; y: number; z: number };
+    } | null;
+  };
+  greyCard?: {
+    projectedBoxPx: Rect;
+    worldTransform: Record<string, unknown>;
+    [key: string]: unknown;
+  };
 };
 
 type Captured = {
@@ -137,7 +152,7 @@ const LIGHTING = [
   },
 ] as const;
 
-function parseCli(argv: string[]): Cli {
+export function parseCli(argv: string[]): Cli {
   const actors: string[] = [];
   let newPath = "";
   let origRef = "origin/main";
@@ -147,6 +162,7 @@ function parseCli(argv: string[]): Cli {
   let boxes: string | undefined;
   let origFile: string | undefined;
   let noiseFloorManifest: string | undefined;
+  let greyCard = false;
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i]!;
     const take = (): string => {
@@ -161,6 +177,7 @@ function parseCli(argv: string[]): Cli {
     else if (arg === "--size") size = Number(take());
     else if (arg === "--boxes") boxes = take();
     else if (arg === "--orig-file") origFile = take();
+    else if (arg === "--grey-card") greyCard = true;
     else if (arg === "--region") {
       const value = take();
       if (value !== "head" && value !== "forearm" && value !== "neck" && value !== "shin" && value !== "forearm-close" && value !== "neck-close") {
@@ -183,7 +200,7 @@ function parseCli(argv: string[]): Cli {
   for (const actor of actors) {
     if (!/^[a-z0-9][a-z0-9-]*$/.test(actor)) throw new Error(`unsafe actor id: ${actor}`);
   }
-  return { actors: [...new Set(actors)], newPath, origRef, outDir, size, region, ...(boxes ? { boxes } : {}), ...(origFile ? { origFile } : {}), ...(noiseFloorManifest ? { noiseFloorManifest } : {}) };
+  return { actors: [...new Set(actors)], newPath, origRef, outDir, size, region, greyCard, ...(boxes ? { boxes } : {}), ...(origFile ? { origFile } : {}), ...(noiseFloorManifest ? { noiseFloorManifest } : {}) };
 }
 
 function inside(parent: string, child: string): boolean {
@@ -380,6 +397,7 @@ function maskBounds(mask: Mask, w: number, h: number): Rect {
 }
 
 function maskHas(mask: Mask, x: number, y: number): boolean {
+  if (mask.excludeRects?.some((r) => x >= r.x0 && x < r.x1 && y >= r.y0 && y < r.y1)) return false;
   if (mask.kind === "bitmap") {
     if (x < 0 || y < 0 || x >= mask.w || y >= mask.h) return false;
     return mask.bits[y * mask.w + x] === 1;
@@ -483,7 +501,7 @@ function rectFromHead(head: Rect, x0: number, y0: number, x1: number, y1: number
   return { x0: head.x0 + x0 * w, y0: head.y0 + y0 * h, x1: head.x0 + x1 * w, y1: head.y0 + y1 * h };
 }
 
-function skinMasks(head: Rect, cheekFrameSize: number): Record<string, { framing: "face" | "cheek"; mask: Mask; method: string }> {
+function skinMasks(head: Rect, cheekSubject: Rect): Record<string, { framing: "face" | "cheek"; mask: Mask; method: string }> {
   return {
     forehead: { framing: "face", mask: { kind: "rects", rects: [rectFromHead(head, 0.30, 0.13, 0.70, 0.30)] }, method: "head-box normalized central forehead" },
     nose: { framing: "face", mask: { kind: "rects", rects: [rectFromHead(head, 0.43, 0.34, 0.57, 0.66)] }, method: "head-box normalized nasal bridge/tip" },
@@ -494,7 +512,7 @@ function skinMasks(head: Rect, cheekFrameSize: number): Record<string, { framing
     },
     cheek: {
       framing: "cheek",
-      mask: { kind: "rects", rects: [{ x0: cheekFrameSize * 0.18, y0: cheekFrameSize * 0.18, x1: cheekFrameSize * 0.82, y1: cheekFrameSize * 0.82 }] },
+      mask: { kind: "rects", rects: [rectFromHead(cheekSubject, 0.18, 0.18, 0.82, 0.82)] },
       method: "central 64% of native cheek close-up",
     },
   };
@@ -563,6 +581,182 @@ function cameraComparable(a: Captured, b: Captured): void {
   const ac = a.readback.portrait ?? a.evidence.packFraming;
   const bc = b.readback.portrait ?? b.evidence.packFraming;
   if (stable(ac) !== stable(bc)) throw new Error(`ORIGINAL and NEW did not use the same camera:\nORIGINAL ${stable(ac)}\nNEW ${stable(bc)}`);
+  if (stable(a.evidence.greyCard ?? null) !== stable(b.evidence.greyCard ?? null)) {
+    throw new Error(`ORIGINAL and NEW did not use the same grey-card placement:\nORIGINAL ${stable(a.evidence.greyCard)}\nNEW ${stable(b.evidence.greyCard)}`);
+  }
+}
+
+export async function runGreyCardHookIfEnabled<T>(enabled: boolean, hook: () => Promise<T>): Promise<T | null> {
+  return enabled ? await hook() : null;
+}
+
+async function injectHarnessGreyCard(page: Page, evidence: CaptureEvidence): Promise<CaptureEvidence["greyCard"]> {
+  const declaredCamera = evidence.packFraming?.packCamera;
+  if (!declaredCamera) throw new Error("grey card requires evidence.packFraming.packCamera");
+  return await page.evaluate(async (expected) => {
+    type V = { constructor: new (x?: number, y?: number, z?: number) => V; x: number; y: number; z: number; set: (x: number, y: number, z: number) => V; copy: (v: V) => V; sub: (v: V) => V; normalize: () => V; multiplyScalar: (n: number) => V; add: (v: V) => V; distanceTo: (v: V) => number; dot: (v: V) => number; unproject: (camera: unknown) => V; applyQuaternion: (q: unknown) => V; applyMatrix4: (m: unknown) => V; project: (camera: unknown) => V; toArray: () => number[] };
+    type Node = { constructor: new (geometry: Geometry, material: Material) => Node; name?: string; parent?: Node | null; geometry?: { constructor: new () => Geometry; attributes?: { position?: { constructor: new (array: Float32Array, itemSize: number) => unknown } } }; material?: Material | Material[]; position: V; quaternion: { toArray: () => number[] }; scale: V; matrixWorld: { toArray: () => number[] }; userData: Record<string, unknown>; castShadow: boolean; receiveShadow: boolean; frustumCulled?: boolean; lookAt: (v: V) => void; updateMatrixWorld: (force: boolean) => void };
+    type Geometry = { setAttribute: (name: string, attribute: unknown) => void; computeBoundingSphere: () => void; constructor: new () => Geometry };
+    type Material = { name?: string; isMeshStandardMaterial?: boolean; envMapIntensity?: number; color?: { setRGB: (r: number, g: number, b: number) => void }; emissive?: { setRGB: (r: number, g: number, b: number) => void }; roughness?: number; metalness?: number; map?: unknown; normalMap?: unknown; emissiveMap?: unknown; needsUpdate?: boolean; constructor: new (params?: Record<string, unknown>) => Material };
+    type Scene = Node & { add: (node: Node) => void; traverse: (fn: (node: Node) => void) => void; onAfterRender?: (...args: unknown[]) => void };
+    type Camera = Node & { fov: number; aspect: number };
+    type Renderer = { domElement: { width: number; height: number }; getContext: () => { RGBA: number; UNSIGNED_BYTE: number; readPixels: (x: number, y: number, w: number, h: number, format: number, type: number, pixels: Uint8Array) => void } };
+    const g = globalThis as unknown as {
+      __openClinXrIsolatedSceneRoot?: Node;
+      __openClinXrIsolatedRenderFrame?: () => void;
+      __openClinXrIsolatedRuntimeDebug?: { portrait?: { distanceM?: number; fovDeg?: number } | null };
+    };
+    // Portrait / close framings use framePortraitCamera, not the pack camera; the lab
+    // publishes that solve's distance in its runtime debug record.
+    const portraitDistance = g.__openClinXrIsolatedRuntimeDebug?.portrait?.distanceM;
+    const root = g.__openClinXrIsolatedSceneRoot;
+    const render = g.__openClinXrIsolatedRenderFrame;
+    const scene = root?.parent as Scene | null | undefined;
+    if (!root || !scene?.traverse || !render) throw new Error("isolated lab card hooks unavailable");
+
+    let renderer: Renderer | null = null;
+    let camera: Camera | null = null;
+    const priorAfterRender = scene.onAfterRender;
+    scene.onAfterRender = (...args: unknown[]) => {
+      renderer = args[0] as Renderer;
+      camera = args[2] as Camera;
+      if (typeof priorAfterRender === "function") priorAfterRender(...args);
+    };
+    render();
+    if (priorAfterRender) scene.onAfterRender = priorAfterRender;
+    else delete scene.onAfterRender;
+    if (!renderer || !camera) throw new Error("render hook did not expose renderer/camera");
+    const liveRenderer = renderer as Renderer;
+    const liveCamera = camera as Camera;
+    const near = (a: number, b: number): boolean => Math.abs(a - b) <= 0.002;
+    if (typeof portraitDistance === "number") {
+      if (!near(liveCamera.fov, g.__openClinXrIsolatedRuntimeDebug?.portrait?.fovDeg ?? Number.NaN)) throw new Error("live camera fov disagrees with the portrait framing record");
+    } else if (!near(liveCamera.fov, expected.fov)
+      || !near(liveCamera.position.x, expected.position.x)
+      || !near(liveCamera.position.y, expected.position.y)
+      || !near(liveCamera.position.z, expected.position.z)) {
+      throw new Error("live camera disagrees with evidence.packFraming.packCamera");
+    }
+
+    let templateMesh: Node | null = null;
+    let skinMaterial: Material | null = null;
+    scene.traverse((node) => {
+      const materials = Array.isArray(node.material) ? node.material : node.material ? [node.material] : [];
+      // Any Mesh supplies the geometry/attribute constructors; the Mesh class itself is taken below.
+      const flags = node as unknown as { isMesh?: boolean; isSkinnedMesh?: boolean; isInstancedMesh?: boolean; isBatchedMesh?: boolean };
+      if (!templateMesh && flags.isMesh && !flags.isInstancedMesh && !flags.isBatchedMesh && node.geometry?.attributes?.position) templateMesh = node;
+      for (const material of materials) {
+        if (!skinMaterial && material?.isMeshStandardMaterial && /skin|body/i.test(`${node.name ?? ""} ${material.name ?? ""}`)) skinMaterial = material;
+      }
+    });
+    const foundTemplate = templateMesh as Node | null;
+    const foundSkin = skinMaterial as Material | null;
+    if (!foundSkin) throw new Error("no skin material in the page for the card's envMapIntensity");
+    void foundTemplate;
+
+    const width = liveRenderer.domElement.width;
+    const height = liveRenderer.domElement.height;
+    const gl = liveRenderer.getContext();
+    const pixels = new Uint8Array(width * height * 4);
+    gl.readPixels(0, 0, width, height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+    const sizePx = Math.ceil(width * 0.065);
+    const margin = Math.ceil(width * 0.012);
+    const candidates: Array<[number, number]> = [
+      [margin, margin], [width - margin - sizePx, margin],
+      [margin, height - margin - sizePx], [width - margin - sizePx, height - margin - sizePx],
+      [Math.floor((width - sizePx) / 2), margin], [Math.floor((width - sizePx) / 2), height - margin - sizePx],
+    ];
+    const clear = (cx0: number, cy0: number): boolean => {
+      for (let y = Math.max(0, cy0 - 3); y < Math.min(height, cy0 + sizePx + 3); y += 1) {
+        const glY = height - 1 - y;
+        for (let x = Math.max(0, cx0 - 3); x < Math.min(width, cx0 + sizePx + 3); x += 1) {
+          const i = (glY * width + x) * 4;
+          if (Math.abs((pixels[i] ?? 0) - 0x18) + Math.abs((pixels[i + 1] ?? 0) - 0x21) + Math.abs((pixels[i + 2] ?? 0) - 0x1d) > 36) return false;
+        }
+      }
+      return true;
+    };
+    const chosen = candidates.find(([x, y]) => clear(x, y));
+    if (!chosen) throw new Error("no background-only >=6% card placement");
+    const [x0, y0] = chosen;
+
+    const VectorCtor = liveCamera.position.constructor;
+    const depth = typeof portraitDistance === "number"
+      ? portraitDistance
+      : liveCamera.position.distanceTo(new VectorCtor(expected.target.x, expected.target.y, expected.target.z));
+    const visibleHeight = 2 * depth * Math.tan((liveCamera.fov * Math.PI) / 360);
+    const visibleWidth = visibleHeight * liveCamera.aspect;
+    const sizeMeters = visibleWidth * sizePx / width;
+    const ndcX = ((x0 + sizePx / 2) / width) * 2 - 1;
+    const ndcY = 1 - ((y0 + sizePx / 2) / height) * 2;
+    const ray = new VectorCtor(ndcX, ndcY, 0.5).unproject(liveCamera).sub(liveCamera.position).normalize();
+    const forward = new VectorCtor(0, 0, -1).applyQuaternion(liveCamera.quaternion).normalize();
+    const alongRay = depth / Math.max(ray.dot(forward), 1e-9);
+
+    // Build the card from the page's own three.js module: Vite serves it at one deps URL, and
+    // importing that exact URL returns the same module instance the lab renders with.
+    // The deps entry three.js re-exports the shared chunk under the public names; prefer it, else derive it
+    // from the chunk URL (same directory, same ?v= hash).
+    const resourceNames = performance.getEntriesByType("resource").map((entry) => entry.name);
+    const chunkUrl = resourceNames.find((name) => /\/\.vite\/deps\/three\.module[^/]*\.js/.test(name));
+    const threeUrl = resourceNames.find((name) => /\/\.vite\/deps\/three\.js(\?|$)/.test(name))
+      ?? (chunkUrl ? chunkUrl.replace(/three\.module[^/?]*\.js/, "three.js") : undefined);
+    if (!threeUrl) throw new Error("page three.js module URL not found in resource timing");
+    const THREE = await import(/* @vite-ignore */ threeUrl) as {
+      PlaneGeometry: new (w: number, h: number) => Geometry;
+      MeshStandardMaterial: new (params?: Record<string, unknown>) => Material;
+      Mesh: new (geometry: Geometry, material: Material) => Node & { frustumCulled: boolean };
+      Color: new () => { setRGB: (r: number, g: number, b: number, colorSpace?: string) => unknown };
+      LinearSRGBColorSpace: string;
+    };
+    const geometry = new THREE.PlaneGeometry(1, 1);
+    const material = new THREE.MeshStandardMaterial({
+      color: new THREE.Color().setRGB(0.18, 0.18, 0.18, THREE.LinearSRGBColorSpace),
+      roughness: 1,
+      metalness: 0,
+      envMapIntensity: foundSkin.envMapIntensity ?? 1,
+    });
+    material.name = "openclinxr_18_percent_grey_card_material";
+    const MeshCtor = THREE.Mesh;
+    const card = new MeshCtor(geometry, material);
+    card.frustumCulled = false;
+    card.name = "openclinxr_18_percent_grey_card";
+    card.position.copy(liveCamera.position).add(ray.multiplyScalar(alongRay));
+    card.scale.set(sizeMeters, sizeMeters, 1);
+    card.lookAt(liveCamera.position);
+    card.castShadow = false;
+    card.receiveShadow = true;
+    card.userData["openClinXrGreyCard"] = true;
+    scene.add(card);
+    card.updateMatrixWorld(true);
+    render();
+
+    const corners = [new VectorCtor(-0.5, -0.5, 0), new VectorCtor(0.5, -0.5, 0), new VectorCtor(-0.5, 0.5, 0), new VectorCtor(0.5, 0.5, 0)]
+      .map((corner) => corner.applyMatrix4(card.matrixWorld).project(liveCamera));
+    const px = corners.map((p) => ({ x: (p.x + 1) * width / 2, y: (1 - p.y) * height / 2 }));
+    const normal = new VectorCtor(0, 0, 1).applyQuaternion(card.quaternion).normalize();
+    const toCamera = new VectorCtor().copy(liveCamera.position).sub(card.position).normalize();
+    return {
+      projectedBoxPx: {
+        x0: Math.max(0, Math.floor(Math.min(...px.map((p) => p.x)))),
+        y0: Math.max(0, Math.floor(Math.min(...px.map((p) => p.y)))),
+        x1: Math.min(width, Math.ceil(Math.max(...px.map((p) => p.x)))),
+        y1: Math.min(height, Math.ceil(Math.max(...px.map((p) => p.y)))),
+      },
+      worldTransform: { position: card.position.toArray(), quaternion: card.quaternion.toArray(), scale: card.scale.toArray(), matrix: card.matrixWorld.toArray() },
+      sizeMeters,
+      focusTargetDistanceMeters: depth,
+      cameraDistanceRatio: card.position.distanceTo(liveCamera.position) / depth,
+      facingCameraDegrees: Math.acos(Math.min(1, Math.max(-1, normal.dot(toCamera)))) * 180 / Math.PI,
+      linearReflectance: 0.18,
+      srgbEncoded: 0.4613,
+      roughness: 1,
+      metalness: 0,
+      envMapIntensity: material.envMapIntensity ?? 1,
+      preCardPixelsClear: true,
+      cameraPoseField: "evidence.packFraming.packCamera",
+    };
+  }, declaredCamera) as CaptureEvidence["greyCard"];
 }
 
 async function captureVariant(input: {
@@ -574,35 +768,56 @@ async function captureVariant(input: {
   framing: "face" | "eyes" | "cheek" | "forearm" | "neck" | "shin" | "forearm-close" | "neck-close";
   captureSize: number;
   imagePath: string;
+  greyCard: boolean;
 }): Promise<Captured> {
-  const isBody = input.framing === "forearm" || input.framing === "neck" || input.framing === "shin";
-  const isClose = input.framing === "forearm-close" || input.framing === "neck-close";
-  const portrait = (!isBody && input.framing !== "eyes") || isClose;
-  const evidence = await captureOne({
+  const spec = buildCaptureSpec(input);
+  let evidence = await captureOne({
     page: input.page,
     baseUrl: input.baseUrl,
     size: input.captureSize,
     imagePath: input.imagePath,
-    spec: {
-      subjectId: `${input.actor}_${input.variant}_${input.framing}`,
-      subjectKind: "glb",
-      bodyGlb: `/__vitcompare/${input.actor}/${input.variant}.glb`,
-      view: "front",
-      ...(!isBody && !isClose && input.framing !== "eyes" ? { focus: "head" as const }
-        : !isBody && !isClose ? { focus: "eyes" as const }
-        : isClose ? { focus: input.framing === "forearm-close" ? "forearm" as const : "neck" as const }
-        : {}),
-      hideHair: true,
-      subjectOnly: true,
-      renderSize: input.captureSize,
-      skinShadeLoader: true,
-      yawDegrees: 0,
-      ...(portrait ? { portrait } : {}),
-      ...input.lightingSpec,
-      label: `${input.actor} ${input.variant} ${input.framing}`,
-    },
+    spec,
   }) as CaptureEvidence;
+  if (input.greyCard) {
+    const greyCard = await runGreyCardHookIfEnabled(true, () => injectHarnessGreyCard(input.page, evidence));
+    if (!greyCard) throw new Error("enabled grey-card hook did not run");
+    evidence = { ...evidence, greyCard };
+    const canvas = input.page.locator("#isolated-subject-capture-canvas");
+    if (await canvas.count()) await canvas.screenshot({ path: input.imagePath });
+    else await input.page.screenshot({ path: input.imagePath });
+  }
   return { imagePath: input.imagePath, evidence, readback: await readLive(input.page), captureSize: input.captureSize };
+}
+
+export function buildCaptureSpec(input: {
+  actor: string;
+  variant: "original" | "new";
+  lightingSpec: Record<string, unknown>;
+  framing: "face" | "eyes" | "cheek" | "forearm" | "neck" | "shin" | "forearm-close" | "neck-close";
+  captureSize: number;
+  greyCard: boolean;
+}): Record<string, unknown> {
+  const isBody = input.framing === "forearm" || input.framing === "neck" || input.framing === "shin";
+  const isClose = input.framing === "forearm-close" || input.framing === "neck-close";
+  const portrait = (!isBody && input.framing !== "eyes") || isClose;
+  return {
+    subjectId: `${input.actor}_${input.variant}_${input.framing}`,
+    subjectKind: "glb",
+    bodyGlb: `/__vitcompare/${input.actor}/${input.variant}.glb`,
+    view: "front",
+    ...(!isBody && !isClose && input.framing !== "eyes" ? { focus: "head" as const }
+      : !isBody && !isClose ? { focus: "eyes" as const }
+      : isClose ? { focus: input.framing === "forearm-close" ? "forearm" as const : "neck" as const }
+      : {}),
+    hideHair: true,
+    subjectOnly: true,
+    renderSize: input.captureSize,
+    skinShadeLoader: true,
+    yawDegrees: 0,
+    ...(portrait ? { portrait } : {}),
+    ...input.lightingSpec,
+    label: `${input.actor} ${input.variant} ${input.framing}`,
+  };
 }
 
 function headBoxAfterCrop(capture: Captured, crop: Rect): Rect {
@@ -614,6 +829,31 @@ function headBoxAfterCrop(capture: Captured, crop: Rect): Rect {
 function centredCrop(size: number, outSize: number): Rect {
   const pad = Math.floor((size - outSize) / 2);
   return { x0: pad, y0: pad, x1: pad + outSize, y1: pad + outSize };
+}
+
+function unionRect(a: Rect, b: Rect): Rect {
+  return { x0: Math.min(a.x0, b.x0), y0: Math.min(a.y0, b.y0), x1: Math.max(a.x1, b.x1), y1: Math.max(a.y1, b.y1) };
+}
+
+function greyCardBoxAfterCrop(capture: Captured, crop: Rect): Rect | null {
+  const box = capture.evidence.greyCard?.projectedBoxPx;
+  if (!box) return null;
+  const x0 = Math.max(box.x0, crop.x0), y0 = Math.max(box.y0, crop.y0);
+  const x1 = Math.min(box.x1, crop.x1), y1 = Math.min(box.y1, crop.y1);
+  if (x1 <= x0 || y1 <= y0) return null;
+  return { x0: x0 - crop.x0, y0: y0 - crop.y0, x1: x1 - crop.x0, y1: y1 - crop.y0 };
+}
+
+function greyCardManifest(capture: Captured, crop: Rect): Record<string, unknown> | null {
+  if (!capture.evidence.greyCard) return null;
+  const greyCardBoxPx = greyCardBoxAfterCrop(capture, crop);
+  if (!greyCardBoxPx) throw new Error("grey card was requested but the output crop excluded it");
+  return {
+    greyCardBoxPx,
+    greyCardSourceBoxPx: capture.evidence.greyCard.projectedBoxPx,
+    greyCardWorldTransform: capture.evidence.greyCard.worldTransform,
+    greyCard: capture.evidence.greyCard,
+  };
 }
 
 // isolated-subject-lab.ts clamps renderSize to 4096; a larger capture is a resampled
@@ -662,7 +902,7 @@ function bodyCrop(captureSize: number, boxesPath: string, region: "forearm" | "n
 // from stats; the identical mask on NEW inherits the verdict — same
 // geometry, same lighting, per-pixel differences ~0). Misplaced boxes trip
 // the <20% lit alarm; fully empty boxes trip regionStats' empty-mask throw.
-function litBitmap(cropPath: string, region: string): { mask: Mask; litFraction: number } {
+function litBitmap(cropPath: string, region: string, greyCardBoxPx: Rect | null): { mask: Mask; litFraction: number } {
   const png = decodePng(cropPath);
   const bits = new Uint8Array(png.w * png.h);
   let lit = 0;
@@ -670,7 +910,8 @@ function litBitmap(cropPath: string, region: string): { mask: Mask; litFraction:
     for (let x = 0; x < png.w; x += 1) {
       const i = (y * png.w + x) * png.chans;
       const cr = png.data[i]!, cg = png.data[i + 1] ?? cr, cb = png.data[i + 2] ?? cr;
-      if (isLitPixel(cr, cg, cb)) {
+      const inCard = greyCardBoxPx != null && x >= greyCardBoxPx.x0 && x < greyCardBoxPx.x1 && y >= greyCardBoxPx.y0 && y < greyCardBoxPx.y1;
+      if (!inCard && isLitPixel(cr, cg, cb)) {
         bits[y * png.w + x] = 1;
         lit += 1;
       }
@@ -739,10 +980,13 @@ async function captureBodyRegion(input: {
   const captureSize = LAB_RENDER_SIZE_MAX;
   const origSource = path.join(frameOut, ".source-orig.png");
   const newSource = path.join(frameOut, ".source-new.png");
-  const original = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "original", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: origSource });
-  const candidate = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "new", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: newSource });
+  const original = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "original", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: origSource, greyCard: input.cli.greyCard });
+  const candidate = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "new", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: newSource, greyCard: input.cli.greyCard });
   cameraComparable(original, candidate);
-  const { crop, method } = bodyCrop(captureSize, input.cli.boxes!, region);
+  const { crop: subjectCrop, method } = bodyCrop(captureSize, input.cli.boxes!, region);
+  const crop = original.evidence.greyCard
+    ? unionRect(subjectCrop, original.evidence.greyCard.projectedBoxPx)
+    : subjectCrop;
   const origPng = path.join(frameOut, "orig.png");
   const newPng = path.join(frameOut, "new.png");
   const clampedOrig = await writeNativeCrop(origSource, origPng, crop);
@@ -754,7 +998,9 @@ async function captureBodyRegion(input: {
   await writeCropOverlay(origSource, crop, path.join(frameOut, "crop-box.png"));
   await writeSideBySide(origPng, newPng, path.join(frameOut, "side-by-side.png"));
   const diff = await writeDiffHeatmap(origPng, newPng, path.join(frameOut, "absolute-diff.png"));
-  const { mask: fullMask, litFraction: litFrac } = litBitmap(origPng, region);
+  const cardRecord = greyCardManifest(original, clampedOrig);
+  const cardBox = (cardRecord?.["greyCardBoxPx"] as Rect | undefined) ?? null;
+  const { mask: fullMask, litFraction: litFrac } = litBitmap(origPng, region, cardBox);
   const orig = regionStats(origPng, fullMask);
   const next = regionStats(newPng, fullMask);
   const delta = Math.round(deltaE76(orig, next) * 1_000_000) / 1_000_000;
@@ -774,6 +1020,7 @@ async function captureBodyRegion(input: {
     lightsReadback: original.readback.lights,
     productRigReadback: original.readback.productRig,
     regions: { [region]: metric },
+    ...(cardRecord ?? {}),
   };
   await writeFile(path.join(frameOut, "numbers.json"), `${JSON.stringify(numbers, null, 2)}\n`, "utf8");
   const cropLuminance = meanLuminance(origPng, fullMask);
@@ -796,6 +1043,7 @@ async function captureBodyRegion(input: {
           diffSha256: sha256File(path.join(frameOut, "absolute-diff.png")),
           camera: numbers.camera,
           focusRegion: original.evidence.focusRegion,
+          ...(cardRecord ?? {}),
         },
       },
       regions: { [region]: metric },
@@ -831,8 +1079,8 @@ async function captureCloseRegion(input: {
   const captureSize = LAB_RENDER_SIZE_MAX;
   const origSource = path.join(frameOut, ".source-orig.png");
   const newSource = path.join(frameOut, ".source-new.png");
-  const original = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "original", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: origSource });
-  const candidate = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "new", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: newSource });
+  const original = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "original", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: origSource, greyCard: input.cli.greyCard });
+  const candidate = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "new", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: newSource, greyCard: input.cli.greyCard });
   cameraComparable(original, candidate);
   const wantKind = region === "forearm-close" ? "forearm_box" : "neck_close_box";
   const focusBounds = original.evidence.focusRegion && "boundsMeters" in original.evidence.focusRegion
@@ -859,7 +1107,10 @@ async function captureCloseRegion(input: {
   await copyPngRgb(newSource, newPng);
   await writeSideBySide(origPng, newPng, path.join(frameOut, "side-by-side.png"));
   const diff = await writeDiffHeatmap(origPng, newPng, path.join(frameOut, "absolute-diff.png"));
-  const { mask: fullMask, litFraction: litFrac } = litBitmap(origPng, region);
+  const fullCrop = { x0: 0, y0: 0, x1: captureSize, y1: captureSize };
+  const cardRecord = greyCardManifest(original, fullCrop);
+  const cardBox = (cardRecord?.["greyCardBoxPx"] as Rect | undefined) ?? null;
+  const { mask: fullMask, litFraction: litFrac } = litBitmap(origPng, region, cardBox);
   const orig = regionStats(origPng, fullMask);
   const next = regionStats(newPng, fullMask);
   const delta = Math.round(deltaE76(orig, next) * 1_000_000) / 1_000_000;
@@ -881,6 +1132,7 @@ async function captureCloseRegion(input: {
     lightsReadback: original.readback.lights,
     productRigReadback: original.readback.productRig,
     regions: { [region]: { ...metricRecord(orig, next), framing: region, maskMethod: "lit-bitmap mask from ORIGINAL close frame (bg excluded, same mask on NEW)" } },
+    ...(cardRecord ?? {}),
   };
   await writeFile(path.join(frameOut, "numbers.json"), `${JSON.stringify(numbers, null, 2)}\n`, "utf8");
   const cropLuminance = meanLuminance(origPng, fullMask);
@@ -911,6 +1163,7 @@ async function captureCloseRegion(input: {
           diffSha256: sha256File(path.join(frameOut, "absolute-diff.png")),
           camera: numbers.camera,
           focusRegion: original.evidence.focusRegion,
+          ...(cardRecord ?? {}),
         },
       },
       regions: numbers.regions,
@@ -941,6 +1194,12 @@ async function main(): Promise<void> {
     origRef: cli.origRef,
     size: cli.size,
     region: cli.region,
+    greyCard: cli.greyCard
+      ? {
+          enabled: true,
+          metricExclusion: "every metric mask subtracts greyCardBoxPx; lab pre-renders and accepts only a background-only placement",
+        }
+      : { enabled: false },
     renderer: "product apps/ui-xr isolated-subject three.js lab",
     loaderMode: "skinShadeLoader factory mode; zero skinOverride; zero materialOverrides",
     sheets: "native 1:1 pixels, no resampling or upscaling",
@@ -972,6 +1231,8 @@ async function main(): Promise<void> {
       browserLaunch: chromium.launch.bind(chromium, { headless: true, args: ["--enable-unsafe-swiftshader", "--use-angle=swiftshader"] }),
     }).sceneCapture.withBrowser("skin-realism:vitruvian-compare", async (launched: unknown) => {
       const page = await (launched as HeadlessBrowser).newPage({ viewport: { width: cli.size, height: cli.size }, deviceScaleFactor: 1 });
+      // tsx keeps function names by wrapping them in __name(); the card hook's page.evaluate bodies carry those calls.
+      if (cli.greyCard) await (page as unknown as { addInitScript(script: string): Promise<void> }).addInitScript("globalThis.__name = globalThis.__name || ((target) => target);");
       // A shader compile/link failure only reaches the page console; the frames still write and
       // the skin silently stops drawing (st-vitbody3 r2 street, r4d smoothstep(int)). Fail the run.
       page.on("console", (message) => {
@@ -997,7 +1258,7 @@ async function main(): Promise<void> {
         for (const lighting of LIGHTING) {
           const lightOut = path.join(outAbs, subject.actor, lighting.id);
           await mkdir(lightOut, { recursive: true });
-          const captures: Record<string, { original: Captured; new: Captured; crop: Rect; origPng: string; newPng: string }> = {};
+          const captures: Record<string, { original: Captured; new: Captured; crop: Rect; subjectCrop: Rect; origPng: string; newPng: string }> = {};
           if (cli.region === "forearm-close" || cli.region === "neck-close") {
             const close = await captureCloseRegion({ page, serverUrl: server!.url, subject, lighting, lightOut, cli });
             everyPixelIdentical &&= close.pixelIdentical;
@@ -1020,15 +1281,18 @@ async function main(): Promise<void> {
             const captureSize = framing === "face" ? Math.ceil(cli.size * 0.82 / 0.78) : framing === "cheek" ? Math.min(LAB_RENDER_SIZE_MAX, Math.ceil(cli.size * 2.4)) : cli.size;
             const origSource = path.join(frameOut, ".source-orig.png");
             const newSource = path.join(frameOut, ".source-new.png");
-            const original = await captureVariant({ page, baseUrl: server!.url, actor: subject.actor, variant: "original", lightingSpec: lighting.spec, framing, captureSize, imagePath: origSource });
-            const candidate = await captureVariant({ page, baseUrl: server!.url, actor: subject.actor, variant: "new", lightingSpec: lighting.spec, framing, captureSize, imagePath: newSource });
+            const original = await captureVariant({ page, baseUrl: server!.url, actor: subject.actor, variant: "original", lightingSpec: lighting.spec, framing, captureSize, imagePath: origSource, greyCard: cli.greyCard && framing !== "eyes" });
+            const candidate = await captureVariant({ page, baseUrl: server!.url, actor: subject.actor, variant: "new", lightingSpec: lighting.spec, framing, captureSize, imagePath: newSource, greyCard: cli.greyCard && framing !== "eyes" });
             cameraComparable(original, candidate);
-            const crop = framing === "eyes" ? { x0: 0, y0: 0, x1: cli.size, y1: cli.size }
+            const subjectCrop = framing === "eyes" ? { x0: 0, y0: 0, x1: cli.size, y1: cli.size }
               : framing === "face" ? centredCrop(captureSize, cli.size)
               : cheekCrop(original);
+            const crop = original.evidence.greyCard
+              ? unionRect(subjectCrop, original.evidence.greyCard.projectedBoxPx)
+              : subjectCrop;
             const origPng = path.join(frameOut, "orig.png");
             const newPng = path.join(frameOut, "new.png");
-            if (framing === "eyes") {
+            if (framing === "eyes" && !cli.greyCard) {
               await copyPngRgb(origSource, origPng);
               await copyPngRgb(newSource, newPng);
             } else {
@@ -1038,7 +1302,7 @@ async function main(): Promise<void> {
             await writeSideBySide(origPng, newPng, path.join(frameOut, "side-by-side.png"));
             const diff = await writeDiffHeatmap(origPng, newPng, path.join(frameOut, "absolute-diff.png"));
             everyPixelIdentical &&= diff.pixelIdentical;
-            captures[framing] = { original, new: candidate, crop, origPng, newPng };
+            captures[framing] = { original, new: candidate, crop, subjectCrop, origPng, newPng };
           }
 
           const face = captures["face"]!;
@@ -1065,10 +1329,18 @@ async function main(): Promise<void> {
           const irisDiameterPx = projectedEyeWidthPx * IRIS_DIAMETER_M / eyeBoxWidthM;
           if (irisDiameterPx < IRIS_DIAMETER_MIN_PX) throw new Error(`${subject.actor}/${lighting.id}: iris ${irisDiameterPx.toFixed(2)}px < ${IRIS_DIAMETER_MIN_PX}px`);
           const centers = detectIrisCenters(eyes.origPng, irisDiameterPx / 2);
-          const masks = { ...skinMasks(headBox, cheek.crop.x1 - cheek.crop.x0), ...eyeMasks(centers, irisDiameterPx / 2) };
+          const cheekSubject = {
+            x0: cheek.subjectCrop.x0 - cheek.crop.x0,
+            y0: cheek.subjectCrop.y0 - cheek.crop.y0,
+            x1: cheek.subjectCrop.x1 - cheek.crop.x0,
+            y1: cheek.subjectCrop.y1 - cheek.crop.y0,
+          };
+          const masks = { ...skinMasks(headBox, cheekSubject), ...eyeMasks(centers, irisDiameterPx / 2) };
           const regionMetrics: Record<string, unknown> = {};
           for (const [region, def] of Object.entries(masks)) {
             const source = captures[def.framing]!;
+            const cardBox = greyCardBoxAfterCrop(source.original, source.crop);
+            def.mask.excludeRects = cardBox ? [cardBox] : [];
             const orig = regionStats(source.origPng, def.mask);
             const next = regionStats(source.newPng, def.mask);
             const delta = Math.round(deltaE76(orig, next) * 1_000_000) / 1_000_000;
@@ -1086,7 +1358,7 @@ async function main(): Promise<void> {
               lighting: lighting.id,
               rigId: lighting.rigId,
               framing,
-              imageSize: { width: cli.size, height: cli.size },
+              imageSize: { width: c.crop.x1 - c.crop.x0, height: c.crop.y1 - c.crop.y0 },
               nativeSourceSize: c.original.captureSize,
               nativeCrop: c.crop,
               camera: c.original.readback.portrait ?? c.original.evidence.packFraming,
@@ -1095,6 +1367,7 @@ async function main(): Promise<void> {
               lightsReadback: c.original.readback.lights,
               productRigReadback: c.original.readback.productRig,
               regions: applicable,
+              ...(greyCardManifest(c.original, c.crop) ?? {}),
             };
             await writeFile(path.join(frameOut, "numbers.json"), `${JSON.stringify(numbers, null, 2)}\n`, "utf8");
             frameRecords[framing] = {
@@ -1105,6 +1378,7 @@ async function main(): Promise<void> {
               diffSha256: sha256File(path.join(frameOut, "absolute-diff.png")),
               camera: numbers.camera,
               focusRegion: numbers.focusRegion,
+              ...(greyCardManifest(c.original, c.crop) ?? {}),
             };
           }
           const faceMask = { kind: "rects", rects: [rectFromHead(headBox, 0.22, 0.12, 0.78, 0.82)] } as Mask;
@@ -1188,7 +1462,9 @@ async function main(): Promise<void> {
 // G2 by design must not read the same as a broken shader.
 const PAGE_FAULT_EXIT_CODE = 3;
 
-main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.stack ?? error.message : String(error));
-  process.exitCode = error instanceof PageFaultError ? PAGE_FAULT_EXIT_CODE : 1;
-});
+if (process.argv[1] && pathToFileURL(path.resolve(process.argv[1])).href === import.meta.url) {
+  main().catch((error: unknown) => {
+    console.error(error instanceof Error ? error.stack ?? error.message : String(error));
+    process.exitCode = error instanceof PageFaultError ? PAGE_FAULT_EXIT_CODE : 1;
+  });
+}
