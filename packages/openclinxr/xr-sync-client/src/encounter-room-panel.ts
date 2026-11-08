@@ -26,7 +26,7 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
   let noteButton: UtteranceBoxElement | undefined;
   let noteStatus: UtteranceBoxElement | undefined;
   let refusalFromNote = false;
-  let lastAckedDraft = "";
+  let lastAckedDraft: string | null = "";
   let draftInFlight = false;
   let submitSeq = 0;
   let settledSeq = 0;
@@ -137,8 +137,9 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
         if (current !== lastAckedDraft) {
           draftInFlight = true;
           void note.draft(current).then((result) => {
-            if (result.status === "ack") lastAckedDraft = current;
-          }).catch(() => undefined).finally(() => {
+            // Any non-ack: the room may have dropped its held draft, so the next render resends whatever text is there.
+            lastAckedDraft = result.status === "ack" ? current : null;
+          }).catch(() => { lastAckedDraft = null; }).finally(() => {
             draftInFlight = false;
           });
         }

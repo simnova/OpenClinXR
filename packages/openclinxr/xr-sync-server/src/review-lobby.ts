@@ -89,6 +89,7 @@ export function setupLobbyState(state: EncounterStateInstance, replay: LoadedSta
   state.replayDone = false;
   state.noteStatus = "none";
   state.noteChars = 0;
+  state.noteSource = "";
   state.sessionComplete = replay.complete;
   state.actors = new MapSchema<ActorStateInstance>();
   state.learners = new MapSchema<LearnerStateInstance>();

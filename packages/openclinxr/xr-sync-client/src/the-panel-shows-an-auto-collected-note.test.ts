@@ -129,6 +129,17 @@ describe("the panel sends the unsubmitted note as a draft and shows the auto-col
     expect(drafts).toEqual([NOTE, `${NOTE} More.`]);
   });
 
+  it("text cleared (rejected, the room drops the held draft) and retyped identically is sent again", async () => {
+    text = NOTE;
+    const { drafts, snapshot } = await joined((_call, sent) => (sent === "" ? "invalid" : "ack"));
+    await snapshot(SNAP);
+    text = "";
+    await snapshot({ ...SNAP, phaseRemainingS: 99 });
+    text = NOTE;
+    await snapshot({ ...SNAP, phaseRemainingS: 98 });
+    expect(drafts).toEqual([NOTE, "", NOTE]);
+  });
+
   it("a rejected or failed draft never shows a refusal line", async () => {
     text = NOTE;
     const { el, snapshot } = await joined((call) => (call === 1 ? "rate-limited" : "transport"));
