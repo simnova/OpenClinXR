@@ -148,6 +148,7 @@ interface RawReplayEvent {
   turnId?: unknown;
   phase?: unknown;
   chars?: unknown;
+  source?: unknown;
   eventId?: unknown;
   tag?: unknown;
   match?: unknown;
@@ -264,6 +265,12 @@ export function loadReplayStationTrace(
     // note text itself was never recorded and is never replayed.
     if (typeof item.chars === "number") {
       event.chars = item.chars;
+    }
+    if (item.source !== undefined) {
+      if (item.kind !== "note-submitted" || (item.source !== "explicit" && item.source !== "draft")) {
+        throw new Error(`replay-bad-trace: ${entry.traceFile} holds a malformed note source`);
+      }
+      event.source = item.source as "explicit" | "draft";
     }
     // C19: the scheduled interjection replays its entry id + tag (ids only,
     // never text); the replyId comes from the recorded turn like every turn.

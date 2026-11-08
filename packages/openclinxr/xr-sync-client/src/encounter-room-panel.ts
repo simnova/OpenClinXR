@@ -6,7 +6,7 @@ export interface RoomPanel {
   refuse(reason: string, kind?: string): void;
 }
 
-export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => void, note?: { text(): string; submit(text: string): Promise<{ status: string; reason?: string }> }): RoomPanel {
+export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => void, note?: { text(): string; submit(text: string): Promise<{ status: string; reason?: string }>; draft?(text: string): Promise<{ status: string; reason?: string }> }): RoomPanel {
   const panel: UtteranceBoxElement = box.doc.createElement("div");
   panel.id = "room-panel";
   const cast: UtteranceBoxElement = box.doc.createElement("div");
@@ -26,6 +26,8 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
   let noteButton: UtteranceBoxElement | undefined;
   let noteStatus: UtteranceBoxElement | undefined;
   let refusalFromNote = false;
+  let lastAckedDraft = "";
+  let draftInFlight = false;
   let submitSeq = 0;
   let settledSeq = 0;
   let noteBoxElement: UtteranceBoxElement | undefined;
@@ -129,7 +131,18 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
       const inWindow = phase === "note";
       noteButton.hidden = !inWindow;
       noteButton.disabled = !inWindow;
-      noteStatus.textContent = snapshot.noteStatus === "submitted" ? `Note accepted, ${snapshot.noteChars ?? 0} characters` : "";
+      noteStatus.textContent = snapshot.noteStatus === "submitted" ? (snapshot.noteSource === "draft" ? `Note auto-collected at time end, ${snapshot.noteChars ?? 0} characters` : `Note accepted, ${snapshot.noteChars ?? 0} characters`) : "";
+      if (note?.draft !== undefined && phase === "note" && !draftInFlight) {
+        const current = note.text();
+        if (current !== lastAckedDraft) {
+          draftInFlight = true;
+          void note.draft(current).then((result) => {
+            if (result.status === "ack") lastAckedDraft = current;
+          }).catch(() => undefined).finally(() => {
+            draftInFlight = false;
+          });
+        }
+      }
     }
   };
   const showRefusal = (reason: string, kind?: string): void => {
@@ -143,6 +156,6 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
     }
   };
   // A note-submit reject is shown by the submit's own result (ordered by click id), not by the shared refusal hook.
-  const refuse = (reason: string, kind?: string): void => { if (kind !== "note-submit") showRefusal(reason, kind); };
+  const refuse = (reason: string, kind?: string): void => { if (kind !== "note-submit" && kind !== "note-draft") showRefusal(reason, kind); };
   return { render, refuse };
 }

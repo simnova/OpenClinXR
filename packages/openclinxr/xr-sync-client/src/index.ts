@@ -10,7 +10,7 @@ import { Client, type Room } from "@colyseus/sdk";
 import type { ConnectOptions } from "./options.js";
 
 /** Client-to-server intent kinds, mirroring the server contract. */
-export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit" | "select-station" | "return-to-lobby" | "score-station" | "finalize-review" | "speech-audio";
+export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit" | "note-draft" | "select-station" | "return-to-lobby" | "score-station" | "finalize-review" | "speech-audio";
 
 /** JSON payload carried by one intent. */
 export type IntentPayload = Record<string, unknown>;
@@ -97,6 +97,8 @@ export interface EncounterSnapshot {
   noteStatus?: string;
   /** C11 length of the held note (0 when none; absent on old servers). */
   noteChars?: number;
+  /** C45 "" | "explicit" | "draft"; absent on old servers. */
+  noteSource?: string;
   /** C12 true when the recorded session ran to completion (lobby only). */
   sessionComplete?: boolean;
   /** C12 one entry per index station, in index order (lobby only). */

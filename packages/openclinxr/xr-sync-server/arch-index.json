@@ -67,6 +67,7 @@
     "src/xr-sync-c35-dev-stack.test.ts",
     "src/xr-sync-c36-room-display.test.ts",
     "src/xr-sync-c4-conversation-trace.test.ts",
+    "src/xr-sync-c45-note-draft-promotion.test.ts",
     "src/xr-sync-c5-observer.test.ts",
     "src/xr-sync-c6-phase-clock.test.ts",
     "src/xr-sync-c6-server-config.test.ts",

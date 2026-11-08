@@ -431,7 +431,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     sendSelect = (stationId) => handle.sendIntent("select-station", { stationId });
     sendReturn = () => handle.sendIntent("return-to-lobby", {});
     if (deps.utteranceBox !== undefined && !isReplayRoom && !isLobby) {
-      roomPanel = mountRoomPanel(deps.utteranceBox, (tag) => { const actorId = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId }); if (actorId === undefined || actorId === "") return; lastAddressedActorId = actorId; void handle.sendTraceAction(actorId, tag); }, deps.noteText === undefined ? undefined : { text: () => deps.noteText?.() ?? "", submit: (text) => handle.sendIntent("note-submit", { text }) });
+      roomPanel = mountRoomPanel(deps.utteranceBox, (tag) => { const actorId = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId }); if (actorId === undefined || actorId === "") return; lastAddressedActorId = actorId; void handle.sendTraceAction(actorId, tag); }, deps.noteText === undefined ? undefined : { text: () => deps.noteText?.() ?? "", submit: (text) => handle.sendIntent("note-submit", { text }), draft: (text) => handle.sendIntent("note-draft", { text }) });
       if (lastSnapshot !== undefined) roomPanel.render(lastSnapshot);
       repeatPrompt = deps.utteranceBox.doc.createElement("div");
       repeatPrompt.id = "repeat-prompt";

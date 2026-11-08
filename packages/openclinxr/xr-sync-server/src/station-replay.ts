@@ -186,6 +186,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       this.state.replayDone = false;
       this.state.noteStatus = "none";
       this.state.noteChars = 0;
+      this.state.noteSource = "";
       this.state.actors = new MapSchema<ActorStateInstance>();
       // The replayed cast is the recorded cast: distinct turn actorIds in
       // first-appearance order, starting at the recorded baseline (C18).
@@ -461,6 +462,7 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
           // note text was never recorded and is never replayed.
           this.state.noteStatus = "submitted";
           this.state.noteChars = typeof event.chars === "number" ? event.chars : 0;
+          this.state.noteSource = typeof event.source === "string" ? event.source : "";
           break;
         }
         default: {

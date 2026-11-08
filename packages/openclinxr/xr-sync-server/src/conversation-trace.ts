@@ -123,6 +123,9 @@ export type ConversationTraceEventKind =
   | "observer-joined" | "observer-left" | "phase-changed" | "rotation-failed"
   | "note-submitted" | "scheduled-event";
 
+/** C45 origin of an accepted patient note ("explicit" via note-submit, "draft" via promotion). */
+export type NoteSource = "explicit" | "draft";
+
 /** One conversation event, in application order. Actor-agnostic: the learner
  * appears as utterance events with no sessionId; utterance-end names the
  * actor the reply targets (a roster id, never learner identity). */
@@ -140,6 +143,8 @@ export interface ConversationTraceEvent {
   phase?: string;
   /** C11 accepted-note length for "note-submitted" events; undefined otherwise. The note text never enters the trace. */
   chars?: number;
+  /** C45 origin for "note-submitted" events only; never text. */
+  source?: NoteSource;
   /** C19 schedule entry id + trace tag for "scheduled-event" events; undefined otherwise. Never text. */
   eventId?: string; tag?: string;
   /** C27 free-text match kind for "utterance-end" events; undefined otherwise. Never text. */
@@ -356,6 +361,7 @@ export interface ReplayableConversationTrace {
     turnId: number | null;
     phase?: string;
     chars?: unknown;
+    source?: unknown;
     eventId?: unknown;
     tag?: unknown;
     retry?: unknown;
@@ -385,6 +391,12 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     }
     if (typeof event.chars === "number") {
       out.chars = event.chars;
+    }
+    if (event.source !== undefined) {
+      if (event.kind !== "note-submitted" || (event.source !== "explicit" && event.source !== "draft")) {
+        throw new Error("replay-bad-trace: malformed note source");
+      }
+      out.source = event.source;
     }
     if (typeof event.eventId === "string") {
       out.eventId = event.eventId;
