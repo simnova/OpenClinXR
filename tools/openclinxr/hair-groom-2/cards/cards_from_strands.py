@@ -86,6 +86,10 @@ def cli():
     p.add_argument("--budget", type=int, required=True)
     p.add_argument("--stations", type=int, default=24)
     p.add_argument("--clusters", type=int, default=800)
+    p.add_argument("--atlas-px", type=int, default=2048, help="atlas edge (px); one unique cell per card")
+    p.add_argument("--cell-w", type=int, default=16, help="atlas cell width (px, across the card)")
+    p.add_argument("--members-out", default=None,
+                   help="card-members.npz: each card's member strands in its own frame (atlas_from_members.py)")
     p.add_argument("--layers", type=int, default=2, choices=(1, 2),
                    help="cards per cluster, at the member depth quantiles LAYER_Q along the card normal")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -187,6 +191,41 @@ def frames(C, O):
     W /= np.linalg.norm(W, axis=1, keepdims=True).clip(1e-12, None)
     dots = np.abs((W[:-1] * W[1:]).sum(1)).clip(0, 1)
     return T, W, float(np.degrees(np.arccos(dots)).max())
+
+
+def atlas_layout(n, A, cw):
+    """Unique atlas cell per card: columns of width cw px, rows of equal height filling the atlas."""
+    cols = A // cw
+    rows = -(-n // cols)
+    ch = A // rows
+    c = np.arange(n)
+    return np.stack([(c % cols) * cw, (c // cols) * ch, np.full(n, cw), np.full(n, ch)], 1).astype(np.int64)
+
+
+def project_members(P, s, off, Lc, Cl, W, N, le, he):
+    """Member strand points (M,K,3 world; s their arc lengths) in the card's own frame.
+    Station j of the card holds the members at arc j/(S-1) x Lc (step 2), so a point at arc s sits at
+    fractional station s/seg; on the first segment, which runs from the moved root end Cl[0] to Cl[1],
+    the member's own root offset along the card (off, from step 3b) is interpolated out by station 1.
+    Returns u (0..1 between the card edges le..he), v (0..1 root..tip = card_uv v; > 1 past the card
+    tip), depth (m along the card normal N from the card plane)."""
+    S = len(Cl)
+    seg = Lc / (S - 1)
+    seg0 = max(float(np.linalg.norm(Cl[1] - Cl[0])), 1e-9)
+    o = np.clip(off, 0.0, seg0)[:, None]
+    f = np.where(s < seg, (o + (s / seg) * (seg0 - o)) / seg0, s / seg)
+    fc = np.clip(f, 0.0, S - 1)
+    j0 = np.minimum(np.floor(fc).astype(np.int64), S - 2)
+    t = (fc - j0)[..., None]
+
+    def at(X):
+        X = X if X.ndim == 2 else X[:, None]
+        r = X[j0] * (1 - t) + X[j0 + 1] * t
+        return r if r.shape[-1] > 1 else r[..., 0]
+    d = P - at(Cl)
+    uo = (d * at(W)).sum(-1)
+    lo, hi = at(le), at(he)
+    return (uo - lo) / np.maximum(hi - lo, 1e-9), f / (S - 1), (d * at(N)).sum(-1)
 
 
 def smooth1d(x, k):
@@ -305,11 +344,21 @@ def main():
         N *= np.where((N * (C - centre_w[None])).sum(1, keepdims=True) < 0, -1.0, 1.0)  # outward
         dep = np.where(reach, ((Pm - C[None]) * N[None]).sum(2), np.nan)   # member depth offsets
         spread = float(np.nanmedian(np.nanpercentile(dep, 90, axis=0) - np.nanpercentile(dep, 10, axis=0)))
-        clus.append((C, W, N, lo, hi, dep, len(m), root_depth[-1], spread))
+        clus.append((C, W, N, lo, hi, dep, len(m), root_depth[-1], spread, m, tr - min(ext, 0.0), Lc))
     # outer layer only where the members fill depth: spread above the median over clusters
-    spread_cut = float(np.median([c[-1] for c in clus]))
-    for (C, W, N, lo, hi, dep, nm, rdep, spread) in clus:
+    spread_cut = float(np.median([c[8] for c in clus]))
+    mem_u, mem_v, mem_d, mem_card, card_wm, card_arc, card_nmem = [], [], [], [], [], [], []
+    for (C, W, N, lo, hi, dep, nm, rdep, spread, m, roff, Lc) in clus:
         nl = 2 if (a.layers == 2 and spread > spread_cut) else 1
+        # members split between the layer cards by their mean depth: the outer card (member depth p90)
+        # stands for the members past the midpoint of the two card planes, the inner card for the rest
+        mdep = np.nanmean(dep, 1)
+        dqs = [smooth1d(np.nan_to_num(np.nanpercentile(dep, LAYER_Q[li], axis=0)), WIDTH_SMOOTH) for li in range(nl)]
+        if nl == 2:
+            thr = 0.5 * (float(np.median(np.maximum(dqs[0], 0.0))) + float(np.median(dqs[1])))
+            mem_sets = [mdep <= thr, mdep > thr]
+        else:
+            mem_sets = [np.ones(len(m), bool)]
         for li in range(nl):
             q = LAYER_Q[li]
             dq = smooth1d(np.nan_to_num(np.nanpercentile(dep, q, axis=0)), WIDTH_SMOOTH)
@@ -347,6 +396,16 @@ def main():
             members_n.append(nm)
             card_rd.append(rdep)
             depth_spread.append(spread)
+            if a.members_out:
+                sel = m[mem_sets[li]]
+                u, v, dd = project_members(Pw[sel], sw[sel], roff[mem_sets[li]], Lc, Cl, W, N, le, he)
+                mem_u.append(u.astype(np.float32))
+                mem_v.append(v.astype(np.float32))
+                mem_d.append(dd.astype(np.float32))
+                mem_card.append(np.full(len(sel), ci, np.int64))
+                card_nmem.append(len(sel))
+                card_wm.append(float(np.median(he - le)))
+                card_arc.append(float(np.linalg.norm(np.diff(Cl, axis=0), axis=1).sum()))
     verts = np.vstack(V)
     nc = len(card_layer)
     lo_b, hi_b = 0.5 * a.budget, 1.5 * a.budget
@@ -428,7 +487,27 @@ def main():
     }
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
+    cells = atlas_layout(nc, a.atlas_px, a.cell_w)
+    luv = np.vstack(UV)
+    vcard = np.concatenate(VC)
+    cx = cells[vcard]
+    # atlas UV (Blender/glTF-flipped v: 1 = image top); a 1 px border of every cell is left to the bake's
+    # transparent gutter so bilinear filtering does not read the neighbouring card
+    au = (cx[:, 0] + 1 + luv[:, 0] * (cx[:, 2] - 2)) / a.atlas_px
+    av = 1.0 - (cx[:, 1] + 1 + luv[:, 1] * (cx[:, 3] - 2)) / a.atlas_px
+    payload["card_atlas_uv"] = np.stack([au, av], 1)
+    payload["card_atlas_cell_px"] = cells
+    payload["atlas_px"] = np.int64(a.atlas_px)
+    rec["atlas"] = {"px": a.atlas_px, "cellPx": [int(cells[0, 2]), int(cells[0, 3])], "cells": nc,
+                    "rule": "unique cell per card; columns of --cell-w px, rows of equal height; 1 px gutter"}
     np.savez(str(out), **dict(sorted(payload.items())))
+    if a.members_out:
+        np.savez(a.members_out, u=np.concatenate(mem_u), v=np.concatenate(mem_v), depth_m=np.concatenate(mem_d),
+                 card=np.concatenate(mem_card), card_width_m=np.array(card_wm), card_arc_m=np.array(card_arc),
+                 card_members=np.array(card_nmem, np.int64))
+        rec["membersOut"] = {"path": a.members_out, "sha256": sha(a.members_out), "strands": int(sum(card_nmem)),
+                             "perCard": {"min": int(min(card_nmem)), "median": float(np.median(card_nmem)),
+                                         "max": int(max(card_nmem))}}
     rec["cardsSha256"] = sha(out)
     rec["seconds"] = time.time() - t0
     (out.parent / "cards-record.json").write_text(json.dumps(rec, indent=1))

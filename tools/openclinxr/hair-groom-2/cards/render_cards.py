@@ -53,10 +53,17 @@ def cli():
     p.add_argument("--views", default="front,three_quarter_left,side,back")
     p.add_argument("--samples", type=int, default=128)
     p.add_argument("--alpha-cutoff", type=float, default=0.2)
+    p.add_argument("--alpha-mode", choices=("mask", "blend"), default="mask",
+                   help="Cycles render alpha: mask = (A > cutoff), the runtime MASK; blend = A where A > cutoff, else 0 "
+                        "(coverage-faded card edges; cards-r3)")
     p.add_argument("--roughness", type=float, default=None,
                    help="card Principled roughness (calibration record); default = recipe shading.roughness")
     p.add_argument("--specular", type=float, default=None,
                    help="Principled Specular IOR Level (calibration record); default = Blender's 0.5")
+    p.add_argument("--shadow-alpha", type=float, default=1.0,
+                   help="blend mode: the card's alpha as seen by shadow rays, x this factor")
+    p.add_argument("--card-shadow", choices=("on", "off"), default="on",
+                   help="off: the card object casts no Cycles shadow (the atlas already carries the members' occlusion)")
     p.add_argument("--hide-cards", action="store_true",
                    help="render the body without hair (calibration base); no donor GLB, no strands.npz")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -79,17 +86,19 @@ def card_mesh(cards, name):
     ul = me.uv_layers.new(name="UVMap")
     li = np.empty(len(me.loops), np.int64)
     me.loops.foreach_get("vertex_index", li)
-    c = cell[vc[li]]
-    cx, cy = c % 2, c // 2
-    u = (cx + uv[li, 0]) / 2.0
-    v = 1.0 - (cy + uv[li, 1]) / 2.0
-    ul.data.foreach_set("uv", np.stack([u, v], 1).ravel().astype(np.float32))
+    if "card_atlas_uv" in cards.files:   # cards-r3: one unique atlas cell per card (cards_from_strands.py)
+        auv = cards["card_atlas_uv"][li]
+    else:
+        c = cell[vc[li]]
+        cx, cy = c % 2, c // 2
+        auv = np.stack([(cx + uv[li, 0]) / 2.0, 1.0 - (cy + uv[li, 1]) / 2.0], 1)
+    ul.data.foreach_set("uv", auv.ravel().astype(np.float32))
     for poly in me.polygons:
         poly.use_smooth = True
     return me
 
 
-def card_material(atlas, roughness, cutoff, specular=None):
+def card_material(atlas, roughness, cutoff, specular=None, mode="mask", shadow_alpha=1.0):
     m = bpy.data.materials.new("hair_cards" if cutoff is None else "hair_cards_render")
     m.use_nodes = True
     nt = m.node_tree
@@ -112,7 +121,28 @@ def card_material(atlas, roughness, cutoff, specular=None):
         g.operation = "GREATER_THAN"
         g.inputs[1].default_value = cutoff
         nt.links.new(t.outputs["Alpha"], g.inputs[0])
-        nt.links.new(g.outputs[0], p.inputs["Alpha"])
+        if mode == "blend":
+            mul = nt.nodes.new("ShaderNodeMath")
+            mul.operation = "MULTIPLY"
+            nt.links.new(g.outputs[0], mul.inputs[0])
+            nt.links.new(t.outputs["Alpha"], mul.inputs[1])
+            if shadow_alpha != 1.0:
+                # shadow rays see the card at shadow_alpha x its alpha (Light Path Is Shadow Ray)
+                lp = nt.nodes.new("ShaderNodeLightPath")
+                f = nt.nodes.new("ShaderNodeMath")
+                f.operation = "MULTIPLY_ADD"     # 1 + is_shadow x (shadow_alpha - 1)
+                f.inputs[1].default_value = shadow_alpha - 1.0
+                f.inputs[2].default_value = 1.0
+                nt.links.new(lp.outputs["Is Shadow Ray"], f.inputs[0])
+                m2 = nt.nodes.new("ShaderNodeMath")
+                m2.operation = "MULTIPLY"
+                nt.links.new(mul.outputs[0], m2.inputs[0])
+                nt.links.new(f.outputs[0], m2.inputs[1])
+                nt.links.new(m2.outputs[0], p.inputs["Alpha"])
+            else:
+                nt.links.new(mul.outputs[0], p.inputs["Alpha"])
+        else:
+            nt.links.new(g.outputs[0], p.inputs["Alpha"])
     nt.links.new(p.outputs["BSDF"], o.inputs["Surface"])
     return m
 
@@ -140,7 +170,9 @@ def main():
     ob = bpy.data.objects.new("cards_render", me)
     bpy.context.scene.collection.objects.link(ob)
     rough = float(rc["shading"]["roughness"]) if a.roughness is None else a.roughness
-    me.materials.append(card_material(Path(a.atlas), rough, a.alpha_cutoff, a.specular))
+    me.materials.append(card_material(Path(a.atlas), rough, a.alpha_cutoff, a.specular, a.alpha_mode,
+                                    a.shadow_alpha))
+    ob.visible_shadow = a.card_shadow == "on"
 
     # 3: signed clearance to the body
     col = groom.Collider([body])
@@ -169,7 +201,7 @@ def main():
         "clearance": {"minSignedMmBody": float(sd.min() * 1000), "negativePointsBody": int((sd < 0).sum()),
                       "rule": "every card vertex, groom.Collider([body]).signed (BVH nearest, face-normal sign)"},
         "material": {"model": "Principled BSDF", "baseColor": "atlas RGB (sRGB)", "alpha": "atlas A",
-                     "roughness": rough, "renderAlphaCutoff": a.alpha_cutoff,
+                     "roughness": rough, "renderAlphaCutoff": a.alpha_cutoff, "renderAlphaMode": a.alpha_mode, "cardShadow": a.card_shadow, "shadowAlpha": a.shadow_alpha,
                      "specularIorLevel": 0.5 if a.specular is None else a.specular},
         "hiddenObjects": hidden,
     }
@@ -177,6 +209,8 @@ def main():
     # 4: renders through groom.py's rig
     views = [v for v in a.views.split(",") if v]
     devs = groom.setup_render(a.samples)
+    if a.alpha_mode == "blend":   # stacked fractional-alpha cards: default 8 transparent bounces end paths early
+        bpy.context.scene.cycles.transparent_max_bounces = 128
     place, cam = groom.camera_rig(origin, R, centre, ztop, groom.eye_height(), rc.get("lighting"))
     stats["render"] = {"engine": "CYCLES", "devices": devs, "samples": a.samples, "denoise": True,
                        "lighting": rc.get("lighting"), "resolution": groom.RES, "camera": cam, "views": {}}

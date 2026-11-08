@@ -52,6 +52,7 @@ def main():
     ap.add_argument("--specular", default="0,0.05,0.1,0.15,0.2")
     ap.add_argument("--roughness", type=float, default=None)
     ap.add_argument("--iters", type=int, default=3)
+    ap.add_argument("--render-args", default="", help="extra render_cards.py arguments, space separated (cards-r3: alpha mode)")
     a = ap.parse_args()
     out = Path(a.out_dir)
     out.mkdir(parents=True, exist_ok=True)
@@ -70,6 +71,7 @@ def main():
                    "--out-dir", str(rd), "--specular", str(sp)]
             if a.roughness is not None:
                 cmd += ["--roughness", str(a.roughness)]
+            cmd += a.render_args.split()
             run(cmd)
             rec_p = d / ("calib%d.json" % it)
             cc = [py, str(HERE / "calib_colour.py"), "--strands", a.groom_round, "--base", a.base, "--cards", str(rd),
@@ -91,7 +93,7 @@ def main():
     best = min(results, key=lambda r: r["E"])
     shutil.copyfile(best["atlas"], out / "strand-atlas-cal.png")
     cal = {"tool": "tools/openclinxr/hair-groom-2/cards/calib_search.py", "roughness": a.roughness,
-           "iters": a.iters, "grid": results, "kept": best,
+           "iters": a.iters, "renderArgs": a.render_args, "grid": results, "kept": best,
            "criterion": "min over specular levels of sum_views log(mean lum ratio)^2 + log(p50 lum ratio)^2"}
     (out / "calibration.json").write_text(json.dumps(cal, indent=1))
     print("CALIB_SEARCH_DONE", json.dumps({"specular": best["specular"], "E": best["E"], "gain": best["gain"]}))
