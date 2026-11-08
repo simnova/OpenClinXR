@@ -44,11 +44,13 @@ async function pythonRuntime(runtime: string, supplied?: string): Promise<string
   await execute("uv", ["pip", "sync", "--python", python, join(directory, "requirements.txt")], 180_000);
   return python;
 }
+/** Cold start 26 s measured at load 12-21 on 2026-11-07 (fresh venv, first PyAV load), about 2.3x margin; warm start 1 s. */
+const PEER_READY_DEADLINE_MS = 60_000;
 function launchPeers(python: string, args: string[]): Promise<{ child: ChildProcess; rtcPort: number; wtPort: number; versions: Record<string, string> }> {
   return new Promise((resolvePromise, reject) => {
     const child = spawn(python, [join(directory, "peers.py"), ...args], { stdio: ["ignore", "pipe", "pipe"], env: childEnv() }); let stdout = ""; let stderr = ""; let done = false;
     const fail = (error: Error) => { if (done) return; done = true; clearTimeout(timeout); child.kill("SIGTERM"); reject(error); };
-    const timeout = setTimeout(() => fail(new Error(`Peer readiness deadline: ${stderr.slice(0, 800)}`)), 15_000);
+    const timeout = setTimeout(() => fail(new Error(`Peer readiness deadline: ${stderr.slice(0, 800)}`)), PEER_READY_DEADLINE_MS);
     child.stderr!.on("data", (chunk) => { stderr = (stderr + String(chunk)).slice(-2048); });
     child.stdout!.on("data", (chunk) => {
       stdout += String(chunk);
