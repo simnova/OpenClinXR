@@ -104,6 +104,15 @@ describe("C43 fix2 trace settle", () => {
     expect(out.refusal).toContain("watcher");
   });
 
+  it("an early refusal still awaits the close promise", async () => {
+    const dir = await traceDir();
+    let settled = false;
+    const closing = new Promise((resolve) => setTimeout(() => { settled = true; resolve(); }, 200));
+    const out = await listTraceFiles(dir, { lastEventAt: null, watchErrors: 0, persisted: closing, clock: fakeClock(), list: async () => [] });
+    expect(out.refusal).not.toBeNull();
+    expect(settled).toBe(true);
+  });
+
   it("the watcher stamps only on a length change", async () => {
     const watcher = watchTraceActivity(() => ({ events: [] }), 5);
     await new Promise((resolve) => setTimeout(resolve, 40));

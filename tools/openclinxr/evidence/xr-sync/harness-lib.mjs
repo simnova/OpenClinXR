@@ -612,6 +612,7 @@ export function startLateCopyProbe(dir, ms) {
  */
 export async function listTraceFiles(dir, { waitMs = 20000, lastEventAt = null, watchErrors = 0, persisted = null, quietMs = TRACE_QUIET_MS, capMs = 15000, clock = null, list = null } = {}) {
   const quietSource = TRACE_QUIET_SOURCE;
+  quietMs = Math.max(1000, quietMs);
   const now = () => (clock ? clock.now() : Date.now());
   const sleep = (ms) => (clock ? clock.sleep(ms) : new Promise((resolve) => setTimeout(resolve, ms)));
   const readList = list ?? (async () => {
@@ -621,16 +622,7 @@ export async function listTraceFiles(dir, { waitMs = 20000, lastEventAt = null, 
     return Promise.all(names.map(async (name) => ({ name, size: (await stat(joinPath(dir, name))).size })));
   });
   const start = now();
-  // (a) refusal before any waiting: an unmeasurable or errored watcher cannot derive a settle.
-  if (lastEventAt === null) {
-    const refusal = "lastEventAt is null: no trace event was watched, so no settle can be derived";
-    return { files: [], refusal, mechanism: "refused-before-settle", quietMs, quietSource, pollCounts: [], waitedMs: 0, derivation: `refused before settle: ${refusal}` };
-  }
-  if (watchErrors > 0) {
-    const refusal = `watcher errors: ${watchErrors} trace watcher read errors observed, so no settle can be derived`;
-    return { files: [], refusal, mechanism: "refused-before-settle", quietMs, quietSource, pollCounts: [], waitedMs: 0, derivation: `refused before settle: ${refusal}` };
-  }
-  // (b) the persist signal is the close promise.
+  // (a) the persist signal is the close promise; awaited first so a refusal never leaves the close promise unobserved.
   if (persisted != null) {
     try {
       await persisted;
@@ -638,6 +630,15 @@ export async function listTraceFiles(dir, { waitMs = 20000, lastEventAt = null, 
       const refusal = `persist signal rejected: ${error?.message ?? String(error)}`;
       return { files: [], refusal, mechanism: "refused-before-settle", quietMs, quietSource, pollCounts: [], waitedMs: now() - start, derivation: `refused before settle: ${refusal}` };
     }
+  }
+  // (b) an unmeasurable or errored watcher cannot derive a settle.
+  if (lastEventAt === null) {
+    const refusal = "lastEventAt is null: no trace event was watched, so no settle can be derived";
+    return { files: [], refusal, mechanism: "refused-before-settle", quietMs, quietSource, pollCounts: [], waitedMs: 0, derivation: `refused before settle: ${refusal}` };
+  }
+  if (watchErrors > 0) {
+    const refusal = `watcher errors: ${watchErrors} trace watcher read errors observed, so no settle can be derived`;
+    return { files: [], refusal, mechanism: "refused-before-settle", quietMs, quietSource, pollCounts: [], waitedMs: 0, derivation: `refused before settle: ${refusal}` };
   }
   const mechanism = persisted ? "persist-signal (close promise) + quiet confirmation" : "quiet period only";
   // (c) poll every 100 ms until the listing signature is quiet for quietMs, or the cap hits.
@@ -655,7 +656,7 @@ export async function listTraceFiles(dir, { waitMs = 20000, lastEventAt = null, 
     names = entries.map((e) => e.name);
     pollCounts.push(entries.length);
     if (entries.length === 0) {
-      if (now() - start >= waitMs) {
+      if (now() - start >= Math.min(waitMs, capMs)) {
         return { files: [], refusal: `no trace file appeared within ${waitMs} ms`, mechanism, quietMs, quietSource, pollCounts, waitedMs: now() - start, derivation: "no settle: no trace file appeared" };
       }
       await sleep(100);
