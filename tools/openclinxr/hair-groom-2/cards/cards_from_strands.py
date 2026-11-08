@@ -116,6 +116,14 @@ def cli():
                    help="cards-r6: card edges at this percentile and 100 minus it of the member offsets (cards-r3..r5: 2)")
     p.add_argument("--outer-q", type=float, default=LAYER_Q[1],
                    help="cards-r6: member depth percentile of the outer layer card (cards-r3..r5: 90)")
+    p.add_argument("--root-region", default="",
+                   help="cards-r7 M1: 'X:Y0:Y1:Z0:Z1:N[:RW]' (head-local mm) - strands rooted at |x| >= X, Y0 <= y <= Y1, "
+                        "Z0 <= z <= Z1 (temple/sideburn, both sides) leave the main k-means and are clustered per side "
+                        "into ceil(count / N) cards on the root (weight RW, default 3) plus the 30/80 mm points")
+    p.add_argument("--short-length-pct", default="",
+                   help="cards-r7 M1: 'MM:P' - a cluster whose member median length is under MM mm gets card length = the "
+                        "P-th percentile of its member lengths instead of LENGTH_PCT (98): the sideburn end is the short "
+                        "cards' geometric tip, which atlas alpha (--short-k) moves by < 0.5 mm")
     p.add_argument("--layers", type=int, default=2, choices=(1, 2),
                    help="cards per cluster, at the member depth quantiles LAYER_Q along the card normal")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -327,6 +335,33 @@ def main():
         labels[idx] = lab + base
         base += k
     print("KMEANS_DONE", side_k, round(time.time() - t0, 1), flush=True)
+    region_rec = None
+    if a.root_region:
+        # cards-r7 M1: the main features weigh the 200 mm point like the root, so temple strands that fall back
+        # over the ear share ~600 mm cards with strands rooted 40-60 mm away (r6/s2: 579 strands through the
+        # gap box above the left ear on 21 cards of ~200 members), and the card edges, where member coverage
+        # and alpha are lowest, land on the temple hairline. Here the root region is clustered on its roots.
+        rr = [float(x) for x in a.root_region.split(":")]
+        X, Y0, Y1, Z0, Z1, NR = rr[:6]
+        RW = rr[6] if len(rr) > 6 else 3.0
+        r0 = Pl[:, 0]
+        inreg = (np.abs(r0[:, 0]) >= X) & (r0[:, 1] >= Y0) & (r0[:, 1] <= Y1) & (r0[:, 2] >= Z0) & (r0[:, 2] <= Z1)
+        nxt = int(labels.max()) + 1
+        region_rec = {"box": rr, "strands": int(inreg.sum()), "clusters": {}}
+        for sgn in (1, -1):
+            idx = np.where(inreg & (side == sgn))[0]
+            if len(idx) == 0:
+                continue
+            kk = max(1, int(math.ceil(len(idx) / NR)))
+            fr = np.concatenate([Pl[idx, 0] * RW, feat[idx, 3:9]], 1)
+            sub = kmeans(fr, kk)
+            for j in range(kk):
+                if (sub == j).any():
+                    labels[idx[sub == j]] = nxt
+                    nxt += 1
+            region_rec["clusters"][str(sgn)] = kk
+        # main clusters emptied by the move drop out of `order` below (np.unique of the labels)
+        print("ROOT_REGION", region_rec, flush=True)
     split_rec = None
     if a.short_split:
         mm, nmax = a.short_split.split(":")
@@ -368,11 +403,13 @@ def main():
     clus = []
     order = np.unique(labels[labels >= 0])
     lens = sw[:, -1]
+    slp = [float(x) for x in a.short_length_pct.split(":")] if a.short_length_pct else None
     for cid, k in enumerate(order):
         m = np.where(labels == k)[0]
         lm = np.sort(lens[m])
+        lpct = slp[1] if (slp and float(np.median(lm)) * 1000.0 < slp[0]) else LENGTH_PCT
         # every station is a mean of >= MIN_REACH members (a lone member's tip hung onto the arm)
-        Lc = min(float(np.percentile(lm, LENGTH_PCT)), float(lm[max(len(lm) - MIN_REACH, 0)]))
+        Lc = min(float(np.percentile(lm, lpct)), float(lm[max(len(lm) - MIN_REACH, 0)]))
         for _ in range(2):
             Pm = sample_at(Pw[m], sw[m], np.broadcast_to(Lc * frac[None], (len(m), S)))
             reach = lens[m][:, None] >= (Lc * frac[None] - 1e-9)     # (members, S)
@@ -603,6 +640,8 @@ def main():
         rec["membersOut"] = {"path": a.members_out, "sha256": sha(a.members_out), "strands": int(sum(card_nmem)),
                              "perCard": {"min": int(min(card_nmem)), "median": float(np.median(card_nmem)),
                                          "max": int(max(card_nmem))}}
+    if region_rec is not None:
+        rec["rootRegion"] = region_rec
     rec["cardsSha256"] = sha(out)
     rec["seconds"] = time.time() - t0
     (out.parent / "cards-record.json").write_text(json.dumps(rec, indent=1))

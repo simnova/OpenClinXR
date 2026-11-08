@@ -26,6 +26,11 @@ sheet, behind-ear blades) get a fraction of it, the dense crown and temple cores
 only; three.js GLTFLoader maps it to specularIntensityMap. --aniso-alpha-power P does the same for
 KHR_materials_anisotropy (anisotropyTexture blue = strength multiplier): the cards-r5/s6 tq glints and behind-ear
 patch vanish with anisotropy 0 and not with the specular mask, so they are anisotropic highlights.
+
+cards-r7: --aniso-rotation R (radians, default pi/2). With carried TANGENTs the cards-r6 material (spec 0.25, rough
+0.5, rotation pi/2) adds at most dL 0.06-0.10 over a spec-0 render in any view: the runtime sheen was the baked atlas.
+Rotation pi/2 stretches the lobe along the strand (spec 1.0: a vertical stripe down the back); rotation 0 stretches it
+across the strands, so the highlight forms one band across the crown, as on real hair.
 """
 from __future__ import annotations
 
@@ -125,19 +130,22 @@ def add_image(doc, rest, png, name):
     return len(doc["textures"]) - 1, struct.pack("<II", len(data), btype) + data + rest[8 + blen:]
 
 
-def sheen(doc, spec, rough, aniso, atlas):
+def sheen(doc, spec, rough, aniso, atlas, rot=math.pi / 2):
     tint = atlas_tint(atlas)
     for m in doc.get("materials", []):
         if m.get("name") != "hair_cards":
             continue
         ext = m.setdefault("extensions", {})
         ext["KHR_materials_specular"] = {"specularFactor": spec, "specularColorFactor": tint}
-        ext["KHR_materials_anisotropy"] = {"anisotropyStrength": aniso, "anisotropyRotation": math.pi / 2}
+        ext["KHR_materials_anisotropy"] = {"anisotropyStrength": aniso, "anisotropyRotation": rot}
         m["pbrMetallicRoughness"]["roughnessFactor"] = rough
     doc["extensionsUsed"] = sorted(set(doc.get("extensionsUsed", [])) | {"KHR_materials_specular",
                                                                         "KHR_materials_anisotropy"})
-    return {"specularFactor": spec, "specularColorFactor": tint, "roughness": rough, "anisotropyStrength": aniso,
-            "atlas": str(atlas)}
+    out = {"specularFactor": spec, "specularColorFactor": tint, "roughness": rough, "anisotropyStrength": aniso,
+           "atlas": str(atlas)}
+    if rot != math.pi / 2:
+        out["anisotropyRotation"] = rot
+    return out
 
 
 def main():
@@ -149,8 +157,10 @@ def main():
     rest = data[20 + jlen:]
     if len(sys.argv) > 4 and sys.argv[4] == "--runtime-sheen":
         spec, rough, aniso = (float(x) for x in sys.argv[5:8])
-        applied = sheen(doc, spec, rough, aniso, Path(sys.argv[8]))
         opts = sys.argv[9:]
+        # cards-r7 M3: --aniso-rotation R (radians; default pi/2 = along the strand, cards-r5/r6)
+        rot = float(opts[opts.index("--aniso-rotation") + 1]) if "--aniso-rotation" in opts else math.pi / 2
+        applied = sheen(doc, spec, rough, aniso, Path(sys.argv[8]), rot)
         for flag, ext, key, fn, name in (
                 ("--spec-alpha-power", "KHR_materials_specular", "specularTexture", spec_mask_png, "hair_spec_mask"),
                 ("--aniso-alpha-power", "KHR_materials_anisotropy", "anisotropyTexture", aniso_mask_png,
