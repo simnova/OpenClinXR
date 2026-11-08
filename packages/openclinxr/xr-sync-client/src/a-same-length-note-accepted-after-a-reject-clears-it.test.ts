@@ -30,9 +30,10 @@ const SNAP = {
 };
 const NOTE = "Chest pressure for two hours, radiating to the left arm.";
 
-async function joined(options: { noteText?: () => string; rejectWhen?: (text: string) => string | undefined; rejectKind?: { kind: string; reason: string } } = {}) {
+async function joined(options: { noteText?: () => string; rejectWhen?: (text: string) => string | undefined; rejectKind?: { kind: string; reason: string }; hold?: boolean } = {}) {
   const parent = new FakeElement("div");
   const sent: Array<{ kind: string; payload: Record<string, unknown> }> = [];
+  const held: Array<() => void> = [];
   let stateListener: ((s: unknown) => void) | undefined;
   const handle = await startEncounterSyncFromUrl({
     search: "?encounterSync=ws://127.0.0.1:9",
@@ -47,6 +48,7 @@ async function joined(options: { noteText?: () => string; rejectWhen?: (text: st
       sessionId: "s",
       sendIntent: async (kind: string, payload: Record<string, unknown>) => {
         sent.push({ kind, payload });
+        if (options.hold === true && kind === "note-submit") await new Promise<void>((resolve) => { held.push(resolve); });
         const reason = options.rejectKind !== undefined && kind === options.rejectKind.kind ? options.rejectKind.reason : kind === "note-submit" ? options.rejectWhen?.(String(payload["text"] ?? "")) : undefined;
         return reason === undefined ? { status: "ack", seq: 1, serverTs: 0, rttMs: 1 } : { status: "reject", reason, seq: 1 };
       },
@@ -56,7 +58,7 @@ async function joined(options: { noteText?: () => string; rejectWhen?: (text: st
   } as never);
   const el = (id: string): FakeElement => parent.find(id) as FakeElement;
   const noteSends = (): typeof sent => sent.filter((s) => s.kind === "note-submit");
-  return { handle, el, noteSends, snapshot: (s: unknown) => stateListener?.(s) };
+  return { handle, el, noteSends, held, snapshot: (s: unknown) => stateListener?.(s) };
 }
 
 
@@ -114,5 +116,36 @@ describe("an accepted note clears the earlier note reject on every submit (C42)"
     await flush();
     snapshot({ ...SNAP, phase: "note", noteStatus: "submitted", noteChars: NOTE.length });
     expect(el("room-refusal").textContent).toBe("Not accepted: bad-topic");
+  });
+
+  it("two submits in flight: the older accept arriving last does not clear the newer reject", async () => {
+    let text = NOTE;
+    const { el, snapshot, held } = await joined({ noteText: () => text, hold: true, rejectWhen: (t) => (t === "" ? "invalid-note" : undefined) });
+    snapshot({ ...SNAP, phase: "note", noteStatus: "none", noteChars: 0 });
+    el("room-note-submit").click();
+    text = "";
+    el("room-note-submit").click();
+    await flush();
+    held[1]?.();
+    await flush();
+    expect(el("room-refusal").textContent).toBe("Not accepted: invalid-note");
+    held[0]?.();
+    await flush();
+    expect(el("room-refusal").textContent).toBe("Not accepted: invalid-note");
+  });
+
+  it("two submits in flight: the older reject arriving last does not show after the newer accept", async () => {
+    let text = "";
+    const { el, snapshot, held } = await joined({ noteText: () => text, hold: true, rejectWhen: (t) => (t === "" ? "invalid-note" : undefined) });
+    snapshot({ ...SNAP, phase: "note", noteStatus: "none", noteChars: 0 });
+    el("room-note-submit").click();
+    text = NOTE;
+    el("room-note-submit").click();
+    await flush();
+    held[1]?.();
+    await flush();
+    held[0]?.();
+    await flush();
+    expect(el("room-refusal").textContent).toBe("");
   });
 });

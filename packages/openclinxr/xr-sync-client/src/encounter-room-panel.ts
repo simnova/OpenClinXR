@@ -6,7 +6,7 @@ export interface RoomPanel {
   refuse(reason: string, kind?: string): void;
 }
 
-export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => void, note?: { text(): string; submit(text: string): Promise<{ status: string }> }): RoomPanel {
+export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => void, note?: { text(): string; submit(text: string): Promise<{ status: string; reason?: string }> }): RoomPanel {
   const panel: UtteranceBoxElement = box.doc.createElement("div");
   panel.id = "room-panel";
   const cast: UtteranceBoxElement = box.doc.createElement("div");
@@ -26,6 +26,8 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
   let noteButton: UtteranceBoxElement | undefined;
   let noteStatus: UtteranceBoxElement | undefined;
   let refusalFromNote = false;
+  let submitSeq = 0;
+  let settledSeq = 0;
   let noteBoxElement: UtteranceBoxElement | undefined;
   if (note !== undefined) {
     const noteBox: UtteranceBoxElement = box.doc.createElement("div");
@@ -39,7 +41,17 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
     submitButton.disabled = true;
     submitButton.addEventListener("click", () => {
       if (phase !== "note") return;
-      void note.submit(note.text()).then((result) => { if (result.status === "ack" && refusalFromNote) { refusal.textContent = ""; refusalFromNote = false; } });
+      // Each click carries an id; a result older than one already applied is dropped, so out-of-order replies leave the newest submit's outcome.
+      const id = ++submitSeq;
+      void note.submit(note.text()).then((result) => {
+        if (id < settledSeq) return;
+        settledSeq = id;
+        if (result.status === "ack") {
+          if (refusalFromNote) { refusal.textContent = ""; refusalFromNote = false; }
+        } else if (result.reason !== undefined) {
+          showRefusal(result.reason, "note-submit");
+        }
+      }).catch(() => undefined);
     });
     const status: UtteranceBoxElement = box.doc.createElement("div");
     status.id = "room-note-status";
@@ -113,7 +125,7 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
       noteStatus.textContent = snapshot.noteStatus === "submitted" ? `Note accepted, ${snapshot.noteChars ?? 0} characters` : "";
     }
   };
-  const refuse = (reason: string, kind?: string): void => {
+  const showRefusal = (reason: string, kind?: string): void => {
     refusalFromNote = kind === "note-submit";
     if (reason === "outside-encounter-phase" && phase === "doorway") {
       refusal.textContent = `Not open yet: the encounter opens in ${remaining} s.`;
@@ -123,5 +135,7 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
       refusal.textContent = `Not accepted: ${reason}`;
     }
   };
+  // A note-submit reject is shown by the submit's own result (ordered by click id), not by the shared refusal hook.
+  const refuse = (reason: string, kind?: string): void => { if (kind !== "note-submit") showRefusal(reason, kind); };
   return { render, refuse };
 }
