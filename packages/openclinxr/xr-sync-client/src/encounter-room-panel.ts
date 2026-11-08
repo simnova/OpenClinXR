@@ -3,10 +3,10 @@ import type { UtteranceBoxDeps, UtteranceBoxElement } from "./encounter-turns.js
 
 export interface RoomPanel {
   render(snapshot: EncounterSnapshot): void;
-  refuse(reason: string): void;
+  refuse(reason: string, kind?: string): void;
 }
 
-export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => void, note?: { text(): string; submit(text: string): void }): RoomPanel {
+export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => void, note?: { text(): string; submit(text: string): Promise<{ status: string }> }): RoomPanel {
   const panel: UtteranceBoxElement = box.doc.createElement("div");
   panel.id = "room-panel";
   const cast: UtteranceBoxElement = box.doc.createElement("div");
@@ -25,7 +25,7 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
   let remaining: number = 0;
   let noteButton: UtteranceBoxElement | undefined;
   let noteStatus: UtteranceBoxElement | undefined;
-  let lastNoteKey = "";
+  let refusalFromNote = false;
   let noteBoxElement: UtteranceBoxElement | undefined;
   if (note !== undefined) {
     const noteBox: UtteranceBoxElement = box.doc.createElement("div");
@@ -39,7 +39,7 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
     submitButton.disabled = true;
     submitButton.addEventListener("click", () => {
       if (phase !== "note") return;
-      note.submit(note.text());
+      void note.submit(note.text()).then((result) => { if (result.status === "ack" && refusalFromNote) { refusal.textContent = ""; refusalFromNote = false; } });
     });
     const status: UtteranceBoxElement = box.doc.createElement("div");
     status.id = "room-note-status";
@@ -111,13 +111,10 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
       noteButton.hidden = !inWindow;
       noteButton.disabled = !inWindow;
       noteStatus.textContent = snapshot.noteStatus === "submitted" ? `Note accepted, ${snapshot.noteChars ?? 0} characters` : "";
-      const noteKey = `${snapshot.noteStatus ?? ""}:${snapshot.noteChars ?? 0}`;
-      // An accepted note clears an earlier note reject once; later snapshots leave a fresh reject on screen.
-      if (snapshot.noteStatus === "submitted" && noteKey !== lastNoteKey) refusal.textContent = "";
-      lastNoteKey = noteKey;
     }
   };
-  const refuse = (reason: string): void => {
+  const refuse = (reason: string, kind?: string): void => {
+    refusalFromNote = kind === "note-submit";
     if (reason === "outside-encounter-phase" && phase === "doorway") {
       refusal.textContent = `Not open yet: the encounter opens in ${remaining} s.`;
     } else if (reason === "outside-encounter-phase" && phase !== "" && phase !== "doorway") {

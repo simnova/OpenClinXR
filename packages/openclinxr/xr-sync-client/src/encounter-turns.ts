@@ -399,7 +399,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
       reviewLobby: isLobby,
       onSnapshot: (snapshot) => { lastSnapshot = snapshot; roomPanel?.render(snapshot); picker?.render(snapshot); serverSpeechSeen = snapshot.speechAvailable; speechEvidence?.setServerSpeech(serverSpeechSeen); },
       ...(deps.connectFn === undefined ? {} : { connectFn: deps.connectFn }),
-      onRefusal: (_kind, reason) => roomPanel?.refuse(reason),
+      onRefusal: (kind, reason) => roomPanel?.refuse(reason, kind),
       onTurn: (turn, stationId) => {
         lastSpokeActorId = turn.actorId;
         if (turn.intake === SPEECH_LOW_CONFIDENCE) {
@@ -431,7 +431,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     sendSelect = (stationId) => handle.sendIntent("select-station", { stationId });
     sendReturn = () => handle.sendIntent("return-to-lobby", {});
     if (deps.utteranceBox !== undefined && !isReplayRoom && !isLobby) {
-      roomPanel = mountRoomPanel(deps.utteranceBox, (tag) => { const actorId = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId }); if (actorId === undefined || actorId === "") return; lastAddressedActorId = actorId; void handle.sendTraceAction(actorId, tag); }, deps.noteText === undefined ? undefined : { text: () => deps.noteText?.() ?? "", submit: (text) => { void handle.sendIntent("note-submit", { text }); } });
+      roomPanel = mountRoomPanel(deps.utteranceBox, (tag) => { const actorId = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId }); if (actorId === undefined || actorId === "") return; lastAddressedActorId = actorId; void handle.sendTraceAction(actorId, tag); }, deps.noteText === undefined ? undefined : { text: () => deps.noteText?.() ?? "", submit: (text) => handle.sendIntent("note-submit", { text }) });
       if (lastSnapshot !== undefined) roomPanel.render(lastSnapshot);
       repeatPrompt = deps.utteranceBox.doc.createElement("div");
       repeatPrompt.id = "repeat-prompt";

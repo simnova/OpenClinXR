@@ -32,7 +32,7 @@ const SNAP = {
 };
 const NOTE = "Chest pressure for two hours, radiating to the left arm.";
 
-async function joined(options: { noteText?: () => string; reject?: string } = {}) {
+async function joined(options: { noteText?: () => string; rejectWhen?: (text: string) => string | undefined } = {}) {
   const parent = new FakeElement("div");
   const sent: Array<{ kind: string; payload: Record<string, unknown> }> = [];
   let stateListener: ((s: unknown) => void) | undefined;
@@ -49,7 +49,8 @@ async function joined(options: { noteText?: () => string; reject?: string } = {}
       sessionId: "s",
       sendIntent: async (kind: string, payload: Record<string, unknown>) => {
         sent.push({ kind, payload });
-        return options.reject === undefined ? { status: "ack", seq: 1, serverTs: 0, rttMs: 1 } : { status: "reject", reason: options.reject, seq: 1 };
+        const reason = options.rejectWhen?.(String(payload["text"] ?? ""));
+        return reason === undefined ? { status: "ack", seq: 1, serverTs: 0, rttMs: 1 } : { status: "reject", reason, seq: 1 };
       },
       onState: (fn: (s: unknown) => void) => { stateListener = fn; return () => undefined; },
       leave: async () => undefined,
@@ -96,7 +97,7 @@ describe("the synced shell submits the patient note (C41)", () => {
   });
 
   it("a rejected submit shows the server reason in #room-refusal and no accepted line", async () => {
-    const { el, snapshot } = await joined({ noteText: () => "", reject: "invalid-note" });
+    const { el, snapshot } = await joined({ noteText: () => "", rejectWhen: () => "invalid-note" });
     snapshot({ ...SNAP, phase: "note" });
     el("room-note-submit").click();
     await flush();
@@ -104,14 +105,17 @@ describe("the synced shell submits the patient note (C41)", () => {
     expect(el("room-note-status").textContent).toBe("");
   });
 
-  it("a reject stays on screen across later snapshots, and an accepted note clears it once", async () => {
-    const { el, snapshot } = await joined({ noteText: () => "", reject: "invalid-note" });
+  it("a reject stays on screen across later snapshots until a note submit is accepted (C42)", async () => {
+    let reject: string | undefined = "invalid-note";
+    const { el, snapshot } = await joined({ noteText: () => "", rejectWhen: () => reject });
     snapshot({ ...SNAP, phase: "note", noteStatus: "submitted", noteChars: 5 });
     el("room-note-submit").click();
     await flush();
-    snapshot({ ...SNAP, phase: "note", noteStatus: "submitted", noteChars: 5 });
-    expect(el("room-refusal").textContent).toBe("Not accepted: invalid-note");
     snapshot({ ...SNAP, phase: "note", noteStatus: "submitted", noteChars: 8 });
+    expect(el("room-refusal").textContent).toBe("Not accepted: invalid-note");
+    reject = undefined;
+    el("room-note-submit").click();
+    await flush();
     expect(el("room-refusal").textContent).toBe("");
   });
 
