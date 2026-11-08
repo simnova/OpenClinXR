@@ -35,9 +35,9 @@ const clone = (trace: TraceShape): TraceShape => JSON.parse(JSON.stringify(trace
 const nurseEnd = (trace: TraceShape): Record<string, unknown> => trace.events.find((e) => e["kind"] === "utterance-end" && e["turnId"] === 4) as Record<string, unknown>;
 
 /** Append one more recorded nurse turn whose utterance-end carries only `tag` (a per-topic event beside the covering one). */
-function withPerTopicTurn(trace: TraceShape, turnId: number, seq: number, tag: string): void {
+function withPerTopicTurn(trace: TraceShape, turnId: number, seq: number, tag: string, coveredTags?: string[]): void {
   trace.turns.push({ turnId, actorId: "nurse_maria_alvarez_v1", replyId: "c3-ack-onset", cueId: "cue-followup-02", startSeq: seq, end: "completed", endSeq: null });
-  trace.events.push({ seq, kind: "utterance-end", actorId: "nurse_maria_alvarez_v1", turnId, tag, modality: "typed" });
+  trace.events.push({ seq, kind: "utterance-end", actorId: "nurse_maria_alvarez_v1", turnId, tag, ...(coveredTags === undefined ? {} : { coveredTags }), modality: "typed" });
   trace.events.push({ seq: null, kind: "turn-completed", actorId: "nurse_maria_alvarez_v1", turnId });
   trace.emotions.push(JSON.parse(JSON.stringify(trace.emotions[trace.emotions.length - 1])) as Record<string, unknown>);
 }
@@ -49,15 +49,23 @@ function writeReplayDir(trace: TraceShape): string {
   writeFileSync(join(dir, "exam-session.review-index.json"), JSON.stringify({ schema: "openclinxr.xr-sync.exam-session-review-index.v1", complete: true, stationCount: 1, stations: [{ stationId: trace.stationId, stationIndex: 0, scenarioId: trace.scenarioId, traceFile, phases: [], turnCount: trace.turns.length, turnEnds: [], observerPresent: false, notePresent: false, noteChars: 0, noteFile: null }] }));
   return dir;
 }
-async function bootReplay(trace: TraceShape): Promise<EncounterServer> {
-  const server = await (createEncounterServer as (o: Record<string, unknown>) => Promise<EncounterServer>)({ replayDir: writeReplayDir(trace), replayStepMs: 20, scenarios: [CHEST], dialogueSeeds: scenarioDialogueSeedBank });
+async function bootReplay(trace: TraceShape, stepMs = 20): Promise<EncounterServer> {
+  const server = await (createEncounterServer as (o: Record<string, unknown>) => Promise<EncounterServer>)({ replayDir: writeReplayDir(trace), replayStepMs: stepMs, scenarios: [CHEST], dialogueSeeds: scenarioDialogueSeedBank });
   servers.push(server);
   return server;
 }
 
-/** Replay `trace` through a real replay server and the client, return the final topic menu. */
-async function replayMenu(trace: TraceShape): Promise<Array<{ tag: string; asked: boolean }>> {
+async function joinOutcome(trace: TraceShape): Promise<string> {
   const server = await bootReplay(trace);
+  return connect(server.url, { roomOptions: { replayStationId: trace.stationId } }).then(
+    async (conn) => { leavers.push(() => conn.leave()); return "joined"; },
+    (error: unknown) => String((error as Error).message),
+  );
+}
+
+/** Replay `trace` through a real replay server and the client, return the final topic menu. */
+async function replayMenu(trace: TraceShape, history?: Array<Array<{ tag: string; asked: boolean }>>, stepMs = 20): Promise<Array<{ tag: string; asked: boolean }>> {
+  const server = await bootReplay(trace, stepMs);
   const conn = await connect(server.url, { roomOptions: { replayStationId: trace.stationId } });
   leavers.push(() => conn.leave());
   let last: Array<{ tag: string; asked: boolean }> = [];
@@ -65,6 +73,7 @@ async function replayMenu(trace: TraceShape): Promise<Array<{ tag: string; asked
   conn.onState((snap) => {
     const s = snap as { replayDone?: boolean; topicMenu?: Array<{ tag: string; asked: boolean }> };
     last = (s.topicMenu ?? []).map((e) => ({ tag: e.tag, asked: e.asked }));
+    history?.push(last);
     if (s.replayDone === true) done = true;
   });
   const deadline = Date.now() + 20000;
@@ -111,13 +120,22 @@ describe("replay marks covered topics (C46)", () => {
     expect(marked(menu)).toEqual(expected);
   }, 60000);
 
-  it("counterweight (b2): an empty coveredTags marks only the matched topic, like an absent one", async () => {
+  it("empty coveredTags is refused like the live validator (one shared contract; absent is how a turn marks only its matched topic)", async () => {
     const trace = clone(fixture.trace);
     nurseEnd(trace)["coveredTags"] = [];
-    const expected = LIVE_SET.filter((tag) => tag !== "urgent_escalation");
-    const menu = await replayMenu(trace);
-    show("(b2)", marked(menu), expected);
-    expect(marked(menu)).toEqual(expected);
+    const outcome = await joinOutcome(trace);
+    console.log(`C46 (b2) join outcome ${outcome}`);
+    expect(outcome).toMatch(/replay-bad-trace.*coveredTags/u);
+  }, 60000);
+
+  it("validation (e): coveredTags that excludes the event's own tag, or an utterance-end without a tag, is refused with replay-bad-trace", async () => {
+    const excluded = clone(fixture.trace);
+    nurseEnd(excluded)["coveredTags"] = ["urgent_escalation", "family_communication"];
+    const tagless = clone(fixture.trace);
+    delete nurseEnd(tagless)["tag"];
+    const outcomes = [await joinOutcome(excluded), await joinOutcome(tagless)];
+    console.log(`C46 (e) join outcomes ${JSON.stringify(outcomes)}`);
+    expect(outcomes.every((o) => /replay-bad-trace.*coveredTags/u.test(o))).toBe(true);
   }, 60000);
 
   it("validation (d): coveredTags on a non-utterance-end event or a non-string array refuses the station, as the live validator does", async () => {
@@ -129,26 +147,34 @@ describe("replay marks covered topics (C46)", () => {
     ]) {
       const trace = clone(fixture.trace);
       mutate(trace);
-      const server = await bootReplay(trace);
-      outcomes.push(await connect(server.url, { roomOptions: { replayStationId: trace.stationId } }).then(
-        async (conn) => { leavers.push(() => conn.leave()); return "joined"; },
-        (error: unknown) => String((error as Error).message),
-      ));
+      outcomes.push(await joinOutcome(trace));
     }
     console.log(`C46 (d) join outcomes ${JSON.stringify(outcomes)}`);
     expect(outcomes.every((o) => /replay-bad-trace/u.test(o))).toBe(true);
   }, 60000);
 
-  it("counterweight (c): per-topic events for the same tags do not double-mark; the menu is a set and each chip appears once", async () => {
+  it("counterweight (c): the same coveredTags event fed twice (and per-topic events for the same tags) marks each chip exactly once and leaves the set unchanged", async () => {
     const trace = clone(fixture.trace);
-    withPerTopicTurn(trace, 5, 14, "urgent_escalation");
-    withPerTopicTurn(trace, 6, 15, "team_communication");
-    const menu = await replayMenu(trace);
+    withPerTopicTurn(trace, 5, 14, "team_communication", ["team_communication", "urgent_escalation"]);
+    withPerTopicTurn(trace, 6, 15, "urgent_escalation");
+    const history: Array<Array<{ tag: string; asked: boolean }>> = [];
+    // Step above the 50 ms patch interval so every applied event reaches the client as its own snapshot.
+    const menu = await replayMenu(trace, history, 120);
     show("(c)", marked(menu), LIVE_SET);
     const tags = menu.map((e) => e.tag);
     expect(new Set(tags).size).toBe(tags.length);
-    expect(menu.length).toBeGreaterThan(0);
+    // Marked count per chip = number of unasked -> asked transitions seen across the snapshots; a toggling or re-marking double-mark exceeds 1.
+    const markedCount = new Map<string, number>();
+    const previous = new Map<string, boolean>();
+    for (const snapshot of history) {
+      for (const entry of snapshot) {
+        if (entry.asked && previous.get(entry.tag) !== true) markedCount.set(entry.tag, (markedCount.get(entry.tag) ?? 0) + 1);
+        previous.set(entry.tag, entry.asked);
+      }
+    }
+    const counts = Object.fromEntries(menu.map((e) => [e.tag, markedCount.get(e.tag) ?? 0]));
+    console.log(`C46 (c) marked counts ${JSON.stringify(counts)}`);
+    for (const tag of LIVE_SET) expect(counts[tag]).toBe(1);
     expect(marked(menu)).toEqual(LIVE_SET);
-    expect(menu.filter((e) => e.asked).length).toBe(new Set(menu.filter((e) => e.asked).map((e) => e.tag)).size);
   }, 60000);
 });

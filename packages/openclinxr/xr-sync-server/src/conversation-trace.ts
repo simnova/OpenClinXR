@@ -28,6 +28,7 @@ import {
   transitionWithCastHold,
   type ConversationCastContext,
 } from "./conversation-trace-cast.js";
+import { validateCoveredTags } from "./covered-tags.js";
 import { pickTopicAnswer, SPEECH_LOW_CONFIDENCE_TAG, UNMATCHED_TOPIC_TAG } from "./topic-answers.js";
 
 export type { ConversationCastContext } from "./conversation-trace-cast.js";
@@ -406,17 +407,11 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     }
     const rawCovered = (event as { coveredTags?: unknown }).coveredTags;
     if (rawCovered !== undefined) {
-      if (event.kind !== "utterance-end") {
-        throw new Error("replay-bad-trace: only an utterance-end may carry coveredTags");
+      const covered = validateCoveredTags(event.kind, out.tag, rawCovered);
+      if (!covered.ok) {
+        throw new Error(covered.reason === "not-utterance-end" ? "replay-bad-trace: only an utterance-end may carry coveredTags" : "replay-bad-trace: malformed coveredTags");
       }
-      if (!Array.isArray(rawCovered) || rawCovered.some((entry) => typeof entry !== "string")) {
-        throw new Error("replay-bad-trace: malformed coveredTags");
-      }
-      const deduped = [...new Set(rawCovered as string[])];
-      if (out.tag === undefined || !deduped.includes(out.tag)) {
-        throw new Error("replay-bad-trace: malformed coveredTags");
-      }
-      out.coveredTags = deduped;
+      out.coveredTags = covered.tags;
     }
     const match = (event as { match?: unknown }).match;
     if (match === "exact" || match === "phrase" || match === "fallback") {

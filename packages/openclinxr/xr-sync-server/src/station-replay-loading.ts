@@ -18,6 +18,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { EmotionTransition } from "@openclinxr/conversation-policy";
+import { validateCoveredTags } from "./covered-tags.js";
 import { CONVERSATION_TRACE_SCHEMA, type ConversationTraceEvent } from "./conversation-trace.js";
 import { readCastContext } from "./conversation-trace-cast.js";
 import type { SessionReviewStationEntry } from "./session-review-index.js";
@@ -282,10 +283,11 @@ export function loadReplayStationTrace(
       event.tag = item.tag;
     }
     if (item.coveredTags !== undefined) {
-      if (item.kind !== "utterance-end" || !Array.isArray(item.coveredTags) || (item.coveredTags as unknown[]).some((covered) => typeof covered !== "string")) {
+      const covered = validateCoveredTags(String(item.kind), event.tag, item.coveredTags);
+      if (!covered.ok) {
         throw new Error(`replay-bad-trace: ${entry.traceFile} holds a malformed coveredTags`);
       }
-      event.coveredTags = [...new Set(item.coveredTags as string[])];
+      event.coveredTags = covered.tags;
     }
     // C31: the recorded free-text match kind (never text) lets a replay recompute a fallback caption.
     if (item.match === "exact" || item.match === "phrase" || item.match === "fallback") {

@@ -108,10 +108,14 @@ describe("room panel (C36)", () => {
     expect(text(parent, "room-countdown")).toBe("");
   });
 
-  it("a replay room mounts only the read-only panel (no note box, C46) and a lobby room mounts none", async () => {
+  it("replay mounts exactly one read-only panel and no note box (C37 eda38924f narrowed by C46)", async () => {
     const replay = await joined(new Set(), "x", "?encounterSync=ws://127.0.0.1:9&encounterReplayStation=slot-a");
-    expect(replay.parent.find("room-panel")).toBeDefined();
-    expect(replay.parent.find("room-note")).toBeUndefined();
+    const panels = replay.parent.children.filter((child) => child.id === "room-panel");
+    expect(panels.length, "C37 eda38924f and C46: a replay room mounts exactly one read-only room-panel").toBe(1);
+    expect(replay.parent.find("room-note"), "C37 eda38924f and C46: a replay room-panel holds no note box").toBeUndefined();
+  });
+
+  it("lobby rooms mount no panel", async () => {
     const lobby = await joined(new Set(), "x", "?encounterSync=ws://127.0.0.1:9&encounterReviewLobby=1");
     expect(lobby.parent.find("room-panel")).toBeUndefined();
   });

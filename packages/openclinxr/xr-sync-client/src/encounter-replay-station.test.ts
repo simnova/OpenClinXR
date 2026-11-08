@@ -4,11 +4,14 @@ import { type EncounterSyncEvidence, startEncounterSyncFromUrl } from "./headset
 // C31 RED: ?encounterReplayStation=<id> joins a replay room (roomOptions.replayStationId); the shell speaks the
 // replayed turns through the same path, and mounts no learner input (a replay room rejects every intent).
 class FakeElement {
-  id = ""; value = ""; textContent: string | null = ""; type = ""; placeholder = "";
+  id = ""; value = ""; textContent: string | null = ""; type = ""; placeholder = ""; disabled = false;
   children: FakeElement[] = [];
+  handlers: Array<() => void> = [];
   constructor(readonly tag: string) {}
   appendChild(child: FakeElement): FakeElement { this.children.push(child); return child; }
-  addEventListener(): void {}
+  addEventListener(type: string, fn: () => void): void { if (type === "click") this.handlers.push(fn); }
+  click(): void { for (const fn of this.handlers) fn(); }
+  descendants(): FakeElement[] { return this.children.flatMap((child) => [child, ...child.descendants()]); }
 }
 const fakeDoc = { createElement: (tag: string) => new FakeElement(tag) };
 
@@ -17,6 +20,7 @@ async function joinWith(search: string, withBox = false) {
   const listeners: Array<(snapshot: unknown) => void> = [];
   const played: Array<[string, string, string]> = [];
   const published: EncounterSyncEvidence[] = [];
+  const sent: string[] = [];
   const parent = new FakeElement("div");
   const handle = await startEncounterSyncFromUrl({
     search,
@@ -31,10 +35,10 @@ async function joinWith(search: string, withBox = false) {
     ...(withBox ? { utteranceBox: { doc: fakeDoc, parent } } : {}),
     connectFn: async (url: string, options: unknown) => {
       connected.push({ url, options });
-      return { sessionId: "s", sendIntent: async () => ({ status: "ack" }), onState: (cb: (snapshot: unknown) => void) => { listeners.push(cb); return () => undefined; }, leave: async () => undefined } as never;
+      return { sessionId: "s", sendIntent: async (kind: string) => { sent.push(kind); return { status: "ack" }; }, onState: (cb: (snapshot: unknown) => void) => { listeners.push(cb); return () => undefined; }, leave: async () => undefined } as never;
     },
   } as never);
-  return { handle, connected, published, parent, listeners, played };
+  return { handle, connected, published, parent, listeners, played, sent };
 }
 
 describe("?encounterReplayStation (C31)", () => {
@@ -59,8 +63,17 @@ describe("?encounterReplayStation (C31)", () => {
     expect(played).toEqual([["p", "Pat: Hello there", "concerned"]]);
     expect(published[0]?.turns.map((turn) => [turn.replyId, turn.spoken])).toEqual([["p:opening", true]]);
   });
-  it("mounts no learner input in a replay room, only the read-only topic panel (C46)", async () => {
-    const { parent } = await joinWith("?encounterSync=ws://127.0.0.1:9&encounterReplayStation=slot-a", true);
-    expect(parent.children.map((child) => child.id)).toEqual(["room-panel"]);
+  it("mounts no learner input in a replay room: 0 textarea, 0 input, 0 enabled button, and a click on every chip sends nothing", async () => {
+    const { parent, listeners, sent } = await joinWith("?encounterSync=ws://127.0.0.1:9&encounterReplayStation=slot-a", true);
+    const menu = [{ tag: "history_opqrst", label: "when did the chest pressure start", labelSource: "seed-phrase", note: "", asked: true }, { tag: "ecg_request", label: "ecg_request", labelSource: "tag", note: "", asked: false }];
+    for (const listener of listeners) listener({ serverTick: 1, phase: "encounter", phaseRemainingS: 0, turnId: 0, turnOwner: "none", actors: {}, learners: {}, stationId: "slot-a", topicMenu: menu });
+    const GUARD = "replay must stay read-only (C31 c886fdae6): remove the input control; do not relax this guard";
+    const all = parent.descendants();
+    expect(all.filter((el) => el.tag === "button").length, "the replay panel must show the chips").toBe(menu.length);
+    expect(all.filter((el) => el.tag === "textarea").length, GUARD).toBe(0);
+    expect(all.filter((el) => el.tag === "input").length, GUARD).toBe(0);
+    expect(all.filter((el) => el.tag === "button" && !el.disabled).length, GUARD).toBe(0);
+    for (const el of all) el.click();
+    expect(sent, GUARD).toEqual([]);
   });
 });

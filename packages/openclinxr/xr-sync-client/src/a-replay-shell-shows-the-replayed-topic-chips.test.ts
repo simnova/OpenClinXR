@@ -87,13 +87,27 @@ describe("replay shell topic chips (C46)", () => {
     expect(sent).toEqual([]);
   });
 
-  it("a live shell keeps enabled chips (unchanged)", async () => {
+  it("a replay panel shows the static label Replay in every phase, no countdown", async () => {
+    SEARCH = "?encounterSync=ws://127.0.0.1:9&encounterReplayStation=slot-a";
+    const { parent, snapshot } = await joined();
+    const labels: Array<string | null | undefined> = [];
+    for (const phase of ["doorway", "encounter", "note", "closed"]) {
+      snapshot({ ...SNAP, phase, phaseRemainingS: 0 });
+      await flush();
+      labels.push(parent.find("room-countdown")?.textContent);
+    }
+    console.log(`C46 client replay labels ${JSON.stringify(labels)}`);
+    expect(labels).toEqual(["Replay", "Replay", "Replay", "Replay"]);
+  });
+
+  it("a live shell keeps its countdown and enabled chips (unchanged)", async () => {
     SEARCH = "?encounterSync=ws://127.0.0.1:9";
-    const { topics, snapshot } = await joined();
+    const { parent, topics, snapshot } = await joined();
     snapshot(SNAP);
     await flush();
     expect(topics().length).toBe(3);
     expect(topics().every((b) => !b.disabled)).toBe(true);
+    expect(parent.find("room-countdown")?.textContent).toBe("Encounter: 100 s left");
   });
 
   it("an empty replay menu draws no chips", async () => {

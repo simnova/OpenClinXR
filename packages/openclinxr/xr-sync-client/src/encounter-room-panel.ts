@@ -127,7 +127,9 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
       button.setAttribute?.("data-asked", String(entry.asked));
       if (button.style !== undefined) button.style.background = entry.asked ? "#2e7d32" : "";
     }
-    if (phase === "doorway") {
+    if (readOnly) {
+      countdown.textContent = "Replay";
+    } else if (phase === "doorway") {
       countdown.textContent = `Encounter opens in ${remaining} s`;
     } else if (phase === "encounter") {
       countdown.textContent = `Encounter: ${remaining} s left`;
