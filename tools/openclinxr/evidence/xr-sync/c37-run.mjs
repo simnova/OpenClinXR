@@ -133,9 +133,11 @@ async function main(argv) {
     const patientId = patientSeed.actorId;
     const speakerId = patientSeed.actorId;
     const SPOKEN = patientSeed.utterancePhrases[0];
-    const SPOKEN_TAG = patientSeed.expectedTraceTags.find((t) => menuTags.includes(t));
-    const TAPS = [menuTags.find((t) => t !== SPOKEN_TAG && !shared(t) && !hasLabelPhrase(t)), menuTags.find((t) => t !== SPOKEN_TAG && shared(t))];
-    run.expected = { menuTags, labels: Object.fromEntries(menuTags.map((t) => [t, expectedLabel(t)])), taps: TAPS, spoken: SPOKEN_TAG, patientId };
+    // C39: a matched answer traces every on-menu tag it covers, so one spoken turn marks all of them; the first is the trace event's tag.
+    const SPOKEN_TAGS = patientSeed.expectedTraceTags.filter((t) => menuTags.includes(t));
+    const SPOKEN_TAG = SPOKEN_TAGS[0];
+    const TAPS = [menuTags.find((t) => !SPOKEN_TAGS.includes(t) && !shared(t) && !hasLabelPhrase(t)), menuTags.find((t) => !SPOKEN_TAGS.includes(t) && shared(t))];
+    run.expected = { menuTags, labels: Object.fromEntries(menuTags.map((t) => [t, expectedLabel(t)])), taps: TAPS, spoken: SPOKEN_TAG, spokenTags: SPOKEN_TAGS, patientId };
 
     const audioDir = join(outDir, "audio");
     await makeFixtures(audioDir, { spoken: SPOKEN });
@@ -233,7 +235,7 @@ async function main(argv) {
         await page.waitForFunction((count) => globalThis.__openClinXrEncounterSync.turns.length >= count, turnsBeforeSelect + 1, { timeout: 120000 });
         have = await page.evaluate(() => globalThis.__openClinXrEncounterSync.turns.length);
       }
-      const domTaps = emulated ? [menuTags.find((t) => t !== SPOKEN_TAG && t !== scenario.requiredTraceTags.find((x) => menuTags.includes(x)))] : TAPS;
+      const domTaps = emulated ? [menuTags.find((t) => !SPOKEN_TAGS.includes(t) && t !== scenario.requiredTraceTags.find((x) => menuTags.includes(x)))] : TAPS;
       for (const tag of domTaps) {
         await page.evaluate((id) => document.getElementById(id).click(), `topic-${tag}`);
         await page.waitForFunction((count) => globalThis.__openClinXrEncounterSync.turns.length >= count, have + 1, { timeout: 120000 });
@@ -310,9 +312,9 @@ async function main(argv) {
     check(emulated ? "H5 the speaking actor answered a typed opener, so the shell addresses it" : "H5 the view was aimed at the speaking actor before the taps", p.aimed === true, String(p.aimed));
     // Emulated: the page's controller select completes the first required tag of the shipped scenario; the DOM tap is the harness's own choice; speech resolves from the nurse's shipped seed.
     const SELECT_TAG = scenario.requiredTraceTags.find((t) => menuTags.includes(t));
-    const DOM_TAP_TAG = menuTags.find((t) => t !== SPOKEN_TAG && t !== SELECT_TAG);
-    const expectedTags = emulated ? [SELECT_TAG, DOM_TAP_TAG, SPOKEN_TAG] : [...TAPS, SPOKEN_TAG];
-    const expectedTaps = expectedTags.slice(0, -1);
+    const DOM_TAP_TAG = menuTags.find((t) => !SPOKEN_TAGS.includes(t) && t !== SELECT_TAG);
+    const expectedTags = emulated ? [SELECT_TAG, DOM_TAP_TAG, ...SPOKEN_TAGS] : [...TAPS, ...SPOKEN_TAGS];
+    const expectedTaps = expectedTags.slice(0, expectedTags.length - SPOKEN_TAGS.length);
     if (emulated) {
       check("H6 after two taps exactly the tapped buttons read data-asked=true", JSON.stringify([...askedOf(p.afterTaps)].sort()) === JSON.stringify([...expectedTaps].sort()), JSON.stringify(askedOf(p.afterTaps)));
       check("H7 the page sent the two taps as trace actions with those topicTags, both acked", JSON.stringify((p.afterSpeech?.intents ?? []).map((i) => i.topicTag)) === JSON.stringify(expectedTaps) && (p.afterSpeech?.intents ?? []).every((i) => i.statuses.join() === "ack,ack,ack"), JSON.stringify(p.afterSpeech?.intents));
@@ -326,7 +328,7 @@ async function main(argv) {
       check("H9 the page's asked set equals the review's observed set (traceTagCoverage on the persisted trace, note tag excluded)", JSON.stringify([...new Set(expectedTags)].sort()) === JSON.stringify([...finalAsked].sort()) && JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()) && finalAsked.length === new Set(expectedTags).size, JSON.stringify({ finalAsked, reviewObserved }));
     } else {
       check("H8 the persisted trace holds the tap tags in order, then the spoken turn's tag (speech modality, matched)", JSON.stringify(ends.map((e) => e.tag)) === JSON.stringify([...TAPS, SPOKEN_TAG]) && ends.at(-1)?.modality === "speech", JSON.stringify(ends.map((e) => [e.tag, e.modality, e.match, e.confidence])));
-      check("H9 the page's asked set equals the review's observed set (traceTagCoverage on the persisted trace, note tag excluded)", JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()) && finalAsked.length === TAPS.length + 1, JSON.stringify({ finalAsked, reviewObserved }));
+      check("H9 the page's asked set equals the review's observed set (traceTagCoverage on the persisted trace, note tag excluded)", JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()) && finalAsked.length === TAPS.length + SPOKEN_TAGS.length, JSON.stringify({ finalAsked, reviewObserved }));
     }
     if (emulated) {
       const selectTags = (p.xr?.selectIntents ?? []).map((i) => i.topicTag);
@@ -334,8 +336,8 @@ async function main(argv) {
       check("E2 exactly 1 XR session entered and 0 ended after the turns", p.xr?.sessionCount === 1 && p.xr?.endedAfterTurns === 0, JSON.stringify({ sessionCount: p.xr?.sessionCount, endedAfterEnter: p.xr?.endedAfterEnter, endedAfterTurns: p.xr?.endedAfterTurns }));
       check("E3 the head pose read back differs from identity (orientation.y > 0.05)", (p.xr?.headPose?.y ?? 0) > 0.05, JSON.stringify(p.xr?.headPose));
       check("E4 the controller select produced at least one acked intent", selectTags.length >= 1 && (p.afterSpeech?.intents ?? []).some((i) => selectTags.includes(i.topicTag) && (i.statuses ?? []).join() === "ack,ack,ack"), JSON.stringify(selectTags));
-      check("E5 the controller select tag is the shipped first required tag, differs from the spoken tag, and both are in finalAsked", JSON.stringify(selectTags) === JSON.stringify([SELECT_TAG]) && SELECT_TAG !== SPOKEN_TAG && !selectTags.includes(SPOKEN_TAG) && [...selectTags, SPOKEN_TAG].every((t) => finalAsked.includes(t)), JSON.stringify({ selectTags, spoken: SPOKEN_TAG, finalAsked }));
-      check("E6 finalAsked holds exactly the select, DOM tap and spoken tags and matches the review observed set", finalAsked.length === 3 && JSON.stringify([...finalAsked].sort()) === JSON.stringify([...expectedTags].sort()) && JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()), JSON.stringify({ finalAsked, expectedTags, reviewObserved }));
+      check("E5 the controller select tag is the shipped first required tag, differs from the spoken tag, and both are in finalAsked", JSON.stringify(selectTags) === JSON.stringify([SELECT_TAG]) && !SPOKEN_TAGS.includes(SELECT_TAG) && !SPOKEN_TAGS.some((t) => selectTags.includes(t)) && [...selectTags, ...SPOKEN_TAGS].every((t) => finalAsked.includes(t)), JSON.stringify({ selectTags, spoken: SPOKEN_TAGS, finalAsked }));
+      check("E6 finalAsked holds exactly the select, DOM tap and spoken tags and matches the review observed set", finalAsked.length === 2 + SPOKEN_TAGS.length && JSON.stringify([...finalAsked].sort()) === JSON.stringify([...expectedTags].sort()) && JSON.stringify([...finalAsked].sort()) === JSON.stringify([...reviewObserved].sort()), JSON.stringify({ finalAsked, expectedTags, reviewObserved }));
     }
     const finalButtons = p.afterSpeech?.buttons ?? [];
     check("H12 after the turns each button shows the display form: asked buttons lead with a check mark and carry a background, unasked buttons neither", finalButtons.length === menuTags.length && finalButtons.every((b, i) => b.text === displayOf(menuTags[i], b.asked === "true") && (b.asked === "true" ? b.bg !== "" : b.bg === "")) && finalButtons.some((b) => b.asked === "true") && finalButtons.some((b) => b.asked !== "true"), JSON.stringify(finalButtons.map((b) => [b.text, b.bg])));
