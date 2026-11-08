@@ -10,12 +10,12 @@
  * Writes <dir>/report.json. Exit 1 on any failed assertion.
  */
 import { execFile } from "node:child_process";
-import { mkdtemp, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
-import { collectQuestCleanupLists, parseArgs, runHostProbe, runQuestProbe, startStaticServer } from "./harness-lib.mjs";
+import { collectQuestCleanupLists, parseArgs, runHostProbe, runQuestProbe, startStaticServer, checkStills, listTraceFiles, shootPanel as shootPanelLib } from "./harness-lib.mjs";
 
 const run_ = promisify(execFile);
 const HERE = fileURLToPath(new URL(".", import.meta.url));
@@ -61,12 +61,11 @@ async function readPcm(path) {
   throw new Error(`no data chunk in ${path}`);
 }
 
+const STILL_NAMES = ["c37-menu-start.png", "c37-menu-after-taps.png", "c37-menu-final.png"];
+const shots = {};
+// C41 fold: a failed capture throws (fails the run) and every capture records the #room-panel box width read in the same call.
 async function shootPanel(page, path) {
-  try {
-    const box = await page.locator("#room-panel").boundingBox({ timeout: 10000 });
-    if (box === null) return;
-    await page.screenshot({ path, fullPage: true, clip: { x: box.x, y: box.y + await page.evaluate(() => window.scrollY), width: box.width, height: box.height }, timeout: 30000 });
-  } catch { /* evidence only */ }
+  shots[basename(path)] = await shootPanelLib(page, path);
 }
 function iwerGlue() {
   const device = new IWER.XRDevice(IWER.metaQuest3);
@@ -136,6 +135,7 @@ async function main(argv) {
     // C39: a matched answer traces every on-menu tag it covers, so one spoken turn marks all of them; the first is the trace event's tag.
     const SPOKEN_TAGS = patientSeed.expectedTraceTags.filter((t) => menuTags.includes(t));
     const SPOKEN_TAG = SPOKEN_TAGS[0];
+    if (emulated && SPOKEN_TAGS.length < 2) throw new Error(`refused: the spoken nurse seed covers ${SPOKEN_TAGS.length} on-menu tags, the emulated run needs at least 2`);
     const TAPS = [menuTags.find((t) => !SPOKEN_TAGS.includes(t) && !shared(t) && !hasLabelPhrase(t)), menuTags.find((t) => !SPOKEN_TAGS.includes(t) && shared(t))];
     run.expected = { menuTags, labels: Object.fromEntries(menuTags.map((t) => [t, expectedLabel(t)])), taps: TAPS, spoken: SPOKEN_TAG, spokenTags: SPOKEN_TAGS, patientId };
 
@@ -291,13 +291,9 @@ async function main(argv) {
     await syncServer.close();
     syncServer = null;
     closeSpeech();
-    let traceFiles = [];
-    for (let attempt = 0; attempt < 100; attempt += 1) {
-      traceFiles = (await readdir(traceDir)).filter((n) => n.endsWith(".conversation-trace.json"));
-      if (traceFiles.length > 0) break;
-      await sleep(200);
-    }
-    const trace = traceFiles.length > 0 ? JSON.parse(await readFile(join(traceDir, traceFiles[0]), "utf8")) : { events: [] };
+    const traceFiles = await listTraceFiles(traceDir);
+    check("T1 exactly 1 conversation-trace file persisted before it is read", traceFiles.length === 1, traceFiles.join(","));
+    const trace = traceFiles.length === 1 ? JSON.parse(await readFile(join(traceDir, traceFiles[0]), "utf8")) : { events: [] };
     const coverage = traceTagCoverage(trace, scenario);
     const reviewObserved = coverage.observedTraceTags.filter((t) => t !== NOTE_TAG);
     const askedOf = (menu) => (menu?.buttons ?? []).filter((b) => b.asked === "true").map((b) => b.id.replace(/^topic-/u, ""));
@@ -341,6 +337,9 @@ async function main(argv) {
     }
     const finalButtons = p.afterSpeech?.buttons ?? [];
     check("H12 after the turns each button shows the display form: asked buttons lead with a check mark and carry a background, unasked buttons neither", finalButtons.length === menuTags.length && finalButtons.every((b, i) => b.text === displayOf(menuTags[i], b.asked === "true") && (b.asked === "true" ? b.bg !== "" : b.bg === "")) && finalButtons.some((b) => b.asked === "true") && finalButtons.some((b) => b.asked !== "true"), JSON.stringify(finalButtons.map((b) => [b.text, b.bg])));
+    const stillCheck = await checkStills(STILL_NAMES, shots);
+    run.stills = stillCheck.rows;
+    check("S1 every named still exists, is > 0 bytes and is as wide as the #room-panel box read in the same run", stillCheck.pass, JSON.stringify(stillCheck.rows.map((r) => [r.name, r.bytes, r.width, r.boxWidth, r.why])));
     const ownSource = await readFile(fileURLToPath(import.meta.url), "utf8");
     const literals = [...menuTags, ...bank.seeds.flatMap((s) => s.utterancePhrases ?? [])].filter((t) => t.length > 6);
     const copied = literals.filter((text) => ownSource.includes(`"${text}"`) || ownSource.includes(`'${text}'`));

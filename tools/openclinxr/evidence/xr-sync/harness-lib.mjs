@@ -489,3 +489,54 @@ export async function collectQuestCleanupLists({ staticPort, syncPort, serial })
     adbForwardList.includes("tcp:9222");
   return { adbReverseList, adbForwardList, leaked };
 }
+
+/**
+ * C41 still helper: capture #room-panel at native 1:1 (deviceScaleFactor 1). Throws when the panel box or the screenshot is missing,
+ * so a failed capture fails the run. Returns the box width read in the same call; pass the result to checkStills.
+ */
+export async function shootPanel(page, path) {
+  const box = await page.locator("#room-panel").boundingBox({ timeout: 10000 });
+  if (box === null) throw new Error(`shootPanel: #room-panel has no box for ${path}`);
+  const scrollY = await page.evaluate(() => window.scrollY);
+  await page.screenshot({ path, fullPage: true, clip: { x: box.x, y: box.y + scrollY, width: box.width, height: box.height }, timeout: 30000 });
+  return { path, boxWidth: box.width, boxHeight: box.height };
+}
+
+/** PNG pixel width from the IHDR chunk. */
+export function pngWidth(bytes) {
+  return bytes.length >= 24 && bytes.toString("ascii", 1, 4) === "PNG" ? bytes.readUInt32BE(16) : -1;
+}
+
+/**
+ * C41 still check: every named capture happened (a failed capture is a null entry), exists, is > 0 bytes, and its pixel width equals
+ * the #room-panel box width read in the same run (rounded either way; the screenshot clip rounds a fractional box).
+ */
+export async function checkStills(names, shots) {
+  const { readFile: read, stat } = await import("node:fs/promises");
+  const rows = [];
+  for (const name of names) {
+    const shot = shots[name];
+    if (shot === undefined || shot === null) { rows.push({ name, ok: false, why: "not captured" }); continue; }
+    try {
+      const size = (await stat(shot.path)).size;
+      const width = pngWidth(await read(shot.path));
+      const ok = size > 0 && (width === Math.round(shot.boxWidth) || width === Math.ceil(shot.boxWidth) || width === Math.floor(shot.boxWidth));
+      rows.push({ name, ok, bytes: size, width, boxWidth: shot.boxWidth });
+    } catch (error) {
+      rows.push({ name, ok: false, why: String(error).slice(0, 120) });
+    }
+  }
+  return { pass: rows.length > 0 && rows.every((row) => row.ok), rows };
+}
+
+/** C41 trace read: the conversation-trace files the run persisted. Returns the sorted names after waiting for the first to appear. */
+export async function listTraceFiles(dir, waitMs = 20000) {
+  const { readdir: list } = await import("node:fs/promises");
+  const deadline = Date.now() + waitMs;
+  let files = [];
+  for (;;) {
+    files = (await list(dir)).filter((name) => name.endsWith(".conversation-trace.json")).sort();
+    if (files.length > 0 || Date.now() > deadline) return files;
+    await new Promise((resolve) => setTimeout(resolve, 200));
+  }
+}
