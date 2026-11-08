@@ -14,7 +14,7 @@ import { mkdtemp, mkdir, readFile, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { basename, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { checkStills, collectQuestCleanupLists, listTraceFiles, parseArgs, runHostProbe, runQuestProbe, shootPanel as shootPanelLib, startStaticServer } from "./harness-lib.mjs";
+import { checkStills, collectQuestCleanupLists, listTraceFiles, parseArgs, runHostProbe, runQuestProbe, shootPanel as shootPanelLib, startStaticServer, watchTraceActivity } from "./harness-lib.mjs";
 
 const HERE = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = resolve(HERE, "..", "..", "..", "..");
@@ -114,6 +114,7 @@ async function main(argv) {
     const { edChestPainScenario, scenarioDialogueSeedBank } = await import(FIXTURES_DIST);
     const scenario = { ...edChestPainScenario, status: "approved", eventSchedule: edChestPainScenario.eventSchedule.map((slot) => ({ ...slot, atSecond: TIMING.encounterSeconds })) };
     syncServer = await createEncounterServer({ examBlueprint: blueprint, scenarios: [scenario], dialogueSeeds: scenarioDialogueSeedBank, traceDir });
+    const traceActivity = watchTraceActivity(() => syncServer.getConversationTrace());
     staticServer = await startStaticServer(APP_DIST);
     const pageUrl = `http://127.0.0.1:${staticServer.port}/?${new URLSearchParams({ encounterSync: syncServer.url })}`;
     run.pageUrl = pageUrl;
@@ -203,10 +204,15 @@ async function main(argv) {
     run.probe = p;
     run.pageErrors.push(...out.pageErrors);
     run.consoleErrors.push(...out.consoleErrors);
+    const lastEventAt = traceActivity.lastEventAt();
+    traceActivity.stop();
     await syncServer.close();
     syncServer = null;
-    const traceFiles = await listTraceFiles(traceDir);
-    check("T1 exactly 1 conversation-trace file persisted before it is read", traceFiles.length === 1, traceFiles.join(","));
+    const settle = await listTraceFiles(traceDir, { lastEventAt });
+    const traceFiles = settle.files;
+    run.traceSettle = { windowMs: settle.windowMs, waitedMs: settle.waitedMs, derivation: settle.derivation };
+    console.log(`trace-settle ${JSON.stringify(run.traceSettle)}`);
+    check("T1 exactly 1 conversation-trace file persisted before it is read", traceFiles.length === 1, `${traceFiles.join(",")} | ${settle.derivation}; waited ${settle.waitedMs} ms`);
     const trace = traceFiles.length === 1 ? JSON.parse(await readFile(join(traceDir, traceFiles[0]), "utf8")) : { events: [] };
     const traceText = JSON.stringify(trace);
     const coverage = traceTagCoverage(trace, scenario);

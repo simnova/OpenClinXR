@@ -529,14 +529,70 @@ export async function checkStills(names, shots) {
   return { pass: rows.length > 0 && rows.every((row) => row.ok), rows };
 }
 
-/** C41 trace read: the conversation-trace files the run persisted. Returns the sorted names after waiting for the first to appear. */
-export async function listTraceFiles(dir, waitMs = 20000) {
-  const { readdir: list } = await import("node:fs/promises");
+/** Watch the live conversation trace for activity: polls getTrace().events.length and stamps lastEventAt each time it changes. */
+export function watchTraceActivity(getTrace, intervalMs = 100) {
+  let lastEventAt = Date.now();
+  let lastLen = -1;
+  const read = () => {
+    try {
+      const trace = getTrace();
+      const len = trace?.events?.length ?? 0;
+      if (len !== lastLen) {
+        lastLen = len;
+        lastEventAt = Date.now();
+      }
+    } catch {}
+  };
+  read();
+  const timer = setInterval(read, intervalMs);
+  return {
+    stop() {
+      clearInterval(timer);
+    },
+    lastEventAt() {
+      return lastEventAt;
+    },
+  };
+}
+
+/** C41 trace read: the conversation-trace files the run persisted. Waits for the first to appear, then settles past the measured persist gap before returning the final listing. */
+export async function listTraceFiles(dir, { waitMs = 20000, lastEventAt = null } = {}) {
+  const { readdir: list, stat, readFile: read, writeFile: write } = await import("node:fs/promises");
+  const { join: joinPath } = await import("node:path");
+  const startedAt = Date.now();
+  const isTrace = (name) => name.endsWith(".conversation-trace.json");
+  const readNames = async () => (await list(dir)).filter(isTrace).sort();
   const deadline = Date.now() + waitMs;
   let files = [];
   for (;;) {
-    files = (await list(dir)).filter((name) => name.endsWith(".conversation-trace.json")).sort();
-    if (files.length > 0 || Date.now() > deadline) return files;
+    files = await readNames();
+    if (files.length > 0 || Date.now() > deadline) break;
     await new Promise((resolve) => setTimeout(resolve, 200));
   }
+  if (files.length === 0) {
+    return { files, windowMs: 0, persistedAt: 0, waitedMs: Date.now() - startedAt, derivation: "settle window 0 ms = file mtime - last trace event (watched in this run)" };
+  }
+  const mtimes = await Promise.all(files.map(async (name) => (await stat(joinPath(dir, name))).mtimeMs));
+  const persistedAt = Math.max(...mtimes);
+  const windowMs = lastEventAt === null ? 0 : Math.max(0, Math.round(persistedAt - lastEventAt));
+  // Probe hook: when C43_LATE_COPY_MS is a positive number, copy the first
+  // trace file as late-copy.conversation-trace.json after that delay so the
+  // harness can prove a late second file fails T1.
+  const lateMs = Number(process.env.C43_LATE_COPY_MS);
+  if (Number.isFinite(lateMs) && lateMs > 0) {
+    const first = files[0];
+    setTimeout(() => {
+      void (async () => {
+        try {
+          const bytes = await read(joinPath(dir, first));
+          await write(joinPath(dir, "late-copy.conversation-trace.json"), bytes);
+        } catch {}
+      })();
+    }, lateMs);
+  }
+  while (Date.now() < persistedAt + windowMs) {
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  files = await readNames();
+  return { files, windowMs, persistedAt, waitedMs: Date.now() - startedAt, derivation: `settle window ${windowMs} ms = file mtime - last trace event (watched in this run)` };
 }
