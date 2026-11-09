@@ -68,6 +68,7 @@ FEATURE_ARC_MM = (30.0, 80.0, 200.0)   # points along each strand used as cluste
 KMEANS_ITERS = 25
 W_SMOOTH_PASSES = 4
 WIDTH_PCT = (2.0, 98.0)
+TIP_FAN_ZBAND_MM = 25.0                  # --tip-fan-outer-mm: z band of cluster tips compared for the outline
 SC_FINE = 8                              # --station-chord: fine path samples per even station segment
 WIDTH_SMOOTH = 5                         # stations in the moving average of the width
 PUSH_PASSES = 3
@@ -152,6 +153,11 @@ def cli():
                         "+-(0.5..1) x DEG, ramped in from arc fraction V0 to the tip. Off by default. A hanging card "
                         "facing the back (or chest) is edge-on to the side camera; the strands it stands for are "
                         "cylinders seen from every side")
+    p.add_argument("--tip-fan-outer-mm", type=float, default=None,
+                   help="r14 H3: no --tip-fan on clusters whose member-median tip (head-local) lies within this many mm of "
+                        "the rear-most (+y) or lateral-most (|x|, same side) cluster tip within +-TIP_FAN_ZBAND_MM in z. Off by "
+                        "default. A fanned tip on the outline turns one card edge outward (r13 sa6/pA: S1 950 angle "
+                        "10.56 from one card tip at side rows 945-955 col 778)")
     p.add_argument("--layers", type=int, default=2, choices=(1, 2),
                    help="cards per cluster, at the member depth quantiles LAYER_Q along the card normal")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -520,6 +526,14 @@ def main():
     order = np.unique(labels[labels >= 0])
     lens = sw[:, -1]
     slp = [float(x) for x in a.short_length_pct.split(":")] if a.short_length_pct else None
+    fan_skip = np.zeros(len(order), bool)
+    if fan is not None and a.tip_fan_outer_mm is not None:
+        # r14 H3: cluster tips on the outline (rear in the side view, lateral in the back view) keep W unturned
+        tips = np.array([np.median(Pl[labels == k, -1], 0) for k in order])
+        for i, t in enumerate(tips):
+            band = np.abs(tips[:, 2] - t[2]) <= TIP_FAN_ZBAND_MM
+            fan_skip[i] = (t[1] >= tips[band, 1].max() - a.tip_fan_outer_mm) or \
+                (abs(t[0]) >= np.abs(tips[band & (np.sign(tips[:, 0]) == np.sign(t[0])), 0]).max() - a.tip_fan_outer_mm)
     for cid, k in enumerate(order):
         m = np.where(labels == k)[0]
         lm = np.sort(lens[m])
@@ -588,7 +602,7 @@ def main():
         T, W, tw = frames(C, outward(C, centre_w, colliders, a.cyl_band_mm / 1000.0,
                                        a.surface_blend_mm / 1000.0), a.max_twist_deg)
         twist_max = max(twist_max, tw)
-        if fan is not None and Lc * 1000.0 >= fan[2]:
+        if fan is not None and Lc * 1000.0 >= fan[2] and not fan_skip[cid]:
             # r13 K1/K3: seeded turn of W about T over the tip part of the card (rotation in the plane normal to T)
             rg = np.random.default_rng(7919 + int(cid))
             ang = math.radians(fan[0]) * (0.5 + 0.5 * rg.random()) * (1.0 if rg.random() < 0.5 else -1.0)
@@ -742,7 +756,9 @@ def main():
                              "maxChordDevMm": {"median": float(np.median(chord_dev) * 1000),
                                                "p90": float(np.percentile(chord_dev, 90) * 1000),
                                                "max": float(np.max(chord_dev) * 1000)}}} if sc_mul else {}),
-        **({"tipFan": {"deg": fan[0], "v0": fan[1], "minMm": fan[2], "clusters": fan_n[0]}} if fan else {}),
+        **({"tipFan": {"deg": fan[0], "v0": fan[1], "minMm": fan[2], "clusters": fan_n[0],
+                               **({"outerMm": a.tip_fan_outer_mm, "outerSkipped": int(fan_skip.sum())}
+                                  if a.tip_fan_outer_mm is not None else {})}} if fan else {}),
         **({"rootOffsetScale": a.root_offset_scale, "rootOffsetMinMm": a.root_offset_min_mm}
            if a.root_offset_scale != 1.0 else {}),
         "edgeHalvings": shrunk[0],

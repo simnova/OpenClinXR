@@ -73,6 +73,11 @@ def main() -> None:
                         "fraction and allow at most this texture slide (index vs arc fraction); off by default. With "
                         "the index-fraction error alone, chord-placed stations kept a median 19 of 24 (48,672 tris vs "
                         "31,616 even)")
+    p.add_argument("--inner-tol-mm", type=float, default=None,
+                   help="r14 H2: tolerance for the inner card of a two-layer cluster (card_layer 0 followed by 1, the "
+                        "fringe_subset.py rule); off by default (every card uses --tol-mm). The outer card covers it, so "
+                        "its stations shape no outline (r14 e48: 35,024 tris at tol 2 everywhere; tol 2.5 everywhere fails "
+                        "S1 800 and S3 L800 by 0.2 deg)")
     a = p.parse_args()
     c = dict(np.load(a.cards))
     n = int(c["n_cards"])
@@ -87,8 +92,12 @@ def main() -> None:
     tol, margin = a.tol_mm / 1000.0, a.inward_margin_mm / 1000.0
     keep = np.zeros((n, S), bool)
     F = []
+    inner = np.zeros(n, bool)
+    if a.inner_tol_mm is not None:
+        layer = c["card_layer"]
+        inner[:-1] = (layer[:-1] == 0) & (layer[1:] == 1)
     for ci in range(n):
-        k = dp(Vr[ci], Nr[ci], clear[ci], tol, margin, None if a.max_slip_mm is None else a.max_slip_mm / 1000.0)
+        k = dp(Vr[ci], Nr[ci], clear[ci], a.inner_tol_mm / 1000.0 if inner[ci] else tol, margin, None if a.max_slip_mm is None else a.max_slip_mm / 1000.0)
         keep[ci] = k
         ks = np.flatnonzero(k)
         for a0, b0 in zip(ks[:-1], ks[1:]):
@@ -112,7 +121,8 @@ def main() -> None:
            "inSha256": hashlib.sha256(Path(a.cards).read_bytes()).hexdigest(),
            "outSha256": hashlib.sha256(Path(a.out).read_bytes()).hexdigest(),
            "tolMm": a.tol_mm, "inwardMarginMm": a.inward_margin_mm,
-           **({"maxSlipMm": a.max_slip_mm} if a.max_slip_mm is not None else {}), "cards": n, "stations": S,
+           **({"maxSlipMm": a.max_slip_mm} if a.max_slip_mm is not None else {}),
+           **({"innerTolMm": a.inner_tol_mm, "innerCards": int(inner.sum())} if a.inner_tol_mm is not None else {}), "cards": n, "stations": S,
            "trianglesIn": int(n * (S - 1) * 2), "trianglesOut": len(F),
            "keptStationsPerCard": {"min": int(per.min()), "median": float(np.median(per)), "max": int(per.max())},
            "vertexMoveMm": {"max": float(moved.max() * 1000), "p99": float(np.percentile(moved, 99) * 1000)}}

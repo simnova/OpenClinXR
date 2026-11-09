@@ -560,6 +560,9 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
     tuck = rc.get("earTuck")
     tucked = False
     tuck_settle = tuck["settleYMm"] / 1000.0 if tuck and tuck.get("settleYMm") is not None else None
+    # earTuck.settleBottomZMm (r14 H1): the settle holds down to this head-local z instead of the tuck band
+    # bottom; absent = bottomZMm (r11 behaviour)
+    tuck_settle_bot = (tuck.get("settleBottomZMm", tuck["bottomZMm"]) / 1000.0) if tuck else None
     route = f.get("shoulderRoute")   # replaces the shoulder field when present (groom-r5)
     if route:
         r_y, r_top, r_bot = (route[k] / 1000.0 for k in ("behindYMm", "topMm", "bottomMm"))
@@ -703,7 +706,7 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
         # forward ended further back (root y 2 -> y 37 at z 0, root y 16 -> y 19), so the
         # strands that hang forward over the shoulder top came only from a ~6 mm root band,
         # about one guide spacing, and the seed decided whether a guide fell in it.
-        if tucked and tuck_settle is not None and lp[2] > tuck["bottomZMm"] / 1000.0 \
+        if tucked and tuck_settle is not None and lp[2] > tuck_settle_bot \
                 and lp[1] >= tuck_settle and d.dot(back) > 0.0:
             # and no upward momentum either (ear-lift strands kept climbing straight up once
             # their back component was removed)
