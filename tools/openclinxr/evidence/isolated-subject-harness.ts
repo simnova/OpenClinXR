@@ -125,6 +125,8 @@ type SubjectSpec = {
   rigOverride?: Record<string, unknown>;
   /** Opt-in: hide the fitted hair meshes (/hair/i) before framing (lab hideHair). */
   hideHair?: boolean;
+  /** Opt-in: camera yaw about the subject (lab yawDegrees). */
+  yawDegrees?: number;
   label?: string;
 };
 
@@ -203,6 +205,8 @@ async function captureSubject(input: {
   imagePath: string;
   /** hair-groom-2 P1 opt-in: equirect radiance map applied after the lab settles (isolated-subject.html helper). */
   equirectEnvironment?: EquirectEnvironment;
+  /** hair-groom-2 P1 opt-in: alpha-to-coverage probe on the fitted hair materials (isolated-subject.html helper). */
+  hairMaterialProbe?: HairMaterialProbe;
 }): Promise<RenderedSubject> {
   const url = subjectUrl(input.baseUrl, input.spec);
   // Pack captures are square (#232 shape); legacy subjects keep the 1280×960 frame.
@@ -248,6 +252,20 @@ async function captureSubject(input: {
       if (!w.__openClinXrApplyEquirectEnvironment) throw new Error("equirect environment helper absent from the lab page");
       return w.__openClinXrApplyEquirectEnvironment(env);
     }, input.equirectEnvironment);
+  }
+  if (input.hairMaterialProbe) {
+    const touched = (await input.page.evaluate(async (probe) => {
+      const w = browserPageWindow as unknown as {
+        __openClinXrApplyHairMaterialProbe?: (p: HairMaterialProbe) => Promise<{ masked: number; hiddenBlend: number; samples: number }>;
+      };
+      if (!w.__openClinXrApplyHairMaterialProbe) throw new Error("hair material probe helper absent from the lab page");
+      return w.__openClinXrApplyHairMaterialProbe(probe);
+    }, input.hairMaterialProbe)) as { masked: number; hiddenBlend: number; samples: number };
+    if (touched.masked === 0) throw new Error("hair material probe touched no alpha-tested hair material");
+    if (input.hairMaterialProbe.alphaToCoverage && !(touched.samples > 0)) {
+      throw new Error(`hair material probe: alphaToCoverage needs MSAA, canvas reports ${touched.samples} samples`);
+    }
+    console.log(`[hair-material-probe] ${JSON.stringify({ ...input.hairMaterialProbe, ...touched })}`);
   }
   await mkdir(path.dirname(input.imagePath), { recursive: true });
   const canvas = input.page.locator("#isolated-subject-capture-canvas");
@@ -1275,10 +1293,17 @@ export type HeadCropSpec = {
   hideHair?: boolean;
   /** Opt-in (hair-groom-2 P1 target scene): equirect radiance map as environment/background. Absent = unchanged. */
   equirectEnvironment?: EquirectEnvironment;
+  /** Opt-in (hair-groom-2 P1): alpha-to-coverage probe on the hair materials. Absent = unchanged. */
+  hairMaterialProbe?: HairMaterialProbe;
+  /** Opt-in: camera yaw about the subject (lab yawDegrees), for turntables. Absent = 0. */
+  yawDegrees?: number;
 };
 
 /** Served path of a raw linear RGBA half-float equirect map (three convention, row 0 = bottom). */
 export type EquirectEnvironment = { url: string; width: number; height: number; background?: boolean };
+
+/** Alpha-to-coverage probe on fitted hair: alpha-tested materials get these; hideBlend hides the blended fringe. */
+export type HairMaterialProbe = { alphaToCoverage: boolean; alphaTest?: number; hideBlend?: boolean };
 
 /** #358 shipped actors — one per rail, the same GLBs the #222/#341 hair contracts measure. */
 export const HEAD_FOCUS_CROP_SPECS: HeadCropSpec[] = [
@@ -1389,6 +1414,7 @@ export async function renderHeadFocusCrops(options?: {
         ...(spec.headBodyFrame ? { headBodyFrame: spec.headBodyFrame } : {}),
         ...(spec.rigOverride ? { rigOverride: spec.rigOverride } : {}),
         ...(spec.hideHair === true ? { hideHair: true } : {}),
+        ...(spec.yawDegrees != null ? { yawDegrees: spec.yawDegrees } : {}),
         subjectOnly: true,
         label: `${spec.rail} head ${view}`,
       };
@@ -1399,6 +1425,7 @@ export async function renderHeadFocusCrops(options?: {
         spec: subjectSpec,
         imagePath,
         ...(spec.equirectEnvironment ? { equirectEnvironment: spec.equirectEnvironment } : {}),
+        ...(spec.hairMaterialProbe ? { hairMaterialProbe: spec.hairMaterialProbe } : {}),
       });
       const bytes = (await stat(imagePath)).size;
       crops.push({

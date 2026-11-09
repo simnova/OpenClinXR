@@ -163,6 +163,36 @@
         window.__openClinXrIsolatedRenderFrame();
         return { halves: data.length };
       };
+      // hair-groom-2 P1 alpha-to-coverage probe (opt-in, harness-called after the lab settles): on fitted hair meshes
+      // (/hair/i, the isFittedHairMeshName rule) set alphaToCoverage and alphaTest on the alpha-tested (non-blended)
+      // materials; hideBlend hides the blended fringe meshes so the hair draws in one pass. Re-renders once.
+      window.__openClinXrApplyHairMaterialProbe = async ({ alphaToCoverage, alphaTest, hideBlend }) => {
+        const root = window.__openClinXrIsolatedSceneRoot;
+        if (!root || typeof window.__openClinXrIsolatedRenderFrame !== "function") {
+          throw new Error("hair material probe: lab scene not ready");
+        }
+        const touched = { masked: 0, hiddenBlend: 0 };
+        root.traverse((o) => {
+          if (!o.isMesh || !/hair/i.test(o.name || o.geometry?.name || "")) return;
+          for (const m of Array.isArray(o.material) ? o.material : [o.material]) {
+            if (m.transparent) {
+              if (hideBlend === true) { o.visible = false; touched.hiddenBlend += 1; }
+              continue;
+            }
+            m.alphaToCoverage = alphaToCoverage === true;
+            if (typeof alphaTest === "number") m.alphaTest = alphaTest;
+            m.needsUpdate = true;
+            touched.masked += 1;
+          }
+        });
+        window.__openClinXrIsolatedRenderFrame();
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        window.__openClinXrIsolatedRenderFrame();
+        const canvas = document.querySelector("canvas");
+        const gl = canvas?.getContext("webgl2") ?? canvas?.getContext("webgl");
+        touched.samples = gl ? gl.getParameter(gl.SAMPLES) : -1;
+        return touched;
+      };
       bootIsolatedSubjectLab();
       window.__openClinXrProductEyeMotionDriver = sampleHumanoidBlinkSchedule.applyIsolatedHumanoidEyeMotion;
       sampleHumanoidBlinkSchedule.bootIsolatedSubjectEyeMotion(window);
