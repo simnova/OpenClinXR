@@ -1,0 +1,2010 @@
+{
+ "card": "tsk_b9a3632f3b7dd3fe",
+ "ob": {
+  "schemaVersion": "openclinxr.teeth-runtime-probe.v1",
+  "card": "tsk_b9a3632f3b7dd3fe",
+  "generatedAt": "2026-11-09T22:28:13.927Z",
+  "scenario": "ob",
+  "ids": {
+   "scenarioId": "ob_headache_preeclampsia_triage_v1",
+   "stationId": "ob_headache_preeclampsia_triage_station_v1",
+   "environmentId": "ob_triage_room_v1",
+   "actorId": "patient_aisha_khan_v1",
+   "actorNamePattern": "aisha",
+   "fixtureCitation": "packages/openclinxr/scenario-fixtures/src/ob-preeclampsia.ts"
+  },
+  "poseMethod": {
+   "hook": "post-app requestAnimationFrame; apply pose, then render with captured app renderer",
+   "cameraHook": "window.__openClinXrDebugHoldCamera (apps/ui-xr/src/main.ts:3496; packages/openclinxr/xr-scene/src/station-layout-view.ts:8-10,72-75)",
+   "jawSource": "packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts:88-91",
+   "jawOpenRadians": 0.15086064830819468,
+   "visemeAaInfluence": 1
+  },
+  "mouthBox": {
+   "coordinateSpace": "head bone local",
+   "min": [
+    -0.05,
+    -0.1,
+    0
+   ],
+   "max": [
+    0.05,
+    -0.02,
+    0.14
+   ],
+   "adjustedAfterLook": false,
+   "note": "operator-specified box; owner may adjust after first visual grade if the mouth lies outside it"
+  },
+  "closed": {
+   "frame": 8,
+   "camera": {
+    "position": [
+     -0.7113746066857987,
+     1.3294022677306359,
+     0.4703714828825536
+    ],
+    "target": [
+     -0.7209636623492405,
+     1.3144672882497905,
+     0.12082177769116002
+    ],
+    "distanceMeters": 0.35,
+    "fovDegrees": 30
+   },
+   "jawRotations": [
+    {
+     "name": "jaw",
+     "x": 2.6111568897701725,
+     "y": 6.426771294633567e-09,
+     "z": 3.769317375921504e-09,
+     "order": "XYZ"
+    }
+   ],
+   "morphInfluences": [
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body",
+     "influences": {
+      "eye-left-opened-up": 0.048372220247983926,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_1",
+     "influences": {
+      "eye-left-opened-up": 0.048372220247983926,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_2",
+     "influences": {
+      "eye-left-opened-up": 0.048372220247983926,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_3",
+     "influences": {
+      "eye-left-opened-up": 0.048372220247983926,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_4",
+     "influences": {
+      "eye-left-opened-up": 0.048372220247983926,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_5",
+     "influences": {
+      "eye-left-opened-up": 0.048372220247983926,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_6",
+     "influences": {
+      "eye-left-opened-up": 0.048372220247983926,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_7",
+     "influences": {
+      "eye-left-opened-up": 0.048372220247983926,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    }
+   ],
+   "mouthBoxWorldAabb": {
+    "min": [
+     -0.7851078750654701,
+     1.25416647906566,
+     0.0443546825737315
+    ],
+    "max": [
+     -0.650486260077432,
+     1.3785032656563962,
+     0.2143669543886313
+    ]
+   },
+   "still": "closed.png",
+   "sidecar": "closed.png.json"
+  },
+  "open": {
+   "frame": 35,
+   "camera": {
+    "position": [
+     -0.7113746066857987,
+     1.3294022677306359,
+     0.4703714828825536
+    ],
+    "target": [
+     -0.7209636623492405,
+     1.3144672882497905,
+     0.12082177769116002
+    ],
+    "distanceMeters": 0.35,
+    "fovDegrees": 30
+   },
+   "jawRotations": [
+    {
+     "name": "jaw",
+     "x": 2.762017538078367,
+     "y": 6.426771294633567e-09,
+     "z": 3.769317375921504e-09,
+     "order": "XYZ"
+    }
+   ],
+   "morphInfluences": [
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body",
+     "influences": {
+      "eye-left-opened-up": 0.11646056105905365,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_1",
+     "influences": {
+      "eye-left-opened-up": 0.11646056105905365,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_2",
+     "influences": {
+      "eye-left-opened-up": 0.11646056105905365,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_3",
+     "influences": {
+      "eye-left-opened-up": 0.11646056105905365,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_4",
+     "influences": {
+      "eye-left-opened-up": 0.11646056105905365,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_5",
+     "influences": {
+      "eye-left-opened-up": 0.11646056105905365,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_6",
+     "influences": {
+      "eye-left-opened-up": 0.11646056105905365,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ob_patient_aisha_v1_body_7",
+     "influences": {
+      "eye-left-opened-up": 0.11646056105905365,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    }
+   ],
+   "mouthBoxWorldAabb": {
+    "min": [
+     -0.7530970942600687,
+     1.2739821584802045,
+     0.04497148305914988
+    ],
+    "max": [
+     -0.6127887993313939,
+     1.4015847111215176,
+     0.2165604965836628
+    ]
+   },
+   "still": "open.png",
+   "sidecar": "open.png.json"
+  },
+  "meshes": [
+   {
+    "id": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_v1_mesh#2",
+    "name": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_v1_mesh",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshStandardMaterial",
+      "name": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_v1_mat",
+      "colorHex": "#65554b",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "DoubleSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [
+     {
+      "bone": "head",
+      "weightFraction": 1
+     }
+    ],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -0.8489728441677785,
+       1.2100691249487292,
+       -0.08772223341715836
+      ],
+      "max": [
+       -0.633760460697463,
+       1.4926645439771458,
+       0.2002885104770784
+      ],
+      "center": [
+       -0.7413666524326208,
+       1.3513668344629375,
+       0.056283138529960024
+      ]
+     },
+     "open": {
+      "min": [
+       -0.8210492449222099,
+       1.2329629084042668,
+       -0.08919007721650359
+      ],
+      "max": [
+       -0.5981136721015502,
+       1.515312557722935,
+       0.2073597550156503
+      ],
+      "center": [
+       -0.70958145851188,
+       1.3741377330636009,
+       0.059084838899573354
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.03920027934367152
+   },
+   {
+    "id": "mpfb_ob_patient_aisha_v1_body#4",
+    "name": "mpfb_ob_patient_aisha_v1_body",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshStandardMaterial",
+      "name": "mpfb_skin_ob_patient_aisha_v1",
+      "colorHex": "#ffffff",
+      "map": true,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "DoubleSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {
+      "eye-left-opened-up": 0.048372220247983926,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     },
+     "open": {
+      "eye-left-opened-up": 0.11646056105905365,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.0585,
+      "eyebrows-left-inner-up": 0.13,
+      "eyebrows-right-down": 0.0585,
+      "eyebrows-right-inner-up": 0.13,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    "topBones": [
+     {
+      "bone": "head",
+      "weightFraction": 0.23094505490566697
+     },
+     {
+      "bone": "footL",
+      "weightFraction": 0.036086292182466
+     },
+     {
+      "bone": "footR",
+      "weightFraction": 0.03556464165492724
+     },
+     {
+      "bone": "lowerarm01R",
+      "weightFraction": 0.029355093034593802
+     },
+     {
+      "bone": "lowerarm01L",
+      "weightFraction": 0.02915026633538704
+     },
+     {
+      "bone": "spine01",
+      "weightFraction": 0.027096205604268418
+     }
+    ],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -1.0017035546861406,
+       -0.0074873958494085634,
+       -0.072401678897986
+      ],
+      "max": [
+       -0.46784184636416254,
+       1.4712769676410946,
+       0.2565217086417304
+      ],
+      "center": [
+       -0.7347727005251515,
+       0.731894785895843,
+       0.09206001487187221
+      ]
+     },
+     "open": {
+      "min": [
+       -0.9723270757613585,
+       -0.002637227443475428,
+       -0.08144259649181547
+      ],
+      "max": [
+       -0.46007712848689974,
+       1.4910078998415524,
+       0.26886667260900576
+      ],
+      "center": [
+       -0.7162021021241292,
+       0.7441853361990385,
+       0.09371203805859515
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.0223305605020766
+   },
+   {
+    "id": "mpfb_ob_patient_aisha_v1_body_meshlow-poly#12",
+    "name": "mpfb_ob_patient_aisha_v1_body_meshlow-poly",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshStandardMaterial",
+      "name": "mat_makeclothes_library_eyes_ob_patient_aisha_v1",
+      "colorHex": "#ffffff",
+      "map": true,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "DoubleSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [
+     {
+      "bone": "eyeR",
+      "weightFraction": 0.49931979170663054
+     },
+     {
+      "bone": "eyeL",
+      "weightFraction": 0.4991135416301739
+     },
+     {
+      "bone": "orbicularis03L",
+      "weightFraction": 0.0005645833345851619
+     },
+     {
+      "bone": "orbicularis03R",
+      "weightFraction": 0.00035833333573876493
+     },
+     {
+      "bone": "oculi01L",
+      "weightFraction": 0.0003218749964358115
+     },
+     {
+      "bone": "oculi01R",
+      "weightFraction": 0.0003218749964358115
+     }
+    ],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -0.7717244888770887,
+       1.375659572013439,
+       0.0814578650230548
+      ],
+      "max": [
+       -0.6958068518623183,
+       1.3993444092616454,
+       0.12056015458360099
+      ],
+      "center": [
+       -0.7337656703697035,
+       1.387501990637542,
+       0.10100900980332789
+      ]
+     },
+     "open": {
+      "min": [
+       -0.7378194312610793,
+       1.3990721564070758,
+       0.08128622685582623
+      ],
+      "max": [
+       -0.6608441738038151,
+       1.4217404557504774,
+       0.12438113932147828
+      ],
+      "center": [
+       -0.6993318025324472,
+       1.4104063060787766,
+       0.10283368308865226
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.04139599440360607
+   },
+   {
+    "id": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_v1_mesh#15",
+    "name": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_v1_mesh",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshStandardMaterial",
+      "name": "mat_openclinxr_hm08_teeth_mpfb_ob_patient_aisha_v1_mesh",
+      "colorHex": "#f6f3ef",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "DoubleSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [
+     {
+      "bone": "head",
+      "weightFraction": 0.5073529411764706
+     },
+     {
+      "bone": "jaw",
+      "weightFraction": 0.49264705882352944
+     }
+    ],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -0.7606463139992549,
+       1.3138751091239023,
+       0.07625386881484161
+      ],
+      "max": [
+       -0.6972801853430498,
+       1.3556418493252564,
+       0.1427584699801132
+      ],
+      "center": [
+       -0.7289632496711523,
+       1.3347584792245795,
+       0.10950616939747741
+      ]
+     },
+     "open": {
+      "min": [
+       -0.7275247319703948,
+       1.3303161879193166,
+       0.07705023678955636
+      ],
+      "max": [
+       -0.6635300076460762,
+       1.3772668245286355,
+       0.14284310804340028
+      ],
+      "center": [
+       -0.6955273698082355,
+       1.353791506223976,
+       0.10994667241647832
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.03847607336874329
+   },
+   {
+    "id": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_v1_mesh#16",
+    "name": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_v1_mesh",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshStandardMaterial",
+      "name": "mat_openclinxr_hm08_tongue_mpfb_ob_patient_aisha_v1_mesh",
+      "colorHex": "#edb3b3",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "DoubleSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [
+     {
+      "bone": "head",
+      "weightFraction": 1
+     }
+    ],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -0.7558458331503481,
+       1.288539519081926,
+       0.0737959670930522
+      ],
+      "max": [
+       -0.7012526153499692,
+       1.340931292692809,
+       0.14212170167201166
+      ],
+      "center": [
+       -0.7285492242501587,
+       1.3147354058873675,
+       0.10795883438253193
+      ]
+     },
+     "open": {
+      "min": [
+       -0.7232474045535399,
+       1.3104733704591482,
+       0.07472969123320872
+      ],
+      "max": [
+       -0.6665051794478597,
+       1.3625100630280755,
+       0.1452163600682241
+      ],
+      "center": [
+       -0.6948762920006998,
+       1.336491716743612,
+       0.10997302565071641
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.04014050815342299
+   },
+   {
+    "id": "openclinxr_inner_mouth_cavity#17",
+    "name": "openclinxr_inner_mouth_cavity",
+    "visible": false,
+    "materials": [
+     {
+      "type": "MeshBasicMaterial",
+      "name": "",
+      "colorHex": "#b34752",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "FrontSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -0.7404881325195591,
+       1.3102247356933134,
+       0.09159751927890364
+      ],
+      "max": [
+       -0.7119492173632749,
+       1.3380881420548911,
+       0.12087575219059804
+      ],
+      "center": [
+       -0.726218674941417,
+       1.3241564388741023,
+       0.10623663573475084
+      ]
+     },
+     "open": {
+      "min": [
+       -0.7067399461519688,
+       1.3318350355528428,
+       0.09352810504573053
+      ],
+      "max": [
+       -0.678087673708204,
+       1.3601645285311217,
+       0.12273460824943894
+      ],
+      "center": [
+       -0.6924138099300864,
+       1.3459997820419822,
+       0.10813135664758473
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.04029256142914698
+   },
+   {
+    "id": "openclinxr_inner_mouth_palate#18",
+    "name": "openclinxr_inner_mouth_palate",
+    "visible": false,
+    "materials": [
+     {
+      "type": "MeshBasicMaterial",
+      "name": "",
+      "colorHex": "#b34752",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "FrontSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -0.7389990826659837,
+       1.337015248655555,
+       0.08585081866832962
+      ],
+      "max": [
+       -0.7215890176848597,
+       1.354407720523983,
+       0.10396918054977407
+      ],
+      "center": [
+       -0.7302940501754217,
+       1.345711484589769,
+       0.09490999960905185
+      ]
+     },
+     "open": {
+      "min": [
+       -0.7053825277922758,
+       1.3592058494452235,
+       0.08796315962810725
+      ],
+      "max": [
+       -0.6877627895117118,
+       1.3768685016285327,
+       0.10611698463570068
+      ],
+      "center": [
+       -0.6965726586519938,
+       1.368037175536878,
+       0.09704007213190396
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.0404982213374211
+   },
+   {
+    "id": "openclinxr.ob_headache_preeclampsia_triage_v1.ragdoll-collision-proxy.openclinxr-ob_headache_preeclampsia_triage_v1-patient_aisha_khan_v1-generated-humanoid-glb#20",
+    "name": "openclinxr.ob_headache_preeclampsia_triage_v1.ragdoll-collision-proxy.openclinxr-ob_headache_preeclampsia_triage_v1-patient_aisha_khan_v1-generated-humanoid-glb",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshBasicMaterial",
+      "name": "",
+      "colorHex": "#58f5c6",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "FrontSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": true,
+      "alphaTest": 0,
+      "opacity": 0.08
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -1.0562549229047493,
+       0.11111184778008987,
+       -0.44756334855429375
+      ],
+      "max": [
+       -0.4349032655478963,
+       1.505700135794787,
+       0.34143728546152513
+      ],
+      "center": [
+       -0.7455790942263228,
+       0.8084059917874384,
+       -0.05306303154638431
+      ]
+     },
+     "open": {
+      "min": [
+       -1.043357803861638,
+       0.10810194766616932,
+       -0.45255375008913923
+      ],
+      "max": [
+       -0.4224942092127532,
+       1.5376050764846938,
+       0.35257606713390444
+      ],
+      "center": [
+       -0.7329260065371956,
+       0.8228535120754316,
+       -0.049988841477617396
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.01944947596002577
+   }
+  ],
+  "notEvidenceFor": [
+   "actors other than Aisha and the ED nurse control",
+   "lip or jaw motion quality",
+   "clinical validity",
+   "Quest readiness"
+  ]
+ },
+ "control": {
+  "schemaVersion": "openclinxr.teeth-runtime-probe.v1",
+  "card": "tsk_b9a3632f3b7dd3fe",
+  "generatedAt": "2026-11-09T22:31:37.505Z",
+  "scenario": "control",
+  "ids": {
+   "scenarioId": "ed_chest_pain_priority_v1",
+   "stationId": "ed_chest_pain_station_v1",
+   "environmentId": "ed_exam_bay_v1",
+   "actorId": "nurse_maria_alvarez_v1",
+   "actorNamePattern": "nurse|maria|clinical-nurse",
+   "fixtureCitation": "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts:26,225,312; apps/ui-xr/public/xr-assets/generated/ed_chest_pain_priority_v1/learner-runtime-bundle.v1.json:3"
+  },
+  "poseMethod": {
+   "hook": "post-app requestAnimationFrame; apply pose, then render with captured app renderer",
+   "cameraHook": "window.__openClinXrDebugHoldCamera (apps/ui-xr/src/main.ts:3496; packages/openclinxr/xr-scene/src/station-layout-view.ts:8-10,72-75)",
+   "jawSource": "packages/openclinxr/xr-dialogue/src/viseme-timeline-drive.ts:88-91",
+   "jawOpenRadians": 0.15086064830819468,
+   "visemeAaInfluence": 1
+  },
+  "mouthBox": {
+   "coordinateSpace": "head bone local",
+   "min": [
+    -0.05,
+    -0.1,
+    0
+   ],
+   "max": [
+    0.05,
+    -0.02,
+    0.14
+   ],
+   "adjustedAfterLook": false,
+   "note": "operator-specified box; owner may adjust after first visual grade if the mouth lies outside it"
+  },
+  "closed": {
+   "frame": 8,
+   "camera": {
+    "position": [
+     -0.5042979280339788,
+     1.4706509085919481,
+     -1.4188228495280386
+    ],
+    "target": [
+     -0.8519017255351983,
+     1.4706509085919481,
+     -1.3779376448357408
+    ],
+    "distanceMeters": 0.35,
+    "fovDegrees": 30
+   },
+   "jawRotations": [
+    {
+     "name": "jaw",
+     "x": 2.6253722551098715,
+     "y": -1.4798188086048878e-08,
+     "z": -4.1153072108452e-09,
+     "order": "XYZ"
+    }
+   ],
+   "morphInfluences": [
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body",
+     "influences": {
+      "eye-left-opened-up": 0.06649105173644299,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_1",
+     "influences": {
+      "eye-left-opened-up": 0.06649105173644299,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_2",
+     "influences": {
+      "eye-left-opened-up": 0.06649105173644299,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_3",
+     "influences": {
+      "eye-left-opened-up": 0.06649105173644299,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_4",
+     "influences": {
+      "eye-left-opened-up": 0.06649105173644299,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_5",
+     "influences": {
+      "eye-left-opened-up": 0.06649105173644299,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_6",
+     "influences": {
+      "eye-left-opened-up": 0.06649105173644299,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_7",
+     "influences": {
+      "eye-left-opened-up": 0.06649105173644299,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     }
+    }
+   ],
+   "mouthBoxWorldAabb": {
+    "min": [
+     -0.938241861803957,
+     1.4112546800219636,
+     -1.432383266852467
+    ],
+    "max": [
+     -0.7762690520860421,
+     1.518857785817999,
+     -1.2762817191447873
+    ]
+   },
+   "still": "closed.png",
+   "sidecar": "closed.png.json"
+  },
+  "open": {
+   "frame": 35,
+   "camera": {
+    "position": [
+     -0.5042979280339788,
+     1.4706509085919481,
+     -1.4188228495280386
+    ],
+    "target": [
+     -0.8519017255351983,
+     1.4706509085919481,
+     -1.3779376448357408
+    ],
+    "distanceMeters": 0.35,
+    "fovDegrees": 30
+   },
+   "jawRotations": [
+    {
+     "name": "jaw",
+     "x": 2.776232903418066,
+     "y": -1.4798188086048878e-08,
+     "z": -4.1153072108452e-09,
+     "order": "XYZ"
+    }
+   ],
+   "morphInfluences": [
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body",
+     "influences": {
+      "eye-left-opened-up": 0.10655889156950152,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_1",
+     "influences": {
+      "eye-left-opened-up": 0.10655889156950152,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_2",
+     "influences": {
+      "eye-left-opened-up": 0.10655889156950152,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_3",
+     "influences": {
+      "eye-left-opened-up": 0.10655889156950152,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_4",
+     "influences": {
+      "eye-left-opened-up": 0.10655889156950152,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_5",
+     "influences": {
+      "eye-left-opened-up": 0.10655889156950152,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_6",
+     "influences": {
+      "eye-left-opened-up": 0.10655889156950152,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    {
+     "mesh": "mpfb_ed_chest_pain_nurse_adult_body_7",
+     "influences": {
+      "eye-left-opened-up": 0.10655889156950152,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    }
+   ],
+   "mouthBoxWorldAabb": {
+    "min": [
+     -0.9392458387662992,
+     1.3908762830324357,
+     -1.4362775170094713
+    ],
+    "max": [
+     -0.7769343640006308,
+     1.4971218899166572,
+     -1.292230656650193
+    ]
+   },
+   "still": "open.png",
+   "sidecar": "open.png.json"
+  },
+  "meshes": [
+   {
+    "id": "makeclothes_library_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mesh#4",
+    "name": "makeclothes_library_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshStandardMaterial",
+      "name": "openclinxr_fitted_hair_toigo_blunt_bob_mpfb_ed_chest_pain_nurse_adult_mat",
+      "colorHex": "#766559",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "DoubleSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [
+     {
+      "bone": "head",
+      "weightFraction": 1
+     }
+    ],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -1.033441936615487,
+       1.3989577765681063,
+       -1.513194534761351
+      ],
+      "max": [
+       -0.8141333158456493,
+       1.6500281123589882,
+       -1.2826367686762576
+      ],
+      "center": [
+       -0.9237876262305682,
+       1.5244929444635473,
+       -1.3979156517188043
+      ]
+     },
+     "open": {
+      "min": [
+       -1.0292200859716987,
+       1.3792404694303266,
+       -1.498575216260856
+      ],
+      "max": [
+       -0.8350981085857061,
+       1.6251486443060799,
+       -1.292582305119935
+      ],
+      "center": [
+       -0.9321590972787024,
+       1.5021945568682034,
+       -1.3955787606903955
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.02393241894461561
+   },
+   {
+    "id": "makeclothes_library_scrub_shirt#6",
+    "name": "makeclothes_library_scrub_shirt",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshStandardMaterial",
+      "name": "mat_makeclothes_library_scrub_shirt",
+      "colorHex": "#3fb8bf",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "DoubleSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [
+     {
+      "bone": "spine02",
+      "weightFraction": 0.2222205058815717
+     },
+     {
+      "bone": "spine01",
+      "weightFraction": 0.20754881644449838
+     },
+     {
+      "bone": "spine03",
+      "weightFraction": 0.12577979915078843
+     },
+     {
+      "bone": "spine04",
+      "weightFraction": 0.09769617823381327
+     },
+     {
+      "bone": "upperarm01R",
+      "weightFraction": 0.04947144910132673
+     },
+     {
+      "bone": "upperarm01L",
+      "weightFraction": 0.04519691577175487
+     }
+    ],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -1.0833305414692953,
+       0.9059931204531049,
+       -1.622151285214185
+      ],
+      "max": [
+       -0.7435285915177967,
+       1.4265173247119665,
+       -1.1790263751327181
+      ],
+      "center": [
+       -0.913429566493546,
+       1.1662552225825356,
+       -1.4005888301734517
+      ]
+     },
+     "open": {
+      "min": [
+       -1.0588175256409755,
+       0.893133428352063,
+       -1.6073218306131962
+      ],
+      "max": [
+       -0.7759618186978399,
+       1.4042972625282137,
+       -1.195223425728681
+      ],
+      "center": [
+       -0.9173896721694077,
+       1.1487153454401384,
+       -1.4012726281709385
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.017994368753466855
+   },
+   {
+    "id": "mpfb_ed_chest_pain_nurse_adult_body#7",
+    "name": "mpfb_ed_chest_pain_nurse_adult_body",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshStandardMaterial",
+      "name": "mpfb_skin_ed_chest_pain_nurse_adult",
+      "colorHex": "#ffffff",
+      "map": true,
+      "normalMap": true,
+      "roughnessMap": false,
+      "side": "DoubleSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {
+      "eye-left-opened-up": 0.06649105173644299,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     },
+     "open": {
+      "eye-left-opened-up": 0.10655889156950152,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    "topBones": [
+     {
+      "bone": "head",
+      "weightFraction": 0.17913642974579186
+     },
+     {
+      "bone": "toe1-1R",
+      "weightFraction": 0.03998996891369172
+     },
+     {
+      "bone": "toe1-1L",
+      "weightFraction": 0.039797125872758445
+     },
+     {
+      "bone": "upperleg02L",
+      "weightFraction": 0.029083639855487124
+     },
+     {
+      "bone": "upperleg02R",
+      "weightFraction": 0.02879573637569043
+     },
+     {
+      "bone": "spine01",
+      "weightFraction": 0.027849098564317325
+     }
+    ],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -1.0933254741666907,
+       0.004566642146998234,
+       -1.6453494621913536
+      ],
+      "max": [
+       -0.7066200343085925,
+       1.6503697541393154,
+       -1.1421696934750114
+      ],
+      "center": [
+       -0.8999727542376417,
+       0.8274681981431569,
+       -1.3937595778331824
+      ]
+     },
+     "open": {
+      "min": [
+       -1.066470589153024,
+       0.005382889779917489,
+       -1.6292847633728447
+      ],
+      "max": [
+       -0.7363511764362409,
+       1.6252175977463283,
+       -1.1675446493644144
+      ],
+      "center": [
+       -0.9014108827946324,
+       0.8153002437631229,
+       -1.3984147063686296
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.013107156412531077
+   },
+   {
+    "id": "mpfb_ed_chest_pain_nurse_adult_body_1#8",
+    "name": "mpfb_ed_chest_pain_nurse_adult_body_1",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshStandardMaterial",
+      "name": "openclinxr_hidden_upper_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+      "colorHex": "#254561",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "DoubleSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0.5,
+      "opacity": 0
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {
+      "eye-left-opened-up": 0.06649105173644299,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_sil": 0.5
+     },
+     "open": {
+      "eye-left-opened-up": 0.10655889156950152,
+      "eye-left-slit": 0.068,
+      "eye-right-slit": 0.068,
+      "eyebrows-left-down": 0.036000000000000004,
+      "eyebrows-left-inner-up": 0.08,
+      "eyebrows-right-down": 0.036000000000000004,
+      "eyebrows-right-inner-up": 0.08,
+      "mouth-compression": 1,
+      "nose-compression-uncompress": 0.032,
+      "viseme_aa": 1,
+      "viseme_sil": 0.5
+     }
+    },
+    "topBones": [
+     {
+      "bone": "spine01",
+      "weightFraction": 0.19668309659614017
+     },
+     {
+      "bone": "spine02",
+      "weightFraction": 0.15773663837412413
+     },
+     {
+      "bone": "spine03",
+      "weightFraction": 0.1109824486254508
+     },
+     {
+      "bone": "spine04",
+      "weightFraction": 0.08941407279859433
+     },
+     {
+      "bone": "upperarm01R",
+      "weightFraction": 0.06436568730011738
+     },
+     {
+      "bone": "upperarm01L",
+      "weightFraction": 0.0643056091978428
+     }
+    ],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -1.0712404141987666,
+       0.913613115305967,
+       -1.618246598399121
+      ],
+      "max": [
+       -0.7504003037977374,
+       1.425484833912657,
+       -1.182198176196131
+      ],
+      "center": [
+       -0.910820358998252,
+       1.169548974609312,
+       -1.400222387297626
+      ]
+     },
+     "open": {
+      "min": [
+       -1.0465250600798017,
+       0.9006505705199935,
+       -1.605470926743896
+      ],
+      "max": [
+       -0.7831535759597039,
+       1.4031945537421644,
+       -1.1972318542146132
+      ],
+      "center": [
+       -0.9148393180197528,
+       1.151922562131079,
+       -1.4013513904792547
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.018114002778332576
+   },
+   {
+    "id": "openclinxr_hm08_teeth_mpfb_ed_chest_pain_nurse_adult_mesh#18",
+    "name": "openclinxr_hm08_teeth_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshStandardMaterial",
+      "name": "mat_openclinxr_hm08_teeth_mpfb_ed_chest_pain_nurse_adult_mesh",
+      "colorHex": "#f6f3ef",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "DoubleSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [
+     {
+      "bone": "head",
+      "weightFraction": 0.5073529411764706
+     },
+     {
+      "bone": "jaw",
+      "weightFraction": 0.49264705882352944
+     }
+    ],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -0.9026399920128103,
+       1.4806744671086605,
+       -1.407037655445483
+      ],
+      "max": [
+       -0.8337860281477909,
+       1.513611795348757,
+       -1.331730639743828
+      ],
+      "center": [
+       -0.8682130100803006,
+       1.4971431312287087,
+       -1.3693841475946555
+      ]
+     },
+     "open": {
+      "min": [
+       -0.9048003973109326,
+       1.4493608260552626,
+       -1.411637704951881
+      ],
+      "max": [
+       -0.8422292217298053,
+       1.4917247507029567,
+       -1.3443627467387649
+      ],
+      "center": [
+       -0.873514809520369,
+       1.4705427883791096,
+       -1.378000225845323
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.02845916585988691
+   },
+   {
+    "id": "openclinxr_hm08_tongue_mpfb_ed_chest_pain_nurse_adult_mesh#19",
+    "name": "openclinxr_hm08_tongue_mpfb_ed_chest_pain_nurse_adult_mesh",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshStandardMaterial",
+      "name": "mat_openclinxr_hm08_tongue_mpfb_ed_chest_pain_nurse_adult_mesh",
+      "colorHex": "#edb3b3",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "DoubleSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": false,
+      "alphaTest": 0,
+      "opacity": 1
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [
+     {
+      "bone": "head",
+      "weightFraction": 1
+     }
+    ],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -0.9154785573131689,
+       1.4701457698691993,
+       -1.4079229915862
+      ],
+      "max": [
+       -0.8363333077142354,
+       1.5007263425304662,
+       -1.340038183826673
+      ],
+      "center": [
+       -0.8759059325137022,
+       1.4854360561998328,
+       -1.3739805877064364
+      ]
+     },
+     "open": {
+      "min": [
+       -0.9165012002739099,
+       1.4487193258493096,
+       -1.4093121870249308
+      ],
+      "max": [
+       -0.843696128980601,
+       1.4789398556994662,
+       -1.3513529097135852
+      ],
+      "center": [
+       -0.8800986646272555,
+       1.463829590774388,
+       -1.3803325483692581
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.02290776625991719
+   },
+   {
+    "id": "openclinxr.ed_chest_pain_priority_v1.ragdoll-collision-proxy.nurse#21",
+    "name": "openclinxr.ed_chest_pain_priority_v1.ragdoll-collision-proxy.nurse",
+    "visible": true,
+    "materials": [
+     {
+      "type": "MeshBasicMaterial",
+      "name": "",
+      "colorHex": "#58f5c6",
+      "map": false,
+      "normalMap": false,
+      "roughnessMap": false,
+      "side": "FrontSide",
+      "depthWrite": true,
+      "depthTest": true,
+      "transparent": true,
+      "alphaTest": 0,
+      "opacity": 0.08
+     }
+    ],
+    "renderOrder": 0,
+    "morphTargetsDriven": {
+     "closed": {},
+     "open": {}
+    },
+    "topBones": [],
+    "worldBbox": {
+     "closed": {
+      "min": [
+       -1.167518540495334,
+       0.14647982634871126,
+       -1.699038766024959
+      ],
+      "max": [
+       -0.7350223510843659,
+       1.6098842137375924,
+       -1.1188986474766176
+      ],
+      "center": [
+       -0.95127044578985,
+       0.8781820200431518,
+       -1.4089687067507883
+      ]
+     },
+     "open": {
+      "min": [
+       -1.136415321543453,
+       0.14521786257085723,
+       -1.6731612489266012
+      ],
+      "max": [
+       -0.772913971111709,
+       1.5846372520851926,
+       -1.1355304583829102
+      ],
+      "center": [
+       -0.954664646327581,
+       0.8649275573280248,
+       -1.4043458536547557
+      ]
+     }
+    },
+    "intersectsMouthBox": {
+     "closed": true,
+     "open": true
+    },
+    "moved_m": 0.014442027208966297
+   }
+  ],
+  "notEvidenceFor": [
+   "actors other than Aisha and the ED nurse control",
+   "lip or jaw motion quality",
+   "clinical validity",
+   "Quest readiness"
+  ]
+ },
+ "cause": "glb_bake_missing_texture",
+ "causeNote": "Owner 1:1 grade of ob/open.png and control/open.png (604x1024 canvas, jaw held at JAW_OPEN_TEETH_CLEAR_RADIANS + viseme_aa=1): both actors show the teeth as one flat white slab filling the mouth with a pink tongue band; OB also shows a black crescent at image-right. Shipped GLB (gltf-transform, both actors): openclinxr_hm08_teeth_* is 136 verts, material baseColorFactor [0.92,0.9,0.86] with NO baseColorTexture and NO normalTexture, 0 morph targets, skinned 100% to head. Runtime: same material with map=false/normalMap=false (MeshStandardMaterial #f6f3ef), so the loader does not drop a texture; the bake never wrote one. rebind-head-locked-teeth.ts moves the lower half to jaw at runtime (topBones head 0.507 / jaw 0.493; teeth bbox centre moved 0.038 m OB, 0.028 m control), so morph_not_driving_teeth is ruled out. Mouth cavity: OB carries runtime-added openclinxr_inner_mouth_cavity + _palate (MeshBasicMaterial #b34752) but they were visible=false at capture: inner-mouth-cavity-drive.ts shows them when the NAMED drive's jawOpenRadians > 0.05, and this probe set the jaw bone directly, so their hidden state is a probe artifact, not a finding. Control has no cavity meshes. Per card STEP1: cause is glb_bake_*, so report and stop; a teeth-texture rebake is a separate card. Secondary, not classified: control lacks the runtime cavity meshes.",
+ "knownGood": "no known-good: both fail (control mpfb-clinical-nurse-adult shows the same flat white slab)"
+}
