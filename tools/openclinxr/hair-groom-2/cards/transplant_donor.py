@@ -21,6 +21,10 @@ eye on runtime head crops (cards-r5 x-rt* probes): a runtime-only material layer
 
 sheen round: --base-color-scale K (after the --runtime-sheen arguments) scales the hair_cards baseColorFactor RGB.
 
+sheen-2: --spec-streaks CARDS MEMBERS SEED AMP SIGMA_MM RHO (after the --runtime-sheen arguments) adds specularTexture
+(three.js GLTFLoader GLTFMaterialsSpecularExtension -> specularIntensityMap, alpha channel): per-member seeded
+specular weight across each card cell, constant along the strand, so the highlight breaks into strand streaks.
+
 cards-r6: --spec-alpha-power P (after the --runtime-sheen arguments) adds specularTexture: an RGBA PNG on the
 atlas UVs whose alpha (the channel KHR_materials_specular reads) is the atlas alpha ^ P. The sheen then follows
 strand density: card fringes, tips and sparse short cards (cards-r5/s6 runtime: tq tip glints L 1.0, side rear
@@ -111,6 +115,49 @@ def spec_mask_png(atlas, power):
     return buf.getvalue()
 
 
+def spec_streaks_png(atlas, cards_path, members_path, seed, amp, sigma_mm, rho):
+    """sheen-2 S2: KHR_materials_specular specularTexture whose alpha (three.js specularIntensityMap) varies across each
+    card cell by member, constant along v (the strand direction in the cell, atlas_from_members.py --anchor root: a
+    member runs down its cell at its root u). Each card, then each member (member order), draws N(0, 1) from
+    default_rng(seed); column profile = gaussian (sigma_mm / card width in u) weighted mean of the card's member values
+    at their root u, z-scored over all cells; z = rho x card value + sqrt(1 - rho^2) x profile (scaled separately, so
+    the gaussian average does not let the card term swamp the strands); alpha = clip(0.5 + amp x z, 0, 1).
+    Mean alpha ~0.5, so the material's specularFactor sets the level. RGB 255 (unused by the loader)."""
+    import io
+    import numpy as np
+    from PIL import Image
+    shape = Image.open(atlas).size[::-1]
+    c, m = np.load(cards_path), np.load(members_path)
+    cells, card, root_u = c["card_atlas_cell_px"], m["card"], m["u"][:, 0]
+    width_mm = m["card_width_m"] * 1000.0
+    rng = np.random.default_rng(seed)
+    card_term = rng.standard_normal(len(cells))
+    w = rng.standard_normal(len(card))
+    starts = np.searchsorted(card, np.arange(len(cells) + 1))
+    prof = np.zeros(shape, np.float64)
+    cterm = np.zeros(shape, np.float64)
+    known = np.zeros(shape, bool)
+    for k, (x, y, cw, ch) in enumerate(cells):
+        lo, hi = starts[k], starts[k + 1]
+        n = cw - 2
+        if hi <= lo or n <= 0:
+            continue
+        uc = (np.arange(n) + 0.5) / n
+        s = max(sigma_mm / max(width_mm[k], 1e-6), 1e-3)
+        g = np.exp(-0.5 * ((uc[:, None] - root_u[None, lo:hi]) / s) ** 2) + 1e-12
+        col = (g * w[None, lo:hi]).sum(1) / g.sum(1)
+        prof[y + 1:y + ch - 1, x + 1:x + 1 + n] = col[None, :]
+        cterm[y + 1:y + ch - 1, x + 1:x + 1 + n] = card_term[k]
+        known[y + 1:y + ch - 1, x + 1:x + 1 + n] = True
+    z = rho * cterm + math.sqrt(1.0 - rho * rho) * (prof - prof[known].mean()) / max(prof[known].std(), 1e-9)
+    alpha = np.where(known, np.clip(0.5 + amp * z, 0.0, 1.0), 0.5)
+    out = np.full(shape + (4,), 255, np.uint8)
+    out[..., 3] = np.round(alpha * 255.0).astype(np.uint8)
+    buf = io.BytesIO()
+    Image.fromarray(out).save(buf, format="PNG", compress_level=9)
+    return buf.getvalue()
+
+
 def add_image(doc, rest, png, name):
     """Append a PNG to the GLB BIN chunk (rest = chunk header + data) as image + texture; returns (texture index,
     new rest)."""
@@ -174,6 +221,23 @@ def main():
                     f = m["pbrMetallicRoughness"].get("baseColorFactor", [1.0, 1.0, 1.0, 1.0])
                     m["pbrMetallicRoughness"]["baseColorFactor"] = [f[0] * k, f[1] * k, f[2] * k, f[3]]
             applied["baseColorScale"] = k
+        # sheen-2 S2: --spec-streaks CARDS MEMBERS SEED AMP SIGMA_MM RHO -> per-member specularTexture (absent = unchanged)
+        if "--spec-streaks" in opts:
+            if "--spec-alpha-power" in opts:
+                raise SystemExit("--spec-streaks and --spec-alpha-power both write specularTexture; pick one")
+            i = opts.index("--spec-streaks")
+            cards_p, members_p = opts[i + 1], opts[i + 2]
+            seed, amp, sigma, rho = int(opts[i + 3]), float(opts[i + 4]), float(opts[i + 5]), float(opts[i + 6])
+            if not (amp >= 0 and sigma > 0 and 0 <= rho <= 1):
+                raise SystemExit("--spec-streaks: AMP >= 0, SIGMA_MM > 0, 0 <= RHO <= 1")
+            png = spec_streaks_png(Path(sys.argv[8]), cards_p, members_p, seed, amp, sigma, rho)
+            ti, rest = add_image(doc, rest, png, "hair_spec_streaks")
+            for m in doc["materials"]:
+                if m.get("name") == "hair_cards":
+                    m["extensions"]["KHR_materials_specular"]["specularTexture"] = {"index": ti}
+            applied["specularTexture"] = {"rule": "alpha = clip(0.5 + amp z(member profile), 0, 1)", "cards": cards_p,
+                                          "members": members_p, "seed": seed, "amp": amp, "sigmaMm": sigma, "rho": rho,
+                                          "png": len(png), "sha256": hashlib.sha256(png).hexdigest()}
         for flag, ext, key, fn, name in (
                 ("--spec-alpha-power", "KHR_materials_specular", "specularTexture", spec_mask_png, "hair_spec_mask"),
                 ("--aniso-alpha-power", "KHR_materials_anisotropy", "anisotropyTexture", aniso_mask_png,
