@@ -81,9 +81,10 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
   panel.appendChild(refusal);
   if (!readOnly) box.parent.appendChild(panel);
   else {
-    const anchor = box.replayAnchor as (UtteranceBoxElement & { parentNode?: { insertBefore(child: UtteranceBoxElement, ref: UtteranceBoxElement): unknown } | null }) | undefined;
+    const anchor = box.replayAnchor as (UtteranceBoxElement & { parentNode?: { insertBefore(child: UtteranceBoxElement, ref: UtteranceBoxElement): unknown; firstChild?: UtteranceBoxElement | null } | null }) | undefined;
     const top = box.parent as UtteranceBoxElement & { prepend?(child: UtteranceBoxElement): void };
-    if (anchor?.parentNode) anchor.parentNode.insertBefore(panel, anchor);
+    const column = anchor?.parentNode;
+    if (column) column.insertBefore(panel, column.firstChild ?? anchor as UtteranceBoxElement);
     else if (top.prepend) top.prepend(panel);
     else box.parent.appendChild(panel);
   }

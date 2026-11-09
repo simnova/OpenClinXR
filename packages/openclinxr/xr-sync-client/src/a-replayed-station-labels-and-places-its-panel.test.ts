@@ -4,7 +4,7 @@ import { startEncounterSyncFromUrl } from "./headset.js";
 // C48 RED client: a replayed station (?encounterReplayStation=)
 //   (1) tells the shell it is a replay once, through onReplay (the shell has no second URL parse);
 //   (2) labels its "Replay" countdown with the existing .label class;
-//   (3) mounts its read-only panel at the top: first child of the box parent, or directly before the shell's replayAnchor.
+//   (3) mounts its read-only panel at the top: first child of the box parent, or (C49) first child of the column holding the shell's replayAnchor.
 // A live room fires no onReplay, keeps an unclassed countdown and appends its panel after the existing children (unchanged).
 class FakeElement {
   id = ""; value = ""; type = ""; placeholder = ""; disabled = false; hidden = false;
@@ -17,6 +17,7 @@ class FakeElement {
   get textContent(): string | null { return this.text; }
   set textContent(value: string | null) { this.text = value; this.children = []; }
   appendChild(child: FakeElement): FakeElement { child.parentNode = this; this.children.push(child); return child; }
+  get firstChild(): FakeElement | null { return this.children[0] ?? null; }
   prepend(child: FakeElement): void { child.parentNode = this; this.children.unshift(child); }
   insertBefore(child: FakeElement, ref: FakeElement): FakeElement { child.parentNode = this; this.children.splice(this.children.indexOf(ref), 0, child); return child; }
   setAttribute(name: string, value: string): void { this.attributes.set(name, value); }
@@ -86,10 +87,10 @@ describe("a replayed station labels and places its panel (C48)", () => {
     expect(shell.parent.children.map((c) => c.id)).toEqual(["room-panel", "dialogue-title", "dialogue-line"]);
   });
 
-  it("with an anchor the replay panel sits directly before it, not in the box parent", async () => {
+  it("with an anchor the replay panel is the first child of the anchor's column, not in the box parent", async () => {
     const shell = await joined(REPLAY, true);
     await shell.snapshot(SNAP);
-    expect(shell.shellColumn.children.map((c) => c.id)).toEqual(["doorway-header", "timer-row", "room-panel", "ehr-panel"]);
+    expect(shell.shellColumn.children.map((c) => c.id)).toEqual(["room-panel", "doorway-header", "timer-row", "ehr-panel"]);
     expect(shell.parent.find("room-panel")).toBeUndefined();
   });
 

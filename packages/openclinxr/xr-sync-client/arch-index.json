@@ -52,7 +52,8 @@
     "src/encounter-voice.test.ts",
     "src/the-panel-shows-an-auto-collected-note.test.ts",
     "src/the-review-lobby-shows-how-each-note-arrived.test.ts",
-    "src/the-synced-shell-submits-the-patient-note.test.ts"
+    "src/the-synced-shell-submits-the-patient-note.test.ts",
+    "src/the-whole-replay-panel-sits-on-the-first-screen.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-sync-client test",

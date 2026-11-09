@@ -1363,43 +1363,6 @@ function pedsActorPlayerBundleDialogueTurns(): PedsActorPlayerRuntimeTurn[] {
 function normalizePedsActorPlayerEmotion(emotion: string): HumanoidExpressionEmotion {
   return actorDialogueStore.normalizePedsActorPlayerEmotion(emotion);
 }
-function _playPedsActorPlayerRuntimeTurn(
-  turn: PedsActorPlayerRuntimeTurn,
-  input: {
-    turns: PedsActorPlayerRuntimeTurn[];
-    latestTurnIndex: number;
-    latestTriggerSource: PedsActorPlayerRuntimePlaybackEvidence["latestTriggerSource"];
-    latestTraceTag: string | null;
-    latestSequence: PedsActorPlayerRuntimeSequenceEvidence | null;
-    latestSequenceStepIndex: number;
-  },
-): void {
-  actorDialogueStore.playPedsActorPlayerRuntimeTurn(turn, input);
-}
-function _applyPedsActorPlayerSequenceListenerCues(
-  activeTurn: PedsActorPlayerRuntimeTurn,
-  sequence: PedsActorPlayerRuntimeSequenceEvidence | null,
-  nowMs: number,
-): { actorIds: string[]; coupledSignalIds: string[] } {
-  return actorDialogueStore.applyPedsActorPlayerSequenceListenerCues(activeTurn, sequence, nowMs);
-}
-function _playPedsActorPlayerRuntimeSequence(sequence: PedsActorPlayerRuntimeSequenceEvidence, fallbackTurns: PedsActorPlayerRuntimeTurn[]): void {
-  actorDialogueStore.playPedsActorPlayerRuntimeSequence(sequence, fallbackTurns);
-}
-function _recordPedsActorPlayerRuntimePlaybackEvidence(input: {
-  scheduled: boolean;
-  turns: PedsActorPlayerRuntimeTurn[];
-  latestTurnIndex: number;
-  latestTurn: PedsActorPlayerRuntimeTurn | null;
-  latestTriggerSource: PedsActorPlayerRuntimePlaybackEvidence["latestTriggerSource"];
-  latestTraceTag: string | null;
-  latestSequence: PedsActorPlayerRuntimeSequenceEvidence | null;
-  latestSequenceStepIndex: number;
-  latestListenerActorIds: string[];
-  latestCoupledSignalIds: string[];
-}): void {
-  actorDialogueStore.recordPedsActorPlayerRuntimePlaybackEvidence(input);
-}
 function triggerHumanoidDialogueForTrace(tag: string, text: string): void {
   actorDialogueStore.triggerHumanoidDialogueForTrace(tag, text);
 }
@@ -1693,7 +1656,8 @@ function refreshStationContextFromRuntimeBundle(): void {
 }
 
 const canvas = requireElement<HTMLCanvasElement>("#station-canvas");
-const clock = requireElement<HTMLElement>("#station-clock"); let replayClock = false;
+const clock = requireElement<HTMLElement>("#station-clock");
+let replayClock = false;
 const traceSummary = requireElement<HTMLElement>("#trace-summary");
 const traceActions = requireElement<HTMLElement>("#trace-actions");
 const examFlowStation = requireElement<HTMLElement>("#exam-flow-station");
@@ -4704,7 +4668,13 @@ initSpeakFixtureBridge({ triggerDialogue: (actorId: string, text: string): void 
 window.__openClinXrRequestLiveVoiceTurn = requestUnscriptedLiveTurn;
 // C25: ?encounterSync=ws://... joins the xr-sync room; the server's actor turn plays through the live actor-turn consumer.
 if (window.location.search.includes("encounterSync=")) void import("@openclinxr/xr-sync-client/headset").then(({ startEncounterSyncFromUrl }) => startEncounterSyncFromUrl({
-  gazeView: () => { const cam = (window as unknown as Record<string, PerspectiveCamera | undefined>)["__openClinXrGazeCamera"]; return cam ? { eye: cam.getWorldPosition(new Vector3()), forward: cam.getWorldDirection(new Vector3()), actors: [...generatedHumanoidActorSlotsByActorId].map(([actorId, slot]) => { const at = slot.getWorldPosition(new Vector3()); return { actorId, x: at.x, y: at.y + 1.18, z: at.z }; }) } : undefined; }, search: window.location.search, noteText: () => patientNoteText.value, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), speech: { xrSession: () => (window as unknown as Record<string, unknown>)["__openClinXrXrSession"] as never, inject: window.location.search.includes("encounterMicInject=1") }, publish: (evidence) => { window.__openClinXrEncounterSync = evidence; }, utteranceBox: { doc: document as never, parent: (dialogueLine.parentElement ?? document.body) as never, replayAnchor: (document.querySelector(".ehr-panel") ?? undefined) as never } as UtteranceBoxDeps, onReplay: () => { replayClock = true; clock.textContent = "Replay"; }, voice: { assetBase: "/mesm-tts/", slotFor: (id) => generatedHumanoidAnimationSlotsByActorId.get(id) as never, voiceFor: ((voices) => (id: string) => voices.get(id))(new Map([edChestPainScenario, ...scenarioBank].flatMap((scenario) => scenario.actors).reverse().map((actor) => [actor.actorId, actor.ttsVoice] as const))) },
+  gazeView: () => { const cam = (window as unknown as Record<string, PerspectiveCamera | undefined>)["__openClinXrGazeCamera"]; return cam ? { eye: cam.getWorldPosition(new Vector3()), forward: cam.getWorldDirection(new Vector3()), actors: [...generatedHumanoidActorSlotsByActorId].map(([actorId, slot]) => { const at = slot.getWorldPosition(new Vector3()); return { actorId, x: at.x, y: at.y + 1.18, z: at.z }; }) } : undefined; }, search: window.location.search, noteText: () => patientNoteText.value, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), speech: { xrSession: () => (window as unknown as Record<string, unknown>)["__openClinXrXrSession"] as never, inject: window.location.search.includes("encounterMicInject=1") }, publish: (evidence) => { window.__openClinXrEncounterSync = evidence; },
+  utteranceBox: {
+    doc: document as never, parent: (dialogueLine.parentElement ?? document.body) as never,
+    replayAnchor: (document.querySelector(".ehr-panel") ?? undefined) as never,
+  } as UtteranceBoxDeps,
+  onReplay: () => { replayClock = true; clock.textContent = "Replay"; },
+  voice: { assetBase: "/mesm-tts/", slotFor: (id) => generatedHumanoidAnimationSlotsByActorId.get(id) as never, voiceFor: ((voices) => (id: string) => voices.get(id))(new Map([edChestPainScenario, ...scenarioBank].flatMap((scenario) => scenario.actors).reverse().map((actor) => [actor.actorId, actor.ttsVoice] as const))) },
   register: (payload, tag) => { const parsed = liveActorTurnFromPayload(payload); return parsed ? registerLiveActorTurn(parsed.plan, parsed.execution, tag) : undefined; },
   play: (actorId, caption, emotion) => { dialogueLine.textContent = caption; triggerHumanoidDialogue(actorId, caption, { kind: "learner_camera", actorId: null }, emotion as HumanoidExpressionEmotion, undefined, "plan.dialogueEmotionTo"); },
 }));
