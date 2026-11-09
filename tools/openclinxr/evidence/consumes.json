@@ -109,11 +109,6 @@
         "via": "path-reach"
       },
       {
-        "name": "resolveActorPosture",
-        "kind": "runtime",
-        "via": "path-reach"
-      },
-      {
         "name": "supineActorWorldPosition",
         "kind": "runtime",
         "via": "path-reach"
@@ -209,11 +204,6 @@
       {
         "name": "MPFB_GOWN_ADULT_PATIENT_GLB",
         "kind": "runtime"
-      },
-      {
-        "name": "MPFB_GOWN_ADULT_PATIENT_GLB",
-        "kind": "runtime",
-        "via": "path-reach"
       }
     ]
   },
@@ -309,11 +299,6 @@
       {
         "name": "AssetGenerationCapabilityId",
         "kind": "type",
-        "via": "path-reach"
-      },
-      {
-        "name": "buildVisualQaRemediationWorkOrderPlans",
-        "kind": "runtime",
         "via": "path-reach"
       }
     ]
@@ -578,16 +563,6 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "ApiPersistenceSink",
-        "kind": "type",
-        "via": "path-reach"
-      },
-      {
-        "name": "ApiScenarioReviewDecisionRecord",
-        "kind": "type",
-        "via": "path-reach"
-      },
-      {
         "name": "AUTHORED_CONTENT_IDENTITY_EVIDENCE_PREFIX",
         "kind": "runtime"
       },
@@ -612,11 +587,6 @@
       {
         "name": "authoredStagingCameraForScenario",
         "kind": "runtime"
-      },
-      {
-        "name": "buildDynamicEncounterFactoryPlanningProjection",
-        "kind": "runtime",
-        "via": "path-reach"
       },
       {
         "name": "edChestPainScenario",
@@ -1249,8 +1219,16 @@
     "names": [
       {
         "name": "advanceCaseOwnedBedsideApproach",
+        "kind": "runtime"
+      },
+      {
+        "name": "advanceCaseOwnedBedsideApproach",
         "kind": "runtime",
         "via": "path-reach"
+      },
+      {
+        "name": "applyCaseOwnedStanceLock",
+        "kind": "runtime"
       },
       {
         "name": "applyCaseOwnedStanceLock",
@@ -1559,11 +1537,6 @@
       {
         "name": "countEquipmentGeometry",
         "kind": "runtime"
-      },
-      {
-        "name": "createAssembledStationApiClient",
-        "kind": "runtime",
-        "via": "path-reach"
       },
       {
         "name": "InitialVitalsValueClass",

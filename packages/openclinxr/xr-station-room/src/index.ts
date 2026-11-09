@@ -8,9 +8,12 @@ export type {
 } from "./index-mod.js";
 export {
   actorNameplateLabel,
+  applyStagedPatientRootTransform,
   assembleStationScene,
   buildStationRoomShell,
+  defaultPatientActorPlacement,
   observeMountedSupportInstances,
+  resolveRuntimeActorPlacement,
   runtimeGeneratedSceneObjectName,
   StationRoomResult,
   stageStationActors,

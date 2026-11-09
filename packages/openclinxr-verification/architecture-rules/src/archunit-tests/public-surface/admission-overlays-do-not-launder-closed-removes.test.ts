@@ -450,7 +450,7 @@ describe("admission overlays do not launder closed removes", () => {
     expect(applyMap).not.toMatch(/requireAppliedWith/u);
     // Initial empty allowlist was the PSR implementation prerequisite. The later
     // independently reviewed activation is exact, not an arbitrary admission id.
-    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1"\]/u);
+    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1"\]/u);
     const resolveStart = applyMap.indexOf("export function resolveApplyId");
     const resolveBody = applyMap.slice(resolveStart);
     expect(resolveBody).not.toMatch(/ADMISSION_GROUPS/u);
@@ -465,7 +465,7 @@ describe("admission overlays do not launder closed removes", () => {
 
 describe("the independently reviewed seven-row production activation", () => {
   it("binds the exact allowlist and reviewed admission row hash", () => {
-    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1"]);
+    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1"]);
     const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8"));
     expect(admission.rows).toHaveLength(7);
     expect(admission.admissionHash).toBe("6a4df1fedee5ad0fae42e026eaf6e77c2f1a4155c117a1e3e0c9679f74f90d11");
@@ -632,6 +632,19 @@ describe("the independently reviewed seven-row production activation", () => {
     expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
   });
 
+  it("binds the reviewed patient staging admission", () => {
+    const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "patient-staging-v1.json"), "utf8"));
+    expect(admission.reviewedBy).toBe("Claude Opus 5.5 super-ceo independent API review /Volumes/files/openclinxr-assets/store/st-skinref/REVIEW-patient-staging.md (read-only, not an author), 2026-11-09");
+    expect(admission.rows.map((row: OverlayRow) => [row.entrypoint, row.symbol])).toEqual([
+      [".", "applyStagedPatientRootTransform"],
+      [".", "defaultPatientActorPlacement"],
+      [".", "resolveRuntimeActorPlacement"],
+    ]);
+    expect(admission.admissionHash).toBe("ed75fb0364e0fd6ec185faa6e9e9a916fa1e2ce5b52ef9e266fcc6384ed15ab7");
+    expect(overlayAdmissionHash(admission.reviewedBy, admission.rows)).toBe(admission.admissionHash);
+    expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
+  });
+
   function withActualEvidence(run: (root: string, admission: { reviewedBy: string; admissionHash: string; rows: OverlayRow[] }) => void): void {
     const admissionBody = readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8");
     const files: Record<string, string> = {
@@ -657,6 +670,7 @@ describe("the independently reviewed seven-row production activation", () => {
       [`${ADMISSIONS_DIR}/skin-shade-loader-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "skin-shade-loader-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/vitblink-eye-schedule-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "vitblink-eye-schedule-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/skin-triplanar-detail-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "skin-triplanar-detail-v1.json"), "utf8"),
+      [`${ADMISSIONS_DIR}/patient-staging-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "patient-staging-v1.json"), "utf8"),
     };
     for (const group of REVIEW_GROUPS) files[`${APPROVALS_DIR}/${group}.json`] = readFileSync(join(ROOT, APPROVALS_DIR, `${group}.json`), "utf8");
     withTree(files, (root) => run(root, JSON.parse(admissionBody)));

@@ -6,9 +6,12 @@
       "StationClinicalTouchSource",
       "StationRoomResult",
       "actorNameplateLabel",
+      "applyStagedPatientRootTransform",
       "assembleStationScene",
       "buildStationRoomShell",
+      "defaultPatientActorPlacement",
       "observeMountedSupportInstances",
+      "resolveRuntimeActorPlacement",
       "runtimeGeneratedSceneObjectName",
       "stageStationActors",
       "wireStationPointerInteraction"

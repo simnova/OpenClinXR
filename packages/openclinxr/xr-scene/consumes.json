@@ -238,16 +238,6 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "EncounterActorFramingInput",
-        "kind": "type",
-        "via": "own-test"
-      },
-      {
-        "name": "SKIN_TRIPLANAR_DETAIL",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
         "name": "applyCleanEncounterVisualReviewActorFraming",
         "kind": "runtime",
         "via": "own-test"
@@ -262,8 +252,18 @@
         "kind": "runtime"
       },
       {
+        "name": "createLearnerExamFormRunState",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "deriveInteriorPreviewCamera",
         "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "EncounterActorFramingInput",
+        "kind": "type",
         "via": "own-test"
       },
       {
@@ -276,7 +276,33 @@
         "kind": "runtime"
       },
       {
+        "name": "mountStationEnvironmentForRuntime",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "SKIN_TRIPLANAR_DETAIL",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "skinTriplanarCpuMirror",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-scene",
+    "entrypoint": "./skin-shade-loader",
+    "names": [
+      {
+        "name": "createSkinShadeGLTFLoader",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "SKIN_SHADE_EXTENSION_NAME",
         "kind": "runtime",
         "via": "own-test"
       }
@@ -333,22 +359,6 @@
       {
         "name": "STRETCHER_LENGTH_METERS",
         "kind": "runtime"
-      }
-    ]
-  },
-  {
-    "provider": "@openclinxr/xr-scene",
-    "entrypoint": "./skin-shade-loader",
-    "names": [
-      {
-        "name": "createSkinShadeGLTFLoader",
-        "kind": "runtime",
-        "via": "own-test"
-      },
-      {
-        "name": "SKIN_SHADE_EXTENSION_NAME",
-        "kind": "runtime",
-        "via": "own-test"
       }
     ]
   }

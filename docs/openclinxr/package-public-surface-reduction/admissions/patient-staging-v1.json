@@ -1,0 +1,42 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "patient-staging-v1",
+  "reviewedBy": "Claude Opus 5.5 super-ceo independent API review /Volumes/files/openclinxr-assets/store/st-skinref/REVIEW-patient-staging.md (read-only, not an author), 2026-11-09",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "ed75fb0364e0fd6ec185faa6e9e9a916fa1e2ce5b52ef9e266fcc6384ed15ab7",
+  "packages": [
+    "packages/openclinxr/xr-station-room"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "applyStagedPatientRootTransform",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Confirmed external consumer via symbol-level import binding: apps/ui-xr/isolated-subject.html:39 (dev-lab instrument page, not shipped; app path consumes inside the package at actor-staging.ts:154)",
+      "reviewedBy": "Claude Opus 5.5 super-ceo independent API review /Volumes/files/openclinxr-assets/store/st-skinref/REVIEW-patient-staging.md (read-only, not an author), 2026-11-09"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "defaultPatientActorPlacement",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Confirmed external consumer via symbol-level import binding: apps/ui-xr/isolated-subject.html:40 (dev-lab instrument page, not shipped; app path consumes inside the package at actor-staging.ts:149)",
+      "reviewedBy": "Claude Opus 5.5 super-ceo independent API review /Volumes/files/openclinxr-assets/store/st-skinref/REVIEW-patient-staging.md (read-only, not an author), 2026-11-09"
+    },
+    {
+      "package": "packages/openclinxr/xr-station-room",
+      "entrypoint": ".",
+      "symbol": "resolveRuntimeActorPlacement",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "apps/ui-xr",
+      "rationale": "Confirmed external consumer via symbol-level import binding: apps/ui-xr/src/main.ts:320",
+      "reviewedBy": "Claude Opus 5.5 super-ceo independent API review /Volumes/files/openclinxr-assets/store/st-skinref/REVIEW-patient-staging.md (read-only, not an author), 2026-11-09"
+    }
+  ]
+}

@@ -18,6 +18,12 @@ import { describe, expect, it } from "vitest";
 // does. Its weakness is stated plainly: it proves the call site exists, never that it runs.
 // Clause (2) carries the behavioural half against the real authored data.
 const MAIN_TS = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
+// I1b moved the placement decision into @openclinxr/xr-station-room so the isolated product rig
+// stages through the same code; main.ts delegates to it and this guard follows the call.
+const PLACEMENT_TS = readFileSync(
+  new URL("../../../packages/openclinxr/xr-station-room/src/runtime-actor-placement.ts", import.meta.url),
+  "utf8",
+);
 const SEAM_TS = readFileSync(
   new URL("../../../packages/openclinxr/xr-runtime-state/src/supported-actor-placement.ts", import.meta.url),
   "utf8",
@@ -28,11 +34,16 @@ describe("the composition call site is live", () => {
     // The composition lives in @openclinxr/xr-runtime-state: an app is a composition root,
     // and anchor resolution plus composition are one job.
     expect(SEAM_TS).toContain("composeSupportedActorWorldPosition({");
-    expect(MAIN_TS).toContain("supportedActorPlacementPosition({");
+    expect(MAIN_TS).toContain("return resolveRuntimeActorPlacement({");
+    expect(MAIN_TS).not.toContain('mode: "resolve_runtime_actor_placement"');
+    expect(PLACEMENT_TS).toContain("supportedActorPlacementPosition({");
     // The substitution this card removed: `position: seated ? (familyChairWorldPosition ?? ...)`
     // with no composition. If that exact shape returns, the offset stops reaching the humanoid
     // and every card upstream of this one goes invisible again.
     expect(MAIN_TS).not.toMatch(
+      /position:\s*seated\s*\n\s*\?\s*\(familyChairWorldPosition\s*\?\?\s*seatedActorWorldPosition\(\{\}\)\)\s*\n\s*:\s*supine\s*\?\s*supineActorWorldPosition\(\{\}\)\s*:\s*position,/,
+    );
+    expect(PLACEMENT_TS).not.toMatch(
       /position:\s*seated\s*\n\s*\?\s*\(familyChairWorldPosition\s*\?\?\s*seatedActorWorldPosition\(\{\}\)\)\s*\n\s*:\s*supine\s*\?\s*supineActorWorldPosition\(\{\}\)\s*:\s*position,/,
     );
   });

@@ -42,7 +42,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1970,
+    "keep-evidence": 1971,
     "ignore-local-cache": 2787,
     "keep-current": 266,
     "keep-template": 17,
@@ -26739,6 +26739,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Foot-base admission: admits the footBase=1 flag parser, schedule constants and roles, and the stride-retarget step/state the slice tests pin through ./foot-base."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/patient-staging-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Patient staging admission: pending independent review for the three xr-station-room root exports bound by ui-xr patient placement and product-lab staging."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/skin-shade-loader-v1.json",

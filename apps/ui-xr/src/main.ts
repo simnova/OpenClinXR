@@ -1,8 +1,6 @@
 import {
   type ActorPosture,
   resolveActorPosture,
-  seatedVerticalOffsetForSeatHeight,
-  supineVerticalOffsetSeed,
 } from "@openclinxr/asset-registry/actor-posture";
 import { admitFrozenScenePlanForObservedScene, type ScenePlanAdmission, stationIdForSceneClosureScenario } from "@openclinxr/asset-registry/encounter-bundle-admission";
 import {
@@ -227,7 +225,6 @@ import {
   resolveLocalEquipmentRuntimeAssetFileName,
   type SceneAssetEvidence,
   summarizeTraceReadiness,
-  supportedActorPlacementPosition,
   viewLearnerCanonicalExamPhase,
   type XrExperienceModeEvidence,
   type XrRuntimeReadinessDecision,
@@ -320,11 +317,13 @@ import {
   buildStationRoomShell,
   actorNameplateLabel as packageActorNameplateLabel,
   runtimeGeneratedSceneObjectName as packageRuntimeGeneratedSceneObjectName,
+  resolveRuntimeActorPlacement,
   type StationRoomResult,
   stageStationActors,
   wireStationPointerInteraction,
 } from "@openclinxr/xr-station-room";
 import { applyEnvironmentAffectCue } from "@openclinxr/xr-station-room/station-environment-affect-cue";
+import type { EncounterSyncEvidence, UtteranceBoxDeps } from "@openclinxr/xr-sync-client/headset";
 
 const caseOwnedBedsideApproach = createStationBedsideApproachState();
 let frozenScenePlanAdmission: ScenePlanAdmission = { status: "no_plan_carried" };
@@ -393,7 +392,6 @@ import {
   setComparatorCaptureSceneRoot,
 } from "./capture-comparator.js";
 import { bootLearnerRuntimeFromAssembledExam, type PinnedEncounterBundleRuntimeTrace, resolveAssembledExamPinnedBundleId } from "./encounter-bundle-boot/index.js";
-import type { EncounterSyncEvidence, UtteranceBoxDeps } from "@openclinxr/xr-sync-client/headset";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
 import { applyStationInteriorLightingForEnvironment, configureStationRendererToneMapping } from "./lighting-rig-runtime.js";
 import {
@@ -850,38 +848,16 @@ function hasVector3(value: unknown): value is { x: number; y: number; z: number 
 }
 
 function runtimeActorPlacement(actorId: string, fallback: LearnerRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string], mountedSupportInstanceIds: readonly string[] = []): LearnerRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string] {
-  const placement = encounterRuntimeAssetBundle.sceneManifest.actorPlacements?.[actorId];
-  const slotKind = placement?.slotKind ?? fallback.slotKind;
-  const posture = resolveActorPosture({
-    declared: placement?.posture ?? fallback.posture,
+  return resolveRuntimeActorPlacement({
+    bundle: encounterRuntimeAssetBundle,
+    actorId,
+    fallback,
+    mountedSupportInstanceIds,
     scenarioId: selectedScenarioId(),
     environmentId: resolveActiveEnvironmentId(),
-    slotKind,
+    patientChairSeatHeightMeters: PATIENT_CHAIR_SEAT_HEIGHT_METERS,
+    onRefusalReason: (reason) => console.warn(`[actor-placement] ${actorId}: ${reason}`),
   });
-  const seated = posture === "seated";
-  const supine = posture === "supine";
-  // #150: never seatedVerticalOffsetForSeatHeight for supine (hip-on-chair ≠ torso-on-deck).
-  const verticalOffsetMeters = seated
-    ? seatedVerticalOffsetForSeatHeight(PATIENT_CHAIR_SEAT_HEIGHT_METERS)
-    : supine ? supineVerticalOffsetSeed()
-      : (placement?.verticalOffsetMeters ?? fallback.verticalOffsetMeters);
-  const position = hasVector3(placement?.position) ? placement.position : fallback.position;
-  const supported = supportedActorPlacementPosition({
-    posture, actorId, slotKind, mountedSupportInstanceIds,
-    scenarioId: selectedScenarioId(),
-    environmentId: resolveActiveEnvironmentId(),
-    resolvedPosition: position,
-    ...(placement?.supportInstanceId ? { supportInstanceId: placement.supportInstanceId } : {}), ...(placement?.plantOffsetMeters ? { authoredOffsetMeters: placement.plantOffsetMeters } : {}), ...(posture === "standing" && placement?.plantOffsetMeters ? { floorFrame: { frameId: `${resolveActiveEnvironmentId()}:floor`, originY: 0, originXz: { x: 0, z: 0 } } } : {}),
-  });
-  if (supported.refusalReason) console.warn(`[actor-placement] ${actorId}: ${supported.refusalReason}`);
-  return {
-    ...fallback, ...placement,
-    position: supported.position, placementProvenance: placement?.placementProvenance ?? supported.provenance,
-    scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale, supportAcceptance: supported.supportAcceptance,
-    verticalOffsetMeters,
-    labelPrefix: placement?.labelPrefix ?? fallback.labelPrefix,
-    posture,
-  };
 }
 
 function runtimeActorEmbodimentImpl(bundle: LearnerRuntimeAssetBundle, actorId: string): LearnerRuntimeAssetBundle["actors"][number]["embodiment"] | undefined {
