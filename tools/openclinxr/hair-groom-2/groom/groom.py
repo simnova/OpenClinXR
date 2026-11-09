@@ -510,6 +510,17 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
     side = 1.0 if pl[0] >= 0 else -1.0
     away = right * side
     w_part = float(np.clip(1.0 - max(0.0, rel[1]) / (rc["part"]["partFadeBackMm"] / 1000.0), 0.0, 1.0))
+    # partAwayFadeXMm (groom-r8): the away-from-part launch fades out with the root's lateral
+    # distance from the part plane, so roots on the parietal side (far from the part) start
+    # down the scalp instead of being thrown outward over it (back outline bulge above the ear).
+    # A number N fades linearly from the part (|x| 0) to N mm; a pair [A, B] keeps the full
+    # launch out to A mm and fades it to zero at B mm
+    # partAwayFadeAboveZMm: the fade applies only to roots at or above this head-local z
+    # (the upper parietal roots that form the back outline above the ear)
+    fade_x = rc["part"].get("partAwayFadeXMm")
+    if fade_x and pl[2] * 1000.0 >= rc["part"].get("partAwayFadeAboveZMm", -1e9):
+        fa, fb = (0.0, float(fade_x)) if not isinstance(fade_x, list) else (float(fade_x[0]), float(fade_x[1]))
+        w_part *= float(np.clip((fb - abs(pl[0]) * 1000.0) / (fb - fa), 0.0, 1.0))
     anterior = az < 60.0
     frontish = az < f["frontAzimuthMaxDeg"]
     rail = f["combRailMm"] / 1000.0

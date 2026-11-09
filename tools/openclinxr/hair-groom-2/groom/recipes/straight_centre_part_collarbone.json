@@ -61,11 +61,16 @@
  "part": {
   "type": "centre",
   "partWidthMm": 1.2,
-  "partAwayGain": 0.9,
+  "partAwayGain": 0.6,
   "partFadeBackMm": 50,
   "backConvergeGain": 0.3,
   "backConvergeWidthMm": 40,
-  "backConvergeStopAtMidline": true
+  "backConvergeStopAtMidline": true,
+  "partAwayFadeXMm": [
+   45,
+   85
+  ],
+  "partAwayFadeAboveZMm": 90
  },
  "fall": {
   "rootLiftMm": 0.5,
@@ -94,7 +99,7 @@
    "bottomMm": -200,
    "gain": 1.2,
    "rampMm": 30,
-   "medialHalfWidthMm": 100,
+   "medialHalfWidthMm": 115,
    "medialGain": 0.5,
    "medialTaper": {
     "topMm": -175,
@@ -107,7 +112,7 @@
    "belowMm": -30,
    "iterations": 40
   },
-  "layerMmPerMm": 0.09,
+  "layerMmPerMm": 0.15,
   "layerCapMm": 150,
   "layerApplyBelowMm": -60,
   "layerMaxAbsXMm": 70,
