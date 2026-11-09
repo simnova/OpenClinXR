@@ -149,7 +149,7 @@ function deriveEyeFocusBounds(root: Object3D): {
  * from the silhouette profile (they mask the neck constriction) but their
  * bounds union into the box, so a head crop still contains the hair.
  */
-function deriveHeadFocusBounds(root: Object3D): {
+function deriveHeadFocusBounds(root: Object3D, bodyFrame?: HeadBodyFrame): {
   kind: "head_box";
   box: Box3;
   neckPositionMeters: number;
@@ -179,7 +179,20 @@ function deriveHeadFocusBounds(root: Object3D): {
       else silhouettePoints.push(p);
     }
   });
-  const derived = deriveHeadBoxFromPoints(points, { silhouettePoints, containPoints });
+  // hair-groom-2 cards-opt2 P1: bodyFrame frames from body vertices only (hair excluded from the
+  // box), extended below by belowHeads x the body head height, so new hair cannot move the crop.
+  const derived = bodyFrame
+    ? deriveHeadBoxFromPoints(silhouettePoints, { silhouettePoints })
+    : deriveHeadBoxFromPoints(points, { silhouettePoints, containPoints });
+  if (derived && bodyFrame) {
+    const axis = derived.dominantAxis;
+    const h = derived.box.max[axis] - derived.box.min[axis];
+    const pad = (bodyFrame.padHeads ?? 0.1) * h;
+    for (const a of ["x", "y", "z"] as const) {
+      derived.box.min[a] -= a === axis ? bodyFrame.belowHeads * h : pad;
+      derived.box.max[a] += pad;
+    }
+  }
   if (!derived) {
     throw new Error(
       "focus=head unresolvable: no head-like region derivable from the body bounds "
@@ -195,8 +208,9 @@ function deriveHeadFocusBounds(root: Object3D): {
     neckPositionMeters: derived.neckPosition,
     dominantAxis: derived.dominantAxis,
     matchedVertexCount: derived.vertexCount,
-    derivation:
-      "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
+    derivation: bodyFrame
+      ? `body-only head box (hair excluded) extended ${bodyFrame.belowHeads} head heights below, padded ${bodyFrame.padHeads ?? 0.1}; never the eye mesh, never literal coordinates (D1)`
+      : "topmost band of the body bounds cut at the neck (silhouette width profile); never the eye mesh, never literal coordinates (D1)",
   };
 }
 
@@ -312,10 +326,14 @@ function deriveMouthFocusBounds(root: Object3D): {
  * THROWS (refusal, #358) — the station never degrades silently. The returned
  * `focusRegion` records which framing was actually used.
  */
+/** Opt-in head framing independent of hair: body head box, extended down by belowHeads head heights. */
+export type HeadBodyFrame = { belowHeads: number; padHeads?: number };
+
 export function resolveFocus(
   root: Object3D,
   focus: "eyes" | "head" | "mouth" | "forearm" | "neck" | undefined,
   wholeBodyBounds: Box3,
+  headBodyFrame?: HeadBodyFrame,
 ): { focusRegion: FocusRegion; frameBounds: Box3 } {
   if (focus === "eyes") {
     const derived = deriveEyeFocusBounds(root);
@@ -334,7 +352,7 @@ export function resolveFocus(
     };
   }
   if (focus === "head") {
-    const derived = deriveHeadFocusBounds(root);
+    const derived = deriveHeadFocusBounds(root, headBodyFrame);
     return {
       focusRegion: {
         kind: "head_box",

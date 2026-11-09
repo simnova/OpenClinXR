@@ -119,6 +119,8 @@ type SubjectSpec = {
   subjectOnly?: boolean;
   /** #354/#358: focus the camera on a DERIVED region instead of the whole subject. */
   focus?: "eyes" | "head";
+  /** focus=head only: body head box (hair excluded) extended down by belowHeads head heights. */
+  headBodyFrame?: { belowHeads: number; padHeads?: number };
   label?: string;
 };
 
@@ -1250,6 +1252,8 @@ export type HeadCropSpec = {
   outName: string;
   /** Pack view; absent = front. hair-groom-2 grades hair at front, three-quarter and side. */
   view?: CaptureView;
+  /** Opt-in: frame from the body head box only, so the hair cannot move the crop (absent = legacy). */
+  headBodyFrame?: { belowHeads: number; padHeads?: number };
 };
 
 /** #358 shipped actors — one per rail, the same GLBs the #222/#341 hair contracts measure. */
@@ -1358,6 +1362,7 @@ export async function renderHeadFocusCrops(options?: {
         bodyGlb: spec.glb,
         view,
         focus: "head",
+        ...(spec.headBodyFrame ? { headBodyFrame: spec.headBodyFrame } : {}),
         subjectOnly: true,
         label: `${spec.rail} head ${view}`,
       };

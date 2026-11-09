@@ -113,6 +113,8 @@ export type IsolatedSubjectSpec = {
   focus?: "eyes" | "head" | "mouth" | "forearm" | "neck";
   /** #495 ablation: when true, applySupinePose skips the 17 joint eulers (root basis only). */
   supineRootOnly?: boolean;
+  /** focus=head only: frame the body head box (hair excluded), extended down by belowHeads head heights. */
+  headBodyFrame?: { belowHeads: number; padHeads?: number };
   /** Skin-realism portrait: hide fitted hair meshes matched by /hair/i before framing. */
   hideHair?: boolean;
   /** Skin-realism portrait: yaw about the vertical axis in degrees (0 = front). Overrides view direction. */
@@ -375,7 +377,7 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   // #354/#358: focus framing — the frame is driven to the DERIVED region, never
   // a literal camera position. An unresolvable focus REFUSES (#358) instead of
   // silently falling back; the evidence records which framing was actually used.
-  const { focusRegion, frameBounds } = resolveFocus(root, spec.focus, bounds);
+  const { focusRegion, frameBounds } = resolveFocus(root, spec.focus, bounds, spec.headBodyFrame);
 
   const camera = new PerspectiveCamera(35, width / height, 0.01, 100);
   let frameSpanFraction: number | null;
