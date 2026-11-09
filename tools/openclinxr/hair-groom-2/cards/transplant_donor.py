@@ -19,6 +19,8 @@ Cycles rig's baked highlight, which does not move with the runtime lights, and t
 keeps specular 0 (cards-r5 s1: E 0.12 at 0 vs 0.59 / 1.19 at 0.1 / 0.2 anisotropic). S R A are picked by
 eye on runtime head crops (cards-r5 x-rt* probes): a runtime-only material layer, not graded offline.
 
+sheen round: --base-color-scale K (after the --runtime-sheen arguments) scales the hair_cards baseColorFactor RGB.
+
 cards-r6: --spec-alpha-power P (after the --runtime-sheen arguments) adds specularTexture: an RGBA PNG on the
 atlas UVs whose alpha (the channel KHR_materials_specular reads) is the atlas alpha ^ P. The sheen then follows
 strand density: card fringes, tips and sparse short cards (cards-r5/s6 runtime: tq tip glints L 1.0, side rear
@@ -161,6 +163,17 @@ def main():
         # cards-r7 M3: --aniso-rotation R (radians; default pi/2 = along the strand, cards-r5/r6)
         rot = float(opts[opts.index("--aniso-rotation") + 1]) if "--aniso-rotation" in opts else math.pi / 2
         applied = sheen(doc, spec, rough, aniso, Path(sys.argv[8]), rot)
+        # sheen round L5: --base-color-scale K multiplies the hair_cards baseColorFactor RGB by K (atlas albedo,
+        # light-independent). Absent = the factor is not written (unchanged output).
+        if "--base-color-scale" in opts:
+            k = float(opts[opts.index("--base-color-scale") + 1])
+            if not (math.isfinite(k) and k > 0):
+                raise SystemExit("--base-color-scale needs a positive number")
+            for m in doc["materials"]:
+                if m.get("name") == "hair_cards":
+                    f = m["pbrMetallicRoughness"].get("baseColorFactor", [1.0, 1.0, 1.0, 1.0])
+                    m["pbrMetallicRoughness"]["baseColorFactor"] = [f[0] * k, f[1] * k, f[2] * k, f[3]]
+            applied["baseColorScale"] = k
         for flag, ext, key, fn, name in (
                 ("--spec-alpha-power", "KHR_materials_specular", "specularTexture", spec_mask_png, "hair_spec_mask"),
                 ("--aniso-alpha-power", "KHR_materials_anisotropy", "anisotropyTexture", aniso_mask_png,

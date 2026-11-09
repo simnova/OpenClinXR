@@ -121,6 +121,10 @@ type SubjectSpec = {
   focus?: "eyes" | "head";
   /** focus=head only: body head box (hair excluded) extended down by belowHeads head heights. */
   headBodyFrame?: { belowHeads: number; padHeads?: number };
+  /** Opt-in: the lab's RigOverride (xr-scene isolated-subject-rig-variants.ts), passed through as JSON. */
+  rigOverride?: Record<string, unknown>;
+  /** Opt-in: hide the fitted hair meshes (/hair/i) before framing (lab hideHair). */
+  hideHair?: boolean;
   label?: string;
 };
 
@@ -1254,6 +1258,10 @@ export type HeadCropSpec = {
   view?: CaptureView;
   /** Opt-in: frame from the body head box only, so the hair cannot move the crop (absent = legacy). */
   headBodyFrame?: { belowHeads: number; padHeads?: number };
+  /** Opt-in light rig (hair-groom-2 sheen): the lab's RigOverride JSON. Absent = the lab default rig, unchanged. */
+  rigOverride?: Record<string, unknown>;
+  /** Opt-in: hide the hair meshes (a hair-free render for a pixel-exact hair mask). Absent = hair shown. */
+  hideHair?: boolean;
 };
 
 /** #358 shipped actors — one per rail, the same GLBs the #222/#341 hair contracts measure. */
@@ -1363,6 +1371,8 @@ export async function renderHeadFocusCrops(options?: {
         view,
         focus: "head",
         ...(spec.headBodyFrame ? { headBodyFrame: spec.headBodyFrame } : {}),
+        ...(spec.rigOverride ? { rigOverride: spec.rigOverride } : {}),
+        ...(spec.hideHair === true ? { hideHair: true } : {}),
         subjectOnly: true,
         label: `${spec.rail} head ${view}`,
       };
