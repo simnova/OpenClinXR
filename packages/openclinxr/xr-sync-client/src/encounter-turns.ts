@@ -312,11 +312,11 @@ export interface UtteranceBoxElement {
 /** DOM mount point for the learner free-text box. */
 export interface UtteranceBoxDeps {
   doc: { createElement(tag: string): UtteranceBoxElement };
-  parent: UtteranceBoxElement;
+  parent: UtteranceBoxElement; replayAnchor?: UtteranceBoxElement;
 }
 
 export interface StartEncounterSyncDeps {
-  search: string;
+  search: string; onReplay?(): void; // C48: fires once when the shell joined a replay (?encounterReplayStation=)
   actorIds(): string[];
   /** Plays one registered turn: the shell's triggerHumanoidDialogue with plan-sourced emotion. */
   play(actorId: string, caption: string, faceEmotion: string): void;
@@ -345,7 +345,7 @@ export interface StartEncounterSyncDeps {
 export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): Promise<EncounterSyncHandle | null> {
   const flag = encounterSyncUrl(deps.search);
   if (flag === null) return null;
-  const isReplayRoom = flag.replayStation !== undefined;
+  const isReplayRoom = flag.replayStation !== undefined; if (isReplayRoom) deps.onReplay?.();
   const isLobby = flag.reviewLobby === true;
   const evidence: EncounterSyncEvidence = { url: flag.url, state: "joining", sessionId: "", error: "", turns: [] };
   if (flag.replayStation !== undefined) evidence.replayStation = flag.replayStation;

@@ -17,6 +17,7 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
   topics.textContent = "";
   const countdown: UtteranceBoxElement = box.doc.createElement("div");
   countdown.id = "room-countdown";
+  if (readOnly) countdown.setAttribute?.("class", "label");
   countdown.textContent = "";
   const refusal: UtteranceBoxElement = box.doc.createElement("div");
   refusal.id = "room-refusal";
@@ -78,7 +79,14 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
   panel.appendChild(countdown);
   if (noteBoxElement !== undefined) panel.appendChild(noteBoxElement);
   panel.appendChild(refusal);
-  box.parent.appendChild(panel);
+  if (!readOnly) box.parent.appendChild(panel);
+  else {
+    const anchor = box.replayAnchor as (UtteranceBoxElement & { parentNode?: { insertBefore(child: UtteranceBoxElement, ref: UtteranceBoxElement): unknown } | null }) | undefined;
+    const top = box.parent as UtteranceBoxElement & { prepend?(child: UtteranceBoxElement): void };
+    if (anchor?.parentNode) anchor.parentNode.insertBefore(panel, anchor);
+    else if (top.prepend) top.prepend(panel);
+    else box.parent.appendChild(panel);
+  }
   const buttons = new Map<string, UtteranceBoxElement>();
   let lastOrder: string[] = [];
   const render = (snapshot: EncounterSnapshot): void => {
