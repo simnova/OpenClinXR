@@ -207,6 +207,34 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "createAffordanceMarker",
+        "kind": "runtime"
+      },
+      {
+        "name": "createHumanoidExpressionCue",
+        "kind": "runtime"
+      },
+      {
+        "name": "createHumanoidEyeFocusCue",
+        "kind": "runtime"
+      },
+      {
+        "name": "createHumanoidEyeGazeCue",
+        "kind": "runtime"
+      },
+      {
+        "name": "createHumanoidInteractionCollisionCues",
+        "kind": "runtime"
+      },
+      {
+        "name": "createHumanoidSpeechMouthCue",
+        "kind": "runtime"
+      },
+      {
+        "name": "createRuntimeHumanoidDetailCues",
+        "kind": "runtime"
+      },
+      {
         "name": "SceneCueClinicalPanelContext",
         "kind": "type"
       },

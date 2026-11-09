@@ -20,6 +20,7 @@ import { rebindHeadLockedTeeth } from "./rebind-head-locked-teeth.js";
 
 export { rebindHeadLockedTeeth };
 
+import { addGeneratedHumanoidRuntimeCues } from "./generated-humanoid-runtime-cues.js";
 import { addRoleSpecificHumanoidVisuals } from "./role-visuals.js";
 import type { AssetLoadingContext, HumanoidSourceComparator } from "./types.js";
 import { runtimeHumanoidVariantAssetPath } from "./variant-paths.js";
@@ -33,7 +34,6 @@ export type LoadHumanoidOptions = {
   verticalOffsetMeters: number;
   posture?: ActorPosture | undefined;
 };
-
 
 export function readSelectedHumanoidSourceComparator(search: string): HumanoidSourceComparator {
   const selected = new URLSearchParams(search).get("humanoidSourceComparator")?.trim();
@@ -265,30 +265,13 @@ export function loadGeneratedHumanoidIntoActorSlot(
         else if (role.includes('family') || role.includes('spouse') || role.includes('parent')) ctx.applyRoleWardrobeCue(humanoid, 'family');
       }
       (humanoid.userData as Record<string, unknown>)["openClinXrAffordances"] = ["dialogue_target", "clinical_observation_target"];
-      const dialogueTargetMarker = ctx.affordanceMarker(`${options.objectName}:dialogue_target`, options.roleTintColor);
-      if (ctx.isMouthGazePoseReviewCaptureMode() || cleanSourceComparatorCapture || ctx.isRealGarmentSleeveDeformCapture()) {
-        dialogueTargetMarker.visible = false;
-        (dialogueTargetMarker.userData as Record<string, unknown>)["openClinXrCaptureVisibilityPolicy"] = "hidden_for_mouth_gaze_pose_realism_review";
-      }
-      humanoid.add(dialogueTargetMarker);
-      if (!cleanSourceComparatorCapture) {
-        humanoid.add(ctx.detailCues(options.assetId));
-        humanoid.add(ctx.collisionCues(options.assetId));
-      }
-      const mouthCue = ctx.mouthCue(options.assetId, options.roleTintColor);
-      humanoid.add(mouthCue);
-      const gazeCue = ctx.gazeCue(options.assetId, options.roleTintColor);
-      humanoid.add(gazeCue);
-      const eyeFocusCue = ctx.eyeFocusCue(options.assetId);
-      humanoid.add(eyeFocusCue);
-      const expressionCue = ctx.expressionCue(options.assetId);
-      humanoid.add(expressionCue);
-      if (cleanSourceComparatorCapture) {
-        for (const cleanCaptureCue of [mouthCue, gazeCue, eyeFocusCue, expressionCue]) {
-          cleanCaptureCue.visible = false;
-          (cleanCaptureCue.userData as Record<string, unknown>)["openClinXrComparatorVisibilityPolicy"] = "hidden_for_clean_source_comparator_capture";
-        }
-      }
+      const { mouthCue, gazeCue, eyeFocusCue, expressionCue } = addGeneratedHumanoidRuntimeCues(ctx, humanoid, {
+        assetId: options.assetId,
+        objectName: options.objectName,
+        actorId: options.actorId,
+        roleTintColor: options.roleTintColor,
+        cleanSourceComparatorCapture,
+      });
       actorSlot.add(humanoid);
       // #315: after the named actor loads, frame the comparator capture on IT (not the
       // patient at the origin) via the proven fit-to-bounds solve, and record the target.
