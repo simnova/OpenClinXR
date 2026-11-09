@@ -124,6 +124,9 @@ def cli():
                    help="cards-r7 M1: 'MM:P' - a cluster whose member median length is under MM mm gets card length = the "
                         "P-th percentile of its member lengths instead of LENGTH_PCT (98): the sideburn end is the short "
                         "cards' geometric tip, which atlas alpha (--short-k) moves by < 0.5 mm")
+    p.add_argument("--min-reach", type=int, default=MIN_REACH,
+                   help="groom-r9: a card ends where fewer than this many members still reach (default 3); a few "
+                        "long members alone set the tip direction, and under a tapered hem those tips splay")
     p.add_argument("--layers", type=int, default=2, choices=(1, 2),
                    help="cards per cluster, at the member depth quantiles LAYER_Q along the card normal")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -409,7 +412,7 @@ def main():
         lm = np.sort(lens[m])
         lpct = slp[1] if (slp and float(np.median(lm)) * 1000.0 < slp[0]) else LENGTH_PCT
         # every station is a mean of >= MIN_REACH members (a lone member's tip hung onto the arm)
-        Lc = min(float(np.percentile(lm, lpct)), float(lm[max(len(lm) - MIN_REACH, 0)]))
+        Lc = min(float(np.percentile(lm, lpct)), float(lm[max(len(lm) - a.min_reach, 0)]))
         for _ in range(2):
             Pm = sample_at(Pw[m], sw[m], np.broadcast_to(Lc * frac[None], (len(m), S)))
             reach = lens[m][:, None] >= (Lc * frac[None] - 1e-9)     # (members, S)
