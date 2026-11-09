@@ -21,6 +21,9 @@ eye on runtime head crops (cards-r5 x-rt* probes): a runtime-only material layer
 
 sheen round: --base-color-scale K (after the --runtime-sheen arguments) scales the hair_cards baseColorFactor RGB.
 
+sheen-3: --spec-color R G B (after the --runtime-sheen arguments) sets the hair_cards specularColorFactor instead of
+the atlas tint (absent = atlas tint, unchanged output).
+
 sheen-2: --spec-streaks CARDS MEMBERS SEED AMP SIGMA_MM RHO (after the --runtime-sheen arguments) adds specularTexture
 (three.js GLTFLoader GLTFMaterialsSpecularExtension -> specularIntensityMap, alpha channel): per-member seeded
 specular weight across each card cell, constant along the strand, so the highlight breaks into strand streaks.
@@ -221,6 +224,16 @@ def main():
                     f = m["pbrMetallicRoughness"].get("baseColorFactor", [1.0, 1.0, 1.0, 1.0])
                     m["pbrMetallicRoughness"]["baseColorFactor"] = [f[0] * k, f[1] * k, f[2] * k, f[3]]
             applied["baseColorScale"] = k
+        # sheen-3 F1: --spec-color R G B replaces the atlas-tint specularColorFactor (absent = unchanged)
+        if "--spec-color" in opts:
+            i = opts.index("--spec-color")
+            sc = [float(x) for x in opts[i + 1:i + 4]]
+            if len(sc) != 3 or not all(math.isfinite(c) and c >= 0 for c in sc):
+                raise SystemExit("--spec-color needs three non-negative numbers")
+            for m in doc["materials"]:
+                if m.get("name") == "hair_cards":
+                    m["extensions"]["KHR_materials_specular"]["specularColorFactor"] = sc
+            applied["specularColorFactor"] = sc
         # sheen-2 S2: --spec-streaks CARDS MEMBERS SEED AMP SIGMA_MM RHO -> per-member specularTexture (absent = unchanged)
         if "--spec-streaks" in opts:
             if "--spec-alpha-power" in opts:
