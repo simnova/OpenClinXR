@@ -305,6 +305,27 @@ Each phase gate is graded independently at native resolution; each phase ends wi
     `cards/target-scene-rig.json`. MY GRADE on strips (target, BEST3 fitted rig, BEST3 and r10 B in the port):
     BEST3 hair colour sits close to the target; r10 B reads grey-blond; the target's crown sheen and fine
     streaks are absent in both; the runtime crown outline is flat in side view.
+  - Done 2026-11-09 (P1 metrics, a9975bdde). `grade/sheen_gate.py port-check`: PASS, 60 values, maxAbsDiff 0;
+    a planted 1% hf change fails it. Comparison frame: the target is downsampled into the runtime frame with
+    LANCZOS (`grade/runtime_frame.py to-runtime`); upsampling the runtime render understated streak. Frame fit,
+    skin-mask IoU .88-.95 (`p1/runtime-frames.json`). G2 under the target-scene port, BEST3: black share 0
+    (<= target + .02), peak .389-.475 (>= .8 x target) (`p1/score-ts-rt.json`). Tone mapping AgX.
+  - Streak map KEEP. Independent grader: BEST3 beats the no-map control (spec .15) in 4 of 4 views
+    (`p1/grade-p1-map.md`). streak: BEST3 .069-.084, no-map .037-.048, target .108-.236.
+  - A2C probe result: A2C loses. 48 stills (base, cutoff .85/.5/.3 with the BLEND fringe hidden; yaw 0-330
+    step 30; MSAA samples 4 logged on all 36 probe renders). No webm was recorded; shimmer was judged from
+    stills only. Independent grader artifact totals over 12 yaws (`p1/grade-a2c.md`):
+
+    | variant | sort pop | card-edge line | edge halo | shimmer (still) | other | total |
+    |---|---|---|---|---|---|---|
+    | base two-pass | 3 | 9 | 3 | 8 | 5 | 28 |
+    | A2C .85 | 10 | 21 | 0 | 24 | 26 | 81 |
+    | A2C .5 | 4 | 20 | 1 | 21 | 12 | 58 |
+    | A2C .3 | 3 | 19 | 1 | 23 | 10 | 56 |
+
+    No cutoff reaches the baseline count. A2C removes the base's grey see-through strip at both temples
+    (edge halo) and adds stair-stepped hairline and crown edges, scalp at the part and crown, and a hard
+    cut in front of the ear. The shipped two-pass MASK .85 + BLEND fringe stays; P6 starts from it.
 - **P2 Hairline, part, scalp (T6, T8).** Scalp-coloured underlayer card group in the card pipeline (the
   body GLB and its pins stay untouched). Wisp cards from members at the hairline and flyaway / hem-tip
   cards from members dropped by clustering. Gate: part width and hairline falloff reported vs the target at
