@@ -61,14 +61,14 @@
  "part": {
   "type": "centre",
   "partWidthMm": 1.2,
-  "partAwayGain": 0.6,
+  "partAwayGain": 0.9,
   "partFadeBackMm": 50,
   "backConvergeGain": 0.3,
   "backConvergeWidthMm": 40,
   "backConvergeStopAtMidline": true,
   "partAwayFadeXMm": [
-   45,
-   85
+   35,
+   80
   ],
   "partAwayFadeAboveZMm": 90
  },
@@ -99,7 +99,7 @@
    "bottomMm": -200,
    "gain": 1.2,
    "rampMm": 30,
-   "medialHalfWidthMm": 115,
+   "medialHalfWidthMm": 108,
    "medialGain": 0.5,
    "medialTaper": {
     "topMm": -175,
