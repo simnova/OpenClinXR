@@ -117,6 +117,15 @@ def cli():
     p.add_argument("--thin-min-keep", type=int, default=0,
                    help="per-card thinning k_c = clip(members // this, 1, --strand-thin): a card keeps at least "
                         "this many strands (s3: sideburn cards of 28-56 members drew 4-7 fat strands, comb blades)")
+    p.add_argument("--cut-tip-spread", type=float, default=0.0,
+                   help="cards-r10: a member that runs past the card end (v > 1: card cut at the shoulder, or the "
+                        "--min-reach end) ends at v = 1 - spread x r (r uniform, seeded by member index) instead of "
+                        "at v = 1, and its radius tapers to the recipe tip radius over its last --cut-tip-taper of v. "
+                        "0 = off (flush cut line at the card end: side stepped tips, flat back tail bottom)")
+    p.add_argument("--cut-tip-taper", type=float, default=0.1)
+    p.add_argument("--tip-spread-all", action="store_true",
+                   help="cards-r10: --cut-tip-spread also ends members whose own tip lies past the seeded v (runtime MASK "
+                        "0.85 drew the tail bottom flat: half the tail cells' texels stay above 0.85 to v = 0.95)")
     p.add_argument("--depth-gain", type=float, default=1.0,
                    help="member depth spread x this (inter-strand self-shadow depth in the bake)")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -245,16 +254,34 @@ def main():
     rr, tr = rc["strand"]["rootRadiusMm"] / 1000.0, rc["strand"]["tipRadiusMm"] / 1000.0
     radk = rr + (tr - rr) * np.arange(K) / (K - 1)
     sizes, pos, rad = [], [], []
+    n_cut = 0
     for i in np.where(keep)[0]:
         c = int(C[i])
         s = scale[c]
         k0, k1 = int(first[i]), int(end[i])
-        X = (reg[c, 0] + U[i, k0:k1] * cw_in) * px_u
-        Y = -(reg[c, 1] + V[i, k0:k1] * reg[c, 2]) * px_v
-        Z = D[i, k0:k1] * s * a.depth_gain
-        sizes.append(k1 - k0)
+        Ui, Vi, Di, Ri = U[i, k0:k1], V[i, k0:k1], D[i, k0:k1], radk[k0:k1]
+        cut = k1 < K and V[i, k1] > 1.0
+        if a.cut_tip_spread > 0 and (cut or a.tip_spread_all):
+            # cut by the card end, not by its own tip: end it at a seeded v in the last spread of the card;
+            # --tip-spread-all: a member whose own tip lies past that v ends there too
+            vc = 1.0 - a.cut_tip_spread * float(np.random.default_rng(1000003 + int(i)).random())
+            j = int(np.searchsorted(Vi, vc, side="right"))      # V rises along a member inside the card
+            if j >= 2 and (j < len(Vi) or cut):
+                nxt = k0 + j                                     # < K: inside the run, or the first point past v = 1
+                t = min(max((vc - Vi[j - 1]) / max(V[i, nxt] - Vi[j - 1], 1e-12), 0.0), 1.0)
+                Ui = np.append(Ui[:j], Ui[j - 1] + t * (U[i, nxt] - Ui[j - 1]))
+                Di = np.append(Di[:j], Di[j - 1] + t * (D[i, nxt] - Di[j - 1]))
+                Ri = np.append(Ri[:j], Ri[j - 1])
+                Vi = np.append(Vi[:j], vc)
+                taper = np.clip((vc - Vi) / max(a.cut_tip_taper, 1e-6), 0.0, 1.0)
+                Ri = tr + (Ri - tr) * taper
+                n_cut += 1
+        X = (reg[c, 0] + Ui * cw_in) * px_u
+        Y = -(reg[c, 1] + Vi * reg[c, 2]) * px_v
+        Z = Di * s * a.depth_gain
+        sizes.append(len(Vi))
         pos.append(np.stack([X, Y, Z], 1))
-        rad.append(radk[k0:k1] * s * (k_thin[c] if a.strand_thin > 1 else 1))
+        rad.append(Ri * s * (k_thin[c] if a.strand_thin > 1 else 1))
     pos = np.concatenate(pos)
     rad = np.concatenate(rad)
 
@@ -349,7 +376,9 @@ def main():
     rec = {"tool": "tools/openclinxr/hair-groom-2/cards/atlas_from_members.py", "round": str(rd),
            "recipeSha256": sha(rd / "recipe.json"), "cardsSha256": sha(a.cards), "membersSha256": sha(a.members),
            "samples": a.samples, "m2": {"filterWidth": a.filter_width, "randomColor": a.random_color,
-                                        "depthGain": a.depth_gain, "strandThin": a.strand_thin, "minRegionPx": a.min_region_px, "thinMinKeep": a.thin_min_keep}, "driftSigmaPts": a.drift_sigma, "anchor": a.anchor, "device": "CPU (determinism), seed 0, no denoise",
+                                        "depthGain": a.depth_gain, "strandThin": a.strand_thin, "minRegionPx": a.min_region_px, "thinMinKeep": a.thin_min_keep,
+                                        **({"cutTipSpread": a.cut_tip_spread, "cutTipTaper": a.cut_tip_taper,
+                                            "cutTipMembers": n_cut, "tipSpreadAll": a.tip_spread_all} if a.cut_tip_spread > 0 else {})}, "driftSigmaPts": a.drift_sigma, "anchor": a.anchor, "device": "CPU (determinism), seed 0, no denoise",
            "atlasPx": A, "cellPx": [int(cells[0, 2]), int(cells[0, 3])], "cellInnerPx": [cw_in, int(cells[0, 3]) - 2],
            "cards": n, "strandsDrawn": int(keep.sum()), "strandsTotal": int(len(U)),
            "render": {"px": [resx, resy], "pixelAspect": a.aspect, "pxAcrossMm": px_u * 1000,
