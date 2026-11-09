@@ -26,6 +26,9 @@ the hair mesh on the same accessors with a copy of the hair material in BLEND mo
 primitive draws the opaque core with depth writes; the BLEND primitive (three.js GLTFLoader:
 transparent, depthWrite false, drawn after opaque) draws the partial-alpha fringe over it. glTF has
 no alpha-to-coverage flag, so this two-pass split is the soft edge any glTF viewer draws.
+--fringe-triangles <json> (hair-groom-2 cards-opt1, needs --fringe-blend) gives the BLEND primitive its
+own index accessor holding only the listed triangles ({"triangles": [i, ...]}, indices into the hair
+primitive's triangle list), so the fringe pass is drawn on a subset of the cards.
 
 Without these flags the output is byte-identical to the tool before they existed.
 
@@ -144,6 +147,7 @@ def carry_material(
     alpha_cutoff: float | None = None,
     carry_extensions: bool = False,
     fringe_blend: bool = False,
+    fringe_triangles: list[int] | None = None,
 ) -> tuple[bytes, dict[str, Any]]:
     target_index = hair_material_index(output)
     source_index = hair_material_index(bake)
@@ -233,6 +237,36 @@ def carry_material(
         hair_mesh["primitives"].append(second)
         record["fringe"] = {"materialIndex": len(output["materials"]) - 1, "material": fringe,
                             "rule": "same accessors; MASK core primitive + BLEND fringe primitive"}
+        if fringe_triangles is not None:
+            source = output["accessors"][int(second["indices"])]
+            fmt = {5121: "B", 5123: "H", 5125: "I"}[int(source["componentType"])]
+            width = struct.calcsize("<" + fmt)
+            if "byteStride" in output["bufferViews"][int(source["bufferView"])]:
+                raise RuntimeError("--fringe-triangles: strided index bufferView")
+            start = int(source.get("byteOffset", 0))
+            raw = view_bytes(output, binary, int(source["bufferView"]))[start:start + width * int(source["count"])]
+            indices = struct.unpack("<%d%s" % (int(source["count"]), fmt), raw)
+            n_tri = len(indices) // 3
+            keep = sorted(set(int(t) for t in fringe_triangles))
+            if not keep or keep[0] < 0 or keep[-1] >= n_tri:
+                raise RuntimeError(f"--fringe-triangles: indices must be in [0, {n_tri})")
+            subset = [indices[3 * t + k] for t in keep for k in range(3)]
+            payload = struct.pack("<%d%s" % (len(subset), fmt), *subset)
+            offset = sum(len(part) for part in parts)
+            padding = -offset % 4
+            if padding:
+                parts.append(b"\0" * padding)
+                offset += padding
+            parts.append(payload)
+            output["bufferViews"].append({"buffer": 0, "byteOffset": offset, "byteLength": len(payload),
+                                          "target": 34963})
+            output["accessors"].append({"bufferView": len(output["bufferViews"]) - 1,
+                                        "componentType": source["componentType"], "count": len(subset),
+                                        "type": "SCALAR", "min": [min(subset)], "max": [max(subset)]})
+            second["indices"] = len(output["accessors"]) - 1
+            record["fringe"]["rule"] = ("MASK core primitive + BLEND fringe primitive on the core's vertex "
+                                        "accessors and its own index accessor (--fringe-triangles subset)")
+            record["fringe"]["triangles"] = {"kept": len(keep), "of": n_tri}
     new_binary = b"".join(parts)
     output["buffers"][0]["byteLength"] = len(new_binary)
     return new_binary, record
@@ -250,6 +284,8 @@ def main() -> None:
                         help="copy the bake hair material's extensions (and their textures) instead of refusing them")
     parser.add_argument("--fringe-blend", action="store_true",
                         help="add a BLEND copy of the MASK hair primitive for soft card edges (needs --alpha-mode MASK)")
+    parser.add_argument("--fringe-triangles", type=Path,
+                        help='JSON {"triangles": [...]}: draw the BLEND fringe on these hair triangles only (needs --fringe-blend)')
     parser.add_argument("--carry-tangents", action="store_true",
                         help="carry the bake hair primitive's TANGENT attribute when it has one (hair-groom-2 cards-r6)")
     parser.add_argument("--provenance", type=Path)
@@ -262,6 +298,10 @@ def main() -> None:
         parser.error("--alpha-cutoff must be in [0, 1]")
     if args.fringe_blend and args.alpha_mode != "MASK":
         parser.error("--fringe-blend needs --alpha-mode MASK")
+    if args.fringe_triangles is not None and not args.fringe_blend:
+        parser.error("--fringe-triangles needs --fringe-blend")
+    fringe_triangles = (json.loads(args.fringe_triangles.read_text(encoding="utf-8"))["triangles"]
+                        if args.fringe_triangles is not None else None)
 
     shipped, shipped_binary, shipped_raw = parse_glb(args.input)
     bake, bake_binary, bake_raw = parse_glb(args.bake)
@@ -269,7 +309,7 @@ def main() -> None:
                                                     carry_tangent=args.carry_tangents)
     output_binary, material = carry_material(
         output, output_binary, bake, bake_binary, args.max_texture, args.alpha_mode, args.alpha_cutoff,
-        args.carry_extensions, args.fringe_blend,
+        args.carry_extensions, args.fringe_blend, fringe_triangles,
     )
     output_raw = encode_glb(output, output_binary)
     args.output.parent.mkdir(parents=True, exist_ok=True)

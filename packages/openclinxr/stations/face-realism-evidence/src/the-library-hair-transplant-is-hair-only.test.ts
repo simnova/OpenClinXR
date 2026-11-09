@@ -17,7 +17,9 @@ import { describe, expect, it } from "vitest";
  * shipped value); a cutoff without MASK is refused, and without the flag the bake's BLEND stays (1);
  * (7) cards-r4: a bake material with extensions is refused without --carry-extensions; with it the
  * extensions, their texture and extensionsUsed are carried; (8) --fringe-blend adds a BLEND copy of the
- * MASK hair primitive on the same accessors and is refused without MASK.
+ * MASK hair primitive on the same accessors and is refused without MASK; (9) --fringe-triangles gives
+ * the fringe primitive its own index accessor holding only the listed triangles, refuses an index past
+ * the triangle count and refuses use without --fringe-blend.
  *
  * Fixture values are illustrative. The fixture PNG is 2x2, under --max-texture, so it passes
  * through without Pillow. NOT TESTED here: the Pillow downscale branch (runs on real GLBs only).
@@ -284,5 +286,34 @@ describe("library hair transplant", () => {
     const refused = run(dir, shippedPath, bakePath, join(dir, "fringe-refused.glb"), ["--fringe-blend"]);
     expect(refused.status).not.toBe(0);
     expect(refused.stderr).toContain("--fringe-blend needs --alpha-mode MASK");
+  });
+
+  it("(9) --fringe-triangles draws the fringe on the listed triangles only", () => {
+    const keep = join(dir, "keep.json");
+    writeFileSync(keep, JSON.stringify({ triangles: [0] }));
+    const outPath = join(dir, "fringe-subset.glb");
+    const mask = ["--alpha-mode", "MASK", "--alpha-cutoff", "0.5", "--fringe-blend"];
+    const result = run(dir, shippedPath, bakePath, outPath, [...mask, "--fringe-triangles", keep]);
+    expect(result.status, result.stderr).toBe(0);
+    const out = parseGlb(outPath);
+    const prims = out.doc.meshes.find((m) => m.name === HAIR)!.primitives as Array<{
+      material: number; attributes: Record<string, number>; indices: number }>;
+    expect(prims).toHaveLength(2);
+    expect(prims[1].attributes).toEqual(prims[0].attributes);
+    expect(prims[1].indices).not.toBe(prims[0].indices);
+    const own = out.doc.accessors[prims[1].indices];
+    expect(own.count).toBe(3);
+    const core = out.doc.accessors[prims[0].indices];
+    const read = (acc: typeof own) => [...view(out, acc.bufferView)
+      .subarray((acc.byteOffset as number | undefined) ?? 0)].slice(0, 6);
+    expect(read(own)).toEqual(read(core));
+    writeFileSync(keep, JSON.stringify({ triangles: [1] }));
+    const past = run(dir, shippedPath, bakePath, join(dir, "fringe-past.glb"), [...mask, "--fringe-triangles", keep]);
+    expect(past.status).not.toBe(0);
+    expect(past.stderr).toContain("--fringe-triangles: indices must be in [0, 1)");
+    const alone = run(dir, shippedPath, bakePath, join(dir, "fringe-alone.glb"),
+      ["--alpha-mode", "MASK", "--alpha-cutoff", "0.5", "--fringe-triangles", keep]);
+    expect(alone.status).not.toBe(0);
+    expect(alone.stderr).toContain("--fringe-triangles needs --fringe-blend");
   });
 });
