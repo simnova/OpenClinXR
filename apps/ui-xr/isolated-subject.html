@@ -45,7 +45,15 @@
         buildStationEnvironment,
         PATIENT_CHAIR_SEAT_HEIGHT_METERS,
       } from "@openclinxr/xr-station";
-      import { Group } from "three";
+      import {
+        DataTexture,
+        EquirectangularReflectionMapping,
+        Group,
+        HalfFloatType,
+        LinearFilter,
+        LinearSRGBColorSpace,
+        RGBAFormat,
+      } from "three";
       import {
         applyStationInteriorLightingForEnvironment,
         configureStationRendererToneMapping,
@@ -126,6 +134,34 @@
         loadLightingRig,
         resolveLightingRigPublicPath,
         resolveProductPatientStagingTransform,
+      };
+      // hair-groom-2 P1 (opt-in, harness-called after the lab settles): an equirect radiance map
+      // (three convention, row 0 = bottom, raw linear RGBA half floats) as scene.environment and
+      // optionally scene.background, then one re-render. Never called on the default path.
+      window.__openClinXrApplyEquirectEnvironment = async ({ url, width, height, background }) => {
+        const root = window.__openClinXrIsolatedSceneRoot;
+        const scene = root?.parent;
+        if (!scene || typeof window.__openClinXrIsolatedRenderFrame !== "function") {
+          throw new Error("equirect environment: lab scene not ready");
+        }
+        const response = await fetch(url, { cache: "no-store" });
+        if (!response.ok) throw new Error(`equirect environment: ${url} -> HTTP ${response.status}`);
+        const data = new Uint16Array(await response.arrayBuffer());
+        if (data.length !== width * height * 4) {
+          throw new Error(`equirect environment: ${data.length} halves for ${width}x${height} RGBA`);
+        }
+        const texture = new DataTexture(data, width, height, RGBAFormat, HalfFloatType);
+        texture.mapping = EquirectangularReflectionMapping;
+        texture.colorSpace = LinearSRGBColorSpace;
+        texture.magFilter = LinearFilter;
+        texture.minFilter = LinearFilter;
+        texture.needsUpdate = true;
+        scene.environment = texture;
+        if (background === true) scene.background = texture;
+        window.__openClinXrIsolatedRenderFrame();
+        await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)));
+        window.__openClinXrIsolatedRenderFrame();
+        return { halves: data.length };
       };
       bootIsolatedSubjectLab();
       window.__openClinXrProductEyeMotionDriver = sampleHumanoidBlinkSchedule.applyIsolatedHumanoidEyeMotion;

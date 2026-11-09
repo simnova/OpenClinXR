@@ -17,6 +17,9 @@ export type LightRig = {
   hemisphere?: { intensity: number; sky?: string; ground?: string };
   environment?: "room" | null;
   environmentIntensity?: number;
+  /** P1 target scene: raw RGBA half-float equirect (three convention, row 0 = bottom) at a path served by the app;
+   * applied by the harness after the lab settles (HeadCropSpec.equirectEnvironment), not part of the RigOverride. */
+  environmentEquirect?: { url: string; width: number; height: number; background?: boolean };
   toneMapping?: "None" | "ACESFilmic" | "AgX" | "Neutral";
   exposure?: number;
   views?: Record<string, Partial<LightRig>>;

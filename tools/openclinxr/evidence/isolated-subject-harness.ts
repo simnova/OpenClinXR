@@ -201,6 +201,8 @@ async function captureSubject(input: {
   baseUrl: string;
   spec: SubjectSpec;
   imagePath: string;
+  /** hair-groom-2 P1 opt-in: equirect radiance map applied after the lab settles (isolated-subject.html helper). */
+  equirectEnvironment?: EquirectEnvironment;
 }): Promise<RenderedSubject> {
   const url = subjectUrl(input.baseUrl, input.spec);
   // Pack captures are square (#232 shape); legacy subjects keep the 1280×960 frame.
@@ -238,6 +240,15 @@ async function captureSubject(input: {
     throw new Error(`isolated subject lab refused the subject: ${settled.text}`);
   }
   const evidence = settled.value;
+  if (input.equirectEnvironment) {
+    await input.page.evaluate(async (env) => {
+      const w = browserPageWindow as unknown as {
+        __openClinXrApplyEquirectEnvironment?: (e: EquirectEnvironment) => Promise<unknown>;
+      };
+      if (!w.__openClinXrApplyEquirectEnvironment) throw new Error("equirect environment helper absent from the lab page");
+      return w.__openClinXrApplyEquirectEnvironment(env);
+    }, input.equirectEnvironment);
+  }
   await mkdir(path.dirname(input.imagePath), { recursive: true });
   const canvas = input.page.locator("#isolated-subject-capture-canvas");
   if (await canvas.count()) {
@@ -1262,7 +1273,12 @@ export type HeadCropSpec = {
   rigOverride?: Record<string, unknown>;
   /** Opt-in: hide the hair meshes (a hair-free render for a pixel-exact hair mask). Absent = hair shown. */
   hideHair?: boolean;
+  /** Opt-in (hair-groom-2 P1 target scene): equirect radiance map as environment/background. Absent = unchanged. */
+  equirectEnvironment?: EquirectEnvironment;
 };
+
+/** Served path of a raw linear RGBA half-float equirect map (three convention, row 0 = bottom). */
+export type EquirectEnvironment = { url: string; width: number; height: number; background?: boolean };
 
 /** #358 shipped actors — one per rail, the same GLBs the #222/#341 hair contracts measure. */
 export const HEAD_FOCUS_CROP_SPECS: HeadCropSpec[] = [
@@ -1382,6 +1398,7 @@ export async function renderHeadFocusCrops(options?: {
         baseUrl: server.url,
         spec: subjectSpec,
         imagePath,
+        ...(spec.equirectEnvironment ? { equirectEnvironment: spec.equirectEnvironment } : {}),
       });
       const bytes = (await stat(imagePath)).size;
       crops.push({

@@ -271,9 +271,11 @@ Each phase gate is graded independently at native resolution; each phase ends wi
   - Target scene, Cycles: re-render the bald sources with make_sources.py unchanged. Known-good for parity:
     the residual between these renders and the targets on face and shirt (fit feature vector), outside the
     hair mask; Imagine kept those regions.
-  - Target scene, three.js: a `scene` rig type for the harness. Lighting from a Cycles equirect panorama of
-    the target scene taken at the head centre, with the three Area lights made camera-visible, used as
-    `scene.environment` (PMREM); grey world and the z = 1 m floor plane added as geometry. Reason: three
+  - Target scene, three.js: lighting from a Cycles equirect panorama of the target scene taken at the head
+    centre, with the three Area lights made camera-visible, used as `scene.environment` and background
+    (the floor is in the panorama, no geometry). Applied by an opt-in helper in `apps/ui-xr/isolated-subject.html`
+    that the harness calls after the lab settles (`HeadCropSpec.equirectEnvironment`): `isolated-subject-lab.ts`
+    and `isolated-subject-rig-variants.ts` are hash-pinned by the cornea evidence tests and stay untouched. Reason: three
     r184 shades RectAreaLight with isotropic LTC (`lights_physical_pars_fragment.glsl.js:465-500`) and
     ignores anisotropy, while the environment path applies it (`getIBLAnisotropyRadiance`,
     `envmap_physical_pars_fragment.glsl.js`). Check: the panorama shows all three emitters. Fallback if
@@ -294,6 +296,15 @@ Each phase gate is graded independently at native resolution; each phase ends wi
     below cutoff). 12-azimuth turntable stills + webm of the current two-pass as the baseline. Artifact
     classes: sort pop, card-edge line, edge halo, shimmer, other (with a note). Gate: grader picks a cutoff
     whose artifact count <= baseline with no new class, or records that A2C loses.
+  - Done 2026-11-09 (target-scene port). Cycles re-render vs targets, fit feature residual: .0027 front,
+    .0087 three-quarter, .0128 side, .0078 back (`p1/src-vs-target.json`). Harness port, hairless body vs
+    targets, AgX: .0272 / .0255 / .0285 / .0274; no tone mapping: .0412 / .0382 / .0414 / .0317; fitted rig
+    .0333 / .0319 / .0334 / .0329. AgX passes the parity gate in all four views (known-good: the fitted rig)
+    with nothing fitted; the largest remaining term is shirt meanL (green runtime shirt vs pink target, weight
+    .25). The tighter Cycles floor (.003-.013) is not reached. Build: `cards/build_target_scene_env.sh`; rig:
+    `cards/target-scene-rig.json`. MY GRADE on strips (target, BEST3 fitted rig, BEST3 and r10 B in the port):
+    BEST3 hair colour sits close to the target; r10 B reads grey-blond; the target's crown sheen and fine
+    streaks are absent in both; the runtime crown outline is flat in side view.
 - **P2 Hairline, part, scalp (T6, T8).** Scalp-coloured underlayer card group in the card pipeline (the
   body GLB and its pins stay untouched). Wisp cards from members at the hairline and flyaway / hem-tip
   cards from members dropped by clustering. Gate: part width and hairline falloff reported vs the target at
@@ -373,7 +384,8 @@ Each phase gate is graded independently at native resolution; each phase ends wi
 | tools/openclinxr/hair-groom-2/grade/target-masks/*.png | Create | P1 frozen target masks |
 | tools/openclinxr/hair-groom-2/cards/head_crops.ts, tools/openclinxr/evidence/isolated-subject-harness.ts | Modify | P1 material override, yaw, background, webm; P5 opt-in hairLobesLoader |
 | packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts | Modify | P1 MaterialOverride alphaToCoverage, alphaTest |
-| packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts | Modify | P1 `scene` rig: environment from the panorama, floor plane, grey background |
+| apps/ui-xr/isolated-subject.html, tools/openclinxr/evidence/isolated-subject-harness.ts | Modify | P1 opt-in equirect environment applied after the lab settles |
+| tools/openclinxr/hair-groom-2/cards/env_to_three.py, exr_to_npy.py, build_target_scene_env.sh, target-scene-rig.json | Create | P1 panorama to three's equirect convention |
 | tools/openclinxr/hair-groom-2/grade/frames.json | Modify | P1 runtime crop px/mm |
 | tools/openclinxr/hair-groom-2/cards/cards_from_strands.py | Modify | P2 scalp underlayer, wisp and flyaway cards |
 | tools/openclinxr/hair-groom-2/cards/target_scene_env.py | Create | P1 Cycles equirect panorama of the target scene at the head centre |
