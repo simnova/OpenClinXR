@@ -74,8 +74,8 @@
  "claimScope": "kevin_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_mhair02_kept",
  "promotionGates": false,
  "generatedAt": "2026-11-02T19:13:49.000Z",
- "outputSha256": "9cf92b1e9661060987802676c9c04ae433d783eae2182bc383a8232cea330897",
- "outputBytes": 16526836,
+ "outputSha256": "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa",
+ "outputBytes": 16926856,
  "licenceNoticeWrittenAt": "2026-09-10T17:27:31.899Z",
  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.423Z",
@@ -281,5 +281,120 @@
    "bakeCode": "bake_skin_normal_to_texture",
    "derivation": "mesh-surface re-bake rebind: Cycles TANGENT normal bake of the actor body through bake_skin_normal_to_texture; only the skin normal image bytes change, geometry and all other bytes preserved"
   }
- ]
+ ],
+ "lashFollowR8": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+  "coreSha256": "dc742f358dc2b01ed02f454dd1f8bbad993dc9916246b2355837ad958f20e374",
+  "inputSha256": "9cf92b1e9661060987802676c9c04ae433d783eae2182bc383a8232cea330897",
+  "policy": "r8 eye-centroid raw class; moving-upper-lid body-vertex upper hull; upper any-moving/lower proof-AABB own region; same triangle seats and follows; flagged >4.55mm cards remain original with zero closure delta",
+  "seatFollowMismatchCount": 0,
+  "sides": {
+   "left": {
+    "snap": {
+     "p50": 0.233659,
+     "p90": 0.917039,
+     "max": 4.536644
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 454,
+    "cardsBase": 454,
+    "rawUpperCards": 358,
+    "rawLowerCards": 96,
+    "upperCards": 358,
+    "lowerCards": 96,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     0.030190669155369203,
+     1.6528982917467754,
+     0.13591382869829735
+    ],
+    "lowerProofAabb": {
+     "min": [
+      0.018536292016506195,
+      1.6425920724868774,
+      0.12481818348169327
+     ],
+     "max": [
+      0.04119397699832916,
+      1.664040207862854,
+      0.1428009569644928
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 92,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -1.0,
+     0.0,
+     0.0
+    ],
+    "ownRegionTriCountR6": 4,
+    "ownRegionTriCountR7": 15,
+    "flaggedOver4_55mmCount": 0,
+    "flaggedOver4_55mmCardIds": []
+   },
+   "right": {
+    "snap": {
+     "p50": 0.089834,
+     "p90": 0.50115,
+     "max": 5.564492
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 470,
+    "cardsBase": 470,
+    "rawUpperCards": 340,
+    "rawLowerCards": 130,
+    "upperCards": 340,
+    "lowerCards": 130,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     -0.030190669155369203,
+     1.6528982917467754,
+     0.13591382869829735
+    ],
+    "lowerProofAabb": {
+     "min": [
+      -0.04119397699832916,
+      1.6425920724868774,
+      0.12481818348169327
+     ],
+     "max": [
+      -0.018536292016506195,
+      1.664040207862854,
+      0.1428009569644928
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 92,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -1.0,
+     0.0,
+     0.0
+    ],
+    "ownRegionTriCountR6": 4,
+    "ownRegionTriCountR7": 15,
+    "flaggedOver4_55mmCount": 1,
+    "flaggedOver4_55mmCardIds": [
+     710
+    ]
+   }
+  }
+ }
 }

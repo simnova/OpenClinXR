@@ -56,6 +56,9 @@ describe("the shipped dark atlas keeps the African map's regional chroma", () =>
       actorHairColourPostExport?: { stage: string; inputGlbSha256: string; outputGlbSha256: string; outputBytes: number };
       actorBrowTransplantPostExport?: { stage: string; inputGlbSha256: string; outputGlbSha256: string; outputBytes: number };
       stages?: { stage: string; inputSha256: string; outputSha256: string; outputBytes: number }[];
+      outputSha256?: string;
+      outputBytes?: number;
+      lashFollowR8?: { tool: string; inputSha256: string };
     };
     const hair = provenance.actorHairColourPostExport;
     const transplant = provenance.actorBrowTransplantPostExport;
@@ -78,6 +81,13 @@ describe("the shipped dark atlas keeps the African map's regional chroma", () =>
       expect(later.inputSha256).toBe(chainEnd);
       chainEnd = later.outputSha256;
       chainBytes = later.outputBytes;
+    }
+    // lash-follow r8 (tsk_381fda384bdda8dc) repacks the shipped bytes last; its sidecar block records the
+    // input it consumed and the top-level output fields record what it wrote.
+    if (provenance.lashFollowR8) {
+      expect(provenance.lashFollowR8.inputSha256).toBe(chainEnd);
+      chainEnd = provenance.outputSha256;
+      chainBytes = provenance.outputBytes;
     }
     if (REPORT.output.sha256 === shipped) {
       expect(REPORT.output.bytes).toBe(readFileSync(GLB_PATH).byteLength);

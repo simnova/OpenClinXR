@@ -210,8 +210,11 @@ describe("the body mesh is identified by what it is, not by being biggest", () =
   it("(4) NET known-good: the rails where the body IS largest keep resolving, and the premise holds", () => {
     // This clause needs no resolver — it pins the measured facts a fix must not invalidate.
     for (const rail of rails) {
-      const bodies = rail.meshes.filter((m) => m.morphTargetCount > 0);
-      expect(bodies.map((b) => b.name), `${rail.id}: exactly one morph-carrying mesh`).toEqual([
+      // lash-follow r8 (tsk_381fda384bdda8dc): the fitted eyelash mesh also carries closure targets, so
+      // the premise the resolver ranks on is "the body carries the FULLEST morph stack", name-blind.
+      const fullest = Math.max(...rail.meshes.map((m) => m.morphTargetCount));
+      const bodies = rail.meshes.filter((m) => fullest > 0 && m.morphTargetCount === fullest);
+      expect(bodies.map((b) => b.name), `${rail.id}: exactly one mesh carries the fullest morph stack`).toEqual([
         rail.body,
       ]);
 

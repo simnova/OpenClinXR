@@ -5,8 +5,8 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for garment/gown contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "645db112d4b4e298d71eec7a185ce955d8037bbccdc7170b34eea217a2bf2c32",
- "outputBytes": 8142588,
+ "outputSha256": "a9c12e9cec11a2b2506e97b98f1845b17e6bec660514c0f93213bfad66afc427",
+ "outputBytes": 8542692,
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.401Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.15 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts).",
  "byteLineage": {
@@ -192,5 +192,118 @@
    "bakeCode": "bake_skin_normal_to_texture",
    "derivation": "mesh-surface re-bake rebind: Cycles TANGENT normal bake of the actor body through bake_skin_normal_to_texture; only the skin normal image bytes change, geometry and all other bytes preserved"
   }
- ]
+ ],
+ "lashFollowR8": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+  "coreSha256": "dc742f358dc2b01ed02f454dd1f8bbad993dc9916246b2355837ad958f20e374",
+  "inputSha256": "645db112d4b4e298d71eec7a185ce955d8037bbccdc7170b34eea217a2bf2c32",
+  "policy": "r8 eye-centroid raw class; moving-upper-lid body-vertex upper hull; upper any-moving/lower proof-AABB own region; same triangle seats and follows; flagged >4.55mm cards remain original with zero closure delta",
+  "seatFollowMismatchCount": 0,
+  "sides": {
+   "left": {
+    "snap": {
+     "p50": 0.121731,
+     "p90": 0.369173,
+     "max": 0.686884
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 454,
+    "cardsBase": 454,
+    "rawUpperCards": 384,
+    "rawLowerCards": 70,
+    "upperCards": 384,
+    "lowerCards": 70,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     0.030776928334186476,
+     1.5461554874976475,
+     0.1327135255560279
+    ],
+    "lowerProofAabb": {
+     "min": [
+      0.019690178334712982,
+      1.5350711345672607,
+      0.1228962168097496
+     ],
+     "max": [
+      0.04186033830046654,
+      1.5572412014007568,
+      0.1392570585012436
+     ]
+    },
+    "bodyPrimitiveCount": 2,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 99,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -0.9999999999999982,
+     0.0,
+     -6.052082966419225e-08
+    ],
+    "ownRegionTriCountR6": 15,
+    "ownRegionTriCountR7": 44,
+    "flaggedOver4_55mmCount": 0,
+    "flaggedOver4_55mmCardIds": []
+   },
+   "right": {
+    "snap": {
+     "p50": 0.112073,
+     "p90": 0.419932,
+     "max": 0.767656
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 470,
+    "cardsBase": 470,
+    "rawUpperCards": 380,
+    "rawLowerCards": 90,
+    "upperCards": 380,
+    "lowerCards": 90,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     -0.03077692542380343,
+     1.5461555421352386,
+     0.1327135218307376
+    ],
+    "lowerProofAabb": {
+     "min": [
+      -0.04186033457517624,
+      1.5350711345672607,
+      0.1228962317109108
+     ],
+     "max": [
+      -0.019690174609422684,
+      1.5572413206100464,
+      0.1392570436000824
+     ]
+    },
+    "bodyPrimitiveCount": 2,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 99,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -0.9999999999999982,
+     0.0,
+     -6.052082966419225e-08
+    ],
+    "ownRegionTriCountR6": 8,
+    "ownRegionTriCountR7": 36,
+    "flaggedOver4_55mmCount": 0,
+    "flaggedOver4_55mmCardIds": []
+   }
+  }
+ }
 }

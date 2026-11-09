@@ -176,7 +176,7 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // 16026048 B; kevin sha 60985034fddf….
       // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
       // st-vitbody3 r2b skin-shade carrier: 16526836 B; kevin sha c8dd0990eaf2….
-      [PEDS_GLB, "pedsKevin", 16526836, "9cf92b1e9661060987802676c9c04ae433d783eae2182bc383a8232cea330897"],
+      [PEDS_GLB, "pedsKevin", 16926856, "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa"],
       // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
       // ci-w11b re-pinned 2026-10-30: ci-w11 D3 d0e2104d3 repaired midline breast keyframes
       // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….
@@ -186,7 +186,7 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // 8725404 B; adult sha a2552b2fff6a….
       // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
       // st-vitbody3 r2b skin-shade carrier: 9233948 B; adult sha 44c06f5800be….
-      [ADULT_GLB, "adult", 9233948, "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b"],
+      [ADULT_GLB, "adult", 9254712, "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68"],
     ] as const) {
       const glb = readGlb(path);
       expect(glb.bytes.length, `${key}: GLB length pinned`).toBe(bytes);

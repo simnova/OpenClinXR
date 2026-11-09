@@ -1,6 +1,6 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdtempSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
@@ -48,10 +48,14 @@ const REPORT = join(
   "tools/openclinxr/evidence/realism-head/eyes/geometric-eye-g4-report.json",
 );
 const BAKE = "/Volumes/files/openclinxr-assets/store/lid-conform/aisha-lidconform.glb";
-const CONTROL = join(
-  REPO_ROOT,
-  "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-);
+// The shipped Aisha GLB now carries lash-follow closure targets (tsk_381fda384bdda8dc), so the untreated
+// control is its last pre-repack git blob, read from history into tmp.
+const CONTROL_BLOB = "ef4f693f7652e473af2a0784c8f1d46265cb3dfc";
+function untreatedControl(): string {
+  const file = join(mkdtempSync("/tmp/g4lash-control-"), "mpfb-ob-patient-aisha-pre-lash-follow.glb");
+  writeFileSync(file, execFileSync("git", ["cat-file", "blob", CONTROL_BLOB], { cwd: REPO_ROOT, maxBuffer: 256 * 1024 * 1024 }));
+  return file;
+}
 
 type BlinkFollowRow = {
   lidMarginVerts: number;
@@ -146,11 +150,11 @@ describe("the lash alpha card follows blink", () => {
   }, 600000);
 
   it("(4) COUNTERWEIGHT: the bar is not vacuous — untreated bodies fail it", () => {
-    // The shipped OB control never went through T2b+A3: 0 lash targets, no
-    // pass. If a refactor ever made untreated input clear GREEN, this fails.
+    // The pre-repack shipped OB control never went through T2b+A3: 0 lash
+    // targets, no pass. If a refactor ever made untreated input clear GREEN, this fails.
     // The G4 treatment genuinely changes bytes (output != post-refit input).
     const tracked = JSON.parse(readFileSync(REPORT, "utf8"));
-    const r = measure(CONTROL);
+    const r = measure(untreatedControl());
     expect(r.lashPrimTargets, "control has no lash morph targets").toBe(0);
     expect(r.pass, "untreated control fails").toBe(false);
     expect(tracked.output_sha256, "treatment changed the bytes").not.toBe(

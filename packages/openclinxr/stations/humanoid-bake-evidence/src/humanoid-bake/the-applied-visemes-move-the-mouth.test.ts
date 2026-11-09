@@ -129,7 +129,8 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // st-vitbody3 2d re-pinned 2026-11-07: body detail-normal strength 1.0 -> 0.3
   // (repack_skin_shade.py material extension only; size 19149460 unchanged);
   // was 483821ad1b214e0b8003f3dac2c5958b8500f77a0cbabaa403f48888131ed06b.
-  "mpfb-ob-patient-aisha": "75b9e5c70fbb5b629ab5b4514abdc2748ca21929a17e48f052a7a243c96394b1",
+  // lash-r8 re-pinned: moving-upper-lid body-vertex upper hull; body mouth morph bytes unchanged.
+  "mpfb-ob-patient-aisha": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.
@@ -144,7 +145,7 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // size holds at 18441636); was 57eace5c….
   // st-palette C5 re-pinned 2026-11-04: sRGB-correct weave fold (renormalize t-shirt, replayed
   // in the mouth-executor chain test); 18441636 -> 18446536 B; was b73c9ede….
-  "mpfb-peds-parent-aisha": "a26b34773d90e7ae209a027e09911de0f0ab0deb04b95f52e356717e72c5091f",
+  "mpfb-peds-parent-aisha": "ad75548d246847384f44ab33c9fff62a3b8eb7ae179dc789a2bb1877133377bb",
   // #598 re-pinned 2026-08-23: worktree kevin bytes already differed from the prior pin
   // (was 0817dbd1932448185037c35487c9a25f5b9e70cbf6f558fa67098e104a955d72); this slice did
   // not rebake kevin — only re-recorded the on-disk hash so the table matches the tree.
@@ -164,7 +165,7 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // 16026048 B live; was e52a3e25f86d….
   // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
   // 16105284 B live; was 60985034fddf….
-  "mpfb-peds-nurse-kevin": "9cf92b1e9661060987802676c9c04ae433d783eae2182bc383a8232cea330897",
+  "mpfb-peds-nurse-kevin": "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa",
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
   // buffer are untouched.
@@ -180,7 +181,7 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // 8725404 B live; was e217d3c96d62….
   // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
   // 8807408 B live; was a2552b2fff6a….
-  "mpfb-clinical-nurse-adult": "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b",
+  "mpfb-clinical-nurse-adult": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68",
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).
@@ -199,7 +200,7 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // st-vitphys r1 re-pinned 2026-11-06: deep family r8 skin albedo + Vitruvian brown iris as post-export byte stages
   // (apply_family_skin_albedo.py, apply_vitruvian_eye_texture.py; image bytes only, mesh inventory identical):
   // 9476168 B live; was 34c5aec8fe30….
-  "mpfb-clinical-physician-adult": "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
+  "mpfb-clinical-physician-adult": "f73229fe6ed22d7db0e35ce726901d1d6d750680d7bde5e8a0cb6c965b73998d",
 }
 
 type Prov = {

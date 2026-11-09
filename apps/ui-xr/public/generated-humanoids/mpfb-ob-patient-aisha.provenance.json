@@ -88,8 +88,8 @@
   ],
   "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
   "promotionGates": false,
-  "outputSha256": "75b9e5c70fbb5b629ab5b4514abdc2748ca21929a17e48f052a7a243c96394b1",
-  "outputBytes": 19149460,
+  "outputSha256": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
+  "outputBytes": 19549552,
   "fitTimeLower": {
     "garment": "punkduck_female_tight_jeans",
     "sourceObjFaces": 2108,
@@ -456,5 +456,118 @@
     "recordedAt": "2026-11-06",
     "resolutionNote": "st-vitbody3 r4b: records the post-weave skin-shade carrier as its own replayable stage; supersedes the r2 same-commit pin that incorrectly rewrote the predecessor.",
     "claimScope": "post-export skin-shade images + material extension only"
+  },
+  "lashFollowR8": {
+    "tool": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+    "coreSha256": "dc742f358dc2b01ed02f454dd1f8bbad993dc9916246b2355837ad958f20e374",
+    "inputSha256": "75b9e5c70fbb5b629ab5b4514abdc2748ca21929a17e48f052a7a243c96394b1",
+    "policy": "r8 eye-centroid raw class; moving-upper-lid body-vertex upper hull; upper any-moving/lower proof-AABB own region; same triangle seats and follows; flagged >4.55mm cards remain original with zero closure delta",
+    "seatFollowMismatchCount": 0,
+    "sides": {
+      "left": {
+        "snap": {
+          "p50": 0.121845,
+          "p90": 0.369238,
+          "max": 0.686888
+        },
+        "followBind": {
+          "p50": 0.0,
+          "p90": 0.0,
+          "max": 0.0,
+          "definition": "seatTri == followTri and follow is evaluated at the seat point"
+        },
+        "cardsKeep": 454,
+        "cardsBase": 454,
+        "rawUpperCards": 384,
+        "rawLowerCards": 70,
+        "upperCards": 384,
+        "lowerCards": 70,
+        "classChangedCardIds": [],
+        "eyeCentre": [
+          0.030776919331401587,
+          1.5461570968230565,
+          0.1327134296298027
+        ],
+        "lowerProofAabb": {
+          "min": [
+            0.019690169021487236,
+            1.535072684288025,
+            0.12289613485336304
+          ],
+          "max": [
+            0.04186032712459564,
+            1.5572428703308105,
+            0.13925695419311523
+          ]
+        },
+        "bodyPrimitiveCount": 8,
+        "boundaryWeldToleranceM": 1e-06,
+        "boundaryLoopCount": 92,
+        "eyeOpeningLoopStatus": "no-eye-opening-loop",
+        "eyeOpeningLoopVerts": 0,
+        "topologyMarginVerts": 0,
+        "horizontalAxis": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "ownRegionTriCountR6": 15,
+        "ownRegionTriCountR7": 44,
+        "flaggedOver4_55mmCount": 0,
+        "flaggedOver4_55mmCardIds": []
+      },
+      "right": {
+        "snap": {
+          "p50": 0.112154,
+          "p90": 0.41984,
+          "max": 0.767785
+        },
+        "followBind": {
+          "p50": 0.0,
+          "p90": 0.0,
+          "max": 0.0,
+          "definition": "seatTri == followTri and follow is evaluated at the seat point"
+        },
+        "cardsKeep": 470,
+        "cardsBase": 470,
+        "rawUpperCards": 380,
+        "rawLowerCards": 90,
+        "upperCards": 380,
+        "lowerCards": 90,
+        "classChangedCardIds": [],
+        "eyeCentre": [
+          -0.030776919331401587,
+          1.5461570968230565,
+          0.1327134296298027
+        ],
+        "lowerProofAabb": {
+          "min": [
+            -0.04186032712459564,
+            1.535072684288025,
+            0.12289613485336304
+          ],
+          "max": [
+            -0.019690169021487236,
+            1.5572428703308105,
+            0.13925695419311523
+          ]
+        },
+        "bodyPrimitiveCount": 8,
+        "boundaryWeldToleranceM": 1e-06,
+        "boundaryLoopCount": 92,
+        "eyeOpeningLoopStatus": "no-eye-opening-loop",
+        "eyeOpeningLoopVerts": 0,
+        "topologyMarginVerts": 0,
+        "horizontalAxis": [
+          -1.0,
+          0.0,
+          0.0
+        ],
+        "ownRegionTriCountR6": 8,
+        "ownRegionTriCountR7": 36,
+        "flaggedOver4_55mmCount": 0,
+        "flaggedOver4_55mmCardIds": []
+      }
+    }
   }
 }

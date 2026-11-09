@@ -96,12 +96,16 @@ const PINNED = {
   // boundBytes 13641312 -> 13690549 (+49237 B, PNG re-encode of the filled albedo; geometry/rig/animations verbatim).
   // Prior st-vitfamily r1: first albedo embed (fileBytes 10219564 -> 19097100,
   // boundBytes 4765237 -> 13642796);
-  "mpfb-ob-patient-aisha.glb":  { fileBytes: 19149460, textures: 7, boundTextures: 7, boundBytes: 13695156, meshes: 10, materials: 17, tris: 73392, joints: 137, animations: 3 },
+  // lash-follow r8 2026-11-09 (tsk_381fda384bdda8dc): repack adds upper-lash closure morph targets (accessors only);
+  // fileBytes 19149460 -> 19549552 (+400092 B); images, boundBytes, meshes, materials, tris, joints, animations verbatim.
+  "mpfb-ob-patient-aisha.glb":  { fileBytes: 19549552, textures: 7, boundTextures: 7, boundBytes: 13695156, meshes: 10, materials: 17, tris: 73392, joints: 137, animations: 3 },
   // ci-w11 re-pin 2026-10-30, measured pre-prune (post-afe8abced full-res hair + D2 grade).
   // Old #598: fileBytes 11456228, textures 5, boundTextures 5, boundBytes 4598965, tris 74732.
   // st-palette 2026-11-04: 3969ae031 re-encoded the toigo t-shirt texture (sRGB palette renorm,
   // same texture slot, count unchanged): boundBytes 10641749 -> 10646616 (+4867 B, PNG re-encode).
-  "mpfb-peds-parent-aisha.glb": { fileBytes: 18883952, textures: 13, boundTextures: 13, boundBytes: 11083161, meshes: 10, materials: 17, tris: 73012, joints: 137, animations: 2 },
+  // lash-follow r8 2026-11-09 (tsk_381fda384bdda8dc): repack adds upper-lash closure morph targets (accessors only);
+  // fileBytes 18883952 -> 19283980 (+400028 B); images, boundBytes, meshes, materials, tris, joints, animations verbatim.
+  "mpfb-peds-parent-aisha.glb": { fileBytes: 19283980, textures: 13, boundTextures: 13, boundBytes: 11083161, meshes: 10, materials: 17, tris: 73012, joints: 137, animations: 2 },
 } as const;
 /** Re-derived 2026-10-30 from measurement, not chosen: pre-prune per-pinned-file orphans are
  * ob 1080156 / pp 744895, so each PINNED file must lose at least 700 KB. The old 7M floor died

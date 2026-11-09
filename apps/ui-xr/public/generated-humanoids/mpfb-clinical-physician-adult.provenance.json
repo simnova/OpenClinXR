@@ -70,8 +70,8 @@
  "claimScope": "physician_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_plus_cc0_lab_coat_over_scrubs",
  "promotionGates": false,
  "generatedAt": "2026-08-14T17:56:00Z",
- "outputSha256": "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
- "outputBytes": 9476168,
+ "outputSha256": "f73229fe6ed22d7db0e35ce726901d1d6d750680d7bde5e8a0cb6c965b73998d",
+ "outputBytes": 9497600,
  "motionClips": [
   {
    "clipName": "openclinxr_retarget_walk_source",
@@ -326,5 +326,174 @@
   "textureSha256": "4066911e4dfb2430c37ccb15c050238c5576a431b43a8b415a1e723457c44922",
   "previousEyeSha12": "4659691c7295",
   "note": ""
+ },
+ "lashFollowR8": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+  "coreSha256": "dc742f358dc2b01ed02f454dd1f8bbad993dc9916246b2355837ad958f20e374",
+  "inputSha256": "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
+  "policy": "r8 eye-centroid raw class; moving-upper-lid body-vertex upper hull; upper any-moving/lower proof-AABB own region; same triangle seats and follows; flagged >4.55mm cards remain original with zero closure delta",
+  "seatFollowMismatchCount": 0,
+  "sides": {
+   "left": {
+    "snap": {
+     "p50": 0.2685,
+     "p90": 7.903208,
+     "max": 10.083286
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 97,
+    "cardsBase": 97,
+    "rawUpperCards": 84,
+    "rawLowerCards": 13,
+    "upperCards": 84,
+    "lowerCards": 13,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     0.029673755013694365,
+     1.6120663409431775,
+     0.13325602406015
+    ],
+    "lowerProofAabb": {
+     "min": [
+      0.018041694536805153,
+      1.601779818534851,
+      0.1221545860171318
+     ],
+     "max": [
+      0.04070652276277542,
+      1.6232174634933472,
+      0.14014272391796112
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 54,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -1.0,
+     0.0,
+     0.0
+    ],
+    "ownRegionTriCountR6": 6,
+    "ownRegionTriCountR7": 26,
+    "flaggedOver4_55mmCount": 30,
+    "flaggedOver4_55mmCardIds": [
+     1,
+     8,
+     15,
+     16,
+     23,
+     25,
+     28,
+     32,
+     36,
+     52,
+     55,
+     58,
+     65,
+     78,
+     79,
+     81,
+     84,
+     92,
+     93,
+     94,
+     95,
+     107,
+     110,
+     114,
+     118,
+     121,
+     136,
+     142,
+     148,
+     156
+    ]
+   },
+   "right": {
+    "snap": {
+     "p50": 0.260226,
+     "p90": 6.291942,
+     "max": 8.191811
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 76,
+    "cardsBase": 76,
+    "rawUpperCards": 59,
+    "rawLowerCards": 17,
+    "upperCards": 59,
+    "lowerCards": 17,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     -0.029673755013694365,
+     1.6120663409431775,
+     0.13325602406015
+    ],
+    "lowerProofAabb": {
+     "min": [
+      -0.04070652276277542,
+      1.601779818534851,
+      0.1221545860171318
+     ],
+     "max": [
+      -0.018041694536805153,
+      1.6232174634933472,
+      0.14014272391796112
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 54,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -1.0,
+     0.0,
+     0.0
+    ],
+    "ownRegionTriCountR6": 5,
+    "ownRegionTriCountR7": 22,
+    "flaggedOver4_55mmCount": 24,
+    "flaggedOver4_55mmCardIds": [
+     5,
+     6,
+     7,
+     17,
+     18,
+     21,
+     22,
+     26,
+     40,
+     41,
+     42,
+     43,
+     45,
+     47,
+     50,
+     70,
+     83,
+     89,
+     104,
+     115,
+     123,
+     131,
+     145,
+     154
+    ]
+   }
+  }
  }
 }

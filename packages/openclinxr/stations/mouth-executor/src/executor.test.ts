@@ -30,7 +30,7 @@
  */
 import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -234,6 +234,11 @@ describe("mouth executor", () => {
         inputBytes: number;
         outputSha256: string;
         outputBytes: number;
+      };
+      lashFollowR8?: {
+        tool: string;
+        coreSha256: string;
+        inputSha256: string;
       };
       skinShadeCarrier?: {
         tool: string;
@@ -530,6 +535,28 @@ describe("mouth executor", () => {
         expect(sha256(carrierBytes)).toBe(carrier.outputSha256);
         expect(carrierBytes.length).toBe(carrier.outputBytes);
         replayBytes = carrierBytes;
+      }
+      // 3k. Optional lashFollowR8 post-stage (tsk_381fda384bdda8dc): replay the lash repack on
+      // the carrier output; the stage records its input here and its output in the top fields.
+      const lash = pre.lashFollowR8;
+      if (lash) {
+        if (!lash.tool || !lash.coreSha256 || !lash.inputSha256) {
+          throw new Error("receipt lashFollowR8 missing fields");
+        }
+        const lashTool = path.join(REPO, lash.tool);
+        expect(sha256(readFileSync(path.join(path.dirname(lashTool), "lash_follow_core.py")))).toBe(lash.coreSha256);
+        expect(lash.inputSha256).toBe(sha256(replayBytes));
+        const lashDir = path.join(dir, "lash");
+        mkdirSync(lashDir);
+        const lashGlb = path.join(lashDir, path.basename(GLB_REL));
+        writeFileSync(lashGlb, Buffer.from(replayBytes));
+        writeFileSync(lashGlb.replace(/\.glb$/, ".provenance.json"), '{\n "outputSha256": "0",\n "outputBytes": 0\n}\n');
+        execFileSync(
+          "mise",
+          ["exec", "--", "python3", lashTool, "--directory", lashDir, "--actor", path.basename(GLB_REL)],
+          { cwd: REPO, stdio: "pipe", timeout: 300_000 },
+        );
+        replayBytes = readFileSync(lashGlb);
       }
       // Final top linkage: the receipt top must equal the last recorded stage output.
       expect(sha256(replayBytes)).toBe(pre.outputSha256);

@@ -73,8 +73,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-11T23:26:23Z",
- "outputSha256": "257f821bac2db2f02eec3f16bdf69bdb559c11e9cd34bef639bf1f32ca9b907f",
- "outputBytes": 10842652,
+ "outputSha256": "463c85c9de6723d90b1e4f48e924ea06374ec5caaa9daec89f72f4494ab06a95",
+ "outputBytes": 11242708,
  "albedoBakeWrittenAt": "2026-09-11T23:26:23Z",
  "albedoBakeNote": "HB-07 attempt 5 full-chain rebake (materialize -> bake-humanoid-albedo.ts -> separate_chest_anchor_joints.mjs; decimation skipped, chosenRungId=raw). Capture-aligned 4096 screen-space unhide after REHIDE; garment-only occluder; sleeve prim4 f79/f190 restored to skin.",
  "command": "blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --reference peds_patient_child --actor-role patient | tsx tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts --inputs /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --outdir /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo-report.json | node tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs --input /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo/mpfb-peds-patient-child.glb --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/final/mpfb-peds-patient-child.glb --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/chest-anchor.json --half-span-m 0.085",
@@ -155,5 +155,118 @@
   "replace": false,
   "previousRevert": "authored-texture cl.(3) cargo shell must stay flat + #400 documents the t-shirt keeps its authored texture + (2b) pins its authored effective (0.539,0.666,0.785); the fold added nothing the factor-only render did not already produce",
   "why": "The authored T-shirt_basic.png carried the HB-02 fold as sRGB bytes; with the shared sRGB-decoding reader its effective colour was (0.252,0.402,0.580), rendering darker than the declared soft blue. Pants stay factor-only, so the cargo-shell clause is unaffected; the authored-texture pins re-measure through the shared reader."
+ },
+ "lashFollowR8": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+  "coreSha256": "dc742f358dc2b01ed02f454dd1f8bbad993dc9916246b2355837ad958f20e374",
+  "inputSha256": "257f821bac2db2f02eec3f16bdf69bdb559c11e9cd34bef639bf1f32ca9b907f",
+  "policy": "r8 eye-centroid raw class; moving-upper-lid body-vertex upper hull; upper any-moving/lower proof-AABB own region; same triangle seats and follows; flagged >4.55mm cards remain original with zero closure delta",
+  "seatFollowMismatchCount": 0,
+  "sides": {
+   "left": {
+    "snap": {
+     "p50": 0.086762,
+     "p90": 0.268349,
+     "max": 0.417724
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 454,
+    "cardsBase": 454,
+    "rawUpperCards": 384,
+    "rawLowerCards": 70,
+    "upperCards": 384,
+    "lowerCards": 70,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     0.026027094398159534,
+     1.152925396958987,
+     0.10466144777213533
+    ],
+    "lowerProofAabb": {
+     "min": [
+      0.015169038437306881,
+      1.1427892446517944,
+      0.09461354464292526
+     ],
+     "max": [
+      0.03617006540298462,
+      1.1632822751998901,
+      0.110933318734169
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 0,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -1.0,
+     0.0,
+     0.0
+    ],
+    "ownRegionTriCountR6": 139,
+    "ownRegionTriCountR7": 189,
+    "flaggedOver4_55mmCount": 0,
+    "flaggedOver4_55mmCardIds": []
+   },
+   "right": {
+    "snap": {
+     "p50": 0.102719,
+     "p90": 0.280099,
+     "max": 0.606893
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 470,
+    "cardsBase": 470,
+    "rawUpperCards": 380,
+    "rawLowerCards": 90,
+    "upperCards": 380,
+    "lowerCards": 90,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     -0.026027094398159534,
+     1.152925396958987,
+     0.10466144777213533
+    ],
+    "lowerProofAabb": {
+     "min": [
+      -0.03617006540298462,
+      1.1427892446517944,
+      0.09461354464292526
+     ],
+     "max": [
+      -0.015169038437306881,
+      1.1632822751998901,
+      0.110933318734169
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 0,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -1.0,
+     0.0,
+     0.0
+    ],
+    "ownRegionTriCountR6": 139,
+    "ownRegionTriCountR7": 189,
+    "flaggedOver4_55mmCount": 0,
+    "flaggedOver4_55mmCardIds": []
+   }
+  }
  }
 }

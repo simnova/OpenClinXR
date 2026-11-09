@@ -176,14 +176,14 @@ describe("canonical staging contracts (fake/static units, no browser)", () => {
     // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage;
     // size holds at 9618436); was 921d7a60….
     expect(physician?.assetSha256).toBe(
-      "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
+      "f73229fe6ed22d7db0e35ce726901d1d6d750680d7bde5e8a0cb6c965b73998d",
     );
-    expect(physician?.byteCount).toBe(9476168);
+    expect(physician?.byteCount).toBe(9497600);
     expect(expected.expectedClipRevision).toBe("openclinxr_retarget_walk_source");
     expect(expected.expectedAssetSha256).toBe(
-      "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
+      "f73229fe6ed22d7db0e35ce726901d1d6d750680d7bde5e8a0cb6c965b73998d",
     );
-    expect(expected.expectedBytes).toBe(9476168);
+    expect(expected.expectedBytes).toBe(9497600);
     // Independent provenance lineage agrees; retired formal_cc0 preserved.
     const provenance = JSON.parse(
       readFileSync(

@@ -1,6 +1,7 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -92,7 +93,30 @@ function sha256(file: string): string {
   return createHash("sha256").update(readFileSync(file)).digest("hex");
 }
 
-function inspect(): Report {
+// lash-follow r8 (tsk_381fda384bdda8dc) repacked the shipped partner GLB after this stage, so the
+// stage's own output is the git blob the lash sidecar records as its input (pre-repack origin/main).
+const ROUGHNESS_STAGE_OUTPUT_BLOB = "ad7ce69ead0327abe57d20f14cb84282b2def193";
+
+function stageOutputGlb(): string {
+  const provenance = JSON.parse(readFileSync(TARGET.replace(/\.glb$/, ".provenance.json"), "utf8")) as {
+    stages?: { stage: string; outputSha256: string }[];
+    lashFollowR8?: { inputSha256: string };
+  };
+  const bytes = execFileSync("git", ["cat-file", "blob", ROUGHNESS_STAGE_OUTPUT_BLOB], {
+    cwd: REPO,
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  const digest = createHash("sha256").update(bytes).digest("hex");
+  const roughness = provenance.stages?.find((row) => row.stage === "subject_derived_roughness_breakup_v3");
+  if (digest !== roughness?.outputSha256 || digest !== provenance.lashFollowR8?.inputSha256) {
+    throw new Error(`blob ${ROUGHNESS_STAGE_OUTPUT_BLOB} is not the recorded roughness output (${digest})`);
+  }
+  const file = path.join(mkdtempSync(path.join(tmpdir(), "spouse-roughness-")), "stage-output.glb");
+  writeFileSync(file, bytes);
+  return file;
+}
+
+function inspect(glb: string = TARGET): Report {
   return JSON.parse(
     execFileSync(
       "mise",
@@ -103,7 +127,7 @@ function inspect(): Report {
         SCRIPT,
         "--check",
         "--glb",
-        TARGET,
+        glb,
         "--derive-dir",
         DERIVE,
         "--known-good",
@@ -187,10 +211,12 @@ describe("the spouse skin has subject-derived roughness", () => {
   });
 
   it("changes only the appended map and the skin material binding", () => {
-    expect(report.counterweights.baseColorUnchanged).toBe(true);
-    expect(report.counterweights.preExistingBufferViewsUnchanged).toBe(true);
-    expect(report.counterweights.inputJsonReconstructs).toBe(true);
-    expect(report.counterweights.parsedJsonDiff).toEqual([
+    const stage = inspect(stageOutputGlb());
+    expect(stage.mapSha256, "stage output carries the shipped roughness map").toBe(report.mapSha256);
+    expect(stage.counterweights.baseColorUnchanged).toBe(true);
+    expect(stage.counterweights.preExistingBufferViewsUnchanged).toBe(true);
+    expect(stage.counterweights.inputJsonReconstructs).toBe(true);
+    expect(stage.counterweights.parsedJsonDiff).toEqual([
       "bufferViews[64] appended",
       "images[5] appended",
       "textures[5] appended with sampler 0",

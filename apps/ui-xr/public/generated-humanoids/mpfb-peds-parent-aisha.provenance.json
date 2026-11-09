@@ -95,8 +95,8 @@
  ],
  "claimScope": "second_mpfb2_aisha_body_variant_for_peds_parent_not_readiness",
  "promotionGates": false,
- "outputSha256": "a26b34773d90e7ae209a027e09911de0f0ab0deb04b95f52e356717e72c5091f",
- "outputBytes": 18883952,
+ "outputSha256": "ad75548d246847384f44ab33c9fff62a3b8eb7ae179dc789a2bb1877133377bb",
+ "outputBytes": 19283980,
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
   "sourceObjFaces": 2108,
@@ -929,5 +929,118 @@
   "recordedAt": "2026-11-06",
   "resolutionNote": "st-vitbody3 r4b: records the post-weave skin-shade carrier as its own replayable stage; supersedes the r2 same-commit pin that incorrectly rewrote the predecessor.",
   "claimScope": "post-export skin-shade images + material extension only"
+ },
+ "lashFollowR8": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+  "coreSha256": "dc742f358dc2b01ed02f454dd1f8bbad993dc9916246b2355837ad958f20e374",
+  "inputSha256": "a26b34773d90e7ae209a027e09911de0f0ab0deb04b95f52e356717e72c5091f",
+  "policy": "r8 eye-centroid raw class; moving-upper-lid body-vertex upper hull; upper any-moving/lower proof-AABB own region; same triangle seats and follows; flagged >4.55mm cards remain original with zero closure delta",
+  "seatFollowMismatchCount": 0,
+  "sides": {
+   "left": {
+    "snap": {
+     "p50": 0.026832,
+     "p90": 0.105238,
+     "max": 0.639056
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 454,
+    "cardsBase": 454,
+    "rawUpperCards": 384,
+    "rawLowerCards": 70,
+    "upperCards": 384,
+    "lowerCards": 70,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     0.02927023246108244,
+     1.5527449150880177,
+     0.12990472993503013
+    ],
+    "lowerProofAabb": {
+     "min": [
+      0.017975591123104095,
+      1.5419214963912964,
+      0.11990292370319366
+     ],
+     "max": [
+      0.040528785437345505,
+      1.5637803077697754,
+      0.13639706373214722
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 0,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -1.0,
+     0.0,
+     0.0
+    ],
+    "ownRegionTriCountR6": 145,
+    "ownRegionTriCountR7": 200,
+    "flaggedOver4_55mmCount": 0,
+    "flaggedOver4_55mmCardIds": []
+   },
+   "right": {
+    "snap": {
+     "p50": 0.026021,
+     "p90": 0.107468,
+     "max": 0.648257
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 470,
+    "cardsBase": 470,
+    "rawUpperCards": 380,
+    "rawLowerCards": 90,
+    "upperCards": 380,
+    "lowerCards": 90,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     -0.02927023246108244,
+     1.5527449150880177,
+     0.12990472993503013
+    ],
+    "lowerProofAabb": {
+     "min": [
+      -0.040528785437345505,
+      1.5419214963912964,
+      0.11990292370319366
+     ],
+     "max": [
+      -0.017975591123104095,
+      1.5637803077697754,
+      0.13639706373214722
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 0,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -1.0,
+     0.0,
+     0.0
+    ],
+    "ownRegionTriCountR6": 145,
+    "ownRegionTriCountR7": 200,
+    "flaggedOver4_55mmCount": 0,
+    "flaggedOver4_55mmCardIds": []
+   }
+  }
  }
 }

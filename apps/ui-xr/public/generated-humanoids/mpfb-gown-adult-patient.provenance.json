@@ -138,8 +138,8 @@
  "sourceNotes": [
   "2026-11-05 st-vitbody3 r2: post-export skin-shade carrier repack via repack_skin_shade.py; face strength 0.15 (st-vitbody3 r4 sweep pick 0.15/0.25/0.35/0.5, CEO 1:1 grade 2026-11-06), body strength 0.3; curvature 481be3ba4e4e3bff4adad9e02de7c3c727fee030b48b4fd94805512981a785e0, cavity d18376567b250376e9b2076e4c65862e4e5ec07018508ce4683b1ca91ffc72f9; geometry, rig, garments, eyes, and animations unchanged."
  ],
- "outputSha256": "f5c60292cca74033a120172a4473794be9e253a709b8a38c3a929cd7472bffc5",
- "outputBytes": 7196640,
+ "outputSha256": "8424c3872618d24cd94b7989b1673534eff817f0ada34700b912a05e25b89e02",
+ "outputBytes": 7217372,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:25.232Z",
@@ -333,5 +333,121 @@
    "channels": 414,
    "reason": "rebound with corrected --source-orientation: travel MISMATCHES rest (restZ=0.0760, advanceForwardZ=-0.9998, windowFrames=19, mps=0.543)"
   }
- ]
+ ],
+ "lashFollowR8": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+  "coreSha256": "dc742f358dc2b01ed02f454dd1f8bbad993dc9916246b2355837ad958f20e374",
+  "inputSha256": "f5c60292cca74033a120172a4473794be9e253a709b8a38c3a929cd7472bffc5",
+  "policy": "r8 eye-centroid raw class; moving-upper-lid body-vertex upper hull; upper any-moving/lower proof-AABB own region; same triangle seats and follows; flagged >4.55mm cards remain original with zero closure delta",
+  "seatFollowMismatchCount": 0,
+  "sides": {
+   "left": {
+    "snap": {
+     "p50": 0.103271,
+     "p90": 0.882092,
+     "max": 3.18959
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 68,
+    "cardsBase": 68,
+    "rawUpperCards": 53,
+    "rawLowerCards": 15,
+    "upperCards": 53,
+    "lowerCards": 15,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     0.03017825660451005,
+     1.6619143982728322,
+     0.13448334919909635
+    ],
+    "lowerProofAabb": {
+     "min": [
+      0.018721316009759903,
+      1.6517399549484253,
+      0.12339799106121063
+     ],
+     "max": [
+      0.04139671474695206,
+      1.673120141029358,
+      0.14135287702083588
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 32,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -0.999999999999986,
+     0.0,
+     -1.6716220543174966e-07
+    ],
+    "ownRegionTriCountR6": 18,
+    "ownRegionTriCountR7": 37,
+    "flaggedOver4_55mmCount": 0,
+    "flaggedOver4_55mmCardIds": []
+   },
+   "right": {
+    "snap": {
+     "p50": 0.23574,
+     "p90": 1.11324,
+     "max": 7.480975
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 93,
+    "cardsBase": 93,
+    "rawUpperCards": 71,
+    "rawLowerCards": 22,
+    "upperCards": 71,
+    "lowerCards": 22,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     -0.030178256682120264,
+     1.6619144082069397,
+     0.13448333910976848
+    ],
+    "lowerProofAabb": {
+     "min": [
+      -0.04139671474695206,
+      1.6517399549484253,
+      0.12339797616004944
+     ],
+     "max": [
+      -0.018721316009759903,
+      1.6731202602386475,
+      0.14135286211967468
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 32,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -0.999999999999986,
+     0.0,
+     -1.6716220543174966e-07
+    ],
+    "ownRegionTriCountR6": 17,
+    "ownRegionTriCountR7": 36,
+    "flaggedOver4_55mmCount": 2,
+    "flaggedOver4_55mmCardIds": [
+     3,
+     4
+    ]
+   }
+  }
+ }
 }

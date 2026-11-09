@@ -195,16 +195,40 @@ type Census = {
 
 const io = new NodeIO();
 
+// One body rule (tsk_381fda384bdda8dc, super-ceo-cap6 ruling): the runtime resolver in
+// asset-registry humanoid-body-mesh.ts, loaded the way the-body-is-identified-not-guessed.test.ts
+// loads it. The eyelash mesh carries closure targets but fewer than the body, so identity ranks it out.
+type BodyCandidate = { name: string; triangleCount: number; morphTargetCount: number; skinned: boolean };
+const { resolveHumanoidBodyMesh } = (await import(
+  `${REPO_ROOT}/packages/openclinxr/asset-registry/src/humanoid-body-mesh.ts`
+)) as { resolveHumanoidBodyMesh: <T extends BodyCandidate>(meshes: readonly T[]) => T | null };
+function bodyMeshName(d: Awaited<ReturnType<NodeIO["read"]>>): string | null {
+  const candidates = d.getRoot().listMeshes().map((m) => {
+    let triangleCount = 0;
+    let morphTargetCount = 0;
+    let skinned = false;
+    for (const p of m.listPrimitives()) {
+      triangleCount += (p.getIndices()?.getCount() ?? 0) / 3;
+      morphTargetCount = Math.max(morphTargetCount, p.listTargets().length);
+      if (p.getAttribute("JOINTS_0")) skinned = true;
+    }
+    return { name: m.getName(), triangleCount, morphTargetCount, skinned };
+  });
+  return resolveHumanoidBodyMesh(candidates)?.name ?? null;
+}
+
 /**
  * Measures the largest primitive that CARRIES MORPH TARGETS — the body. See the header for the two
  * wrong readings that "first primitive" and "largest primitive" each produced.
  */
 async function census(rel: string): Promise<Census> {
   const doc = await io.read(`${PUBLIC}/${rel}`);
+  const bodyMesh = bodyMeshName(doc);
   let bodyVerts = 0;
   let out: Census = { bodyVerts: 0, usableMouth: [], emptyTargets: [], wholeBodyTargets: [] };
 
   for (const mesh of doc.getRoot().listMeshes()) {
+    if (mesh.getName() !== bodyMesh) continue;
     const targetNames = ((mesh.getExtras() as Record<string, unknown>)?.["targetNames"] as string[]) ?? [];
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");

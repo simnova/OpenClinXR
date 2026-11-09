@@ -165,6 +165,196 @@ def claim_mesh_data_name(obj, name):
     return obj.data.name
 
 
+def _triangles_from_polygons(mesh):
+    """Read mesh polygons as triangles without changing Blender topology."""
+    triangles = []
+    for polygon in mesh.polygons:
+        vertices = list(polygon.vertices)
+        for i in range(1, len(vertices) - 1):
+            triangles.append((vertices[0], vertices[i], vertices[i + 1]))
+    return np.asarray(triangles, dtype=np.int64)
+
+
+def _object_vertices_world(obj, coordinates=None):
+    """Return mesh coordinates in a common world frame as float64."""
+    local = (
+        np.asarray(coordinates, dtype=float)
+        if coordinates is not None
+        else np.asarray([tuple(v.co) for v in obj.data.vertices], dtype=float)
+    )
+    matrix = np.asarray(obj.matrix_world, dtype=float)
+    homogeneous = np.concatenate([local, np.ones((len(local), 1))], axis=1)
+    return (homogeneous @ matrix.T)[:, :3]
+
+
+def _world_vertices_to_object_local(obj, coordinates):
+    matrix_inverse = np.linalg.inv(np.asarray(obj.matrix_world, dtype=float))
+    homogeneous = np.concatenate(
+        [np.asarray(coordinates, dtype=float), np.ones((len(coordinates), 1))], axis=1
+    )
+    return (homogeneous @ matrix_inverse.T)[:, :3]
+
+
+def _seat_and_bind_eyelashes(lash, body, eyeball, actor):
+    """Rigidly re-seat lash cards and author exact closure morph targets.
+
+    The pure NumPy implementation owns the geometry policy and is unit tested
+    outside Blender.  This adapter only extracts/writes Blender mesh data.
+    ``LID_MOVE_EPS_M`` is exactly 1e-6 m. A card over 4.55 mm is never forced:
+    it stays at its original position with zero closure delta and is flagged.
+    """
+    import sys as _sys_lash_follow
+
+    _lash_core_dir = (
+        REPO_ROOT / "tools/openclinxr/asset-pipeline/makeclothes/eye-lash"
+    )
+    if str(_lash_core_dir) not in _sys_lash_follow.path:
+        _sys_lash_follow.path.insert(0, str(_lash_core_dir))
+    from lash_follow_core import (  # noqa: E402
+        LID_MOVE_EPS_M,
+        MAX_SNAP_M,
+        bind_lash_cards,
+        build_lid_regions,
+        close_mesh_boundary_loops,
+        count_inside_mesh,
+    )
+
+    if not body.data.shape_keys:
+        raise RuntimeError(f"CW3 {actor}: body has no shape keys for lash bind")
+    closure_names = ("eye-left-closure", "eye-right-closure")
+    missing = [
+        name for name in closure_names if name not in body.data.shape_keys.key_blocks
+    ]
+    if missing:
+        raise RuntimeError(f"CW3 {actor}: body closure keys missing {missing}")
+    if lash.data.shape_keys:
+        raise RuntimeError(f"CW3 {actor}: fitted lash unexpectedly has shape keys")
+
+    body_basis_local = np.asarray([tuple(v.co) for v in body.data.vertices], dtype=float)
+    body_world = _object_vertices_world(body, body_basis_local)
+    body_triangles = _triangles_from_polygons(body.data)
+    linear = np.asarray(body.matrix_world, dtype=float)[:3, :3]
+    closure_deltas = {}
+    for side, name in (("left", closure_names[0]), ("right", closure_names[1])):
+        key = body.data.shape_keys.key_blocks[name]
+        key_local = np.asarray([tuple(point.co) for point in key.data], dtype=float)
+        # Row-vector equivalent of matrix_world's linear vector transform.
+        closure_deltas[side] = (key_local - body_basis_local) @ linear.T
+
+    eye_world = _object_vertices_world(eyeball)
+    eye_centres = {}
+    eye_proof_aabbs = {}
+    for side in ("left", "right"):
+        moving = np.linalg.norm(closure_deltas[side], axis=1) > LID_MOVE_EPS_M
+        side_sign = 1.0 if body_world[moving, 0].mean() > 0 else -1.0
+        own_eye = eye_world[eye_world[:, 0] * side_sign > 0]
+        eye_centres[side] = own_eye.mean(axis=0)
+        eye_proof_aabbs[side] = (own_eye.min(axis=0), own_eye.max(axis=0))
+    regions = build_lid_regions(
+        body_world,
+        body_triangles,
+        closure_deltas,
+        eye_centres,
+        eye_proof_aabbs,
+        up_axis=2,  # Blender world coordinates are z-up.
+        epsilon_m=LID_MOVE_EPS_M,
+    )
+    lash_world = _object_vertices_world(lash)
+    lash_triangles = _triangles_from_polygons(lash.data)
+    snapped_world, morphs_world, bindings = bind_lash_cards(
+        lash_world,
+        lash_triangles,
+        regions,
+        actor=actor,
+        max_snap_m=MAX_SNAP_M,
+    )
+    snapped_local = _world_vertices_to_object_local(lash, snapped_world)
+    for vertex, coordinate in zip(lash.data.vertices, snapped_local):
+        vertex.co = coordinate
+
+    lash.shape_key_add(name="Basis", from_mix=False)
+    lash_linear_inverse = np.linalg.inv(
+        np.asarray(lash.matrix_world, dtype=float)[:3, :3]
+    )
+    for name in closure_names:
+        delta_local = morphs_world[name] @ lash_linear_inverse.T
+        key = lash.shape_key_add(name=name, from_mix=False)
+        key.value = 0.0
+        for point, base, delta in zip(key.data, snapped_local, delta_local):
+            point.co = base + delta
+
+    eye_triangles = _triangles_from_polygons(eyeball.data)
+    # The shipped low-poly source is one Blender mesh object but is not a
+    # closed volume: its tracked OBJ has 16 boundary edges (two 48-vertex eye
+    # components).  Winding against that open surface would be undefined.
+    # Cap every manifold boundary loop in a measurement-only NumPy copy; do
+    # not add or move any Blender eyeball/cornea vertex.
+    closed_eye_world, closed_eye_triangles, eye_closure = close_mesh_boundary_loops(
+        eye_world, eye_triangles
+    )
+    intrusion = {}
+    for side in ("left", "right"):
+        own_bindings = [binding for binding in bindings if binding.side == side]
+        if not own_bindings:
+            raise RuntimeError(f"CW3 {actor} {side}: no lash cards bound")
+        indices = np.concatenate([binding.vertex_indices for binding in own_bindings])
+        rest = count_inside_mesh(
+            snapped_world[indices], closed_eye_world, closed_eye_triangles
+        )
+        closed_coordinates = snapped_world[indices] + morphs_world[
+            f"eye-{side}-closure"
+        ][indices]
+        closed = count_inside_mesh(
+            closed_coordinates, closed_eye_world, closed_eye_triangles
+        )
+        intrusion[side] = {"rest": rest, "closed": closed}
+        if rest or closed:
+            raise RuntimeError(
+                f"CW3 {actor} {side}: lash vertices inside eyeball/cornea "
+                f"rest={rest} closed={closed} (generalized winding number)"
+            )
+
+    side_rows = {}
+    for side in ("left", "right"):
+        own = [binding for binding in bindings if binding.side == side]
+        side_rows[side] = {
+            "cards": len(own),
+            "snapMaxMm": round(
+                max(binding.snap_distance_m for binding in own) * 1000.0, 6
+            ),
+            "followBindMaxMm": round(
+                max(binding.follow_bind_distance_m for binding in own) * 1000.0, 6
+            ),
+            "flaggedOver4_55mmCardIds": [
+                binding.card_index
+                for binding in own
+                if binding.flagged_over_max_snap
+            ],
+            "eyeballInsideRest": intrusion[side]["rest"],
+            "eyeballInsideClosed": intrusion[side]["closed"],
+        }
+    record = {
+        "actor": actor,
+        "lashVertices": len(lash_world),
+        "connectedCards": len(bindings),
+        "epsilonM": LID_MOVE_EPS_M,
+        "maxSnapMm": MAX_SNAP_M * 1000.0,
+        "seatFollowPolicy": "same own-region triangle; followBind is 0 by definition",
+        "regionSplit": (
+            "Blender z-up: triangle centroid axis 2 >= lidCentreUp_side; "
+            "lidCentreUp_side = mean axis 2 of unique moving region vertices"
+        ),
+        "insideMethod": (
+            "generalized winding per closed connected shell; manifold boundary "
+            "loops fan-capped in measurement copy only"
+        ),
+        "eyeballMeasurementClosure": eye_closure,
+        "sides": side_rows,
+    }
+    print("EYELASH_RESEAT_FOLLOW " + json.dumps(record))
+    return record
+
+
 LOWER_GARMENT_BY_OUTPUT_STEM = {
     "mpfb-ob-patient-aisha": FEMALE_COVERING_LOWER,
     "mpfb-peds-parent-aisha": FEMALE_COVERING_LOWER,
@@ -7766,6 +7956,13 @@ def main():
         _lash_bone = _weight_lash_to_head(_lash, _lash_arm)
         for _poly in _lash.data.polygons:
             _poly.use_smooth = True
+        # lash-r2: the fit establishes only coarse placement.  Re-seat each
+        # disconnected card onto its own closure-defined lid region, then
+        # author rigid barycentric eye-left/right-closure targets.  This runs
+        # before helper stripping while the body correspondence is intact.
+        _lash_follow_record = _seat_and_bind_eyelashes(
+            _lash, human, eyes_asset, subject_id
+        )
         _lash_tris = sum(max(len(p.vertices) - 2, 0) for p in _lash.data.polygons)
         _eyelash_fitted = {
             "style": _eyelash_style,
@@ -7774,6 +7971,7 @@ def main():
             "weightedBone": _lash_bone,
             "licence": _lash_lic_raw,
             "fitWallClockS": round(_lash_fit_s, 4),
+            "reseatFollow": _lash_follow_record,
         }
         print(f"EYELASH_FIT {json.dumps(_eyelash_fitted)}")
 

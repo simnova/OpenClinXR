@@ -70,32 +70,32 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "patient_margaret_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
-          "assetSha256": "f5c60292cca74033a120172a4473794be9e253a709b8a38c3a929cd7472bffc5",
-          "byteCount": 7196640
+          "assetSha256": "8424c3872618d24cd94b7989b1673534eff817f0ada34700b912a05e25b89e02",
+          "byteCount": 7217372
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:senior_resident_ward_v1",
           "kind": "actor",
           "contentId": "senior_resident_ward_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-          "assetSha256": "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
-          "byteCount": 9476168
+          "assetSha256": "f73229fe6ed22d7db0e35ce726901d1d6d750680d7bde5e8a0cb6c965b73998d",
+          "byteCount": 9497600
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:ward_nurse_patel_v1",
           "kind": "actor",
           "contentId": "ward_nurse_patel_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-          "assetSha256": "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b",
-          "byteCount": 9233948
+          "assetSha256": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68",
+          "byteCount": 9254712
         },
         {
           "instanceId": "scene_closure_supine_bedside_station_v1:daughter_lena_ellis_v1",
           "kind": "actor",
           "contentId": "daughter_lena_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-          "assetSha256": "47134447a0a5e0fd9f6206e5f5ebe3e7e728b9db527646bd5d830cfbabe7f165",
-          "byteCount": 10077060
+          "assetSha256": "f4e9094ebb965e6296867906193df5cc1249dc3b3a55d395ca114e76b6884d67",
+          "byteCount": 10228348
         }
       ],
       "revisions": {

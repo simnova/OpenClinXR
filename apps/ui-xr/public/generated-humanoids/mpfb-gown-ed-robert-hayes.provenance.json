@@ -165,8 +165,8 @@
   "2026-11-05 st-vitbody3 r2: post-export skin-shade carrier repack via repack_skin_shade.py; face strength 0.15 (st-vitbody3 r4 sweep pick 0.15/0.25/0.35/0.5, CEO 1:1 grade 2026-11-06), body strength 0.3; curvature 3cb623f1ebb2aa42a1cf966d6ae1226e64c89e1c056f17b190becb0ab96dc4a6, cavity aaee080b58c466eb744ae333e091c90c3186b2042f2e71488b7e8c0a8a412712; geometry, rig, garments, eyes, and animations unchanged."
  ],
  "optimizationMode": "meshopt_decimated_post_blender_glb (carried over from input)",
- "outputBytes": 8614420,
- "outputSha256": "2c4e1c772587a5d5961b74054770795a83deef8cd9929459d941d9b95d9862cf",
+ "outputBytes": 8635168,
+ "outputSha256": "db3c0f95572fcb9426c530cb52eee00254e8a2e46a2954891ebbbe32f73daf50",
  "promotionStatus": "candidate_not_promoted__needs_parent_visual_acceptance_and_root_full_suite",
  "realismGrade": "not_graded",
  "scenarioId": "ed_chest_pain_priority_v1",
@@ -500,5 +500,121 @@
   ],
   "effective": "gown [0.15,0.5499,0.8199], miss 0.00011",
   "claimScope": "baseColorTexture bytes + baseColorFactor folds only; no geometry, skinning, morph or animation changes"
+ },
+ "lashFollowR8": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+  "coreSha256": "dc742f358dc2b01ed02f454dd1f8bbad993dc9916246b2355837ad958f20e374",
+  "inputSha256": "2c4e1c772587a5d5961b74054770795a83deef8cd9929459d941d9b95d9862cf",
+  "policy": "r8 eye-centroid raw class; moving-upper-lid body-vertex upper hull; upper any-moving/lower proof-AABB own region; same triangle seats and follows; flagged >4.55mm cards remain original with zero closure delta",
+  "seatFollowMismatchCount": 0,
+  "sides": {
+   "left": {
+    "snap": {
+     "p50": 0.103394,
+     "p90": 0.881997,
+     "max": 3.189553
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 68,
+    "cardsBase": 68,
+    "rawUpperCards": 53,
+    "rawLowerCards": 15,
+    "upperCards": 53,
+    "lowerCards": 15,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     0.03017830611982693,
+     1.6619190623362858,
+     0.13448320577541986
+    ],
+    "lowerProofAabb": {
+     "min": [
+      0.018721366301178932,
+      1.6517446041107178,
+      0.12339785695075989
+     ],
+     "max": [
+      0.04139675945043564,
+      1.67312490940094,
+      0.14135274291038513
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 32,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -0.9999999999997023,
+     0.0,
+     -7.715164792834828e-07
+    ],
+    "ownRegionTriCountR6": 18,
+    "ownRegionTriCountR7": 37,
+    "flaggedOver4_55mmCount": 0,
+    "flaggedOver4_55mmCardIds": []
+   },
+   "right": {
+    "snap": {
+     "p50": 0.235667,
+     "p90": 1.113194,
+     "max": 7.481006
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 93,
+    "cardsBase": 93,
+    "rawUpperCards": 71,
+    "rawLowerCards": 22,
+    "upperCards": 71,
+    "lowerCards": 22,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     -0.030178316170349717,
+     1.661919464667638,
+     0.13448315920929113
+    ],
+    "lowerProofAabb": {
+     "min": [
+      -0.04139677435159683,
+      1.6517449617385864,
+      0.12339779734611511
+     ],
+     "max": [
+      -0.01872137561440468,
+      1.6731253862380981,
+      0.14135268330574036
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 32,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -0.9999999999997023,
+     0.0,
+     -7.715164792834828e-07
+    ],
+    "ownRegionTriCountR6": 17,
+    "ownRegionTriCountR7": 36,
+    "flaggedOver4_55mmCount": 2,
+    "flaggedOver4_55mmCardIds": [
+     3,
+     4
+    ]
+   }
+  }
  }
 }

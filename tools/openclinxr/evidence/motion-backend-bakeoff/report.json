@@ -1,11 +1,11 @@
 {
   "schemaVersion": "openclinxr.motion-backend-bakeoff.v1",
-  "measuredAgainstCommit": "a4575fdf65688d03854e7ac69b4fe629e043b291",
-  "actorAssetSha256": "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b",
+  "measuredAgainstCommit": "f8a1758348b50779f41b8c7f1686ccedc19fb6a8",
+  "actorAssetSha256": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68",
   "actorId": "mpfb-clinical-nurse-adult",
   "harnessSha256": "18bffc2e664c6c361fab3aa5f61d289653e91a4c16b6221e9029d3bd4f821e99",
   "notes": [
-    "Re-run captured by capture.mts (Playwright, headless chromium, native 1280x1280) against harness.html sha 18bffc2e664c6c36; actor bytes 6c908f97c3048ada.",
+    "Re-run captured by capture.mts (Playwright, headless chromium, native 1280x1280) against harness.html sha 18bffc2e664c6c36; actor bytes fef34e2ad85542da.",
     "Three stills are byte-identical to the blocked run at 1c63c4d7 (baked_tracks x2, runtime_goals/pulse_presentation): those code paths are unchanged since the blocked run and the render is deterministic, so an honest re-capture reproduces the bytes exactly (measured 0.00% pixel delta). This run re-wrote them; they are not copied.",
     "runtime_goals/rock_plus_clutch has a fresh digest: the CCDIKSolver runtime-goal arm solved wristR to the seated right-chest contact target (residual 0.0000 m, blend 1). 11.6% of its pixels differ from the blocked run's twoBoneToward frame (max luminance delta 190.8).",
     "runtime_goals/pulse_presentation remains the pre-existing twoBoneToward reach: the content-addressed runtime descriptor declares no pulse goal, so the CCDIKSolver machinery has no pulse frame to render."

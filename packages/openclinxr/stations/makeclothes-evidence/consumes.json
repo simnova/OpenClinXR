@@ -31,6 +31,16 @@
   },
   {
     "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./evidence-viseme",
+    "names": [
+      {
+        "name": "applyBlinkClosureToRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./viseme-runtime",
     "names": [
       {

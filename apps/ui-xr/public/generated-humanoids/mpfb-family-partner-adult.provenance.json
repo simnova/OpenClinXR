@@ -70,8 +70,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-12T16:29:00Z",
- "outputSha256": "47134447a0a5e0fd9f6206e5f5ebe3e7e728b9db527646bd5d830cfbabe7f165",
- "outputBytes": 10077060,
+ "outputSha256": "f4e9094ebb965e6296867906193df5cc1249dc3b3a55d395ca114e76b6884d67",
+ "outputBytes": 10228348,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-09-28T04:06:17.490Z",
@@ -993,5 +993,118 @@
     "tools/openclinxr/asset-pipeline/skin/roughness-breakup/derive-inputs/mask-scalp.png": "2ec1917d6b8880637cdc21f9390e5efd593507d72e1e2f505ce5e40d2cf360f6"
    }
   }
- ]
+ ],
+ "lashFollowR8": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+  "coreSha256": "dc742f358dc2b01ed02f454dd1f8bbad993dc9916246b2355837ad958f20e374",
+  "inputSha256": "47134447a0a5e0fd9f6206e5f5ebe3e7e728b9db527646bd5d830cfbabe7f165",
+  "policy": "r8 eye-centroid raw class; moving-upper-lid body-vertex upper hull; upper any-moving/lower proof-AABB own region; same triangle seats and follows; flagged >4.55mm cards remain original with zero closure delta",
+  "seatFollowMismatchCount": 0,
+  "sides": {
+   "left": {
+    "snap": {
+     "p50": 0.143026,
+     "p90": 2.681394,
+     "max": 3.416807
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 525,
+    "cardsBase": 525,
+    "rawUpperCards": 456,
+    "rawLowerCards": 69,
+    "upperCards": 456,
+    "lowerCards": 69,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     0.029275975345323484,
+     1.5527031943202019,
+     0.12869059201329947
+    ],
+    "lowerProofAabb": {
+     "min": [
+      0.01798260770738125,
+      1.5418752431869507,
+      0.11869753152132034
+     ],
+     "max": [
+      0.040533795952796936,
+      1.5637315511703491,
+      0.1351814568042755
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 87,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -1.0,
+     0.0,
+     0.0
+    ],
+    "ownRegionTriCountR6": 13,
+    "ownRegionTriCountR7": 41,
+    "flaggedOver4_55mmCount": 0,
+    "flaggedOver4_55mmCardIds": []
+   },
+   "right": {
+    "snap": {
+     "p50": 0.21034,
+     "p90": 0.968072,
+     "max": 3.942217
+    },
+    "followBind": {
+     "p50": 0.0,
+     "p90": 0.0,
+     "max": 0.0,
+     "definition": "seatTri == followTri and follow is evaluated at the seat point"
+    },
+    "cardsKeep": 520,
+    "cardsBase": 520,
+    "rawUpperCards": 430,
+    "rawLowerCards": 90,
+    "upperCards": 430,
+    "lowerCards": 90,
+    "classChangedCardIds": [],
+    "eyeCentre": [
+     -0.029275975345323484,
+     1.5527031943202019,
+     0.12869059201329947
+    ],
+    "lowerProofAabb": {
+     "min": [
+      -0.040533795952796936,
+      1.5418752431869507,
+      0.11869753152132034
+     ],
+     "max": [
+      -0.01798260770738125,
+      1.5637315511703491,
+      0.1351814568042755
+     ]
+    },
+    "bodyPrimitiveCount": 8,
+    "boundaryWeldToleranceM": 1e-06,
+    "boundaryLoopCount": 87,
+    "eyeOpeningLoopStatus": "no-eye-opening-loop",
+    "eyeOpeningLoopVerts": 0,
+    "topologyMarginVerts": 0,
+    "horizontalAxis": [
+     -1.0,
+     0.0,
+     0.0
+    ],
+    "ownRegionTriCountR6": 14,
+    "ownRegionTriCountR7": 35,
+    "flaggedOver4_55mmCount": 0,
+    "flaggedOver4_55mmCardIds": []
+   }
+  }
+ }
 }

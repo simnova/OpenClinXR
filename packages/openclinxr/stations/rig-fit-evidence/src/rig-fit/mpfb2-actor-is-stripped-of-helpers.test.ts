@@ -160,7 +160,30 @@ const MIN_USABLE_MOUTH_TARGETS = 13;
 const MAX_MOVED_FRACTION = 0.5;
 
 const io = new NodeIO();
+
+// One body rule (tsk_381fda384bdda8dc, super-ceo-cap6 ruling): the runtime resolver in
+// asset-registry humanoid-body-mesh.ts, loaded the way the-body-is-identified-not-guessed.test.ts
+// loads it. The eyelash mesh carries closure targets but fewer than the body, so identity ranks it out.
+type BodyCandidate = { name: string; triangleCount: number; morphTargetCount: number; skinned: boolean };
+const { resolveHumanoidBodyMesh } = (await import(
+  `${REPO_ROOT}/packages/openclinxr/asset-registry/src/humanoid-body-mesh.ts`
+)) as { resolveHumanoidBodyMesh: <T extends BodyCandidate>(meshes: readonly T[]) => T | null };
+function bodyMeshName(d: Awaited<ReturnType<NodeIO["read"]>>): string | null {
+  const candidates = d.getRoot().listMeshes().map((m) => {
+    let triangleCount = 0;
+    let morphTargetCount = 0;
+    let skinned = false;
+    for (const p of m.listPrimitives()) {
+      triangleCount += (p.getIndices()?.getCount() ?? 0) / 3;
+      morphTargetCount = Math.max(morphTargetCount, p.listTargets().length);
+      if (p.getAttribute("JOINTS_0")) skinned = true;
+    }
+    return { name: m.getName(), triangleCount, morphTargetCount, skinned };
+  });
+  return resolveHumanoidBodyMesh(candidates)?.name ?? null;
+}
 const doc = await io.read(AISHA);
+const BODY_MESH = bodyMeshName(doc);
 
 /**
  * Body triangles: every primitive that is not a fitted makeclothes garment (any slot)
@@ -198,6 +221,7 @@ for (const mesh of doc.getRoot().listMeshes()) {
     primitives += 1;
     totalVerts += pos.getCount();
 
+    if (mesh.getName() !== BODY_MESH) continue;
     if (prim.listTargets().length === 0 || pos.getCount() <= bodyVerts) continue;
     bodyVerts = pos.getCount();
     const found: string[] = [];
