@@ -329,6 +329,15 @@ function deriveMouthFocusBounds(root: Object3D): {
 /** Opt-in head framing independent of hair: body head box, extended down by belowHeads head heights. */
 export type HeadBodyFrame = { belowHeads: number; padHeads?: number };
 
+/**
+ * Page-level head framing set by parseIsolatedSubjectSpec from the spec's `headBodyFrame` (hair-groom-2
+ * cards-opt2 P1). Kept here, not in isolated-subject-lab.ts, so the lab module source stays byte-pinned.
+ */
+let pageHeadBodyFrame: HeadBodyFrame | undefined;
+export function setPageHeadBodyFrame(frame: HeadBodyFrame | undefined): void {
+  pageHeadBodyFrame = frame && Number.isFinite(frame.belowHeads) ? frame : undefined;
+}
+
 export function resolveFocus(
   root: Object3D,
   focus: "eyes" | "head" | "mouth" | "forearm" | "neck" | undefined,
@@ -352,7 +361,7 @@ export function resolveFocus(
     };
   }
   if (focus === "head") {
-    const derived = deriveHeadFocusBounds(root, headBodyFrame);
+    const derived = deriveHeadFocusBounds(root, headBodyFrame ?? pageHeadBodyFrame);
     return {
       focusRegion: {
         kind: "head_box",
