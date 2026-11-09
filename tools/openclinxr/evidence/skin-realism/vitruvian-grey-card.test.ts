@@ -8,7 +8,12 @@ import {
   runGreyCardHookIfEnabled,
 } from "./vitruvian-compare.js";
 import {
+  gitBlobSha,
+  greyCardFullyOffFrame,
   isHudSafeNdc,
+  pngFrameSize,
+  resolveCaptureCardOutcome,
+  resolveCardCropBox,
   patientRootFrameMatrix,
   sortLightsStable,
   worldFromPatientRootFrame,
@@ -182,5 +187,48 @@ describe("product rig patient staging anchor", () => {
       source,
       "Restore the shared staged-patient anchor; restoring castThree reintroduces the measured 16 L* fill gap.",
     ).toMatch(/legacyCastAnchorRemoved: true/u);
+  });
+});
+
+describe("grey card off frame on a region pass", () => {
+  const FRAME = { width: 4096, height: 4096 };
+  // Measured forearm region pass, i2 warm_light-forearm-close (card behind/beside the camera).
+  const FOREARM_BOX = { x0: 9909, y0: 0, x1: 4096, y1: -1143 };
+  const PARTLY_VISIBLE = { x0: 3900, y0: 3800, x1: 4400, y1: 4300 };
+
+  it("records a fully off-frame card on a region pass without measuring it", () => {
+    expect(greyCardFullyOffFrame(FOREARM_BOX, FRAME)).toBe(true);
+    expect(resolveCaptureCardOutcome(FOREARM_BOX, FRAME, false)).toBe("off_frame");
+    expect(resolveCardCropBox(null, true)).toEqual({ box: { x0: 0, y0: 0, x1: 0, y1: 0 }, offFrame: true });
+  });
+
+  it("measures a partly visible card and throws when the crop then excludes it", () => {
+    expect(greyCardFullyOffFrame(PARTLY_VISIBLE, FRAME)).toBe(false);
+    expect(resolveCaptureCardOutcome(PARTLY_VISIBLE, FRAME, false)).toBe("measure");
+    expect(() => resolveCardCropBox(null, false)).toThrow("grey card was requested but the output crop excluded it");
+  });
+
+  it("clips x by width and y by height on a non-square frame", () => {
+    const wide = { width: 4096, height: 1024 };
+    expect(greyCardFullyOffFrame({ x0: 100, y0: 2000, x1: 300, y1: 2200 }, wide)).toBe(true);
+    expect(greyCardFullyOffFrame({ x0: 3000, y0: 100, x1: 3200, y1: 300 }, wide)).toBe(false);
+  });
+
+  it("reads the frame size from the PNG header", () => {
+    const header = new Uint8Array(24);
+    header.set([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 13, 0x49, 0x48, 0x44, 0x52]);
+    new DataView(header.buffer).setUint32(16, 2101);
+    new DataView(header.buffer).setUint32(20, 1500);
+    expect(pngFrameSize(header)).toEqual({ width: 2101, height: 1500 });
+    expect(() => pngFrameSize(new Uint8Array(10))).toThrow("not a PNG");
+  });
+
+  it("refuses an empty card box on a card-camera pass", () => {
+    expect(() => resolveCaptureCardOutcome(FOREARM_BOX, FRAME, true)).toThrow("card-camera pass framed an empty card box");
+  });
+
+  it("records the tool blob sha git prints for the same bytes", () => {
+    // `printf 'hello\n' | git hash-object --stdin`
+    expect(gitBlobSha(new TextEncoder().encode("hello\n"))).toBe("ce013625030ba8dba906f756967f9e9ca394464a");
   });
 });

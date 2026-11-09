@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+
 export type NdcPoint = { x: number; y: number; z?: number };
 
 export type LightSortRecord = {
@@ -78,4 +80,50 @@ export function patientRootFrameMatrix(patientRootWorld: readonly number[], card
 
 export function worldFromPatientRootFrame(patientRootWorld: readonly number[], cardPatientRoot: readonly number[]): number[] {
   return multiplyMatrix4(patientRootWorld, cardPatientRoot);
+}
+
+export type CardRect = { x0: number; y0: number; x1: number; y1: number };
+
+/**
+ * Fully off frame: the projected box clipped to the frame is empty on either axis,
+ * i.e. min(x1, width) <= max(x0, 0) || min(y1, height) <= max(y0, 0). An inverted box
+ * (x1 < x0, seen on forearm frames) is empty under the same expression.
+ */
+export type FrameSize = { width: number; height: number };
+
+export function greyCardFullyOffFrame(box: CardRect, frame: FrameSize): boolean {
+  return Math.min(box.x1, frame.width) <= Math.max(box.x0, 0) || Math.min(box.y1, frame.height) <= Math.max(box.y0, 0);
+}
+
+/** Width and height from a PNG's IHDR (bytes 16-23), so the frame is the image actually written. */
+export function pngFrameSize(bytes: Uint8Array): FrameSize {
+  const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength);
+  if (bytes.length < 24 || view.getUint32(12) !== 0x49484452) throw new Error("not a PNG with an IHDR chunk");
+  return { width: view.getUint32(16), height: view.getUint32(20) };
+}
+
+/**
+ * A region pass (no card camera) may frame the card off capture: record it, do not measure.
+ * A card-camera pass exists to measure the card, so an empty box refuses.
+ */
+export function resolveCaptureCardOutcome(box: CardRect, frame: FrameSize, cardCamera: boolean): "measure" | "off_frame" {
+  if (!greyCardFullyOffFrame(box, frame)) return "measure";
+  if (cardCamera) throw new Error(`card-camera pass framed an empty card box ${JSON.stringify(box)}`);
+  return "off_frame";
+}
+
+/**
+ * Output-crop box: the cropped card box, or an empty box when the capture recorded the card
+ * off frame (nothing to subtract from the skin mask). A card that was on the capture but
+ * outside the crop still throws.
+ */
+export function resolveCardCropBox(cropped: CardRect | null, capturedOffFrame: boolean): { box: CardRect; offFrame: boolean } {
+  if (cropped) return { box: cropped, offFrame: false };
+  if (!capturedOffFrame) throw new Error("grey card was requested but the output crop excluded it");
+  return { box: { x0: 0, y0: 0, x1: 0, y1: 0 }, offFrame: true };
+}
+
+/** The sha `git hash-object` prints for these bytes; manifests record the tool blob they ran under. */
+export function gitBlobSha(bytes: Uint8Array): string {
+  return createHash("sha1").update(`blob ${bytes.length}\0`).update(bytes).digest("hex");
 }

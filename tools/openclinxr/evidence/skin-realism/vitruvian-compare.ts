@@ -29,6 +29,7 @@ import {
   type LabEvidence,
   sha256File,
 } from "./runtime-portrait-capture.js";
+import { gitBlobSha, pngFrameSize, resolveCaptureCardOutcome, resolveCardCropBox } from "./vitruvian-grey-card.js";
 
 class PageFaultError extends Error {
   override name = "PageFaultError";
@@ -130,7 +131,9 @@ type Captured = {
   readback: LiveReadback;
   captureSize: number;
   instrumentation?: {
-    cardLab: CardLab;
+    /** null when a region pass (no card camera) framed the card fully outside the capture. */
+    cardLab: CardLab | null;
+    cardOffFrame?: boolean;
     lightToggle: unknown[];
     restoreCheck: Record<string, unknown> | null;
     patientMaterials: unknown[];
@@ -1079,6 +1082,25 @@ async function captureVariant(input: {
     if (!greyCard) throw new Error("enabled grey-card hook did not run");
     evidence = { ...evidence, greyCard };
     await screenshotLabCanvas(input.page, input.imagePath);
+    // A region pass keeps the card hook but not its camera, so the card may sit off frame
+    // (forearm). Record that; a card-camera pass still refuses an empty box.
+    const frame = pngFrameSize(readFileSync(input.imagePath));
+    if (resolveCaptureCardOutcome(greyCard.projectedBoxPx, frame, input.greyCardCamera === "card") === "off_frame") {
+      return {
+        imagePath: input.imagePath,
+        evidence,
+        readback: await readLive(input.page),
+        captureSize: input.captureSize,
+        instrumentation: {
+          cardLab: null,
+          cardOffFrame: true,
+          lightToggle: [],
+          restoreCheck: null,
+          patientMaterials: (greyCard["patientMaterials"] as unknown[]) ?? [],
+          skinMaterialRows: (greyCard["skinMaterialRows"] as unknown[]) ?? [],
+        },
+      };
+    }
     const cardLab = cardMedianLab(input.imagePath, greyCard.projectedBoxPx);
     const toggled = input.lightToggle
       ? await runLabLightToggle(input.page, input.imagePath, greyCard.projectedBoxPx, cardLab)
@@ -1156,10 +1178,10 @@ function greyCardBoxAfterCrop(capture: Captured, crop: Rect): Rect | null {
 
 function greyCardManifest(capture: Captured, crop: Rect): Record<string, unknown> | null {
   if (!capture.evidence.greyCard) return null;
-  const greyCardBoxPx = greyCardBoxAfterCrop(capture, crop);
-  if (!greyCardBoxPx) throw new Error("grey card was requested but the output crop excluded it");
+  const { box: greyCardBoxPx, offFrame } = resolveCardCropBox(greyCardBoxAfterCrop(capture, crop), capture.instrumentation?.cardOffFrame === true);
   return {
     greyCardBoxPx,
+    ...(offFrame ? { greyCardOffFrame: true } : {}),
     greyCardSourceBoxPx: capture.evidence.greyCard.projectedBoxPx,
     greyCardWorldTransform: capture.evidence.greyCard.worldTransform,
     greyCard: capture.evidence.greyCard,
@@ -1525,6 +1547,11 @@ async function main(): Promise<void> {
   const manifest: Record<string, unknown> = {
     schemaVersion: "openclinxr.vitruvian-compare.v1",
     tool: TOOL_REL,
+    // The runner re-captures a key when any of these differs from `git hash-object` on the tree.
+    toolBlobShas: {
+      "vitruvian-compare.ts": gitBlobSha(readFileSync(new URL(import.meta.url))),
+      "vitruvian-grey-card.ts": gitBlobSha(readFileSync(new URL("./vitruvian-grey-card.ts", import.meta.url))),
+    },
     command: exactCommand(cwd),
     cwd,
     origRef: cli.origRef,
