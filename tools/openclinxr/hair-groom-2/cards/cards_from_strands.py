@@ -127,6 +127,11 @@ def cli():
     p.add_argument("--min-reach", type=int, default=MIN_REACH,
                    help="groom-r9: a card ends where fewer than this many members still reach (default 3); a few "
                         "long members alone set the tip direction, and under a tapered hem those tips splay")
+    p.add_argument("--max-twist-deg", type=float, default=None,
+                   help="cards-r10: the width vector turns about the tangent by at most this many degrees per station "
+                        "(rotation-minimising, toward O x T). Off by default. Where O swings toward T near the shoulder "
+                        "W = O x T turned 45-90 deg per station and the card stood edge-on to the back camera (back "
+                        "notch, cards 89/90/590/591 of groom-r9/cards-mr8)")
     p.add_argument("--layers", type=int, default=2, choices=(1, 2),
                    help="cards per cluster, at the member depth quantiles LAYER_Q along the card normal")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -210,7 +215,7 @@ def outward(C, centre, colliders, cyl_band_m=0.0, blend_m=SURFACE_BLEND_M):
     return O
 
 
-def frames(C, O):
+def frames(C, O, max_twist_deg=None):
     S = len(C)
     T = np.empty_like(C)
     T[1:-1] = C[2:] - C[:-2]
@@ -231,6 +236,21 @@ def frames(C, O):
     for i in range(1, S):  # sign continuity
         if np.dot(W[i], W[i - 1]) < 0:
             W[i] = -W[i]
+    if max_twist_deg is not None:
+        # transport the previous W into the plane normal to T[i], then turn it toward the O x T target by at
+        # most max_twist_deg about T[i]
+        m = math.radians(max_twist_deg)
+        for i in range(1, S):
+            w = W[i - 1] - T[i] * np.dot(W[i - 1], T[i])
+            w /= max(np.linalg.norm(w), 1e-12)
+            tg = W[i] - T[i] * np.dot(W[i], T[i])
+            tg /= max(np.linalg.norm(tg), 1e-12)
+            if np.dot(tg, w) < 0:
+                tg = -tg
+            b = np.cross(T[i], w)
+            ang = math.atan2(np.dot(tg, b), np.dot(tg, w))
+            ang = max(-m, min(m, ang))
+            W[i] = math.cos(ang) * w + math.sin(ang) * b
     for _ in range(W_SMOOTH_PASSES):
         Wn = W.copy()
         Wn[1:-1] = 0.25 * W[:-2] + 0.5 * W[1:-1] + 0.25 * W[2:]
@@ -444,7 +464,7 @@ def main():
                 C[0] = np.array((loc_r + nrm_r * hold)[:])
             Pm[:, 0] = Pm[:, 0] - np.outer((Pm[:, 0] - C[0]) @ tg, tg)   # member roots on that line
         T, W, tw = frames(C, outward(C, centre_w, colliders, a.cyl_band_mm / 1000.0,
-                                       a.surface_blend_mm / 1000.0))
+                                       a.surface_blend_mm / 1000.0), a.max_twist_deg)
         twist_max = max(twist_max, tw)
         offs = np.where(reach, ((Pm - C[None]) * W[None]).sum(2), np.nan)   # (members, S)
         lo = smooth1d(np.nanpercentile(offs, a.width_pct, axis=0), WIDTH_SMOOTH)
@@ -578,6 +598,7 @@ def main():
         "cardWidthMmRoot": {"p10": float(np.percentile(card_width, 10)), "median": float(np.median(card_width)),
                             "p90": float(np.percentile(card_width, 90))},
         "twistMaxDeg": twist_max, "clusters": int(len(order)), "layers": a.layers,
+        **({"maxTwistDegPerStation": a.max_twist_deg} if a.max_twist_deg is not None else {}),
         "outerLayerSpreadCutMm": spread_cut * 1000,
         "memberDepthSpreadP10P90Mm": {"median": float(np.median(depth_spread) * 1000),
                                       "p90": float(np.percentile(depth_spread, 90) * 1000)},
