@@ -414,6 +414,19 @@ def push_out(p, colliders, offset):
     return p
 
 
+def push_layer(p, colliders, base, offset, back):
+    """layerPushBack (groom-r9): push to the base offset along the surface normal, then make
+    up the rest of the stacked layer offset by moving straight back (head-local +y) from the
+    body. A normal push of the full layer offset over the curved upper back threw the outer
+    layer sideways, and those strands crossed the back sheet as diagonals (rubric D1)."""
+    p = push_out(p, colliders, base)
+    if offset > base:
+        s, loc, _ = colliders[0].signed(p)
+        if loc is not None and s < offset:
+            p = p + back * (offset - s)
+    return p
+
+
 class ConvexShell:
     """Solid convex hull as half-spaces. signed(p) = max over face planes of the
     plane distance: exact depth inside, a lower bound of the distance outside, so
@@ -558,6 +571,7 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
     conv_w = rc["part"].get("backConvergeWidthMm", 40.0) / 1000.0
     conv_stop = rc["part"].get("backConvergeStopAtMidline", False)
     back_root = rel[1] > rc["part"]["partFadeBackMm"] / 1000.0
+    lay_back = f.get("layerPushBack", False)
     table = np.array(rc["scalp"]["hairlineMmAboveHeadOriginByAzimuthDeg"], dtype=float)
     p = p + Vector(normal) * (f["rootLiftMm"] / 1000.0)
     d = (Vector(normal) * f.get("rootNormalWeight", ROOT_NORMAL_WEIGHT)
@@ -681,7 +695,7 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
             steer += back * (tcv["gain"] * g * max(-1.0, min(1.0, (tcv_y - lp[1]) / tcv_ramp)))
         d = (d + steer * ds).normalized()
         q = p + d * ds
-        q = push_out(q, collider, off_here)
+        q = push_layer(q, collider, min(vol, off_here), off_here, back) if lay_back else push_out(q, collider, off_here)
         step = q - p
         if step.length > 1e-9:
             d = step.normalized()
@@ -698,11 +712,12 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
     return np.array([v[:] for v in pts]), L, np.array(offs)
 
 
-def relax_guide(path, collider, offset, iterations, movable=None):
+def relax_guide(path, collider, offset, iterations, movable=None, layer_back=None):
     """Taut-strand relaxation: Laplacian smoothing (root fixed) alternating with the
     signed-distance push, so a strand spans concavities (under the ear lobe, jaw)
     instead of wrapping into them. offset: scalar or one value per point. movable:
-    optional callable(points) -> bool mask of the points the smoothing may move."""
+    optional callable(points) -> bool mask of the points the smoothing may move.
+    layer_back: optional (base offset, back vector): push_layer instead of push_out."""
     pts = path.copy()
     offs = np.broadcast_to(np.asarray(offset, dtype=float), (len(pts),))
     for _ in range(iterations):
@@ -712,7 +727,10 @@ def relax_guide(path, collider, offset, iterations, movable=None):
             sm = np.where(m[:, None], sm, pts[1:-1])
         pts[1:-1] = sm
         for i in range(1, len(pts)):
-            pts[i] = push_out(Vector(pts[i]), collider, offs[i])[:]
+            if layer_back is not None:
+                pts[i] = push_layer(Vector(pts[i]), collider, min(layer_back[0], offs[i]), offs[i], layer_back[1])[:]
+            else:
+                pts[i] = push_out(Vector(pts[i]), collider, offs[i])[:]
     return pts
 
 
@@ -760,6 +778,12 @@ def cut_children(pos, off, rc, origin, R, ear, seed):
         keep = s[-1]
         if hem:
             zh = hem["centreZMm"] + hem["risePerMm2"] * q[:, 0] ** 2 + jit[c]
+            # risePerMmY2 / yCentreMm (groom-r9): the hem also rises away from a profile plane
+            # (head-local y), so the tail tapers to a point in profile instead of ending as a
+            # flat-bottomed block (rubric B5 side tip line)
+            # (riseCapMm caps the rise, so points over the scalp never read as below the hem)
+            if hem.get("risePerMmY2"):
+                zh = zh + np.minimum(hem["risePerMmY2"] * (q[:, 1] - hem["yCentreMm"]) ** 2, hem["riseCapMm"])
             below = np.where(q[:, 2] < zh)[0]
             if len(below) and below[0] > 0:
                 i = below[0]
@@ -999,7 +1023,8 @@ def main():
         vol_m = rc["fall"]["volumeMm"] / 1000.0
         roff = np.maximum(resample_offsets(path, offs, P), vol_m) if rc["fall"].get("layerMmPerMm", 0.0) > 0.0 \
             else vol_m
-        g_ = relax_guide(resample(path, P), collider, roff, rc["fall"]["relaxIterations"])
+        lb = (vol_m, Vector(R[1])) if rc["fall"].get("layerPushBack", False) else None
+        g_ = relax_guide(resample(path, P), collider, roff, rc["fall"]["relaxIterations"], layer_back=lb)
         # hang relaxation (groom-r5): extra taut-strand iterations on the points below
         # relaxBelowMm (head-local z) only, so the hanging sheet spans the nape and the
         # upper back as one taut curve while the scalp, ear and crown layout stay as marched
@@ -1007,7 +1032,7 @@ def main():
         if rb:
             zb = rb["belowMm"] / 1000.0
             g_ = relax_guide(g_, collider, roff, rb["iterations"],
-                             movable=lambda q: (q - np.array(origin)) @ np.array(R)[2] < zb)
+                             movable=lambda q: (q - np.array(origin)) @ np.array(R)[2] < zb, layer_back=lb)
         guides.append(g_)
         lens.append(L)
     guides = np.array(guides)

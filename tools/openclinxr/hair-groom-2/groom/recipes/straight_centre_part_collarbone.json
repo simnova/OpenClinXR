@@ -105,7 +105,7 @@
     "topMm": -175,
     "mmPerMm": 1.2,
     "minHalfWidthMm": 30,
-    "gain": 1.0
+    "gain": 2.0
    }
   },
   "relaxBelow": {
@@ -121,7 +121,8 @@
    "yMm": 108,
    "gain": 1.5,
    "rampMm": 10
-  }
+  },
+  "layerPushBack": true
  },
  "clump": {
   "factor": 0.35,
@@ -189,5 +190,13 @@
   "minLengthMm": 10,
   "minRadiusScale": 0.15,
   "power": 3
+ },
+ "hem": {
+  "centreZMm": -350,
+  "risePerMm2": 0.0,
+  "jitterMm": 4,
+  "yCentreMm": 115,
+  "risePerMmY2": 0.8,
+  "riseCapMm": 35
  }
 }
