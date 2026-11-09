@@ -1,6 +1,6 @@
 # hair-groom-2 realism roadmap: from rubric-passing cards to reference-matching hair
 
-Author: hair-groom-2 lane (Claude, Elephant) · Status: EGM review, round 4 resolved · Date: 2026-11-09
+Author: hair-groom-2 lane (Claude, Elephant) · Status: EGM review, round 4 resolved; operator answers OP1-OP5 applied · Date: 2026-11-09
 Supersedes nothing; extends `DESIGN.md` (deterministic hair cards), which stays the pipeline contract.
 Reviews: `reviews/realism-2026-11-09/` (raw goldfish findings and one resolution file per round).
 
@@ -9,8 +9,11 @@ Reviews: `reviews/realism-2026-11-09/` (raw goldfish findings and one resolution
 The lane builds long, straight, dark-brown, centre-part hair for the MPFB actor Aisha from a procedural
 Blender strand groom, converts it to hair cards, and renders the cards in the three.js (r184) runtime. The
 target is four operator-supplied reference images `targets/target-{front,three_quarter,profile,back}-a1.png`
-(989c6c709, 56d32ca75). They are CG renders of an MPFB Aisha (neck seam, horizon floor); whether their
-scene file exists is OP5.
+(989c6c709, 56d32ca75). They are xAI Imagine `image_edit` outputs (aisha-v3 set) whose inputs were bald
+Cycles renders of Aisha in the target scene (glossary); the edit added the hair and kept face, shirt,
+camera and light (`tools/openclinxr/evidence/hair-target2/make_sources.py`, hair-target3/RESULT.txt,
+hair-target4/RESULT.txt). The hair highlight in the targets was painted by Imagine, conditioned on that
+scene's light.
 
 Operator direction (2026-11-09): reach high realism first, then optimize. This document reviews the 74 lane
 commits (`git log --oneline origin/main..HEAD`) from first principles: what measurably worked, which
@@ -53,6 +56,17 @@ phases. Phase order puts a visible change in every slice.
   ambient #dceee6 1.45, white key 2.2 at (3.2, 5.2, 4.1), teal fill #b6d8ca 1.1, world frame, no tone
   mapping, no environment. The ACES/RoomEnvironment studio branch (`isolated-subject-rig-variants.ts:238-253`)
   runs only with `rigOverride.studio` and is not used here.
+- **target scene**: the Blender scene that rendered the Imagine input images,
+  `tools/openclinxr/evidence/hair-target2/make_sources.py` (tracked): Cycles 64 samples + OIDN, 1024x1024,
+  view transform unset (Blender default; installed 5.2.3), world grey (.5, .5, .5) strength 1, a 12 m plane
+  with grey (.72, .72, .74) roughness 1 at (0, 2.2, 1.0) and rotation 0 (a horizontal floor at z = 1 m,
+  the horizon in the targets), three white Area lights: KEY 100 W 2 m at (-1.5, -2.0, 2.2), FILL 40 W 2 m
+  at (1.5, -2.0, 1.8), RIM 60 W 1.5 m at (0, 2.0, 2.6); body `mpfb-peds-parent-aisha.glb` with the library
+  hair mesh removed and the shirt overridden matte pink; cameras from
+  `tools/openclinxr/hair-groom/manifests/cameras-scorer-v3.json` (front camera z 1.49 m). From a head
+  centre near (0, 0, 1.55) the key sits about 15 deg above horizontal, the fill about 5 deg, and the rim
+  about 28 deg above and behind. The source PNGs were in gitignored scratch, now deleted; the script,
+  GLB and cameras are tracked, so the scene re-renders.
 - **seed+1**: the same recipe with the next random seed.
 - **card tolerance (tol)**: per metric, view and rig, max(A, B). A = max over strands seeds 2-5 of
   abs(m_i - m_1), reference = strands seed 1. B = card perturbation floor: cards rebuilt from strands seed 1
@@ -86,7 +100,8 @@ Candidate causes, from reading code and EV:
   median 1.078, round2-critic R2C1) because the sun azimuth is dropped (`atlas_from_members.py:24-32`).
   R-a explains baked colour and occlusion, not the missing band.
 - R-rig. **The fitted rig may not place a crown band.** Key and fill sit within 5 deg of horizontal; the
-  skin/shirt feature vector does not constrain where a specular highlight falls.
+  skin/shirt feature vector does not constrain where a specular highlight falls. The target scene has a
+  key about 15 deg up and a rim about 28 deg up behind the head, which the fitted rig lacks.
 - R-b. **One GGX anisotropic lobe** (MeshPhysicalMaterial + KHR_materials_anisotropy) stands in for hair
   scattering. Production hair uses two shifted lobes (primary white, secondary tinted) with a per-strand
   tangent shift; streaks come from that shift.
@@ -102,15 +117,15 @@ Candidate causes, from reading code and EV:
 
 ## Goals
 
-- G1. In all four views under the reference rig (fitted rig, or the P3 sweep pick once the grader picks
-  it) and the default light, the grader ranks the cards closer to the
-  Cycles strand reference than BEST3, every gated metric is within tol, and the grader judges the cards
-  closer to the target than BEST3.
-- G2. Under the default light (until OP1 names production light): black share <= target + 2 pp and peak
-  >= 0.8 x target (`briefs/sheen-3-dual-light.md:13`). Peak <= 1.25 x target is report-only (no known-good).
+- G1. In all four views under the target scene (Cycles for strands, the P1 harness port for cards), the
+  grader ranks the cards closer to the Cycles strand reference than BEST3, every gated metric is within
+  tol, and the grader judges the cards closer to the target than BEST3. The lab default light is
+  report-only.
+- G2. Under the harness port of the target scene: black share <= target + 2 pp and peak >= 0.8 x target
+  (`briefs/sheen-3-dual-light.md:13`). Peak <= 1.25 x target is report-only (no known-good).
 - G3. Shape rubric stays 41/41 for the shipped seed.
-- G4. At the end of P7: drawn hair tris <= 63,024 (r10 B), hair GPU texture <= 12 MB including mips,
-  draw calls <= 2 (provisional, OP3). Quest frame time report-only once a Quest harness exists.
+- G4. Cost is not gated before P7 (OP3). P7 sets the budget from the realism result; r10 B's 63,024 drawn
+  tris and 2 draw calls are recorded for comparison.
 
 ## Non-Goals
 
@@ -118,17 +133,23 @@ Candidate causes, from reading code and EV:
 - Making every seed pass the rubric; an automatic seed search until a seed pass rate is known.
 - Custom render pipelines that replace three.js materials wholesale.
 
-## Escalated to the operator
+## Operator answers (2026-11-09)
 
-- OP1. Production light for encounter scenes: harness default, fitted rig, or the lighting_design station's
-  per-room rig (`factory-stations/src/lighting_design/lighting-rig.py`; world-frame, runtime consumption
-  not wired, line 11). Not blocking: cards are fitted to strands under the reference rig and the default light.
-- OP2. A GLB-declared hair shader extension (precedent OPENCLINXR_skin_shade) is acceptable. Withdrawn if
-  a P5 stock-material probe passes.
-- OP3. Confirm the G4 budget numbers.
-- OP4. Ship r10 B and stop the seed chase (P0 assumes yes). Texture size stays 2048 until P7.
-- OP5. The targets are CG renders. Does their scene file exist? If so, its light, hair BSDF and groom
-  replace the fitted rig and the P3 light sweep. Blocks the P3 sweep only.
+- OP1. Judge realism in a harness matched to the Imagine target scene. The target scene becomes the
+  reference light for G1, G2 and tol; the fitted rig is retired as reference and the P3 light sweep is
+  dropped. Production encounter light is a later question.
+- OP2. Operator deferred to the lane. Decision: a GLB-declared hair extension is acceptable. Standard
+  real-time practice is a dedicated hair shading model (two shifted lobes, Scheuermann 2004; dedicated hair
+  shading models in Unreal and Frostbite), and glTF has no ratified hair extension, so a vendor extension
+  on the OPENCLINXR_skin_shade precedent is the standard route. The P5 stock probes still run first
+  because each is one run.
+- OP3. No cost budget until realism holds; optimization is P7 (G4).
+- OP4. Operator deferred to the lane. Decision: freeze r10 B as the shape base and stop the seed chase.
+  The remaining gaps (Problems 1, 2, 4) are material, light and hairline; the P0 freeze is a recorded pin
+  that a later shape slice can move.
+- OP5. Answered by search after merging origin/main (d6252f892): the scene script is tracked (glossary,
+  target scene). Imagine repainted the hair, so the target's highlight is Imagine's response to that light,
+  not a Cycles render of a groom.
 
 ## What worked (measured)
 
@@ -192,7 +213,7 @@ Survey with sources: `reviews/realism-2026-11-09/prior-art.md`. Points that bear
 - CUJ1. Given a case blueprint naming Aisha with straight dark centre-part hair, when the factory builds
   her, then the runtime hair matches the reference on the gated metrics under the scene light.
 - CUJ2. Given a learner in a Quest encounter at conversation distance, when Aisha turns her head, then
-  the hair reads as hair (highlight follows the light, no card edges, no flicker) within the G4 budget.
+  the hair reads as hair (highlight follows the light, no card edges, no flicker); the P7 budget applies.
 
 ## Appearance metrics (`grade/sheen_gate.py`, tracked)
 
@@ -204,8 +225,8 @@ EV/sheen3b/score.txt to 3 dp under the old masks.
 - Scale: target and render resampled to a common px/mm at the head plane. Target px/mm from
   `grade/frames.json`; runtime `--body-frame 1.5` crop px/mm from a landmark fit (frame_fit-style), recorded
   in frames.json. Check: after resampling, the eye row lands within 2 px of the target eye row.
-- Capture: background set through `applyRigOverride` (`isolated-subject-rig-variants.ts`, not pinned) to the
-  target's mean background L; gallery strips use the same px/mm and background.
+- Capture: runtime crops under the harness port of the target scene (P1), which supplies the grey world
+  and the floor plane; gallery strips use the same px/mm and scene.
 - Masks: render = hideHair difference mask (`seg.py render_masks`; the renderer has no alpha,
   `isolated-subject-lab.ts:271`); target = `seg.py target_masks`, frozen to `grade/target-masks/`. Interior
   metrics erode the mask; outline metrics do not.
@@ -223,7 +244,7 @@ EV/sheen3b/score.txt to 3 dp under the old masks.
 
 | metric | status | counts from |
 |---|---|---|
-| peak, base, black share | gated: G2 vs target (default light); abs(card - strand) <= tol | G2 now; tol from P4 |
+| peak, base, black share | gated: G2 vs target (target scene port); abs(card - strand) <= tol | G2 from P1; tol from P4 |
 | band median row, band continuity | gated, abs(card - strand) <= tol | P4 (row), P5 (both) |
 | streak | gated, abs(card - strand) <= tol | P5 |
 | part width, hairline falloff | reported vs target; grader call gates P2 | P2 |
@@ -246,7 +267,21 @@ Each phase gate is graded independently at native resolution; each phase ends wi
   runtime sha 04371bc4… and BEST3 reproduces EV/sheen3/build/final/sha256; if not, gate = crop maxAbs 0 (the
   sheen3b repro_maxAbs pattern) and the nondeterministic step is recorded. Before the freeze the grader
   judges strand volume (crown, temple) vs the target; a miss goes to the operator with OP4.
-- **P1 Visible baseline (T5, T9).** First build slice.
+- **P1 Target-scene harness and visible baseline (T4, T5, T9).** First build slice.
+  - Target scene, Cycles: re-render the bald sources with make_sources.py unchanged. Known-good for parity:
+    the residual between these renders and the targets on face and shirt (fit feature vector), outside the
+    hair mask; Imagine kept those regions.
+  - Target scene, three.js: a `scene` rig type for the harness. Lighting from a Cycles equirect panorama of
+    the target scene taken at the head centre, with the three Area lights made camera-visible, used as
+    `scene.environment` (PMREM); grey world and the z = 1 m floor plane added as geometry. Reason: three
+    r184 shades RectAreaLight with isotropic LTC (`lights_physical_pars_fragment.glsl.js:465-500`) and
+    ignores anisotropy, while the environment path applies it (`getIBLAnisotropyRadiance`,
+    `envmap_physical_pars_fragment.glsl.js`). Check: the panorama shows all three emitters. Fallback if
+    parity fails: environment plus one directional per Area light at its centre.
+  - Parity gate: hairless body under the harness port vs the Cycles re-render, fit feature vector on skin
+    and shirt, residual <= the Cycles-vs-target residual above (known-good). Tone curve: Cycles default
+    view transform matched in three by the tone mapping that minimises that residual (AgX, ACES, none:
+    three runs, graded).
   - sheen_gate.py ported and port-checked; target band row re-measured per view; strips at common px/mm
     and matched background replace the current gallery strips.
   - Streak-map control: BEST3 without the map at spec .15 (spec .3 exists: EV/sheen3b/build/ns,
@@ -262,22 +297,16 @@ Each phase gate is graded independently at native resolution; each phase ends wi
 - **P2 Hairline, part, scalp (T6, T8).** Scalp-coloured underlayer card group in the card pipeline (the
   body GLB and its pins stay untouched). Wisp cards from members at the hairline and flyaway / hem-tip
   cards from members dropped by clustering. Gate: part width and hairline falloff reported vs the target at
-  common px/mm, grader judges the hairline and part closer to the target than BEST3, rubric 41/41. Tris may
-  exceed G4 here, recorded per round.
-- **P3 Light and reference (T4).**
-  - `cards/light_rig_blender.py` reads a LightRig per view (camera frame) and the lab default light (world
-    frame, ambient + two directionals) into Blender lights. Cycles in Standard view; three's tone curve
-    (AgX for the fitted rig, none for the default light) applied in post; RoomEnvironment approximation
-    recorded.
-  - Parity gate: hairless body in Cycles and three.js under the fitted rig and the default light, scored on
-    the fit feature vector; residual <= .033 (Cycles must sit no farther from three.js than three.js sits
-    from the target, 474d2b3a7).
-  - Strand references: r10 B strands seeds 1-6 under both lights at target framing; card rebuilds at
-    clustering seeds 1-3; tol computed; the non-vacuous proof above.
-  - Light sweep (blocked on OP5): rank candidate key elevation/azimuth by closed-form Kajiya-Kay band row
-    from cards.npz tangents (numpy), render the best 2-3 in Cycles, grader picks against the target band
-    row. The pick replaces the fitted rig as reference rig in G1 and tol. If OP5 supplies the scene file,
-    use its light instead.
+  common px/mm, grader judges the hairline and part closer to the target than BEST3, rubric 41/41. Tris
+  recorded per round.
+- **P3 Strand reference (T4).**
+  - Strand references: r10 B strands seeds 1-6 rendered in the target scene (make_sources.py lights,
+    world, floor and cameras; groom imported in place of the removed library hair) at target framing; card
+    rebuilds at clustering seeds 1-3; tol computed; the non-vacuous proof above.
+  - First read: does the Cycles strand render show a crown band under the target scene? If yes, R-rig is
+    confirmed as the band cause under the fitted rig, and the card work in P4-P5 aims at the strand
+    render. If no, the target band is Imagine's and the grader weighs band metrics against the strand
+    render only.
 - **P4 Data bake (T1, T2, T10).**
   - Step 0: shared clump atlas probe (8-16 tiles, >= 128 px across, assigned by cluster) vs BEST3 unique
     cells, same material. Grader and streak decide the layout for the bake.
@@ -293,13 +322,13 @@ Each phase gate is graded independently at native resolution; each phase ends wi
   - Gate: R-a by a per-cell hair irradiance-correlation probe in atlas_from_members.py (cell luminance vs
     Cycles irradiance at two key azimuths): both r values below the r10 lit atlas's. ID: per-cell
     distinct-ID runs across u / member count, median >= the same ratio for today's spec_streaks map. Base,
-    black share and band row within tol under both lights.
-- **P5 Hair lobes (T3).**
+    black share and band row within tol under the target scene.
+- **P5 Hair lobes (T3).** Extension approved (OP2).
   - Probes first, one run each: (a) per-strand normalTexture tilt along v from ID + anisotropyTexture RG
     jitter (RG constant (1, .5) today, `transplant_donor.py:88`; check first that a normal tilt moves the
     highlight, `transplant_donor.py:69`); (b) clearcoat as second lobe with opposite-tilted
     clearcoatNormalMap; (c) per-cell u function in anisotropyTexture RG only. If one passes the P5 gate:
-    no extension, OP2 withdrawn.
+    no extension needed.
   - Else: port Galacean's two-lobe Kajiya-Kay GLSL (licence checked first) into an onBeforeCompile hook,
     following the skin-shade-loader plugin, fail-closed and read-back test pattern; register through
     generated-loaders. three uses the tangent attribute only when anisotropy > 0 or a normalMap is present
@@ -307,7 +336,7 @@ Each phase gate is graded independently at native resolution; each phase ends wi
     OPENCLINXR_hair_lobes {auxTexture: textureInfo, lobe scalars}, carried by `--carry-extensions`,
     resolved by a GLTFLoader plugin via `parser.getDependency('texture', i)`.
   - Gate: band row, band continuity, streak, outline falloff and stray px within tol in all four views
-    under both lights; grader ranks cards closer to the strand reference than BEST3; G2 holds; turntable
+    under the target scene; grader ranks cards closer to the strand reference than BEST3; G2 holds; turntable
     artifact count <= P1 baseline.
 - **P6 Transparency remainder (T5).** Only if P1 left artifacts: extend `--fringe-blend/--fringe-triangles`
   with a per-triangle mean-texel-alpha split at the P1 cutoff. Gate: artifact count <= P1 baseline, no new
@@ -315,7 +344,8 @@ Each phase gate is graded independently at native resolution; each phase ends wi
 - **P7 Optimize (T7).** Precondition: KTX-Software (Apache-2.0) installed (toktx absent,
   `finalize-equipment-glb.ts:38`) and a KTX2 loader in the runtime. Options: map sizes 1024/512, KTX2
   (ETC1S colour, UASTC data), LODs, and for single-colour hair dropping atlas RGB (albedo =
-  baseColorFactor x f(ID, AO)). Gate: P5 gate still holds and G4 met.
+  baseColorFactor x f(ID, AO)). P7 opens by setting the cost budget (OP3). Gate: P5 gate still holds and
+  the budget is met.
 
 ## Alternatives Considered
 
@@ -326,8 +356,10 @@ Each phase gate is graded independently at native resolution; each phase ends wi
 - A4. Keep chasing seed robustness in geometry (r11-r14). Four rounds, no ship; P0 replaces it.
 - A5. Fit cards to the target image directly under each light. The target has one light; Cycles strands
   give a reference for every light.
-- A6. Express the rig in lighting-rig.v1. That schema is world-frame with watt energies for room bakes;
-  the fitted rig is camera-relative with three.js intensities. The LightRig format stays.
+- A6. Express the rig in lighting-rig.v1. Superseded by OP1: the reference light is the target scene,
+  which is native Blender.
+- A7. Port the target scene's Area lights to three RectAreaLight. Rejected: three r184 shades rect lights
+  isotropically, so the anisotropic hair highlight would not respond to them (P1).
 
 ## Detailed Implementation Plan
 
@@ -341,10 +373,11 @@ Each phase gate is graded independently at native resolution; each phase ends wi
 | tools/openclinxr/hair-groom-2/grade/target-masks/*.png | Create | P1 frozen target masks |
 | tools/openclinxr/hair-groom-2/cards/head_crops.ts, tools/openclinxr/evidence/isolated-subject-harness.ts | Modify | P1 material override, yaw, background, webm; P5 opt-in hairLobesLoader |
 | packages/openclinxr/xr-scene/src/isolated-subject-material-variants.ts | Modify | P1 MaterialOverride alphaToCoverage, alphaTest |
-| packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts | Modify | P1 background via applyRigOverride |
+| packages/openclinxr/xr-scene/src/isolated-subject-rig-variants.ts | Modify | P1 `scene` rig: environment from the panorama, floor plane, grey background |
 | tools/openclinxr/hair-groom-2/grade/frames.json | Modify | P1 runtime crop px/mm |
 | tools/openclinxr/hair-groom-2/cards/cards_from_strands.py | Modify | P2 scalp underlayer, wisp and flyaway cards |
-| tools/openclinxr/hair-groom-2/cards/light_rig_blender.py | Create | P3 LightRig and lab default light -> Blender lights per view |
+| tools/openclinxr/hair-groom-2/cards/target_scene_env.py | Create | P1 Cycles equirect panorama of the target scene at the head centre |
+| tools/openclinxr/hair-groom-2/cards/strands_in_target_scene.py | Create | P3 groom rendered in the make_sources.py scene |
 | tools/openclinxr/hair-groom-2/cards/atlas_from_members.py | Modify | P4 `--data-bake` (AOV EXR), shared clump layout, irradiance-correlation probe |
 | tools/openclinxr/hair-groom-2/cards/render_cards.py | Modify | P4 albedo atlas and CardV UV1 in `--bake-glb` |
 | tools/openclinxr/hair-groom-2/cards/run_cards.sh, cards/calib_search.py | Modify | P4 `ALBEDO=1`, gain fixed at 1 |
