@@ -68,6 +68,7 @@ FEATURE_ARC_MM = (30.0, 80.0, 200.0)   # points along each strand used as cluste
 KMEANS_ITERS = 25
 W_SMOOTH_PASSES = 4
 WIDTH_PCT = (2.0, 98.0)
+SC_FINE = 8                              # --station-chord: fine path samples per even station segment
 WIDTH_SMOOTH = 5                         # stations in the moving average of the width
 PUSH_PASSES = 3
 SURFACE_BLEND_M = 0.030                  # card normal follows the nearest body/garment face within this
@@ -132,6 +133,25 @@ def cli():
                         "(rotation-minimising, toward O x T). Off by default. Where O swings toward T near the shoulder "
                         "W = O x T turned 45-90 deg per station and the card stood edge-on to the back camera (back "
                         "notch, cards 89/90/590/591 of groom-r9/cards-mr8)")
+    p.add_argument("--station-chord", default="",
+                   help="r13 K2: MIN:MAX[:SMOOTH[:NEED]] - per card, stations placed on the member-mean path to minimise the largest "
+                        "chord deviation (mm) from that path, each segment between MIN and MAX x the even spacing; "
+                        "replaces --station-power; SMOOTH = placement on the path averaged over that many even segments; NEED = only cards whose even stations deviate more than NEED mm from that path. Off by default. Even stations (~30 mm) cut under the crown arc by "
+                        "1-3 mm (r12 probe/top.py) and power-law stations moved the root and part (D5)")
+    p.add_argument("--root-offset-scale", type=float, default=1.0,
+                   help="r13 D5: a member's root offset along the card (step 3b) x this in the atlas projection; 1 = "
+                        "cards-r3 onward. A member rooted o mm ahead of the moved root end starts at o / first-segment "
+                        "of station 1, so the card's root end is empty there and the scalp shows through it from behind "
+                        "(r13 probe/d5an.py: pale crown px hit card roots at v 0.006-0.011, atlas transmittance 0.36-0.40)")
+    p.add_argument("--root-offset-min-mm", type=float, default=0.0,
+                   help="r13: --root-offset-scale applies to cards at least this long (mm); shorter cards (sideburn, "
+                        "temple) keep their root offsets (r13 r0a: scale 0 on every card moved the S2 sideburn end "
+                        "14.5 -> 16.5 mm)")
+    p.add_argument("--tip-fan", default="",
+                   help="r13 K1/K3: DEG:V0:MINMM - on cards at least MINMM long, W turns about T by a seeded angle "
+                        "+-(0.5..1) x DEG, ramped in from arc fraction V0 to the tip. Off by default. A hanging card "
+                        "facing the back (or chest) is edge-on to the side camera; the strands it stands for are "
+                        "cylinders seen from every side")
     p.add_argument("--layers", type=int, default=2, choices=(1, 2),
                    help="cards per cluster, at the member depth quantiles LAYER_Q along the card normal")
     argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
@@ -159,6 +179,76 @@ def sample_at(P, s, targets):
         f = ((t[:, j] - s0) / np.maximum(s1 - s0, 1e-12))[:, None]
         out[:, j] = P[np.arange(N), i - 1] * (1 - f) + P[np.arange(N), i] * f
     return out
+
+
+def chord_dev_seg(Cf, i, k):
+    """largest distance (m) of the path points between i and k from the chord Cf[i]-Cf[k]"""
+    if k - i < 2:
+        return 0.0
+    d = Cf[k] - Cf[i]
+    nd = max(float(np.linalg.norm(d)), 1e-12)
+    return float(np.linalg.norm(np.cross(Cf[i + 1:k] - Cf[i], d / nd), axis=1).max())
+
+
+def chord_stations(Cf, S, lo_mul, hi_mul):
+    """r13 K2: S station indices into the fine member-mean path Cf (NF,3), ends fixed, chosen to minimise the
+    largest distance of the fine points from the chord between consecutive stations; every segment arc lies
+    between lo_mul and hi_mul x the even spacing (a short root segment keeps a stable root tangent, a long
+    straight one keeps the atlas cell's resolution along the card). Returns (indices, max deviation m)."""
+    NF = len(Cf)
+    sa = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(Cf, axis=0), axis=1))])
+    L = sa[-1]
+    if L <= 1e-9:
+        return np.round(np.linspace(0, NF - 1, S)).astype(np.int64), 0.0
+    even = L / (S - 1)
+    lo, hi = lo_mul * even, hi_mul * even
+
+    def dev(i, k):
+        if k - i < 2:
+            return 0.0
+        a, b = Cf[i], Cf[k]
+        d = b - a
+        nd = max(float(np.linalg.norm(d)), 1e-12)
+        q = Cf[i + 1:k] - a
+        return float(np.linalg.norm(np.cross(q, d / nd), axis=1).max())
+
+    def greedy(eps):
+        idx = [0]
+        i = 0
+        while i < NF - 1:
+            ks = np.arange(i + 1, NF)
+            ok = (sa[ks] - sa[i] <= hi + 1e-12)
+            ks = ks[ok] if ok.any() else ks[:1]
+            k = int(ks[0])
+            for kk in ks:
+                if kk == NF - 1 or sa[NF - 1] - sa[kk] >= lo - 1e-12:
+                    if sa[kk] - sa[i] < lo - 1e-12 or dev(i, int(kk)) <= eps:
+                        k = int(kk)
+            idx.append(k)
+            i = k
+        return idx
+
+    e0, e1 = 0.0, max(dev(0, NF - 1), 1e-6)
+    best = greedy(e1)
+    for _ in range(18):
+        em = 0.5 * (e0 + e1)
+        g = greedy(em)
+        if len(g) <= S:
+            e1, best = em, g
+        else:
+            e0 = em
+    idx = list(best)
+    while len(idx) < S:   # spare stations split the longest segments
+        seg = np.diff(sa[idx])
+        j = int(np.argmax(seg))
+        mid = int(np.searchsorted(sa, 0.5 * (sa[idx[j]] + sa[idx[j + 1]])))
+        mid = min(max(mid, idx[j] + 1), idx[j + 1] - 1)
+        if mid <= idx[j] or mid >= idx[j + 1]:
+            break
+        idx.insert(j + 1, mid)
+    if len(idx) != S:
+        return np.round(np.linspace(0, NF - 1, S)).astype(np.int64), dev(0, NF - 1)
+    return np.array(idx, np.int64), max(dev(idx[j], idx[j + 1]) for j in range(S - 1))
 
 
 def kmeans(X, K):
@@ -416,6 +506,9 @@ def main():
     # cards-r5: frac^p puts stations closer near the root, where the strands curve over the crown
     # (24 even stations = 23 mm segments: the back outline turned a corner at row 250, S3)
     frac = np.linspace(0.0, 1.0, S) ** a.station_power
+    sc_mul = tuple(float(x) for x in a.station_chord.split(":")) if a.station_chord else None
+    fan = tuple(float(x) for x in a.tip_fan.split(":")) if a.tip_fan else None
+    chord_dev, chord_used, fan_n = [], [], [0]
     floor = 4.0 * rc["strand"]["rootRadiusMm"] / 1000.0
     V, UV, VC, F = [], [], [], []
     card_width, card_root, card_local, members_n, twist_max = [], [], [], [], 0.0
@@ -433,7 +526,36 @@ def main():
         lpct = slp[1] if (slp and float(np.median(lm)) * 1000.0 < slp[0]) else LENGTH_PCT
         # every station is a mean of >= MIN_REACH members (a lone member's tip hung onto the arm)
         Lc = min(float(np.percentile(lm, lpct)), float(lm[max(len(lm) - a.min_reach, 0)]))
+        fr0 = frac
         for _ in range(2):
+            if sc_mul is not None:
+                # r13 K2: stations on the fine member-mean path by chord deviation (same reach-weighted mean)
+                ff = np.linspace(0.0, 1.0, SC_FINE * (S - 1) + 1)
+                Pf = sample_at(Pw[m], sw[m], np.broadcast_to(Lc * ff[None], (len(m), len(ff))))
+                rf = lens[m][:, None] >= (Lc * ff[None] - 1e-9)
+                rf[:, 0] = True
+                Cf = (Pf * (rf / rf.sum(0, keepdims=True))[:, :, None]).sum(0)
+                if len(sc_mul) > 2 and sc_mul[2] > 0:
+                    # placement only: the member-mean path jumps where members stop reaching (tips); a moving
+                    # average over sc_mul[2] even segments keeps those jumps from drawing stations
+                    kk = max(1, int(round(sc_mul[2] * SC_FINE)))
+                    pad = kk // 2
+                    Cp = np.concatenate([np.repeat(Cf[:1], pad, 0), Cf, np.repeat(Cf[-1:], pad, 0)])
+                    ker = np.ones(2 * pad + 1) / (2 * pad + 1)
+                    Cs = np.stack([np.convolve(Cp[:, q], ker, mode="valid") for q in range(3)], 1)
+                    Cs[0], Cs[-1] = Cf[0], Cf[-1]
+                else:
+                    Cs = Cf
+                si, sdev = chord_stations(Cs, S, sc_mul[0], sc_mul[1])
+                if len(sc_mul) > 3:
+                    # only where the even stations cut the (smoothed) path by more than sc_mul[3] mm
+                    ie = np.arange(S) * SC_FINE
+                    dev_e = max(chord_dev_seg(Cs, int(ie[q]), int(ie[q + 1])) for q in range(S - 1))
+                    if dev_e * 1000.0 < sc_mul[3]:
+                        si, sdev = ie, dev_e
+                frac = ff[si]
+                chord_dev.append(sdev)
+                chord_used.append(not np.array_equal(si, np.arange(S) * SC_FINE))
             Pm = sample_at(Pw[m], sw[m], np.broadcast_to(Lc * frac[None], (len(m), S)))
             reach = lens[m][:, None] >= (Lc * frac[None] - 1e-9)     # (members, S)
             reach[:, 0] = True
@@ -466,6 +588,16 @@ def main():
         T, W, tw = frames(C, outward(C, centre_w, colliders, a.cyl_band_mm / 1000.0,
                                        a.surface_blend_mm / 1000.0), a.max_twist_deg)
         twist_max = max(twist_max, tw)
+        if fan is not None and Lc * 1000.0 >= fan[2]:
+            # r13 K1/K3: seeded turn of W about T over the tip part of the card (rotation in the plane normal to T)
+            rg = np.random.default_rng(7919 + int(cid))
+            ang = math.radians(fan[0]) * (0.5 + 0.5 * rg.random()) * (1.0 if rg.random() < 0.5 else -1.0)
+            ramp = np.clip((frac - fan[1]) / max(1.0 - fan[1], 1e-9), 0.0, 1.0)
+            B = np.cross(T, W)
+            th = (ang * ramp)[:, None]
+            W = np.cos(th) * W + np.sin(th) * B
+            W /= np.linalg.norm(W, axis=1, keepdims=True).clip(1e-12, None)
+            fan_n[0] += 1
         offs = np.where(reach, ((Pm - C[None]) * W[None]).sum(2), np.nan)   # (members, S)
         lo = smooth1d(np.nanpercentile(offs, a.width_pct, axis=0), WIDTH_SMOOTH)
         hi = smooth1d(np.nanpercentile(offs, 100.0 - a.width_pct, axis=0), WIDTH_SMOOTH)
@@ -476,12 +608,13 @@ def main():
         N *= np.where((N * (C - centre_w[None])).sum(1, keepdims=True) < 0, -1.0, 1.0)  # outward
         dep = np.where(reach, ((Pm - C[None]) * N[None]).sum(2), np.nan)   # member depth offsets
         spread = float(np.nanmedian(np.nanpercentile(dep, 90, axis=0) - np.nanpercentile(dep, 10, axis=0)))
-        clus.append((C, W, N, lo, hi, dep, len(m), root_depth[-1], spread, m, tr - min(ext, 0.0), Lc))
+        clus.append((C, W, N, lo, hi, dep, len(m), root_depth[-1], spread, m, tr - min(ext, 0.0), Lc, frac))
+        frac = fr0
     # outer layer only where the members fill depth: spread above the median over clusters
     spread_cut = float(np.median([c[8] for c in clus]))
     mem_u, mem_v, mem_d, mem_card, card_wm, card_arc, card_nmem = [], [], [], [], [], [], []
     mem_strand = []
-    for (C, W, N, lo, hi, dep, nm, rdep, spread, m, roff, Lc) in clus:
+    for (C, W, N, lo, hi, dep, nm, rdep, spread, m, roff, Lc, frac) in clus:
         nl = 2 if (a.layers == 2 and spread > spread_cut) else 1
         # members split between the layer cards by their mean depth: the outer card (member depth p90)
         # stands for the members past the midpoint of the two card planes, the inner card for the rest
@@ -532,7 +665,7 @@ def main():
             depth_spread.append(spread)
             if a.members_out:
                 sel = m[mem_sets[li]]
-                u, v, dd = project_members(Pw[sel], sw[sel], roff[mem_sets[li]], Lc, Cl, W, N, le, he, frac)
+                u, v, dd = project_members(Pw[sel], sw[sel], roff[mem_sets[li]] * (a.root_offset_scale if Lc * 1000.0 >= a.root_offset_min_mm else 1.0), Lc, Cl, W, N, le, he, frac)
                 mem_u.append(u.astype(np.float32))
                 mem_v.append(v.astype(np.float32))
                 mem_d.append(dd.astype(np.float32))
@@ -604,6 +737,14 @@ def main():
                                       "p90": float(np.percentile(depth_spread, 90) * 1000)},
         "rootDepthMm": {"p10": float(np.percentile(root_depth, 10) * 1000), "median": float(np.median(root_depth) * 1000),
                         "p90": float(np.percentile(root_depth, 90) * 1000)},
+        **({"stationChord": {"args": list(sc_mul), "fine": SC_FINE, "clusterPassesChord": int(sum(chord_used)),
+                             "clusterPasses": len(chord_used),
+                             "maxChordDevMm": {"median": float(np.median(chord_dev) * 1000),
+                                               "p90": float(np.percentile(chord_dev, 90) * 1000),
+                                               "max": float(np.max(chord_dev) * 1000)}}} if sc_mul else {}),
+        **({"tipFan": {"deg": fan[0], "v0": fan[1], "minMm": fan[2], "clusters": fan_n[0]}} if fan else {}),
+        **({"rootOffsetScale": a.root_offset_scale, "rootOffsetMinMm": a.root_offset_min_mm}
+           if a.root_offset_scale != 1.0 else {}),
         "edgeHalvings": shrunk[0],
         "insideCut": {"cards": len(cut), "maxMm": float(max(cut) * 1000) if cut else 0.0},
         "rootSeat": {"cards": len(seat), "maxMm": float(max(seat) * 1000) if seat else 0.0},

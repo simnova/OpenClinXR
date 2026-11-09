@@ -27,8 +27,11 @@ from pathlib import Path
 import numpy as np
 
 
-def dp(P, Nrm, clear, tol, margin):
-    """P (S, 2, 3) edge vertices, Nrm (S, 2, 3), clear (S, 2) signed body m. Returns kept station mask."""
+def dp(P, Nrm, clear, tol, margin, slip=None):
+    """P (S, 2, 3) edge vertices, Nrm (S, 2, 3), clear (S, 2) signed body m. Returns kept station mask.
+    slip (m, r13): the error is the distance to the chord point at the station's ARC fraction (shape error), and
+    a drop also needs the drawn point at the station's INDEX fraction within slip of it (texture slide along the
+    card); None = the index-fraction distance alone (cards-opt2)."""
     S = len(P)
     keep = np.zeros(S, bool)
     keep[0] = keep[-1] = True
@@ -42,6 +45,13 @@ def dp(P, Nrm, clear, tol, margin):
         Q = P[a][None] * (1 - t) + P[b][None] * t
         d = P[j] - Q
         err = np.linalg.norm(d, axis=2).max(1)
+        if slip is not None:
+            sa = np.concatenate([[0.0], np.cumsum(np.linalg.norm(np.diff(P[a:b + 1], axis=0), axis=2).mean(1))])
+            ta = (sa[1:-1] / max(sa[-1], 1e-12))[:, None, None]
+            Qa = P[a][None] * (1 - ta) + P[b][None] * ta
+            err_shape = np.linalg.norm(P[j] - Qa, axis=2).max(1)
+            sl = np.linalg.norm(Qa - Q, axis=2).max(1)
+            err = np.where(sl <= slip, err_shape, np.maximum(err, tol + 1e-9))
         inward = (d * Nrm[j]).sum(2)                  # > 0: the chord sits inside the original vertex
         bad = err > tol
         bad |= (inward > np.maximum(clear[j] - margin, 0.0)).any(1)
@@ -58,6 +68,11 @@ def main() -> None:
     p.add_argument("out")
     p.add_argument("--tol-mm", type=float, required=True)
     p.add_argument("--inward-margin-mm", type=float, default=0.5)
+    p.add_argument("--max-slip-mm", type=float, default=None,
+                   help="r13: for uneven stations (cards --station-chord) judge a drop by the shape error at the arc "
+                        "fraction and allow at most this texture slide (index vs arc fraction); off by default. With "
+                        "the index-fraction error alone, chord-placed stations kept a median 19 of 24 (48,672 tris vs "
+                        "31,616 even)")
     a = p.parse_args()
     c = dict(np.load(a.cards))
     n = int(c["n_cards"])
@@ -73,7 +88,7 @@ def main() -> None:
     keep = np.zeros((n, S), bool)
     F = []
     for ci in range(n):
-        k = dp(Vr[ci], Nr[ci], clear[ci], tol, margin)
+        k = dp(Vr[ci], Nr[ci], clear[ci], tol, margin, None if a.max_slip_mm is None else a.max_slip_mm / 1000.0)
         keep[ci] = k
         ks = np.flatnonzero(k)
         for a0, b0 in zip(ks[:-1], ks[1:]):
@@ -96,7 +111,8 @@ def main() -> None:
     rec = {"tool": "tools/openclinxr/hair-groom-2/cards/simplify_cards.py", "in": a.cards,
            "inSha256": hashlib.sha256(Path(a.cards).read_bytes()).hexdigest(),
            "outSha256": hashlib.sha256(Path(a.out).read_bytes()).hexdigest(),
-           "tolMm": a.tol_mm, "inwardMarginMm": a.inward_margin_mm, "cards": n, "stations": S,
+           "tolMm": a.tol_mm, "inwardMarginMm": a.inward_margin_mm,
+           **({"maxSlipMm": a.max_slip_mm} if a.max_slip_mm is not None else {}), "cards": n, "stations": S,
            "trianglesIn": int(n * (S - 1) * 2), "trianglesOut": len(F),
            "keptStationsPerCard": {"min": int(per.min()), "median": float(np.median(per)), "max": int(per.max())},
            "vertexMoveMm": {"max": float(moved.max() * 1000), "p99": float(np.percentile(moved, 99) * 1000)}}

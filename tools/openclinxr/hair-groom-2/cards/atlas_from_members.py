@@ -104,8 +104,12 @@ def cli():
     p.add_argument("--short-k", default="",
                    help="cards-r6: 'MM:K' - cards whose arc is under MM mm use alpha power K (1 = raw coverage)")
     p.add_argument("--drift-sigma", type=float, default=DRIFT_SIGMA_PTS, help="0 keeps the raw member u")
-    p.add_argument("--anchor", choices=("root", "mean"), default="root",
-                   help="u each member runs down from after the drift is removed")
+    p.add_argument("--anchor", choices=("root", "mean", "spread"), default="root",
+                   help="u each member runs down from after the drift is removed. r13 spread: the member's root rank "
+                        "across its card (root u between the card members' p2..p98 u at the root v) mapped onto the "
+                        "members' p2..p98 u at every v, so the drawn bundle fills the card where its members spread "
+                        "and stays straight in order (root: r13 probe, card 852 transparent at u 0.68 v 0.48 where "
+                        "its members lie, S3 R550 edge 3 px inside the strands')")
     # cards-r4 M2 (strand value contrast): defaults reproduce the cards-r3 atlas byte for byte
     p.add_argument("--filter-width", type=float, default=None,
                    help="Cycles pixel filter width (px); default = Blender's 1.5")
@@ -166,6 +170,44 @@ def rig_suns(rc):
         out[name] = {"irradianceWm2": lw[key] / (math.pi * d2), "elevationDeg": math.degrees(elev),
                      "face": "outer" if face > 0 else "inner",
                      "towardLight": [0.0, math.sin(elev), face * math.cos(elev)]}
+    return out
+
+
+SPREAD_BINS, SPREAD_Q, SPREAD_MIN = 24, (2.0, 98.0), 6   # --anchor spread: v bins, u quantiles, points per bin
+
+
+def spread_anchor(U, V, C, n):
+    """--anchor spread: (members, K) low-frequency u = q_lo(v) + r x (q_hi(v) - q_lo(v)), r = the member's root u
+    between q_lo and q_hi at its root v; q = SPREAD_Q quantiles of the card's member points per v bin (bins with
+    fewer than SPREAD_MIN points take the nearest filled bin)."""
+    K = U.shape[1]
+    ok = (V >= 0.0) & (V <= 1.0) & (U >= U_KEEP[0]) & (U <= U_KEEP[1])
+    b = np.clip((V * SPREAD_BINS).astype(np.int64), 0, SPREAD_BINS - 1)
+    order = np.argsort(C, kind="stable")
+    starts = np.searchsorted(C[order], np.arange(n + 1))
+    out = U[:, :1].repeat(K, 1).astype(np.float64)
+    centres = (np.arange(SPREAD_BINS) + 0.5) / SPREAD_BINS
+    for c in range(n):
+        mi = order[starts[c]:starts[c + 1]]
+        if len(mi) == 0:
+            continue
+        uu, bb, kk = U[mi], b[mi], ok[mi]
+        lo = np.full(SPREAD_BINS, np.nan)
+        hi = np.full(SPREAD_BINS, np.nan)
+        for j in range(SPREAD_BINS):
+            x = uu[kk & (bb == j)]
+            if len(x) >= SPREAD_MIN:
+                lo[j], hi[j] = np.percentile(x, SPREAD_Q)
+        g = np.flatnonzero(~np.isnan(lo))
+        if len(g) == 0:
+            continue
+        near = g[np.abs(np.arange(SPREAD_BINS)[:, None] - g[None]).argmin(1)]
+        lo, hi = lo[near], hi[near]
+        hi = np.maximum(hi, lo + 1e-3)
+        vv = np.clip(V[mi], 0.0, 1.0)
+        qlo, qhi = np.interp(vv, centres, lo), np.interp(vv, centres, hi)
+        r = (uu[:, 0] - qlo[:, 0]) / (qhi[:, 0] - qlo[:, 0])
+        out[mi] = qlo + np.clip(r, -0.25, 1.25)[:, None] * (qhi - qlo)
     return out
 
 
@@ -232,7 +274,11 @@ def main():
         kern /= kern.sum()
         Up = np.pad(U.astype(np.float64), ((0, 0), (r, r)), mode="edge")
         low = np.stack([Up[:, j:j + 2 * r + 1] @ kern for j in range(U.shape[1])], 1)
-        U = (U[:, :1] if a.anchor == "root" else U.mean(1, keepdims=True)) + (U - low)
+        if a.anchor == "spread":
+            base = spread_anchor(U, V, C, n)
+        else:
+            base = U[:, :1] if a.anchor == "root" else U.mean(1, keepdims=True)
+        U = base + (U - low)
     # strands: first contiguous run of points inside the card from the root end
     K = U.shape[1]
     inside = (U >= U_KEEP[0]) & (U <= U_KEEP[1]) & (V >= 0.0) & (V <= 1.0)
