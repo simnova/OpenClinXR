@@ -331,6 +331,33 @@ Each phase gate is graded independently at native resolution; each phase ends wi
   cards from members dropped by clustering. Gate: part width and hairline falloff reported vs the target at
   common px/mm, grader judges the hairline and part closer to the target than BEST3, rubric 41/41. Tris
   recorded per round.
+  - Slice 1 done 2026-11-09 (p2a). The scalp tint is baked into the actor's albedo copy inside the runtime GLB
+    instead of an underlayer card group: no geometry, no extra draw, no sort against the BLEND fringe, and the
+    skin keeps its OPENCLINXR_skin_shade material. `cards/scalp_tint.py`: strand roots (groom-r9/s1, all 98,187
+    seated 1.0 mm above the skin) projected to the body UV, blurred (fine .6 mm, wide 3 mm at .3), and
+    composited toward the mean hair colour (amax .8); roots in the groom's sideburn zone (ear landmarks in the
+    groom's stats.json) weighted .2. `cards/hairline_edge_fade.py`: with a centre part the front hairline is
+    the side edge of the frontmost cards, so the atlas alpha fades over the outer .6 of the cell width, within
+    60 mm of the root, on cards whose outer side sits at the edge of the root field (561 of 1,447 cards).
+    Chain: `cards/p2_scalp.sh`; rebuild reproduces sha256 d81777caf80fc38e. Tris unchanged (no geometry).
+  - Report (`grade/part_width.py`, front view, runtime frame; EV/p2/part-p2ab.json):
+
+    | metric | target | BEST3 | p2a |
+    |---|---|---|---|
+    | part width median px | 2 | 5 | 2 |
+    | part peak L | .464 | .544 | .447 |
+    | hairline falloff median px | 12 | 2 | 6 |
+
+  - Independent grader (EV/p2/gradeA/grade-p2a.md): p2a hairline and part closer to the target than BEST3 in
+    front, three-quarter and side; back part closer in length and taper. Remaining p2a defects: a grey smudge
+    on the forehead at the part base (front, three-quarter); tint 5-10 px onto the skin below the hairline;
+    the soft hairline band reads as blur with no strand texture (wisp cards address it). Shared with BEST3:
+    grey see-through sideburn comb, card spikes across the part.
+  - Rejected in the sweep, with numbers: root density alone (st2) painted a solid patch in front of the ear
+    (grader); gating the tint by card cover within 6 mm of the skin (st5, st6) removed the part tint too
+    (part 5 px, as BEST3); an atlas alpha ramp over the first 6-20 mm from each edge card's root (st9-st12)
+    left the falloff at 6 px with the tint already at 5.5 and lightened the part at the crown. Rubric 41/41
+    not re-run: the rubric grades Cycles strand and card renders, which this slice does not change.
 - **P3 Strand reference (T4).**
   - Strand references: r10 B strands seeds 1-6 rendered in the target scene (make_sources.py lights,
     world, floor and cameras; groom imported in place of the removed library hair) at target framing; card
