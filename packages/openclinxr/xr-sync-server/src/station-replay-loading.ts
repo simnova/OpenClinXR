@@ -18,6 +18,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { EmotionTransition } from "@openclinxr/conversation-policy";
+import { validateCoveredTags } from "./covered-tags.js";
 import { CONVERSATION_TRACE_SCHEMA, type ConversationTraceEvent } from "./conversation-trace.js";
 import { readCastContext } from "./conversation-trace-cast.js";
 import type { SessionReviewStationEntry } from "./session-review-index.js";
@@ -40,7 +41,32 @@ export interface LoadedStationReplay {
   /** C12 index complete flag, copied for the lobby state. */
   complete: boolean;
   /** C12 lobby entries in index order, copied from the review index. */
-  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number }[];
+  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number; noteSource: "explicit" | "draft" | "" | null }[];
+}
+
+function parseNoteSource(stationId: string, notePresent: boolean, raw: unknown): "explicit" | "draft" | "" | null {
+  if (raw === undefined) {
+    return notePresent ? "" : null;
+  }
+  if (raw === null) {
+    if (!notePresent) {
+      return null;
+    }
+    throw new Error(`replay-bad-index: station ${stationId} holds a malformed note source`);
+  }
+  if (raw === "") {
+    if (notePresent) {
+      return "";
+    }
+    throw new Error(`replay-bad-index: station ${stationId} holds a malformed note source`);
+  }
+  if (raw === "explicit" || raw === "draft") {
+    if (notePresent) {
+      return raw;
+    }
+    throw new Error(`replay-bad-index: station ${stationId} holds a malformed note source`);
+  }
+  throw new Error(`replay-bad-index: station ${stationId} holds a malformed note source`);
 }
 
 /**
@@ -88,6 +114,7 @@ export function loadStationReplayDir(dir: string): LoadedStationReplay {
       turnCount: typeof typed.turnCount === "number" ? typed.turnCount : 0,
       notePresent: typed.notePresent === true,
       noteChars: typeof typed.noteChars === "number" ? typed.noteChars : 0,
+      noteSource: parseNoteSource(typed.stationId, typed.notePresent === true, (entry as { noteSource?: unknown }).noteSource),
     });
     // C11: a bad TRACE refuses only its own station (the error is stored
     // against it and surfaces at join); every other station still replays.
@@ -148,8 +175,10 @@ interface RawReplayEvent {
   turnId?: unknown;
   phase?: unknown;
   chars?: unknown;
+  source?: unknown;
   eventId?: unknown;
   tag?: unknown;
+  coveredTags?: unknown;
   match?: unknown;
 }
 
@@ -265,6 +294,12 @@ export function loadReplayStationTrace(
     if (typeof item.chars === "number") {
       event.chars = item.chars;
     }
+    if (item.source !== undefined) {
+      if (item.kind !== "note-submitted" || (item.source !== "explicit" && item.source !== "draft")) {
+        throw new Error(`replay-bad-trace: ${entry.traceFile} holds a malformed note source`);
+      }
+      event.source = item.source as "explicit" | "draft";
+    }
     // C19: the scheduled interjection replays its entry id + tag (ids only,
     // never text); the replyId comes from the recorded turn like every turn.
     if (typeof item.eventId === "string") {
@@ -272,6 +307,13 @@ export function loadReplayStationTrace(
     }
     if (typeof item.tag === "string") {
       event.tag = item.tag;
+    }
+    if (item.coveredTags !== undefined) {
+      const covered = validateCoveredTags(String(item.kind), event.tag, item.coveredTags);
+      if (!covered.ok) {
+        throw new Error(`replay-bad-trace: ${entry.traceFile} holds a malformed coveredTags`);
+      }
+      event.coveredTags = covered.tags;
     }
     // C31: the recorded free-text match kind (never text) lets a replay recompute a fallback caption.
     if (item.match === "exact" || item.match === "phrase" || item.match === "fallback") {

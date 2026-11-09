@@ -29,6 +29,9 @@
   },
   "workspaceDependencies": [],
   "tests": [
+    "src/a-note-submit-with-no-reply-tells-the-learner.test.ts",
+    "src/a-replay-shell-shows-the-replayed-topic-chips.test.ts",
+    "src/a-same-length-note-accepted-after-a-reject-clears-it.test.ts",
     "src/actor-voice.test.ts",
     "src/client-connect.test.ts",
     "src/encounter-addressed-actor.test.ts",
@@ -37,6 +40,7 @@
     "src/encounter-repeat-prompt.test.ts",
     "src/encounter-replay-station.test.ts",
     "src/encounter-review-lobby.test.ts",
+    "src/encounter-room-panel-topics.test.ts",
     "src/encounter-room-panel.test.ts",
     "src/encounter-speech-capture-grade.test.ts",
     "src/encounter-speech-capture.test.ts",
@@ -44,7 +48,10 @@
     "src/encounter-speech.test.ts",
     "src/encounter-trace-intents.test.ts",
     "src/encounter-turns.test.ts",
-    "src/encounter-voice.test.ts"
+    "src/encounter-voice.test.ts",
+    "src/the-panel-shows-an-auto-collected-note.test.ts",
+    "src/the-review-lobby-shows-how-each-note-arrived.test.ts",
+    "src/the-synced-shell-submits-the-patient-note.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-sync-client test",

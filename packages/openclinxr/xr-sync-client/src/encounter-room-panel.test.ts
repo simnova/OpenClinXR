@@ -7,7 +7,7 @@ import { type EncounterSyncEvidence, startEncounterSyncFromUrl } from "./headset
 //   The panel module is internal: tests reach it through startEncounterSyncFromUrl (a snapshot renders it; a room-rejected intent refuses).
 //   The panel is a div#room-panel appended to the typed-box parent holding four child elements:
 //     #room-cast       "Cast: <displayName> (<role>); ..." in snapshot actor order, actors with empty displayName skipped; "" when none.
-//     #room-topics     "Ask about: <topicLabel>, ..." in topicMenu order; "" when topicMenu is empty or absent.
+//     #room-topics     one <button> per topicMenu entry {tag, label, labelSource, note, asked} in snapshot order; button text is the server label with data-asked from the snapshot; no buttons when topicMenu is empty or absent.
 //     #room-countdown  phase doorway "Encounter opens in <n> s"; encounter "Encounter: <n> s left"; note "Note: <n> s left"; closed "Station closed"; "" when phase is "".
 //     #room-refusal    "" until refuse(reason); refuse("outside-encounter-phase") during the doorway -> "Not open yet: the encounter opens in <n> s.";
 //                      the same reason in any other phase -> "Not accepted: the station is in the <phase> phase."; any other reason -> "Not accepted: <reason>".
@@ -16,12 +16,19 @@ import { type EncounterSyncEvidence, startEncounterSyncFromUrl } from "./headset
 //   and any intent the room rejects (typed utterance, speech utterance, speech-audio, trace action) calls refuse(reason).
 type Handler = (event: { preventDefault?: () => void }) => void;
 class FakeElement {
-  id = ""; value = ""; textContent: string | null = ""; type = ""; placeholder = ""; disabled = false; hidden = false;
+  id = ""; value = ""; type = ""; placeholder = ""; disabled = false; hidden = false;
   children: FakeElement[] = [];
+  attributes = new Map<string, string>();
   handlers = new Map<string, Handler[]>();
+  private text: string | null = "";
   constructor(readonly tag: string) {}
+  get textContent(): string | null { return this.text; }
+  // DOM semantics: assigning textContent replaces all children.
+  set textContent(value: string | null) { this.text = value; this.children = []; }
   appendChild(child: FakeElement): FakeElement { this.children.push(child); return child; }
+  setAttribute(name: string, value: string): void { this.attributes.set(name, value); }
   addEventListener(type: string, fn: Handler): void { this.handlers.set(type, [...(this.handlers.get(type) ?? []), fn]); }
+  click(): void { for (const fn of this.handlers.get("click") ?? []) fn({}); }
   find(id: string): FakeElement | undefined { return this.id === id ? this : this.children.map((child) => child.find(id)).find((found) => found !== undefined); }
 }
 const fakeDoc = { createElement: (tag: string) => new FakeElement(tag) };
@@ -30,7 +37,10 @@ const flush = async (): Promise<void> => { for (let i = 0; i < 8; i += 1) await 
 const SNAP = {
   serverTick: 1, phase: "doorway", phaseRemainingS: 7, turnId: 0, turnOwner: "none", learners: {},
   actors: { p: { id: "p", displayName: "Robert Hayes", role: "patient" }, f: { id: "f", displayName: "Anna Hayes", role: "family" }, x: { id: "x", displayName: "", role: "" } },
-  topicMenu: ["history_opqrst", "ecg_request"],
+  topicMenu: [
+    { tag: "history_opqrst", label: "when did the chest pressure start", labelSource: "seed-phrase", note: "", asked: false },
+    { tag: "ecg_request", label: "ecg_request", labelSource: "tag", note: "", asked: false },
+  ],
 };
 
 async function joined(rejectKinds: Set<string>, reason = "outside-encounter-phase", search = "?encounterSync=ws://127.0.0.1:9") {
@@ -62,7 +72,7 @@ describe("room panel (C36)", () => {
     expect(text(parent, "room-cast")).toBe("");
     snapshot(SNAP);
     expect(text(parent, "room-cast")).toBe("Cast: Robert Hayes (patient); Anna Hayes (family)");
-    expect(text(parent, "room-topics")).toBe("Ask about: history opqrst, ecg request");
+    expect((parent.find("room-topics") as FakeElement).children.map((button) => button.textContent)).toEqual(["when did the chest pressure start", "ecg request"]);
     expect(text(parent, "room-countdown")).toBe("Encounter opens in 7 s");
     snapshot({ ...SNAP, phase: "encounter", phaseRemainingS: 120 });
     expect(text(parent, "room-countdown")).toBe("Encounter: 120 s left");
@@ -98,9 +108,14 @@ describe("room panel (C36)", () => {
     expect(text(parent, "room-countdown")).toBe("");
   });
 
-  it("replay and lobby rooms mount no panel", async () => {
+  it("replay mounts exactly one read-only panel and no note box (C37 eda38924f narrowed by C46)", async () => {
     const replay = await joined(new Set(), "x", "?encounterSync=ws://127.0.0.1:9&encounterReplayStation=slot-a");
-    expect(replay.parent.find("room-panel")).toBeUndefined();
+    const panels = replay.parent.children.filter((child) => child.id === "room-panel");
+    expect(panels.length, "C37 eda38924f and C46: a replay room mounts exactly one read-only room-panel").toBe(1);
+    expect(replay.parent.find("room-note"), "C37 eda38924f and C46: a replay room-panel holds no note box").toBeUndefined();
+  });
+
+  it("lobby rooms mount no panel", async () => {
     const lobby = await joined(new Set(), "x", "?encounterSync=ws://127.0.0.1:9&encounterReviewLobby=1");
     expect(lobby.parent.find("room-panel")).toBeUndefined();
   });

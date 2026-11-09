@@ -86,7 +86,7 @@
     {
       "label": "control",
       "glb": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-      "sha256": "483821ad1b214e0b8003f3dac2c5958b8500f77a0cbabaa403f48888131ed06b",
+      "sha256": "75b9e5c70fbb5b629ab5b4514abdc2748ca21929a17e48f052a7a243c96394b1",
       "verdict": "control_clean",
       "visemes": [
         "viseme_aa",

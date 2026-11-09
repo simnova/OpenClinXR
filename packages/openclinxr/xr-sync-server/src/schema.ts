@@ -47,6 +47,7 @@ export const LobbyStationState = schema(
     turnCount: t.number(),
     notePresent: t.boolean(),
     noteChars: t.number(),
+    noteSource: t.string(),
     available: t.boolean(),
     unavailableReason: t.string(),
   },
@@ -81,6 +82,18 @@ export const ReplayRubricCoverageState = schema(
   "ReplayRubricCoverageState",
 );
 
+/** C37 one topic-menu entry: learner-visible history topic with label and asked flag. */
+export const TopicMenuEntryState = schema(
+  {
+    tag: t.string(),
+    label: t.string(),
+    labelSource: t.string(),
+    note: t.string(),
+    asked: t.boolean(),
+  },
+  "TopicMenuEntryState",
+);
+
 export const EncounterState = schema(
   {
     serverTick: t.number(),
@@ -107,6 +120,8 @@ export const EncounterState = schema(
     noteStatus: t.string(),
     /** C11 length of the held note (0 when none). */
     noteChars: t.number(),
+    /** C45 note origin ("" | "explicit" | "draft"). */
+    noteSource: t.string(),
     /** C12 true when the recorded session ran to completion (lobby rooms only). */
     sessionComplete: t.boolean(),
     /** C12 one entry per index station, in index order (lobby rooms only). */
@@ -131,8 +146,8 @@ export const EncounterState = schema(
     replayRubric: t.array(ReplayRubricState),
     /** C21 persisted index coverage for the replayed rubric (never recomputed from replay trace). */
     replayRubricCoverage: t.array(ReplayRubricCoverageState),
-    /** C22 scenario-owned learner history topics for this cast station. */
-    topicMenu: t.array("string"),
+    /** C37 entries {tag, label, labelSource, note, asked}. */
+    topicMenu: t.array(TopicMenuEntryState),
     /** C34 true when the server has a speech recognizer (speech-audio is accepted). */
     speechAvailable: t.boolean(),
   },
@@ -146,6 +161,7 @@ export type LobbyStationStateInstance = SchemaType<typeof LobbyStationState>;
 export type LobbyScoreStateInstance = SchemaType<typeof LobbyScoreState>;
 export type ReplayRubricStateInstance = SchemaType<typeof ReplayRubricState>;
 export type ReplayRubricCoverageStateInstance = SchemaType<typeof ReplayRubricCoverageState>;
+export type TopicMenuEntryStateInstance = SchemaType<typeof TopicMenuEntryState>;
 
 /** Plain-object view of authoritative state, for tests and operators. */
 export interface EncounterSnapshot {
@@ -178,10 +194,12 @@ export interface EncounterSnapshot {
   noteStatus: string;
   /** C11 length of the held note (0 when none). */
   noteChars: number;
+  /** C45 note origin ("" | "explicit" | "draft"). */
+  noteSource: string;
   /** C12 true when the recorded session ran to completion (lobby rooms only). */
   sessionComplete: boolean;
   /** C12 one entry per index station, in index order (lobby rooms only). */
-  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number; available: boolean; unavailableReason: string }[];
+  lobbyStations: { stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number; noteSource: string; available: boolean; unavailableReason: string }[];
   /** C13 checked rubric count for the replayed station (replay rooms only). */
   scoreChecked: number;
   /** C13 one badge per scored index station, in index order (lobby rooms only). */
@@ -202,8 +220,8 @@ export interface EncounterSnapshot {
   replayRubric: { id: string; label: string }[];
   /** C21 observed/required counts aligned with replayRubric. */
   replayRubricCoverage: { id: string; observedCount: number; requiredCount: number }[];
-  /** C22 scenario-owned learner history topics ([] off a cast station). */
-  topicMenu: string[];
+  /** C22 scenario-owned learner history topics ([] off a cast station); C37 entries. */
+  topicMenu: { tag: string; label: string; labelSource: string; note: string; asked: boolean }[];
   speechAvailable: boolean;
 }
 
@@ -223,5 +241,5 @@ export function snapshotState(state: EncounterStateInstance): EncounterSnapshot 
       speaking: learner.speaking,
     };
   }
-  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount, mode: state.mode, lastTurnEnd: state.lastTurnEnd, replayDone: state.replayDone, noteStatus: state.noteStatus, noteChars: state.noteChars, sessionComplete: state.sessionComplete, lobbyStations: [...state.lobbyStations].map((entry) => ({ stationId: entry.stationId, stationIndex: entry.stationIndex, turnCount: entry.turnCount, notePresent: entry.notePresent, noteChars: entry.noteChars, available: entry.available, unavailableReason: entry.unavailableReason })), scoreChecked: state.scoreChecked, lobbyScores: [...state.lobbyScores].map((entry) => ({ stationId: entry.stationId, checkedCount: entry.checkedCount })), reviewFinalized: state.reviewFinalized, blueprintId: state.blueprintId, stationLabel: state.stationLabel, scenarioId: state.scenarioId, scenarioTitle: state.scenarioTitle, lastScheduledEventId: state.lastScheduledEventId, replayRubric: [...state.replayRubric].map((entry) => ({ id: entry.id, label: entry.label })), replayRubricCoverage: [...state.replayRubricCoverage].map((entry) => ({ id: entry.id, observedCount: entry.observedCount, requiredCount: entry.requiredCount })), topicMenu: [...state.topicMenu], speechAvailable: state.speechAvailable };
+  return { serverTick: state.serverTick, phase: state.phase, phaseRemainingS: state.phaseRemainingS, turnId: state.turnId, turnOwner: state.turnOwner, actors, learners, observerCount: state.observerCount, stationId: state.stationId, stationIndex: state.stationIndex, stationCount: state.stationCount, mode: state.mode, lastTurnEnd: state.lastTurnEnd, replayDone: state.replayDone, noteStatus: state.noteStatus, noteChars: state.noteChars, noteSource: state.noteSource, sessionComplete: state.sessionComplete, lobbyStations: [...state.lobbyStations].map((entry) => ({ stationId: entry.stationId, stationIndex: entry.stationIndex, turnCount: entry.turnCount, notePresent: entry.notePresent, noteChars: entry.noteChars, noteSource: entry.noteSource, available: entry.available, unavailableReason: entry.unavailableReason })), scoreChecked: state.scoreChecked, lobbyScores: [...state.lobbyScores].map((entry) => ({ stationId: entry.stationId, checkedCount: entry.checkedCount })), reviewFinalized: state.reviewFinalized, blueprintId: state.blueprintId, stationLabel: state.stationLabel, scenarioId: state.scenarioId, scenarioTitle: state.scenarioTitle, lastScheduledEventId: state.lastScheduledEventId, replayRubric: [...state.replayRubric].map((entry) => ({ id: entry.id, label: entry.label })), replayRubricCoverage: [...state.replayRubricCoverage].map((entry) => ({ id: entry.id, observedCount: entry.observedCount, requiredCount: entry.requiredCount })), topicMenu: [...state.topicMenu].map((entry) => ({ tag: entry.tag, label: entry.label, labelSource: entry.labelSource, note: entry.note, asked: entry.asked })), speechAvailable: state.speechAvailable };
 }

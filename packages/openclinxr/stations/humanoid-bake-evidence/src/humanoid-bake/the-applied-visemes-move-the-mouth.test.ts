@@ -126,7 +126,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // st-vitbody3 2c re-pinned 2026-11-07: face detail-normal strength 0.5 -> 0.15
   // (repack_skin_shade.py material extension only; size 19149460 unchanged);
   // was 26a6b759e4f79fa8775144b5b568080c4ffbf76dfa633cf77c03c5aaf88ae095.
-  "mpfb-ob-patient-aisha": "483821ad1b214e0b8003f3dac2c5958b8500f77a0cbabaa403f48888131ed06b",
+  // st-vitbody3 2d re-pinned 2026-11-07: body detail-normal strength 1.0 -> 0.3
+  // (repack_skin_shade.py material extension only; size 19149460 unchanged);
+  // was 483821ad1b214e0b8003f3dac2c5958b8500f77a0cbabaa403f48888131ed06b.
+  "mpfb-ob-patient-aisha": "75b9e5c70fbb5b629ab5b4514abdc2748ca21929a17e48f052a7a243c96394b1",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.

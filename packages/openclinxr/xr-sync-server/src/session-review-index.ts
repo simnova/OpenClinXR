@@ -75,6 +75,7 @@ export function stationReviewFromTrace(
 ): SessionReviewStationEntry {
   const noteEvents = trace.events.filter((event) => event.kind === "note-submitted");
   const lastNoteChars = noteEvents.length > 0 ? (noteEvents[noteEvents.length - 1] as { chars?: unknown }).chars : undefined;
+  const lastNoteSource = noteEvents.length > 0 ? (noteEvents[noteEvents.length - 1] as { source?: unknown }).source : undefined;
   const coverage = coverageScenario === undefined ? undefined : traceTagCoverage(trace, coverageScenario);
   return {
     stationId,
@@ -88,6 +89,10 @@ export function stationReviewFromTrace(
     observerPresent: trace.events.some((event) => event.kind === "observer-joined"),
     notePresent: noteEvents.length > 0,
     noteChars: typeof lastNoteChars === "number" ? lastNoteChars : 0,
+    // null = no note in this station (notePresent false);
+    // '' = note present, source unrecorded (index written before C45);
+    // 'explicit' | 'draft' = the C45 note-submitted source enum.
+    noteSource: noteEvents.length === 0 ? null : lastNoteSource === "explicit" || lastNoteSource === "draft" ? lastNoteSource : "",
     noteFile: noteEvents.length > 0 ? `${roomId}${PATIENT_NOTE_FILE_SUFFIX}` : null,
     ...(coverage === undefined ? {} : coverage),
   };

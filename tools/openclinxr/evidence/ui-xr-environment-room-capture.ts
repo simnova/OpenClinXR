@@ -20,6 +20,7 @@ import { authoredStagingCameraForScenario } from "@openclinxr/scenario-fixtures"
 import { deriveDoorwayOverviewCameraForEnvironment } from "./doorway-overview-camera.js";
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import { chromium, type Page } from "./lib/slotted-playwright.js";
+import { readPositionAttribute } from "./room-camera/read-position.js";
 import type { ActorVisibilityReading } from "./station-capture/actor-visibility-page-probe.js";
 import { collectSweepScene } from "./station-capture/camera-sweep-scene.js";
 import { evaluateGate } from "./station-capture/gate-geometry.js";
@@ -30,12 +31,13 @@ import {
 import {
   attachStationCapturePageDiagnostics,
   formatStationCapturePageDiagnostics,
+  type StationCaptureHttpError,
   type StationCapturePageDiagnostics,
   type StationCapturePageListenerHost,
   stationCapturePageDiagnosticsOf,
+  subscribeToStationCaptureServerErrors,
 } from "./station-capture/page-diagnostics.js";
 import { refineCameraForOcclusionAndContainment } from "./station-capture/refine-camera-for-occlusion-and-containment.js";
-import { readPositionAttribute } from "./room-camera/read-position.js";
 
 export {
   attachStationCapturePageDiagnostics,
@@ -1325,34 +1327,153 @@ function diagnosticsForPage(page: Page): StationCapturePageDiagnostics | undefin
   return undefined;
 }
 
+const ENTRY_MODULE_SCRIPT_SELECTOR = 'script[type="module"][src]';
+
+/** True when url is a module script the page's HTML loads directly. False when unreadable. */
+async function isEntryModuleScript(page: Page, url: string): Promise<boolean> {
+  try {
+    const entries = await page.evaluate((selector) => {
+      const doc = (globalThis as unknown as {
+        document: { querySelectorAll: (s: string) => ArrayLike<{ src?: string }> };
+      }).document;
+      return Array.from(doc.querySelectorAll(selector), (script) => script.src ?? "");
+    }, ENTRY_MODULE_SCRIPT_SELECTOR);
+    return Array.isArray(entries) && entries.includes(url);
+  } catch {
+    return false;
+  }
+}
+
 /** Wait until station shell is present (exported for #83 measure). */
 export async function waitForStationShell(page: Page, timeoutMs = 180_000): Promise<LiveShellFromPage> {
   const diagnostics = diagnosticsForPage(page);
-  // Playwright signature is (fn, arg, options) — options must be the third argument.
-  try {
-    await page.waitForFunction(
-      () => {
-        // globalThis, not browserPageWindow: this closure runs in the page where the
-        // browser-dom.d.ts alias is types-only and throws ReferenceError (measured 2026-09-11).
-        const scene = (globalThis as unknown as {
-          __openClinXrDebugScene?: {
-            userData?: { openClinXrStationEnvironment?: { environmentId?: string } };
-            traverse?: (cb: (o: { name?: string }) => void) => void;
-          };
-        }).__openClinXrDebugScene;
-        if (!scene) return false;
-        if (scene.userData?.openClinXrStationEnvironment?.environmentId) return true;
-        let found = false;
-        scene.traverse?.((object) => {
-          if (object.name === "openclinxr.station-environment-shell") found = true;
-        });
-        return found;
-      },
-      undefined,
-      { timeout: timeoutMs },
+  const startedAt = Date.now();
+  const queuedScriptErrors: StationCaptureHttpError[] = [];
+  let resolveNextScriptError: ((error: StationCaptureHttpError) => void) | undefined;
+  const unsubscribe = diagnostics
+    ? subscribeToStationCaptureServerErrors(diagnostics, (error) => {
+      if (error.resourceType !== "script") return;
+      // Vite answers a stale optimized-dep import with 504 "Outdated Optimize Dep"
+      // and then full-reloads the page itself; a second reload from here lands
+      // after the shell is up and destroys the next page.evaluate (pre-push
+      // 2026-11-08, the-room-camera-lands-in-the-same-place-twice). Record only.
+      if (error.status === 504) return;
+      const resolve = resolveNextScriptError;
+      if (resolve) {
+        resolveNextScriptError = undefined;
+        resolve(error);
+      } else {
+        queuedScriptErrors.push(error);
+      }
+    })
+    : () => {};
+  const nextScriptError = (): Promise<StationCaptureHttpError> => {
+    const queued = queuedScriptErrors.shift();
+    if (queued) return Promise.resolve(queued);
+    return new Promise((resolve) => {
+      resolveNextScriptError = resolve;
+    });
+  };
+  let pendingScriptError = nextScriptError();
+  let reloaded = false;
+  let budgetTimer: ReturnType<typeof setTimeout> | undefined;
+  const budgetExpired = new Promise<{ kind: "budget-expired" }>((resolve) => {
+    budgetTimer = setTimeout(() => resolve({ kind: "budget-expired" }), timeoutMs);
+  });
+
+  const scriptServerError = (error: StationCaptureHttpError, cause?: unknown): Error => {
+    const body = error.bodyExcerpt.length > 0 ? ` ${error.bodyExcerpt}` : "";
+    return new Error(
+      `station shell wait failed: HTTP ${error.status} ${error.url}${body}`,
+      cause === undefined ? undefined : { cause },
     );
-  } catch (err) {
-    rethrowNamedWaitTimeout(err, "station shell", diagnostics);
+  };
+
+  try {
+    while (true) {
+      const remaining = timeoutMs - (Date.now() - startedAt);
+      if (remaining <= 0) {
+        rethrowNamedWaitTimeout(
+          new Error(`page.waitForFunction: Timeout ${timeoutMs}ms exceeded.`),
+          "station shell",
+          diagnostics,
+        );
+      }
+      // Playwright signature is (fn, arg, options) — options must be the third argument.
+      const wait = page.waitForFunction(
+        () => {
+          // globalThis, not browserPageWindow: this closure runs in the page where the
+          // browser-dom.d.ts alias is types-only and throws ReferenceError (measured 2026-09-11).
+          const scene = (globalThis as unknown as {
+            __openClinXrDebugScene?: {
+              userData?: { openClinXrStationEnvironment?: { environmentId?: string } };
+              traverse?: (cb: (o: { name?: string }) => void) => void;
+            };
+          }).__openClinXrDebugScene;
+          if (!scene) return false;
+          if (scene.userData?.openClinXrStationEnvironment?.environmentId) return true;
+          let found = false;
+          scene.traverse?.((object) => {
+            if (object.name === "openclinxr.station-environment-shell") found = true;
+          });
+          return found;
+        },
+        undefined,
+        // The first attempt is bounded by budgetExpired. Using Playwright's `0`
+        // (no independent timeout) reserves the entire explicit timeout budget for
+        // the race; after a reload, Playwright receives only the wall-clock remainder.
+        { timeout: reloaded ? remaining : 0 },
+      );
+      const outcome = await Promise.race([
+        wait.then(
+          () => ({ kind: "ready" as const }),
+          (error: unknown) => ({ kind: "wait-error" as const, error }),
+        ),
+        pendingScriptError.then((error) => ({ kind: "server-error" as const, error })),
+        budgetExpired,
+      ]);
+      if (outcome.kind === "ready") break;
+      if (outcome.kind === "budget-expired") {
+        void wait.catch(() => {});
+        rethrowNamedWaitTimeout(
+          new Error(`page.waitForFunction: Timeout ${timeoutMs}ms exceeded.`),
+          "station shell",
+          diagnostics,
+        );
+      }
+      if (outcome.kind === "wait-error") {
+        rethrowNamedWaitTimeout(outcome.error, "station shell", diagnostics);
+      }
+
+      // The losing Playwright wait survives navigation and can reject later. Mark that
+      // rejection handled before reloading so it cannot become an unhandled rejection.
+      void wait.catch(() => {});
+      pendingScriptError = nextScriptError();
+      // Only a 5xx on the page's own entry module leaves the page dead. A failed
+      // dependency module is Vite's to recover (its client full-reloads the page),
+      // and a reload from here stacks a second navigation that lands after the
+      // shell is up (pre-push 2026-11-08: actor-prop-intersection and
+      // the-room-camera-lands-in-the-same-place-twice lost their page.evaluate).
+      if (reloaded) throw scriptServerError(outcome.error);
+      if (!(await isEntryModuleScript(page, outcome.error.url))) continue;
+      console.error(
+        `station shell: reloading once after HTTP ${outcome.error.status} on entry module ${outcome.error.url}`,
+      );
+      reloaded = true;
+      try {
+        const reloadRemaining = timeoutMs - (Date.now() - startedAt);
+        if (reloadRemaining <= 0) throw scriptServerError(outcome.error);
+        await page.reload({ timeout: reloadRemaining });
+      } catch (reloadError) {
+        if (reloadError instanceof Error && reloadError.message.startsWith("station shell wait failed:")) {
+          throw reloadError;
+        }
+        throw scriptServerError(outcome.error, reloadError);
+      }
+    }
+  } finally {
+    if (budgetTimer !== undefined) clearTimeout(budgetTimer);
+    unsubscribe();
   }
   const reading = await readLiveShellFromPage(page);
   if (!reading.ready) {

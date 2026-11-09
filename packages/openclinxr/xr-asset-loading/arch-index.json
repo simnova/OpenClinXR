@@ -48,9 +48,11 @@
   ],
   "tests": [
     "src/a-autoplayed-idle-keeps-no-leg-tracks.test.ts",
+    "src/a-glb-face-hides-the-placeholder-face-cues.test.ts",
     "src/a-locomotion-clip-does-not-auto-play.test.ts",
     "src/a-supine-patient-mixes-only-posture-safe-one-shots.test.ts",
     "src/asset-loading.test.ts",
+    "src/shipped-mpfb-materials-keep-their-authored-colour.test.ts",
     "src/skin-shade-loader-wiring.test.ts"
   ],
   "commands": {

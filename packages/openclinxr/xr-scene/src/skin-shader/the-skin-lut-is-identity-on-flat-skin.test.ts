@@ -1,5 +1,5 @@
-import { createHash } from "node:crypto";
 import { Buffer } from "node:buffer";
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -9,7 +9,7 @@ import { describe, expect, it } from "vitest";
 // so testInternalImports holds at 10 with no new public exports. The hook
 // is exercised through source-text pins (same-file strings the compiler
 // consumes) and through the committed LUT bytes the hook uploads.
-import { countChangedPx, decodePngFile, type CropRect } from "./png-crop.js";
+import { type CropRect, countChangedPx, decodePngFile } from "./png-crop.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const reportPath = join(here, "lut-report.json");

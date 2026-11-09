@@ -27,9 +27,10 @@ export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./pro
 import { applyPoseIntent, applySelectActorIntent } from "./learner-intents.js";
 import { handleSpeechAudioIntent, type SpeechRecognizer } from "./speech-audio.js";
 import { createScheduleDriver } from "./scenario-schedule.js";
-import { DEFAULT_NOTE_MAX_CHARS, validateNoteSubmit } from "./patient-note.js";
+import { DEFAULT_NOTE_MAX_CHARS } from "./patient-note.js";
+import { NoteStation } from "./note-draft.js";
 import { applyUtteranceIntent } from "./actor-turns.js";
-import { setTopicMenuState, topicMenuForCast } from "./topic-menu.js";
+import { setTopicMenuState, topicMenuForCast, topicMenuTags, trackAskedTopics } from "./topic-menu.js";
 import type { TopicAnswer } from "./topic-answers.js";
 import {
   assertStationJoinAllowed,
@@ -96,8 +97,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   protected stationTraceDir: string | null = null;
   /** C11 server-bound patient-note bound (null uses the module default). Same binding as stationTiming. */
   protected stationNoteMaxChars: number | null = null;
-  /** C11 held learner patient note text (server-side only: never synced, never traced). */
-  private noteText: string | null = null;
+  /** C11 held patient note + C45 latest draft (server-side only: never synced, never traced). */
+  private notes = new NoteStation();
   /** C6 station phase clock (null when no timing: C1..C5 brief behaviour). Driven by this.clock. */
   private phaseClock: { stop(): void } | null = null;
   /** C6 host-clock ms per entered phase (Date.now at phase enter). Probe only, never in the trace. */
@@ -161,7 +162,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.state.serverTick = 0;
     this.state.turnId = 0;
     this.state.turnOwner = "none";
-    this.state.observerCount = 0; this.state.noteStatus = "none"; this.state.noteChars = 0;
+    this.state.observerCount = 0; this.state.noteStatus = "none"; this.state.noteChars = 0; this.state.noteSource = "";
     this.state.phaseRemainingS = 0;
     // C7 station assignment: server binding + creation nonce only (never client roomOptions).
     const station = configureStationRoom(this.stationBinding, options, this.state, this.tracer);
@@ -192,10 +193,12 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       this.utteranceFallbackMinConfidence = cast.utteranceFallback?.minSpeechConfidence ?? 0;
       const policy = stationEmotionPolicy(cast);
       this.tracer.setStationCast({ scenarioId: cast.scenarioId, actors: [...cast.actorIds], baseline: policy.baseline as string, emotionPolicy: policy, topicAnswers: cast.topicAnswers.map(({ actorId, topicTags, replyId, affect }) => ({ actorId, topicTags: [...topicTags], replyId, ...(affect === undefined ? {} : { affect }) })) });
+      trackAskedTopics(this.state, this.tracer, cast);
     } else {
       populateActorRoster(this.state.actors, options);
       this.utteranceFallbackLine = null; this.utteranceFallbackMinConfidence = 0;
       this.tracer.setStationCast(null);
+      trackAskedTopics(this.state, this.tracer, null);
     }
     this.state.learners = new MapSchema<LearnerStateInstance>();
     // C19: a cast station runs its schedule on the room clock (see the driver).
@@ -218,6 +221,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         phaseChangedAtMs: this.phaseChangedAtMs,
         schedule: this.scheduleDriver,
         onClosed: () => {
+          this.notes.promote(this.state, this.tracer);
           void this.rotateStation();
         },
       },
@@ -346,7 +350,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         traceDir: this.stationTraceDir,
         traceSnapshot: () => this.tracer.snapshot(),
         flushTrace: () => this.flushConversationTrace(),
-        noteText: this.noteText,
+        noteText: this.notes.text,
         onRotationFailed: () => this.tracer.push({ seq: null, kind: "rotation-failed", actorId: "", turnId: null }),
         rotationStarted: this.rotationStarted,
         setRotationStarted: (value) => { this.rotationStarted = value; },
@@ -421,8 +425,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         ? applyPoseIntent(bindings, client, learner, intentSeq, payload)
         : kind === "select-actor"
           ? applySelectActorIntent(bindings, client, intentSeq, payload)
-          : kind === "note-submit"
-            ? this.applyNote(client, intentSeq, payload)
+          : kind === "note-submit" || kind === "note-draft"
+            ? this.applyNote(client, intentSeq, kind, payload)
             : this.applyUtterance(client, learner, intentSeq, kind, payload);
     if (!applied) {
       return;
@@ -437,17 +441,13 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     // broadcast: see DESTRUCTIVE_PROBE_ANCHOR (T6 probe) in onCreate.
   }
 
-  /** C11 patient-note application: validated in the note module, held here. */
-  private applyNote(client: Client, seq: number, payload: unknown): boolean {
-    const validated = validateNoteSubmit(this.state.phase, this.stationNoteMaxChars ?? DEFAULT_NOTE_MAX_CHARS, payload);
-    if (typeof validated !== "string") {
-      this.reject(client, seq, validated.reason);
+  /** C11 note-submit / C45 note-draft application: validated and held in the note module. */
+  private applyNote(client: Client, seq: number, kind: string, payload: unknown): boolean {
+    const result = this.notes.apply(kind, this.state, this.tracer, client.sessionId, seq, payload, this.stationNoteMaxChars ?? DEFAULT_NOTE_MAX_CHARS, Date.now());
+    if (result !== true) {
+      this.reject(client, seq, result.reason);
       return false;
     }
-    this.noteText = validated;
-    this.state.noteStatus = "submitted";
-    this.state.noteChars = validated.length;
-    this.tracer.push({ seq, kind: "note-submitted", actorId: "", turnId: null, chars: validated.length });
     return true;
   }
 
@@ -481,7 +481,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         },
         reject: this.reject.bind(this),
         castVoice: this.castVoice === null ? null : { actors: this.castVoice },
-        topicMenu: this.castVoice === null ? null : [...this.state.topicMenu],
+        topicMenu: this.castVoice === null ? null : topicMenuTags(this.state),
         topicAnswers: this.topicAnswers,
         utteranceFallbackLine: this.utteranceFallbackLine,
         utteranceFallbackMinConfidence: this.utteranceFallbackMinConfidence,

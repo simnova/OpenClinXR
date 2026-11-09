@@ -710,23 +710,21 @@ describe("the skin shade loader installs the hook from GLB bytes", () => {
       expect(detail.matrix.elements[0]).toBeCloseTo(90, 10);
       expect(detail.matrix.elements[4]).toBeCloseTo(90, 10);
       expect(detail.matrix.elements[8]).toBe(1);
-      expect(shader.fragmentShader).toMatch(
-        /texture2D\(uSkinDetailNormalMap, skinDetailUv\)/,
-      );
+      expect(shader.fragmentShader.match(/texture2D\(uSkinDetailNormalMap, skinFaceUv[XYZ]\)/g)).toHaveLength(3);
       expect(
         shader.fragmentShader,
         "face detail normal is suppressed by the existing lip mask",
       ).toContain(
-        "skinDetailNormal.xy *= uSkinDetailNormalStrength * (1.0 - skinLip);",
+        "float skinFaceStrength = uSkinDetailNormalStrength * (1.0 - skinLip);",
       );
-      expect(shader.fragmentShader, "stretch fade derives the map-UV Jacobian").toContain(
-        "vec2 skinStretchUvDx = dFdx(vMapUv), skinStretchUvDy = dFdy(vMapUv);",
+      expect(shader.fragmentShader, "bind-pose triplanar sampling replaces the UV-stretch fade").not.toContain(
+        "skinStretchUvDx",
       );
-      expect(shader.fragmentShader, "stretch fade derives the view-position Jacobian").toContain(
-        "vec3 skinStretchPositionDx = dFdx(-vViewPosition), skinStretchPositionDy = dFdy(-vViewPosition);",
+      expect(shader.fragmentShader, "bind-pose triplanar sampling never derives detail from view position").not.toContain(
+        "skinStretchPositionDx",
       );
-      expect(shader.fragmentShader, "stretch fade uses the ruled anisotropy ramp").toContain(
-        "1.0 - smoothstep(4.0, 8.0, skinStretchAnisotropy)",
+      expect(shader.fragmentShader, "the retired fade cannot make high-anisotropy skin bald").not.toContain(
+        "skinStretchFade",
       );
       // GLSL ES has no smoothstep(int, int, float) overload: an integer literal fails the
       // fragment compile in the browser and the whole skin stops drawing (st-vitbody3 r4d,
@@ -735,8 +733,8 @@ describe("the skin shade loader installs the hook from GLB bytes", () => {
         shader.fragmentShader.match(/smoothstep\(\s*-?\d+\s*[,)]|smoothstep\([^,]+,\s*-?\d+\s*,/g) ?? [],
         "every smoothstep edge in the assembled program is a float literal or expression",
       ).toEqual([]);
-      expect(shader.fragmentShader, "stretch fade scales the combined detail perturbation").toContain(
-        "skinDetailNormal.xy *= skinStretchFade;",
+      expect(shader.fragmentShader, "detail normals use the bind-pose position varying").toContain(
+        "skinTriplanarUvX(vSkinBindPos",
       );
       expect(
         unresolvedDetailCalls(shader.fragmentShader),
@@ -812,7 +810,7 @@ describe("the skin shade loader installs the hook from GLB bytes", () => {
       expect(body.matrix.elements[4]).toBeCloseTo(193, 10);
       expect(body.matrix.elements[8]).toBe(1);
       expect(shader.fragmentShader.match(/textureGrad\(uSkinBodyDetailNormalMap/g)?.length).toBe(3);
-      expect(shader.fragmentShader).toMatch(/skinBodyHexNormal\(skinBodyDetailUv\)/);
+      expect(shader.fragmentShader.match(/skinBodyHexNormal\(skinBodyUv[XYZ]\)/g)).toHaveLength(3);
       expect(shader.fragmentShader).toMatch(/vec2 dx = dFdx\(st\), dy = dFdy\(st\)/);
       expect(shader.fragmentShader).toMatch(/texture2D\(uSkinCurvMap, skinUv\)\.b/);
       expect(

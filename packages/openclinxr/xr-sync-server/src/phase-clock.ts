@@ -171,7 +171,7 @@ export function attachStationPhaseClock(
  * owned by the patient-note applier (accepted only in "note"), so the
  * encounter gate never sees it. */
 export function phaseGateReason(clockRunning: boolean, phase: string, kind: string): string | null {
-  if (kind === "note-submit") {
+  if (kind === "note-submit" || kind === "note-draft") {
     return null;
   }
   if (clockRunning && kind !== "pose" && phase !== "encounter") {

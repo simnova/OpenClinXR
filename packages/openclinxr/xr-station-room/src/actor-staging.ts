@@ -29,14 +29,20 @@ import {
   loadGeneratedHumanoidIntoActorSlot,
 } from "@openclinxr/xr-asset-loading";
 import { publishRuntimeActorSlotAssignmentEvidence } from "@openclinxr/xr-capture-evidence";
+import type { RuntimeSlotAssignment } from "@openclinxr/xr-runtime-state";
 import {
   additionalCastPlacementFallback,
   iwsdkStationSceneObjects,
 } from "@openclinxr/xr-runtime-state";
-import type { RuntimeSlotAssignment } from "@openclinxr/xr-runtime-state";
 import { createPrimitiveActorMesh } from "@openclinxr/xr-scene";
 import type { Group, Mesh, Scene } from "three";
 import { observeMountedSupportInstances } from "./mounted-support-observation.js";
+import {
+  applyStagedPatientRootTransform,
+  consumeAuthoredHeading,
+  defaultPatientActorPlacement,
+  stampAuthoredFramingIntent,
+} from "./runtime-actor-placement.js";
 
 export type StationActorSlotKind = EncounterRuntimeActorPlacement["slotKind"];
 
@@ -127,30 +133,6 @@ function stampSupportAcceptance(slot: Group, placement: EncounterRuntimeActorPla
   }
 }
 
-/**
- * Consume the authored heading, AFTER framing, and record the base the frame loop composes onto.
- *
- * `headingRadians` was consumed on `additional_cast` alone. `primary_patient` and `clinical_team`
- * read it nowhere, so framing's own yaw stood: measured on the shipped ED manifest, which authors
- * `-0.26` for the clinical slot, the nurse ended at `-0.18`. An authored heading is a decision
- * about where an actor looks; a framing default is what happens when nobody decided, and the
- * decision wins. An actor with no authored heading keeps the framing default untouched.
- */
-function consumeAuthoredHeading(slot: Group, placement: EncounterRuntimeActorPlacement, actorId: string): void {
-  if (actorId && typeof placement.headingRadians === "number") {
-    slot.rotation.y = placement.headingRadians;
-    slot.userData["openClinXrConsumedHeadingRadians"] = placement.headingRadians;
-  }
-  // The PERSISTENT heading, stamped after everything that writes rotation.y at staging time. The
-  // frame loop composes its idle sway onto this instead of assigning over it.
-  slot.userData["openClinXrBaseHeadingRadians"] = slot.rotation.y;
-}
-
-function stampAuthoredFramingIntent(slot: Group, placement: EncounterRuntimeActorPlacement): void {
-  slot.userData["openClinXrPreserveResolvedPlacement"] =
-    placement.placementProvenance === "authored_intent";
-}
-
 export function stageStationActors(ctx: StationActorStagingContext, scene: Scene): StationActorStagingResult {
   // #122 — unique slot fill; unfilled slots stay in the graph but are hidden with empty actorId.
   publishRuntimeActorSlotAssignmentEvidence(ctx.encounterBundle(), ctx.slotAssignment());
@@ -162,16 +144,19 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   );
   const patientActorId = ctx.actorIdForSlot("primary_patient");
   const patientRuntimeHumanoidAsset = ctx.humanoidAssetForSlot("primary_patient");
-  const patientPlacement = ctx.actorPlacement(patientActorId || "unfilled_primary_patient", {
-    slotKind: "primary_patient",
-    position: { x: -0.72, y: 1.06, z: -0.12 },
-    scale: { x: 1.1, y: 1.1, z: 1.1 },
-    verticalOffsetMeters: -0.98,
-    labelPrefix: "Patient",
-  }, mountedSupportInstanceIds);
+  const patientPlacement = ctx.actorPlacement(
+    patientActorId || "unfilled_primary_patient",
+    defaultPatientActorPlacement,
+    mountedSupportInstanceIds,
+  );
   const patient = createPrimitiveActorMesh(0x8fb9aa);
   patient.name = iwsdkStationSceneObjects.patientRobertHayes;
-  patient.position.set(patientPlacement.position.x, patientPlacement.position.y, patientPlacement.position.z);
+  applyStagedPatientRootTransform({
+    patient,
+    placement: patientPlacement,
+    patientActorId,
+    applyActorFraming: (actor, actorId) => ctx.applyActorFraming(actor, actorId),
+  });
   patient.visible = Boolean(patientActorId) && !ctx.scenarioRuntimeMismatch();
   if (ctx.cleanComparatorCapture()) {
     // #315 follow-up: only the comparator's named subject renders; the patient is the
@@ -181,28 +166,11 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
       ? "shown_as_named_subject_for_clean_humanoid_source_comparator_capture"
       : "hidden_for_clean_humanoid_source_comparator_capture_non_named_actor";
   }
-  patient.scale.set(patientPlacement.scale.x, patientPlacement.scale.y, patientPlacement.scale.z);
-  // POSTURE IS STAMPED BEFORE FRAMING, and the order is the whole fix.
-  //
-  // applyActorFraming's seated/supine guard (encounter-actor-framing.ts:140) reads
-  // `actor.userData.openClinXrActorPosture` and returns early, keeping the composed XZ. The stamp
-  // used to happen seven lines LATER, so the guard read "" every time, fell through, and
-  // encounter-actor-framing.ts:178 overwrote the patient with the floor-standing frame
-  // `(-0.9, 0, 0.08)`. That guard's own comment records the ordering as a known hazard; this is
-  // the ordering being corrected rather than worked around.
-  //
-  // Measured 2026-09-09 on the loaded humanoid: runtimeActorPlacement composed x=0 with the
-  // authored 0.4 m offset and x=-0.4 without it — a correct 0.4 m difference — and BOTH passes
-  // sampled the patient at x=-0.9. The composition was right and its result was discarded here.
-  patient.userData["openClinXrActorPosture"] = patientPlacement.posture ?? "standing";
-  stampAuthoredFramingIntent(patient, patientPlacement);
-  if (patientActorId) ctx.applyActorFraming(patient, patientActorId);
   if (patientActorId) {
     patient.add(ctx.createActorNameplate(actorNameplateLabel(patientPlacement.labelPrefix, patientActorId), 0x286b54));
   }
   scene.add(patient);
   // #83/#136: canonical slot kind on the root BEFORE load (never placement.slotKind — stale family tags collide).
-  patient.userData["openClinXrSlotKind"] = "primary_patient";
   // The placement AS RESOLVED, stamped beside the posture it came with, so an instrument can read
   // what the runtime computed instead of inferring it from a transform. Measured 2026-09-09: the
   // patient slot sat at the manifest's raw x=-0.9 while its posture read `seated`, and a transform
@@ -219,7 +187,6 @@ export function stageStationActors(ctx: StationActorStagingContext, scene: Scene
   };
   patient.userData["openClinXrActorId"] = patientActorId;
   stampSupportAcceptance(patient, patientPlacement);
-  consumeAuthoredHeading(patient, patientPlacement, patientActorId);
   if (patientActorId) {
     ctx.assetLoadingContext().setActorSlotByActor(patientActorId, patient);
     loadGeneratedHumanoidIntoActorSlot(ctx.assetLoadingContext(), patient, {

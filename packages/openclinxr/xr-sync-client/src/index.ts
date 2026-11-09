@@ -10,7 +10,7 @@ import { Client, type Room } from "@colyseus/sdk";
 import type { ConnectOptions } from "./options.js";
 
 /** Client-to-server intent kinds, mirroring the server contract. */
-export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit" | "select-station" | "return-to-lobby" | "score-station" | "finalize-review" | "speech-audio";
+export type IntentKind = "pose" | "select-actor" | "utterance-start" | "utterance-end" | "note-submit" | "note-draft" | "select-station" | "return-to-lobby" | "score-station" | "finalize-review" | "speech-audio";
 
 /** JSON payload carried by one intent. */
 export type IntentPayload = Record<string, unknown>;
@@ -97,10 +97,12 @@ export interface EncounterSnapshot {
   noteStatus?: string;
   /** C11 length of the held note (0 when none; absent on old servers). */
   noteChars?: number;
+  /** C45 "" | "explicit" | "draft"; absent on old servers. */
+  noteSource?: string;
   /** C12 true when the recorded session ran to completion (lobby only). */
   sessionComplete?: boolean;
   /** C12 one entry per index station, in index order (lobby only). */
-  lobbyStations?: Array<{ stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number; available?: boolean; unavailableReason?: string }>;
+  lobbyStations?: Array<{ stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number; noteSource?: string; available?: boolean; unavailableReason?: string }>;
   /** C13 checked rubric count for the replayed station (replay only). */
   scoreChecked?: number;
   /** C13 one badge per scored index station, in index order (lobby only). */
@@ -121,8 +123,8 @@ export interface EncounterSnapshot {
   replayRubric?: Array<{ id: string; label: string }>;
   /** C21 persisted trace evidence counts aligned with replayRubric. */
   replayRubricCoverage?: Array<{ id: string; observedCount: number; requiredCount: number }>;
-  /** C22 scenario-owned learner history topics ([] off a cast station). */
-  topicMenu?: string[];
+  /** C37 server-authored entries. */
+  topicMenu?: Array<{ tag: string; label: string; labelSource: string; note: string; asked: boolean }>;
   /** C34 true when the server has a speech recognizer (absent on old servers). */
   speechAvailable?: boolean;
 }

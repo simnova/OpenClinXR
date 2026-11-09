@@ -1,8 +1,6 @@
 import {
   type ActorPosture,
   resolveActorPosture,
-  seatedVerticalOffsetForSeatHeight,
-  supineVerticalOffsetSeed,
 } from "@openclinxr/asset-registry/actor-posture";
 import { admitFrozenScenePlanForObservedScene, type ScenePlanAdmission, stationIdForSceneClosureScenario } from "@openclinxr/asset-registry/encounter-bundle-admission";
 import {
@@ -227,7 +225,6 @@ import {
   resolveLocalEquipmentRuntimeAssetFileName,
   type SceneAssetEvidence,
   summarizeTraceReadiness,
-  supportedActorPlacementPosition,
   viewLearnerCanonicalExamPhase,
   type XrExperienceModeEvidence,
   type XrRuntimeReadinessDecision,
@@ -320,11 +317,13 @@ import {
   buildStationRoomShell,
   actorNameplateLabel as packageActorNameplateLabel,
   runtimeGeneratedSceneObjectName as packageRuntimeGeneratedSceneObjectName,
+  resolveRuntimeActorPlacement,
   type StationRoomResult,
   stageStationActors,
   wireStationPointerInteraction,
 } from "@openclinxr/xr-station-room";
 import { applyEnvironmentAffectCue } from "@openclinxr/xr-station-room/station-environment-affect-cue";
+import type { EncounterSyncEvidence, UtteranceBoxDeps } from "@openclinxr/xr-sync-client/headset";
 
 const caseOwnedBedsideApproach = createStationBedsideApproachState();
 let frozenScenePlanAdmission: ScenePlanAdmission = { status: "no_plan_carried" };
@@ -393,7 +392,6 @@ import {
   setComparatorCaptureSceneRoot,
 } from "./capture-comparator.js";
 import { bootLearnerRuntimeFromAssembledExam, type PinnedEncounterBundleRuntimeTrace, resolveAssembledExamPinnedBundleId } from "./encounter-bundle-boot/index.js";
-import type { EncounterSyncEvidence, UtteranceBoxDeps } from "@openclinxr/xr-sync-client/headset";
 import { generatedHumanoidSourceProvenance } from "./generated-humanoid-source-provenance.js";
 import { applyStationInteriorLightingForEnvironment, configureStationRendererToneMapping } from "./lighting-rig-runtime.js";
 import {
@@ -850,38 +848,16 @@ function hasVector3(value: unknown): value is { x: number; y: number; z: number 
 }
 
 function runtimeActorPlacement(actorId: string, fallback: LearnerRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string], mountedSupportInstanceIds: readonly string[] = []): LearnerRuntimeAssetBundle["sceneManifest"]["actorPlacements"][string] {
-  const placement = encounterRuntimeAssetBundle.sceneManifest.actorPlacements?.[actorId];
-  const slotKind = placement?.slotKind ?? fallback.slotKind;
-  const posture = resolveActorPosture({
-    declared: placement?.posture ?? fallback.posture,
+  return resolveRuntimeActorPlacement({
+    bundle: encounterRuntimeAssetBundle,
+    actorId,
+    fallback,
+    mountedSupportInstanceIds,
     scenarioId: selectedScenarioId(),
     environmentId: resolveActiveEnvironmentId(),
-    slotKind,
+    patientChairSeatHeightMeters: PATIENT_CHAIR_SEAT_HEIGHT_METERS,
+    onRefusalReason: (reason) => console.warn(`[actor-placement] ${actorId}: ${reason}`),
   });
-  const seated = posture === "seated";
-  const supine = posture === "supine";
-  // #150: never seatedVerticalOffsetForSeatHeight for supine (hip-on-chair ≠ torso-on-deck).
-  const verticalOffsetMeters = seated
-    ? seatedVerticalOffsetForSeatHeight(PATIENT_CHAIR_SEAT_HEIGHT_METERS)
-    : supine ? supineVerticalOffsetSeed()
-      : (placement?.verticalOffsetMeters ?? fallback.verticalOffsetMeters);
-  const position = hasVector3(placement?.position) ? placement.position : fallback.position;
-  const supported = supportedActorPlacementPosition({
-    posture, actorId, slotKind, mountedSupportInstanceIds,
-    scenarioId: selectedScenarioId(),
-    environmentId: resolveActiveEnvironmentId(),
-    resolvedPosition: position,
-    ...(placement?.supportInstanceId ? { supportInstanceId: placement.supportInstanceId } : {}), ...(placement?.plantOffsetMeters ? { authoredOffsetMeters: placement.plantOffsetMeters } : {}), ...(posture === "standing" && placement?.plantOffsetMeters ? { floorFrame: { frameId: `${resolveActiveEnvironmentId()}:floor`, originY: 0, originXz: { x: 0, z: 0 } } } : {}),
-  });
-  if (supported.refusalReason) console.warn(`[actor-placement] ${actorId}: ${supported.refusalReason}`);
-  return {
-    ...fallback, ...placement,
-    position: supported.position, placementProvenance: placement?.placementProvenance ?? supported.provenance,
-    scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale, supportAcceptance: supported.supportAcceptance,
-    verticalOffsetMeters,
-    labelPrefix: placement?.labelPrefix ?? fallback.labelPrefix,
-    posture,
-  };
 }
 
 function runtimeActorEmbodimentImpl(bundle: LearnerRuntimeAssetBundle, actorId: string): LearnerRuntimeAssetBundle["actors"][number]["embodiment"] | undefined {
@@ -4728,7 +4704,7 @@ initSpeakFixtureBridge({ triggerDialogue: (actorId: string, text: string): void 
 window.__openClinXrRequestLiveVoiceTurn = requestUnscriptedLiveTurn;
 // C25: ?encounterSync=ws://... joins the xr-sync room; the server's actor turn plays through the live actor-turn consumer.
 if (window.location.search.includes("encounterSync=")) void import("@openclinxr/xr-sync-client/headset").then(({ startEncounterSyncFromUrl }) => startEncounterSyncFromUrl({
-  gazeView: () => { const cam = (window as unknown as Record<string, PerspectiveCamera | undefined>)["__openClinXrGazeCamera"]; return cam ? { eye: cam.getWorldPosition(new Vector3()), forward: cam.getWorldDirection(new Vector3()), actors: [...generatedHumanoidActorSlotsByActorId].map(([actorId, slot]) => { const at = slot.getWorldPosition(new Vector3()); return { actorId, x: at.x, y: at.y + 1.18, z: at.z }; }) } : undefined; }, search: window.location.search, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), speech: { xrSession: () => (window as unknown as Record<string, unknown>)["__openClinXrXrSession"] as never, inject: window.location.search.includes("encounterMicInject=1") }, publish: (evidence) => { window.__openClinXrEncounterSync = evidence; }, utteranceBox: { doc: document as never, parent: (dialogueLine.parentElement ?? document.body) as never } as UtteranceBoxDeps, voice: { assetBase: "/mesm-tts/", slotFor: (id) => generatedHumanoidAnimationSlotsByActorId.get(id) as never, voiceFor: ((voices) => (id: string) => voices.get(id))(new Map([edChestPainScenario, ...scenarioBank].flatMap((scenario) => scenario.actors).reverse().map((actor) => [actor.actorId, actor.ttsVoice] as const))) },
+  gazeView: () => { const cam = (window as unknown as Record<string, PerspectiveCamera | undefined>)["__openClinXrGazeCamera"]; return cam ? { eye: cam.getWorldPosition(new Vector3()), forward: cam.getWorldDirection(new Vector3()), actors: [...generatedHumanoidActorSlotsByActorId].map(([actorId, slot]) => { const at = slot.getWorldPosition(new Vector3()); return { actorId, x: at.x, y: at.y + 1.18, z: at.z }; }) } : undefined; }, search: window.location.search, noteText: () => patientNoteText.value, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), speech: { xrSession: () => (window as unknown as Record<string, unknown>)["__openClinXrXrSession"] as never, inject: window.location.search.includes("encounterMicInject=1") }, publish: (evidence) => { window.__openClinXrEncounterSync = evidence; }, utteranceBox: { doc: document as never, parent: (dialogueLine.parentElement ?? document.body) as never } as UtteranceBoxDeps, voice: { assetBase: "/mesm-tts/", slotFor: (id) => generatedHumanoidAnimationSlotsByActorId.get(id) as never, voiceFor: ((voices) => (id: string) => voices.get(id))(new Map([edChestPainScenario, ...scenarioBank].flatMap((scenario) => scenario.actors).reverse().map((actor) => [actor.actorId, actor.ttsVoice] as const))) },
   register: (payload, tag) => { const parsed = liveActorTurnFromPayload(payload); return parsed ? registerLiveActorTurn(parsed.plan, parsed.execution, tag) : undefined; },
   play: (actorId, caption, emotion) => { dialogueLine.textContent = caption; triggerHumanoidDialogue(actorId, caption, { kind: "learner_camera", actorId: null }, emotion as HumanoidExpressionEmotion, undefined, "plan.dialogueEmotionTo"); },
 }));

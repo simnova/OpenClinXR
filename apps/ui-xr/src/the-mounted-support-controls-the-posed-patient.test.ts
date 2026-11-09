@@ -603,17 +603,27 @@ describe("the mounted support controls the posed patient", () => {
     // proves the call site passes these arguments, never that it runs. Clauses (a) to (j) carry
     // the behavioural half against the same production functions main.ts calls.
     const mainTs = readFileSync(new URL("./main.ts", import.meta.url), "utf8");
-    expect(mainTs).toContain("supportedActorPlacementPosition({");
-    expect(mainTs, "the live caller passes the OBSERVED mounted set").toContain(
-      "posture, actorId, slotKind, mountedSupportInstanceIds,",
+    // I1b: main.ts delegates the placement decision to xr-station-room's resolver.
+    const placementTs = readFileSync(
+      new URL("../../../packages/openclinxr/xr-station-room/src/runtime-actor-placement.ts", import.meta.url),
+      "utf8",
     );
-    expect(mainTs, "the live caller passes the required support instance").toContain(
+    expect(mainTs).toContain("return resolveRuntimeActorPlacement({");
+    expect(mainTs).not.toContain('mode: "resolve_runtime_actor_placement"');
+    expect(mainTs, "main.ts forwards the OBSERVED mounted set to the resolver").toContain(
+      "mountedSupportInstanceIds,\n    scenarioId: selectedScenarioId(),",
+    );
+    expect(placementTs).toContain("supportedActorPlacementPosition({");
+    expect(placementTs, "the live caller passes the OBSERVED mounted set").toContain(
+      "mountedSupportInstanceIds: input.mountedSupportInstanceIds,",
+    );
+    expect(placementTs, "the live caller passes the required support instance").toContain(
       "{ supportInstanceId: placement.supportInstanceId }",
     );
-    expect(mainTs, "the live caller passes the PERSISTED authored offset").toContain(
+    expect(placementTs, "the live caller passes the PERSISTED authored offset").toContain(
       "{ authoredOffsetMeters: placement.plantOffsetMeters }",
     );
-    expect(mainTs, "the verdict rides back on the record instead of being warned about").toContain(
+    expect(placementTs, "the verdict rides back on the record instead of being warned about").toContain(
       "supportAcceptance: supported.supportAcceptance",
     );
     expect(mainTs, "the staging context forwards what the scene observed").toContain(

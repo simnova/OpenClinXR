@@ -489,3 +489,193 @@ export async function collectQuestCleanupLists({ staticPort, syncPort, serial })
     adbForwardList.includes("tcp:9222");
   return { adbReverseList, adbForwardList, leaked };
 }
+
+/**
+ * C41 still helper: capture #room-panel at native 1:1 (deviceScaleFactor 1). Throws when the panel box or the screenshot is missing,
+ * so a failed capture fails the run. Returns the box width read in the same call; pass the result to checkStills.
+ */
+export async function shootPanel(page, path) {
+  const box = await page.locator("#room-panel").boundingBox({ timeout: 10000 });
+  if (box === null) throw new Error(`shootPanel: #room-panel has no box for ${path}`);
+  const scrollY = await page.evaluate(() => window.scrollY);
+  await page.screenshot({ path, fullPage: true, clip: { x: box.x, y: box.y + scrollY, width: box.width, height: box.height }, timeout: 30000 });
+  return { path, boxWidth: box.width, boxHeight: box.height };
+}
+
+/** PNG pixel width from the IHDR chunk. */
+export function pngWidth(bytes) {
+  return bytes.length >= 24 && bytes.toString("ascii", 1, 4) === "PNG" ? bytes.readUInt32BE(16) : -1;
+}
+
+/**
+ * C41 still check: every named capture happened (a failed capture is a null entry), exists, is > 0 bytes, and its pixel width equals
+ * the #room-panel box width read in the same run (rounded either way; the screenshot clip rounds a fractional box).
+ */
+export async function checkStills(names, shots) {
+  const { readFile: read, stat } = await import("node:fs/promises");
+  const rows = [];
+  for (const name of names) {
+    const shot = shots[name];
+    if (shot === undefined || shot === null) { rows.push({ name, ok: false, why: "not captured" }); continue; }
+    try {
+      const size = (await stat(shot.path)).size;
+      const width = pngWidth(await read(shot.path));
+      const ok = size > 0 && (width === Math.round(shot.boxWidth) || width === Math.ceil(shot.boxWidth) || width === Math.floor(shot.boxWidth));
+      rows.push({ name, ok, bytes: size, width, boxWidth: shot.boxWidth });
+    } catch (error) {
+      rows.push({ name, ok: false, why: String(error).slice(0, 120) });
+    }
+  }
+  return { pass: rows.length > 0 && rows.every((row) => row.ok), rows };
+}
+
+/** Watch the live conversation trace for activity: polls getTrace().events.length and stamps lastEventAt only when the length changes; errorCount() counts read errors after the first successful read. */
+export function watchTraceActivity(getTrace, intervalMs = 100) {
+  let lastEventAt = null;
+  let lastLen = 0;
+  let errors = 0;
+  let preAttachErrors = 0;
+  let attached = false;
+  const read = () => {
+    try {
+      const trace = getTrace();
+      attached = true;
+      const len = trace?.events?.length ?? 0;
+      if (len !== lastLen) {
+        lastLen = len;
+        lastEventAt = Date.now();
+      }
+    } catch {
+      // Before the first successful read the room does not exist yet (getConversationTrace throws until the learner joins): counted apart, and a watcher that never attaches never stamps lastEventAt, so it is refused there.
+      if (attached) errors += 1;
+      else preAttachErrors += 1;
+    }
+  };
+  read();
+  const timer = setInterval(read, intervalMs);
+  return {
+    stop() {
+      clearInterval(timer);
+    },
+    lastEventAt() {
+      return lastEventAt;
+    },
+    errorCount() {
+      return errors;
+    },
+    preAttachErrorCount() {
+      return preAttachErrors;
+    },
+  };
+}
+
+/**
+ * Harness-side quiet period confirming trace files settled after the close promise.
+ *
+ * No server persist interval exists (persist is synchronous writeFileSync, conversation-tracer.ts:146).
+ */
+export const TRACE_QUIET_MS = 5000;
+export const TRACE_QUIET_SOURCE = "no server persist interval exists (persist is synchronous writeFileSync, conversation-tracer.ts:146); 5000 ms is a harness-side confirmation margin set by the CEO steer 2026-11-08 (must exceed the 3000 ms late-copy probe), floor 1000 ms";
+
+/**
+ * Late-copy probe: after ms, copy the first *.conversation-trace.json in dir
+ * (sorted) to late-copy.conversation-trace.json. Best-effort, errors swallowed.
+ * Test-only hook owned by the entrypoints (reads process.env there, never here).
+ */
+export function startLateCopyProbe(dir, ms) {
+  if (!(Number.isFinite(ms) && ms > 0)) {
+    return { cancel() {} };
+  }
+  const timer = setTimeout(() => {
+    void (async () => {
+      try {
+        const { readdir, readFile, writeFile } = await import("node:fs/promises");
+        const { join } = await import("node:path");
+        const names = (await readdir(dir)).filter((n) => n.endsWith(".conversation-trace.json")).sort();
+        if (names.length === 0) return;
+        const bytes = await readFile(join(dir, names[0]));
+        await writeFile(join(dir, "late-copy.conversation-trace.json"), bytes);
+      } catch {}
+    })();
+  }, ms);
+  return { cancel() { clearTimeout(timer); } };
+}
+
+/**
+ * C43 trace settle: the persist signal is the server close promise (persist is
+ * synchronous writeFileSync at station close / room dispose / server close, so
+ * `await syncServer.close()` resolves after all rooms disposed). After the
+ * persist signal resolves, confirm the trace-dir listing is quiet for quietMs.
+ *
+ * @param {string} dir trace directory
+ * @param {object} opts
+ * @param {number} opts.waitMs first file must appear within this long (default 20000)
+ * @param {number|null} opts.lastEventAt Date.now() of the last watched trace event, or null
+ * @param {number} opts.watchErrors watcher read-error count; > 0 refuses
+ * @param {Promise|null} opts.persisted close promise; a rejection refuses
+ * @param {number} opts.quietMs quiet confirmation margin (default TRACE_QUIET_MS)
+ * @param {number} opts.capMs settle cap (default 15000)
+ * @param {object|null} opts.clock { now, sleep } (default real time)
+ * @param {function|null} opts.list async () => [{name,size}] (default readdir+stat, sorted by name)
+ */
+export async function listTraceFiles(dir, { waitMs = 20000, lastEventAt = null, watchErrors = 0, persisted = null, quietMs = TRACE_QUIET_MS, capMs = 15000, clock = null, list = null } = {}) {
+  const quietSource = TRACE_QUIET_SOURCE;
+  quietMs = Math.max(1000, quietMs);
+  const now = () => (clock ? clock.now() : Date.now());
+  const sleep = (ms) => (clock ? clock.sleep(ms) : new Promise((resolve) => setTimeout(resolve, ms)));
+  const readList = list ?? (async () => {
+    const { readdir, stat } = await import("node:fs/promises");
+    const { join: joinPath } = await import("node:path");
+    const names = (await readdir(dir)).filter((n) => n.endsWith(".conversation-trace.json")).sort();
+    return Promise.all(names.map(async (name) => ({ name, size: (await stat(joinPath(dir, name))).size })));
+  });
+  const start = now();
+  // (a) the persist signal is the close promise; awaited first so a refusal never leaves the close promise unobserved.
+  if (persisted != null) {
+    try {
+      await persisted;
+    } catch (error) {
+      const refusal = `persist signal rejected: ${error?.message ?? String(error)}`;
+      return { files: [], refusal, mechanism: "refused-before-settle", quietMs, quietSource, pollCounts: [], waitedMs: now() - start, derivation: `refused before settle: ${refusal}` };
+    }
+  }
+  // (b) an unmeasurable or errored watcher cannot derive a settle.
+  if (lastEventAt === null) {
+    const refusal = "lastEventAt is null: no trace event was watched, so no settle can be derived";
+    return { files: [], refusal, mechanism: "refused-before-settle", quietMs, quietSource, pollCounts: [], waitedMs: 0, derivation: `refused before settle: ${refusal}` };
+  }
+  if (watchErrors > 0) {
+    const refusal = `watcher errors: ${watchErrors} trace watcher read errors observed, so no settle can be derived`;
+    return { files: [], refusal, mechanism: "refused-before-settle", quietMs, quietSource, pollCounts: [], waitedMs: 0, derivation: `refused before settle: ${refusal}` };
+  }
+  const mechanism = persisted ? "persist-signal (close promise) + quiet confirmation" : "quiet period only";
+  // (c) poll every 100 ms until the listing signature is quiet for quietMs, or the cap hits.
+  let prevSig = null;
+  let lastChange = now();
+  const pollCounts = [];
+  let names = [];
+  for (;;) {
+    const entries = await readList();
+    const sig = JSON.stringify(entries);
+    if (sig !== prevSig) {
+      prevSig = sig;
+      lastChange = now();
+    }
+    names = entries.map((e) => e.name);
+    pollCounts.push(entries.length);
+    if (entries.length === 0) {
+      if (now() - start >= Math.min(waitMs, capMs)) {
+        return { files: [], refusal: `no trace file appeared within ${waitMs} ms`, mechanism, quietMs, quietSource, pollCounts, waitedMs: now() - start, derivation: "no settle: no trace file appeared" };
+      }
+      await sleep(100);
+      continue;
+    }
+    if (now() - lastChange >= quietMs) {
+      return { files: names, refusal: null, mechanism, quietMs, quietSource, pollCounts, waitedMs: now() - start, derivation: `settled: listing unchanged for ${quietMs} ms after persist signal (${mechanism}); quiet source: ${quietSource}` };
+    }
+    if (now() - start >= capMs) {
+      return { files: [], refusal: `settle cap ${capMs} ms hit: trace files still changing`, mechanism, quietMs, quietSource, pollCounts, waitedMs: now() - start, derivation: `refused at cap: listing still changing after ${capMs} ms` };
+    }
+    await sleep(100);
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "scenarioId": "ed_chest_pain_priority_v1",
+  "menuTagCount": 9,
+  "withRawPhrase": 5,
+  "withPhrase": 1,
+  "collisions": [
+    {
+      "phrase": "i need an ecg now",
+      "tags": [
+        "urgent_escalation",
+        "team_communication"
+      ]
+    },
+    {
+      "phrase": "i can see you are worried",
+      "tags": [
+        "family_communication",
+        "empathy_statement"
+      ]
+    }
+  ],
+  "tagOnly": [
+    "risk_factor_question",
+    "associated_symptom_question",
+    "vitals_review",
+    "ecg_request",
+    "urgent_escalation",
+    "team_communication",
+    "family_communication",
+    "empathy_statement"
+  ],
+  "entries": [
+    {
+      "tag": "history_opqrst",
+      "hasSeedPhrase": true,
+      "firstPhrase": "when did the chest pressure start",
+      "seedId": "patient_onset_history",
+      "actorId": "patient_robert_hayes_v1",
+      "labelSource": "seed-phrase"
+    },
+    {
+      "tag": "risk_factor_question",
+      "hasSeedPhrase": false,
+      "labelSource": "tag"
+    },
+    {
+      "tag": "associated_symptom_question",
+      "hasSeedPhrase": false,
+      "labelSource": "tag"
+    },
+    {
+      "tag": "vitals_review",
+      "hasSeedPhrase": false,
+      "labelSource": "tag"
+    },
+    {
+      "tag": "ecg_request",
+      "hasSeedPhrase": false,
+      "labelSource": "tag"
+    },
+    {
+      "tag": "urgent_escalation",
+      "hasSeedPhrase": true,
+      "firstPhrase": "i need an ecg now",
+      "seedId": "nurse_team_escalation",
+      "actorId": "nurse_maria_alvarez_v1",
+      "labelSource": "tag"
+    },
+    {
+      "tag": "team_communication",
+      "hasSeedPhrase": true,
+      "firstPhrase": "i need an ecg now",
+      "seedId": "nurse_team_escalation",
+      "actorId": "nurse_maria_alvarez_v1",
+      "labelSource": "tag"
+    },
+    {
+      "tag": "family_communication",
+      "hasSeedPhrase": true,
+      "firstPhrase": "i can see you are worried",
+      "seedId": "spouse_family_communication",
+      "actorId": "spouse_anna_hayes_v1",
+      "labelSource": "tag"
+    },
+    {
+      "tag": "empathy_statement",
+      "hasSeedPhrase": true,
+      "firstPhrase": "i can see you are worried",
+      "seedId": "spouse_family_communication",
+      "actorId": "spouse_anna_hayes_v1",
+      "labelSource": "tag"
+    }
+  ]
+}

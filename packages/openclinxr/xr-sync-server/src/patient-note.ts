@@ -24,6 +24,12 @@ export const OUTSIDE_NOTE_PHASE_REASON = "outside-note-phase";
 /** Reject reason when the note text is missing or not a non-empty string. */
 export const INVALID_NOTE_REASON = "invalid-note";
 
+/** C45 minimum interval between accepted note-draft intents per learner. */
+export const NOTE_DRAFT_MIN_INTERVAL_MS = 50;
+
+/** C45 reject reason when a note-draft arrives inside the rate-limit window. */
+export const DRAFT_RATE_LIMITED_REASON = "draft-rate-limited";
+
 /** Reject reason when the note text exceeds the server noteMaxChars. */
 export const NOTE_TOO_LONG_REASON = "note-too-long";
 
@@ -72,6 +78,25 @@ export function validateNoteSubmit(
     return { reason: NOTE_TOO_LONG_REASON };
   }
   return text;
+}
+
+/**
+ * C45 validate a note-draft payload like a note-submit, except a
+ * whitespace-only draft rejects "invalid-note" (it is not an empty submit).
+ */
+export function validateNoteDraft(
+  phase: string,
+  noteMaxChars: number,
+  payload: unknown,
+): string | { reason: string } {
+  const result = validateNoteSubmit(phase, noteMaxChars, payload);
+  if (typeof result === "string") {
+    if (result.trim().length === 0) {
+      return { reason: INVALID_NOTE_REASON };
+    }
+    return result;
+  }
+  return result;
 }
 
 /** Persisted learner patient note (review-safe: no session id, no timestamps). */

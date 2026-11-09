@@ -30,7 +30,8 @@ describe("bounded secure local services", () => {
       await service?.close();
       throw error;
     }
-  }, 180_000);
+    // Two services start in sequence; each is bounded by uv venv (90 s) + pip sync (180 s) + peer readiness (60 s), secure-services.ts.
+  }, 660_000);
   afterAll(async () => { await identityPeer?.close(); await service?.close(); });
   it("advertises actual separate ports, short-lived ECDSA DER/SPKI pins and loaded versions", () => {
     const m = service.manifest;

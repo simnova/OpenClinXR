@@ -1,0 +1,114 @@
+{
+  "version": 2,
+  "decision": "falsified",
+  "reason": "G1 and G2 pass, but the bounded G3 refits for family:middle:forehead and family:old:forehead exceed the computed 5.43559104421957 dE76 half-gap; G4 therefore falsifies the model and emits no table rows.",
+  "controlR1": {
+    "model": "r1 finite 0.25 mm epidermal KM layer with mu_a passed as K and mu_s-prime passed as S",
+    "controlFit": {"Cm": 0.10375000000000001, "betaM": 0.0, "Ch": 0.04011002073185282},
+    "rmsReflectanceError": 0.03850545643606687,
+    "populationSdRmsTolerance": 0.06629997339239468,
+    "modelQBandMinimaNm": [],
+    "controlQBandMinimaNm": [544, 574],
+    "counterweight": {"aStarAtCh0.001": 5.39915471991076, "aStarAtCh0.1": 5.2836141323133194, "deltaAStar": -0.11554058759744024},
+    "g1Pass": false,
+    "g2Pass": false,
+    "failure": "The fitted r1 spectrum has neither oxyhaemoglobin Q-band minimum, and its a* decreases rather than increasing by the required counterweight."
+  },
+  "modelCandidates": [
+    {"rank": 1, "name": "Mapped two-layer Kubelka-Munk", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC2923491/", "version": "OpenClinXR r2", "licence": "Original implementation from published equations; no third-party code copied. Source papers remain under their publishers' terms.", "verdict": "chosen: cited K/S mapping, published in-vivo epidermal thickness, deterministic, and within the 120-second proof budget"},
+    {"rank": 2, "name": "PyTissueOptics", "url": "https://pypi.org/project/pytissueoptics/2.0.0/", "version": "2.0.0", "licence": "MIT", "verdict": "rejected for the production path: no OpenCL driver was available and a one-wavelength 1000-photon CPU probe exceeded 30 seconds including initialization, leaving inadequate photons for 21 wavelengths, two-seed noise measurement, refits, and the 120-second deterministic proof budget"},
+    {"rank": 3, "name": "photon-transport-toolkit", "url": "https://github.com/Physiker80/photon-transport-toolkit", "version": "repository main reviewed 2026-11-07", "licence": "MIT", "verdict": "rejected: promising seeded layered solver, but no versioned PyPI wheel and therefore no exact package version plus wheel SHA-256 satisfying R3"},
+    {"rank": 4, "name": "MCML", "url": "https://omlc.org/software/mc/man_mcml.pdf", "version": "1.0", "licence": "The distribution header says Copyright University of Texas M.D. Anderson Cancer Center 1992 but contains no permissive grant.", "verdict": "rejected: licence is not permissive enough for this brief"},
+    {"rank": 5, "name": "PyXOpto", "url": "https://github.com/xopto/pyxopto", "version": "0.2.x", "licence": "GPL-3.0-or-later", "verdict": "forbidden copyleft"},
+    {"rank": 6, "name": "MCX / pmcx", "url": "https://github.com/fangq/mcx", "version": "repository main reviewed 2026-11-07", "licence": "GPL-3.0", "verdict": "forbidden copyleft"}
+  ],
+  "chosenModel": {
+    "name": "Mapped two-layer Kubelka-Munk: finite 0.0601 mm epidermis over semi-infinite dermis",
+    "licence": "Original implementation from published equations; no third-party code copied.",
+    "implementation": "tools/openclinxr/asset-pipeline/skin/families/derive_chromophore_lab.py",
+    "wavelengthGridNm": {"start": 380, "end": 780, "step": 5},
+    "mapping": "K = 2 mu_a; S = 3/4 mu_s-prime - 1/40 mu_a",
+    "mappingCitation": "Sardar et al., Lasers in Medical Science 24 (2009), equation 9.",
+    "epidermisThicknessMm": 0.0601,
+    "thicknessCitation": "Yudovsky and Pilon, Journal of Biophotonics (2010), Table 2, white-subject right inner forearm epidermal thickness 60.1 micrometres.",
+    "deterministic": true
+  },
+  "control": {
+    "citation": "Cooksey, Allen and Tsai, Journal of Research of NIST 122 (2017), Reference Data Set of Human Skin Reflectance, DOI 10.6028/jres.122.026 and data DOI 10.18434/M38597; subject 15 is the spectrum closest in spectral angle to the 100-subject mean over 450-650 nm.",
+    "sourceUrl": "https://opendata.nist.gov/1832_Data_JResNIST_skinrefl%20v3.txt",
+    "sourceSha256": "ce9aac735d9d83b4b874b98d45f1ebda682cdc0e652f804efe00ab2fce0c25d9",
+    "licence": "NIST public data; https://www.nist.gov/open/license",
+    "redistribution": "Only the 21 values needed at 10 nm spacing are transcribed here; the SHA-pinned public source is fetched for full-spectrum Lab and Q-band localization.",
+    "fitOrPredicted": "fit to control only; no anchor values were used",
+    "fit": {"Cm": 0.042499999999999996, "betaM": 0.8347656250000002, "Ch": 0.018353145144339507},
+    "values": [
+      {"wavelengthNm": 450, "reflectance": 0.2720666666666667, "populationSd": 0.05770696545601948},
+      {"wavelengthNm": 460, "reflectance": 0.3022, "populationSd": 0.06361723865860146},
+      {"wavelengthNm": 470, "reflectance": 0.32, "populationSd": 0.06600676435842522},
+      {"wavelengthNm": 480, "reflectance": 0.32913333333333333, "populationSd": 0.06623161614656335},
+      {"wavelengthNm": 490, "reflectance": 0.3404, "populationSd": 0.06697456091002695},
+      {"wavelengthNm": 500, "reflectance": 0.3517, "populationSd": 0.06793462879657908},
+      {"wavelengthNm": 510, "reflectance": 0.3577666666666666, "populationSd": 0.0677667871615004},
+      {"wavelengthNm": 520, "reflectance": 0.3568, "populationSd": 0.06605461697900022},
+      {"wavelengthNm": 530, "reflectance": 0.3480666666666667, "populationSd": 0.06251140383767931},
+      {"wavelengthNm": 540, "reflectance": 0.33913333333333334, "populationSd": 0.059501787999769566},
+      {"wavelengthNm": 550, "reflectance": 0.3383, "populationSd": 0.05865860009109035},
+      {"wavelengthNm": 560, "reflectance": 0.3449, "populationSd": 0.058780403317109015},
+      {"wavelengthNm": 570, "reflectance": 0.34886666666666666, "populationSd": 0.05734617904408814},
+      {"wavelengthNm": 580, "reflectance": 0.3573, "populationSd": 0.05650452070052413},
+      {"wavelengthNm": 590, "reflectance": 0.41103333333333336, "populationSd": 0.06427226632930715},
+      {"wavelengthNm": 600, "reflectance": 0.4755, "populationSd": 0.07156319152503281},
+      {"wavelengthNm": 610, "reflectance": 0.5247, "populationSd": 0.07560759661341289},
+      {"wavelengthNm": 620, "reflectance": 0.5519, "populationSd": 0.07648715639509776},
+      {"wavelengthNm": 630, "reflectance": 0.5691333333333334, "populationSd": 0.07579197278228778},
+      {"wavelengthNm": 640, "reflectance": 0.5812, "populationSd": 0.07427613328490906},
+      {"wavelengthNm": 650, "reflectance": 0.5903, "populationSd": 0.07229500301144885}
+    ],
+    "tolerance": {"kind": "RMS of inter-subject population SD at the 21 control wavelengths", "value": 0.06629997339239468, "source": "Cooksey et al. 2015 defines population variability as the SD of the full scan set; recomputed from the 100 published subject-average spectra in Cooksey et al. 2017."},
+    "measurementExpandedUncertaintyK2": 0.0048,
+    "rmsReflectanceError": 0.007238292025390801,
+    "qBandMinimaNm": {"control": [544, 574], "model": [540, 575]},
+    "qBandReference": "Prahl OMLC oxyhaemoglobin table, SHA-pinned in the derivation; expected Q bands 542 nm and 577 nm.",
+    "Lab": {"control": [68.26378468549765, 9.486784115852076, 14.973227082430673], "model": [68.24410523473695, 10.223286978397695, 14.16146969569445], "dE76": 1.0962544422901812, "method": "Both spectra use the existing D65 / CIE 1931 2-degree path over 380-780 nm; the control Lab is computed from the fetched full NIST subject spectrum."},
+    "pass": true
+  },
+  "mcNoiseDE76": null,
+  "mcNoiseReason": "The chosen model is analytic; the permissive Monte Carlo candidate could not meet the deterministic 120-second proof budget on this host.",
+  "counterweight": {
+    "Cm": 0.042499999999999996,
+    "betaM": 0.8347656250000002,
+    "aStarAtCh0.001": 3.0223586519370627,
+    "aStarAtCh0.1": 15.687109107152486,
+    "deltaAStar": 12.664750455215422,
+    "threshold": 7.75,
+    "thresholdSource": "Computed as max minus min measured a* over all five known-good points in tone-report.json; 16.80 - 9.05.",
+    "pass": true
+  },
+  "falsifier": {"metric": "CIE 1976 dE76", "interToneGap": 10.87118208843914, "thresholdRule": "dE76(tone-report.json warm_light, warm_medium) / 2", "threshold": 5.43559104421957},
+  "parameters": {
+    "Cm": {"range": [0, 0.5], "citation": "Donner and Jensen 2006 Table 1"},
+    "betaM": {"range": [0, 1], "citation": "Donner and Jensen 2006 Table 1"},
+    "Ch": {"range": [0.001, 0.1], "citation": "Donner and Jensen 2006 Table 1"},
+    "oxygenation": {"value": 0.75, "citation": "Donner and Jensen 2006 section 3.4"}
+  },
+  "dataFiles": [
+    {"name": "NIST human skin reflectance v3", "url": "https://opendata.nist.gov/1832_Data_JResNIST_skinrefl%20v3.txt", "sha256": "ce9aac735d9d83b4b874b98d45f1ebda682cdc0e652f804efe00ab2fce0c25d9", "licence": "NIST public data / https://www.nist.gov/open/license", "redistributed": false},
+    {"name": "Prahl haemoglobin HTML table", "url": "https://omlc.org/spectra/hemoglobin/summary.html", "sha256": "c5b3a312f3c8e135bf69845ba11afa94d92db0a3f784d344d92afcf9dc290c66", "licence": "No explicit redistribution licence found; fetched and SHA-pinned, not vendored.", "redistributed": false},
+    {"name": "colour-science", "package": "colour-science==0.4.7", "wheelSha256": "fe2383d86e507fc11a4b5206ff31a7399031e0dce527e22ec06eeb491d45d9a7", "licence": "BSD-3-Clause"},
+    {"name": "numpy", "package": "numpy==2.2.6", "wheelSha256": "f1372f041402e37e5e633e586f62aa53de2eac8d98cbfb822806ce4bbefcb74d", "licence": "BSD-3-Clause"},
+    {"name": "PyTissueOptics probe only", "package": "pytissueoptics==2.0.0", "wheelSha256": "c978cad10f3cd41f964b2fb357a48547386864b0f34c3ad839e67dbd3f492fd0", "licence": "MIT", "usedInChosenModel": false}
+  ],
+  "knownGood": [
+    {"id": "anchor:warm_light", "measuredLab": [58.37, 9.05, 16.01], "derivedLab": [59.005453492028266, 11.350556122598277, 17.56960153843934], "Cm": 0.0839375, "betaM": 1, "Ch": 0.015966454062510464, "dE76": 2.851090418148412, "onRangeBound": {"Cm": false, "betaM": true, "Ch": false}},
+    {"id": "anchor:warm_medium", "measuredLab": [49.26, 13.89, 19.44], "derivedLab": [49.29364003481878, 13.869146107168383, 19.405591496618335], "Cm": 0.16734374999999999, "betaM": 0.5896093750000001, "Ch": 0.022828370493477964, "dE76": 0.05244503688441355, "onRangeBound": {"Cm": false, "betaM": false, "Ch": false}},
+    {"id": "family:young:forehead", "measuredLab": [62.61, 9.6, 16.68], "derivedLab": [62.89324732691357, 10.299908748815756, 17.16037676209585], "Cm": 0.06743750000000001, "betaM": 1, "Ch": 0.01364616664278299, "dE76": 0.8949095699757676, "onRangeBound": {"Cm": false, "betaM": true, "Ch": false}},
+    {"id": "family:middle:forehead", "measuredLab": [75.48, 12.49, 21.68], "derivedLab": [72.15034555434889, 8.195889453857186, 20.0497799568923], "Cm": 0.0596875, "betaM": 0, "Ch": 0.010072920836941529, "dE76": 5.673059271582595, "onRangeBound": {"Cm": false, "betaM": true, "Ch": false}},
+    {"id": "family:old:forehead", "measuredLab": [68.71, 16.8, 27.46], "derivedLab": [65.14510365686326, 11.18108992088862, 25.29856423889911], "Cm": 0.10790625000000001, "betaM": 0, "Ch": 0.011257524788660999, "dE76": 6.996602101292807, "onRangeBound": {"Cm": false, "betaM": true, "Ch": false}}
+  ],
+  "tableRows": [],
+  "endToEnd": {"caseDriven": false, "fixture": "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts", "token": "warm_medium", "reason": "No case can be driven: G4 falsified the eligible model before table emission."},
+  "notTested": [
+    "No Monte Carlo LUT was generated because the permissive candidate could not meet the deterministic proof budget on the available CPU-only host.",
+    "No table rows, family pick, runner-up margin, albedo, shader, LUT retarget, or rendered appearance were produced after G4 falsification."
+  ]
+}

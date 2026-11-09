@@ -28,6 +28,7 @@ import {
   transitionWithCastHold,
   type ConversationCastContext,
 } from "./conversation-trace-cast.js";
+import { validateCoveredTags } from "./covered-tags.js";
 import { pickTopicAnswer, SPEECH_LOW_CONFIDENCE_TAG, UNMATCHED_TOPIC_TAG } from "./topic-answers.js";
 
 export type { ConversationCastContext } from "./conversation-trace-cast.js";
@@ -123,6 +124,9 @@ export type ConversationTraceEventKind =
   | "observer-joined" | "observer-left" | "phase-changed" | "rotation-failed"
   | "note-submitted" | "scheduled-event";
 
+/** C45 origin of an accepted patient note ("explicit" via note-submit, "draft" via promotion). */
+export type NoteSource = "explicit" | "draft";
+
 /** One conversation event, in application order. Actor-agnostic: the learner
  * appears as utterance events with no sessionId; utterance-end names the
  * actor the reply targets (a roster id, never learner identity). */
@@ -140,6 +144,8 @@ export interface ConversationTraceEvent {
   phase?: string;
   /** C11 accepted-note length for "note-submitted" events; undefined otherwise. The note text never enters the trace. */
   chars?: number;
+  /** C45 origin for "note-submitted" events only; never text. */
+  source?: NoteSource;
   /** C19 schedule entry id + trace tag for "scheduled-event" events; undefined otherwise. Never text. */
   eventId?: string; tag?: string;
   /** C27 free-text match kind for "utterance-end" events; undefined otherwise. Never text. */
@@ -148,6 +154,8 @@ export interface ConversationTraceEvent {
   modality?: "typed" | "speech"; confidence?: number;
   /** C30, utterance-end only; consecutive low-confidence results before this one; integer 1..99; never text. */
   retry?: number;
+  /** C39, utterance-end only; every on-menu tag of the matched answer (deduped, authored order); first equals tag; only set when length > 1. */
+  coveredTags?: string[];
 }
 
 /** One server-driven actor turn, recomputed from events alone. */
@@ -354,6 +362,7 @@ export interface ReplayableConversationTrace {
     turnId: number | null;
     phase?: string;
     chars?: unknown;
+    source?: unknown;
     eventId?: unknown;
     tag?: unknown;
     retry?: unknown;
@@ -384,11 +393,25 @@ export function replayConversationTrace(trace: ReplayableConversationTrace): Con
     if (typeof event.chars === "number") {
       out.chars = event.chars;
     }
+    if (event.source !== undefined) {
+      if (event.kind !== "note-submitted" || (event.source !== "explicit" && event.source !== "draft")) {
+        throw new Error("replay-bad-trace: malformed note source");
+      }
+      out.source = event.source;
+    }
     if (typeof event.eventId === "string") {
       out.eventId = event.eventId;
     }
     if (typeof event.tag === "string") {
       out.tag = event.tag;
+    }
+    const rawCovered = (event as { coveredTags?: unknown }).coveredTags;
+    if (rawCovered !== undefined) {
+      const covered = validateCoveredTags(event.kind, out.tag, rawCovered);
+      if (!covered.ok) {
+        throw new Error(covered.reason === "not-utterance-end" ? "replay-bad-trace: only an utterance-end may carry coveredTags" : "replay-bad-trace: malformed coveredTags");
+      }
+      out.coveredTags = covered.tags;
     }
     const match = (event as { match?: unknown }).match;
     if (match === "exact" || match === "phrase" || match === "fallback") {

@@ -18,6 +18,7 @@
 
 import type { Texture } from "three";
 import { RepeatWrapping } from "three";
+import { SKIN_BODY_DETAIL_TILES_PER_METRE } from "./skin-shade-triplanar.js";
 
 /** Detail-normal XY strength defaults: 0 = the corresponding program off (byte-identical). */
 export const SKIN_SHADE_DETAIL_DEFAULTS = {
@@ -132,12 +133,20 @@ vec3 skinBodyHexNormal(vec2 st) {
 }`;
 }
 
-/** Hex-sample the body tile through its own UV transform and mix by the B mask. */
+/** Hex-sample every bind-space projected plane and mix by the existing B mask. */
 export function skinShadeBodyNormalGlsl(): string {
-  return `  vec2 skinBodyDetailUv = (uSkinBodyDetailUvTransform * vec3(vMapUv, 1.0)).xy;
-  vec3 skinBodyDetailNormal = skinBodyHexNormal(skinBodyDetailUv);
+  const bodyFrequency = SKIN_BODY_DETAIL_TILES_PER_METRE.toFixed(14);
+  return `  vec2 skinBodyUvX = skinTriplanarUvX(vSkinBindPos, ${bodyFrequency});
+  vec2 skinBodyUvY = skinTriplanarUvY(vSkinBindPos, ${bodyFrequency});
+  vec2 skinBodyUvZ = skinTriplanarUvZ(vSkinBindPos, ${bodyFrequency});
+  vec3 skinBodyNormalX = skinBodyHexNormal(skinBodyUvX);
+  vec3 skinBodyNormalY = skinBodyHexNormal(skinBodyUvY);
+  vec3 skinBodyNormalZ = skinBodyHexNormal(skinBodyUvZ);
+  vec3 skinBodyDetailObjectNormal = skinTriplanarWhiteout(
+    skinBodyNormalX, skinBodyNormalY, skinBodyNormalZ, skinBindNormal
+  );
   float skinBodyMask = texture2D(uSkinCurvMap, skinUv).b;
-  skinDetailNormal = normalize(mix(skinDetailNormal, skinBodyDetailNormal, skinBodyMask));
+  skinDetailObjectNormal = normalize(mix(skinDetailObjectNormal, skinBodyDetailObjectNormal, skinBodyMask));
 `;
 }
 

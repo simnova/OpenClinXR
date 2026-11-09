@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import type { EncounterRuntimeAsset, LearnerRuntimeAssetBundle } from "@openclinxr/asset-registry/runtime-bundles";
 import type { AssetLoadingContext } from "@openclinxr/xr-asset-loading";
 import * as assetLoading from "@openclinxr/xr-asset-loading";
@@ -10,6 +11,11 @@ import {
   type StationActorStagingContext,
   stageStationActors,
 } from "./actor-staging.js";
+import {
+  applyStagedPatientRootTransform,
+  defaultPatientActorPlacement,
+  resolveRuntimeActorPlacement,
+} from "./index.js";
 
 function asset(assetId: string): EncounterRuntimeAsset {
   return {
@@ -142,6 +148,102 @@ function rootsByKind(scene: Scene): Map<string, Group> {
   return roots;
 }
 
+const ORIGIN_MAIN_PATIENT_STAGING_GOLDEN_TREE = "2997b8ba698f091ed7aaea22681930b4f0b2568b";
+const ORIGIN_MAIN_PATIENT_STAGING_GOLDEN = {
+  ed_chest_pain_priority_v1: {
+    position: [-0.72, 1.06, -0.12],
+    quaternion: [0, -0.24740395925452294, 0, 0.9689124217106447],
+    scale: [1.1, 1.1, 1.1],
+    userData: {
+      openClinXrSlotKind: "primary_patient",
+      openClinXrActorPosture: "supine",
+      openClinXrPreserveResolvedPlacement: true,
+      openClinXrConsumedHeadingRadians: undefined,
+      openClinXrBaseHeadingRadians: -0.5,
+    },
+  },
+  ob_headache_preeclampsia_triage_v1: {
+    position: [-0.72, 1.06, -0.12],
+    quaternion: [0, -0.24740395925452294, 0, 0.9689124217106447],
+    scale: [1.1, 1.1, 1.1],
+    userData: {
+      openClinXrSlotKind: "primary_patient",
+      openClinXrActorPosture: "standing",
+      openClinXrPreserveResolvedPlacement: false,
+      openClinXrConsumedHeadingRadians: undefined,
+      openClinXrBaseHeadingRadians: -0.5,
+    },
+  },
+  peds_asthma_parent_anxiety_v1: {
+    position: [-0.12, 0.9, -1.05],
+    quaternion: [0, -0.24740395925452294, 0, 0.9689124217106447],
+    scale: [0.82, 0.82, 0.82],
+    userData: {
+      openClinXrSlotKind: "primary_patient",
+      openClinXrActorPosture: "standing",
+      openClinXrPreserveResolvedPlacement: false,
+      openClinXrConsumedHeadingRadians: undefined,
+      openClinXrBaseHeadingRadians: -0.5,
+    },
+  },
+} as const;
+
+function stageShippedPatient(scenarioId: keyof typeof ORIGIN_MAIN_PATIENT_STAGING_GOLDEN): {
+  state: {
+    position: number[];
+    quaternion: number[];
+    scale: number[];
+    userData: Record<string, unknown>;
+  };
+  slotKindSeenByFraming: unknown;
+} {
+  const bundle = JSON.parse(readFileSync(
+    new URL(`../../../../apps/ui-xr/public/xr-assets/generated/${scenarioId}/learner-runtime-bundle.v1.json`, import.meta.url),
+    "utf8",
+  )) as LearnerRuntimeAssetBundle;
+  const patientPlacement = Object.entries(bundle.sceneManifest.actorPlacements)
+    .find(([, placement]) => placement.slotKind === "primary_patient");
+  if (!patientPlacement) throw new Error(`${scenarioId} has no primary patient placement`);
+  const [patientActorId] = patientPlacement;
+  const ctx = buildCtx({
+    scenarioId,
+    actors: {
+      primary_patient: patientActorId,
+      clinical_team: "",
+      family_or_observer: "",
+      additional_cast: "",
+    },
+  });
+  vi.spyOn(ctx, "encounterBundle").mockReturnValue(bundle);
+  vi.spyOn(ctx, "actorPlacement").mockImplementation((actorId, fallback) => ({
+    ...fallback,
+    ...bundle.sceneManifest.actorPlacements[actorId],
+    posture: bundle.sceneManifest.actorPlacements[actorId]?.posture ?? fallback.posture ?? "standing",
+  }));
+  let slotKindSeenByFraming: unknown;
+  vi.spyOn(ctx, "applyActorFraming").mockImplementation((actor) => {
+    slotKindSeenByFraming = actor.userData["openClinXrSlotKind"];
+    actor.rotation.y = -0.5;
+  });
+  const { patient } = stageStationActors(ctx, new Scene());
+  const userData = Object.fromEntries([
+    "openClinXrSlotKind",
+    "openClinXrActorPosture",
+    "openClinXrPreserveResolvedPlacement",
+    "openClinXrConsumedHeadingRadians",
+    "openClinXrBaseHeadingRadians",
+  ].map((key) => [key, patient.userData[key]]));
+  return {
+    state: {
+      position: patient.position.toArray(),
+      quaternion: patient.quaternion.toArray(),
+      scale: patient.scale.toArray(),
+      userData,
+    },
+    slotKindSeenByFraming,
+  };
+}
+
 describe("stageStationActors", () => {
   beforeEach(() => {
     vi.stubGlobal("window", { location: { search: "" } } as never);
@@ -155,6 +257,113 @@ describe("stageStationActors", () => {
   it("exports stageStationActors", async () => {
     const mod = await import("./actor-staging.js");
     expect(typeof mod.stageStationActors).toBe("function");
+  });
+
+  it("keeps shipped ED, OB, and peds patient staging equivalent to the origin/main inline path", () => {
+    // Recorded first by running these three shipped bundles through origin/main's byte-exact
+    // stageStationActors at tree 2997b8ba698f091ed7aaea22681930b4f0b2568b, before the shared
+    // transform replaced that inline path. This checked-in golden is not a test reimplementation.
+    expect(ORIGIN_MAIN_PATIENT_STAGING_GOLDEN_TREE).toHaveLength(40);
+    for (const scenarioId of Object.keys(ORIGIN_MAIN_PATIENT_STAGING_GOLDEN) as Array<keyof typeof ORIGIN_MAIN_PATIENT_STAGING_GOLDEN>) {
+      const actual = stageShippedPatient(scenarioId);
+      expect(actual.state).toEqual(ORIGIN_MAIN_PATIENT_STAGING_GOLDEN[scenarioId]);
+      expect(actual.slotKindSeenByFraming).toBeUndefined();
+    }
+  });
+
+  it("keeps the app staging path ordered framing before authored patient heading", () => {
+    const ctx = buildCtx();
+    vi.spyOn(ctx, "actorPlacement").mockImplementation((_actorId, fallback) => ({
+      ...fallback,
+      posture: "standing",
+      headingRadians: 0.25,
+    }));
+    let slotKindSeenByFraming: unknown;
+    vi.spyOn(ctx, "applyActorFraming").mockImplementation((actor, actorId) => {
+      if (actorId !== SLOT_ACTORS.primary_patient) return;
+      slotKindSeenByFraming = actor.userData["openClinXrSlotKind"];
+      actor.rotation.y = -0.5;
+    });
+    const { patient } = stageStationActors(ctx, new Scene());
+    expect(slotKindSeenByFraming).toBeUndefined();
+    expect(patient.userData["openClinXrConsumedHeadingRadians"]).toBe(0.25);
+    expect(patient.userData["openClinXrBaseHeadingRadians"]).toBe(0.25);
+    expect(patient.rotation.y).toBeCloseTo(0.25);
+  });
+
+  it("resolves runtime placement through the named placement export", () => {
+    const bundle = {
+      sceneManifest: {
+        actorPlacements: {
+          patient_v1: {
+            slotKind: "primary_patient",
+            position: { x: -0.4, y: 0.8, z: 0.2 },
+            scale: { x: 0.9, y: 0.9, z: 0.9 },
+            verticalOffsetMeters: -0.7,
+            labelPrefix: "Patient",
+            posture: "standing",
+          },
+        },
+      },
+    } as unknown as Pick<LearnerRuntimeAssetBundle, "sceneManifest">;
+    const placement = resolveRuntimeActorPlacement({
+      bundle,
+      actorId: "patient_v1",
+      fallback: {
+        slotKind: "primary_patient",
+        position: { x: 0, y: 0, z: 0 },
+        scale: { x: 1, y: 1, z: 1 },
+        verticalOffsetMeters: -1,
+        labelPrefix: "Patient",
+      },
+      scenarioId: "test_scenario_v1",
+      environmentId: "test_room_v1",
+      patientChairSeatHeightMeters: 0.48,
+    });
+    expect(placement.position).toEqual({ x: -0.4, y: 0.8, z: 0.2 });
+    expect(placement.scale).toEqual({ x: 0.9, y: 0.9, z: 0.9 });
+    expect(placement.posture).toBe("standing");
+  });
+
+  it("resolves the patient root through the same placement and framing order as station staging", () => {
+    const bundle = {
+      sceneManifest: {
+        actorPlacements: {
+          patient_v1: {
+            slotKind: "primary_patient",
+            position: { x: -0.72, y: 1.06, z: -0.12 },
+            scale: { x: 1.1, y: 1.1, z: 1.1 },
+            verticalOffsetMeters: -0.98,
+            labelPrefix: "Patient",
+            posture: "standing",
+            headingRadians: 0.25,
+          },
+        },
+      },
+    } as unknown as Pick<LearnerRuntimeAssetBundle, "sceneManifest">;
+    const placement = resolveRuntimeActorPlacement({
+      bundle,
+      actorId: "patient_v1",
+      fallback: defaultPatientActorPlacement,
+      scenarioId: "test_scenario_v1",
+      environmentId: "test_room_v1",
+      patientChairSeatHeightMeters: 0.48,
+    });
+    const patient = new Group();
+    applyStagedPatientRootTransform({
+      patient,
+      placement,
+      patientActorId: "patient_v1",
+      applyActorFraming: (actor, actorId, framedPlacement) => {
+        expect(actorId).toBe("patient_v1");
+        expect(actor.userData["openClinXrActorPosture"]).toBe("standing");
+        expect(framedPlacement.headingRadians).toBe(0.25);
+        actor.rotation.y = -0.5;
+      },
+    });
+    expect(patient.position.toArray()).toEqual([-0.72, 1.06, -0.12]);
+    expect(patient.scale.toArray()).toEqual([1.1, 1.1, 1.1]);
+    expect(patient.quaternion.y).toBeCloseTo(Math.sin(0.125));
   });
 
   it("stamps slot identity, visibility, and nameplates on all four slots", () => {

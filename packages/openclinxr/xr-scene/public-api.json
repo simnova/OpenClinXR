@@ -5,9 +5,11 @@
       "HeadBoxGeometry",
       "LightingRig",
       "MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH",
+      "SKIN_TRIPLANAR_DETAIL",
       "Vec3",
       "addGeneratedHumanoidRoleContinuityWardrobeCue",
       "applyCleanEncounterVisualReviewActorFraming",
+      "applyMaterialOverrides",
       "applyRealGarmentEvidenceSurfaces",
       "assertHumanoidRootUpright",
       "assignMissingRoomPrimitiveMaterials",
@@ -33,6 +35,7 @@
       "resolveLearnerExamScenarios",
       "resolveLocalHumanoidRuntimeAssetUrl",
       "scenariosFromFixtureSequence",
+      "skinTriplanarCpuMirror",
       "sleeveDeformCueForAssetPath"
     ],
     "./skin-shade-loader": [

@@ -8,9 +8,11 @@
     "HeadBoxGeometry",
     "LightingRig",
     "MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH",
+    "SKIN_TRIPLANAR_DETAIL",
     "Vec3",
     "addGeneratedHumanoidRoleContinuityWardrobeCue",
     "applyCleanEncounterVisualReviewActorFraming",
+    "applyMaterialOverrides",
     "applyRealGarmentEvidenceSurfaces",
     "assertHumanoidRootUpright",
     "assignMissingRoomPrimitiveMaterials",
@@ -36,12 +38,15 @@
     "resolveLearnerExamScenarios",
     "resolveLocalHumanoidRuntimeAssetUrl",
     "scenariosFromFixtureSequence",
+    "skinTriplanarCpuMirror",
     "sleeveDeformCueForAssetPath"
   ],
   "exportSummaries": {
     "MPFB_GOWN_ADULT_PATIENT_RUNTIME_PATH": "#491 L6 — the gowned MPFB adult patient (mirrors actor-casting MPFB_GOWN_ADULT_PATIENT_GLB).",
+    "SKIN_TRIPLANAR_DETAIL": "The pinned triplanar detail constants as one frozen record, for consumers outside this module (the package tests read them through the entrypoint).",
     "Vec3": "Head-box derivation for isolated-subject-lab `focus=head` (#358).",
     "applyCleanEncounterVisualReviewActorFraming": "Apply deterministic floor-standing (or OB seated) framing for clean encounter visual review.",
+    "applyMaterialOverrides": "Variant evaluator: apply generic material overrides post-load (no GLB write).",
     "applyRealGarmentEvidenceSurfaces": "Tag the phenotype real-garment meshes (openclinxr_real_garment_*) on a loaded humanoid with sleeve-deform evidence: cyan emissive bind-shape surfaces, frustum-culling disabled, userData evidence flags, and — for the parent/nurse comparators — detachment of the misoriented skinned originals to a static bind-shape so capture shows torso/sleeve volume.",
     "assertHumanoidRootUpright": "Throw if the loaded humanoid scene has an armature root whose quaternion is not identity.",
     "assignMissingRoomPrimitiveMaterials": "After GLTFLoader: find meshes with no authored material and assign a DoubleSide dielectric derived from this room's plaster (color + roughness; maps omitted — wall UVs differ).",
@@ -61,6 +66,7 @@
     "resolveLearnerExamScenarios": "Resolve the scenarios that feed learner multi-station form assembly.",
     "resolveLocalHumanoidRuntimeAssetUrl": "Map a runtime-bundle humanoid asset to a public URL the GLTFLoader can fetch.",
     "scenariosFromFixtureSequence": "Sync fixture-bank resolution for offline / module-scope boot (no network).",
+    "skinTriplanarCpuMirror": "CPU mirror of the GLSL triplanar math (plane coordinate, dominant plane, detail deviation), built from the same constants as the shader strings so the two cannot drift.",
     "sleeveDeformCueForAssetPath": "Derive the sleeveDeform evidence cue from the ACTUAL loaded asset path rather than the comparator alone (#314)."
   },
   "workspaceDependencies": [
@@ -88,6 +94,7 @@
     "src/learner-phase-trace-source.test.ts",
     "src/learner-scenario-body-provenance.test.ts",
     "src/skin-shader/the-cavity-darkens-specular-not-albedo.test.ts",
+    "src/skin-shader/the-skin-detail-follows-the-surface-not-the-uv.test.ts",
     "src/skin-shader/the-skin-lut-is-identity-on-flat-skin.test.ts",
     "src/skin-shader/the-skin-renders-at-skin-ior.test.ts",
     "src/skin-shader/the-skin-shader-flag-is-read-back.test.ts",

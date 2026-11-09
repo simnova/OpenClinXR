@@ -11,6 +11,24 @@
   },
   {
     "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./actor-posture",
+    "names": [
+      {
+        "name": "resolveActorPosture",
+        "kind": "runtime"
+      },
+      {
+        "name": "seatedVerticalOffsetForSeatHeight",
+        "kind": "runtime"
+      },
+      {
+        "name": "supineVerticalOffsetSeed",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/asset-registry",
     "entrypoint": "./runtime-bundles",
     "names": [
       {
@@ -90,6 +108,10 @@
       {
         "name": "RuntimeSlotAssignment",
         "kind": "type"
+      },
+      {
+        "name": "supportedActorPlacementPosition",
+        "kind": "runtime"
       }
     ]
   },
@@ -156,7 +178,22 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "applyStagedPatientRootTransform",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "buildStationRoomShell",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "defaultPatientActorPlacement",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "resolveRuntimeActorPlacement",
         "kind": "runtime",
         "via": "own-test"
       },

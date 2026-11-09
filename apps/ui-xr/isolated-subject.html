@@ -32,17 +32,100 @@
       import {
         sampleHumanoidBlinkSchedule,
       } from "@openclinxr/xr-humanoid-animation";
+      import { scenarioBank } from "@openclinxr/scenario-fixtures/scenario-bank";
+      import { resolveRuntimeSlotAssignment } from "@openclinxr/xr-capture-evidence";
+      import { applyCleanEncounterVisualReviewActorFraming } from "@openclinxr/xr-scene";
+      import {
+        applyStagedPatientRootTransform,
+        defaultPatientActorPlacement,
+        observeMountedSupportInstances,
+        resolveRuntimeActorPlacement,
+      } from "@openclinxr/xr-station-room";
+      import {
+        buildStationEnvironment,
+        PATIENT_CHAIR_SEAT_HEIGHT_METERS,
+      } from "@openclinxr/xr-station";
+      import { Group } from "three";
       import {
         applyStationInteriorLightingForEnvironment,
         configureStationRendererToneMapping,
         loadLightingRig,
         resolveLightingRigPublicPath,
       } from "./src/lighting-rig-runtime.js";
+      async function resolveProductPatientStagingTransform(input) {
+        const scenarioId = input.scenarioId
+          ?? scenarioBank.find((scenario) => scenario.environment?.environmentId === input.environmentId)?.scenarioId;
+        if (!scenarioId) throw new Error(`no shipped scenario stages in ${input.environmentId}`);
+        const response = await fetch(
+          `/xr-assets/generated/${scenarioId}/learner-runtime-bundle.v1.json`,
+          { cache: "no-store" },
+        );
+        if (!response.ok) {
+          throw new Error(`static learner runtime asset bundle unavailable for ${scenarioId}: ${response.status}`);
+        }
+        const bundle = await response.json();
+        if (bundle.scenarioId !== scenarioId) {
+          throw new Error(`static learner runtime asset bundle mismatch: expected ${scenarioId}, received ${bundle.scenarioId}`);
+        }
+        const effectiveEnvironmentId = bundle.sceneManifest.environmentId
+          ?? scenarioBank.find((scenario) => scenario.scenarioId === scenarioId)?.environment?.environmentId;
+        if (effectiveEnvironmentId !== input.environmentId) {
+          throw new Error(
+            `scenario ${scenarioId} stages in ${effectiveEnvironmentId ?? "an unknown environment"}, not ${input.environmentId}`,
+          );
+        }
+        const actorId = resolveRuntimeSlotAssignment(bundle).patientActorId;
+        const actor = bundle.actors.find((candidate) => candidate.actorId === actorId);
+        if (!actor) throw new Error(`primary patient ${actorId} missing from ${scenarioId}`);
+        const room = buildStationEnvironment({
+          environmentId: input.environmentId,
+          ...(bundle.sceneManifest.fixtureSlotPlacements
+            ? { fixtureSlotPlacements: bundle.sceneManifest.fixtureSlotPlacements }
+            : {}),
+        });
+        const mountedSupportInstanceIds = observeMountedSupportInstances(room).map(
+          (support) => support.supportInstanceId,
+        );
+        const placement = resolveRuntimeActorPlacement({
+          bundle,
+          actorId,
+          fallback: defaultPatientActorPlacement,
+          mountedSupportInstanceIds,
+          scenarioId,
+          environmentId: input.environmentId,
+          patientChairSeatHeightMeters: PATIENT_CHAIR_SEAT_HEIGHT_METERS,
+        });
+        const patient = new Group();
+        applyStagedPatientRootTransform({
+          patient,
+          placement,
+          patientActorId: actorId,
+          applyActorFraming: (stagedActor, stagedActorId, placement) => applyCleanEncounterVisualReviewActorFraming({
+            actor: stagedActor,
+            actorId: stagedActorId,
+            scenarioId,
+            role: actor.role,
+            posture: placement.posture,
+            skipFraming: false,
+          }),
+        });
+        return {
+          actorId,
+          matrix: patient.matrixWorld.toArray(),
+          position: patient.position.toArray(),
+          quaternion: patient.quaternion.toArray(),
+          scale: patient.scale.toArray(),
+          scenarioId,
+          environmentId: input.environmentId,
+          mountedSupportInstanceIds,
+        };
+      }
       window.__openClinXrProductLightingRigFns = {
         applyStationInteriorLightingForEnvironment,
         configureStationRendererToneMapping,
         loadLightingRig,
         resolveLightingRigPublicPath,
+        resolveProductPatientStagingTransform,
       };
       bootIsolatedSubjectLab();
       window.__openClinXrProductEyeMotionDriver = sampleHumanoidBlinkSchedule.applyIsolatedHumanoidEyeMotion;

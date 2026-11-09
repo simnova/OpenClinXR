@@ -304,6 +304,8 @@ export interface UtteranceBoxElement {
   disabled?: boolean;
   hidden?: boolean;
   appendChild(child: UtteranceBoxElement): unknown;
+  style?: { background?: string };
+  setAttribute?(name: string, value: string): void;
   addEventListener(type: string, listener: (event: { key?: string; isComposing?: boolean; shiftKey?: boolean; preventDefault?: () => void; stopPropagation?: () => void }) => void): void;
 }
 
@@ -326,6 +328,7 @@ export interface StartEncounterSyncDeps {
   gazeView?(): GazeView | undefined;
   /** C27 learner free-text box mount; unset mounts nothing. */
   utteranceBox?: UtteranceBoxDeps;
+  noteText?(): string; // C41 the shell's patient-note text; unset mounts no note control.
   /** C33 learner speech capture; unset mounts no hold-to-speak button. */
   speech?: { recorder?: SpeechRecorder; xrSession?: () => XrSessionLike | null | undefined; inject?: boolean };
   /** C30 on-device actor voice wired to the shell's existing speech slot. */
@@ -396,7 +399,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
       reviewLobby: isLobby,
       onSnapshot: (snapshot) => { lastSnapshot = snapshot; roomPanel?.render(snapshot); picker?.render(snapshot); serverSpeechSeen = snapshot.speechAvailable; speechEvidence?.setServerSpeech(serverSpeechSeen); },
       ...(deps.connectFn === undefined ? {} : { connectFn: deps.connectFn }),
-      onRefusal: (_kind, reason) => roomPanel?.refuse(reason),
+      onRefusal: (kind, reason) => roomPanel?.refuse(reason, kind),
       onTurn: (turn, stationId) => {
         lastSpokeActorId = turn.actorId;
         if (turn.intake === SPEECH_LOW_CONFIDENCE) {
@@ -427,12 +430,12 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     evidence.gazedActorId = gazedNow;
     sendSelect = (stationId) => handle.sendIntent("select-station", { stationId });
     sendReturn = () => handle.sendIntent("return-to-lobby", {});
+    if (deps.utteranceBox !== undefined && isReplayRoom) { roomPanel = mountRoomPanel(deps.utteranceBox, () => undefined, undefined, true); if (lastSnapshot !== undefined) roomPanel.render(lastSnapshot); }
     if (deps.utteranceBox !== undefined && !isReplayRoom && !isLobby) {
-      roomPanel = mountRoomPanel(deps.utteranceBox);
+      roomPanel = mountRoomPanel(deps.utteranceBox, (tag) => { const actorId = pickAddressedActor({ actorIds: deps.actorIds(), gazedActorId: gazedNow(), lastSpokeActorId, lastAddressedActorId }); if (actorId === undefined || actorId === "") return; lastAddressedActorId = actorId; void handle.sendTraceAction(actorId, tag); }, deps.noteText === undefined ? undefined : { text: () => deps.noteText?.() ?? "", submit: (text) => handle.sendIntent("note-submit", { text }), draft: (text) => handle.sendIntent("note-draft", { text }) });
       if (lastSnapshot !== undefined) roomPanel.render(lastSnapshot);
       repeatPrompt = deps.utteranceBox.doc.createElement("div");
-      repeatPrompt.id = "repeat-prompt";
-      repeatPrompt.textContent = "";
+      repeatPrompt.id = "repeat-prompt"; repeatPrompt.textContent = "";
       deps.utteranceBox.parent.appendChild(repeatPrompt);
       const caption = deps.utteranceBox.doc.createElement("div");
       caption.id = "learner-caption";

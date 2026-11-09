@@ -217,7 +217,13 @@
     "h1/skinshade-t20-nostril.png": "fd364b32ca473ca3abe0a965d71d9dbdd49b77bed5c82cafc264cd3482244eb2",
     "h1/skinshade-t20.json": "11a23c46e91e21a69961e9b69234e482e8e478a3ca675e26aee9df22ce67bb80"
   },
-  "moduleSha256": "8c4a6fdfa9d3dc84f207b088f2933450e3557890a2860f23529338c2e423ab9f",
+  "moduleSha256": "ae13ad3775d9bee2a699831a22a7032798e895b13c74052e37c7bb81f9c68736",
+  "triplanarAmendment": {
+    "card": "tsk_f5a7cf0e6653968c",
+    "preTriplanarRenderModuleSha256": "8c4a6fdfa9d3dc84f207b088f2933450e3557890a2860f23529338c2e423ab9f",
+    "triplanarModuleSha256": "11cba61122196e0cb646e66c90ef2a2f5da7dab2562cd018ccc2b62980fd5f81",
+    "renderStatus": "not run in the implementation-worker lane; existing h1 render hashes predate bind-pose triplanar detail sampling"
+  },
   "archNotes": "h1 keeps testInternalImports at 10 with ZERO new public exports: the gate test imports exactly one entrypoint-reachable module (the flag path it must exercise) plus unreachable png-crop.ts, and the pre-existing encounter-actor-framing test was routed from ./encounter-actor-framing.js to ./index.js (same symbol, public path) in the same commit to offset it. An entrypoint export of the applier was tried and reverted: it trips the public-surface admission freeze (frozen ADMISSION_GROUPS pins, operator-approved moves only) with no external binder. Test-only TS mirrors were deleted from skin-shade.ts; shipped GLSL numerals are pinned through the installed hook instead. The 38->33 change: on main the committed ceiling was already 38 while the measured surface was 33 (cd05d2cb8 unpublished 43 names without regenerating; the export gate only refuses unlisted names, so main stayed green with a stale ceiling) — regen made it exact.",
   "stillNeeds": "human grade of the h1 sweep crops; follow-up may restore the +0.08*C/+0.05*H terms if a portrait-path AO/frequency source lands, and revisit lip-mid-upper as a seam-side landmark",
   "lutAmendment": {

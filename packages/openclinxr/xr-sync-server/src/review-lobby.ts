@@ -89,6 +89,7 @@ export function setupLobbyState(state: EncounterStateInstance, replay: LoadedSta
   state.replayDone = false;
   state.noteStatus = "none";
   state.noteChars = 0;
+  state.noteSource = "";
   state.sessionComplete = replay.complete;
   state.actors = new MapSchema<ActorStateInstance>();
   state.learners = new MapSchema<LearnerStateInstance>();
@@ -100,6 +101,7 @@ export function setupLobbyState(state: EncounterStateInstance, replay: LoadedSta
     row.turnCount = entry.turnCount;
     row.notePresent = entry.notePresent;
     row.noteChars = entry.noteChars;
+    row.noteSource = entry.noteSource ?? "";
     row.available = replay.stations.has(entry.stationId) && !replay.failures.has(entry.stationId);
     row.unavailableReason = replay.failures.get(entry.stationId) ?? (replay.stations.has(entry.stationId) ? "" : "replay-unknown-station");
     state.lobbyStations.push(row);

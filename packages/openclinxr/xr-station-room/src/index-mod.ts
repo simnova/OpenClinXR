@@ -38,6 +38,11 @@ export {
   stageStationActors,
 } from "./actor-staging.js";
 export { observeMountedSupportInstances } from "./mounted-support-observation.js";
+export {
+  applyStagedPatientRootTransform,
+  defaultPatientActorPlacement,
+  resolveRuntimeActorPlacement,
+} from "./runtime-actor-placement.js";
 // The context and result types are the package's contract with main.ts, which declares its
 // own local variables against them. Re-export them.
 export type { ApplyStationInteriorLightingForEnvironment, StationRoomContext, StationRoomResult, StationRoomScenarioTheme };

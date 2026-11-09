@@ -2093,7 +2093,7 @@ function normalizeLocomotionAttemptDiagnostics(
     handGestureTurnDeadzoneMeters: roundMetric(diagnostics.handGestureTurnDeadzoneMeters, 3),
     gamepadSources: diagnostics.gamepadSources.map((source) => ({
       handedness: source.handedness,
-      rawAxes: source.rawAxes.map((axis) => roundMetric(axis, 3)),
+      rawAxes: source.rawAxes.map((axis) => (axis == null ? 0 : roundMetric(axis, 3))),
       selectedXAxisIndex: source.selectedXAxisIndex,
       selectedYAxisIndex: source.selectedYAxisIndex,
       xAxisAfterDeadzone: roundMetric(source.xAxisAfterDeadzone, 3),

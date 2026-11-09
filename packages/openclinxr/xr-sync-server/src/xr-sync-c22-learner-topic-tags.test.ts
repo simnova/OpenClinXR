@@ -119,9 +119,9 @@ describe("xr-sync-server C22 learner topic tags", () => {
     const server = await boot({ examBlueprint: blueprint(), scenarios: [CHEST, KNEE] });
     await joinRoom(server);
     await waitFor(() => live(server).phase === "encounter", 5000, "slot-a encounter");
-    expect(live(server).topicMenu).toEqual(menuOf(CHEST));
+    expect((live(server).topicMenu as Array<{ tag: string }>).map((entry) => entry.tag)).toEqual(menuOf(CHEST));
     await waitFor(() => live(server).stationId === "slot-b" && live(server).phase === "encounter", 20000, "slot-b encounter");
-    expect(live(server).topicMenu).toEqual(menuOf(KNEE));
+    expect((live(server).topicMenu as Array<{ tag: string }>).map((entry) => entry.tag)).toEqual(menuOf(KNEE));
   }, 40000);
 
   it("a topic outside the station's menu is refused and opens no turn", async () => {

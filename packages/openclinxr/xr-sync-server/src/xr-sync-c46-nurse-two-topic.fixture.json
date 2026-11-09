@@ -1,0 +1,257 @@
+{
+  "provenance": {
+    "mainSha": "33076a9e259b84d7d0abc8e4b880893cda7d19a6",
+    "command": "node tools/openclinxr/evidence/xr-sync/c40-run.mjs --mode emulated --out <dir>",
+    "traceFile": "Ly-MRO-NQ.conversation-trace.json",
+    "liveMarkedChips": [
+      "history_opqrst",
+      "risk_factor_question",
+      "team_communication",
+      "urgent_escalation"
+    ],
+    "liveMarkedChipsSource": "report.json finalAsked (page data-asked=true after the turns), checks C1 and H9"
+  },
+  "trace": {
+    "schema": "openclinxr.xr-sync.conversation-trace.v1",
+    "stationId": "slot-a",
+    "scenarioId": "ed_chest_pain_priority_v1",
+    "events": [
+      {
+        "seq": null,
+        "kind": "phase-changed",
+        "actorId": "",
+        "turnId": null,
+        "phase": "doorway"
+      },
+      {
+        "seq": null,
+        "kind": "phase-changed",
+        "actorId": "",
+        "turnId": null,
+        "phase": "encounter"
+      },
+      {
+        "seq": 1,
+        "kind": "select-actor",
+        "actorId": "patient_robert_hayes_v1",
+        "turnId": null
+      },
+      {
+        "seq": 2,
+        "kind": "utterance-start",
+        "actorId": "",
+        "turnId": null
+      },
+      {
+        "seq": 3,
+        "kind": "utterance-end",
+        "actorId": "patient_robert_hayes_v1",
+        "turnId": 1,
+        "tag": "history_opqrst",
+        "modality": "typed"
+      },
+      {
+        "seq": null,
+        "kind": "turn-completed",
+        "actorId": "patient_robert_hayes_v1",
+        "turnId": 1
+      },
+      {
+        "seq": 4,
+        "kind": "select-actor",
+        "actorId": "nurse_maria_alvarez_v1",
+        "turnId": null
+      },
+      {
+        "seq": 5,
+        "kind": "utterance-start",
+        "actorId": "",
+        "turnId": null
+      },
+      {
+        "seq": 6,
+        "kind": "utterance-end",
+        "actorId": "nurse_maria_alvarez_v1",
+        "turnId": 2,
+        "tag": "risk_factor_question",
+        "modality": "typed"
+      },
+      {
+        "seq": null,
+        "kind": "turn-completed",
+        "actorId": "nurse_maria_alvarez_v1",
+        "turnId": 2
+      },
+      {
+        "seq": 7,
+        "kind": "select-actor",
+        "actorId": "nurse_maria_alvarez_v1",
+        "turnId": null
+      },
+      {
+        "seq": 8,
+        "kind": "utterance-start",
+        "actorId": "",
+        "turnId": null
+      },
+      {
+        "seq": 9,
+        "kind": "utterance-end",
+        "actorId": "nurse_maria_alvarez_v1",
+        "turnId": 3,
+        "tag": "utterance_unmatched",
+        "match": "fallback",
+        "modality": "typed"
+      },
+      {
+        "seq": null,
+        "kind": "turn-completed",
+        "actorId": "nurse_maria_alvarez_v1",
+        "turnId": 3
+      },
+      {
+        "seq": 11,
+        "kind": "select-actor",
+        "actorId": "nurse_maria_alvarez_v1",
+        "turnId": null
+      },
+      {
+        "seq": 12,
+        "kind": "utterance-start",
+        "actorId": "",
+        "turnId": null
+      },
+      {
+        "seq": 13,
+        "kind": "utterance-end",
+        "actorId": "nurse_maria_alvarez_v1",
+        "turnId": 4,
+        "tag": "team_communication",
+        "match": "exact",
+        "coveredTags": [
+          "team_communication",
+          "urgent_escalation"
+        ],
+        "modality": "speech",
+        "confidence": 0.62
+      },
+      {
+        "seq": null,
+        "kind": "turn-completed",
+        "actorId": "nurse_maria_alvarez_v1",
+        "turnId": 4
+      }
+    ],
+    "turns": [
+      {
+        "turnId": 1,
+        "actorId": "patient_robert_hayes_v1",
+        "replyId": "patient_robert_hayes_v1:opening",
+        "cueId": "cue-opening-01",
+        "startSeq": 3,
+        "end": "completed",
+        "endSeq": null
+      },
+      {
+        "turnId": 2,
+        "actorId": "nurse_maria_alvarez_v1",
+        "replyId": "nurse_maria_alvarez_v1:opening",
+        "cueId": "cue-opening-01",
+        "startSeq": 6,
+        "end": "completed",
+        "endSeq": null
+      },
+      {
+        "turnId": 3,
+        "actorId": "nurse_maria_alvarez_v1",
+        "replyId": "c3-ack-onset",
+        "cueId": "cue-followup-02",
+        "startSeq": 9,
+        "end": "completed",
+        "endSeq": null
+      },
+      {
+        "turnId": 4,
+        "actorId": "nurse_maria_alvarez_v1",
+        "replyId": "nurse_maria_alvarez_v1:seed:nurse_team_escalation",
+        "cueId": "cue-recap-03",
+        "startSeq": 13,
+        "end": "completed",
+        "endSeq": null
+      }
+    ],
+    "emotions": [
+      {
+        "from": "neutral",
+        "to": "neutral",
+        "trigger": "learner_acknowledgement",
+        "changed": false,
+        "turnIndex": 1
+      },
+      {
+        "from": "neutral",
+        "to": "neutral",
+        "trigger": "learner_acknowledgement",
+        "changed": false,
+        "turnIndex": 2
+      },
+      {
+        "from": "neutral",
+        "to": "neutral",
+        "trigger": "learner_acknowledgement",
+        "changed": false,
+        "turnIndex": 3
+      },
+      {
+        "from": "neutral",
+        "to": "concerned",
+        "trigger": "learner_acknowledgement",
+        "changed": true,
+        "turnIndex": 4
+      }
+    ],
+    "cast": {
+      "scenarioId": "ed_chest_pain_priority_v1",
+      "actors": [
+        "patient_robert_hayes_v1",
+        "spouse_anna_hayes_v1",
+        "nurse_maria_alvarez_v1"
+      ],
+      "baseline": "neutral",
+      "emotionPolicy": {
+        "baseline": "neutral",
+        "upperBound": "anxious",
+        "lowerBound": "reassured",
+        "transitions": []
+      },
+      "topicAnswers": [
+        {
+          "actorId": "patient_robert_hayes_v1",
+          "topicTags": [
+            "history_opqrst"
+          ],
+          "replyId": "patient_robert_hayes_v1:seed:patient_onset_history",
+          "affect": "concerned"
+        },
+        {
+          "actorId": "nurse_maria_alvarez_v1",
+          "topicTags": [
+            "team_communication",
+            "urgent_escalation"
+          ],
+          "replyId": "nurse_maria_alvarez_v1:seed:nurse_team_escalation",
+          "affect": "concerned"
+        },
+        {
+          "actorId": "spouse_anna_hayes_v1",
+          "topicTags": [
+            "family_communication",
+            "empathy_statement"
+          ],
+          "replyId": "spouse_anna_hayes_v1:seed:spouse_family_communication",
+          "affect": "anxious"
+        }
+      ]
+    }
+  }
+}

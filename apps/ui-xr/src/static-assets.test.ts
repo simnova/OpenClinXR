@@ -766,6 +766,14 @@ describe("static browser assets", () => {
       new URL("../../../packages/openclinxr/xr-actor-dialogue/src/dialogue-context.ts", import.meta.url),
       "utf8",
     );
+    const actorStagingSource = readFileSync(
+      new URL("../../../packages/openclinxr/xr-station-room/src/actor-staging.ts", import.meta.url),
+      "utf8",
+    );
+    const runtimeActorPlacementSource = readFileSync(
+      new URL("../../../packages/openclinxr/xr-station-room/src/runtime-actor-placement.ts", import.meta.url),
+      "utf8",
+    );
 
     expect(mainSource).toContain("scene.name = iwsdkStationSceneObjects.stationRoot");
     expect(mainSource).toContain("patient.name = iwsdkStationSceneObjects.patientRobertHayes");
@@ -923,7 +931,10 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("stageStationActors(");
     expect(mainSource).toContain("humanoidAssetForSlot: (slotKind)");
     expect(mainSource).toContain('actorIdForSlot: (slotKind)');
-    expect(mainSource).toContain("ctx.actorPlacement(patientActorId");
+    expect(mainSource).toContain("defaultPatientActorPlacement,");
+    expect(mainSource).toContain("applyStagedPatientRootTransform({");
+    expect(actorStagingSource).not.toContain("position: { x: -0.72, y: 1.06, z: -0.12 }");
+    expect(runtimeActorPlacementSource.match(/position: \{ x: -0\.72, y: 1\.06, z: -0\.12 \}/gu)).toHaveLength(1);
     expect(mainSource).toContain("ctx.actorPlacement(clinicalActorId");
     expect(mainSource).toContain("ctx.actorPlacement(familyActorId");
     expect(mainSource).toContain("actorNameplateLabel(patientPlacement.labelPrefix, patientActorId)");
@@ -1228,10 +1239,11 @@ describe("static browser assets", () => {
 
     expect(mainSource).toContain("function hasVector3");
     expect(mainSource).toContain("typeof vector.x === \"number\"");
-    // Actor placements still normalize via hasVector3; equipment placements moved to
-    // planStationEquipmentMounts in station-equipment.ts (#140).
-    expect(mainSource).toContain("const position = hasVector3(placement?.position) ? placement.position : fallback.position");
-    expect(mainSource).toContain("scale: hasVector3(placement?.scale) ? placement.scale : fallback.scale");
+    // Actor placement normalization is shared through xr-station-room; equipment placements
+    // moved to planStationEquipmentMounts in station-equipment.ts (#140).
+    expect(mainSource).toContain("return resolveRuntimeActorPlacement({");
+    expect(mainSource).toContain("const position = hasVector3(placement?.position) ? placement.position : input.fallback.position");
+    expect(mainSource).toContain("scale: hasVector3(placement?.scale) ? placement.scale : input.fallback.scale");
     expect(mainSource).toContain("planStationEquipmentMounts");
     expect(mainSource).toContain("fallbackPositions[propIndex % fallbackPositions.length]");
     expect(mainSource).toContain("hasVector3(prop.scale) ? prop.scale : { x: 0.42, y: 0.42, z: 0.42 }");
