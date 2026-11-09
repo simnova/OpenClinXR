@@ -558,6 +558,8 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
     if tcv:
         tcv_z, tcv_y, tcv_ramp = tcv["belowMm"] / 1000.0, tcv["yMm"] / 1000.0, tcv["rampMm"] / 1000.0
     tuck = rc.get("earTuck")
+    tucked = False
+    tuck_settle = tuck["settleYMm"] / 1000.0 if tuck and tuck.get("settleYMm") is not None else None
     route = f.get("shoulderRoute")   # replaces the shoulder field when present (groom-r5)
     if route:
         r_y, r_top, r_bot = (route[k] / 1000.0 for k in ("behindYMm", "topMm", "bottomMm"))
@@ -661,6 +663,7 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
                 if in_front:
                     w *= 1.0 - w_lift
                 steer += back * (tuck["gain"] * g * w)
+                tucked = True
         # the pull acts only while the strand is still on its root's side: with a fixed
         # direction a strand that reached the midline kept being pushed across it, and
         # the two sides crossed as an X down the back (rubric D1); backConvergeStopAtMidline
@@ -694,6 +697,19 @@ def march_guide(root, normal, origin, R, centre, collider, rc, ear=None):
         if tcv and lp[2] < tcv_z:
             steer += back * (tcv["gain"] * g * max(-1.0, min(1.0, (tcv_y - lp[1]) / tcv_ramp)))
         d = (d + steer * ds).normalized()
+        # earTuck.settleYMm (r11): a strand the tuck has steered back keeps no backward
+        # momentum once it is settleYMm behind the ear's back edge (head-local y), while it
+        # is still above the tuck band bottom. Without it the tuck overshoots: roots further
+        # forward ended further back (root y 2 -> y 37 at z 0, root y 16 -> y 19), so the
+        # strands that hang forward over the shoulder top came only from a ~6 mm root band,
+        # about one guide spacing, and the seed decided whether a guide fell in it.
+        if tucked and tuck_settle is not None and lp[2] > tuck["bottomZMm"] / 1000.0 \
+                and lp[1] >= tuck_settle and d.dot(back) > 0.0:
+            # and no upward momentum either (ear-lift strands kept climbing straight up once
+            # their back component was removed)
+            d = d - back * d.dot(back)
+            d = d - up * max(0.0, d.dot(up))
+            d = d.normalized() if d.length > 1e-9 else down.copy()
         q = p + d * ds
         q = push_layer(q, collider, min(vol, off_here), off_here, back) if lay_back else push_out(q, collider, off_here)
         step = q - p
