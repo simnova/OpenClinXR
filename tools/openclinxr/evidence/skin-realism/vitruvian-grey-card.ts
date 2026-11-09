@@ -84,6 +84,23 @@ export function worldFromPatientRootFrame(patientRootWorld: readonly number[], c
 
 export type CardRect = { x0: number; y0: number; x1: number; y1: number };
 
+export function withRecordedSubjectCrop<T extends Record<string, unknown>>(
+  record: T,
+  cropPx: CardRect,
+  subjectCrop: CardRect,
+): T & { cropPx: CardRect; subjectCropPx: CardRect } {
+  return {
+    ...record,
+    cropPx,
+    subjectCropPx: {
+      x0: subjectCrop.x0 - cropPx.x0,
+      y0: subjectCrop.y0 - cropPx.y0,
+      x1: subjectCrop.x1 - cropPx.x0,
+      y1: subjectCrop.y1 - cropPx.y0,
+    },
+  };
+}
+
 /**
  * Fully off frame: the projected box clipped to the frame is empty on either axis,
  * i.e. min(x1, width) <= max(x0, 0) || min(y1, height) <= max(y0, 0). An inverted box

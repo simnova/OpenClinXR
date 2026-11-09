@@ -29,7 +29,7 @@ import {
   type LabEvidence,
   sha256File,
 } from "./runtime-portrait-capture.js";
-import { gitBlobSha, pngFrameSize, resolveCaptureCardOutcome, resolveCardCropBox } from "./vitruvian-grey-card.js";
+import { gitBlobSha, pngFrameSize, resolveCaptureCardOutcome, resolveCardCropBox, withRecordedSubjectCrop } from "./vitruvian-grey-card.js";
 
 class PageFaultError extends Error {
   override name = "PageFaultError";
@@ -1356,7 +1356,7 @@ async function captureBodyRegion(input: {
   const next = regionStats(newPng, fullMask);
   const delta = Math.round(deltaE76(orig, next) * 1_000_000) / 1_000_000;
   const metric = { ...metricRecord(orig, next), framing: region, maskMethod: `${method}; lit-bitmap mask from ORIGINAL crop (bg excluded, same mask on NEW)` };
-  const numbers = {
+  const numbers = withRecordedSubjectCrop({
     actor: input.subject.actor,
     lighting: input.lighting.id,
     rigId: input.lighting.rigId,
@@ -1373,7 +1373,7 @@ async function captureBodyRegion(input: {
     ...instrumentOnly(input.cli),
     regions: { [region]: metric },
     ...(cardRecord ?? {}),
-  };
+  }, clampedOrig, subjectCrop);
   await writeFile(path.join(frameOut, "numbers.json"), `${JSON.stringify(numbers, null, 2)}\n`, "utf8");
   const cropLuminance = meanLuminance(origPng, fullMask);
   return {
@@ -1467,7 +1467,7 @@ async function captureCloseRegion(input: {
   const orig = regionStats(origPng, fullMask);
   const next = regionStats(newPng, fullMask);
   const delta = Math.round(deltaE76(orig, next) * 1_000_000) / 1_000_000;
-  const numbers = {
+  const numbers = withRecordedSubjectCrop({
     actor: input.subject.actor,
     lighting: input.lighting.id,
     rigId: input.lighting.rigId,
@@ -1488,7 +1488,7 @@ async function captureCloseRegion(input: {
     ...instrumentOnly(input.cli),
     regions: { [region]: { ...metricRecord(orig, next), framing: region, maskMethod: "lit-bitmap mask from ORIGINAL close frame (bg excluded, same mask on NEW)" } },
     ...(cardRecord ?? {}),
-  };
+  }, fullCrop, fullCrop);
   await writeFile(path.join(frameOut, "numbers.json"), `${JSON.stringify(numbers, null, 2)}\n`, "utf8");
   const cropLuminance = meanLuminance(origPng, fullMask);
   return {
@@ -1721,7 +1721,7 @@ async function main(): Promise<void> {
             const c = captures[framing]!;
             const frameOut = path.dirname(c.origPng);
             const applicable = Object.fromEntries(Object.entries(regionMetrics).filter(([, value]) => (value as { framing: string }).framing === framing));
-            const numbers = {
+            const numbers = withRecordedSubjectCrop({
               actor: subject.actor,
               lighting: lighting.id,
               rigId: lighting.rigId,
@@ -1737,7 +1737,7 @@ async function main(): Promise<void> {
               ...instrumentOnly(cli),
               regions: applicable,
               ...(greyCardManifest(c.original, c.crop) ?? {}),
-            };
+            }, c.crop, c.subjectCrop);
             await writeFile(path.join(frameOut, "numbers.json"), `${JSON.stringify(numbers, null, 2)}\n`, "utf8");
             frameRecords[framing] = {
               directory: path.relative(cwd, frameOut).replaceAll("\\", "/"),
