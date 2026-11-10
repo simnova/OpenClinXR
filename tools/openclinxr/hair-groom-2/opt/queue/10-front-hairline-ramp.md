@@ -1,6 +1,6 @@
 # 10 front-only hairline ramp at 12 mm (operator decision 2026-11-10; from queue/09)
 
-Status: probe10 done, rule committed before the build.
+Status: FAIL (3q 20.30 > 19.85, back 8.46 > 8.23); card stops. Rule a47966f88 committed before the build.
 
 ## Gap direction (measured fact, from queue/09)
 At 12 mm with today's ramp (full raise to azimuth 40 deg, 0 at 70 deg) the front hairlineRow is 238 (target 236, pass) and
@@ -55,3 +55,30 @@ Measured response on the card09 fh12 cards: tol 2.00 63,192; 2.05 62,560; 2.10 6
 - One build. FAIL -> stop and report; no further ramp without a CEO decision.
 - Not tested by probe10: occlusion of the reaching strands by nearer hair; the regrown groom (dart throwing and Interpolate
   re-spread every root); overhang into the front columns from roots at 7-14 deg that keep their place.
+
+## Result (2026-11-10 12:15): FAIL; card 10 stops (no further ramp without a CEO decision)
+Default check: card09 fh12 recipe with this groom.py -> positionsSha256 cb4963b0 (= card09 groom-fh12).
+groom-fh12r: 97,667 strands (fh0 98,187, fh12 95,101), positionsSha 6faa016e, guides 700 (Poisson 7.00 mm).
+Tris rule: tol 2.00 63,324; 2.01 63,164; 2.02 63,056; 2.03 62,924 -> 2.03 chosen. Final GLB card10-fh12r.glb sha b4c2e7aa;
+stage shas card10/chain/stages.tsv. Run card10/card10_run.sh, log card10_run.log (wall 11:57-12:15).
+| view | D_v fh0 | D_v fh12 (card 09) | D_v fh12r | bar fh0 + delta_v | fh12r clause |
+|---|---|---|---|---|---|
+| front | 27.5907 | 25.0719 | 25.2481 | row 239 in 230-242 | pass |
+| three_quarter_left | 18.6336 | 21.0333 | 20.2999 | 19.8509 | FAIL |
+| side | 19.8049 | 15.9211 | 18.4211 | 20.3260 | pass |
+| back | 7.5830 | 7.5513 | 8.4633 | 8.2274 | FAIL |
+| sum D | 73.6121 | 69.5776 | 72.4325 | | |
+| tris | 63,024 | 63,192 | 62,924 | 63,024 | pass |
+ship_a4 --bars v2 (information, incumbent@aa73aeec): fails S1 S2 S3 S4 (S3 views 0).
+
+## Breakdown (wnorm, fh0 -> fh12 -> fh12r)
+- 3q silhouette recovered: iou 7.04 -> 7.60 -> 7.10 (raw .648 -> .620 -> .645); target hair in the 3q box present in fh0 and
+  lost: 864 px (fh12) -> 160 px (fh12r).
+- 3q remaining excess is shading: peak .21 -> 1.01 -> .97 (raw .333 -> .408 -> .404), peakCeil 0 -> .36 -> .27,
+  bandProfileL8 2.33 -> 2.71 -> 2.68, bandCont .20 -> .30 -> .45. Sum of these four for fh12r: +2.18 over fh0.
+- back: iou 3.97 -> 3.90 -> 4.00 (silhouette unchanged); peak .51 -> .45 -> .85, sat .88 -> .98 -> 1.19, base .28 -> .23 -> .35.
+- The ramp fixed what probe10 attributed (the 3q silhouette). The remaining failures are highlight/saturation terms in 3q and
+  back on unchanged silhouettes, the same signature as fh16 back (queue/09): every regrow re-spreads all 700 guides and
+  every child, so shading moves in every view. 3q excess over bar .45, back .24.
+- Not tested: whether the shading excess is seed-level noise of the regrow (no second seed of fh0 or fh12r was rendered);
+  delta_seed_v (3q 1.217, back .644) was measured on material seeds, not groom regrows.
