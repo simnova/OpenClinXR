@@ -74,6 +74,56 @@ def measure(path):
                 hairlineFalloffMedPx=float(np.median(falls)) if falls else None, falloffCols=len(falls))
 
 
+def measure_band(path):
+    """v2 part measure: same c, hair and provisional threshold as measure(); the hairline row is the median over
+    columns c-12..c+12 step 2 of each column's own first 12-row skin run (from top+4), so a bright part line at c
+    does not move it. Skin window, refinement, part width and falloff follow measure() with the band hairline."""
+    L = (np.asarray(Image.open(path).convert('RGB'), float) / 255.) @ W
+    dark = L < 0.30
+    rows = np.where(dark.sum(1) > 20)[0]
+    top = int(rows.min())
+    ys, xs = np.nonzero(dark[top:top + 20])
+    c = int(np.median(xs))
+    hair = float(np.percentile(L[top:top + 20][dark[top:top + 20]], 25))
+    t0 = hair + 0.5 * (float(np.percentile(L[top:top + 200, c], 90)) - hair)
+    cols = list(range(c - 12, c + 13, 2))
+
+    def band_hairline(t):
+        hs = []
+        for x in cols:
+            above = L[:, x] > t
+            for r in range(top + 4, L.shape[0] - 12):
+                if above[r:r + 12].all():
+                    hs.append(r)
+                    break
+        if not hs:
+            raise RuntimeError(f'{path}: no hairline in columns {c - 12}..{c + 12}')
+        return int(round(float(np.median(hs)))), len(hs)
+    h0, _ = band_hairline(t0)
+    skin = float(np.median(L[h0 + 20:h0 + 41, c - 10:c + 11]))
+    t = hair + 0.5 * (skin - hair)
+    h, ncols = band_hairline(t)
+    widths = [runs_max(L[r, c - 25:c + 26] > t) for r in range(top + 4, h - 1)]
+    peaks = [float(L[r, c - 25:c + 26].max()) for r in range(top + 4, h - 1)]
+    falls = []
+    for dx in list(range(-70, -29, 4)) + list(range(30, 71, 4)):
+        p = L[top:h + 60, c + dx]
+        lo, hi = hair + 0.1 * (skin - hair), hair + 0.9 * (skin - hair)
+        run = np.convolve(p > hi, np.ones(8), 'valid') == 8
+        if not run.any():
+            continue
+        r90 = int(np.argmax(run))
+        below = np.where(p[:r90] <= lo)[0]
+        if len(below):
+            falls.append(r90 - int(below.max()))
+    return dict(hairTop=top, centreCol=c, hairlineRow=h, hairL=round(hair, 3), skinL=round(skin, 3),
+                partRows=len(widths), partWidthMedPx=float(np.median(widths)) if widths else 0.0,
+                partWidthP90Px=float(np.percentile(widths, 90)) if widths else 0.0,
+                partPeakLMed=round(float(np.median(peaks)), 3) if peaks else 0.0,
+                hairlineFalloffMedPx=float(np.median(falls)) if falls else None, falloffCols=len(falls),
+                bandCols=ncols)
+
+
 def main(argv):
     out = {}
     for a in argv[1:]:

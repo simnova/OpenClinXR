@@ -245,9 +245,10 @@ def score_views(crop, nohair, targets, frame_id="", part_json=None, terms="objec
             part = None
             if v == "front":
                 try:
-                    part = pw.measure("%s-front.png" % crop)
+                    pmeasure = pw.measure_band if ob.get("partMeasure") == "band" else pw.measure  # absent key = v1
+                    part = pmeasure("%s-front.png" % crop)
                     if part_target is None:
-                        part_target = pw.measure(tpath)
+                        part_target = pmeasure(tpath)
                 except Exception as e:  # part_width raises RuntimeError when no hairline is found
                     missing.append((v, "part", str(e)[:120]))
                     part = part if part is not None else None
