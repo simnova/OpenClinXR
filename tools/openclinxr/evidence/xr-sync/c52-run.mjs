@@ -222,6 +222,33 @@ if (process.argv.includes("--selftest")) {
   process.exit(0);
 }
 
+
+/** C52b: gate a 3-run json. Exit 1 unless every run is on ANGLE Metal, plant ms <= 250 and cpu-profile inclusive <= 250. */
+if (process.argv.includes("--check")) {
+  const file = process.argv[process.argv.indexOf("--check") + 1];
+  const LIMIT_MS = 250;
+  let data;
+  try { data = JSON.parse(readFileSync(resolve(file), "utf8")); } catch (e) { console.error(`c52 --check: cannot read ${file}: ${e.message}`); process.exit(2); }
+  const fails = [];
+  const runs = Array.isArray(data?.runs) ? data.runs : [];
+  if (runs.length !== 3) fails.push(`runs=${runs.length} (need exactly 3)`);
+  if (typeof data?.headSha !== "string" || !/^[0-9a-f]{40}$/.test(data.headSha)) fails.push("headSha missing");
+  runs.forEach((r, i) => {
+    const tag = `run${i + 1}(${r?.runId})`;
+    if (!/ANGLE Metal/.test(String(r?.renderer ?? ""))) fails.push(`${tag} renderer lacks "ANGLE Metal": ${r?.renderer}`);
+    const plantMs = r?.plantMs?.station1SumMs;
+    const profMs = r?.plantProfile?.maxStationInclusiveMs;
+    const gap = r?.largestGap?.durationMs ?? 0;
+    console.log(`${tag} station1 plant ms (recordPlantStep sum, ${r?.plantMs?.station1Actors ?? "?"} actors)=${plantMs ?? "null"} cpu-profile inclusive applyAndPlantSupineDeck per-station=${JSON.stringify(r?.plantProfile?.stationInclusiveMs ?? null)} max=${profMs ?? "null"} whole-run=${r?.plantProfile?.wholeRunInclusiveMs ?? "null"} largestGapMs(reported, not gated)=${gap}`);
+    if (typeof plantMs !== "number" || !(plantMs <= LIMIT_MS)) fails.push(`${tag} plant ms ${plantMs ?? "null"} > ${LIMIT_MS}`);
+    if (typeof profMs !== "number" || !(profMs <= LIMIT_MS)) fails.push(`${tag} cpu-profile inclusive ${profMs ?? "null"} > ${LIMIT_MS}`);
+  });
+  console.log(`headSha=${data?.headSha ?? "null"}`);
+  if (fails.length > 0) { for (const f of fails) console.error(`CHECK FAIL ${f}`); process.exit(1); }
+  console.log("CHECK OK");
+  process.exit(0);
+}
+
 {
   const argvPre = process.argv.slice(2);
   if (argvPre.includes("--assemble")) {
@@ -239,7 +266,9 @@ if (process.argv.includes("--selftest")) {
       return rest;
     });
     const tracedMs = reports.filter((r) => r?.mode === "synced" && r?.traced && r?.largestGap).map((r) => r.largestGap.durationMs);
-    const out = { slice: "C52", generatedFrom: runDirs, runs: slim, tracingOverhead: { untracedMs: [8973, 7366, 7030], tracedMs }, verdict: null };
+    const shas = [...new Set(reports.map((r) => r?.headSha))];
+    if (shas.length !== 1) { console.error(`c52 --assemble: runs measured different trees ${JSON.stringify(shas)}`); process.exit(2); }
+    const out = { slice: shas[0] ? "C52b" : "C52", headSha: shas[0] ?? null, generatedFrom: runDirs, runs: slim, tracingOverhead: { untracedMs: [8973, 7366, 7030], tracedMs }, verdict: null };
     mkdirSync(dirname(outFile), { recursive: true });
     writeFileSync(outFile, `${JSON.stringify(out, null, 2)}\n`);
     console.log(`ASSEMBLED ${reports.length} runs -> ${outFile}`);
@@ -289,7 +318,9 @@ async function stopTrace(browser, traceFilePath) {
   return { path: traceFilePath, sha256: hash.digest("hex"), bytes: st.size };
 }
 
-const run = { script: "c52-run", runId, mode, traced: tracedWanted, gpu: true, root: ROOT, pageErrors: [], consoleErrors: [] };
+const { execFileSync } = await import("node:child_process");
+const headSha = execFileSync("git", ["-C", ROOT, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
+const run = { script: "c52-run", headSha, runId, mode, traced: tracedWanted, gpu: true, root: ROOT, pageErrors: [], consoleErrors: [] };
 run.loadAvg = {};
 const TIMING = { doorwaySeconds: 2, encounterSeconds: 12, noteSeconds: 4, breakAfterStationOrders: [] };
 const slot = (n) => ({ slotId: `slot-${n}`, order: n, label: `C50 station ${n}`, requiredEnvironmentIds: [], requiredTraceTags: [] });
@@ -330,6 +361,20 @@ try {
       await page.locator("#exam-flow-station").waitFor({ timeout: 60000 });
     }
     await page.evaluate(() => { const el = document.getElementById("exam-flow-station"); globalThis.__c51 = [{ at: Date.now(), text: el.textContent }]; globalThis.__c51hb = []; let hbLast = Date.now(); setInterval(() => { const now = Date.now(); if (now - hbLast > 250) globalThis.__c51hb.push({ at: now, gapMs: now - hbLast }); hbLast = now; }, 50); const sync = globalThis.__openClinXrEncounterSync; globalThis.__c51sync = []; setInterval(() => { const e = globalThis.__openClinXrEncounterSync; const k = e ? e.state + "|" + e.sessionId : "none"; const last = globalThis.__c51sync[globalThis.__c51sync.length - 1]; if (!last || last.k !== k) globalThis.__c51sync.push({ at: Date.now(), k }); }, 50); new MutationObserver(() => globalThis.__c51.push({ at: Date.now(), text: el.textContent })).observe(el, { childList: true, characterData: true, subtree: true }); });
+    await page.evaluate(() => {
+      globalThis.__c52plant = new Map();
+      const read = () => {
+        const scene = globalThis.__openClinXrDebugScene; if (!scene) return;
+        const label = document.getElementById("exam-flow-station")?.textContent ?? "";
+        scene.traverse((o) => {
+          const steps = o.userData?.openClinXrPlantSteps; if (!Array.isArray(steps) || steps.length === 0 || globalThis.__c52plant.has(o.uuid)) return;
+          const phases = Array.isArray(o.userData.openClinXrPlantPhases) ? o.userData.openClinXrPlantPhases : [];
+          const total = o.userData.openClinXrPlantTotalMs;
+          globalThis.__c52plant.set(o.uuid, { name: o.name, at: Date.now(), label, steps: steps.map((s) => ({ step: s.step, ms: s.ms ?? null })), phases: phases.map((s) => ({ phase: s.phase, ms: s.ms ?? null })), totalMs: typeof total === "number" ? total : null });
+        });
+      };
+      read(); setInterval(read, 100);
+    });
     run.t0 = Date.now();
     run.clock = await page.evaluate(() => { performance.mark("c52-sync"); return { timeOrigin: performance.timeOrigin, nowMs: performance.now(), dateNow: Date.now() }; });
     const serverEvents = []; let lastIdx;
@@ -342,6 +387,11 @@ try {
     }
     run.renderer = await page.evaluate(() => { const g = document.createElement("canvas").getContext("webgl"); const d = g && g.getExtension("WEBGL_debug_renderer_info"); return d ? g.getParameter(d.UNMASKED_RENDERER_WEBGL) : null; }); console.log(`RENDERER ${run.renderer}`); const labelEvents = await page.evaluate(() => globalThis.__c51); run.heartbeatGaps = await page.evaluate(() => globalThis.__c51hb); run.syncStates = await page.evaluate(() => globalThis.__c51sync);
     run.serverEvents = serverEvents; run.labelEvents = labelEvents;
+    { const actors = await page.evaluate(() => [...globalThis.__c52plant.values()]);
+      const sumOf = (a) => [...a.steps.map((x) => x.ms), ...a.phases.map((x) => x.ms)].reduce((t, v) => (typeof v === "number" ? t + v : t), 0);
+      const st1 = actors.filter((a) => /Station 1 of/.test(a.label));
+      const havems = st1.length > 0 && st1.every((a) => a.steps.length > 0 && a.steps.every((x) => typeof x.ms === "number"));
+      run.plantMs = { actors, station1Actors: st1.length, station1SumMs: havems ? Math.round(st1.reduce((t, a) => t + sumOf(a), 0) * 1000) / 1000 : null, source: "userData.openClinXrPlantSteps[].ms + openClinXrPlantPhases[].ms" }; }
     run.loadAvg.end = os.loadavg()[0];
     if (tracedWanted) {
       run.trace = await stopTrace(browser, tracePath);
@@ -370,9 +420,28 @@ try {
         mainThread: { pid: win.mainPid, tid: win.mainTid },
       };
     }
+    run.plantProfile = null;
+    if (run.traced && run.trace) {
+      // Same cpuProfileTop path as the gap attribution, over each station window instead of the largest gap.
+      const rawTrace2 = JSON.parse(readFileSync(tracePath, "utf8"));
+      const events2 = rawTrace2.traceEvents ?? rawTrace2;
+      const endAt = Date.now();
+      const stationAt = [];
+      for (const n of [1, 2, 3]) { const hit = labelEvents.find((l) => new RegExp(`^Station ${n} of`).test(l.text)); stationAt.push(hit ? hit.at : null); }
+      const bounds = [run.clock.dateNow - 600000, ...stationAt.slice(1).filter((x) => x !== null), endAt];
+      const inclusiveOf = (win) => {
+        const cpu = cpuProfileTop(events2, win.mainPid, win.mainTid, win, 1e9);
+        return Math.round(cpu.inclusive.filter((t) => t.functionName === "applyAndPlantSupineDeck").reduce((t, v) => t + v.inclusiveMs, 0) * 1000) / 1000;
+      };
+      const stationInclusiveMs = [];
+      for (let k = 0; k + 1 < bounds.length; k++) stationInclusiveMs.push(inclusiveOf(sliceGapWindow(events2, run.clock, { at: bounds[k + 1], gapMs: bounds[k + 1] - bounds[k] })));
+      const whole = cpuProfileTop(events2, sliceGapWindow(events2, run.clock, { at: endAt, gapMs: 1 }).mainPid, 0, null, 1e9);
+      const wholeRunInclusiveMs = Math.round(whole.inclusive.filter((t) => t.functionName === "applyAndPlantSupineDeck").reduce((t, v) => t + v.inclusiveMs, 0) * 1000) / 1000;
+      run.plantProfile = { functionName: "applyAndPlantSupineDeck", stationInclusiveMs, maxStationInclusiveMs: Math.max(...stationInclusiveMs), wholeRunInclusiveMs };
+    }
     run.voidRun = !/ANGLE Metal/.test(String(run.renderer ?? ""));
-    const { script, pageUrl: _pu, loadAvg, clock, trace, driverT0, gaps, largestGap, lags, pageErrors, consoleErrors, fatal, t0, renderer, gpu, traced, voidRun } = run;
-    const report = { runId, mode, traced, renderer, gpu: true, loadAvg, clock, trace, driverT0, gaps, largestGap, voidRun, lags, pageErrors, consoleErrors, fatal, t0 };
+    const { script, pageUrl: _pu, loadAvg, clock, trace, driverT0, gaps, largestGap, lags, pageErrors, consoleErrors, fatal, t0, renderer, gpu, traced, voidRun, headSha: _hs, plantMs, plantProfile } = run;
+    const report = { headSha, plantMs, plantProfile, runId, mode, traced, renderer, gpu: true, loadAvg, clock, trace, driverT0, gaps, largestGap, voidRun, lags, pageErrors, consoleErrors, fatal, t0 };
     writeFileSync(join(outDir, "report.json"), `${JSON.stringify(report, null, 2)}\n`);
   } finally {
     await browser.close();
