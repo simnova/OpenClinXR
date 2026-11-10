@@ -170,13 +170,16 @@ def real_trial(stage, knobs, tag, a, nohair_key):
     out = sh([str(HERE / "build_trial.sh"), stage, str(kj), str(bdir)])
     glb_sha = [l.split()[1] for l in out.splitlines() if l.startswith("GLB_SHA256")][0]
     glb = PUBLIC / "generated-humanoids/_hair-transplant-probe/opt/%s.glb" % tag
-    sh([str(HERE / "render_trial.sh"), "generated-humanoids/_hair-transplant-probe/opt/%s.glb" % tag, tag, str(bdir), nohair_key])
+    ro = sh([str(HERE / "render_trial.sh"), "generated-humanoids/_hair-transplant-probe/opt/%s.glb" % tag, tag, str(bdir), nohair_key])
+    # per-trial render record (A1b): crops = colour 4 + hair-only 4 + empty 4 (+ nohair 4 on a cache miss)
+    sec = [l.split()[1] for l in ro.splitlines() if l.startswith("RENDER_SECONDS")]
+    a.last_render = dict(render_seconds=float(sec[0]) if sec else "", crops=12 + (4 if "NOHAIR_RENDER" in ro else 0))
     return glb_sha, glb, bdir
 
 
 def score_dir(bdir, tag, glb, a, iou_back):
     return st.score_views(str(bdir / ("ts-" + tag)), str(bdir / "nohair"), a.targets, a.frame_id, None, "objective",
-                          st.glb_hair_tris(str(glb)), iou_back)
+                          st.glb_hair_tris(str(glb)), iou_back, matte=str(bdir / ("matte-" + tag)))
 
 
 # ---------- dry run stub ----------
@@ -213,6 +216,7 @@ def row_from(res, label, idx, knobs, a, seconds, sha, frame, error=""):
     r["violation"] = round(res.get("violation", 0.0), 6)
     r["feasible"] = int(bool(res.get("feasible")))
     r["seconds"] = round(seconds, 2)
+    r.update(getattr(a, "last_render", {}) or {})
     r["error"] = error
     return r
 
@@ -222,8 +226,8 @@ def main(argv=None):
     ap.add_argument("--stage", choices=["material", "tint"], required=True)
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--targets", default=str(EV / "p1/tgt-rt/target-%s.png"))
-    ap.add_argument("--frame-id", default="p1-rt")
+    ap.add_argument("--targets", default=str(STATE / "tgt-fithead/target-%s.png"))  # A2: targets mapped into the runtime frame
+    ap.add_argument("--frame-id", default="")  # default: objective.json frame.id
     ap.add_argument("--material-glb", help="tint stage: fixed material GLB (default BEST3 material)")
     ap.add_argument("--max-trials", type=int, help="override the stage budget (testing)")
     ap.add_argument("--state-dir")
@@ -231,6 +235,7 @@ def main(argv=None):
     ap.add_argument("--dry-delta", type=float, default=0.5, help="dry run: delta_v for every view")
     a = ap.parse_args(argv)
     ob = json.load(open(a.objective))
+    a.frame_id = a.frame_id or ob.get("frame", {}).get("id", "")
     S = ob["search"][a.stage]
     if a.max_trials:
         S["budget"]["trials"] = a.max_trials
@@ -275,7 +280,7 @@ def main(argv=None):
         append_row(csvp, row_from(res, inc_label, 0, start, a, time.time() - t0, sha, a.frame_id))
         rows, _ = read_csv(csvp)
         inc = next(r for r in rows if r["stage"] == inc_label)
-    iou_back = fnum(inc.get("m_back_iou")) if inc.get("m_back_iou") else None
+    iou_back = None  # A2: all four HARD iou floors are in objective.json hard.iouFloor (registered, matte)
     elapsed0 = sum(fnum(r.get("seconds")) for r in rows if r["stage"] == label)
     reason = None
     while True:

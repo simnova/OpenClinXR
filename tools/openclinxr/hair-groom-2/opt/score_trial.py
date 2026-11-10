@@ -1,9 +1,13 @@
 """score_trial.py: score one candidate (4 view crops) against the target in the registered frame (SPEC OBJECTIVE, D4).
 
-  score_trial.py --crop <prefix> --nohair <prefix> --targets <dir/target-%s.png> [--frame-id ID] [--part-json F]
+  score_trial.py --crop <prefix> --nohair <prefix> --targets <dir/target-%s.png> [--matte <prefix>] [--frame-id ID] [--part-json F]
                  [--terms objective|a3] [--glb F | --tris N] [--iou-floor-back X] [--out F.json] [--objective F]
 Files read: <prefix>-<view>.png for view in front, three_quarter_left, side, back; targets pattern takes the runtime
-view name (as `sheen_gate.py score --targets=`). Masks and sheen metrics are sheen_gate's own (render_hair,
+view name (as `sheen_gate.py score --targets=`). Frame (A2): targets are mapped INTO the runtime crop frame by
+`runtime_frame.py to-runtime` with frames-fithead.json (objective.json frame.id), so crops, nohair and matte stay native.
+--matte <prefix>: hair mask = erode(alpha > .5, 2) of <prefix>-<view>.png (matte.py write; A1b), as sheen_gate's matte path;
+absent = the hideHair difference mask. HARD iou floors come from objective.json hard.iouFloor (registered, matte; A2);
+the iou term itself (s=.05) is a soft term. Masks and sheen metrics are sheen_gate's own (render_hair,
 target_hair, full_row), so --terms a3 reproduces `sheen_gate.py score` + A3 compute.py exactly.
 --part-json: optional {"target": {partWidthMedPx, hairlineFalloffMedPx, hairlineRow}} (part-*.json shape) that
 replaces measuring the target front image with part_width.
@@ -44,6 +48,14 @@ def scale_of(sc, target_row, H, target_val=None):
     if k == "cropH":
         return sc["k"] * H
     raise ValueError(k)
+
+
+def hair_mask(img, nohair, matte, v):
+    if matte:
+        from PIL import Image
+        a = np.asarray(Image.open("%s-%s.png" % (matte, v)).convert("RGBA"), float)[..., 3] / 255.
+        return sg.erode(a > 0.5, 2)
+    return sg.render_hair(img, nohair)
 
 
 # ---------- placement terms ----------
@@ -136,9 +148,9 @@ def glb_hair_tris(path):
     return n
 
 
-def _a3(img, nohair, t):
+def _a3(img, nohair, t, matte=None, v=None):
     spec = _obj()["a3"]["terms"]
-    c, tr = sg.full_row(img, sg.render_hair(img, nohair)), sg.full_row(t, sg.target_hair(t))
+    c, tr = sg.full_row(img, hair_mask(img, nohair, matte, v)), sg.full_row(t, sg.target_hair(t))
     terms = {}
     for T in spec:
         f = T["field"]
@@ -151,9 +163,9 @@ def _a3(img, nohair, t):
     return c, tr, terms
 
 
-def _objective_view(v, img, nohair, t, spec, part, part_target, crop_front_path, target_front_path, missing):
+def _objective_view(v, img, nohair, t, spec, part, part_target, crop_front_path, target_front_path, missing, matte=None):
     H = img.shape[0]
-    m = sg.render_hair(img, nohair)
+    m = hair_mask(img, nohair, matte, v)
     tm = sg.target_hair(t)
     c, tr = sg.full_row(img, m), sg.full_row(t, tm)
     c["iou"] = iou(m, tm)
@@ -214,9 +226,10 @@ def _objective_view(v, img, nohair, t, spec, part, part_target, crop_front_path,
 
 
 def score_views(crop, nohair, targets, frame_id="", part_json=None, terms="objective", tris=None, iou_floor_back=None,
-                objective=None, views=VIEWS):
+                objective=None, views=VIEWS, matte=None):
     ob = _obj(objective)
-    out = dict(frame_id=frame_id, terms=terms, views={}, hard={}, missing=[])
+    frame_id = frame_id or ob.get("frame", {}).get("id", "")
+    out = dict(frame_id=frame_id, matte=bool(matte), terms=terms, views={}, hard={}, missing=[])
     missing = []
     part_target = None
     if part_json:
@@ -227,7 +240,7 @@ def score_views(crop, nohair, targets, frame_id="", part_json=None, terms="objec
         tpath = targets % v
         t = sg.load(tpath)
         if terms == "a3":
-            c, tr, tt = _a3(img, nh, t)
+            c, tr, tt = _a3(img, nh, t, matte, v)
         else:
             part = None
             if v == "front":
@@ -239,7 +252,7 @@ def score_views(crop, nohair, targets, frame_id="", part_json=None, terms="objec
                     missing.append((v, "part", str(e)[:120]))
                     part = part if part is not None else None
             pt = part_target or {}
-            c, tr, tt = _objective_view(v, img, nh, t, ob["terms"], part, pt, None, tpath, missing)
+            c, tr, tt = _objective_view(v, img, nh, t, ob["terms"], part, pt, None, tpath, missing, matte)
         out["views"][v] = dict(metrics=c, target=tr, terms=tt, D_v=sum(x["wnorm"] for x in tt.values() if "wnorm" in x))
     out["D"] = sum(out["views"][v]["D_v"] for v in views)
     out["missing"] = missing
@@ -298,6 +311,7 @@ def main(argv=None):
     ap.add_argument("--frame-id", default="")
     ap.add_argument("--part-json")
     ap.add_argument("--terms", choices=["objective", "a3"], default="objective")
+    ap.add_argument("--matte")
     ap.add_argument("--glb")
     ap.add_argument("--tris", type=int)
     ap.add_argument("--iou-floor-back", type=float)
@@ -306,7 +320,7 @@ def main(argv=None):
     ap.add_argument("--quiet", action="store_true")
     a = ap.parse_args(argv)
     tris = a.tris if a.tris is not None else (glb_hair_tris(a.glb) if a.glb else None)
-    r = score_views(a.crop, a.nohair, a.targets, a.frame_id, a.part_json, a.terms, tris, a.iou_floor_back, a.objective)
+    r = score_views(a.crop, a.nohair, a.targets, a.frame_id, a.part_json, a.terms, tris, a.iou_floor_back, a.objective, matte=a.matte)
     if a.out:
         Path(a.out).write_text(json.dumps(r, indent=1, default=float))
     if not a.quiet:
