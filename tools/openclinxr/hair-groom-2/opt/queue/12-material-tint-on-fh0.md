@@ -91,3 +91,24 @@ round 2 = K-only sensitivity per CEO 2026-11-10; if 0 eligible improving, the fh
 - Same clauses K1, K2, K3, C1, C2, C3, objective hard feasibility, same improve thresholds, same pick rule; r2t00 judged against
   every clause (a failing control = clause miscalibrated, stop).
 - Pick -> native front + three_quarter_left contact sheet vs fh0 for CEO grading. No pick -> PARKED note here, commit, push, idle.
+
+## Round 2 result (2026-11-10 13:37; card12/judge2.json, round2.json, sweep2.log)
+Control r2t00: GLB sha 5a62cfdd, D_v = fh0, passes every clause. Tris 63,024 in all 5.
+| K | sum D | front | 3q | side | back | base L front / 3q / side / back | failed | improved |
+|---|---|---|---|---|---|---|---|---|
+| .65 (control) | 73.612 | 27.59 | 18.63 | 19.80 | 7.58 | .170 / .116 / .106 / .143 | none | none |
+| .60 | 72.207 | 26.98 | 18.30 | 19.49 | 7.44 | .163 / .109 / .098 / .135 | none | none |
+| .55 | 71.528 | 26.33 | 18.29 | 19.30 | 7.60 | .156 / .102 / .091 / .127 | C1 3q, back | none |
+| .50 | 70.764 | 25.66 | 18.24 | 18.94 | 7.93 | .149 / .095 / .083 / .119 | C1 3q, back | side |
+| .45 | 68.804 | 24.97 | 17.99 | 17.66 | 8.17 | .141 / .087 / .075 / .110 | C1 3q, side, back | front, side |
+C1 floors (target base L - .003): front .119, 3q .108, side .083, back .129. Eligible improving: none. No pick.
+K scales hair base L about uniformly across views, but the reference sits at different ratios of fh0 per view (front .72,
+3q .96, side .81, back .92). Front and side improve beyond noise only at K <= .50, where 3q and back fall below the reference.
+K .60 passes every clause and improves no view beyond noise (sum D -1.41).
+
+## PARKED (2026-11-10 13:37, per the round-2 pre-registered line)
+1. fh0 (groom seed 1107, current Aisha body, GLB 5a62cfdd) is the parked base of the hair-groom-2 optimizer lane.
+2. Front-hairline geometry (cards 09-11): no offset/ramp beats fh0 beyond regrow noise in all views (fh12r fails back).
+3. Material/tint (card 12, 16 LHS + 4 K-only trials): no eligible trial improves any view beyond max(delta_v, delta_regrow_v).
+4. fh0 is at the objective's seed-noise floor for both; the one global lever that moves D (K) trades 3q/back against front/side.
+5. Next hair work is the general-purpose hair station once the port lands on main; this lane idles until then.
