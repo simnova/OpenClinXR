@@ -1,39 +1,9 @@
 # BothyBoard — OpenClinXR project binding
 
-Repo-local addendum to `SKILL.md`. That file is vendored VERBATIM from upstream and must not
-be hand-edited (see `PROVENANCE.md`); anything specific to this repo lives here.
+Repo-local addendum to `SKILL.md`. That file is vendored from upstream with one local amendment
+(see `PROVENANCE.md`) and must not be hand-edited; anything specific to this repo lives here.
 
-## CORRECTED 2026-08-29 — `sync` IGNORES `projectId`. Passing it does nothing.
-
-The rule below said an unscoped `sync` silently returns Harbor, and told you to always pass
-`projectId`. The first half is right and **the remedy does not work**. Measured with three requests
-differing only in that argument:
-
-```
-sync {projectId: prj_9b390b99b443a964}  (OpenClinXR)  -> sha256 4700a0bc1abb964e
-sync {projectId: prj_00cce0fc9b89992e}  (Harbor)      -> sha256 4700a0bc1abb964e
-sync {projectId: prj_54713dade1ecd1fc}  (BothyBoard)  -> sha256 4700a0bc1abb964e
-```
-
-Byte-identical, and all three report `"project":{"id":"prj_00cce0fc9b89992e"}` — Harbor. The
-argument is accepted and discarded.
-
-**So `sync` cannot be scoped at all, and no amount of caller discipline fixes it.** Anything derived
-from a `sync` payload is a Harbor answer wearing whatever label you asked for.
-
-**Cost, same day:** I enumerated agents from a `sync` I believed was OpenClinXR-scoped, reported
-"31 agents, none registered as openai or codex", and concluded the Codex orchestrator was not
-heartbeating. It was; `agt_d85152e0024f10cd` is registered and posting. I had read Harbor's roster
-and drawn a conclusion about ours. The operator supplied the id I could not find.
-
-**Until this is fixed board-side, do not derive any roster, count, or absence claim from `sync`.**
-Use `tasks.get` on a known id, or `mailbox.poll` on a known task, both of which are addressed by id
-and therefore genuinely scoped. **An ABSENCE claim from `sync` is worthless** — you cannot tell a
-thing that is missing from a thing that is in another project's payload.
-
-## The one rule
-
-**Every BothyBoard call that accepts `projectId` MUST pass it, and the value is:**
+## Project ids
 
 ```
 prj_9b390b99b443a964     OpenClinXR      <- ours
@@ -41,38 +11,42 @@ prj_00cce0fc9b89992e     Harbor          northline/harbor, NOT ours
 prj_54713dade1ecd1fc     BothyBoard      the board's own repo, NOT ours
 ```
 
-## Why — measured 2026-08-29, not assumed
+Pass `projectId: prj_9b390b99b443a964` on every call that accepts it (`sync`, `tasks.next`),
+as upstream `SKILL.md` § Scope now requires.
 
-`bothy-board.sync` with no `projectId` does **not** error and does **not** return everything
-scoped. It silently returns Harbor:
+## Scoping — measured 2026-11-09 (supersedes the 2026-08-29 sections)
 
-```
-sync {}                 -> project: Harbor (prj_00cce0fc9b89992e)
-                           tasks: OpenClinXR 98, Harbor 17, BothyBoard 4
-```
+The repo PAT (`BOTHY_BOARD_PAT`, loaded by mise from the repo `.env.local`) is now a
+single-project token. `projects.list` returns one row:
+`{id: prj_9b390b99b443a964, name: OpenClinXR, role: owner}`.
 
-So an unscoped call hands you a mixed task list under a foreign project header. Nothing about
-the response says you asked the wrong question.
+Three `sync` calls through `board-bothy-dequeue.ts` `bothyMcpCall`, one request each:
 
-**This cost a published wrong root cause.** Two Harbor cards — `tsk_79c85630080ca916`
-(`conflict`) and `tsk_a1ec2c4cf3c8bac2` (`waiting`), both `status: blocked` since 2026-08-27 —
-appeared in an unscoped read while `tasks.proofs.set` was refusing with `lane_busy`. They were
-posted to three mailboxes as a two-day cross-project integrate stall. They were not the lock.
-The real cause was ordinary serial contention: three `proofs.set` calls fired back to back
-while one OpenClinXR card was mid-integrate. The Harbor cards still read `conflict` and
-`waiting` today and the lane cleared anyway.
+| call | HTTP | bytes | result |
+|---|---:|---:|---|
+| `sync {projectId: OpenClinXR}` | 200 | 4,560,812 | `scoped:true`, project OpenClinXR, 1,468 tasks all `prj_9b390b99b443a964`, `cacheToken bb-r16055-e3297d40` |
+| same + that `cacheToken` | 200 | 83 | `{unchanged:true, scoped:true, revision:16055}` |
+| `sync {}` (no `projectId`, no token) | 200 | 4,560,812 | `scoped:true`, project OpenClinXR, same payload |
 
-The lesson is not "check the project field once". It is that **a foreign card can look like an
-explanation**, and an unscoped read is what puts it in front of you.
+So with this PAT an unscoped `sync` returns OpenClinXR, matching upstream's "a single-project
+PAT is already scoped". The `{scoped:false, tasks:[]}` reply upstream describes applies only to a
+multi-project PAT and was not observed here. A cacheToken minted by a scoped call also answered
+an unscoped call with the same `unchanged` reply.
 
-## What is and is not scoped
+Retired by this measurement:
 
-| call | scoping |
-|---|---|
-| `sync` | takes `projectId`. **Omitting it silently selects Harbor.** Always pass it. |
-| `tasks.next` | takes `machineName`, NOT `projectId`. Verify `task.projectId` on the result before acting. |
-| `tasks.get` / `tasks.comment` / `mailbox.*` / `tasks.claim` | addressed by `taskId`, so inherently scoped — but a `taskId` copied from an unscoped `sync` may be foreign. |
-| `projects.list` | returns all three. Use it to re-derive the id rather than trusting a remembered one. |
+- 2026-08-29 "`sync` ignores `projectId`": three project ids returned one Harbor payload. That
+  PAT reached all three projects. The current token reaches one, and `sync` reports
+  `scoped:true` with `projectId` echoed.
+- 2026-08-29 "unscoped `sync` silently returns Harbor" (98 OpenClinXR, 17 Harbor, 4 BothyBoard
+  tasks under a Harbor header). Not reproducible with this PAT.
+
+The lesson from those incidents still holds for any multi-project token: a foreign card can
+look like an explanation. Two Harbor cards (`tsk_79c85630080ca916`, `tsk_a1ec2c4cf3c8bac2`) were
+posted to three mailboxes as the cause of a `lane_busy` refusal they did not cause, and a Harbor
+roster was read as ours ("Codex orchestrator not heartbeating"; `agt_d85152e0024f10cd` was).
+If a PAT ever reaches more than one project again, re-run the three calls above before trusting
+any roster, count, or absence derived from `sync`.
 
 ## Checks before acting on any card
 
@@ -85,21 +59,37 @@ explanation**, and an unscoped read is what puts it in front of you.
 
 Harbor and BothyBoard cards belong to other teams. Do not claim, comment on, resolve, or
 "unblock" them, even when they appear to be holding something of ours. Report and let the
-owning team act. Clearing someone else's blocked integrate to unstick our own queue is the
-class of unilateral fix this repo has already paid for.
+owning team act.
 
 ## Verify the binding cheaply
+
+`projects.list` is a few hundred bytes; `sync` without a cacheToken is 4.5 MB.
 
 ```sh
 curl -s -X POST https://bothyboard.com/api/mcp \
   -H "Authorization: Bearer $BOTHY_BOARD_PAT" \
   -H 'Content-Type: application/json' -H 'Accept: application/json, text/event-stream' \
   -d '{"jsonrpc":"2.0","id":1,"method":"tools/call",
-       "params":{"name":"bothy-board.projects.list","arguments":{}}}'
+       "params":{"name":"bothy-board_projects_list","arguments":{}}}'
 ```
 
-The PAT reaches all three projects with `role: owner`, so scoping is entirely the caller's
-responsibility. There is no permission boundary that will stop a cross-project read.
+More than one row means the token is multi-project and every `sync`/`tasks.next` must carry
+`projectId`.
+
+## Create-only fields — get them right at create
+
+Moved here from `SKILL.md` on 2026-11-09; upstream does not carry it.
+
+`done_when`, `writeRoots` and `depIds` are **create-only**, and not merely frozen after Planted.
+Measured 2026-09-10 on a `backlog`/`Idle` card: `tasks.update` with a `doneWhen` array accepted the
+call, returned success, and left `doneWhen: []`. Five cards were created without proofs, could
+never be planted, and had to be cancelled and recreated.
+
+- Pass `done_when`, `writeRoots` and `depIds` in the `tasks.create` call.
+- Read the card back after create and confirm the field is populated. A success response is not
+  evidence the field was written.
+- A card already created without them is corrected by a NEW card that supersedes it, then cancelling
+  the original. Do not try to edit it.
 
 ## Where the id lives, and where it does NOT
 
@@ -117,9 +107,9 @@ So the binding is carried by callers, one call at a time, and this document is t
 place stating it. If the id ever changes, grep the docs above and update this file; there is
 no constant to edit.
 
-**A caller writing a new `sync` has nothing to copy from.** That is the gap that makes the
-Harbor default dangerous, and it is why this section exists rather than a pointer to a
-constant.
+Upstream `SKILL.md` now lists `tasks.next` as `{ projectId, machineName, cacheToken }`. The
+dequeue still omits `projectId`; with the current single-project PAT that is harmless, with a
+multi-project PAT it would get the unscoped reply.
 
 ## Card schema — the three things that are NOT guessable
 
@@ -158,6 +148,7 @@ layout before re-sending. One `sync` answers all three questions at once.
 | call | naive | correct | ratio |
 |---|---:|---:|---:|
 | `sync` | 310,977 B | **248 B** with `cacheToken` | 1254x |
+| `sync` (2026-11-09, scoped) | 4,560,812 B | **83 B** with `cacheToken` | 54950x |
 | `mailbox.poll` | 339,390 B | **308 B** with `since` | 1101x |
 | `tasks.get` | 6,747 B | 6,747 B | already targeted |
 
@@ -169,12 +160,13 @@ revision is embedded in the token, so a change is detectable from the string alo
 card was 111 messages at 339 KB when the useful content was the last one.
 
 **JSON-RPC batching is NOT supported.** An array of three `tasks.get` calls returns
-`-32601 unknown method`, so a per-id loop is the only available shape. Keep the loop; make each call
-targeted.
+`-32601 unknown method` (measured 2026-08-29; upstream `SKILL.md` now names `-32600`), so a per-id
+loop is the only available shape. For mailbox reads, `mailbox.poll` accepts `taskIds` (max 16) with
+`sinceByTaskId`, which replaces the loop.
 
 ### The actual lesson, which is not about bytes
 
-Both parameters were already documented in the vendored `SKILL.md` (`:39` cacheToken, `:69` since),
+Both parameters were already documented in the vendored `SKILL.md` (§ Connect cacheToken, § Worker since),
 and `tools/openclinxr/openclaw/board-bothy-dequeue.ts` already persists `cacheToken` with a test
 pinning it at `the-bothy-dequeue-does-not-fall-back-to-github.test.ts:70`. Three sources carried the
 answer. None fired, because nothing forced a read, and ad-hoc `curl` against the MCP endpoint was
