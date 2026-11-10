@@ -118,8 +118,9 @@ Candidate causes, from reading code and EV:
 ## Goals
 
 - G1. In all four views under the target scene (Cycles for strands, the P1 harness port for cards), the
-  grader ranks the cards closer to the Cycles strand reference than BEST3, every gated metric is within
-  tol, and the grader judges the cards closer to the target than BEST3. The lab default light is
+  grader judges the cards closer to the target than BEST3; appearance metrics (peak, base, black, hue,
+  saturation, band row) are gated against the target images; structural metrics (outline falloff, stray
+  px, streak direction) are within seed tol of the Cycles strand reference (OP6). The lab default light is
   report-only.
 - G2. Under the harness port of the target scene: black share <= target + 2 pp and peak >= 0.8 x target
   (`briefs/sheen-3-dual-light.md:13`). Peak <= 1.25 x target is report-only (no known-good).
@@ -150,6 +151,12 @@ Candidate causes, from reading code and EV:
 - OP5. Answered by search after merging origin/main (d6252f892): the scene script is tracked (glossary,
   target scene). Imagine repainted the hair, so the target's highlight is Imagine's response to that light,
   not a Cycles render of a groom.
+- OP6 (approved 2026-11-10, operator: "Approve both"). The Cycles strand render in the target scene does not
+  reproduce the target hair's appearance: peak luminance is about twice the target and the front black share
+  and band continuity miss it. The highlight in the targets is Imagine's paint. Appearance metrics (peak,
+  base, black, hue, saturation, band row) are gated against the target images; structural metrics (outline
+  falloff, stray pixels, streak direction) are gated against the strand render with seed tolerance. The lane
+  hands over to an optimizer driver after the P3 commit.
 
 ## What worked (measured)
 
@@ -376,6 +383,81 @@ Each phase gate is graded independently at native resolution; each phase ends wi
     30 rows lower and harder than the target's (front hairline row 253 vs 223), which is groom shape, not
     wisps.
 - **P3 Strand reference (T4).**
+  - Decision 2026-11-10: P3 before any shape slice; the OP4 pin stays. The "hairline row 253 vs 223" gap is
+    frame misregistration, not groom shape.
+    - In the front runtime frame (`p1/tgt-rt/target-front.png`, `p2/st1/crops/ts-g2-front.png`, the harness
+      hideHair crop, and the Cycles bald source mapped by `runtime_frame.py to-runtime`) the iris centres sit
+      at row 331 in the target and source and at row 352 in both runtime crops; interocular 120 px vs 101 px.
+      The P1 check "eye row within 2 px of the target eye row" fails by 21 px. The skin-mask fit (IoU .88)
+      is carried by neck and shoulders.
+    - Under the target camera (`cards/strands_in_target_scene.py`, EV/p3/s1) the groom-r9/s1 strand
+      hairline matches the target: `part_width.py` hairline row 142 vs 140 at the centre column; at
+      -90/-60/-30/+30/+60/+90 px 176/159/148/151/159/173 vs 87/164/153/151/162/178 (target -90 hits the
+      fringe of the side hair).
+    - The targets were made on a different body. `mpfb-peds-parent-aisha.glb` (make_sources.py) carries
+      `mpfb_parent_tara_johnson_v1_body`, 15,949 vertices; the groom, cards and runtime use
+      `mpfb-ob-patient-aisha.glb`, `mpfb_ob_patient_aisha_v1_body`, 7,006 vertices. Under one camera the
+      runtime face is wider, with lower eyes (EV/p3/s1 bald-front.png vs p1/src/source-front.png). The hair
+      position against the face cannot match the target on this body; that goes to the operator.
+  - Renderer: `cards/strands_in_target_scene.py`, the make_sources.py scene with the body taken from a
+    runtime GLB (default the shipped `aisha-cards-p2-b.glb`, cards removed) so strand and card renders share
+    body and albedo; `--bald` adds the bare body per view. groom-r9/s1 roots sit 1.000 mm above that body
+    (p5-p95 .99997-1.00006 mm, 0 below), so the p2-b body is the groom's body. 98,187 curves, 3,141,984
+    points; 21 s per view pair on CPU. Eyes render black in Cycles (runtime eye material).
+  - Same-body frame (EV/p3/frames-samebody.json): runtime crops map into the P3 Cycles frame by a head-silhouette
+    fit of the harness hideHair crop to the bald Cycles render (both the p2-b body): head IoU .916 / .895 / .984
+    / .985 (front / three-quarter / side / back). The skin-mask fit of runtime_frame.py fails on this pair (s at
+    the 1.80 scan edge, IoU .69-.87). Front iris check: mapped runtime irises at row 341, Cycles 344/352; columns
+    420/590 vs 432/589.
+  - Slice 1 numbers, all in the target camera frame (`sheen_gate.py score`, EV/p3/score-s1.json; peak / base /
+    black / streak / band row):
+
+    | view | target | strands s1 | cards p2-b |
+    |---|---|---|---|
+    | front | .282 / .125 / .194 / .075 / .117 | .607 / .105 / .324 / .053 / .198 | .518 / .174 / 0 / .048 / .108 |
+    | three-quarter | .328 / .113 / .104 / .106 / .147 | .537 / .096 / .176 / .070 / .143 | .439 / .118 / 0 / .049 / .124 |
+    | side | .253 / .086 / .162 / .259 / .248 | .501 / .100 / .042 / .101 / .186 | .477 / .105 / 0 / .042 / .142 |
+    | back | .313 / .132 / .004 / .123 / .282 | .268 / .121 / .002 / .061 / .316 | .418 / .142 / 0 / .047 / .171 |
+
+    Front hairline (`part_width.py`, EV/p3/part-s1.json): target row 140, strands 142, cards 173; across the
+    forehead (columns 460-560 step 20) strands 154/147/143/147/152/157, cards 179/174/169/172/177/181. The
+    hairline gap is between cards and their own strands (card conversion), about 25 rows; it is the first
+    card-side defect for P4-P5 to close against this reference.
+  - The slice-1 strand column above is scored on the hideHair difference mask, which on Cycles renders also
+    holds shirt and skin pixels the hair shades (34,952 px with L > .35 at rows 685-744 in front). Its strand
+    peak .607 and front black .324 / band continuity .671 are mask contamination; OP6's "about twice" figure
+    came from it. Re-scored on a hair matte (`strands_in_target_scene.py --matte`, `sheen_gate.py score
+    label=prefix::matte`, EV/p3/score-seeds.json), the strands are darker than the target, not brighter.
+  - Seed spread, strands seeds 1-6 (groom-r9/s1 recipe, `--seed-offset 0..5` on the groom's body 483821ad;
+    seed offset 0 reproduces groom-r9/s1 positions with max diff 0), matte mask; min-max over seeds, then target:
+
+    | view | peak | base | black | streak | band row | band cont | target (same order) |
+    |---|---|---|---|---|---|---|---|
+    | front | .145-.180 | .096-.099 | .486-.531 | .050-.058 | .098-.104 | .523-.788 | .282 / .125 / .194 / .075 / .117 / .970 |
+    | three-quarter | .167-.212 | .083-.087 | .282-.330 | .081-.095 | .138-.144 | .807-.856 | .328 / .113 / .104 / .106 / .146 / .946 |
+    | side | .163-.169 | .095-.097 | .050-.060 | .110-.121 | .176-.189 | .896-.950 | .253 / .086 / .162 / .259 / .248 / .938 |
+    | back | .151-.156 | .120-.122 | .003-.004 | .058-.067 | .305-.318 | .648-.772 | .313 / .132 / .004 / .123 / .282 / .964 |
+
+  - Tol (`grade/p3_tol.py`, EV/p3/tol.json): A from seeds 2-5 against seed 1; B (clustering seeds) not
+    measured: `cards_from_strands.py` has no clustering seed (farthest-point init from strand 0), and the
+    `--cluster-seed` + tracked shipped-build port was written but never run; it sits unverified in
+    EV/p3/p0-port-unverified/ (patch, build_shipped.sh), out of the tracked tree. Proof: held-out seed 6 passes
+    19 of 24 cells (.79 >= .70; fails side and three-quarter cells); r10 B cards fail in all 4 views; the shipped
+    p2-b cards pass 1 of 24, the target 2 of 24. Under OP6 these sheen_gate metrics are appearance metrics and
+    gate against the target; the seed tol applies to the structural metrics (outline falloff, stray px, streak
+    direction), which sheen_gate does not compute yet.
+  - Independent grader (EV/p3/grade-p3s1.md, strips EV/p3/strips/strip-<view>.png T|S|C): crown band present
+    in the target in all 4 views, absent from the strands in front and back and weak in three-quarter and
+    side, present in the cards in all 4. Strand-scale streaks resolved in target and strands, absent from the
+    cards in front, three-quarter and side. Card hairline 20-27 px below the strands at the part and at +-60 px.
+    Every gradeG card defect is still present: grey see-through temple blocks (front x90-135 and x435-480,
+    y200-300, L .21 vs .08 in strands), grey fan (three-quarter x0-40 y170-240), stippled sideburn (side
+    x110-190 y250-330), white strand line (side x8-20 y175-205, max L .37), dark notch smudges (back x235-320
+    y175-230); also card edge lines on the front flanks and three-quarter crown, grey stippled eyebrows, a
+    fuzzy light rim on the back crown. Cards are 54-57% brighter than the strands in front, three-quarter and
+    back.
+  - P3 stops here (operator handover to an optimizer driver, OP6). Not done: clustering-seed B, structural
+    metrics, P0 tracked build.
   - Strand references: r10 B strands seeds 1-6 rendered in the target scene (make_sources.py lights,
     world, floor and cameras; groom imported in place of the removed library hair) at target framing; card
     rebuilds at clustering seeds 1-3; tol computed; the non-vacuous proof above.
