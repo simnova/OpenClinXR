@@ -1,0 +1,1393 @@
+{
+  "slice": "C52b-1",
+  "headSha": "eee43284676fb67ab688d1694151c2ab0c03d7b5",
+  "generatedFrom": [
+    "/Volumes/files/src/openclinxr/.openclinxr/slices/xr-sync-colyseus/evidence/c52b-1/head-7",
+    "/Volumes/files/src/openclinxr/.openclinxr/slices/xr-sync-colyseus/evidence/c52b-1/head-8",
+    "/Volumes/files/src/openclinxr/.openclinxr/slices/xr-sync-colyseus/evidence/c52b-1/head-9"
+  ],
+  "runs": [
+    {
+      "headSha": "eee43284676fb67ab688d1694151c2ab0c03d7b5",
+      "plantMs": {
+        "actors": [
+          {
+            "name": "patient",
+            "at": 1794320918100,
+            "label": "1/5: ed_chest_pain_priority_v1",
+            "steps": [
+              {
+                "step": "initial_plant",
+                "ms": 1.700000286102295
+              },
+              {
+                "step": "head_align_xz",
+                "ms": 3.4000000953674316
+              }
+            ],
+            "phases": [
+              {
+                "phase": "arm_flex_pose_rail",
+                "ms": 19.40000009536743
+              },
+              {
+                "phase": "articulated_contact",
+                "ms": 748.8000001907349
+              },
+              {
+                "phase": "arm_flex_mpfb",
+                "ms": 2.0999999046325684
+              },
+              {
+                "phase": "contact_aware_arms",
+                "ms": 181
+              }
+            ],
+            "totalMs": 999.4000000953674
+          }
+        ],
+        "station1Actors": 1,
+        "station1SumMs": 956.4,
+        "source": "userData.openClinXrPlantSteps[].ms + openClinXrPlantPhases[].ms"
+      },
+      "plantProfile": {
+        "functionName": "applyAndPlantSupineDeck",
+        "stationInclusiveMs": [
+          975.426
+        ],
+        "maxStationInclusiveMs": 975.426,
+        "wholeRunInclusiveMs": 975.426
+      },
+      "runId": "head-7",
+      "mode": "control",
+      "traced": true,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpu": true,
+      "loadAvg": {
+        "start": 4.49853515625,
+        "end": 4.05810546875
+      },
+      "clock": {
+        "timeOrigin": 1794320915787.5,
+        "nowMs": 276.7000002861023,
+        "dateNow": 1794320916064
+      },
+      "trace": {
+        "path": "/Volumes/files/openclinxr-assets/store/xr-sync/c52b-1/head-7/trace.json",
+        "sha256": "e339aba1461a2ff6f8196c36e9d8880d542c76be3e922bfdb1017336132ae9e9",
+        "bytes": 107519099
+      },
+      "driverT0": 1794320916017,
+      "gaps": [
+        {
+          "startMs": 554,
+          "endMs": 2083,
+          "durationMs": 1529
+        }
+      ],
+      "largestGap": {
+        "startMs": 554,
+        "endMs": 2083,
+        "durationMs": 1529,
+        "topTasks": [
+          {
+            "traceEventName": "BlinkScheduler_PerformMicrotaskCheckpoint",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1011.766,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"BlinkScheduler_PerformMicrotaskCheckpoint\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js",
+            "functionName": "i",
+            "selfMs": 203.974,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js\" function=\"i\" => script_eval"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForToken",
+            "url": "",
+            "functionName": "",
+            "selfMs": 136.864,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForToken\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForGetOffset",
+            "url": "",
+            "functionName": "",
+            "selfMs": 88.189,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForGetOffset\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "Ce",
+            "selfMs": 67.99,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" function=\"Ce\" => script_eval"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL",
+            "url": "",
+            "functionName": "",
+            "selfMs": 2.361,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_ROOTS",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1.83,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_ROOTS\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1.474,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1.26,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE\" => gc"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "",
+            "selfMs": 0.759,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" => script_eval"
+          }
+        ],
+        "cpuProfileTop": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "",
+            "functionName": "texSubImage2D",
+            "selfMs": 164.133,
+            "source": "cpu_profile",
+            "cause": "texture_upload",
+            "evidence": "traceEventName=\"cpu_profile\" function=\"texSubImage2D\" => texture_upload"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js",
+            "functionName": "multiplyMatrices",
+            "lineNumber": 0,
+            "columnNumber": 45846,
+            "selfMs": 115.396,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js\" function=\"multiplyMatrices\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js",
+            "functionName": "fromArray",
+            "lineNumber": 0,
+            "columnNumber": 50985,
+            "selfMs": 96.41,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js\" function=\"fromArray\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "",
+            "functionName": "getProgramInfoLog",
+            "selfMs": 86.018,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" function=\"getProgramInfoLog\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "Ny",
+            "lineNumber": 3,
+            "columnNumber": 152228,
+            "selfMs": 84.359,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" function=\"Ny\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "",
+            "lineNumber": 3,
+            "columnNumber": 156198,
+            "selfMs": 64.612,
+            "source": "cpu_profile",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyBoneTransform",
+            "lineNumber": 0,
+            "columnNumber": 130356,
+            "selfMs": 59.236,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js\" function=\"applyBoneTransform\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyMatrix4",
+            "lineNumber": 0,
+            "columnNumber": 16862,
+            "selfMs": 58.206,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js\" function=\"applyMatrix4\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "vy",
+            "lineNumber": 3,
+            "columnNumber": 146590,
+            "selfMs": 52.458,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" function=\"vy\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "ky",
+            "lineNumber": 3,
+            "columnNumber": 147444,
+            "selfMs": 40.373,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" function=\"ky\" => script_eval"
+          }
+        ],
+        "cpuProfileInclusive": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 79757,
+            "inclusiveMs": 991.457,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 57397,
+            "inclusiveMs": 991.109,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "",
+            "lineNumber": 180,
+            "columnNumber": 156599,
+            "inclusiveMs": 990.968,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "kR",
+            "lineNumber": 180,
+            "columnNumber": 124827,
+            "inclusiveMs": 981.759,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" function=\"kR\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "applyAndPlantSupineDeck",
+            "lineNumber": 274,
+            "columnNumber": 21155,
+            "inclusiveMs": 975.426,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" function=\"applyAndPlantSupineDeck\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "lS",
+            "lineNumber": 3,
+            "columnNumber": 209027,
+            "inclusiveMs": 975.137,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" function=\"lS\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "inclusiveMs": 951.217,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "Gy",
+            "lineNumber": 3,
+            "columnNumber": 155848,
+            "inclusiveMs": 746.21,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" function=\"Gy\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "ax",
+            "lineNumber": 3,
+            "columnNumber": 179102,
+            "inclusiveMs": 732.825,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" function=\"ax\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60216/assets/main-DXsvvsrE.js",
+            "functionName": "Wy",
+            "lineNumber": 3,
+            "columnNumber": 155813,
+            "inclusiveMs": 720.792,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60216/assets/main-DXsvvsrE.js\" function=\"Wy\" => other"
+          }
+        ],
+        "mainThread": {
+          "pid": 29954,
+          "tid": 215504523
+        }
+      },
+      "voidRun": false,
+      "lags": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "t0": 1794320916017
+    },
+    {
+      "headSha": "eee43284676fb67ab688d1694151c2ab0c03d7b5",
+      "plantMs": {
+        "actors": [
+          {
+            "name": "patient",
+            "at": 1794320957868,
+            "label": "1/5: ed_chest_pain_priority_v1",
+            "steps": [
+              {
+                "step": "initial_plant",
+                "ms": 2.799999713897705
+              },
+              {
+                "step": "head_align_xz",
+                "ms": 3.5999999046325684
+              }
+            ],
+            "phases": [
+              {
+                "phase": "arm_flex_pose_rail",
+                "ms": 20.59999990463257
+              },
+              {
+                "phase": "articulated_contact",
+                "ms": 750.2000002861023
+              },
+              {
+                "phase": "arm_flex_mpfb",
+                "ms": 2
+              },
+              {
+                "phase": "contact_aware_arms",
+                "ms": 182.19999980926514
+              }
+            ],
+            "totalMs": 1004.2999997138977
+          }
+        ],
+        "station1Actors": 1,
+        "station1SumMs": 961.4,
+        "source": "userData.openClinXrPlantSteps[].ms + openClinXrPlantPhases[].ms"
+      },
+      "plantProfile": {
+        "functionName": "applyAndPlantSupineDeck",
+        "stationInclusiveMs": [
+          979.532
+        ],
+        "maxStationInclusiveMs": 979.532,
+        "wholeRunInclusiveMs": 979.532
+      },
+      "runId": "head-8",
+      "mode": "control",
+      "traced": true,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpu": true,
+      "loadAvg": {
+        "start": 3.8212890625,
+        "end": 3.3349609375
+      },
+      "clock": {
+        "timeOrigin": 1794320955767.5,
+        "nowMs": 235.09999990463257,
+        "dateNow": 1794320956002
+      },
+      "trace": {
+        "path": "/Volumes/files/openclinxr-assets/store/xr-sync/c52b-1/head-8/trace.json",
+        "sha256": "57c2c1690648e6a55e99b7dddb3ee3c4204a2f2ebc506b15b315b02a7d571c65",
+        "bytes": 119799716
+      },
+      "driverT0": 1794320955960,
+      "gaps": [
+        {
+          "startMs": 524,
+          "endMs": 1750,
+          "durationMs": 1226
+        }
+      ],
+      "largestGap": {
+        "startMs": 524,
+        "endMs": 1750,
+        "durationMs": 1226,
+        "topTasks": [
+          {
+            "traceEventName": "BlinkScheduler_PerformMicrotaskCheckpoint",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1015.855,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"BlinkScheduler_PerformMicrotaskCheckpoint\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js",
+            "functionName": "i",
+            "selfMs": 91.459,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js\" function=\"i\" => script_eval"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForGetOffset",
+            "url": "",
+            "functionName": "",
+            "selfMs": 59.893,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForGetOffset\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForToken",
+            "url": "",
+            "functionName": "",
+            "selfMs": 30.785,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForToken\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "ThreadControllerImpl::RunTask",
+            "url": "",
+            "functionName": "",
+            "selfMs": 6.234,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"ThreadControllerImpl::RunTask\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "Layout",
+            "url": "",
+            "functionName": "",
+            "selfMs": 2.245,
+            "cause": "layout_style",
+            "evidence": "traceEventName=\"Layout\" => layout_style"
+          },
+          {
+            "traceEventName": "Paint",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1.767,
+            "cause": "layout_style",
+            "evidence": "traceEventName=\"Paint\" => layout_style"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1.737,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1.434,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL\" => gc"
+          },
+          {
+            "traceEventName": "PrePaint",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1.343,
+            "cause": "layout_style",
+            "evidence": "traceEventName=\"PrePaint\" => layout_style"
+          }
+        ],
+        "cpuProfileTop": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js",
+            "functionName": "fromArray",
+            "lineNumber": 0,
+            "columnNumber": 50985,
+            "selfMs": 101.187,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js\" function=\"fromArray\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js",
+            "functionName": "multiplyMatrices",
+            "lineNumber": 0,
+            "columnNumber": 45846,
+            "selfMs": 96.324,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js\" function=\"multiplyMatrices\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "Ny",
+            "lineNumber": 3,
+            "columnNumber": 152228,
+            "selfMs": 76.59,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" function=\"Ny\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "",
+            "lineNumber": 3,
+            "columnNumber": 156198,
+            "selfMs": 58.994,
+            "source": "cpu_profile",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "vy",
+            "lineNumber": 3,
+            "columnNumber": 146590,
+            "selfMs": 58.841,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" function=\"vy\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyMatrix4",
+            "lineNumber": 0,
+            "columnNumber": 16862,
+            "selfMs": 58.74,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js\" function=\"applyMatrix4\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "",
+            "functionName": "getProgramInfoLog",
+            "selfMs": 58.238,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" function=\"getProgramInfoLog\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "ky",
+            "lineNumber": 3,
+            "columnNumber": 147444,
+            "selfMs": 43.402,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" function=\"ky\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "Py",
+            "lineNumber": 3,
+            "columnNumber": 152425,
+            "selfMs": 39.526,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" function=\"Py\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "",
+            "functionName": "texSubImage2D",
+            "selfMs": 38.079,
+            "source": "cpu_profile",
+            "cause": "texture_upload",
+            "evidence": "traceEventName=\"cpu_profile\" function=\"texSubImage2D\" => texture_upload"
+          }
+        ],
+        "cpuProfileInclusive": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 79757,
+            "inclusiveMs": 991.032,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 57397,
+            "inclusiveMs": 990.726,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "",
+            "lineNumber": 180,
+            "columnNumber": 156599,
+            "inclusiveMs": 990.071,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "kR",
+            "lineNumber": 180,
+            "columnNumber": 124827,
+            "inclusiveMs": 983.681,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" function=\"kR\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "applyAndPlantSupineDeck",
+            "lineNumber": 274,
+            "columnNumber": 21155,
+            "inclusiveMs": 979.532,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" function=\"applyAndPlantSupineDeck\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "lS",
+            "lineNumber": 3,
+            "columnNumber": 209027,
+            "inclusiveMs": 979.386,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" function=\"lS\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "inclusiveMs": 880.92,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "Gy",
+            "lineNumber": 3,
+            "columnNumber": 155848,
+            "inclusiveMs": 746.042,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" function=\"Gy\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "ax",
+            "lineNumber": 3,
+            "columnNumber": 179102,
+            "inclusiveMs": 732.633,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" function=\"ax\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60245/assets/main-DXsvvsrE.js",
+            "functionName": "Wy",
+            "lineNumber": 3,
+            "columnNumber": 155813,
+            "inclusiveMs": 719.74,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60245/assets/main-DXsvvsrE.js\" function=\"Wy\" => other"
+          }
+        ],
+        "mainThread": {
+          "pid": 30185,
+          "tid": 215506266
+        }
+      },
+      "voidRun": false,
+      "lags": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "t0": 1794320955960
+    },
+    {
+      "headSha": "eee43284676fb67ab688d1694151c2ab0c03d7b5",
+      "plantMs": {
+        "actors": [
+          {
+            "name": "patient",
+            "at": 1794320998432,
+            "label": "1/5: ed_chest_pain_priority_v1",
+            "steps": [
+              {
+                "step": "initial_plant",
+                "ms": 2.9000000953674316
+              },
+              {
+                "step": "head_align_xz",
+                "ms": 3.4000000953674316
+              }
+            ],
+            "phases": [
+              {
+                "phase": "arm_flex_pose_rail",
+                "ms": 20.299999713897705
+              },
+              {
+                "phase": "articulated_contact",
+                "ms": 742.5
+              },
+              {
+                "phase": "arm_flex_mpfb",
+                "ms": 2.1000003814697266
+              },
+              {
+                "phase": "contact_aware_arms",
+                "ms": 189.7999997138977
+              }
+            ],
+            "totalMs": 1003
+          }
+        ],
+        "station1Actors": 1,
+        "station1SumMs": 961,
+        "source": "userData.openClinXrPlantSteps[].ms + openClinXrPlantPhases[].ms"
+      },
+      "plantProfile": {
+        "functionName": "applyAndPlantSupineDeck",
+        "stationInclusiveMs": [
+          980.894
+        ],
+        "maxStationInclusiveMs": 980.894,
+        "wholeRunInclusiveMs": 980.894
+      },
+      "runId": "head-9",
+      "mode": "control",
+      "traced": true,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpu": true,
+      "loadAvg": {
+        "start": 3.80517578125,
+        "end": 3.8408203125
+      },
+      "clock": {
+        "timeOrigin": 1794320996225.4,
+        "nowMs": 305.6000003814697,
+        "dateNow": 1794320996530
+      },
+      "trace": {
+        "path": "/Volumes/files/openclinxr-assets/store/xr-sync/c52b-1/head-9/trace.json",
+        "sha256": "273bb75db269290dec5f683a7979211a8f462302d78b23fc406440d61e453b54",
+        "bytes": 111692391
+      },
+      "driverT0": 1794320996516,
+      "gaps": [
+        {
+          "startMs": 421,
+          "endMs": 1915,
+          "durationMs": 1494
+        }
+      ],
+      "largestGap": {
+        "startMs": 421,
+        "endMs": 1915,
+        "durationMs": 1494,
+        "topTasks": [
+          {
+            "traceEventName": "BlinkScheduler_PerformMicrotaskCheckpoint",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1016.985,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"BlinkScheduler_PerformMicrotaskCheckpoint\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "Ce",
+            "selfMs": 164.784,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" function=\"Ce\" => script_eval"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForToken",
+            "url": "",
+            "functionName": "",
+            "selfMs": 125.896,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForToken\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForGetOffset",
+            "url": "",
+            "functionName": "",
+            "selfMs": 87.947,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForGetOffset\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js",
+            "functionName": "i",
+            "selfMs": 71.606,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js\" function=\"i\" => script_eval"
+          },
+          {
+            "traceEventName": "ThreadControllerImpl::RunTask",
+            "url": "",
+            "functionName": "",
+            "selfMs": 3.179,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"ThreadControllerImpl::RunTask\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL",
+            "url": "",
+            "functionName": "",
+            "selfMs": 2.418,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL\" => gc"
+          },
+          {
+            "traceEventName": "Layout",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1.434,
+            "cause": "layout_style",
+            "evidence": "traceEventName=\"Layout\" => layout_style"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1.415,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 1.296,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE\" => gc"
+          }
+        ],
+        "cpuProfileTop": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "",
+            "functionName": "texSubImage2D",
+            "selfMs": 149.798,
+            "source": "cpu_profile",
+            "cause": "texture_upload",
+            "evidence": "traceEventName=\"cpu_profile\" function=\"texSubImage2D\" => texture_upload"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js",
+            "functionName": "multiplyMatrices",
+            "lineNumber": 0,
+            "columnNumber": 45846,
+            "selfMs": 111.954,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js\" function=\"multiplyMatrices\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js",
+            "functionName": "fromArray",
+            "lineNumber": 0,
+            "columnNumber": 50985,
+            "selfMs": 99.112,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js\" function=\"fromArray\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "",
+            "functionName": "getProgramInfoLog",
+            "selfMs": 85.123,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" function=\"getProgramInfoLog\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "Ny",
+            "lineNumber": 3,
+            "columnNumber": 152228,
+            "selfMs": 79.231,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" function=\"Ny\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "",
+            "lineNumber": 3,
+            "columnNumber": 156198,
+            "selfMs": 60.836,
+            "source": "cpu_profile",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyMatrix4",
+            "lineNumber": 0,
+            "columnNumber": 16862,
+            "selfMs": 59.909,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js\" function=\"applyMatrix4\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "vy",
+            "lineNumber": 3,
+            "columnNumber": 146590,
+            "selfMs": 51.817,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" function=\"vy\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyBoneTransform",
+            "lineNumber": 0,
+            "columnNumber": 130356,
+            "selfMs": 45.341,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js\" function=\"applyBoneTransform\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "ky",
+            "lineNumber": 3,
+            "columnNumber": 147444,
+            "selfMs": 40.871,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" function=\"ky\" => script_eval"
+          }
+        ],
+        "cpuProfileInclusive": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 79757,
+            "inclusiveMs": 995.149,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 57397,
+            "inclusiveMs": 994.998,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "",
+            "lineNumber": 180,
+            "columnNumber": 156599,
+            "inclusiveMs": 994.704,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "kR",
+            "lineNumber": 180,
+            "columnNumber": 124827,
+            "inclusiveMs": 985.94,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" function=\"kR\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "applyAndPlantSupineDeck",
+            "lineNumber": 274,
+            "columnNumber": 21155,
+            "inclusiveMs": 980.894,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" function=\"applyAndPlantSupineDeck\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "lS",
+            "lineNumber": 3,
+            "columnNumber": 209027,
+            "inclusiveMs": 980.741,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" function=\"lS\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "inclusiveMs": 918.845,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "Gy",
+            "lineNumber": 3,
+            "columnNumber": 155848,
+            "inclusiveMs": 740.652,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" function=\"Gy\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "ax",
+            "lineNumber": 3,
+            "columnNumber": 179102,
+            "inclusiveMs": 728.091,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" function=\"ax\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:60282/assets/main-DXsvvsrE.js",
+            "functionName": "Wy",
+            "lineNumber": 3,
+            "columnNumber": 155813,
+            "inclusiveMs": 715.417,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:60282/assets/main-DXsvvsrE.js\" function=\"Wy\" => other"
+          }
+        ],
+        "mainThread": {
+          "pid": 30447,
+          "tid": 215508313
+        }
+      },
+      "voidRun": false,
+      "lags": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "t0": 1794320996516
+    }
+  ],
+  "tracingOverhead": {
+    "untracedMs": [
+      8973,
+      7366,
+      7030
+    ],
+    "tracedMs": []
+  },
+  "verdict": null,
+  "daemonCpu": [
+    {
+      "run": 7,
+      "at": "start",
+      "load1": 4.5,
+      "daemons": [
+        {
+          "comm": "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/corespotlightd",
+          "pcpu": 57.2
+        },
+        {
+          "comm": "/System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer",
+          "pcpu": 53.1
+        },
+        {
+          "comm": "/System/Library/CoreServices/NotificationCenter.app/Contents/MacOS/NotificationCenter",
+          "pcpu": 35.7
+        },
+        {
+          "comm": "/usr/libexec/spotlightknowledged.updater",
+          "pcpu": 9.4
+        }
+      ],
+      "nonAppleOver50": [
+        {
+          "comm": "/Applications/Microsoft Teams.app/Contents/Helpers/Microsoft Teams WebView.app/Contents/Frameworks/Microsoft Edge Framework.framework/Versions/155.0.4283.60/Helpers/Microsoft Teams WebView Helper (Renderer).app/Contents/MacOS/Microsoft Teams WebView Helper (Renderer)",
+          "pcpu": 287.8
+        }
+      ]
+    },
+    {
+      "run": 7,
+      "at": "end",
+      "load1": 3.82,
+      "daemons": [
+        {
+          "comm": "/System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer",
+          "pcpu": 29.6
+        },
+        {
+          "comm": "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores",
+          "pcpu": 22.9
+        },
+        {
+          "comm": "/System/Library/CoreServices/MenuBarAgent.app/Contents/MacOS/MenuBarAgent",
+          "pcpu": 7.4
+        },
+        {
+          "comm": "/System/Library/CoreServices/loginwindow.app/Contents/MacOS/loginwindow",
+          "pcpu": 6.5
+        },
+        {
+          "comm": "/usr/libexec/sysmond",
+          "pcpu": 6.2
+        }
+      ],
+      "nonAppleOver50": []
+    },
+    {
+      "run": 8,
+      "at": "start",
+      "load1": 3.82,
+      "daemons": [
+        {
+          "comm": "/System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer",
+          "pcpu": 26.4
+        },
+        {
+          "comm": "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores",
+          "pcpu": 14.3
+        }
+      ],
+      "nonAppleOver50": []
+    },
+    {
+      "run": 8,
+      "at": "end",
+      "load1": 3.81,
+      "daemons": [
+        {
+          "comm": "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores",
+          "pcpu": 66.7
+        },
+        {
+          "comm": "/System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer",
+          "pcpu": 25
+        },
+        {
+          "comm": "/usr/libexec/sysmond",
+          "pcpu": 24
+        },
+        {
+          "comm": "/System/Applications/Utilities/Activity Monitor.app/Contents/MacOS/Activity Monitor",
+          "pcpu": 6
+        },
+        {
+          "comm": "/System/Library/CoreServices/loginwindow.app/Contents/MacOS/loginwindow",
+          "pcpu": 5
+        }
+      ],
+      "nonAppleOver50": []
+    },
+    {
+      "run": 9,
+      "at": "start",
+      "load1": 3.81,
+      "daemons": [
+        {
+          "comm": "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores",
+          "pcpu": 61
+        },
+        {
+          "comm": "/System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer",
+          "pcpu": 29.4
+        },
+        {
+          "comm": "/System/Applications/Utilities/Activity Monitor.app/Contents/MacOS/Activity Monitor",
+          "pcpu": 15.9
+        },
+        {
+          "comm": "/usr/libexec/sysmond",
+          "pcpu": 15.2
+        }
+      ],
+      "nonAppleOver50": []
+    },
+    {
+      "run": 9,
+      "at": "end",
+      "load1": 4.33,
+      "daemons": [
+        {
+          "comm": "/System/Library/Frameworks/CoreServices.framework/Versions/A/Frameworks/Metadata.framework/Versions/A/Support/mds_stores",
+          "pcpu": 62.1
+        },
+        {
+          "comm": "/System/Library/PrivateFrameworks/SkyLight.framework/Resources/WindowServer",
+          "pcpu": 44.4
+        },
+        {
+          "comm": "/usr/libexec/spotlightknowledged.updater",
+          "pcpu": 12.4
+        },
+        {
+          "comm": "/System/Library/CoreServices/NotificationCenter.app/Contents/MacOS/NotificationCenter",
+          "pcpu": 12.1
+        },
+        {
+          "comm": "/System/Library/CoreServices/MenuBarAgent.app/Contents/MacOS/MenuBarAgent",
+          "pcpu": 8.1
+        },
+        {
+          "comm": "/usr/libexec/sysmond",
+          "pcpu": 6.5
+        },
+        {
+          "comm": "/System/Library/CoreServices/launchservicesd",
+          "pcpu": 5.8
+        }
+      ],
+      "nonAppleOver50": []
+    }
+  ],
+  "loadSpread": {
+    "start1min": [
+      4.5,
+      3.82,
+      3.81
+    ],
+    "end1min": [
+      3.82,
+      3.81,
+      4.33
+    ],
+    "startMin": 3.81,
+    "startMax": 4.5,
+    "endOverStartMax": 1.136482939632546
+  },
+  "startRule": "super-ceo-cap10 2026-11-10 v3: both xr-sync and teeth lanes idle; window owner held /private/tmp/openclinxr-push.lock 09:28:33-09:30:35; CONTAMINATED if a compute process (node,tsx,vitest,turbo,pnpm,python,blender,grok,opencode,codex,git) outside the inbox-watcher chain is >=50% CPU at start or end, or end 1-min load > 2x start; Apple daemons and GUI apps recorded, not gating",
+  "excludedRuns": {
+    "head-1": "vitest 148% at start (machine-inbox pre-push); end/start load 2.11",
+    "head-2": "mise node workers 80-141% at start (same pre-push)",
+    "head-3": "unattributed pnpm 79.5% at end",
+    "head-4": "clean by v3 but taken beside the pre-push at load 15.8-17.8; not mixed with the locked window",
+    "head-5": "pnpm run gen 65.6% at start",
+    "head-6": "pnpm 62.2% at start; pnpm run build 77% at end"
+  },
+  "contaminatedStore": "/Volumes/files/openclinxr-assets/store/xr-sync/c52b-1/head-1..6 are not cited"
+}
