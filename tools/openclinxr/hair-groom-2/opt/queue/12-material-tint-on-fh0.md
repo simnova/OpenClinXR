@@ -83,3 +83,11 @@ Eligible trials with an improved view: none. Minimal falsifier met: STOP, no pic
 - C2 (desaturation) fails in 9 of 16 LHS trials; C1 in none of them (C1 tripped only by p1).
 - Not tested: a second round (DE from the round-1 population), single-knob sensitivity, K between .40 and .65 (the darkening
   direction that improved front/side in p1 while failing C1 in 3q/side/back).
+
+## Round 2 (CEO 2026-11-10 after round 1; rule cfd9a16a0 unchanged; recorded before any round-2 build)
+round 2 = K-only sensitivity per CEO 2026-11-10; if 0 eligible improving, the fh0 optimizer lane parks.
+- Trials: r2t00 control (all chain values; GLB sha must be 5a62cfdd) and r2k45, r2k50, r2k55, r2k60 = K .45, .50, .55, .60,
+  every other knob at its chain value. Record card12/round2.json; driver card12_sweep.py ROUND=2; judge judge.py ROUND=2.
+- Same clauses K1, K2, K3, C1, C2, C3, objective hard feasibility, same improve thresholds, same pick rule; r2t00 judged against
+  every clause (a failing control = clause miscalibrated, stop).
+- Pick -> native front + three_quarter_left contact sheet vs fh0 for CEO grading. No pick -> PARKED note here, commit, push, idle.
