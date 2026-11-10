@@ -1,0 +1,6 @@
+{
+  "frame": "world",
+  "environmentEquirect": { "url": "/generated-humanoids/_hair-transplant-probe/env/target-scene-512.f16", "width": 512, "height": 256, "background": true },
+  "toneMapping": "AgX",
+  "exposure": 1
+}
