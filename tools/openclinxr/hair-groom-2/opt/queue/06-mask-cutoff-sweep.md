@@ -51,3 +51,11 @@ Probe: cutoffs .3 and .15, same harness, same v2 scoring, control = cut-85 above
 - NOT THE CAUSE: row > 248 at .15. Then texture alpha is out as the hairline cause; skip (a); report the next suspect.
 - Counterweight: at .15 most texels pass and cards render close to solid quads, so a row gain can come from quad edges rather
   than strand roots. Reported beside the row: front D_v and changed px in the hairline window (rows 230-270, cols 450-570).
+
+### Amendment 1 result
+| cutoff | front | 3q | side | back | sum D | front hairlineRow | falloff | changed px vs .85, front / hairline window | ship_a4 v2 |
+|---|---|---|---|---|---|---|---|---|---|
+| .30 | 27.77 | 17.91 | 20.21 | 7.16 | 73.05 | 253 | 3.0 | 11965 / 1275 | S3 S4 |
+| .15 | 27.36 | 17.97 | 19.88 | 6.71 | 71.93 | 252 | 2.0 | 13708 / 1532 | S3 S4 |
+Row 252 > 248 at .15: by the rule texture alpha is not the hairline cause; card 07 (a) root stagger is skipped. At .15 the
+front root texels (mean alpha .21-.25 over 0-5 mm, queue/05) all render, and the row moves 1 px.
