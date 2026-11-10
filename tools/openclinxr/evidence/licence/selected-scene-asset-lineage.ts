@@ -365,6 +365,26 @@ export const SUBCOMPONENT_CLEARANCE: readonly SubcomponentClearance[] = [
     publicRenderCleared: true,
   },
   {
+    // The teeth swap (tsk_27e0cec12cab410d) ships the MPFB-fitted system-asset teeth and tongue
+    // (materialize_mpfb_humanoid_candidate.py, add_mhclo_asset on teeth_base / tongue01).
+    meshMatch: "openclinxr_fitted_teeth",
+    component: "MakeHuman system-asset teeth (teeth_base), MPFB-fitted",
+    licenceRecordPath: "docs/openclinxr/asset-licence-records/row-38-makehuman-system-asset-teeth-tongue.json",
+    requiredRecordPhrases: ["CC0 1.0"],
+    rights: "cc0",
+    redistributable: true,
+    publicRenderCleared: true,
+  },
+  {
+    meshMatch: "openclinxr_fitted_tongue",
+    component: "MakeHuman system-asset tongue, MPFB-fitted",
+    licenceRecordPath: "docs/openclinxr/asset-licence-records/row-38-makehuman-system-asset-teeth-tongue.json",
+    requiredRecordPhrases: ["CC0 1.0"],
+    rights: "cc0",
+    redistributable: true,
+    publicRenderCleared: true,
+  },
+  {
     meshMatch: "openclinxr_declared_upper_layers_",
     component: "first-party procedural gown shell",
     licenceRecordPath: "first-party",

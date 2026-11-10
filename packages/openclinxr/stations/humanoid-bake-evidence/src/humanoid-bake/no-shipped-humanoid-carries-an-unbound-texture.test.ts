@@ -98,7 +98,10 @@ const PINNED = {
   // boundBytes 4765237 -> 13642796);
   // lash-follow r8 2026-11-09 (tsk_381fda384bdda8dc): repack adds upper-lash closure morph targets (accessors only);
   // fileBytes 19149460 -> 19549552 (+400092 B); images, boundBytes, meshes, materials, tris, joints, animations verbatim.
-  "mpfb-ob-patient-aisha.glb":  { fileBytes: 19549552, textures: 7, boundTextures: 7, boundBytes: 13695156, meshes: 10, materials: 17, tris: 73392, joints: 137, animations: 3 },
+  // Teeth swap tsk_27e0cec12cab410d (fitted CC0 teeth/tongue replace hm08, byte-preserving retreat):
+  // fileBytes 19549552 -> 22269564; textures/boundTextures 7 -> 9 and boundBytes 13695156 -> 16120505
+  // (+2425349 B = teeth.png 1799930 + tongue01_diffuse.png 625419); materials 17 -> 19; tris 73392 -> 80320.
+  "mpfb-ob-patient-aisha.glb":  { fileBytes: 22269564, textures: 9, boundTextures: 9, boundBytes: 16120505, meshes: 10, materials: 19, tris: 80320, joints: 137, animations: 3 },
   // ci-w11 re-pin 2026-10-30, measured pre-prune (post-afe8abced full-res hair + D2 grade).
   // Old #598: fileBytes 11456228, textures 5, boundTextures 5, boundBytes 4598965, tris 74732.
   // st-palette 2026-11-04: 3969ae031 re-encoded the toigo t-shirt texture (sRGB palette renorm,
@@ -194,7 +197,7 @@ describe("no shipped humanoid carries an unbound texture", () => {
     // #553's strip moved the file +4 bytes while claiming a 7.77 MB drop. Size is the honest witness.
     for (const [file, pin] of Object.entries(PINNED)) {
       const now = statSync(`${DIR}/${file}`).size;
-      if (now === pin.fileBytes) return; // pre-fix state; clause (1) owns that failure
+      if (now === pin.fileBytes) continue; // pre-fix state for THIS file; clause (1) owns that failure
       expect(pin.fileBytes - now, `${file}: expected the prune to free >= ${MIN_BYTES_FREED} B`)
         .toBeGreaterThanOrEqual(MIN_BYTES_FREED);
     }

@@ -147,8 +147,10 @@ describe("the open mouth reveals its interior", () => {
     const { NodeIO } = await import("@gltf-transform/core");
     const doc = await new NodeIO().read(GLB);
     const names = doc.getRoot().listMeshes().map((m) => m.getName());
-    expect(names.some((n) => /hm08_teeth/.test(n)), `teeth mesh must remain; got ${names.join(", ")}`).toBe(true);
-    expect(names.some((n) => /hm08_tongue/.test(n)), "tongue mesh must remain").toBe(true);
+    // tsk_27e0cec12cab410d swapped hm08 for the fitted CC0 teeth/tongue: fitted only, hm08 absent.
+    expect(names.some((n) => /fitted_teeth/.test(n)), `fitted teeth mesh must remain; got ${names.join(", ")}`).toBe(true);
+    expect(names.some((n) => /fitted_tongue/.test(n)), "fitted tongue mesh must remain").toBe(true);
+    expect(names.some((n) => /hm08_teeth|hm08_tongue/.test(n)), "no hm08 teeth/tongue may ship after the swap").toBe(false);
     // 15 viseme targets is the post-e9ef9e3f world; losing them would make clause (1) unreachable.
     const targets = doc.getRoot().listMeshes()
       .flatMap((m) => (m.getExtras()?.["targetNames"] as string[] | undefined) ?? []);

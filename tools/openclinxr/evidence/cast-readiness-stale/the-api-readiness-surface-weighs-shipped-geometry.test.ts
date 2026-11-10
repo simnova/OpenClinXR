@@ -110,24 +110,38 @@ describe("the API readiness surface weighs shipped geometry (#705)", () => {
    * measured geometry: the total is 172,054, not the 108,000 declarations-only sum, and a
    * typed blocker — not silence — keeps devReady false. A future rebake that pushes the
    * measured total back over 180,000 must restore `station_triangle_budget_exceeded`.
+   *
+   * RE-RECORDED 2026-11-10 (teeth swap tsk_27e0cec12cab410d, cap9 ruling ASK-1b): that rebake
+   * happened. Fitted CC0 teeth/tongue add +6946..6956 tris per coupled actor; the producer
+   * (`tools/openclinxr/measure-station-geometry.ts`) now measures robert 46,078 + nurse 45,904 +
+   * anna 45,404 = 137,386, + 54,000 declared remainder = 191,386 — OVER the 180,000 ceiling
+   * (unchanged), so `station_triangle_budget_exceeded` is PRESENT again. The old 172,054 was already
+   * stale on origin/main (main artifact sums to 116,538 + 54,000 = 170,538; the comment's anna
+   * 39,974 vs artifact 38,458), hidden behind a stale asset-registry dist that returned the 108,000
+   * declarations-only sum. Independent sum (no API call): station-teeth
+   * .openclinxr/openclaw/ceo/st-teeth/post2/ask1/ed-station-sum.ts -> 170538 main / 191386 new.
+   * The exact literal is self-retiring: size-stage card tsk_3ca6855b25d50331 brings ED back under
+   * 180,000, this clause then reds, and it must be flipped back to budget_exceeded ABSENT with the
+   * new measured literal. Do not widen the literal or touch the ceiling to make it pass.
    */
   it("(1) the ED station is not devReady, and names an honest measured-geometry reason", () => {
     const row = edRow();
     expect(
       row.stationBudget.totalTriangles,
-      "ED must weigh the measured artifact (118,054 over three shipped GLBs + 54,000 declared "
-        + "remainder = 172,054), not the 108,000 declarations-only sum",
-    ).toBe(172_054);
+      "ED must weigh the measured artifact (137,386 over three shipped GLBs + 54,000 declared "
+        + "remainder = 191,386, teeth swap tsk_27e0cec12cab410d), not the 108,000 declarations-only sum",
+    ).toBe(191_386);
     expect(
       row.stationBudget.blockers,
-      "ED's measured total is under budget but env/equipment counts are still declared, so the "
-        + "fail-closed measurements_incomplete blocker must name that",
+      "env/equipment counts are still declared, so the fail-closed measurements_incomplete blocker "
+        + "must name that",
     ).toContain("station_triangle_measurements_incomplete");
     expect(
       row.stationBudget.blockers,
-      "172,054 measured is under the 180,000 ceiling — budget_exceeded must be absent, and its "
-        + "return on a future over-budget rebake is what keeps this clause honest",
-    ).not.toContain("station_triangle_budget_exceeded");
+      "191,386 measured (teeth swap tsk_27e0cec12cab410d) is OVER the 180,000 ceiling, so "
+        + "budget_exceeded must be present. When size card tsk_3ca6855b25d50331 brings ED under "
+        + "180,000, flip this back to not.toContain with the new measured literal",
+    ).toContain("station_triangle_budget_exceeded");
     expect(row.devReady, "devReady is gated on stationBudget.blockers being empty").toBe(false);
   });
 

@@ -1651,7 +1651,9 @@ export async function planTeethVisemeTargets(glbPath: string): Promise<{
   const restLowerM = restLower.meanM;
 
 
-  const HEAD_MEAN = [-0.005792621030378103, -0.006766455206543516, 0.008327360995043014] as const;
+  // x is 0 (tsk_27e0cec12cab410d): the mean x came from one actor's solve and slid the
+  // upper arch 5.8 mm sideways at aa on every coupled actor. y and z keep that solve.
+  const HEAD_MEAN = [0, -0.006766455206543516, 0.008327360995043014] as const;
   // Mesh-local jaw deltas, stored at weight 1. Runtime plays them at JAW_TEETH_GAIN 0.5.
   // Base is 1.4× a world nudge of 4 mm down and 3 mm forward. U's base stays
   // unscaled: the 1.4× U filled the pucker. Extra world-forward is stored at 2×

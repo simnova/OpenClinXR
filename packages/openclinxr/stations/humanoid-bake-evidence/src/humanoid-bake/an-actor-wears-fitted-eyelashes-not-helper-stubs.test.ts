@@ -160,6 +160,9 @@ describe("an actor wears fitted eyelashes, not helper stubs (#683)", () => {
     const PARENT_FITTED: Record<string, RegExp> = {
       "mpfb-peds-parent-aisha.glb": /openclinxr_fitted_(teeth|tongue)_mpfb_parent_tara_johnson_v1_mesh/,
     };
+    // tsk_27e0cec12cab410d swapped the fitted CC0 teeth/tongue into the 10 other actors; the
+    // physician keeps hm08 until tsk_2a74bbdb3f03cb3e lands (then delete it from this set).
+    const HM08_PENDING = new Set(["mpfb-clinical-physician-adult.glb"]);
     for (const glb of assets()) {
       const ms = await meshes(glb);
       const brow = ms.find((m) => /brow/i.test(m.name));
@@ -169,8 +172,10 @@ describe("an actor wears fitted eyelashes, not helper stubs (#683)", () => {
         const fitted = PARENT_FITTED[glb];
         if (fitted) {
           expect(f?.name ?? "", `${glb} ${feature} left fitted retention`).toMatch(fitted);
-        } else {
+        } else if (HM08_PENDING.has(glb)) {
           expect(f?.name ?? "", `${glb} ${feature} left hm08 helper retention`).toMatch(/hm08/);
+        } else {
+          expect(f?.name ?? "", `${glb} ${feature} left the swapped fitted CC0 mesh`).toMatch(new RegExp(`^openclinxr_fitted_${feature}_`));
         }
       }
     }

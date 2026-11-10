@@ -1,0 +1,254 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "openclinxr-teeth-swap-report.v1",
+  "title": "OpenClinXR fitted teeth/tongue swap report",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema",
+    "tool",
+    "status",
+    "input"
+  ],
+  "oneOf": [
+    {
+      "properties": {
+        "status": {
+          "const": "already-fitted"
+        }
+      }
+    },
+    {
+      "required": [
+        "scratch",
+        "output",
+        "cw1OriginalBinPrefix",
+        "features",
+        "protectedAccessorHashes"
+      ],
+      "properties": {
+        "status": {
+          "const": "swapped"
+        }
+      }
+    }
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schema": {
+      "const": "openclinxr-teeth-swap-report.v1"
+    },
+    "tool": {
+      "type": "string"
+    },
+    "status": {
+      "enum": [
+        "already-fitted",
+        "swapped"
+      ]
+    },
+    "input": {
+      "$ref": "#/$defs/file"
+    },
+    "scratch": {
+      "$ref": "#/$defs/file"
+    },
+    "output": {
+      "$ref": "#/$defs/file"
+    },
+    "cw1OriginalBinPrefix": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "unchanged",
+        "prefixBytes",
+        "sha256"
+      ],
+      "properties": {
+        "unchanged": {
+          "const": true
+        },
+        "prefixBytes": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "teeth",
+        "tongue"
+      ],
+      "properties": {
+        "teeth": {
+          "$ref": "#/$defs/feature"
+        },
+        "tongue": {
+          "$ref": "#/$defs/feature"
+        }
+      }
+    },
+    "protectedAccessorHashes": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/accessorHash"
+      }
+    },
+    "alignedRelayout": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "applied",
+        "inputBinSha256",
+        "misalignedViewsBefore",
+        "misalignedAccessorsBefore",
+        "misalignedAccessorsAfter",
+        "relaidBinBytes"
+      ],
+      "properties": {
+        "applied": {
+          "const": true
+        },
+        "inputBinSha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "misalignedViewsBefore": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "misalignedAccessorsBefore": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "misalignedAccessorsAfter": {
+          "const": 0
+        },
+        "relaidBinBytes": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "file": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "sha256",
+        "bytes"
+      ],
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "bytes": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "accessorHash": {
+      "type": "object",
+      "required": [
+        "slot",
+        "sha256"
+      ],
+      "properties": {
+        "meshIndex": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "meshName": {
+          "type": "string"
+        },
+        "slot": {
+          "type": "string"
+        },
+        "accessorIndex": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      }
+    },
+    "feature": {
+      "type": "object",
+      "required": [
+        "replacedMeshIndex",
+        "scratchMeshName",
+        "outputMeshName",
+        "vertexCount",
+        "boneWeightSplit",
+        "textureImageSha256",
+        "scratchAccessorHashes",
+        "outputAccessorHashes",
+        "jointRemap"
+      ],
+      "properties": {
+        "replacedMeshIndex": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "nodeSlotName": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scratchMeshName": {
+          "type": "string"
+        },
+        "outputMeshName": {
+          "type": "string"
+        },
+        "vertexCount": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "boneWeightSplit": {
+          "type": "object"
+        },
+        "textureImageSha256": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/sha256"
+          }
+        },
+        "scratchAccessorHashes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/accessorHash"
+          }
+        },
+        "outputAccessorHashes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/accessorHash"
+          }
+        },
+        "jointRemap": {
+          "type": "object"
+        }
+      }
+    }
+  }
+}

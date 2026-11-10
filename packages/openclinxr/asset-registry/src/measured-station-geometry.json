@@ -1,28 +1,28 @@
 {
   "generatedBy": "tools/openclinxr/measure-station-geometry.ts",
-  "generatedAt": "2026-11-09T23:32:24.764Z",
+  "generatedAt": "2026-11-10T13:33:37.899Z",
   "sources": {
     "patient_robert_hayes_character": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.glb",
     "nurse_maria_alvarez_character": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
     "spouse_anna_hayes_character": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb"
   },
   "triangles": {
-    "patient_robert_hayes_character": 39122,
-    "nurse_maria_alvarez_character": 38958,
-    "spouse_anna_hayes_character": 38458
+    "patient_robert_hayes_character": 46078,
+    "nurse_maria_alvarez_character": 45904,
+    "spouse_anna_hayes_character": 45404
   },
   "fingerprints": {
     "patient_robert_hayes_character": {
-      "bytes": 8635168,
-      "sha256": "db3c0f95572fcb9426c530cb52eee00254e8a2e46a2954891ebbbe32f73daf50"
+      "bytes": 11734352,
+      "sha256": "0252c3992ed555a36b0795f7ad05959871f1342ca08524ecccfbbc9a41aafc2f"
     },
     "nurse_maria_alvarez_character": {
-      "bytes": 9254712,
-      "sha256": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68"
+      "bytes": 12353924,
+      "sha256": "55ba118b95684e4466490bcff9adb2f655cd13544ccaea763123fe624eff300b"
     },
     "spouse_anna_hayes_character": {
-      "bytes": 10228348,
-      "sha256": "f4e9094ebb965e6296867906193df5cc1249dc3b3a55d395ca114e76b6884d67"
+      "bytes": 13327592,
+      "sha256": "eed1247688f5c0f12e79e4ea05d539657523ded4740041217be805d1e4c4d9eb"
     }
   }
 }

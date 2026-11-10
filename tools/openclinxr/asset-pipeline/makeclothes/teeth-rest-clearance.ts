@@ -23,6 +23,7 @@ import { readFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
+import { translateMeshZInPlace } from "./glb-in-place-translate.js";
 
 const CAP_SOURCE = "packages/openclinxr/xr-dialogue/src/viseme-morph-apply.ts";
 const TEETH_RE = /teeth/i;
@@ -40,6 +41,10 @@ async function main(): Promise<void> {
   const di = args.indexOf("--delta");
   const delta = di >= 0 ? Number(args[di + 1]) : 0.003;
   const dry = args.includes("--dry");
+  // --in-place-bytes: patch the POSITION floats inside the GLB bytes instead of a NodeIO round-trip,
+  // which drops OPENCLINXR_* extensions and renumbers accessors. Default mode is unchanged so
+  // recorded lineage argv (e.g. #741 peds-parent) still reproduces.
+  const inPlace = args.includes("--in-place-bytes");
   const probe = args.includes("--probe");
 
   const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
@@ -137,7 +142,9 @@ async function main(): Promise<void> {
   }
 
   if (touched.length === 0) throw new Error(`no teeth mesh found in ${glb}`);
-  if (!dry) {
+  if (!dry && inPlace) {
+    translateMeshZInPlace(glb, TEETH_RE, -delta);
+  } else if (!dry) {
     await io.write(glb, doc);
   }
   const report = {

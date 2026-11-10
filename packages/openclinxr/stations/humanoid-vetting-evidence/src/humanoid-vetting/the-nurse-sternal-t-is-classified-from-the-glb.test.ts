@@ -176,7 +176,11 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // 16026048 B; kevin sha 60985034fddf….
       // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
       // st-vitbody3 r2b skin-shade carrier: 16526836 B; kevin sha c8dd0990eaf2….
-      [PEDS_GLB, "pedsKevin", 16926856, "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa"],
+      // teeth swap re-pinned 2026-11-10 (tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace hm08; skin prim untouched
+      // (non-mouth meshes value-equal, st-teeth counterweight); values from stat/shasum of the shipped GLB; was 16926856 B, sha a872dbd0f469….
+      // teeth F3 re-pinned 2026-11-10 (tsk_27e0cec12cab410d): aa upper-shell lateral mean -> 0; skin prim untouched;
+      // values from stat/shasum of the shipped GLB; was 20026092 B, sha f3b840d19154….
+      [PEDS_GLB, "pedsKevin", 20026072, "3003faf671608b81fa69b7a946cd0d90c56dff0aa1d0d7ab261c494c8881c955"],
       // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
       // ci-w11b re-pinned 2026-10-30: ci-w11 D3 d0e2104d3 repaired midline breast keyframes
       // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….
@@ -186,7 +190,11 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // 8725404 B; adult sha a2552b2fff6a….
       // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
       // st-vitbody3 r2b skin-shade carrier: 9233948 B; adult sha 44c06f5800be….
-      [ADULT_GLB, "adult", 9254712, "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68"],
+      // teeth swap re-pinned 2026-11-10 (tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace hm08; skin prim untouched
+      // (non-mouth meshes value-equal, st-teeth counterweight); values from stat/shasum of the shipped GLB; was 9254712 B, sha fef34e2ad855….
+      // teeth F3 re-pinned 2026-11-10 (tsk_27e0cec12cab410d): aa upper-shell lateral mean -> 0; skin prim untouched;
+      // values from stat/shasum of the shipped GLB; was 12353944 B, sha 058d25134da2….
+      [ADULT_GLB, "adult", 12353924, "55ba118b95684e4466490bcff9adb2f655cd13544ccaea763123fe624eff300b"],
     ] as const) {
       const glb = readGlb(path);
       expect(glb.bytes.length, `${key}: GLB length pinned`).toBe(bytes);

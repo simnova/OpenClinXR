@@ -158,7 +158,10 @@ export function counterweights(current: Document, baseline: Document, actor: str
   for (let i = 0; bodyMorphsByteEqual && i < cp.length; i++) {
     bodyMorphsByteEqual &&= targetHash(cp[i]!, cn) === targetHash(bp[i]!, bn);
   }
-  const meshHashes = (doc: Document) => new Map(doc.getRoot().listNodes().filter((n) => n.getMesh() && !/eyelash/i.test(`${n.getName()} ${n.getMesh()?.getName()}`)).map((n) => [
+  // Teeth/tongue are excluded: tsk_27e0cec12cab410d swapped hm08 for fitted CC0 teeth after BASELINE_REF.
+  // Their bytes are gated by humanoid-bake-evidence the-shipped-teeth-carry-their-texture.test.ts
+  // (T1-T3 always, T5' against the scratch bakes). Every other non-lash mesh still hash-matches BASELINE_REF.
+  const meshHashes = (doc: Document) => new Map(doc.getRoot().listNodes().filter((n) => n.getMesh() && !/eyelash|_teeth|_tongue/i.test(`${n.getName()} ${n.getMesh()?.getName()}`)).map((n) => [
     `${n.getName()}|${n.getMesh()?.getName()}`,
     n.getMesh()?.listPrimitives().map(primitiveHash),
   ]));

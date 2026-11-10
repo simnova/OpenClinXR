@@ -98,7 +98,13 @@ const MEASURED_AA_GAP = 0.023833762854337692;
 const MEASURED_AA_OVERLAP = 0;
 const MEASURED_AA_MAX_DISP = 0.043900348789117194;
 const MEASURED_SIL_GAP = 0.0013300180435180664;
-const MEASURED_TEETH_AABB_HEIGHT = 0.04145002365112305;
+/**
+ * Fitted CC0 teeth (openclinxr_fitted_teeth_*) POSITION AABB height, measured on the final
+ * mpfb-viseme-inspect.glb (sha256 fc90da76..., station-teeth st-teeth/post/final/, teeth swap
+ * commit for tsk_27e0cec12cab410d). 0.04145002365112305 was the hm08 value; it is the source of
+ * the 0.020725 aperture bar (MEASURED_THRESHOLD) only.
+ */
+const MEASURED_TEETH_AABB_HEIGHT = 0.053421974182128906;
 const MEASURED_THRESHOLD = 0.020725011825561523;
 const MEASURED_LIP_VERTS = 189;
 const MEASURED_ANTERIOR_LIP_VERTS = 78;
@@ -138,6 +144,7 @@ type Measurement = {
   teethPresent: boolean;
   teethOpaque: boolean;
   tonguePresent: boolean;
+  hm08Present: boolean;
   lipVertexCount: number;
   anteriorLipVertexCount: number;
   visemeTargetCount: number;
@@ -158,18 +165,20 @@ async function measure(): Promise<Measurement> {
     let teethPresent = false;
     let teethOpaque = false;
     let tonguePresent = false;
+    let hm08Present = false;
     for (const m of root.listMeshes()) {
       const name = m.getName() ?? "";
       for (const p of m.listPrimitives()) {
         const pos = p.getAttribute("POSITION") as Attr | null;
         if (!pos) continue;
-        if (/hm08_teeth/iu.test(name)) {
+        if (/hm08_teeth|hm08_tongue/iu.test(name)) hm08Present = true;
+        if (/fitted_teeth/iu.test(name)) {
           teethPresent = true;
           teethHeight = aabbHeight(pos);
           const base = p.getMaterial()?.getBaseColorFactor?.() ?? [1, 1, 1, 1];
           teethOpaque = (base[3] ?? 1) > 0.01;
         }
-        if (/hm08_tongue/iu.test(name)) tonguePresent = true;
+        if (/fitted_tongue/iu.test(name)) tonguePresent = true;
       }
     }
 
@@ -224,11 +233,18 @@ async function measure(): Promise<Measurement> {
     }
 
     return {
-      threshold: teethHeight * 0.5,
+      // Constant, not derived from the shipped teeth (cap8 ruling R3, 2026-11-10). Provenance:
+      // 0.5 x openclinxr_hm08_teeth POSITION AABB height (0.04145002365112305 m) measured on
+      // mpfb-viseme-inspect.glb at ebe98e0a5, recorded in Stage A open-mouth-interior.json
+      // thresholdMeters. The fitted-teeth swap removed hm08_teeth; the fitted AABB is 12-15 mm
+      // taller (gum/root), so deriving from it would move the bar. Follow-up card derives the
+      // bar from the fitted teeth's visible crown height.
+      threshold: MEASURED_THRESHOLD,
       teethHeight,
       teethPresent,
       teethOpaque,
       tonguePresent,
+      hm08Present,
       lipVertexCount: lipVerts.length,
       anteriorLipVertexCount: anterior.length,
       visemeTargetCount: targetNames.filter((n) => /^viseme_/u.test(n)).length,
@@ -246,6 +262,9 @@ describe("the aa viseme parts the lips far enough to show teeth", () => {
       // causal chain (the arcade's own height), never a fraction of the observed gap.
       const m = await measure();
       expect(m.threshold, "the teeth-derived threshold must not move").toBeCloseTo(MEASURED_THRESHOLD, 9);
+      const stageA = JSON.parse(readFileSync(STAGE_A, "utf8")) as { thresholdMeters?: number };
+      expect(stageA.thresholdMeters, "Stage A must still record the constant this file uses")
+        .toBeCloseTo(MEASURED_THRESHOLD, 9);
       expect(
         m.viseme["viseme_aa"]!.lipGapMeters,
         `viseme_aa aperture ${m.viseme["viseme_aa"]!.lipGapMeters} m must reach the arcade-derived `
@@ -270,8 +289,10 @@ describe("the aa viseme parts the lips far enough to show teeth", () => {
     // Green today. Pins what must survive the bake: both interior meshes, opaque teeth, and the
     // 15 baked viseme targets. Losing any of them makes clause (1) unreachable rather than fixed.
     const m = await measure();
-    expect(m.teethPresent, "openclinxr_hm08_teeth must remain in the GLB").toBe(true);
-    expect(m.tonguePresent, "openclinxr_hm08_tongue must remain in the GLB").toBe(true);
+    expect(m.teethPresent, "openclinxr_fitted_teeth_* must remain in the GLB").toBe(true);
+    expect(m.tonguePresent, "openclinxr_fitted_tongue_* must remain in the GLB").toBe(true);
+    expect(m.hm08Present, "no openclinxr_hm08_teeth/tongue mesh may ship after the fitted-teeth swap")
+      .toBe(false);
     expect(m.teethOpaque, "the teeth material must stay opaque — transparency is not an aperture").toBe(true);
     expect(m.visemeTargetCount, "the 15 baked viseme targets must survive")
       .toBeGreaterThanOrEqual(MEASURED_VISEME_TARGET_COUNT);

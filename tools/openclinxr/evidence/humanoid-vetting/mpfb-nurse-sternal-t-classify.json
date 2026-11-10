@@ -88,9 +88,9 @@
  "schemaVersion": "openclinxr.nurse-sternal-t-classify.v1",
  "subjects": {
   "adult": {
-   "bytes": 9254712,
+   "bytes": 12353924,
    "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-   "sha256": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68",
+   "sha256": "55ba118b95684e4466490bcff9adb2f655cd13544ccaea763123fe624eff300b",
    "skinPrim": {
     "mat": 4,
     "name": "mpfb_skin_ed_chest_pain_nurse_adult",
@@ -113,9 +113,9 @@
    }
   },
   "pedsKevin": {
-   "bytes": 16926856,
+   "bytes": 20026072,
    "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
-   "sha256": "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa",
+   "sha256": "3003faf671608b81fa69b7a946cd0d90c56dff0aa1d0d7ab261c494c8881c955",
    "skinPrim": {
     "mat": 4,
     "name": "mpfb_skin_peds_nurse_kevin",

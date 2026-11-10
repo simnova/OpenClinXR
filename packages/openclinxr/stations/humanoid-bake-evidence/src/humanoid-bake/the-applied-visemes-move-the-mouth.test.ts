@@ -130,7 +130,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // (repack_skin_shade.py material extension only; size 19149460 unchanged);
   // was 483821ad1b214e0b8003f3dac2c5958b8500f77a0cbabaa403f48888131ed06b.
   // lash-r8 re-pinned: moving-upper-lid body-vertex upper hull; body mouth morph bytes unchanged.
-  "mpfb-ob-patient-aisha": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
+  // teeth swap re-pinned 2026-11-10 (tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace hm08,
+  // byte-preserving post-swap retreat/couple; body and every non-mouth mesh value-equal; 22269564 B live;
+  // was 33626da946fc….
+  "mpfb-ob-patient-aisha": "94c3b4127550738704f9a140fed482163038a4c7493bd342c502a1e3a73d3812",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.
@@ -165,7 +168,12 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // 16026048 B live; was e52a3e25f86d….
   // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
   // 16105284 B live; was 60985034fddf….
-  "mpfb-peds-nurse-kevin": "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa",
+  // teeth swap re-pinned 2026-11-10 (tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace hm08,
+  // byte-preserving post-swap retreat/couple; body and every non-mouth mesh value-equal; 20026092 B live;
+  // was a872dbd0f469….
+  // teeth F3 re-pinned 2026-11-10 (tsk_27e0cec12cab410d): aa upper-shell lateral mean -5.79 mm -> 0
+  // (HEAD_MEAN x); 9256 B inside one accessor; 20026072 B live; was f3b840d19154….
+  "mpfb-peds-nurse-kevin": "3003faf671608b81fa69b7a946cd0d90c56dff0aa1d0d7ab261c494c8881c955",
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
   // buffer are untouched.
@@ -181,7 +189,12 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // 8725404 B live; was e217d3c96d62….
   // st-vitfacet r7 re-pinned 2026-11-05: per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default; superseding commit 20df28d53; texture bytes only, geometry identical):
   // 8807408 B live; was a2552b2fff6a….
-  "mpfb-clinical-nurse-adult": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68",
+  // teeth swap re-pinned 2026-11-10 (tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace hm08,
+  // byte-preserving post-swap retreat/couple; body and every non-mouth mesh value-equal; 12353944 B live;
+  // was fef34e2ad855….
+  // teeth F3 re-pinned 2026-11-10 (tsk_27e0cec12cab410d): aa upper-shell lateral mean -5.79 mm -> 0
+  // (HEAD_MEAN x); 9256 B inside one accessor; 12353924 B live; was 058d25134da2….
+  "mpfb-clinical-nurse-adult": "55ba118b95684e4466490bcff9adb2f655cd13544ccaea763123fe624eff300b",
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).

@@ -97,7 +97,7 @@
     },
     {
       "label": "control",
-      "sha256": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
+      "sha256": "94c3b4127550738704f9a140fed482163038a4c7493bd342c502a1e3a73d3812",
       "visemes": [
         "viseme_CH",
         "viseme_DD",
@@ -161,21 +161,21 @@
       "jawToOris01LeverM": 0.13790071010593002,
       "teeth": [
         {
-          "mesh": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_v1_mesh",
-          "tris": 192,
+          "mesh": "openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
+          "tris": 7120,
           "skinned": true,
-          "maxZ": 0.13757997751235962
+          "maxZ": 0.13811777532100677
         }
       ],
       "tongue": [
         {
-          "mesh": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_v1_mesh",
+          "mesh": "openclinxr_fitted_tongue_mpfb_ob_patient_aisha_mesh",
           "tris": 448,
           "skinned": true,
-          "maxZ": 0.13537999987602234
+          "maxZ": 0.135609433054924
         }
       ],
-      "morphMeshCount": 1
+      "morphMeshCount": 2
     }
   ]
 }

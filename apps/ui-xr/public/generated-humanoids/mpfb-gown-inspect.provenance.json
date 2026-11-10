@@ -5,30 +5,31 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for garment/gown contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "a9c12e9cec11a2b2506e97b98f1845b17e6bec660514c0f93213bfad66afc427",
- "outputBytes": 8542692,
+ "outputSha256": "881af5057291735f11d48f34055525b666ae955165028baf37750015b6a41be3",
+ "outputBytes": 11262652,
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.401Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.15 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts).",
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-09-28T04:06:36.024Z",
+  "correctedAt": "2026-11-10T10:27:52.451Z",
   "recordedBefore": {
-   "outputSha256": "77a99379a95355f53f885f5ad0926b9e7b2c70573baafe43e439bccc5373101e",
-   "outputBytes": 7922732
+   "outputSha256": "a9c12e9cec11a2b2506e97b98f1845b17e6bec660514c0f93213bfad66afc427",
+   "outputBytes": 8542692
   },
-  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
-  "preImageSha256": "77a99379a95355f53f885f5ad0926b9e7b2c70573baafe43e439bccc5373101e",
-  "preImageBytes": 7922732,
+  "preImageRevision": "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
+  "preImageSha256": "a9c12e9cec11a2b2506e97b98f1845b17e6bec660514c0f93213bfad66afc427",
+  "preImageBytes": 8542692,
   "derivationArgv": [
    "sh",
    "-c",
-   "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0198 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.010",
+   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-gown-inspect.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0031' '--in-place-bytes'",
    "x",
    "{pre}",
-   "{out}"
+   "{out}",
+   "{report}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts."
  },
  "gownRebake20261103": {
   "producer": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py --input-glb mpfb-viseme-inspect.glb --output-glb mpfb-gown-inspect.glb (blender --background)",
@@ -92,7 +93,7 @@
  },
  "gownRebake20261104R5b": {
   "producer": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py --input-glb mpfb-viseme-inspect.glb --output-glb mpfb-gown-inspect.glb (blender --background)",
-  "cause": "st-gowninsp round 5b: the centroid-only round-5 bytes still read 3 below-min verts and 0.9496. Adding the 5-tap loft smoothing with per-ring re-enclosure (same centroid-relative section fit, same ease schedule, enclose-every-sample guarantee, still pure ring construction \u2014 no post-hoc shrink, no inspector targeting) cuts ring-to-ring cz jitter (up to 28 mm over one 25 mm step). Post-fix: fraction 0.9664, belowMin 0, max 0.2371 (residual = bust-front drape + thigh-gap spanning, pre-existing class); raster 0/0, collar rows in the after-chest still (381/382), slits 0/0 px; faceCut=0 headClipped=0 (E/drape-after.json, E/probes.md P7).",
+  "cause": "st-gowninsp round 5b: the centroid-only round-5 bytes still read 3 below-min verts and 0.9496. Adding the 5-tap loft smoothing with per-ring re-enclosure (same centroid-relative section fit, same ease schedule, enclose-every-sample guarantee, still pure ring construction — no post-hoc shrink, no inspector targeting) cuts ring-to-ring cz jitter (up to 28 mm over one 25 mm step). Post-fix: fraction 0.9664, belowMin 0, max 0.2371 (residual = bust-front drape + thigh-gap spanning, pre-existing class); raster 0/0, collar rows in the after-chest still (381/382), slits 0/0 px; faceCut=0 headClipped=0 (E/drape-after.json, E/probes.md P7).",
   "outputSha256": "afc0f712643aad61b3a82e5f9c5c0fa10651b02dd9268e53bdcb32d4dc4ece58",
   "outputBytes": 8097400,
   "reproduction": "single producer run 2026-11-04 (verts=3368 faces=3349 lips=21 gussetTris=57 patchTris=38 patchSkipped=0); determinism: byte-identical re-run of the same script (r5c cmp clean)"
@@ -124,11 +125,11 @@
    "bakeRecipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1",
    "bakeDermal": {
     "feature": "F1",
-    "cell": 6.0,
+    "cell": 6,
     "randomness": 0.85,
     "ramp": [
-     0.0,
-     1.0
+     0,
+     1
     ]
    },
    "bakeMacro": {
@@ -163,11 +164,11 @@
    "bakeRecipe": "dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1-seed94.47",
    "bakeDermal": {
     "feature": "F1",
-    "cell": 6.0,
+    "cell": 6,
     "randomness": 0.85,
     "ramp": [
-     0.0,
-     1.0
+     0,
+     1
     ],
     "seed": 94.46853839197861
    },
@@ -207,9 +208,9 @@
      "max": 0.686884
     },
     "followBind": {
-     "p50": 0.0,
-     "p90": 0.0,
-     "max": 0.0,
+     "p50": 0,
+     "p90": 0,
+     "max": 0,
      "definition": "seatTri == followTri and follow is evaluated at the seat point"
     },
     "cardsKeep": 454,
@@ -237,15 +238,15 @@
      ]
     },
     "bodyPrimitiveCount": 2,
-    "boundaryWeldToleranceM": 1e-06,
+    "boundaryWeldToleranceM": 0.000001,
     "boundaryLoopCount": 99,
     "eyeOpeningLoopStatus": "no-eye-opening-loop",
     "eyeOpeningLoopVerts": 0,
     "topologyMarginVerts": 0,
     "horizontalAxis": [
      -0.9999999999999982,
-     0.0,
-     -6.052082966419225e-08
+     0,
+     -6.052082966419225e-8
     ],
     "ownRegionTriCountR6": 15,
     "ownRegionTriCountR7": 44,
@@ -259,9 +260,9 @@
      "max": 0.767656
     },
     "followBind": {
-     "p50": 0.0,
-     "p90": 0.0,
-     "max": 0.0,
+     "p50": 0,
+     "p90": 0,
+     "max": 0,
      "definition": "seatTri == followTri and follow is evaluated at the seat point"
     },
     "cardsKeep": 470,
@@ -289,15 +290,15 @@
      ]
     },
     "bodyPrimitiveCount": 2,
-    "boundaryWeldToleranceM": 1e-06,
+    "boundaryWeldToleranceM": 0.000001,
     "boundaryLoopCount": 99,
     "eyeOpeningLoopStatus": "no-eye-opening-loop",
     "eyeOpeningLoopVerts": 0,
     "topologyMarginVerts": 0,
     "horizontalAxis": [
      -0.9999999999999982,
-     0.0,
-     -6.052082966419225e-08
+     0,
+     -6.052082966419225e-8
     ],
     "ownRegionTriCountR6": 8,
     "ownRegionTriCountR7": 36,
@@ -305,5 +306,1945 @@
     "flaggedOver4_55mmCardIds": []
    }
   }
+ },
+ "teethSwapB1": {
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py",
+  "toolSha256": "cb840f13c76d4f473bcc47088fa768672cae5cd54299142f1ac6b4ccbaddffa2",
+  "reportPath": ".openclinxr/openclaw/ceo/st-teeth/swap2/c1-rerun/report/mpfb-gown-inspect.json",
+  "reportSha256": "93c5a62548cae318b4dea13c5d205f327079f4bd0098e80fe1f6d4b0b5b0da65",
+  "input": {
+   "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
+   "sha256": "a9c12e9cec11a2b2506e97b98f1845b17e6bec660514c0f93213bfad66afc427",
+   "bytes": 8542692
+  },
+  "scratch": {
+   "path": ".openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-gown-inspect.glb",
+   "sha256": "4c846779e3468f5f545315b972580ec0db7e5fc7c0fb5056fdf1bf23af5c4a2a",
+   "bytes": 49582120
+  },
+  "output": {
+   "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
+   "sha256": "881af5057291735f11d48f34055525b666ae955165028baf37750015b6a41be3",
+   "bytes": 11262652
+  },
+  "swapOutput": {
+   "path": ".openclinxr/openclaw/ceo/st-teeth/swap2/c1-rerun/out/mpfb-gown-inspect.glb",
+   "sha256": "ff466b7b9272aeee36da0e352f602d5a6b58839b1a70853282e9941eba75f5e9",
+   "bytes": 11262896
+  },
+  "postSteps": [
+   {
+    "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts",
+    "toolSha256": "878b8ff045b67ef1bd5a8b88c37834fb797909f30f3119f6b7fc537da02ae6ea",
+    "args": [
+     "--delta",
+     "0.0031",
+     "--in-place-bytes"
+    ]
+   }
+  ],
+  "cw1OriginalBinPrefix": {
+   "unchanged": true,
+   "prefixBytes": 8380232,
+   "sha256": "af3265119ded8ff84979837acc6f4d2ba1f3d9877cbd34141d4077cf8e4a0d79"
+  },
+  "features": {
+   "teeth": {
+    "replacedMeshIndex": 8,
+    "nodeSlotName": "openclinxr_hm08_teeth_mpfb_ob_patient_aisha_mesh",
+    "scratchMeshName": "openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
+    "outputMeshName": "openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
+    "vertexCount": 4494,
+    "boneWeightSplit": {
+     "vertexCount": 4494,
+     "allVertices": {
+      "jaw": 0.48509123,
+      "head": 0.51490877,
+      "tongue": 0,
+      "other": 0
+     },
+     "lowerHalfByPositionY": {
+      "jaw": 0.80071174,
+      "head": 0.19928826,
+      "tongue": 0,
+      "other": 0
+     },
+     "topBones": [
+      {
+       "name": "head",
+       "fraction": 0.51490877
+      },
+      {
+       "name": "jaw",
+       "fraction": 0.48509123
+      }
+     ]
+    },
+    "textureImageSha256": [
+     "d0afb57869c6fbb56b98f5efc4aec629ee7593e70d8dd2bfb9de923acfb65f43"
+    ],
+    "scratchAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "07eacf34cb9758a5331bdfb95387db34b3a7735476b5048ab9bf3b8e0cac8dfe"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "dd28d665ca7243647e96eb797ad84c54a0a97ec3f51766eed684c9d2b790da65"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "0d90586d3d9a7ea10f8f45cc67a5d5ffc82a5aebfea3657d9be524b004c174f5"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "0692b4993bcc1421a7ccd2367ea1483d82d4b383a67baefddab6093a474b0858"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "af331f824d53aae9569a4a8237ca869a8c85f98ee829d1e95a0159b5ca056c17"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "28ddf6f9fcdfc0932ae2de24f33e2b1db2783476ceed137ff7ac02595680d1f3"
+     }
+    ],
+    "outputAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "07eacf34cb9758a5331bdfb95387db34b3a7735476b5048ab9bf3b8e0cac8dfe"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "dd28d665ca7243647e96eb797ad84c54a0a97ec3f51766eed684c9d2b790da65"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "0d90586d3d9a7ea10f8f45cc67a5d5ffc82a5aebfea3657d9be524b004c174f5"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "0692b4993bcc1421a7ccd2367ea1483d82d4b383a67baefddab6093a474b0858"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "af331f824d53aae9569a4a8237ca869a8c85f98ee829d1e95a0159b5ca056c17"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "28ddf6f9fcdfc0932ae2de24f33e2b1db2783476ceed137ff7ac02595680d1f3"
+     }
+    ],
+    "jointRemap": {
+     "sourceJointCount": 137,
+     "targetJointCount": 137,
+     "unmapped": []
+    }
+   },
+   "tongue": {
+    "replacedMeshIndex": 9,
+    "nodeSlotName": "openclinxr_hm08_tongue_mpfb_ob_patient_aisha_mesh",
+    "scratchMeshName": "openclinxr_fitted_tongue_mpfb_ob_patient_aisha_mesh",
+    "outputMeshName": "openclinxr_fitted_tongue_mpfb_ob_patient_aisha_mesh",
+    "vertexCount": 253,
+    "boneWeightSplit": {
+     "vertexCount": 253,
+     "allVertices": {
+      "jaw": 0,
+      "head": 0.00144785,
+      "tongue": 0.99855215,
+      "other": 0
+     },
+     "lowerHalfByPositionY": {
+      "jaw": 0,
+      "head": 0.0028843,
+      "tongue": 0.9971157,
+      "other": 0
+     },
+     "topBones": [
+      {
+       "name": "tongue04",
+       "fraction": 0.30516548
+      },
+      {
+       "name": "tongue01",
+       "fraction": 0.19173438
+      },
+      {
+       "name": "tongue07.R",
+       "fraction": 0.10341137
+      },
+      {
+       "name": "tongue07.L",
+       "fraction": 0.09796851
+      },
+      {
+       "name": "tongue03",
+       "fraction": 0.06433952
+      },
+      {
+       "name": "tongue05.L",
+       "fraction": 0.05637713
+      },
+      {
+       "name": "tongue05.R",
+       "fraction": 0.04984032
+      },
+      {
+       "name": "tongue02",
+       "fraction": 0.04881104
+      }
+     ]
+    },
+    "textureImageSha256": [
+     "3150be398e48e8ba1feac164c3143c16c0b2e959d9ffb6155f0171f59cfb4ea9"
+    ],
+    "scratchAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "dc5fbd099868523e2a05fce04497d5f81022bcb2ddc7f02015ed78fd1ea02f52"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "9ad1009b51a29006fbde36f7e486622ec776e8b9bb3e1bd9f1cc5c5d4d68ba31"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "e601c605f84c6193e0e1472a324bf668f90845ddaf84d80b3d0e17443a5542a8"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "396006e8a6d0cc774254eae0a8680e77e1e97342d64fd664cf755b70ec5892e4"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "2ea562b228f65328e237c97743d013fabad9b3ef000c49bc0829739188736d05"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "1e5bd7c23a31e490407400687bc9ce4b70f65754fda51903809e8c29aa5b551b"
+     }
+    ],
+    "outputAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "dc5fbd099868523e2a05fce04497d5f81022bcb2ddc7f02015ed78fd1ea02f52"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "9ad1009b51a29006fbde36f7e486622ec776e8b9bb3e1bd9f1cc5c5d4d68ba31"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "e601c605f84c6193e0e1472a324bf668f90845ddaf84d80b3d0e17443a5542a8"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "396006e8a6d0cc774254eae0a8680e77e1e97342d64fd664cf755b70ec5892e4"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "2ea562b228f65328e237c97743d013fabad9b3ef000c49bc0829739188736d05"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "1e5bd7c23a31e490407400687bc9ce4b70f65754fda51903809e8c29aa5b551b"
+     }
+    ],
+    "jointRemap": {
+     "sourceJointCount": 137,
+     "targetJointCount": 137,
+     "unmapped": []
+    }
+   }
+  },
+  "protectedAccessorHashes": [
+   {
+    "meshIndex": 0,
+    "meshName": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].indices",
+    "accessorIndex": 5,
+    "sha256": "20bdb38bc75bfcb1d0201fc77cbf4e25c8c80704dec1bce801af341123553137"
+   },
+   {
+    "meshIndex": 0,
+    "meshName": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.JOINTS_0",
+    "accessorIndex": 3,
+    "sha256": "4f9702b6499334bd1b35beb34fbe7a005e695c96d47bb8841f1422fe3eef0eec"
+   },
+   {
+    "meshIndex": 0,
+    "meshName": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.NORMAL",
+    "accessorIndex": 1,
+    "sha256": "6c054c9bb5ebce355b390cc014fd3eafb4155159299473c412dcde9013f1d20c"
+   },
+   {
+    "meshIndex": 0,
+    "meshName": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.POSITION",
+    "accessorIndex": 0,
+    "sha256": "aae84fce81b5060a4f6958850e4340b61b2fa494a4348c1d5a8b510ee81580d9"
+   },
+   {
+    "meshIndex": 0,
+    "meshName": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.TEXCOORD_0",
+    "accessorIndex": 2,
+    "sha256": "0b2977bf64c0be9783929086dc0e908d09333a3e5676ff7b5384404c599f3c5e"
+   },
+   {
+    "meshIndex": 0,
+    "meshName": "makeclothes_library_footwear_toigo_mj_cloth_shoes_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.WEIGHTS_0",
+    "accessorIndex": 4,
+    "sha256": "e9dd49aab487e10da522cd3bee3a0582cab918b0f935ffa3e0c9af09ff876f17"
+   },
+   {
+    "meshIndex": 1,
+    "meshName": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].indices",
+    "accessorIndex": 6,
+    "sha256": "ff091f06e34f3b8764f9a232ec83f1f390b77d4cc040e216b469dc562e4dc8b1"
+   },
+   {
+    "meshIndex": 1,
+    "meshName": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.JOINTS_0",
+    "accessorIndex": 20,
+    "sha256": "cf57d15a15830f33ad474eede8f87b3e38ca3b34549d497bc8746a0299aa9038"
+   },
+   {
+    "meshIndex": 1,
+    "meshName": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.NORMAL",
+    "accessorIndex": 18,
+    "sha256": "acc382770c923400e3cb5f56f49cf2250f00fe7e54049396884099f9a63ba7d2"
+   },
+   {
+    "meshIndex": 1,
+    "meshName": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.POSITION",
+    "accessorIndex": 17,
+    "sha256": "67e9b23d594ba3b59c52d8c0ec8dd0c94fbe2b7e07fbca0ff20576a45d7c8d12"
+   },
+   {
+    "meshIndex": 1,
+    "meshName": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.TEXCOORD_0",
+    "accessorIndex": 19,
+    "sha256": "a05a0359250e52c35e606bedcbf06b4492ad967abea3e87d3dbda965ce30764a"
+   },
+   {
+    "meshIndex": 1,
+    "meshName": "makeclothes_library_hair_toigo_blunt_bob_with_bangs_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.WEIGHTS_0",
+    "accessorIndex": 21,
+    "sha256": "0bc0c2e176c859ca65da7d2e5683a9073e1ca21dc152c3343e52faff13155614"
+   },
+   {
+    "meshIndex": 2,
+    "meshName": "openclinxr_declared_upper_layers__hospital_gown_mesh",
+    "slot": "primitive[0].indices",
+    "accessorIndex": 7,
+    "sha256": "3b325d47f7471cb2a5b36126da84f480d6dfccabfd0de700a35097d15fb2bcd8"
+   },
+   {
+    "meshIndex": 2,
+    "meshName": "openclinxr_declared_upper_layers__hospital_gown_mesh",
+    "slot": "primitive[0].attributes.NORMAL",
+    "accessorIndex": 23,
+    "sha256": "3b2c9154417809796d3eaa0394168b35204356aa43475f2677727d95b45c8c50"
+   },
+   {
+    "meshIndex": 2,
+    "meshName": "openclinxr_declared_upper_layers__hospital_gown_mesh",
+    "slot": "primitive[0].attributes.POSITION",
+    "accessorIndex": 22,
+    "sha256": "61102275a5d15e469e668e167c5f9314875903e66dbf1d110aefba1c3af74e32"
+   },
+   {
+    "meshIndex": 3,
+    "meshName": "openclinxr_real_garment_hospital_gown_mesh",
+    "slot": "primitive[0].indices",
+    "accessorIndex": 8,
+    "sha256": "a026cde941b4af31fd155ed3fbe2a16e3f907c5a46c726d26304c14e334e6a6f"
+   },
+   {
+    "meshIndex": 3,
+    "meshName": "openclinxr_real_garment_hospital_gown_mesh",
+    "slot": "primitive[0].attributes.JOINTS_0",
+    "accessorIndex": 26,
+    "sha256": "c298d8c7ab4abc7a93b0571a452879e66784bbcfa9bc60bfdd406872fc39031e"
+   },
+   {
+    "meshIndex": 3,
+    "meshName": "openclinxr_real_garment_hospital_gown_mesh",
+    "slot": "primitive[0].attributes.NORMAL",
+    "accessorIndex": 25,
+    "sha256": "10306b90c9dcccbb7766bfca7c780a731b2a26da00f8509f747f5214b71d6602"
+   },
+   {
+    "meshIndex": 3,
+    "meshName": "openclinxr_real_garment_hospital_gown_mesh",
+    "slot": "primitive[0].attributes.POSITION",
+    "accessorIndex": 24,
+    "sha256": "302b981fabc465090bae9b658f5a9ecbfcb8c3b5d27447e867faf5d09fd1d6b1"
+   },
+   {
+    "meshIndex": 3,
+    "meshName": "openclinxr_real_garment_hospital_gown_mesh",
+    "slot": "primitive[0].attributes.WEIGHTS_0",
+    "accessorIndex": 27,
+    "sha256": "b932547b8bb5080a40e2568ad95102347e37b5739e15294dff93e0fa1075d43c"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].indices",
+    "accessorIndex": 9,
+    "sha256": "46d36c498495fa797d4edd1f5870251f1475b719412886216df20ccc0905e5d9"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].attributes.JOINTS_0",
+    "accessorIndex": 31,
+    "sha256": "2c6bb49d1dd09274c30a273265299f7f06d652425789549bd287912c31226967"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].attributes.NORMAL",
+    "accessorIndex": 29,
+    "sha256": "f8b0805c0e68754999d24d0478ae361cbcb3a5e9fcc0c804c90301cee755a1f3"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].attributes.POSITION",
+    "accessorIndex": 28,
+    "sha256": "f559ef844c7e6eabab1cbc258e46a41cb01c29e6edffc7211b87f9127fe212e3"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].attributes.TEXCOORD_0",
+    "accessorIndex": 30,
+    "sha256": "88b0ca060331df5ba0da3476b379008c82a6f820ff2743af3b5e11570e399a55"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].attributes.WEIGHTS_0",
+    "accessorIndex": 32,
+    "sha256": "9e1a6dcbd9729cdfc85c2fab8458e7e567bb00f1b3d8b883f8fdabb342f1c8eb"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[0].NORMAL",
+    "accessorIndex": 34,
+    "sha256": "91c873eaf0c21ff0cb89d1c7cde8fa010450bf767fa3f2126d245fb5c7c28125"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[0].POSITION",
+    "accessorIndex": 33,
+    "sha256": "ca63c7055959fe6949beb1adeb77642c4175298ccccf2de1462099f425524111"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[1].NORMAL",
+    "accessorIndex": 36,
+    "sha256": "ed19f6e3ba4f0d072930f7785e95b8e62afe77a9bbdfdc6e4e12f7e7a9df6333"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[1].POSITION",
+    "accessorIndex": 35,
+    "sha256": "a1063554eb6ffb29f5ac50de86456f8f606c30d4900050477d98cd47b24211f5"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[2].NORMAL",
+    "accessorIndex": 38,
+    "sha256": "8622864cb13bb5468db3351ede8cf80b39e9cc8399abf4c06b32e99730b38910"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[2].POSITION",
+    "accessorIndex": 37,
+    "sha256": "09acc2f963132bb47863cb822e367813080b130ffeac23d0b91276656b15ec3a"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[3].NORMAL",
+    "accessorIndex": 40,
+    "sha256": "d31e9d765ca8d82365a5bb2eb76c765db5e409771eecc0ee091bbd2e578c4ade"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[3].POSITION",
+    "accessorIndex": 39,
+    "sha256": "252676890d95434eae4e2ed95acda8e84679360d11735628bcc978364069f6cd"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[4].NORMAL",
+    "accessorIndex": 42,
+    "sha256": "2cf7e8742b5b56492b71b0f2a4e4e8ec7a0708f4a0024f88a50b314180505b6d"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[4].POSITION",
+    "accessorIndex": 41,
+    "sha256": "c4e380e99082c20b2071971728dede73cc889729d8fce3f8fcd62b6d7475ff4e"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[5].NORMAL",
+    "accessorIndex": 44,
+    "sha256": "a7a64650075148d6805a84995996674cdda38eb4a6f80b1b5bfae6921aa30b60"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[5].POSITION",
+    "accessorIndex": 43,
+    "sha256": "1a16f752b99b644cec7bcf97a0c0687731586b4120e068356e97936443208c0c"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[6].NORMAL",
+    "accessorIndex": 46,
+    "sha256": "e76cd9242cc349cd3caedd8243189fc67a17773e8ace27e197088655d72cea21"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[6].POSITION",
+    "accessorIndex": 45,
+    "sha256": "98455a574925df0f38a93864c6375f272edf9b2bddc5d0cf7719d6123d637f24"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[7].NORMAL",
+    "accessorIndex": 48,
+    "sha256": "27e9409b3660bd79a68ecae9142041ae15e6efd15616ef8e95e6e39ded51b840"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[7].POSITION",
+    "accessorIndex": 47,
+    "sha256": "45d78d8cb96d7761085335ebe28cd3de8484683ec08a4b31f988d2f8d2990960"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[8].NORMAL",
+    "accessorIndex": 50,
+    "sha256": "fd18548bd8e76b6189411a60667d4c02e9d88a44f286390333e35367839bb870"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[8].POSITION",
+    "accessorIndex": 49,
+    "sha256": "6dc9efeec396ae602f6b532b5b0ee0723c95b67468b5c5ba911f44918e3b5fe3"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[9].NORMAL",
+    "accessorIndex": 52,
+    "sha256": "20d5e921145f6e6cee5660b59c4053924027d95c2bd5613e5c32ad2186d38d50"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[9].POSITION",
+    "accessorIndex": 51,
+    "sha256": "02b0f7ed21d95e303aa43490e076978ef95f574807090199f1c1329ca76d716b"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[10].NORMAL",
+    "accessorIndex": 54,
+    "sha256": "5497f56c667c08de4ca9fd67360c727ceff222d01240bf847a062fd385b3acbb"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[10].POSITION",
+    "accessorIndex": 53,
+    "sha256": "0028c7451095dce2ba526d3c3e8ba9db90654b95b0cb5234bd77735aca0913eb"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[11].NORMAL",
+    "accessorIndex": 56,
+    "sha256": "48cf4a03ccfd4f6b8707aeae35d9654c75e1203e6ecca864ca64bad78918319e"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[11].POSITION",
+    "accessorIndex": 55,
+    "sha256": "71e967fa620929a64977a6a465a5c16ffe6d50c993ed0faee9f76ce7579ca388"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[12].NORMAL",
+    "accessorIndex": 58,
+    "sha256": "d8ef8dd158b9248ec0e67e5dab1c873d25dfd651128da0fc2639bd84f5bf554b"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[12].POSITION",
+    "accessorIndex": 57,
+    "sha256": "fa62ad7873ad13ad3eb5af2ec791db42feeacbd5128b823a45aad4648f8314dc"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[13].NORMAL",
+    "accessorIndex": 60,
+    "sha256": "b5f80eb2fdd5c9a754bd92031d4c3cda8c794f907f7014b81fd20920ca1ee08f"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[13].POSITION",
+    "accessorIndex": 59,
+    "sha256": "d98b8e58bb7e1f227c95e3a56ff361243801b4f724c32ffcc1dc0bf5928cab80"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[14].NORMAL",
+    "accessorIndex": 62,
+    "sha256": "b7f59c29eade52228608bd7785315a02514d2cbbd66ca4366b749619f00fa715"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[14].POSITION",
+    "accessorIndex": 61,
+    "sha256": "3d135cebbde7f479b04bc28fefbe8fe2f67d79a63a89d069c8536a54b3378c86"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[15].NORMAL",
+    "accessorIndex": 64,
+    "sha256": "0489ef1f56e106915228a8c5a6a1b302f768b852f3f93a232f405ef6f89e5f3c"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[15].POSITION",
+    "accessorIndex": 63,
+    "sha256": "f2ce22f96eeca4e3e4f01b3837a848fa5614ccf2bedccad334f2943320018de4"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[16].NORMAL",
+    "accessorIndex": 66,
+    "sha256": "1de0390aca1039c11982c6d2f52287114458688934712b931da9632deea8eafd"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[16].POSITION",
+    "accessorIndex": 65,
+    "sha256": "8c7ea47e7ecd66c915abb49de5f8ed1036e3039d33fe7d5494c7027550c1d36b"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[17].NORMAL",
+    "accessorIndex": 68,
+    "sha256": "1de0390aca1039c11982c6d2f52287114458688934712b931da9632deea8eafd"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[17].POSITION",
+    "accessorIndex": 67,
+    "sha256": "8c7ea47e7ecd66c915abb49de5f8ed1036e3039d33fe7d5494c7027550c1d36b"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[18].NORMAL",
+    "accessorIndex": 70,
+    "sha256": "c1eb302a32a805abe83a212a354e81f0f8db0170fb698d156ec7aff3e068b9ef"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[18].POSITION",
+    "accessorIndex": 69,
+    "sha256": "3aeaef5b67ee6e345623d114ae89f1caa87e3729e6608a0975aabf1be7390967"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[19].NORMAL",
+    "accessorIndex": 72,
+    "sha256": "89c9e3e29028a4ca00a5dc05b54a7207a8feb35e8027e02a60d98addf924823f"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[19].POSITION",
+    "accessorIndex": 71,
+    "sha256": "c9fc58d02ce5d1fcf498ff08a171a6492c14a0a171a63bcb67ac885ebfc498e8"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[20].NORMAL",
+    "accessorIndex": 74,
+    "sha256": "7cc2c081f89c3b1c63a084ef55a628e639325b8694afd54f9b993fcd6ba27d5e"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[20].POSITION",
+    "accessorIndex": 73,
+    "sha256": "115ef5cefe1021656f802f14fbf6545874b6a4edfa16251bd513455e5a9146fa"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[21].NORMAL",
+    "accessorIndex": 76,
+    "sha256": "e4598ba7427e2b74e39ee8ed51552488f38b44e0873631d40b4ad24bc87d9588"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[21].POSITION",
+    "accessorIndex": 75,
+    "sha256": "b119e791c0d97adee85efb5e5040dd9ddc78d135c1681dadcb5b8e72cd4b05d3"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[22].NORMAL",
+    "accessorIndex": 78,
+    "sha256": "e6fd8a96d58187a5a1b578d1d10606b9adb2639bd001cf6c2481f0fb6b4d7245"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[22].POSITION",
+    "accessorIndex": 77,
+    "sha256": "1502bb434f8b55fb07f6d5b81e62f85cd025a016a70d9cbfa94d54c54f6a7c58"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[23].NORMAL",
+    "accessorIndex": 80,
+    "sha256": "3e84fa24de4cd548d0fb4cc555e11217134df09eababf23702127325df0adc61"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[23].POSITION",
+    "accessorIndex": 79,
+    "sha256": "5a33a415401660576df6a6e71de7632bc111109bc7beb60e48d023a0eb248ec4"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[24].NORMAL",
+    "accessorIndex": 82,
+    "sha256": "7c35e43bc76114e4d02e66aaeb6b0eec0decc3b126251bd887a6e20dfb946575"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[24].POSITION",
+    "accessorIndex": 81,
+    "sha256": "15b0c5499923b6a1bd5013aabdf8d165e5a7caf5882f77c8248abb6f8a6f01a9"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[25].NORMAL",
+    "accessorIndex": 84,
+    "sha256": "b8c78fa78532aee5678ac6c3f3477f53e89c3fb3dc8ad02976347d6ee72614b3"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[25].POSITION",
+    "accessorIndex": 83,
+    "sha256": "1eb85506a3c6676886e8ef48f45bee7cc5b61aceb6bd883d41c7da74ecf6de7d"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[26].NORMAL",
+    "accessorIndex": 86,
+    "sha256": "341c8b483671b16ab284f8e4af6ba60c605f9a445608334c94c9a99503965439"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[26].POSITION",
+    "accessorIndex": 85,
+    "sha256": "798c7050029cf01f5941e8c21c7b49a1090251f6aec833a9eb9e405b38bf10d0"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[27].NORMAL",
+    "accessorIndex": 88,
+    "sha256": "fa3499424d95de8898270bb42c9924ed3c2ec0c7a0193d4cd2644a7b2be127d3"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[27].POSITION",
+    "accessorIndex": 87,
+    "sha256": "03bcff0bc4e3f2a79509d4722a95de72d71f1aac6f824b04bee226afb3bdc123"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[28].NORMAL",
+    "accessorIndex": 90,
+    "sha256": "f80c6754c57853be2b92e6d0749ff2202f9c46b54df0b97e7ba0e56ee2e90a71"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[28].POSITION",
+    "accessorIndex": 89,
+    "sha256": "c6edbe76c37a2cd58eef95a4b06ee5569bda3ace92f0efe04bdc2de0bca32312"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[29].NORMAL",
+    "accessorIndex": 92,
+    "sha256": "8224142b177b0459116b9c47e7d5cd772d5a7dfd2b12764eb5e8dd7bb19121be"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[29].POSITION",
+    "accessorIndex": 91,
+    "sha256": "037059f24fc89e18e9a1d74bf993767b4bcafb2f10eb9f8b1945942e5f52941f"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[30].NORMAL",
+    "accessorIndex": 94,
+    "sha256": "5b35d765c49c890da9bd4e2fd362b0e900134d8957df444f3b53e41efe8508a0"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[30].POSITION",
+    "accessorIndex": 93,
+    "sha256": "286cc3f96f9c700efff300d8952e417822647e885795328798d68a400db8821b"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[31].NORMAL",
+    "accessorIndex": 96,
+    "sha256": "2f445cb258cc8433c276c35277a3d93d9c0cfdb32f31d9e6f8af6420e2e1f36d"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[31].POSITION",
+    "accessorIndex": 95,
+    "sha256": "f08525a5687887fc7dfb255251636e8dddc13cc807bd142ce5d19e9458a3deec"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[32].NORMAL",
+    "accessorIndex": 98,
+    "sha256": "74e51c0f3004fad476606b701edd5b5e59a4d42981ca510ae2d9f53d5ba1013e"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[32].POSITION",
+    "accessorIndex": 97,
+    "sha256": "50569e5b51c032dad70e242ea3f085f8b6f30546b9c9fe55873c38df7dfced82"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[33].NORMAL",
+    "accessorIndex": 100,
+    "sha256": "af6d41973ae8eb2823c4559fea28343ebc61f4db840a97a4845c368d5a71395f"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[33].POSITION",
+    "accessorIndex": 99,
+    "sha256": "33f8a3f278b8c4a3ecb1e681fe8f3ab48a55b15fea15318723ca779ee29697a5"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[34].NORMAL",
+    "accessorIndex": 102,
+    "sha256": "876994f666881005e77053c088f26fb4197d2bb76174e1c4799aa0be0e50bba8"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[34].POSITION",
+    "accessorIndex": 101,
+    "sha256": "9d6ddcfec583d83d05c117b187c063844e1e532623549c9b898703e55bf2bd5c"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[35].NORMAL",
+    "accessorIndex": 104,
+    "sha256": "6b85c0e8025f67b64013f6d34b34255a98f584b9daac7f0f0d720960d7e74e64"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[35].POSITION",
+    "accessorIndex": 103,
+    "sha256": "446a7c3d4d72eced32a01eb3f8440e5e06f4216247a55a95fb237671d6369e77"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[36].NORMAL",
+    "accessorIndex": 106,
+    "sha256": "9ca98e2430a1898af736e377b1e53bdfcfe6403aa35a4da1eca632093dc0b7e2"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[36].POSITION",
+    "accessorIndex": 105,
+    "sha256": "0c7915d3d958d8a14c6464da150171889700114253ebcd6110ebfbce593e8bcc"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[37].NORMAL",
+    "accessorIndex": 108,
+    "sha256": "ac520b9fb1bba77243805e2f8b2694099800f209c7a5c4428957643ee9e5e069"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[37].POSITION",
+    "accessorIndex": 107,
+    "sha256": "7dfdf3d713f809a4720e5469b4aa63508aac14b12defbb9cac4a3b6cf10092d8"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[38].NORMAL",
+    "accessorIndex": 110,
+    "sha256": "895c422cb738925e552ba4f00e07fd168b6f1ad31c0450ff5ec94958a1fb6977"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[38].POSITION",
+    "accessorIndex": 109,
+    "sha256": "16280966c81693d63c33b8199b4c4102a2b166f93a6093d5e1d4cb5b72aec7f0"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[39].NORMAL",
+    "accessorIndex": 112,
+    "sha256": "d3a1460370613a271dc14ebf6df49bbf1f1021bb64961d80b2c2f2bebb73f30f"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[39].POSITION",
+    "accessorIndex": 111,
+    "sha256": "f4c5f8ea8ede126f940cdab6f17638c44adf859061d61ae968cc751039b09aa2"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[40].NORMAL",
+    "accessorIndex": 114,
+    "sha256": "2a2279e2584cfc8379f3d9437b1a4cd35eb0999ea0e53681decb6d87ab150fc9"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[40].POSITION",
+    "accessorIndex": 113,
+    "sha256": "5e1305c9a21fa2a9c366727611cde324340bc9c2dfe08fd0bfbd66c365f0eb16"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[41].NORMAL",
+    "accessorIndex": 116,
+    "sha256": "1fb5bd7be08f747077c81e58ef16f8160acc5fffb418a1b4dda2f0eeb162af80"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[41].POSITION",
+    "accessorIndex": 115,
+    "sha256": "d8fbdcd37daa7da9853f27963ebd9c8f370f4f739fd571a24c076a466fdd8575"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[42].NORMAL",
+    "accessorIndex": 118,
+    "sha256": "4ec4d705440cbdc1481d81d7e814ff796f5c1f60dfeef6f1c0fa6a5a0b9b4f32"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[42].POSITION",
+    "accessorIndex": 117,
+    "sha256": "9347f11300575a9a99b49779ce0f5fa6e32a4ad72d00a13658c5420632da2504"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[43].NORMAL",
+    "accessorIndex": 120,
+    "sha256": "cc8aaaf166a63f00d74a672942c5224027423204210ebf12cc97fbfdad926f8a"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[43].POSITION",
+    "accessorIndex": 119,
+    "sha256": "6ac83473da29f08a80ff6e718df2da50bdfd7bf85fe1eb31418d9e9dbc6479eb"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[44].NORMAL",
+    "accessorIndex": 122,
+    "sha256": "862430b5dded80ccbcc01275bac7127b60e3bcb7be9a5fa1980ec0538ed8fbf5"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[44].POSITION",
+    "accessorIndex": 121,
+    "sha256": "344bb06f5adca011f8bf27192ebb8108c4fd6c63eb67ef05486101b0226a99dc"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[45].NORMAL",
+    "accessorIndex": 124,
+    "sha256": "f34811d9d4b381772c97f802635c2c1fdf2ae9fa838e76916438dd89a4cb2420"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[45].POSITION",
+    "accessorIndex": 123,
+    "sha256": "150ea6fc6313268a44020a0c24d104cf08605b9ad0a66bb6e8b56b22ff4a2ed1"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[46].NORMAL",
+    "accessorIndex": 126,
+    "sha256": "03553e0b130024e74b17e3e8ce573683b08b2788fd5edc268451db48a605a1eb"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[0].targets[46].POSITION",
+    "accessorIndex": 125,
+    "sha256": "64713c82e1d246864bf78f439a05376f3c3815addbd082944597eb1af7b24ebf"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].indices",
+    "accessorIndex": 10,
+    "sha256": "c2e85f7bc93f2b67509b6a89be42f40626a17c25fdac9ff7362b89acf22abfda"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].attributes.JOINTS_0",
+    "accessorIndex": 224,
+    "sha256": "38cb25eff92b24b0e12c13ac5112f36380bd48a869bac68ae243798eb5c6027d"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].attributes.NORMAL",
+    "accessorIndex": 222,
+    "sha256": "b0d2b14a04f7a9e97174e41af29bc997bce6e00d052c57ba39e3ac007da5d2d1"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].attributes.POSITION",
+    "accessorIndex": 221,
+    "sha256": "b8b845de3d8f5bacdfe9adcc004e01c8591b6aefd1d594289b18de2601ba4a5c"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].attributes.TEXCOORD_0",
+    "accessorIndex": 223,
+    "sha256": "7084b4786d23bfa845d41e4a28101752e8518b1b06b1d2bef2bb3f5e5d193435"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].attributes.WEIGHTS_0",
+    "accessorIndex": 225,
+    "sha256": "1a9510d1355c566e4fb6eea69c4b4793493566b6677cd8a60a70cbafb417a411"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[0].NORMAL",
+    "accessorIndex": 128,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[0].POSITION",
+    "accessorIndex": 127,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[1].NORMAL",
+    "accessorIndex": 130,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[1].POSITION",
+    "accessorIndex": 129,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[2].NORMAL",
+    "accessorIndex": 132,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[2].POSITION",
+    "accessorIndex": 131,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[3].NORMAL",
+    "accessorIndex": 134,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[3].POSITION",
+    "accessorIndex": 133,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[4].NORMAL",
+    "accessorIndex": 136,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[4].POSITION",
+    "accessorIndex": 135,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[5].NORMAL",
+    "accessorIndex": 138,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[5].POSITION",
+    "accessorIndex": 137,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[6].NORMAL",
+    "accessorIndex": 140,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[6].POSITION",
+    "accessorIndex": 139,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[7].NORMAL",
+    "accessorIndex": 142,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[7].POSITION",
+    "accessorIndex": 141,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[8].NORMAL",
+    "accessorIndex": 144,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[8].POSITION",
+    "accessorIndex": 143,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[9].NORMAL",
+    "accessorIndex": 146,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[9].POSITION",
+    "accessorIndex": 145,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[10].NORMAL",
+    "accessorIndex": 148,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[10].POSITION",
+    "accessorIndex": 147,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[11].NORMAL",
+    "accessorIndex": 150,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[11].POSITION",
+    "accessorIndex": 149,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[12].NORMAL",
+    "accessorIndex": 152,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[12].POSITION",
+    "accessorIndex": 151,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[13].NORMAL",
+    "accessorIndex": 154,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[13].POSITION",
+    "accessorIndex": 153,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[14].NORMAL",
+    "accessorIndex": 156,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[14].POSITION",
+    "accessorIndex": 155,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[15].NORMAL",
+    "accessorIndex": 158,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[15].POSITION",
+    "accessorIndex": 157,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[16].NORMAL",
+    "accessorIndex": 160,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[16].POSITION",
+    "accessorIndex": 159,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[17].NORMAL",
+    "accessorIndex": 162,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[17].POSITION",
+    "accessorIndex": 161,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[18].NORMAL",
+    "accessorIndex": 164,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[18].POSITION",
+    "accessorIndex": 163,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[19].NORMAL",
+    "accessorIndex": 166,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[19].POSITION",
+    "accessorIndex": 165,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[20].NORMAL",
+    "accessorIndex": 168,
+    "sha256": "66af20aa8b526f9acee3bd4280239865551235a9b4e3395de63d1363233128be"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[20].POSITION",
+    "accessorIndex": 167,
+    "sha256": "2fbdf8eb3399a603f7c922bb80124347fe93905be89115b3f82525b86b67fb73"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[21].NORMAL",
+    "accessorIndex": 170,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[21].POSITION",
+    "accessorIndex": 169,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[22].NORMAL",
+    "accessorIndex": 172,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[22].POSITION",
+    "accessorIndex": 171,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[23].NORMAL",
+    "accessorIndex": 174,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[23].POSITION",
+    "accessorIndex": 173,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[24].NORMAL",
+    "accessorIndex": 176,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[24].POSITION",
+    "accessorIndex": 175,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[25].NORMAL",
+    "accessorIndex": 178,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[25].POSITION",
+    "accessorIndex": 177,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[26].NORMAL",
+    "accessorIndex": 180,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[26].POSITION",
+    "accessorIndex": 179,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[27].NORMAL",
+    "accessorIndex": 182,
+    "sha256": "27bf019012dc910e9f7b8ec4c7d4fbdb7dc72e1f0395dc37a985b12a3d536445"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[27].POSITION",
+    "accessorIndex": 181,
+    "sha256": "8f31e3c8e8f8c98058137c0994e224a2c8276cc82660d6f9b72466ba14df3468"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[28].NORMAL",
+    "accessorIndex": 184,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[28].POSITION",
+    "accessorIndex": 183,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[29].NORMAL",
+    "accessorIndex": 186,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[29].POSITION",
+    "accessorIndex": 185,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[30].NORMAL",
+    "accessorIndex": 188,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[30].POSITION",
+    "accessorIndex": 187,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[31].NORMAL",
+    "accessorIndex": 190,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[31].POSITION",
+    "accessorIndex": 189,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[32].NORMAL",
+    "accessorIndex": 192,
+    "sha256": "f4473642123093b17c8a57fbf40d54e405a17c553b7eb046772d20036d4896fb"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[32].POSITION",
+    "accessorIndex": 191,
+    "sha256": "292965ebdbb8c0ca8190d08b993dcbb3ef80458bd9939e413b121dbffb835c39"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[33].NORMAL",
+    "accessorIndex": 194,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[33].POSITION",
+    "accessorIndex": 193,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[34].NORMAL",
+    "accessorIndex": 196,
+    "sha256": "c21cd54967a4f758174f9ef735455ec6a7b4041f1a134ef45e2513dbffec16ed"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[34].POSITION",
+    "accessorIndex": 195,
+    "sha256": "fa718563cb9278b69f919a65629324fc96c13e7e138a3adb5421c6158574d4b4"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[35].NORMAL",
+    "accessorIndex": 198,
+    "sha256": "724ef547f2cdbd74c0207eb2ccd33a452d855259204a422dbb541e8ece645570"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[35].POSITION",
+    "accessorIndex": 197,
+    "sha256": "e45be51cd875bff19ee2dd9d88ab777fc10a3175e52cfbad823be0a194102367"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[36].NORMAL",
+    "accessorIndex": 200,
+    "sha256": "fa732585cf5a6385f0598baf1e758d41786c13bd6e50e50b77e5788552483849"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[36].POSITION",
+    "accessorIndex": 199,
+    "sha256": "43d4195a04f5b5ba2d6ef3b6f421effe56cd771c21b934bbdd73cd4cececfa49"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[37].NORMAL",
+    "accessorIndex": 202,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[37].POSITION",
+    "accessorIndex": 201,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[38].NORMAL",
+    "accessorIndex": 204,
+    "sha256": "983fc1726c15fbb36b1f5cf0c1690398037931c5a28e896b835d7b6b6f165854"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[38].POSITION",
+    "accessorIndex": 203,
+    "sha256": "53d08d62daab3d639d0806806cb87c153883db92a93b778c73e2c634fb7756e1"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[39].NORMAL",
+    "accessorIndex": 206,
+    "sha256": "c21cd54967a4f758174f9ef735455ec6a7b4041f1a134ef45e2513dbffec16ed"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[39].POSITION",
+    "accessorIndex": 205,
+    "sha256": "fa718563cb9278b69f919a65629324fc96c13e7e138a3adb5421c6158574d4b4"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[40].NORMAL",
+    "accessorIndex": 208,
+    "sha256": "8af0d171a9bb33a45685771571a7743927c0102d26050ffae2fe2d33d0868b74"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[40].POSITION",
+    "accessorIndex": 207,
+    "sha256": "e45be51cd875bff19ee2dd9d88ab777fc10a3175e52cfbad823be0a194102367"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[41].NORMAL",
+    "accessorIndex": 210,
+    "sha256": "be1f532dda4fffa56e64c1274c6a385678baddde3737c50409f5428f36f06d66"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[41].POSITION",
+    "accessorIndex": 209,
+    "sha256": "a9266e59c1f063aae365c79a6254f2dcbc43dd901087b306ca19b301191f8ce0"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[42].NORMAL",
+    "accessorIndex": 212,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[42].POSITION",
+    "accessorIndex": 211,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[43].NORMAL",
+    "accessorIndex": 214,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[43].POSITION",
+    "accessorIndex": 213,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[44].NORMAL",
+    "accessorIndex": 216,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[44].POSITION",
+    "accessorIndex": 215,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[45].NORMAL",
+    "accessorIndex": 218,
+    "sha256": "3c247968cb03d7d6f7ca7a0bfd5ad466f86415ecfdcccd360319f39d85ebac80"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[45].POSITION",
+    "accessorIndex": 217,
+    "sha256": "719c468ff710bd933afc656e86480ba6276742462fab4dfd46755be9b12bb643"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[46].NORMAL",
+    "accessorIndex": 220,
+    "sha256": "3a146207ff1084e6ccf3804c42b1fc510b54e73eb312199813f90826c3efb9d6"
+   },
+   {
+    "meshIndex": 4,
+    "meshName": "mpfb_ob_patient_aisha_body",
+    "slot": "primitive[1].targets[46].POSITION",
+    "accessorIndex": 219,
+    "sha256": "a54fff708f69c69aa8adc3bb3ea823ba9cb07494b1279a97bd6424141fc2eeba"
+   },
+   {
+    "meshIndex": 5,
+    "meshName": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].indices",
+    "accessorIndex": 11,
+    "sha256": "80b9fc5c1183ccf83d253c5929f8b6ce2466915828fd1df2a297110f9e3d01b6"
+   },
+   {
+    "meshIndex": 5,
+    "meshName": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.JOINTS_0",
+    "accessorIndex": 229,
+    "sha256": "dbbece9a6cbf5d6864f35df4abf80753b577e369993a628394f8edebccb4e989"
+   },
+   {
+    "meshIndex": 5,
+    "meshName": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.NORMAL",
+    "accessorIndex": 227,
+    "sha256": "c636ed1ef38b95ecfa76735a96b1c324dc77785d8d0c327e2beb66b17f5ffbf6"
+   },
+   {
+    "meshIndex": 5,
+    "meshName": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.POSITION",
+    "accessorIndex": 226,
+    "sha256": "4bf0bad60733602cabf896830e9c0990c0c32b5b1888040d75b142df2fe12eff"
+   },
+   {
+    "meshIndex": 5,
+    "meshName": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.TEXCOORD_0",
+    "accessorIndex": 228,
+    "sha256": "525b095728c6c8acf1013a1f5f96a861b25eaa7391b3c7e792c3db1a553c6a85"
+   },
+   {
+    "meshIndex": 5,
+    "meshName": "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.WEIGHTS_0",
+    "accessorIndex": 230,
+    "sha256": "675be3828ecda0a63138c8f80b4f82088c760f39ddebb5ed7ab47125e8c372c8"
+   },
+   {
+    "meshIndex": 6,
+    "meshName": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].indices",
+    "accessorIndex": 12,
+    "sha256": "ccff07d11885f0679bf2f92bbd7dc189c347d2b099954f40f4e0961e1b9d442e"
+   },
+   {
+    "meshIndex": 6,
+    "meshName": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.JOINTS_0",
+    "accessorIndex": 234,
+    "sha256": "51de71f6b063118d44753138ae917ce541df2cd94837f2e05d9486e5d21727be"
+   },
+   {
+    "meshIndex": 6,
+    "meshName": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.NORMAL",
+    "accessorIndex": 232,
+    "sha256": "06c84aba0b378767a09b0ae56b8cc61fe7b6588549b0d61ed577e2c3b5997410"
+   },
+   {
+    "meshIndex": 6,
+    "meshName": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.POSITION",
+    "accessorIndex": 231,
+    "sha256": "5c1467c4365ada6b480c03d817ae2e9b7c30fc8c8d752ad7c65d9082c240b976"
+   },
+   {
+    "meshIndex": 6,
+    "meshName": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.TEXCOORD_0",
+    "accessorIndex": 233,
+    "sha256": "1dc465f536990aded320c47c2d3b4cc4cafb101897f6d6ed4c4a9007f111b9c8"
+   },
+   {
+    "meshIndex": 6,
+    "meshName": "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.WEIGHTS_0",
+    "accessorIndex": 235,
+    "sha256": "14cd9b25e16b67460ab5d3496fab2a32312cbc0f58fc114735ffa0ea495ae9b0"
+   },
+   {
+    "meshIndex": 7,
+    "meshName": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].indices",
+    "accessorIndex": 13,
+    "sha256": "a56baaa83bf30dc20a51bce7911ffc4174f4b23f92059b09a7f38400b218f7ad"
+   },
+   {
+    "meshIndex": 7,
+    "meshName": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.JOINTS_0",
+    "accessorIndex": 239,
+    "sha256": "0540a1ac4f0b59738eaa823686e355917a0b7e2a566445a0a93990037c030148"
+   },
+   {
+    "meshIndex": 7,
+    "meshName": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.NORMAL",
+    "accessorIndex": 237,
+    "sha256": "5415e936fa709bd4ec925e4643abc482705a11632b349b4ae931d92a17ffddb8"
+   },
+   {
+    "meshIndex": 7,
+    "meshName": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.POSITION",
+    "accessorIndex": 639,
+    "sha256": "ec40a13f9f48acd6b0c266cf7d530030cc47a66ec27a4c4c0c049c649aef2189"
+   },
+   {
+    "meshIndex": 7,
+    "meshName": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.TEXCOORD_0",
+    "accessorIndex": 238,
+    "sha256": "5964910e5e629c673633c26d56dc902428163ef6458819c1341fc49c17d98da6"
+   },
+   {
+    "meshIndex": 7,
+    "meshName": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].attributes.WEIGHTS_0",
+    "accessorIndex": 240,
+    "sha256": "6715b095b4683ba264c4ab72d084ae673f645374468a233abab0f30d4026fadf"
+   },
+   {
+    "meshIndex": 7,
+    "meshName": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].targets[0].POSITION",
+    "accessorIndex": 640,
+    "sha256": "766104e377fbd81346886895902d47a155a65e7d8e1cedf1f8a950d2d7ff5ba6"
+   },
+   {
+    "meshIndex": 7,
+    "meshName": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
+    "slot": "primitive[0].targets[1].POSITION",
+    "accessorIndex": 641,
+    "sha256": "57c3068d7099c217cd06c58b0df18f60a12d0b5fff1cf1c0a7ec539604d685e9"
+   }
+  ],
+  "claimScope": "fitted teeth/tongue mesh, skin, material and embedded CC0 texture transplant only",
+  "notEvidenceFor": [
+   "Quest readiness",
+   "clinical validity",
+   "in-app T4 still quality"
+  ]
  }
 }
