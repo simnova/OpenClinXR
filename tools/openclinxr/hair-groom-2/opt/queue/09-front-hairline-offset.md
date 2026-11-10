@@ -59,3 +59,13 @@ Not tested: a real groom re-run (Interpolate seed and dart sequence move every r
 Midline profile on mpfb-ob-patient-aisha.glb in the groom head frame: nasion z 34, glabella z 54 (brow plateau z 54-64), hairline
 z 100 (table; lowest midline scalp face 102.0) at offset 0 and 116 at 16. Forehead height 46 mm at 0, 62 mm at 16 (36 / 52 with
 glabella at z 64). Inside 45-80 mm: rebuild proceeds. Midline vertices are 10-26 mm apart, so landmarks carry ~±5 mm.
+
+## Rule amendment 1 (CEO 09:35; committed before any card 09 score; amends e08f11449)
+Why: D_inc_v was scored on the old Aisha body (detail 1.0, 483821ad); fh16 embeds the current body (0.3, 75b9e5c7; 7fd92dd87,
+fd32d6baa). Against D_inc_v the other-view clause would measure body change plus hairline change together.
+- CARD 09 PASS = fh16 front hairlineRow in 230-242 (236 +- 6) AND every other view D_v(fh16) <= D_v(fh0) + delta_v
+  (fh0 = proof-orig final, original groom, current body; delta_v objective-v2: 3q 1.217, side .521, back .644).
+- CONTROL VALIDITY: fh0 front hairlineRow within 253 +- 2 (251-255), else the body change moved the hairline itself; card void,
+  report.
+- Information only (not the verdict): fh16 and fh0 against D_inc_v, and ship_a4 --bars v2. A4 still governs promotion.
+- The 12 mm fallback triggers on the amended clause (front passes, another view fails vs fh0 + delta_v).
