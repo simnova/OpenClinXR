@@ -37,8 +37,8 @@ describe("the doorway clock reads Replay in a replayed station (C48)", () => {
   it("main.ts pins the clock to Replay on that signal and stops its tick writer; live ticks still count", () => {
     const main = readFileSync(SRC + "main.ts", "utf8");
     expect(main).toContain('onReplay: () => { replayClock = true; clock.textContent = "Replay"; }');
-    expect(main).toContain("if (!replayClock) clock.textContent = formatStationClock(state.elapsedSecond);");
-    expect(main.match(/\bclock\.textContent =/g)?.length).toBe(2);
+    expect(main).toContain("if (!replayClock && !breakClock) clock.textContent = formatStationClock(state.elapsedSecond);");
+    expect(main.match(/\bclock\.textContent =/g)?.length).toBe(3);
   });
 
   it("apps/ui-xr parses no replay URL itself", () => {

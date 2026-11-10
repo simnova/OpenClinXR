@@ -144,6 +144,8 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
       countdown.textContent = `Encounter: ${remaining} s left`;
     } else if (phase === "note") {
       countdown.textContent = `Note: ${remaining} s left`;
+    } else if (phase === "break") {
+      countdown.textContent = `Break: ${remaining} s left`;
     } else if (phase === "closed") {
       countdown.textContent = "Station closed";
     } else {

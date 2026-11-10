@@ -54,9 +54,9 @@ describe("the synced station position is in the doorway header (C51)", () => {
     expect(await labelsAfter("?encounterSync=ws://127.0.0.1:9", [[0, 3], [1, 3], [2, 3]])).toEqual({ flow: "Station 3 of 3", doorway: "Station 3 of 3" });
   });
 
-  it("#doorway-station has exactly one writer, inside the onStation body", () => {
+  it("#doorway-station has exactly two writers: the station position in onStation (C51) and Break in onBreak (C53)", () => {
     const writers = MAIN.split("\n").filter((line) => /\bdoorwayStation\.textContent\b/u.test(line));
-    expect(writers.map((line) => line.trim())).toEqual(["doorwayStation.textContent = `Station ${index + 1} of ${count}`;"]);
+    expect(writers.map((line) => line.trim())).toEqual(["doorwayStation.textContent = `Station ${index + 1} of ${count}`;", 'doorwayStation.textContent = "Break";']);
     const onStation = /onStation: \(index, count\) => \{\n([\s\S]*?)\n  \},\n/u.exec(MAIN)?.[1] ?? "";
     expect(onStation.split("\n").map((line) => line.trim())).toEqual([
       "syncedStation = true;",

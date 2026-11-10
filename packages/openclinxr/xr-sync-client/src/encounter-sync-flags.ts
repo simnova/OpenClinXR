@@ -15,6 +15,28 @@ export function encounterSyncUrl(search: string): { url: string; replayStation?:
   return { url: value };
 }
 
+/** C53: fires onBreak with phaseRemainingS on entering phase break and whenever it changes there, and once with null when a later snapshot reports another phase. */
+export function createBreakAnnouncer(onBreak: (remainingS: number | null) => void): (snapshot: EncounterSnapshot) => void {
+  let inBreak = false;
+  let last = -1;
+  return (snapshot) => {
+    if (snapshot.phase === "break") {
+      const remaining = snapshot.phaseRemainingS ?? 0;
+      if (!inBreak || remaining !== last) {
+        inBreak = true;
+        last = remaining;
+        onBreak(remaining);
+      }
+      return;
+    }
+    if (inBreak) {
+      inBreak = false;
+      last = -1;
+      onBreak(null);
+    }
+  };
+}
+
 /** C50: fires onStation on the first station position and whenever (index, count) changes. */
 export function createStationAnnouncer(onStation: (index: number, count: number) => void): (snapshot: EncounterSnapshot) => void {
   let last = "";

@@ -34,7 +34,6 @@ import {
   addActorSpecificIdentityVariantCue as addPackageActorSpecificIdentityVariantCue,
   addHumanoidSourceComparatorFaceReviewCues as addPackageHumanoidSourceComparatorFaceReviewCues,
   addScenarioSpecificClinicalSetDressing as addPackageScenarioSpecificClinicalSetDressing,
-  addRoleSpecificHumanoidVisuals as addRoleSpecificHumanoidVisualsPackage,
   clinicalTouchResponseClipNamesForActor as clinicalPackageTouchResponseClipNamesForActor,
   comparatorCaptureSubjectActorId as comparatorPackageCaptureSubjectActorId,
   gazeProbeAnimationClipNamesFromGltf as gazePackageProbeAnimationClipNamesFromGltf,
@@ -1656,6 +1655,7 @@ function refreshStationContextFromRuntimeBundle(): void {
 const canvas = requireElement<HTMLCanvasElement>("#station-canvas");
 const clock = requireElement<HTMLElement>("#station-clock");
 let replayClock = false;
+let breakClock = false;
 let syncedStation = false;
 const traceSummary = requireElement<HTMLElement>("#trace-summary");
 const traceActions = requireElement<HTMLElement>("#trace-actions");
@@ -3698,13 +3698,6 @@ function formatTechnicalGapStatus(summary: ManualPerformanceCaptureSummary | nul
   return formatPackageTraceTechnicalGapStatus(summary);
 }
 
-function _addRoleSpecificHumanoidVisuals(
-  humanoid: Group,
-  actorId: string,
-  faceCueMode: PackageHumanoidCueMode = "generated_glb",
-): void {
-  addRoleSpecificHumanoidVisualsPackage(assetLoadingContext(), humanoid, actorId, faceCueMode);
-}
 function recordRoleDistinctHumanoidCue(actorId: string, cueId: string, sceneObjectName: string): void {
   recordPackageRoleDistinctHumanoidCue(sceneCueRoleCueEvidence(), actorId, cueId, sceneObjectName);
 }
@@ -4608,7 +4601,7 @@ function tick(): void {
   // so DOM timer text is run-identical (PNG byte-identical, not just 3D-identical).
   const tickNow = isDeterministicCaptureClock() ? start : performance.now();
   state = { ...state, elapsedSecond: Math.floor((tickNow - start) / 1000) };
-  if (!replayClock) clock.textContent = formatStationClock(state.elapsedSecond);
+  if (!replayClock && !breakClock) clock.textContent = formatStationClock(state.elapsedSecond);
   if (examFormRunState) {
     const ticked = advancePackageFormRunClock(examFormRunState, formElapsedSecondForCurrentStation());
     if (ticked) {
@@ -4660,6 +4653,13 @@ if (window.location.search.includes("encounterSync=")) void import("@openclinxr/
     syncedStation = true;
     examFlowStation.textContent = `Station ${index + 1} of ${count}`;
     doorwayStation.textContent = `Station ${index + 1} of ${count}`;
+  },
+  // C53: the server's break countdown; the tick leaves the clock alone until it ends (remaining null).
+  onBreak: (remaining) => {
+    breakClock = remaining !== null;
+    if (remaining === null) return;
+    clock.textContent = `Break ${formatStationClock(remaining)}`;
+    doorwayStation.textContent = "Break";
   },
   voice: { assetBase: "/mesm-tts/", slotFor: (id) => generatedHumanoidAnimationSlotsByActorId.get(id) as never, voiceFor: ((voices) => (id: string) => voices.get(id))(new Map([edChestPainScenario, ...scenarioBank].flatMap((scenario) => scenario.actors).reverse().map((actor) => [actor.actorId, actor.ttsVoice] as const))) },
   register: (payload, tag) => { const parsed = liveActorTurnFromPayload(payload); return parsed ? registerLiveActorTurn(parsed.plan, parsed.execution, tag) : undefined; },
