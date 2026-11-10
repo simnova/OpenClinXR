@@ -331,6 +331,50 @@ Each phase gate is graded independently at native resolution; each phase ends wi
   cards from members dropped by clustering. Gate: part width and hairline falloff reported vs the target at
   common px/mm, grader judges the hairline and part closer to the target than BEST3, rubric 41/41. Tris
   recorded per round.
+  - Slice 1 done 2026-11-09 (p2a). The scalp tint is baked into the actor's albedo copy inside the runtime GLB
+    instead of an underlayer card group: no geometry, no extra draw, no sort against the BLEND fringe, and the
+    skin keeps its OPENCLINXR_skin_shade material. `cards/scalp_tint.py`: strand roots (groom-r9/s1, all 98,187
+    seated 1.0 mm above the skin) projected to the body UV, blurred (fine .6 mm, wide 3 mm at .3), and
+    composited toward the mean hair colour (amax .8); roots in the groom's sideburn zone (ear landmarks in the
+    groom's stats.json) weighted .2. `cards/hairline_edge_fade.py`: with a centre part the front hairline is
+    the side edge of the frontmost cards, so the atlas alpha fades over the outer .6 of the cell width, within
+    60 mm of the root, on cards whose outer side sits at the edge of the root field (561 of 1,447 cards).
+    Chain: `cards/p2_scalp.sh`; rebuild reproduces sha256 d81777caf80fc38e. Tris unchanged (no geometry).
+  - Report (`grade/part_width.py`, front view, runtime frame; EV/p2/part-p2ab.json):
+
+    | metric | target | BEST3 | p2a |
+    |---|---|---|---|
+    | part width median px | 2 | 5 | 2 |
+    | part peak L | .464 | .544 | .447 |
+    | hairline falloff median px | 12 | 2 | 6 |
+
+  - Independent grader (EV/p2/gradeA/grade-p2a.md): p2a hairline and part closer to the target than BEST3 in
+    front, three-quarter and side; back part closer in length and taper. Remaining p2a defects: a grey smudge
+    on the forehead at the part base (front, three-quarter); tint 5-10 px onto the skin below the hairline;
+    the soft hairline band reads as blur with no strand texture (wisp cards address it). Shared with BEST3:
+    grey see-through sideburn comb, card spikes across the part.
+  - Rejected in the sweep, with numbers: root density alone (st2) painted a solid patch in front of the ear
+    (grader); gating the tint by card cover within 6 mm of the skin (st5, st6) removed the part tint too
+    (part 5 px, as BEST3); an atlas alpha ramp over the first 6-20 mm from each edge card's root (st9-st12)
+    left the falloff at 6 px with the tint already at 5.5 and lightened the part at the crown. Rubric 41/41
+    not re-run: the rubric grades Cycles strand and card renders, which this slice does not change.
+  - Slice 2 done 2026-11-09 (g2). `scalp_tint.py --close-mm 2 --close-soft-mm 1.5`: the tint is multiplied by
+    the root-presence mask closed by 2 mm and blurred by 1.5 mm, so the narrow part gap keeps its tint and
+    skin outside the root field (forehead under the part base, neck, behind the ear) loses it. Chain
+    `cards/p2_scalp.sh` reproduces sha256 f346382e3945281b. Front report: part 2 px, peak L .447 (as p2a),
+    hairline falloff 4.5 px (p2a 6, target 12). Part-region shift vs p2a .03-.08 of the e1 shift.
+    Independent grader (EV/p2/gradeG/grade-g2.md): g2 closer to the target than p2a, 5 cells to 4 of 16, no
+    visible defect added or removed; side view slightly greyer in front of and behind the ear.
+  - Rejected in slice 2, with numbers: density-ratio erosion (e1, 3 mm) bared the part (front L 131-137 vs
+    target 102-126, EV/p2/gradeE); weaker erosions e4-e6 moved the part and the smudges by the same fraction
+    (.45/.45, .47/.59, .26/.19), so no setting keeps one and drops the other. Seeded strand break in the edge
+    fade (w2) lost in all 4 views (1 px stair-stepped hairline, back part 888 bright px vs 500, target 332).
+    Wisp ribbons from 80-160 root-field-edge strands (EV/p2/wisp/wisp_cards.py, not shipped): lifted off the
+    strand (wa) they lay on the crown cards as bright lines; hugging the skin under the cards (wb) they drew a
+    dark arc below the hairline (falloff 7.5 px by the report, a hard line by eye); short, thin and off the
+    part (wc) they were barely visible. The largest hairline gap is position: the card hairline sits about
+    30 rows lower and harder than the target's (front hairline row 253 vs 223), which is groom shape, not
+    wisps.
 - **P3 Strand reference (T4).**
   - Strand references: r10 B strands seeds 1-6 rendered in the target scene (make_sources.py lights,
     world, floor and cameras; groom imported in place of the removed library hair) at target framing; card
