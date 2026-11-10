@@ -6,5 +6,6 @@
     " `retarget_bvh` (Diffeomorphic)",
     "**GPL-2.0-or-later.** Clear licence, but copyleft.",
     "**Build-time tooling only**, same posture as MPFB's GPL-3.0-or-later (corrected 2026-09-09; this aside said AGPL, which the installed 2.0.15 manifest contradicts) — never linked into or shipped with the runtime. Recorded so nobody promotes it to a dependency. "
-  ]
+  ],
+  "note": "Installed 2026-11-07 into Blender 5.2.3 as bl_ext.user_default.retarget_bvh. Source: https://github.com/Diffeomorphic/retarget_bvh, operator-named. Tag version_5_2_0, commit 8501d53f66fffa8d2574a01532c30e195c8d2998, manifest version 5.2.0, license SPDX:GPL-2.0-or-later. Archive https://github.com/Diffeomorphic/retarget_bvh/archive/refs/tags/version_5_2_0.zip, 78024 bytes, sha256 916b75db74954210337fa75b25b5d53536ed234d98847471be78f4a0c7b0a83c; installed blender_manifest.toml sha256 f5e2169c6e1d8f04509a87db8c27c2ae3fb21b68c3dc853c90210f1637057ab4. Not on extensions.blender.org."
 }
