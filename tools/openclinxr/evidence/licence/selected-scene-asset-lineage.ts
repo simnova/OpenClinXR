@@ -365,8 +365,14 @@ export const SUBCOMPONENT_CLEARANCE: readonly SubcomponentClearance[] = [
     publicRenderCleared: true,
   },
   {
-    // The teeth swap (tsk_27e0cec12cab410d) ships the MPFB-fitted system-asset teeth and tongue
-    // (materialize_mpfb_humanoid_candidate.py, add_mhclo_asset on teeth_base / tongue01).
+    // The teeth swap (tsk_27e0cec12cab410d) ships the MPFB-fitted system-asset teeth and tongue.
+    // Producer: tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:8105-8106
+    // names them openclinxr_fitted_{teeth,tongue}_<prefix>_mesh; inputs at :520,:523 are
+    // .openclinxr-local/provider-cache/facial/teeth_base/teeth_base.mhclo (sha256 9edc3deff3bb97a9…)
+    // and .../facial/tongue01/tongue01.mhclo (sha256 61d825899cd78ff3…), byte-equal to the
+    // makehuman_system_assets_cc0.zip extraction. Header line 3 of both files:
+    // "# This asset was explicitly released as CC0 in september 2020." The producer refuses
+    // either fit unless teeth_tongue_licence_stamp (:1110) reads that stamp.
     meshMatch: "openclinxr_fitted_teeth",
     component: "MakeHuman system-asset teeth (teeth_base), MPFB-fitted",
     licenceRecordPath: "docs/openclinxr/asset-licence-records/row-38-makehuman-system-asset-teeth-tongue.json",

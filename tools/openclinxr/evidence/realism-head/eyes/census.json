@@ -65,7 +65,7 @@
     },
     {
       "label": "control",
-      "sha256": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
+      "sha256": "94c3b4127550738704f9a140fed482163038a4c7493bd342c502a1e3a73d3812",
       "eyeMeshes": [
         "makeclothes_library_eyes_low_poly_mpfb_ob_patient_aisha_v1_mesh",
         "openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_v1_mesh",
@@ -77,7 +77,10 @@
         "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_v1_mesh"
       ],
       "lashMorphs": {
-        "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_v1_mesh": []
+        "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_v1_mesh": [
+          "eye-left-closure",
+          "eye-right-closure"
+        ]
       },
       "shellMeshes": [],
       "tearlineMeshes": [],
@@ -104,7 +107,7 @@
       ],
       "irisTextureBytes": 718537,
       "trisEye": 52138,
-      "morphMeshCount": 1
+      "morphMeshCount": 2
     }
   ]
 }
