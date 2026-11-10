@@ -12,7 +12,7 @@ import { pathToFileURL } from "node:url";
 import { caseKey } from "./c52c-plant-core.mjs";
 
 export const DECK = "patient_stretcher";
-const INPUT_PATHS = ["packages/openclinxr/xr-pose/src", "packages/openclinxr/xr-station/src", "packages/openclinxr/asset-registry/src", "packages/openclinxr/scenario-fixtures/src", "tools/openclinxr/evidence/xr-sync/c52c-plant-core.mjs", "tools/openclinxr/evidence/xr-sync/c52c-cases.mjs", "apps/ui-xr/public/generated-humanoids"];
+const INPUT_PATHS = ["packages/openclinxr/xr-pose/src", "packages/openclinxr/xr-station/src", "packages/openclinxr/asset-registry/src", "packages/openclinxr/scenario-fixtures/src", "packages/openclinxr/xr-scene/src", "tools/openclinxr/evidence/xr-sync/c52c-plant-core.mjs", "tools/openclinxr/evidence/xr-sync/c52c-cases.mjs", "apps/ui-xr/public/generated-humanoids"];
 /** Mirrors postureForSupportSurface (asset-registry case-actor-placements-mod.ts:28), not exported. */
 const SUPINE_SURFACES = new Set(["stretcher", "bed", "exam_table"]);
 /** Mirrors isStretcherSlotId (xr-station station-stretcher.ts:332), not exported. */
@@ -81,7 +81,7 @@ export function unionCases(red, shipped) {
 
 /**
  * Hash of every input that can change a plant result or the case list: xr-pose / xr-station / asset-registry /
- * scenario-fixtures non-test sources, the shared core, this case list, the RED A fixture and the GLB bytes of the bodies used.
+ * scenario-fixtures / xr-scene (resolveHumanoidVariantOrCastPath picks each body) non-test sources, the shared core, this case list, the RED A fixture and the GLB bytes of the bodies used.
  * A json cannot name the commit that contains it, so the test accepts headSha == HEAD, or the same
  * input hash at HEAD (survives the json commit and a rebase that leaves these inputs alone).
  */

@@ -73,6 +73,28 @@ describe("the supine plant parity between node and the GPU browser", () => {
     expect(Object.fromEntries([...derivedPerFile].sort())).toEqual(Object.fromEntries([...perFile].sort()));
   });
 
+  it("each supine actor authored in blueprint source is a derived shipped case with the same actorId, surface and environmentId (literal pairing, independent of the built scenarioBank)", () => {
+    const dir = join(ROOT, "packages/openclinxr/scenario-fixtures/src");
+    const authored: string[] = [];
+    for (const f of readdirSync(dir).filter((x) => x.endsWith(".ts") && !x.endsWith(".test.ts"))) {
+      const text = readFileSync(join(dir, f), "utf8");
+      const envs = [...text.matchAll(/environmentId:\s*"([^"]+)"/g)].map((m) => m[1]);
+      for (const m of text.matchAll(/supportSurface:\s*"(stretcher|bed|exam_table)"/g)) {
+        // The actor that owns this placement is the nearest actorId literal (or actor("id", ...) helper call) before it.
+        const before = [...text.slice(0, m.index).matchAll(/(?:actorId:\s*|\bactor\(\s*)"([^"]+)"/g)].at(-1)?.[1] ?? "none";
+        authored.push(`packages/openclinxr/scenario-fixtures/src/${f}|${before}|${m[1]}|${envs.join(",")}`);
+      }
+    }
+    const derived = (parity.shippedCases as { blueprintPath: string; actorId: string; supportSurface: string; environmentId: string }[]).map((s) => {
+      const text = readFileSync(join(ROOT, s.blueprintPath), "utf8");
+      const envs = [...text.matchAll(/environmentId:\s*"([^"]+)"/g)].map((m) => m[1]);
+      expect(envs).toContain(s.environmentId);
+      return `${s.blueprintPath}|${s.actorId}|${s.supportSurface}|${envs.join(",")}`;
+    });
+    expect(authored.length).toBeGreaterThan(0);
+    expect(derived.sort()).toEqual(authored.sort());
+  });
+
   it("a shipped case missing from the json fails the case-set check", () => {
     const dropped = parity.cases.filter((row) => caseKey(row) !== caseKey(shipped[0] as { body: string; deck: string; inclineDeg: number }));
     expect(dropped.length).toBe(parity.cases.length - 1);

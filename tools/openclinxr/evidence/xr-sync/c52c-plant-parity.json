@@ -1,12 +1,12 @@
 {
   "slice": "C52c",
-  "headSha": "cdc909567201b113f2160080802903288cdb7a39",
-  "gitTreeSha": "94621df4d79d8f462b9c05bd0854177ea5ff6ba8",
+  "headSha": "e03714a469b042f76a37392e57ebe9bdec3a8642",
+  "gitTreeSha": "f514e0c850d3703227495f3ff51d69a91496d156",
   "uncommittedPaths": [
     "tools/openclinxr/evidence/xr-sync/c52c-cases.mjs",
     "tools/openclinxr/evidence/xr-sync/c52c-plant-parity.test.ts"
   ],
-  "inputTreeSha256": "4de6649a52d1769a2c8a9a4ec208c12f8a87e4d321beabb6d45b8c2801cf6b88",
+  "inputTreeSha256": "8eb180a21ba6dd9ad67252304093dbf4b590117361786bc02a26e542981e9a4e",
   "bundledPackages": [
     {
       "name": "@openclinxr/xr-pose",
@@ -50,8 +50,8 @@
   "nodeVersion": "v24.18.1",
   "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
   "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
-  "nodePid": 57617,
-  "browserPid": 58199,
+  "nodePid": 82417,
+  "browserPid": 82715,
   "toleranceM": 0.0001,
   "probe": null,
   "pageErrors": [],
