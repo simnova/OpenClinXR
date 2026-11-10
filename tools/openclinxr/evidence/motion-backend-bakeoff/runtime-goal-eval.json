@@ -9804,8 +9804,8 @@
     },
     "solverBlend": 1
   },
-  "measuredAgainstCommit": "f8a1758348b50779f41b8c7f1686ccedc19fb6a8",
-  "actorAssetSha256": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68",
+  "measuredAgainstCommit": "7c97cf707921266cc4ab70c47372af0d41e89597",
+  "actorAssetSha256": "55ba118b95684e4466490bcff9adb2f655cd13544ccaea763123fe624eff300b",
   "actorId": "mpfb-clinical-nurse-adult",
   "descriptorSha256": "58758a3f7bbf30607eef7fb53a1e2d3814ec1ce6c2aaf81dd0722ccd9a03d285"
 }
