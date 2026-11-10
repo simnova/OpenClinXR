@@ -38,5 +38,6 @@ Control valid: cut-85 sum D 73.6121 = v2 incumbent 73.6121.
 No cutoff gives row <= 247: by the rule the MASK cutoff is not the hairline cause; next is queue/05 option (a), root stagger
 in the atlas. The .5 cutoff changes 904 px in the front hairline window (rows 230-270, cols 450-570) without moving the row.
 Instrument fact: the hair matte (batch.ts matte:true) and iou are identical to the pixel at every cutoff (front matte 3,175,072
-values), so iou does not see texture alpha. No runtime override of alphaTest in apps/ui-xr/src (grep). The 253 here vs 252
-in the scored row is the standalone measure_band call vs score_trial's; not reconciled.
+values), so iou does not see texture alpha. No runtime override of alphaTest in apps/ui-xr/src (grep). score_trial reads the same 253 (score.json hairlineRow raw)
+on the incumbent; the 252 quoted as control came from the trial-24 seed builds, so the rule's 247 bar sits 6 px above the
+incumbent row, not 5.
