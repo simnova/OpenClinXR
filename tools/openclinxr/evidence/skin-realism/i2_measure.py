@@ -301,7 +301,22 @@ def runtime_paths(renders: Path, subject: str, region: str, v4: bool) -> tuple[P
     return image, card_num
 
 
-def runtime_record(renders: Path, subject: str, region: str, v4: bool) -> dict:
+def select_runtime_mask(rgb: np.ndarray, region: str, region_numbers: dict) -> tuple[np.ndarray | None, str, str | None]:
+    grey_card_box = region_numbers["greyCardBoxPx"]
+    if region == "cheek":
+        subject_crop_box = region_numbers.get("subjectCropPx")
+        if subject_crop_box is None:
+            return None, "", "no recorded subject rect"
+        return runtime_cheek_mask(rgb, grey_card_box, subject_crop_box)
+    mask, method = skin_mask(rgb, region, True, grey_card_box)
+    return mask, method, None
+
+
+def runtime_record(renders: Path, subject: str, region: str, v4: bool, mask_source: Path | None = None) -> dict:
+    # mask_source (grey-body P1, super-ceo-cap8 2026-11-10): the skin patch is selected on the capture of the
+    # same subject/region under mask_source (the baseline skin) and applied to this capture. A grey-body
+    # surface has no skin chroma, so a chroma gate on it selects nothing (L50) or an arbitrary patch (L18).
+    # Requires identical image size and grey-card box.
     image_path, card_path = runtime_paths(renders, subject, region, v4)
     if image_path is None:
         return {"unmeasurable": True, "unmeasurableReason": "runtime still missing", "card": "no card (v4)" if v4 else "missing"}
@@ -329,22 +344,27 @@ def runtime_record(renders: Path, subject: str, region: str, v4: bool) -> dict:
                 "card": "unreadable", "cardLitFraction": None, "unmeasurable": True,
                 "unmeasurableReason": "region numbers.json lacks greyCardBoxPx; refusing unmasked runtime skin patch"}
     rgb = np.asarray(Image.open(image_path).convert("RGB"))
-    if region == "cheek":
-        subject_crop_box = region_numbers.get("subjectCropPx")
-        if subject_crop_box is None:
-            return {"path": str(image_path), "sha256": sha(image_path), "raw": None, "normalized": None,
-                    "regionNumbersPath": str(region_numbers_path), "greyCardBoxPx": grey_card_box,
-                    "card": "unreadable", "cardLitFraction": None, "unmeasurable": True,
-                    "unmeasurableReason": "no recorded subject rect"}
-        mask, method, mask_reason = runtime_cheek_mask(rgb, grey_card_box, subject_crop_box)
-        if mask_reason is not None:
-            return {"path": str(image_path), "sha256": sha(image_path), "skinPatchMethod": method,
-                    "raw": None, "normalized": None, "regionNumbersPath": str(region_numbers_path),
-                    "greyCardBoxPx": grey_card_box, "subjectCropPx": subject_crop_box,
-                    "card": "unreadable", "cardLitFraction": None, "unmeasurable": True,
-                    "unmeasurableReason": mask_reason}
+    subject_crop_box = region_numbers.get("subjectCropPx")
+    if mask_source is None:
+        mask, method, mask_reason = select_runtime_mask(rgb, region, region_numbers)
     else:
-        mask, method = skin_mask(rgb, region, True, grey_card_box)
+        source_image, _ = runtime_paths(mask_source, subject, region, False)
+        source_numbers = json.loads(source_image.with_name("numbers.json").read_text()) if source_image else None
+        source_rgb = np.asarray(Image.open(source_image).convert("RGB")) if source_image else None
+        if source_image is None or source_numbers.get("greyCardBoxPx") is None:
+            mask, method, mask_reason = None, "", f"patch: mask source capture missing under {mask_source}"
+        elif source_rgb.shape != rgb.shape or source_numbers.get("greyCardBoxPx") != grey_card_box:
+            mask, method, mask_reason = None, "", (f"patch: mask source frame differs (shape {source_rgb.shape} vs {rgb.shape}, "
+                                                   f"card box {source_numbers.get('greyCardBoxPx')} vs {grey_card_box})")
+        else:
+            mask, source_method, mask_reason = select_runtime_mask(source_rgb, region, source_numbers)
+            method = f"mask selected on {source_image} (sha256 {sha(source_image)[:12]}) and applied here: {source_method}"
+    if mask_reason is not None:
+        return {"path": str(image_path), "sha256": sha(image_path), "skinPatchMethod": method,
+                "raw": None, "normalized": None, "regionNumbersPath": str(region_numbers_path),
+                "greyCardBoxPx": grey_card_box, "subjectCropPx": subject_crop_box,
+                "card": "not_read", "cardLitFraction": None, "unmeasurable": True,
+                "unmeasurableReason": mask_reason}
     raw = lab_stats(rgb, mask)
     if card_path is None:
         return {"path": str(image_path), "sha256": sha(image_path), "skinPatchMethod": method,
@@ -362,7 +382,11 @@ def runtime_record(renders: Path, subject: str, region: str, v4: bool) -> dict:
             "greyCardBoxPx": grey_card_box, "skinPatchMethod": method, "raw": raw,
             "normalized": normal, "card": {"numbersPath": str(card_path), "srgbMedian": srgb, "rawMedianLab": lab},
             "cardLitFraction": lit, "unmeasurable": not readable or raw is None or normal is None,
-            "unmeasurableReason": None if readable and raw and normal else "runtime card unreadable or <90% lit"}
+            "maskPixelCount": int(mask.sum()),
+            "unmeasurableReason": None if readable and raw and normal else (
+                "card: runtime card unreadable or <90% lit" if not readable
+                else "patch: fewer than 300 masked pixels (or 250 after the p5-p95 L* trim)" if raw is None
+                else "patch: normalized patch empty")}
 
 
 def cheek_mask_record(tile_path: Path, numbers_path: Path) -> dict:

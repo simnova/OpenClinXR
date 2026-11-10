@@ -1,4 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { execFileSync } from "node:child_process";
+import { mkdirSync, rmSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { encodePngRgb } from "./runtime-portrait-capture.js";
 import {
   cameraWithinTolerance,
   greybodyManifestFields,
@@ -125,5 +130,75 @@ describe("cameraWithinTolerance (grey-card placement)", () => {
   });
   it("keeps reflectance exact", () => {
     expect(cameraWithinTolerance(ORIGINAL, { ...NEW, linearReflectance: 0.181 })).toBe(false);
+  });
+});
+
+// P1 (super-ceo-cap8 2026-11-10): a grey-body surface has no skin chroma, so its patch is selected on the
+// baseline capture and applied to the grey capture. Fixture values are illustrative, not specification.
+describe("i2_measure runtime_record mask_source", () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
+  const dir = path.join(root, ".openclinxr/openclaw/ceo/st-skinref/greybody-mask/vitest");
+  const script = path.join(root, "tools/openclinxr/evidence/skin-realism/i2_measure.py");
+  const W = 160, H = 120;
+  const SUBJECT = { x0: 20, y0: 20, x1: 100, y1: 100 };
+  const CARD = { x0: 110, y0: 20, x1: 150, y1: 60 };
+  type Rect = typeof SUBJECT;
+  const tile = (subject: readonly [number, number, number]): Buffer => {
+    const rgb = new Uint8Array(W * H * 3);
+    for (let o = 0; o < rgb.length; o += 3) rgb.set([0x18, 0x21, 0x1d], o);
+    const paint = (b: Rect, c: readonly [number, number, number]) => {
+      for (let y = b.y0; y < b.y1; y += 1) for (let x = b.x0; x < b.x1; x += 1) rgb.set(c, (y * W + x) * 3);
+    };
+    paint(SUBJECT, subject);
+    paint(CARD, [118, 118, 118]);
+    return encodePngRgb(W, H, rgb);
+  };
+  const capture = (condition: string, subject: readonly [number, number, number], cardBox: Rect = CARD, lit = 0.95) => {
+    const region = path.join(dir, condition, "warm_light-forearm-close/region/mpfb-x/runtime/forearm-close");
+    const card = path.join(dir, condition, "warm_light-forearm-close/card/mpfb-x/runtime/neck-close");
+    mkdirSync(region, { recursive: true });
+    mkdirSync(card, { recursive: true });
+    writeFileSync(path.join(region, "new.png"), tile(subject));
+    writeFileSync(path.join(region, "numbers.json"), JSON.stringify({ greyCardBoxPx: cardBox }));
+    writeFileSync(path.join(card, "numbers.json"), JSON.stringify({ cardLab: { srgbMedian: [118, 118, 118], rawMedianLab: [49.6, 0, 0] }, cardBoxLitFraction: lit }));
+  };
+  type Record = { unmeasurable: boolean; unmeasurableReason: string | null; maskPixelCount?: number; raw: { Lab: number[] } | null; skinPatchMethod?: string };
+  const record = (condition: string, maskSource: string | null): Record => JSON.parse(execFileSync("mise", ["exec", "--", "python3", "-c", [
+    "import importlib.util, json, sys",
+    "from pathlib import Path",
+    "spec = importlib.util.spec_from_file_location('i2', sys.argv[1]); m = importlib.util.module_from_spec(spec); spec.loader.exec_module(m)",
+    "src = Path(sys.argv[3]) if sys.argv[3] != '-' else None",
+    "r = m.runtime_record(Path(sys.argv[2]), 'warm_light', 'forearm', False, src)",
+    "print(json.dumps({k: r.get(k) for k in ('unmeasurable', 'unmeasurableReason', 'maskPixelCount', 'raw', 'skinPatchMethod')}))",
+  ].join("\n"), script, path.join(dir, condition), maskSource ? path.join(dir, maskSource) : "-"], { cwd: root, encoding: "utf8" })) as Record;
+
+  beforeAll(() => {
+    rmSync(dir, { recursive: true, force: true });
+    capture("baseline", [176, 118, 91]);
+    capture("lambert-050", [188, 188, 188]);
+    capture("shifted-card", [188, 188, 188], { ...CARD, x0: CARD.x0 + 2 });
+    capture("dark-card", [188, 188, 188], CARD, 0.5);
+  });
+  afterAll(() => rmSync(dir, { recursive: true, force: true }));
+
+  it("a grey capture measured on its own chroma gate is a PATCH failure, not a card failure", () => {
+    const own = record("lambert-050", null);
+    expect(own.unmeasurable).toBe(true);
+    expect(own.unmeasurableReason).toMatch(/^patch: /);
+  });
+  it("the baseline mask measures the grey capture with the baseline's pixel count", () => {
+    const base = record("baseline", "baseline");
+    const grey = record("lambert-050", "baseline");
+    expect(grey.unmeasurable).toBe(false);
+    expect(grey.maskPixelCount).toBe(base.maskPixelCount);
+    expect(grey.maskPixelCount).toBeGreaterThanOrEqual(300);
+    expect(Math.abs(grey.raw!.Lab[1]!)).toBeLessThan(0.5);
+    expect(grey.skinPatchMethod).toMatch(/^mask selected on .*baseline/);
+  });
+  it("refuses a mask source whose grey-card box differs", () => {
+    expect(record("shifted-card", "baseline").unmeasurableReason).toMatch(/^patch: mask source frame differs/);
+  });
+  it("names an under-lit card as a CARD failure", () => {
+    expect(record("dark-card", "baseline").unmeasurableReason).toMatch(/^card: /);
   });
 });
