@@ -2,6 +2,30 @@
 
 This file tracks non-blocking operator questions that need a better answer after more evidence. Blockers that require operator action stay in `operator-steering-needed-questions.md`.
 
+## 2026-11-10 tasks.next is starved: the board ranks a stale campaign above every product card (decision needed)
+
+**Ask:** block or retarget the stale P0 cards, or add a priority field to the board so a supervisor can rank a product card above them.
+
+`tasks.next` on `prj_9b390b99b443a964` (rev 16068) returns `tsk_03510a2bdb1c1fb7`, "Verify asset citation provenance using real staged Git fixtures". It is a P0 instrument card, and its only write root is under `/Users/patrick/.codex/benchmarks/`, which does not exist on this machine. The next xr-sync product card, C51 `tsk_4953dd5dc871184b`, is P2.
+
+| ahead of C51 | count |
+|---|---:|
+| P0, Planted, ready, deps done | 29 |
+| of which root under the missing `/Users/patrick/.codex/benchmarks/` | 20 |
+| P1, Planted, ready, deps done (mostly hair lane) | 46 |
+
+The board has no priority field (`projects.fields.list`: `factory_step`, `lane`, `unblocks`, `garment_token`), and `tasks.update` does not patch `priority`. The P0 cards belong to the Codex CI-closure campaign of 2026-10-26..30, so a supervisor here does not touch them (GUARD_STANDING_APPROVAL §1 does not cover another owner's cards).
+
+Interim: C51 is dispatched outside `tasks.next` on `wt/xr-sync-c51`, the way C48-C50 were, and is claimed and bound on the board.
+
+## 2026-11-10 Hair reference pipeline: HELD lane
+
+Operator decision 2026-11-10, relayed by the CEO session: the hair reference pipeline (`operator-hair-reference-pipeline-plan-2026-11-07.md`, reviews in `.agent-factory/reviews/hair-reference-pipeline-2026-11-07/`) is HELD.
+
+- **Unblock condition:** hair-groom-2 lands on main.
+- No card for it is planted or dispatched until then.
+- Neither path is tracked on main yet; both sit untracked in the shared checkout.
+
 ## 2026-08-10 MPFB2 is GPL-3 and D11 makes it first-class — licence posture unresolved (non-blocking)
 
 **Recommended default if silent: keep using MPFB2 at authoring time only, and treat its output

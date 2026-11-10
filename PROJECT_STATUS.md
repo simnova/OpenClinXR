@@ -32,8 +32,9 @@ Board rev 16068, project `prj_9b390b99b443a964`. The "0 ready" reading at rev 16
 - C51 `tsk_4953dd5dc871184b`: RED `e6fcfa21a` on `claude/supervisor-2026-11-10-b80165`, with 3 `it.fails` and 5 counterweights. Destructive probes: a correct fix with the clauses flipped passes 13/13 (with C50); dropping the doorway write gives 1 failure; unhidden pre-filled markup gives 3 failures. The C50 harness now passes a `doorwayStation` stand-in. C52/C53 wait on C51; C54 waits on C53. C53/C54 REDs are not written.
 - DEQUEUE DEFECT: `tasks.next` returns `tsk_03510a2bdb1c1fb7` (P0, Oct 26-30 Codex CI-closure campaign), whose only write root is under the missing `/Users/patrick/.codex/benchmarks/`. 29 P0 and 46 P1 cards rank above C51 (P2). About 20 of the P0 cards root under that missing directory, and most of the P1 cards are hair-lane cards. The board has no priority field to patch. Not spawned.
 - Hair is owned by the hair-groom-2 lane and its port; not touched. Aisha part-open8 remains the hair keeper (`operator-hair-muse4h.md`).
+- HELD lane: hair reference pipeline (`operator-hair-reference-pipeline-plan-2026-11-07.md`), operator decision 2026-11-10. It unblocks when hair-groom-2 lands on main. No card is planted or dispatched for it.
 
-NEXT: decide how C51 reaches a worker (block the missing-root P0 cards, or dispatch outside `tasks.next` as C48-C50 were on `wt/xr-sync-cNN`), then C52 and C53.
+NEXT: C51 dispatched outside `tasks.next` on `wt/xr-sync-c51` (decision B, 2026-11-10). The starvation question is in `operator-open-questions.md`. Then C52 and C53.
 
 NOT TESTED: whether the 79 dep-satisfied Planted cards still have live REDs on main; whether the Codex benchmark outputs exist on another machine; C51 on-screen geometry (the worker's capture report owns it).
 <!-- WAKE-BLUF:END -->
