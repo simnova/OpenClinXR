@@ -25,8 +25,8 @@ async function drive(search: string, snapshots: Array<Record<string, unknown>>):
   const sink = (into: string[]) => ({ set textContent(value: string) { into.push(value); } });
   const formatStationClock = (seconds: number): string => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
   const body = ONPHASE.exec(MAIN)?.[1];
-  const make = new Function("examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "record", `let syncedServerPhase = "";\nreturn (phase, remaining) => {\n(() => {${body ?? ""}\n})();\nrecord(syncedServerPhase !== "");\n};`);
-  const run = make(sink(panel.timer), sink(panel.advance), sink(panel.label), formatStationClock, (value: boolean) => panel.synced.push(value)) as (phase: string, remaining: number) => void;
+  const make = new Function("examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "record", "updateExamFlowEvidence", `let syncedServerPhase = "";\nreturn (phase, remaining) => {\n(() => {${body ?? ""}\n})();\nrecord(syncedServerPhase !== "");\n};`);
+  const run = make(sink(panel.timer), sink(panel.advance), sink(panel.label), formatStationClock, (value: boolean) => panel.synced.push(value), () => undefined) as (phase: string, remaining: number) => void;
   let listener: ((s: unknown) => void) | undefined;
   await startEncounterSyncFromUrl({
     search,

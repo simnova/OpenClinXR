@@ -4652,10 +4652,10 @@ if (window.location.search.includes("encounterSync=")) void import("@openclinxr/
     clock.textContent = `Break ${formatStationClock(remaining)}`;
     doorwayStation.textContent = "Break";
   },
-  // C55': the server phase drives the flow panel (label, timer, advance).
-  // The local timer and advance writers in updateExamFlowEvidence skip once syncedServerPhase is non-empty.
+  // C55': the server phase drives the flow panel (label, timer, advance); updateExamFlowEvidence skips its local writers once syncedServerPhase is non-empty.
   onPhase: (phase, remaining) => {
     syncedServerPhase = phase;
+    updateExamFlowEvidence();
     const name = phase.charAt(0).toUpperCase() + phase.slice(1);
     stationClockLabel.textContent = name;
     examFlowTimer.textContent = `${name} ${formatStationClock(remaining)} left`;

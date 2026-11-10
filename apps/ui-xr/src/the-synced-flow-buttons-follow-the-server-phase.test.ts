@@ -30,6 +30,7 @@ interface Shell {
   intents: string[];
   snap(phase: string, remaining?: number): Promise<void>;
   flags(localPhase?: string): { end: boolean; submit: boolean };
+  peek(): { end: boolean; submit: boolean };
   clickEnd(): void;
   clickSubmit(): void;
 }
@@ -48,15 +49,16 @@ async function boot(search: string): Promise<Shell> {
   const buttons = { end: { disabled: true }, submit: { disabled: true } };
   const make = new Function(
     "examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "applyExamFlowIntent", "endEncounterButton", "submitNoteButton",
-    `let syncedServerPhase = "";\n` +
+    `let syncedServerPhase = "";\nlet updateExamFlowEvidence = () => undefined;\n` +
       `const onPhase = (phase, remaining) => {\n${ONPHASE.exec(MAIN)?.[1] ?? ""}\n};\n` +
       `const flags = (evidence) => {\n${END_LINES[0] ?? ""}\n${SUBMIT_LINES[0] ?? ""}\n};\n` +
       `const clickEnd = () => {\n${END_HANDLER}\n};\nconst clickSubmit = () => {\n${SUBMIT_HANDLER}\n};\n` +
-      `return { onPhase, flags, clickEnd, clickSubmit };`,
+      `return { onPhase, flags, clickEnd, clickSubmit, setUpdate: (fn) => { updateExamFlowEvidence = fn; } };`,
   );
   const shell = make(sink(), sink(), sink(), formatStationClock, applyExamFlowIntent, buttons.end, buttons.submit) as {
-    onPhase(phase: string, remaining: number): void; flags(evidence: { phase: string }): void; clickEnd(): void; clickSubmit(): void;
+    onPhase(phase: string, remaining: number): void; flags(evidence: { phase: string }): void; clickEnd(): void; clickSubmit(): void; setUpdate(fn: () => void): void;
   };
+  shell.setUpdate(() => shell.flags({ phase: local.phase }));
   let listener: ((s: unknown) => void) | undefined;
   await startEncounterSyncFromUrl({
     search,
@@ -74,6 +76,7 @@ async function boot(search: string): Promise<Shell> {
     intents,
     snap: async (phase, remaining = 5) => { listener?.({ serverTick: 1, turnId: 0, turnOwner: "none", actors: {}, learners: {}, ...at(phase, remaining) }); await flush(); },
     flags: (localPhase = local.phase) => { shell.flags({ phase: localPhase }); return { end: !buttons.end.disabled, submit: !buttons.submit.disabled }; },
+    peek: () => ({ end: !buttons.end.disabled, submit: !buttons.submit.disabled }),
     clickEnd: () => shell.clickEnd(),
     clickSubmit: () => shell.clickSubmit(),
   };
@@ -147,7 +150,7 @@ describe("the synced flow buttons follow the server phase (C57)", () => {
     }
   });
 
-  it("CW7 one writer per flag, the handlers keep their intent calls, one variable replaces syncedPhase, handlers keep their 3-line shape, main.ts stays line-neutral", () => {
+  it("CW7 one writer per flag, the handlers keep their intent calls, one variable replaces syncedPhase, handlers keep their 3-line shape, main.ts keeps exactly its base line count", () => {
     expect(END_LINES).toHaveLength(1);
     expect(SUBMIT_LINES).toHaveLength(1);
     expect(END_LINES[0]).toMatch(/;\s*$/u);
@@ -160,7 +163,7 @@ describe("the synced flow buttons follow the server phase (C57)", () => {
     expect(END_HANDLER.split("\n")).toHaveLength(3);
     expect(SUBMIT_HANDLER.split("\n")).toHaveLength(3);
     expect(MAIN).toContain("examFlowStore.applyIntent(kind);");
-    expect(MAIN.split("\n").length - (MAIN.endsWith("\n") ? 1 : 0)).toBeLessThanOrEqual(MAIN_LINES_AT_BASE);
+    expect(MAIN.split("\n").length - (MAIN.endsWith("\n") ? 1 : 0)).toBe(MAIN_LINES_AT_BASE);
   });
 
   it("CW8 styles.css gives both flow buttons the existing disabled look through the .xr-entry-button:disabled rule only", () => {
@@ -171,5 +174,20 @@ describe("the synced flow buttons follow the server phase (C57)", () => {
     expect(shared[0]).toContain("#end-encounter-button:disabled");
     expect(shared[0]).toContain("#submit-note-button:disabled");
     expect(rules.filter((selector) => /#(end-encounter-button|submit-note-button)/u.test(selector))).toEqual(shared);
+  });
+
+  it("CW9 the flags follow a server phase change at once: onPhase runs the one flag writer, no frame wait", async () => {
+    const shell = await boot(SYNC);
+    shell.local.phase = "encounter";
+    await shell.snap("encounter", 30);
+    expect(shell.peek()).toEqual({ end: true, submit: false });
+    await shell.snap("break", 5);
+    expect(shell.peek()).toEqual({ end: false, submit: false });
+    shell.local.phase = "note";
+    await shell.snap("note", 20);
+    expect(shell.peek()).toEqual({ end: false, submit: true });
+    const body = ONPHASE.exec(MAIN)?.[1] ?? "";
+    expect(body.indexOf("syncedServerPhase = phase;")).toBeGreaterThanOrEqual(0);
+    expect(body.indexOf("updateExamFlowEvidence();")).toBeGreaterThan(body.indexOf("syncedServerPhase = phase;"));
   });
 });
