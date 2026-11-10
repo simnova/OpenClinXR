@@ -70,3 +70,12 @@ A1::MASK CONTAMINATION. hideHair diff mask (|img − nohair|) includes shirt/ski
 A2::TARGETS ON A DIFFERENT BODY (targets: mpfb_parent_tara_johnson_v1 15,949 verts; runtime: ob_patient_aisha 7,006 verts [DESIGN ~L398]). IoU and hairlineRow vs target only after registration: `grade/runtime_frame.py fit-head` (be78f298d; IoU .895-.985) for every view; frame id per trial row. IoU floors .79/.83/.84 demoted to soft terms; HARD iou floor_v = incumbent registered IoU_v − δ_seed_v.
 A3::δ_seed_v from `grade/p3_tol.py` output (EV/p3/tol.json; seed 6 passes 19/24 cells, r10 fails 4 views).
 GPU::P3 condition met (be78f298d). One heavy job at a time incl. the C51 board worker's Playwright captures.
+A4::SHIP RULE (CEO, 2026-11-10; replaces "every view ≥ max(2δ,Δ/4)"; applied post hoc to trials.csv at stage end; driver not restarted).
+Derivation: Δ_full_v = D_r10_v − D_BEST3_v under the frozen full objective (12ab0163d, matte, fithead-8f1709ab) [meas: .openclinxr/opt/hair-groom-2/DELTA_FULL.md]; r_v = Δ_full_v / D_r10_v (relative cut of the graded 4/4 win BEST3 vs r10): front .394 | 3q .599 | side .410 | back .691. The /4 is carried from turn 3 and is UNSOURCED.
+S1 non-regression: D_v ≤ D_inc_v + δ_v, all 4 views.
+S2 G1 literal: D_v < D_BEST3_v, all 4 views.
+S3 visible gain in ≥ 2 of 4 views: D_v ≤ D_inc_v − max(2δ_v, D_inc_v·r_v/4) ⇒ front ≤ 23.59 | 3q ≤ 15.84 | side ≤ 17.78 | back ≤ 6.27.
+S4 total: ΣD ≤ ΣD_inc − 2Σδ = 74.11 − 9.26 = 64.85.
+Stability (CEO): g2 instead of BEST3 as win end point moves the /4 margins by .57 | .11 | .13 | .02, each < δ_v.
+Known leak: a darker/flatter K↓ spec↑ trade on front+3q can pass S1-S4; a candidate is not a ship until the finalist Q1/Q2 gate passes.
+Stage-end report adds: count of trials passing S1-S4; best one's per-view D_v vs each bar; trials failing exactly one clause by < δ_v listed as border cases (reported, not passed).
