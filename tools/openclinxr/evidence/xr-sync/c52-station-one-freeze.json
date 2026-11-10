@@ -1,0 +1,2254 @@
+{
+  "slice": "C52",
+  "generatedFrom": [
+    "/Volumes/files/src/openclinxr/.openclinxr/slices/xr-sync-colyseus/evidence/c52v2/v2syn-1",
+    "/Volumes/files/src/openclinxr/.openclinxr/slices/xr-sync-colyseus/evidence/c52v2/v2syn-2",
+    "/Volumes/files/src/openclinxr/.openclinxr/slices/xr-sync-colyseus/evidence/c52v2/v2syn-3",
+    "/Volumes/files/src/openclinxr/.openclinxr/slices/xr-sync-colyseus/evidence/c52v2/v2ctl-1",
+    "/Volumes/files/src/openclinxr/.openclinxr/slices/xr-sync-colyseus/evidence/c52v2/v2swapctl-1",
+    "/Volumes/files/src/openclinxr/.openclinxr/slices/xr-sync-colyseus/evidence/c52v2/v2swapsyn-1"
+  ],
+  "runs": [
+    {
+      "runId": "v2syn-1",
+      "mode": "synced",
+      "traced": true,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpu": true,
+      "loadAvg": {
+        "start": 106.0166015625,
+        "end": 48.6171875
+      },
+      "clock": {
+        "timeOrigin": 1794293621695.4,
+        "nowMs": 767.7000002861023,
+        "dateNow": 1794293622463
+      },
+      "trace": {
+        "path": "/Volumes/files/openclinxr-assets/store/xr-sync/c52/v2syn-1/trace.json",
+        "sha256": "5f32409a66e5389dea8023923342a3a65df80901345693deaeb3d3e5c50f3163",
+        "bytes": 127830035
+      },
+      "driverT0": 1794293622464,
+      "gaps": [
+        {
+          "startMs": -22,
+          "endMs": 7214,
+          "durationMs": 7236
+        },
+        {
+          "startMs": 7214,
+          "endMs": 7496,
+          "durationMs": 282
+        }
+      ],
+      "largestGap": {
+        "startMs": -22,
+        "endMs": 7214,
+        "durationMs": 7236,
+        "topTasks": [
+          {
+            "traceEventName": "BlinkScheduler_PerformMicrotaskCheckpoint",
+            "url": "",
+            "functionName": "",
+            "selfMs": 6837.907,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"BlinkScheduler_PerformMicrotaskCheckpoint\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js",
+            "functionName": "i",
+            "selfMs": 165.303,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js\" function=\"i\" => script_eval"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForGetOffset",
+            "url": "",
+            "functionName": "",
+            "selfMs": 70.745,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForGetOffset\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForToken",
+            "url": "",
+            "functionName": "",
+            "selfMs": 64.705,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForToken\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL",
+            "url": "",
+            "functionName": "",
+            "selfMs": 16.559,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL\" => gc"
+          },
+          {
+            "traceEventName": "ThreadControllerImpl::RunTask",
+            "url": "",
+            "functionName": "",
+            "selfMs": 16.373,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"ThreadControllerImpl::RunTask\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 11.165,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 8.921,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_ROOTS",
+            "url": "",
+            "functionName": "",
+            "selfMs": 4.542,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_ROOTS\" => gc"
+          },
+          {
+            "traceEventName": "MinorGC",
+            "url": "",
+            "functionName": "",
+            "selfMs": 4.023,
+            "cause": "gc",
+            "evidence": "traceEventName=\"MinorGC\" => gc"
+          }
+        ],
+        "cpuProfileTop": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js",
+            "functionName": "multiplyMatrices",
+            "lineNumber": 0,
+            "columnNumber": 45846,
+            "selfMs": 984.996,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js\" function=\"multiplyMatrices\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/main-DwR8ehk6.js",
+            "functionName": "by",
+            "lineNumber": 3,
+            "columnNumber": 148024,
+            "selfMs": 822.658,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/main-DwR8ehk6.js\" function=\"by\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyBoneTransform",
+            "lineNumber": 0,
+            "columnNumber": 130356,
+            "selfMs": 798.262,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js\" function=\"applyBoneTransform\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js",
+            "functionName": "updateWorldMatrix",
+            "lineNumber": 0,
+            "columnNumber": 60200,
+            "selfMs": 655.307,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js\" function=\"updateWorldMatrix\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "selfMs": 566.078,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/main-DwR8ehk6.js\" function=\"Sy\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 3,
+            "columnNumber": 149039,
+            "selfMs": 270,
+            "source": "cpu_profile",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js",
+            "functionName": "getVertexPosition",
+            "lineNumber": 0,
+            "columnNumber": 125111,
+            "selfMs": 193.187,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js\" function=\"getVertexPosition\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js",
+            "functionName": "worldToLocal",
+            "lineNumber": 0,
+            "columnNumber": 56784,
+            "selfMs": 177.091,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js\" function=\"worldToLocal\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyMatrix4",
+            "lineNumber": 0,
+            "columnNumber": 35105,
+            "selfMs": 150.259,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js\" function=\"applyMatrix4\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js",
+            "functionName": "getVertexPosition",
+            "lineNumber": 0,
+            "columnNumber": 129553,
+            "selfMs": 140.885,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js\" function=\"getVertexPosition\" => script_eval"
+          }
+        ],
+        "cpuProfileInclusive": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 79757,
+            "inclusiveMs": 6685.981,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 57397,
+            "inclusiveMs": 6685.674,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 180,
+            "columnNumber": 156599,
+            "inclusiveMs": 6684.852,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/main-DwR8ehk6.js",
+            "functionName": "$L",
+            "lineNumber": 180,
+            "columnNumber": 124827,
+            "inclusiveMs": 6675.083,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/main-DwR8ehk6.js\" function=\"$L\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/main-DwR8ehk6.js",
+            "functionName": "Nx",
+            "lineNumber": 3,
+            "columnNumber": 201157,
+            "inclusiveMs": 6669.233,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/main-DwR8ehk6.js\" function=\"Nx\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/main-DwR8ehk6.js",
+            "functionName": "applyAndPlantSupineDeck",
+            "lineNumber": 274,
+            "columnNumber": 21149,
+            "inclusiveMs": 6669.233,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/main-DwR8ehk6.js\" function=\"applyAndPlantSupineDeck\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "inclusiveMs": 6307.325,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/main-DwR8ehk6.js\" function=\"Sy\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/main-DwR8ehk6.js",
+            "functionName": "Ib",
+            "lineNumber": 3,
+            "columnNumber": 172181,
+            "inclusiveMs": 6297.523,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/main-DwR8ehk6.js\" function=\"Ib\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/main-DwR8ehk6.js",
+            "functionName": "h",
+            "lineNumber": 3,
+            "columnNumber": 173239,
+            "inclusiveMs": 6274.55,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/main-DwR8ehk6.js\" function=\"h\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "inclusiveMs": 5905.572,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50310/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => other"
+          }
+        ],
+        "mainThread": {
+          "pid": 37945,
+          "tid": 208205275
+        }
+      },
+      "voidRun": false,
+      "lags": [
+        {
+          "stationIndex": 0,
+          "want": "Station 1 of 3",
+          "lagMs": -22
+        },
+        {
+          "stationIndex": 1,
+          "want": "Station 2 of 3",
+          "lagMs": 376
+        },
+        {
+          "stationIndex": 2,
+          "want": "Station 3 of 3",
+          "lagMs": 428
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "t0": 1794293622447
+    },
+    {
+      "runId": "v2syn-2",
+      "mode": "synced",
+      "traced": true,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpu": true,
+      "loadAvg": {
+        "start": 45.2841796875,
+        "end": 23.73828125
+      },
+      "clock": {
+        "timeOrigin": 1794293680811,
+        "nowMs": 692.4000000953674,
+        "dateNow": 1794293681503
+      },
+      "trace": {
+        "path": "/Volumes/files/openclinxr-assets/store/xr-sync/c52/v2syn-2/trace.json",
+        "sha256": "fa26d6de6a87004f14728f6a26e78b10ae561bfd88333a29f83369d14e5bf316",
+        "bytes": 129714634
+      },
+      "driverT0": 1794293681507,
+      "gaps": [
+        {
+          "startMs": 28,
+          "endMs": 7408,
+          "durationMs": 7380
+        }
+      ],
+      "largestGap": {
+        "startMs": 28,
+        "endMs": 7408,
+        "durationMs": 7380,
+        "topTasks": [
+          {
+            "traceEventName": "BlinkScheduler_PerformMicrotaskCheckpoint",
+            "url": "",
+            "functionName": "",
+            "selfMs": 6826.342,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"BlinkScheduler_PerformMicrotaskCheckpoint\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:50344/assets/main-DwR8ehk6.js",
+            "functionName": "we",
+            "selfMs": 162.136,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:50344/assets/main-DwR8ehk6.js\" function=\"we\" => script_eval"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForToken",
+            "url": "",
+            "functionName": "",
+            "selfMs": 136.57,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForToken\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js",
+            "functionName": "i",
+            "selfMs": 92.83,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js\" function=\"i\" => script_eval"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForGetOffset",
+            "url": "",
+            "functionName": "",
+            "selfMs": 87.127,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForGetOffset\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL",
+            "url": "",
+            "functionName": "",
+            "selfMs": 15.634,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 8.814,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 8.427,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_ROOTS",
+            "url": "",
+            "functionName": "",
+            "selfMs": 4.525,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_ROOTS\" => gc"
+          },
+          {
+            "traceEventName": "MinorGC",
+            "url": "",
+            "functionName": "",
+            "selfMs": 3.995,
+            "cause": "gc",
+            "evidence": "traceEventName=\"MinorGC\" => gc"
+          }
+        ],
+        "cpuProfileTop": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js",
+            "functionName": "multiplyMatrices",
+            "lineNumber": 0,
+            "columnNumber": 45846,
+            "selfMs": 973.214,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js\" function=\"multiplyMatrices\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/main-DwR8ehk6.js",
+            "functionName": "by",
+            "lineNumber": 3,
+            "columnNumber": 148024,
+            "selfMs": 837.646,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/main-DwR8ehk6.js\" function=\"by\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyBoneTransform",
+            "lineNumber": 0,
+            "columnNumber": 130356,
+            "selfMs": 799.257,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js\" function=\"applyBoneTransform\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js",
+            "functionName": "updateWorldMatrix",
+            "lineNumber": 0,
+            "columnNumber": 60200,
+            "selfMs": 673.613,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js\" function=\"updateWorldMatrix\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "selfMs": 565.702,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/main-DwR8ehk6.js\" function=\"Sy\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 3,
+            "columnNumber": 149039,
+            "selfMs": 259.896,
+            "source": "cpu_profile",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js",
+            "functionName": "getVertexPosition",
+            "lineNumber": 0,
+            "columnNumber": 125111,
+            "selfMs": 187.547,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js\" function=\"getVertexPosition\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js",
+            "functionName": "worldToLocal",
+            "lineNumber": 0,
+            "columnNumber": 56784,
+            "selfMs": 183.653,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js\" function=\"worldToLocal\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "",
+            "functionName": "texSubImage2D",
+            "selfMs": 154.728,
+            "source": "cpu_profile",
+            "cause": "texture_upload",
+            "evidence": "traceEventName=\"cpu_profile\" function=\"texSubImage2D\" => texture_upload"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "selfMs": 150.866,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => script_eval"
+          }
+        ],
+        "cpuProfileInclusive": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 79757,
+            "inclusiveMs": 6651.077,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 57397,
+            "inclusiveMs": 6650.7,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 180,
+            "columnNumber": 156599,
+            "inclusiveMs": 6650.263,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/main-DwR8ehk6.js",
+            "functionName": "$L",
+            "lineNumber": 180,
+            "columnNumber": 124827,
+            "inclusiveMs": 6641.325,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/main-DwR8ehk6.js\" function=\"$L\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/main-DwR8ehk6.js",
+            "functionName": "applyAndPlantSupineDeck",
+            "lineNumber": 274,
+            "columnNumber": 21149,
+            "inclusiveMs": 6635.734,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/main-DwR8ehk6.js\" function=\"applyAndPlantSupineDeck\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/main-DwR8ehk6.js",
+            "functionName": "Nx",
+            "lineNumber": 3,
+            "columnNumber": 201157,
+            "inclusiveMs": 6635.623,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/main-DwR8ehk6.js\" function=\"Nx\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "inclusiveMs": 6278.258,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/main-DwR8ehk6.js\" function=\"Sy\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/main-DwR8ehk6.js",
+            "functionName": "Ib",
+            "lineNumber": 3,
+            "columnNumber": 172181,
+            "inclusiveMs": 6269.367,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/main-DwR8ehk6.js\" function=\"Ib\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/main-DwR8ehk6.js",
+            "functionName": "h",
+            "lineNumber": 3,
+            "columnNumber": 173239,
+            "inclusiveMs": 6245.347,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/main-DwR8ehk6.js\" function=\"h\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "inclusiveMs": 5918.613,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50344/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => other"
+          }
+        ],
+        "mainThread": {
+          "pid": 38247,
+          "tid": 208207211
+        }
+      },
+      "voidRun": false,
+      "lags": [
+        {
+          "stationIndex": 0,
+          "want": "Station 1 of 3",
+          "lagMs": -85
+        },
+        {
+          "stationIndex": 1,
+          "want": "Station 2 of 3",
+          "lagMs": 371
+        },
+        {
+          "stationIndex": 2,
+          "want": "Station 3 of 3",
+          "lagMs": 390
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "t0": 1794293681423
+    },
+    {
+      "runId": "v2syn-3",
+      "mode": "synced",
+      "traced": true,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpu": true,
+      "loadAvg": {
+        "start": 21.25048828125,
+        "end": 13.29931640625
+      },
+      "clock": {
+        "timeOrigin": 1794293740069.5,
+        "nowMs": 706.5999999046326,
+        "dateNow": 1794293740776
+      },
+      "trace": {
+        "path": "/Volumes/files/openclinxr-assets/store/xr-sync/c52/v2syn-3/trace.json",
+        "sha256": "1e5dde0ddff6e2dc8d5a4864f15cb216fb3568fac4f4ccd5a3d9977d3a196f0f",
+        "bytes": 130498361
+      },
+      "driverT0": 1794293740803,
+      "gaps": [
+        {
+          "startMs": 19,
+          "endMs": 7444,
+          "durationMs": 7425
+        }
+      ],
+      "largestGap": {
+        "startMs": 19,
+        "endMs": 7444,
+        "durationMs": 7425,
+        "topTasks": [
+          {
+            "traceEventName": "BlinkScheduler_PerformMicrotaskCheckpoint",
+            "url": "",
+            "functionName": "",
+            "selfMs": 6843.189,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"BlinkScheduler_PerformMicrotaskCheckpoint\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js",
+            "functionName": "i",
+            "selfMs": 199.316,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js\" function=\"i\" => script_eval"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForToken",
+            "url": "",
+            "functionName": "",
+            "selfMs": 146.997,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForToken\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForGetOffset",
+            "url": "",
+            "functionName": "",
+            "selfMs": 87.574,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForGetOffset\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:50381/assets/main-DwR8ehk6.js",
+            "functionName": "we",
+            "selfMs": 73.234,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:50381/assets/main-DwR8ehk6.js\" function=\"we\" => script_eval"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL",
+            "url": "",
+            "functionName": "",
+            "selfMs": 16.709,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 9.84,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 8.689,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_ROOTS",
+            "url": "",
+            "functionName": "",
+            "selfMs": 4.819,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_ROOTS\" => gc"
+          },
+          {
+            "traceEventName": "MinorGC",
+            "url": "",
+            "functionName": "",
+            "selfMs": 4.244,
+            "cause": "gc",
+            "evidence": "traceEventName=\"MinorGC\" => gc"
+          }
+        ],
+        "cpuProfileTop": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js",
+            "functionName": "multiplyMatrices",
+            "lineNumber": 0,
+            "columnNumber": 45846,
+            "selfMs": 984.463,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js\" function=\"multiplyMatrices\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/main-DwR8ehk6.js",
+            "functionName": "by",
+            "lineNumber": 3,
+            "columnNumber": 148024,
+            "selfMs": 840.633,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/main-DwR8ehk6.js\" function=\"by\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyBoneTransform",
+            "lineNumber": 0,
+            "columnNumber": 130356,
+            "selfMs": 795.517,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js\" function=\"applyBoneTransform\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js",
+            "functionName": "updateWorldMatrix",
+            "lineNumber": 0,
+            "columnNumber": 60200,
+            "selfMs": 669.026,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js\" function=\"updateWorldMatrix\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "selfMs": 563.631,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/main-DwR8ehk6.js\" function=\"Sy\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 3,
+            "columnNumber": 149039,
+            "selfMs": 251.078,
+            "source": "cpu_profile",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js",
+            "functionName": "worldToLocal",
+            "lineNumber": 0,
+            "columnNumber": 56784,
+            "selfMs": 187.452,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js\" function=\"worldToLocal\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js",
+            "functionName": "getVertexPosition",
+            "lineNumber": 0,
+            "columnNumber": 125111,
+            "selfMs": 185.133,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js\" function=\"getVertexPosition\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "",
+            "functionName": "texSubImage2D",
+            "selfMs": 166.356,
+            "source": "cpu_profile",
+            "cause": "texture_upload",
+            "evidence": "traceEventName=\"cpu_profile\" function=\"texSubImage2D\" => texture_upload"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "selfMs": 146.766,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => script_eval"
+          }
+        ],
+        "cpuProfileInclusive": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 79757,
+            "inclusiveMs": 6667.817,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 57397,
+            "inclusiveMs": 6667.496,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 180,
+            "columnNumber": 156599,
+            "inclusiveMs": 6667.225,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/main-DwR8ehk6.js",
+            "functionName": "$L",
+            "lineNumber": 180,
+            "columnNumber": 124827,
+            "inclusiveMs": 6658.381,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/main-DwR8ehk6.js\" function=\"$L\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/main-DwR8ehk6.js",
+            "functionName": "Nx",
+            "lineNumber": 3,
+            "columnNumber": 201157,
+            "inclusiveMs": 6652.685,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/main-DwR8ehk6.js\" function=\"Nx\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/main-DwR8ehk6.js",
+            "functionName": "applyAndPlantSupineDeck",
+            "lineNumber": 274,
+            "columnNumber": 21149,
+            "inclusiveMs": 6652.685,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/main-DwR8ehk6.js\" function=\"applyAndPlantSupineDeck\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "inclusiveMs": 6285.272,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/main-DwR8ehk6.js\" function=\"Sy\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/main-DwR8ehk6.js",
+            "functionName": "Ib",
+            "lineNumber": 3,
+            "columnNumber": 172181,
+            "inclusiveMs": 6281.032,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/main-DwR8ehk6.js\" function=\"Ib\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/main-DwR8ehk6.js",
+            "functionName": "h",
+            "lineNumber": 3,
+            "columnNumber": 173239,
+            "inclusiveMs": 6256.574,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/main-DwR8ehk6.js\" function=\"h\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "inclusiveMs": 5949.475,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50381/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => other"
+          }
+        ],
+        "mainThread": {
+          "pid": 38586,
+          "tid": 208209701
+        }
+      },
+      "voidRun": false,
+      "lags": [
+        {
+          "stationIndex": 0,
+          "want": "Station 1 of 3",
+          "lagMs": -35
+        },
+        {
+          "stationIndex": 1,
+          "want": "Station 2 of 3",
+          "lagMs": 440
+        },
+        {
+          "stationIndex": 2,
+          "want": "Station 3 of 3",
+          "lagMs": 386
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "t0": 1794293740769
+    },
+    {
+      "runId": "v2ctl-1",
+      "mode": "control",
+      "traced": true,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpu": true,
+      "loadAvg": {
+        "start": 12.330078125,
+        "end": 9.72314453125
+      },
+      "clock": {
+        "timeOrigin": 1794293799369.4,
+        "nowMs": 290,
+        "dateNow": 1794293799659
+      },
+      "trace": {
+        "path": "/Volumes/files/openclinxr-assets/store/xr-sync/c52/v2ctl-1/trace.json",
+        "sha256": "522b5abab1a6c0ad3031be2a529b37f153ccf013f3b5de1bcb649a09500cb099",
+        "bytes": 84168447
+      },
+      "driverT0": 1794293799569,
+      "gaps": [
+        {
+          "startMs": 549,
+          "endMs": 7786,
+          "durationMs": 7237
+        },
+        {
+          "startMs": 8064,
+          "endMs": 8340,
+          "durationMs": 276
+        }
+      ],
+      "largestGap": {
+        "startMs": 549,
+        "endMs": 7786,
+        "durationMs": 7237,
+        "topTasks": [
+          {
+            "traceEventName": "BlinkScheduler_PerformMicrotaskCheckpoint",
+            "url": "",
+            "functionName": "",
+            "selfMs": 6817.896,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"BlinkScheduler_PerformMicrotaskCheckpoint\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js",
+            "functionName": "i",
+            "selfMs": 160.451,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js\" function=\"i\" => script_eval"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForGetOffset",
+            "url": "",
+            "functionName": "",
+            "selfMs": 65.579,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForGetOffset\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForToken",
+            "url": "",
+            "functionName": "",
+            "selfMs": 64.224,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForToken\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:50412/assets/main-DwR8ehk6.js",
+            "functionName": "we",
+            "selfMs": 62.14,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:50412/assets/main-DwR8ehk6.js\" function=\"we\" => script_eval"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL",
+            "url": "",
+            "functionName": "",
+            "selfMs": 17.1,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 8.925,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 8.656,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_ROOTS",
+            "url": "",
+            "functionName": "",
+            "selfMs": 4.606,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_ROOTS\" => gc"
+          },
+          {
+            "traceEventName": "MinorGC",
+            "url": "",
+            "functionName": "",
+            "selfMs": 4.308,
+            "cause": "gc",
+            "evidence": "traceEventName=\"MinorGC\" => gc"
+          }
+        ],
+        "cpuProfileTop": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js",
+            "functionName": "multiplyMatrices",
+            "lineNumber": 0,
+            "columnNumber": 45846,
+            "selfMs": 979.943,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js\" function=\"multiplyMatrices\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyBoneTransform",
+            "lineNumber": 0,
+            "columnNumber": 130356,
+            "selfMs": 825.688,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js\" function=\"applyBoneTransform\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/main-DwR8ehk6.js",
+            "functionName": "by",
+            "lineNumber": 3,
+            "columnNumber": 148024,
+            "selfMs": 824.216,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/main-DwR8ehk6.js\" function=\"by\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js",
+            "functionName": "updateWorldMatrix",
+            "lineNumber": 0,
+            "columnNumber": 60200,
+            "selfMs": 665.377,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js\" function=\"updateWorldMatrix\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "selfMs": 554.57,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/main-DwR8ehk6.js\" function=\"Sy\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 3,
+            "columnNumber": 149039,
+            "selfMs": 247.27,
+            "source": "cpu_profile",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js",
+            "functionName": "getVertexPosition",
+            "lineNumber": 0,
+            "columnNumber": 125111,
+            "selfMs": 191.94,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js\" function=\"getVertexPosition\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js",
+            "functionName": "worldToLocal",
+            "lineNumber": 0,
+            "columnNumber": 56784,
+            "selfMs": 181.779,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js\" function=\"worldToLocal\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyMatrix4",
+            "lineNumber": 0,
+            "columnNumber": 35105,
+            "selfMs": 147.867,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js\" function=\"applyMatrix4\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js",
+            "functionName": "getVertexPosition",
+            "lineNumber": 0,
+            "columnNumber": 129553,
+            "selfMs": 146.826,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js\" function=\"getVertexPosition\" => script_eval"
+          }
+        ],
+        "cpuProfileInclusive": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 79757,
+            "inclusiveMs": 6652.875,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 57397,
+            "inclusiveMs": 6652.713,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 180,
+            "columnNumber": 156599,
+            "inclusiveMs": 6652.386,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/main-DwR8ehk6.js",
+            "functionName": "$L",
+            "lineNumber": 180,
+            "columnNumber": 124827,
+            "inclusiveMs": 6645.257,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/main-DwR8ehk6.js\" function=\"$L\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/main-DwR8ehk6.js",
+            "functionName": "applyAndPlantSupineDeck",
+            "lineNumber": 274,
+            "columnNumber": 21149,
+            "inclusiveMs": 6641.486,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/main-DwR8ehk6.js\" function=\"applyAndPlantSupineDeck\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/main-DwR8ehk6.js",
+            "functionName": "Nx",
+            "lineNumber": 3,
+            "columnNumber": 201157,
+            "inclusiveMs": 6641.345,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/main-DwR8ehk6.js\" function=\"Nx\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "inclusiveMs": 6275.384,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/main-DwR8ehk6.js\" function=\"Sy\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/main-DwR8ehk6.js",
+            "functionName": "Ib",
+            "lineNumber": 3,
+            "columnNumber": 172181,
+            "inclusiveMs": 6267.362,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/main-DwR8ehk6.js\" function=\"Ib\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/main-DwR8ehk6.js",
+            "functionName": "h",
+            "lineNumber": 3,
+            "columnNumber": 173239,
+            "inclusiveMs": 6241.885,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/main-DwR8ehk6.js\" function=\"h\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "inclusiveMs": 5939.731,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50412/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => other"
+          }
+        ],
+        "mainThread": {
+          "pid": 38865,
+          "tid": 208211540
+        }
+      },
+      "voidRun": false,
+      "lags": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "t0": 1794293799569
+    },
+    {
+      "runId": "v2swapctl-1",
+      "mode": "control",
+      "traced": true,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpu": true,
+      "loadAvg": {
+        "start": 9.2646484375,
+        "end": 8.3505859375
+      },
+      "clock": {
+        "timeOrigin": 1794293835460.8,
+        "nowMs": 240.90000009536743,
+        "dateNow": 1794293835701
+      },
+      "trace": {
+        "path": "/Volumes/files/openclinxr-assets/store/xr-sync/c52/v2swapctl-1/trace.json",
+        "sha256": "d39b5a7af3ef7e76afce91a03993d3925a9f44d8ab79f4b94e30fe3636a82897",
+        "bytes": 86057683
+      },
+      "driverT0": 1794293835657,
+      "gaps": [
+        {
+          "startMs": 549,
+          "endMs": 7827,
+          "durationMs": 7278
+        }
+      ],
+      "largestGap": {
+        "startMs": 549,
+        "endMs": 7827,
+        "durationMs": 7278,
+        "topTasks": [
+          {
+            "traceEventName": "BlinkScheduler_PerformMicrotaskCheckpoint",
+            "url": "",
+            "functionName": "",
+            "selfMs": 6882.694,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"BlinkScheduler_PerformMicrotaskCheckpoint\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js",
+            "functionName": "i",
+            "selfMs": 132.01,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js\" function=\"i\" => script_eval"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForToken",
+            "url": "",
+            "functionName": "",
+            "selfMs": 73.685,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForToken\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForGetOffset",
+            "url": "",
+            "functionName": "",
+            "selfMs": 62.181,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForGetOffset\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:50435/assets/main-DwR8ehk6.js",
+            "functionName": "we",
+            "selfMs": 58.831,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:50435/assets/main-DwR8ehk6.js\" function=\"we\" => script_eval"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL",
+            "url": "",
+            "functionName": "",
+            "selfMs": 17.606,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 10.989,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 9.204,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_ROOTS",
+            "url": "",
+            "functionName": "",
+            "selfMs": 4.725,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_ROOTS\" => gc"
+          },
+          {
+            "traceEventName": "MinorGC",
+            "url": "",
+            "functionName": "",
+            "selfMs": 4.15,
+            "cause": "gc",
+            "evidence": "traceEventName=\"MinorGC\" => gc"
+          }
+        ],
+        "cpuProfileTop": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js",
+            "functionName": "multiplyMatrices",
+            "lineNumber": 0,
+            "columnNumber": 45846,
+            "selfMs": 991.242,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js\" function=\"multiplyMatrices\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/main-DwR8ehk6.js",
+            "functionName": "by",
+            "lineNumber": 3,
+            "columnNumber": 148024,
+            "selfMs": 839.085,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/main-DwR8ehk6.js\" function=\"by\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyBoneTransform",
+            "lineNumber": 0,
+            "columnNumber": 130356,
+            "selfMs": 793.704,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js\" function=\"applyBoneTransform\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js",
+            "functionName": "updateWorldMatrix",
+            "lineNumber": 0,
+            "columnNumber": 60200,
+            "selfMs": 679.242,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js\" function=\"updateWorldMatrix\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "selfMs": 567.443,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/main-DwR8ehk6.js\" function=\"Sy\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 3,
+            "columnNumber": 149039,
+            "selfMs": 261.295,
+            "source": "cpu_profile",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js",
+            "functionName": "worldToLocal",
+            "lineNumber": 0,
+            "columnNumber": 56784,
+            "selfMs": 195.118,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js\" function=\"worldToLocal\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js",
+            "functionName": "getVertexPosition",
+            "lineNumber": 0,
+            "columnNumber": 125111,
+            "selfMs": 188.89,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js\" function=\"getVertexPosition\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyMatrix4",
+            "lineNumber": 0,
+            "columnNumber": 35105,
+            "selfMs": 152.544,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js\" function=\"applyMatrix4\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "selfMs": 148.988,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => script_eval"
+          }
+        ],
+        "cpuProfileInclusive": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 79757,
+            "inclusiveMs": 6713.425,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 57397,
+            "inclusiveMs": 6713.269,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 180,
+            "columnNumber": 156599,
+            "inclusiveMs": 6712.961,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/main-DwR8ehk6.js",
+            "functionName": "$L",
+            "lineNumber": 180,
+            "columnNumber": 124827,
+            "inclusiveMs": 6705.536,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/main-DwR8ehk6.js\" function=\"$L\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/main-DwR8ehk6.js",
+            "functionName": "applyAndPlantSupineDeck",
+            "lineNumber": 274,
+            "columnNumber": 21149,
+            "inclusiveMs": 6701.903,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/main-DwR8ehk6.js\" function=\"applyAndPlantSupineDeck\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/main-DwR8ehk6.js",
+            "functionName": "Nx",
+            "lineNumber": 3,
+            "columnNumber": 201157,
+            "inclusiveMs": 6701.753,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/main-DwR8ehk6.js\" function=\"Nx\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "inclusiveMs": 6337.898,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/main-DwR8ehk6.js\" function=\"Sy\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/main-DwR8ehk6.js",
+            "functionName": "Ib",
+            "lineNumber": 3,
+            "columnNumber": 172181,
+            "inclusiveMs": 6329.902,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/main-DwR8ehk6.js\" function=\"Ib\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/main-DwR8ehk6.js",
+            "functionName": "h",
+            "lineNumber": 3,
+            "columnNumber": 173239,
+            "inclusiveMs": 6306.347,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/main-DwR8ehk6.js\" function=\"h\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "inclusiveMs": 5969.719,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50435/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => other"
+          }
+        ],
+        "mainThread": {
+          "pid": 39057,
+          "tid": 208212779
+        }
+      },
+      "voidRun": false,
+      "lags": [],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "t0": 1794293835657
+    },
+    {
+      "runId": "v2swapsyn-1",
+      "mode": "synced",
+      "traced": true,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
+      "gpu": true,
+      "loadAvg": {
+        "start": 8.001953125,
+        "end": 6.796875
+      },
+      "clock": {
+        "timeOrigin": 1794293871533.7,
+        "nowMs": 748,
+        "dateNow": 1794293872281
+      },
+      "trace": {
+        "path": "/Volumes/files/openclinxr-assets/store/xr-sync/c52/v2swapsyn-1/trace.json",
+        "sha256": "15974c2b9072dbf70e607d771fdd6f228f7c3215a34dc1231bd60aa99a2aa943",
+        "bytes": 129257400
+      },
+      "driverT0": 1794293872282,
+      "gaps": [
+        {
+          "startMs": -18,
+          "endMs": 7075,
+          "durationMs": 7093
+        }
+      ],
+      "largestGap": {
+        "startMs": -18,
+        "endMs": 7075,
+        "durationMs": 7093,
+        "topTasks": [
+          {
+            "traceEventName": "BlinkScheduler_PerformMicrotaskCheckpoint",
+            "url": "",
+            "functionName": "",
+            "selfMs": 6830.517,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"BlinkScheduler_PerformMicrotaskCheckpoint\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "FunctionCall",
+            "url": "http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js",
+            "functionName": "i",
+            "selfMs": 74.702,
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"FunctionCall\" url=\"http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js\" function=\"i\" => script_eval"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForGetOffset",
+            "url": "",
+            "functionName": "",
+            "selfMs": 59.639,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForGetOffset\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "CommandBufferProxyImpl::WaitForToken",
+            "url": "",
+            "functionName": "",
+            "selfMs": 32.893,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"CommandBufferProxyImpl::WaitForToken\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL",
+            "url": "",
+            "functionName": "",
+            "selfMs": 16.634,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL\" => gc"
+          },
+          {
+            "traceEventName": "ThreadControllerImpl::RunTask",
+            "url": "",
+            "functionName": "",
+            "selfMs": 12.653,
+            "cause": "inconclusive",
+            "evidence": "traceEventName=\"ThreadControllerImpl::RunTask\": no url and no function name on the event"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 9.145,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE",
+            "url": "",
+            "functionName": "",
+            "selfMs": 8.329,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_PARALLEL_PHASE\" => gc"
+          },
+          {
+            "traceEventName": "V8.GC_SCAVENGER_SCAVENGE_ROOTS",
+            "url": "",
+            "functionName": "",
+            "selfMs": 4.707,
+            "cause": "gc",
+            "evidence": "traceEventName=\"V8.GC_SCAVENGER_SCAVENGE_ROOTS\" => gc"
+          },
+          {
+            "traceEventName": "MinorGC",
+            "url": "",
+            "functionName": "",
+            "selfMs": 4.281,
+            "cause": "gc",
+            "evidence": "traceEventName=\"MinorGC\" => gc"
+          }
+        ],
+        "cpuProfileTop": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js",
+            "functionName": "multiplyMatrices",
+            "lineNumber": 0,
+            "columnNumber": 45846,
+            "selfMs": 959.908,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js\" function=\"multiplyMatrices\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/main-DwR8ehk6.js",
+            "functionName": "by",
+            "lineNumber": 3,
+            "columnNumber": 148024,
+            "selfMs": 855.053,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/main-DwR8ehk6.js\" function=\"by\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyBoneTransform",
+            "lineNumber": 0,
+            "columnNumber": 130356,
+            "selfMs": 756.443,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js\" function=\"applyBoneTransform\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js",
+            "functionName": "updateWorldMatrix",
+            "lineNumber": 0,
+            "columnNumber": 60200,
+            "selfMs": 661.689,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js\" function=\"updateWorldMatrix\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "selfMs": 582.67,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/main-DwR8ehk6.js\" function=\"Sy\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 3,
+            "columnNumber": 149039,
+            "selfMs": 256.916,
+            "source": "cpu_profile",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js",
+            "functionName": "getVertexPosition",
+            "lineNumber": 0,
+            "columnNumber": 125111,
+            "selfMs": 193.085,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js\" function=\"getVertexPosition\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js",
+            "functionName": "worldToLocal",
+            "lineNumber": 0,
+            "columnNumber": 56784,
+            "selfMs": 179.136,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js\" function=\"worldToLocal\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js",
+            "functionName": "applyMatrix4",
+            "lineNumber": 0,
+            "columnNumber": 35105,
+            "selfMs": 142.773,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js\" function=\"applyMatrix4\" => script_eval"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js",
+            "functionName": "getVertexPosition",
+            "lineNumber": 0,
+            "columnNumber": 129553,
+            "selfMs": 139.668,
+            "source": "cpu_profile",
+            "cause": "script_eval",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js\" function=\"getVertexPosition\" => script_eval"
+          }
+        ],
+        "cpuProfileInclusive": [
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 79757,
+            "inclusiveMs": 6658.486,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js",
+            "functionName": "",
+            "lineNumber": 4103,
+            "columnNumber": 57397,
+            "inclusiveMs": 6658.212,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/main-DwR8ehk6.js",
+            "functionName": "",
+            "lineNumber": 180,
+            "columnNumber": 156599,
+            "inclusiveMs": 6657.551,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/main-DwR8ehk6.js\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/main-DwR8ehk6.js",
+            "functionName": "$L",
+            "lineNumber": 180,
+            "columnNumber": 124827,
+            "inclusiveMs": 6651.089,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/main-DwR8ehk6.js\" function=\"$L\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/main-DwR8ehk6.js",
+            "functionName": "Nx",
+            "lineNumber": 3,
+            "columnNumber": 201157,
+            "inclusiveMs": 6647.498,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/main-DwR8ehk6.js\" function=\"Nx\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/main-DwR8ehk6.js",
+            "functionName": "applyAndPlantSupineDeck",
+            "lineNumber": 274,
+            "columnNumber": 21149,
+            "inclusiveMs": 6647.498,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/main-DwR8ehk6.js\" function=\"applyAndPlantSupineDeck\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/main-DwR8ehk6.js",
+            "functionName": "Sy",
+            "lineNumber": 3,
+            "columnNumber": 148691,
+            "inclusiveMs": 6287.07,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/main-DwR8ehk6.js\" function=\"Sy\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/main-DwR8ehk6.js",
+            "functionName": "Ib",
+            "lineNumber": 3,
+            "columnNumber": 172181,
+            "inclusiveMs": 6278.509,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/main-DwR8ehk6.js\" function=\"Ib\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/main-DwR8ehk6.js",
+            "functionName": "h",
+            "lineNumber": 3,
+            "columnNumber": 173239,
+            "inclusiveMs": 6255.2,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/main-DwR8ehk6.js\" function=\"h\" => other"
+          },
+          {
+            "traceEventName": "cpu_profile",
+            "url": "http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js",
+            "functionName": "traverse",
+            "lineNumber": 0,
+            "columnNumber": 59247,
+            "inclusiveMs": 5842.817,
+            "source": "cpu_profile_inclusive",
+            "cause": "other",
+            "evidence": "traceEventName=\"cpu_profile\" url=\"http://127.0.0.1:50457/assets/three-vendor-DnzkQquL.js\" function=\"traverse\" => other"
+          }
+        ],
+        "mainThread": {
+          "pid": 39307,
+          "tid": 208214452
+        }
+      },
+      "voidRun": false,
+      "lags": [
+        {
+          "stationIndex": 0,
+          "want": "Station 1 of 3",
+          "lagMs": -18
+        },
+        {
+          "stationIndex": 1,
+          "want": "Station 2 of 3",
+          "lagMs": 418
+        },
+        {
+          "stationIndex": 2,
+          "want": "Station 3 of 3",
+          "lagMs": 441
+        }
+      ],
+      "pageErrors": [],
+      "consoleErrors": [],
+      "t0": 1794293872266
+    }
+  ],
+  "tracingOverhead": {
+    "untracedMs": [
+      8973,
+      7366,
+      7030
+    ],
+    "tracedMs": [
+      7236,
+      7380,
+      7425
+    ],
+    "note": "Traced and untraced are different sessions (untraced: f2-report.json df137ee0). Traced 7236/7380/7425 vs untraced 8973/7366/7030: no consistent inflation from tracing. v2syn-1 ran at 1-min load 106 (skin-lane bake) and its freeze (7236) matches the idle-load runs."
+  },
+  "verdict": {
+    "stopBranchCondition1": "Not met: the freeze is present on the non-synced control (7237 ms) and on the swapped-order synced run (7093 ms); first-launch warm-up is not the cause.",
+    "stopBranchCondition2": "Top self time is three.js matrix math under applyAndPlantSupineDeck; call site apps/ui-xr/src/main.ts:2682, executing code in packages/openclinxr/xr-pose. Outside xr-sync-client; borderline against the card's roots wording (call site inside apps/ui-xr).",
+    "result": "attributed: a 7.1-7.4 s main-thread script_eval in the shell supine-deck plant, independent of encounter sync. A fix card belongs to xr-pose / ui-xr, not xr-sync.",
+    "knownGoodForFixBound": "No heartbeat gap > 250 ms at either rotation in any run; the only later gaps are 276-282 ms immediately after the freeze (v2syn-1, v2ctl-1)."
+  },
+  "runOrder": {
+    "synced": [
+      "v2syn-1",
+      "v2syn-2",
+      "v2syn-3"
+    ],
+    "control": "v2ctl-1",
+    "swappedOrder": {
+      "first": "v2swapctl-1 (control, fresh browser)",
+      "then": "v2swapsyn-1 (synced, fresh browser)"
+    }
+  },
+  "discardedEarlierAttempt": "An earlier batch (evidence/c52: synced-1, syn-1..swapsyn-1) used a cpuProfileTop with two defects (ProfileChunk thread filter, timeDeltas location) and returned empty CPU profiles. Freeze durations were 7.0-7.8 s in that batch too. Its traces stay in the store and are not cited.",
+  "freezeByRun": {
+    "v2syn-1": {
+      "durationMs": 7236,
+      "startMs": -22,
+      "endMs": 7214,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)"
+    },
+    "v2syn-2": {
+      "durationMs": 7380,
+      "startMs": 28,
+      "endMs": 7408,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)"
+    },
+    "v2syn-3": {
+      "durationMs": 7425,
+      "startMs": 19,
+      "endMs": 7444,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)"
+    },
+    "v2ctl-1": {
+      "durationMs": 7237,
+      "startMs": 549,
+      "endMs": 7786,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)"
+    },
+    "v2swapctl-1": {
+      "durationMs": 7278,
+      "startMs": 549,
+      "endMs": 7827,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)"
+    },
+    "v2swapsyn-1": {
+      "durationMs": 7093,
+      "startMs": -18,
+      "endMs": 7075,
+      "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)"
+    }
+  },
+  "attribution": {
+    "workNamedByTrace": "CPU profile, same call chain in all six runs: main-DwR8ehk6.js:180 $L -> applyAndPlantSupineDeck (main-DwR8ehk6.js:274:21149) -> Nx -> Sy -> Ib -> h -> traverse (three-vendor-DnzkQquL.js) -> updateWorldMatrix / multiplyMatrices / applyBoneTransform. Inclusive 6.6-6.7 s of the 6.8-6.9 s microtask checkpoint. Self time: multiplyMatrices 0.96-0.99 s, applyBoneTransform 0.76-0.83 s, updateWorldMatrix 0.66-0.68 s, minified app functions by 0.82-0.86 s and Sy 0.55-0.58 s.",
+    "cause": "script_eval",
+    "causeEvidence": "BlinkScheduler_PerformMicrotaskCheckpoint self 6.8-6.9 s per run; the trace event carries no url or function (inconclusive on its own), the v8 cpu_profiler samples inside the gap window name the functions. No GLTFLoader/DRACO/meshopt frame, no texImage/compileShader event, GC events 41-47 ms per run.",
+    "sourceLookup": "Not from the trace: a grep of the worktree maps applyAndPlantSupineDeck to apps/ui-xr/src/main.ts:2682 (call site) -> applyAndPlantSupineOnDeck in packages/openclinxr/xr-pose/src/supine-deck-plant.ts, which calls traverse and per-object updateWorldMatrix(true,false) inside loops over objects and skinned bones (lines 186-260). Minified names Nx/Sy/Ib/h are not mapped to source.",
+    "rootsCheck": "Call site is in apps/ui-xr; the executing code is packages/openclinxr/xr-pose and three.js, outside xr-sync-client. The freeze is present without encounterSync, so xr-sync-client is not on the path."
+  }
+}
