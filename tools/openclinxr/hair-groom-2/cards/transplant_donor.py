@@ -1,0 +1,310 @@
+"""Donor GLB for transplant_library_hair.py: the card material without KHR_materials_specular.
+
+    python3 transplant_donor.py <donor.glb> <out.glb> <record.json>
+
+render_cards.py exports the calibrated Principled material; with Specular IOR Level 0 (calib_search.py)
+Blender writes KHR_materials_specular (specularFactor 0). transplant_library_hair.py refuses any
+material extension, so this copy drops that one extension (and its extensionsUsed entry) and records
+what was dropped. The runtime GLB then carries glTF's default dielectric specular (F0 0.04), not the
+calibrated 0: the runtime hair is more specular than the graded Cycles round.
+
+cards-r5 runtime sheen (transplant_library_hair.py --carry-extensions now carries extensions, so the
+drop above is only needed for the old path):
+    <blender python> transplant_donor.py <donor.glb> <out.glb> <record.json> --runtime-sheen S R A <atlas.png>
+sets the hair_cards material to KHR_materials_specular specularFactor S with specularColorFactor = the
+atlas's alpha-weighted mean linear colour scaled to max 1 (hair-tinted highlight), roughness R and
+KHR_materials_anisotropy strength A along the strand (rotation pi/2: card UV v runs root -> tip; three.js
+0.184 builds the tangent frame from UV derivatives when the mesh has no TANGENT). The atlas carries the
+Cycles rig's baked highlight, which does not move with the runtime lights, and the offline calibration
+keeps specular 0 (cards-r5 s1: E 0.12 at 0 vs 0.59 / 1.19 at 0.1 / 0.2 anisotropic). S R A are picked by
+eye on runtime head crops (cards-r5 x-rt* probes): a runtime-only material layer, not graded offline.
+
+sheen round: --base-color-scale K (after the --runtime-sheen arguments) scales the hair_cards baseColorFactor RGB.
+
+sheen-3: --spec-color R G B (after the --runtime-sheen arguments) sets the hair_cards specularColorFactor instead of
+the atlas tint (absent = atlas tint, unchanged output).
+
+sheen-2: --spec-streaks CARDS MEMBERS SEED AMP SIGMA_MM RHO (after the --runtime-sheen arguments) adds specularTexture
+(three.js GLTFLoader GLTFMaterialsSpecularExtension -> specularIntensityMap, alpha channel): per-member seeded
+specular weight across each card cell, constant along the strand, so the highlight breaks into strand streaks.
+
+cards-r6: --spec-alpha-power P (after the --runtime-sheen arguments) adds specularTexture: an RGBA PNG on the
+atlas UVs whose alpha (the channel KHR_materials_specular reads) is the atlas alpha ^ P. The sheen then follows
+strand density: card fringes, tips and sparse short cards (cards-r5/s6 runtime: tq tip glints L 1.0, side rear
+sheet, behind-ear blades) get a fraction of it, the dense crown and temple cores keep it. View-independent data
+only; three.js GLTFLoader maps it to specularIntensityMap. --aniso-alpha-power P does the same for
+KHR_materials_anisotropy (anisotropyTexture blue = strength multiplier): the cards-r5/s6 tq glints and behind-ear
+patch vanish with anisotropy 0 and not with the specular mask, so they are anisotropic highlights.
+
+cards-r7: --aniso-rotation R (radians, default pi/2). With carried TANGENTs the cards-r6 material (spec 0.25, rough
+0.5, rotation pi/2) adds at most dL 0.06-0.10 over a spec-0 render in any view: the runtime sheen was the baked atlas.
+Rotation pi/2 stretches the lobe along the strand (spec 1.0: a vertical stripe down the back); rotation 0 stretches it
+across the strands, so the highlight forms one band across the crown, as on real hair.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import math
+import struct
+import sys
+from pathlib import Path
+
+EXT = "KHR_materials_specular"
+
+
+def atlas_tint(path):
+    import numpy as np
+    from PIL import Image
+    im = np.asarray(Image.open(path).convert("RGBA"), dtype=np.float64) / 255.0
+    a = im[..., 3:]
+    c = im[..., :3]
+    lin = np.where(c <= 0.04045, c / 12.92, ((c + 0.055) / 1.055) ** 2.4)
+    m = (lin * a).reshape(-1, 3).sum(0) / max(float(a.sum()), 1e-9)
+    return [round(float(x), 4) for x in m / m.max()]
+
+
+def card_agreement(cards_path, lo, hi):
+    """Per-card per-station factor clip((|geometric card normal . stored vertex normal| - lo) / (hi - lo), 0, 1):
+    three.js builds the anisotropy tangent frame from the geometric surface, so where the shading normal
+    (card_vnormal, outward field) leaves the card plane the frame is skewed and the anisotropic lobe flares."""
+    import numpy as np
+    c = np.load(cards_path)
+    n = int(c["n_cards"])
+    V = c["card_verts"]
+    S = len(V) // n // 2
+    Vr = V.reshape(n, S, 2, 3)
+    Wd = Vr[:, :, 1] - Vr[:, :, 0]
+    T = np.gradient(Vr.mean(2), axis=1)
+    G = np.cross(T, Wd)
+    G /= np.linalg.norm(G, axis=2, keepdims=True) + 1e-12
+    N = c["card_vnormal"].reshape(n, S, 2, 3).mean(2)
+    N /= np.linalg.norm(N, axis=2, keepdims=True) + 1e-12
+    ag = np.abs((G * N).sum(2))
+    return np.clip((ag - lo) / (hi - lo), 0.0, 1.0), c["card_atlas_cell_px"], ag
+
+
+def aniso_mask_png(atlas, power, agree=None):
+    """KHR_materials_anisotropy anisotropyTexture: RG = tangent-space direction (1, 0) encoded (1, 0.5), so the
+    material's anisotropyRotation still sets the strand direction; B = strength multiplier = atlas alpha ^ power."""
+    import io
+    import numpy as np
+    from PIL import Image
+    a = np.asarray(Image.open(atlas).convert("RGBA"), dtype=np.float64)[..., 3] / 255.0
+    out = np.empty(a.shape + (3,), np.uint8)
+    out[..., 0], out[..., 1] = 255, 128
+    b = a ** power
+    if agree is not None:
+        f, cells, _ = agree
+        S = f.shape[1]
+        for k, (x, y, w, h) in enumerate(cells):
+            v = (np.arange(h - 2) + 0.5) / (h - 2)
+            b[y + 1:y + h - 1, x:x + w] *= np.interp(v * (S - 1), np.arange(S), f[k])[:, None]
+    out[..., 2] = np.round(b * 255.0).astype(np.uint8)
+    buf = io.BytesIO()
+    Image.fromarray(out).save(buf, format="PNG", compress_level=9)
+    return buf.getvalue()
+
+
+def spec_mask_png(atlas, power):
+    import io
+    import numpy as np
+    from PIL import Image
+    a = np.asarray(Image.open(atlas).convert("RGBA"), dtype=np.float64)[..., 3] / 255.0
+    out = np.full(a.shape + (4,), 255, np.uint8)
+    out[..., 3] = np.round(a ** power * 255.0).astype(np.uint8)
+    buf = io.BytesIO()
+    Image.fromarray(out).save(buf, format="PNG", compress_level=9)
+    return buf.getvalue()
+
+
+def spec_streaks_png(atlas, cards_path, members_path, seed, amp, sigma_mm, rho):
+    """sheen-2 S2: KHR_materials_specular specularTexture whose alpha (three.js specularIntensityMap) varies across each
+    card cell by member, constant along v (the strand direction in the cell, atlas_from_members.py --anchor root: a
+    member runs down its cell at its root u). Each card, then each member (member order), draws N(0, 1) from
+    default_rng(seed); column profile = gaussian (sigma_mm / card width in u) weighted mean of the card's member values
+    at their root u, z-scored over all cells; z = rho x card value + sqrt(1 - rho^2) x profile (scaled separately, so
+    the gaussian average does not let the card term swamp the strands); alpha = clip(0.5 + amp x z, 0, 1).
+    Mean alpha ~0.5, so the material's specularFactor sets the level. RGB 255 (unused by the loader)."""
+    import io
+    import numpy as np
+    from PIL import Image
+    shape = Image.open(atlas).size[::-1]
+    c, m = np.load(cards_path), np.load(members_path)
+    cells, card, root_u = c["card_atlas_cell_px"], m["card"], m["u"][:, 0]
+    width_mm = m["card_width_m"] * 1000.0
+    rng = np.random.default_rng(seed)
+    card_term = rng.standard_normal(len(cells))
+    w = rng.standard_normal(len(card))
+    starts = np.searchsorted(card, np.arange(len(cells) + 1))
+    prof = np.zeros(shape, np.float64)
+    cterm = np.zeros(shape, np.float64)
+    known = np.zeros(shape, bool)
+    for k, (x, y, cw, ch) in enumerate(cells):
+        lo, hi = starts[k], starts[k + 1]
+        n = cw - 2
+        if hi <= lo or n <= 0:
+            continue
+        uc = (np.arange(n) + 0.5) / n
+        s = max(sigma_mm / max(width_mm[k], 1e-6), 1e-3)
+        g = np.exp(-0.5 * ((uc[:, None] - root_u[None, lo:hi]) / s) ** 2) + 1e-12
+        col = (g * w[None, lo:hi]).sum(1) / g.sum(1)
+        prof[y + 1:y + ch - 1, x + 1:x + 1 + n] = col[None, :]
+        cterm[y + 1:y + ch - 1, x + 1:x + 1 + n] = card_term[k]
+        known[y + 1:y + ch - 1, x + 1:x + 1 + n] = True
+    z = rho * cterm + math.sqrt(1.0 - rho * rho) * (prof - prof[known].mean()) / max(prof[known].std(), 1e-9)
+    alpha = np.where(known, np.clip(0.5 + amp * z, 0.0, 1.0), 0.5)
+    out = np.full(shape + (4,), 255, np.uint8)
+    out[..., 3] = np.round(alpha * 255.0).astype(np.uint8)
+    buf = io.BytesIO()
+    Image.fromarray(out).save(buf, format="PNG", compress_level=9)
+    return buf.getvalue()
+
+
+def add_image(doc, rest, png, name):
+    """Append a PNG to the GLB BIN chunk (rest = chunk header + data) as image + texture; returns (texture index,
+    new rest)."""
+    blen, btype = struct.unpack_from("<II", rest, 0)
+    data = rest[8:8 + blen]
+    pad = -len(data) % 4
+    off = len(data) + pad
+    data = data + b"\0" * pad + png
+    data += b"\0" * (-len(data) % 4)
+    doc["bufferViews"].append({"buffer": 0, "byteOffset": off, "byteLength": len(png)})
+    doc.setdefault("images", []).append({"bufferView": len(doc["bufferViews"]) - 1, "mimeType": "image/png", "name": name})
+    tex = {"source": len(doc["images"]) - 1}
+    hair = next(m for m in doc["materials"] if m.get("name") == "hair_cards")
+    base = doc["textures"][hair["pbrMetallicRoughness"]["baseColorTexture"]["index"]]
+    if "sampler" in base:
+        tex["sampler"] = base["sampler"]
+    doc["textures"].append(tex)
+    doc["buffers"][0]["byteLength"] = len(data)
+    return len(doc["textures"]) - 1, struct.pack("<II", len(data), btype) + data + rest[8 + blen:]
+
+
+def sheen(doc, spec, rough, aniso, atlas, rot=math.pi / 2):
+    tint = atlas_tint(atlas)
+    for m in doc.get("materials", []):
+        if m.get("name") != "hair_cards":
+            continue
+        ext = m.setdefault("extensions", {})
+        ext["KHR_materials_specular"] = {"specularFactor": spec, "specularColorFactor": tint}
+        ext["KHR_materials_anisotropy"] = {"anisotropyStrength": aniso, "anisotropyRotation": rot}
+        m["pbrMetallicRoughness"]["roughnessFactor"] = rough
+    doc["extensionsUsed"] = sorted(set(doc.get("extensionsUsed", [])) | {"KHR_materials_specular",
+                                                                        "KHR_materials_anisotropy"})
+    out = {"specularFactor": spec, "specularColorFactor": tint, "roughness": rough, "anisotropyStrength": aniso,
+           "atlas": str(atlas)}
+    if rot != math.pi / 2:
+        out["anisotropyRotation"] = rot
+    return out
+
+
+def main():
+    src, dst, rec_p = map(Path, sys.argv[1:4])
+    data = src.read_bytes()
+    magic, ver, _ = struct.unpack_from("<III", data, 0)
+    jlen, jtype = struct.unpack_from("<II", data, 12)
+    doc = json.loads(data[20:20 + jlen])
+    rest = data[20 + jlen:]
+    if len(sys.argv) > 4 and sys.argv[4] == "--runtime-sheen":
+        spec, rough, aniso = (float(x) for x in sys.argv[5:8])
+        opts = sys.argv[9:]
+        # cards-r7 M3: --aniso-rotation R (radians; default pi/2 = along the strand, cards-r5/r6)
+        rot = float(opts[opts.index("--aniso-rotation") + 1]) if "--aniso-rotation" in opts else math.pi / 2
+        applied = sheen(doc, spec, rough, aniso, Path(sys.argv[8]), rot)
+        # sheen round L5: --base-color-scale K multiplies the hair_cards baseColorFactor RGB by K (atlas albedo,
+        # light-independent). Absent = the factor is not written (unchanged output).
+        if "--base-color-scale" in opts:
+            k = float(opts[opts.index("--base-color-scale") + 1])
+            if not (math.isfinite(k) and k > 0):
+                raise SystemExit("--base-color-scale needs a positive number")
+            for m in doc["materials"]:
+                if m.get("name") == "hair_cards":
+                    f = m["pbrMetallicRoughness"].get("baseColorFactor", [1.0, 1.0, 1.0, 1.0])
+                    m["pbrMetallicRoughness"]["baseColorFactor"] = [f[0] * k, f[1] * k, f[2] * k, f[3]]
+            applied["baseColorScale"] = k
+        # sheen-3 F1: --spec-color R G B replaces the atlas-tint specularColorFactor (absent = unchanged)
+        if "--spec-color" in opts:
+            i = opts.index("--spec-color")
+            sc = [float(x) for x in opts[i + 1:i + 4]]
+            if len(sc) != 3 or not all(math.isfinite(c) and c >= 0 for c in sc):
+                raise SystemExit("--spec-color needs three non-negative numbers")
+            for m in doc["materials"]:
+                if m.get("name") == "hair_cards":
+                    m["extensions"]["KHR_materials_specular"]["specularColorFactor"] = sc
+            applied["specularColorFactor"] = sc
+        # sheen-2 S2: --spec-streaks CARDS MEMBERS SEED AMP SIGMA_MM RHO -> per-member specularTexture (absent = unchanged)
+        if "--spec-streaks" in opts:
+            if "--spec-alpha-power" in opts:
+                raise SystemExit("--spec-streaks and --spec-alpha-power both write specularTexture; pick one")
+            i = opts.index("--spec-streaks")
+            cards_p, members_p = opts[i + 1], opts[i + 2]
+            seed, amp, sigma, rho = int(opts[i + 3]), float(opts[i + 4]), float(opts[i + 5]), float(opts[i + 6])
+            if not (amp >= 0 and sigma > 0 and 0 <= rho <= 1):
+                raise SystemExit("--spec-streaks: AMP >= 0, SIGMA_MM > 0, 0 <= RHO <= 1")
+            png = spec_streaks_png(Path(sys.argv[8]), cards_p, members_p, seed, amp, sigma, rho)
+            ti, rest = add_image(doc, rest, png, "hair_spec_streaks")
+            for m in doc["materials"]:
+                if m.get("name") == "hair_cards":
+                    m["extensions"]["KHR_materials_specular"]["specularTexture"] = {"index": ti}
+            applied["specularTexture"] = {"rule": "alpha = clip(0.5 + amp z(member profile), 0, 1)", "cards": cards_p,
+                                          "members": members_p, "seed": seed, "amp": amp, "sigmaMm": sigma, "rho": rho,
+                                          "png": len(png), "sha256": hashlib.sha256(png).hexdigest()}
+        for flag, ext, key, fn, name in (
+                ("--spec-alpha-power", "KHR_materials_specular", "specularTexture", spec_mask_png, "hair_spec_mask"),
+                ("--aniso-alpha-power", "KHR_materials_anisotropy", "anisotropyTexture", aniso_mask_png,
+                 "hair_aniso_mask")):
+            if flag not in opts:
+                continue
+            pw = float(opts[opts.index(flag) + 1])
+            agree = None
+            if fn is aniso_mask_png and "--aniso-agree" in opts:
+                i = opts.index("--aniso-agree")
+                agree = card_agreement(opts[i + 1], float(opts[i + 2]), float(opts[i + 3]))
+                applied["anisoAgree"] = {"cards": opts[i + 1], "lo": float(opts[i + 2]), "hi": float(opts[i + 3]),
+                                         "stationsBelowHi": float((agree[2] < float(opts[i + 3])).mean())}
+            png = fn(Path(sys.argv[8]), pw, agree) if fn is aniso_mask_png else fn(Path(sys.argv[8]), pw)
+            ti, rest = add_image(doc, rest, png, name)
+            for m in doc["materials"]:
+                if m.get("name") == "hair_cards":
+                    m["extensions"][ext][key] = {"index": ti}
+            applied[key] = {"rule": "%s = atlas alpha ^ %g" % ("alpha" if ext.endswith("specular") else "blue (strength)", pw),
+                            "png": len(png), "sha256": hashlib.sha256(png).hexdigest()}
+        js = json.dumps(doc, separators=(",", ":")).encode()
+        js += b" " * (-len(js) % 4)
+        out = struct.pack("<III", magic, ver, 12 + 8 + len(js) + len(rest)) + struct.pack("<II", len(js), jtype) + js + rest
+        dst.write_bytes(out)
+        rec = {"tool": "tools/openclinxr/hair-groom-2/cards/transplant_donor.py", "mode": "runtime-sheen",
+               "donor": str(src), "donorSha256": hashlib.sha256(data).hexdigest(), "out": str(dst),
+               "outSha256": hashlib.sha256(out).hexdigest(), "applied": applied}
+        rec_p.write_text(json.dumps(rec, indent=1))
+        print("DONOR_DONE", json.dumps(rec))
+        return
+    dropped = {}
+    for i, m in enumerate(doc.get("materials", [])):
+        ext = m.get("extensions", {})
+        if EXT in ext:
+            dropped[m.get("name", str(i))] = ext.pop(EXT)
+            if not ext:
+                m.pop("extensions")
+    used = [e for e in doc.get("extensionsUsed", []) if e != EXT]
+    still = any(EXT in m.get("extensions", {}) for m in doc.get("materials", []))
+    if not still:
+        if used:
+            doc["extensionsUsed"] = used
+        else:
+            doc.pop("extensionsUsed", None)
+    js = json.dumps(doc, separators=(",", ":")).encode()
+    js += b" " * (-len(js) % 4)
+    out = struct.pack("<III", magic, ver, 12 + 8 + len(js) + len(rest)) + struct.pack("<II", len(js), jtype) + js + rest
+    dst.write_bytes(out)
+    rec = {"tool": "tools/openclinxr/hair-groom-2/cards/transplant_donor.py", "donor": str(src),
+           "donorSha256": hashlib.sha256(data).hexdigest(), "out": str(dst),
+           "outSha256": hashlib.sha256(out).hexdigest(), "droppedExtension": EXT, "dropped": dropped}
+    rec_p.write_text(json.dumps(rec, indent=1))
+    print("DONOR_DONE", json.dumps(rec))
+
+
+if __name__ == "__main__":
+    main()

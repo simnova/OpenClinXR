@@ -119,6 +119,12 @@ type SubjectSpec = {
   subjectOnly?: boolean;
   /** #354/#358: focus the camera on a DERIVED region instead of the whole subject. */
   focus?: "eyes" | "head";
+  /** focus=head only: body head box (hair excluded) extended down by belowHeads head heights. */
+  headBodyFrame?: { belowHeads: number; padHeads?: number };
+  /** Opt-in: the lab's RigOverride (xr-scene isolated-subject-rig-variants.ts), passed through as JSON. */
+  rigOverride?: Record<string, unknown>;
+  /** Opt-in: hide the fitted hair meshes (/hair/i) before framing (lab hideHair). */
+  hideHair?: boolean;
   label?: string;
 };
 
@@ -1248,6 +1254,14 @@ export type HeadCropSpec = {
   role: string;
   glb: string;
   outName: string;
+  /** Pack view; absent = front. hair-groom-2 grades hair at front, three-quarter and side. */
+  view?: CaptureView;
+  /** Opt-in: frame from the body head box only, so the hair cannot move the crop (absent = legacy). */
+  headBodyFrame?: { belowHeads: number; padHeads?: number };
+  /** Opt-in light rig (hair-groom-2 sheen): the lab's RigOverride JSON. Absent = the lab default rig, unchanged. */
+  rigOverride?: Record<string, unknown>;
+  /** Opt-in: hide the hair meshes (a hair-free render for a pixel-exact hair mask). Absent = hair shown. */
+  hideHair?: boolean;
 };
 
 /** #358 shipped actors — one per rail, the same GLBs the #222/#341 hair contracts measure. */
@@ -1349,14 +1363,18 @@ export async function renderHeadFocusCrops(options?: {
     });
 
     for (const spec of specs) {
+      const view = spec.view ?? "front";
       const subjectSpec: SubjectSpec = {
-        subjectId: `${spec.rail}_head_front`,
+        subjectId: `${spec.rail}_head_${view}`,
         subjectKind: "glb",
         bodyGlb: spec.glb,
-        view: "front",
+        view,
         focus: "head",
+        ...(spec.headBodyFrame ? { headBodyFrame: spec.headBodyFrame } : {}),
+        ...(spec.rigOverride ? { rigOverride: spec.rigOverride } : {}),
+        ...(spec.hideHair === true ? { hideHair: true } : {}),
         subjectOnly: true,
-        label: `${spec.rail} head front`,
+        label: `${spec.rail} head ${view}`,
       };
       const imagePath = path.join(outDir, spec.outName);
       const rendered = await captureSubject({
@@ -1369,7 +1387,7 @@ export async function renderHeadFocusCrops(options?: {
       crops.push({
         rail: spec.rail,
         role: spec.role,
-        view: "front",
+        view,
         imagePath: path.relative(cwd, imagePath).replaceAll("\\", "/"),
         bytes,
         pngDimensions: pngSizeFromFile(imagePath),

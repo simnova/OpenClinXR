@@ -46,10 +46,8 @@ S5 = Path(__file__).resolve().parent
 sys.path.insert(0, str(S5))
 from _geom import MeshIndex, log_open, merge_opened  # noqa: E402
 
-ROOT = Path("/Users/patrick/.grok/worktrees/src-openclinxr/hair-light2")
-S1 = ROOT / "tools/openclinxr/evidence/hair-scalp1"
-E = ROOT / "tools/openclinxr/evidence/hair-cards0"
-
+# Inputs are arguments (red-team V1: the hair-light2 / hair-scalp1 / hair-cards0
+# paths were hard-coded here, so a stale shared input gave an equal sha).
 CLUSTER_MAX = 2
 PATH_R = 0.020
 LAYER_TOP = 0.0022
@@ -143,13 +141,19 @@ def transport_frames(centre: np.ndarray, axis: np.ndarray):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--guides", default=str(E / "provisional-guides.npz"))
-    ap.add_argument("--out", default=str(E / "cards.npz"))
+    ap.add_argument("--guides", required=True)
+    ap.add_argument("--scalp", required=True,
+                    help="npz with 'axis' (3,): head axis point; only x,y are used")
+    ap.add_argument("--body", required=True, help="body-geo.npz from _blender_dump_body.py")
+    ap.add_argument("--out", required=True)
+    ap.add_argument("--opened", required=True, help="inputs-opened list to merge into")
+    ap.add_argument("--budget", type=int, required=True,
+                    help="cardBudget; the card count must fall in [0.5, 1.5] x budget (red-team V2)")
     args = ap.parse_args()
 
     gp = Path(args.guides)
-    scalp_p = S1 / "scalp.npz"
-    body_p = E / "body-geo.npz"
+    scalp_p = Path(args.scalp)
+    body_p = Path(args.body)
     for p in (gp, scalp_p, body_p, Path(__file__), S5 / "_geom.py"):
         log_open(p)
     G = np.load(gp)
@@ -188,7 +192,7 @@ def main():
         v = np.arange(P) / (P - 1)
         taper = 1.0 - 0.45 * (v * v * (3 - 2 * v))
         w = w_root * taper
-        posterior = bool(roots[members][:, 1].mean() > 0.0)
+        posterior = bool(roots[members][:, 1].mean() > axis[1])
         layers = [0.0, LAYER_TOP] if not posterior else [0.0, LAYER_MID, LAYER_TOP]
         n3 += 1 if posterior else 0
         for li, off in enumerate(layers):
@@ -226,8 +230,11 @@ def main():
     n_cards = len(card_layer)
     print("cards=%d (3-layer clusters=%d) verts=%d tris=%d" % (
         n_cards, n3, len(verts), len(faces)), flush=True)
-    if not (300 <= n_cards <= 800):
-        raise RuntimeError("card count %d outside 300-800" % n_cards)
+    lo, hi = 0.5 * args.budget, 1.5 * args.budget
+    if not (lo <= n_cards <= hi):
+        raise RuntimeError("card count %d outside [%.0f, %.0f] = [0.5, 1.5] x budget %d"
+                           % (n_cards, lo, hi, args.budget))
+    verts_before = verts.copy()
 
     # clearance: hold every strip vert >= SKIN_HOLD off the skin set.
     # Active-set loop (only violators are re-queried) for speed.
@@ -264,6 +271,11 @@ def main():
         verts[i] = p
     c, d = skin.query(verts)
     min_clear = float(d.min())
+    push = np.linalg.norm(verts - verts_before, axis=1)
+    n_pushed = int((push > 0).sum())
+    max_push = float(push.max())
+    print("pushOut verts=%d max=%.3fmm (unsigned MeshIndex; V4(a) signed check is separate)"
+          % (n_pushed, max_push * 1000), flush=True)
     _, dg = garment.query(verts)
     print("minClearSkin=%.3fmm garmentProxMin=%.3fmm twistMax=%.2fdeg" % (
         min_clear * 1000, float(dg.min()) * 1000, twist_max), flush=True)
@@ -288,10 +300,14 @@ def main():
         "min_clearance_mm": np.float64(min_clear * 1000),
         "garment_prox_min_mm": np.float64(float(dg.min()) * 1000),
         "guides_sha": np.array(sha256(gp)),
+        "body_sha": np.array(sha256(body_p)),
+        "budget": np.int64(args.budget),
+        "push_count": np.int64(n_pushed),
+        "push_max_mm": np.float64(max_push * 1000),
     }
     np.savez(str(out), **dict(sorted(payload.items())))
     log_open(out)
-    merge_opened(E / "inputs-opened.txt")
+    merge_opened(Path(args.opened))
     print("CARDS_DONE sha=%s" % sha256(out), flush=True)
 
 

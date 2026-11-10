@@ -12,10 +12,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 118
-- archive-candidate: 136
+- archive-candidate: 156
 - current-reference: 202
 - decision-record: 49
-- evidence: 203
+- evidence: 209
 - generated-evidence: 11
 - historical-synthesis: 18
 - protected-policy: 10
@@ -429,4 +429,24 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/skin/coherent-normal/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/DESIGN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/accuracy-rubric.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/cards-opt1.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/cards-opt2.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/cards-r10-defects.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/cards-r4.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/cards-r6.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/cards-r7.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/groom-loop.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/groom-r1.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/groom-r5-shape.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/groom-r8-margins.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/groom-r9-back.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/r11-side-seed.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/r12-margins-su18.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/r13-card-fidelity.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/r14-budget-hem.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/sheen-2-streaks.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/sheen-3-dual-light.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/briefs/sheen-light-match.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/openclaw/fixtures/superagent-loop-prompt.md` - archive-candidate; Unclassified Markdown; review before using as instruction.

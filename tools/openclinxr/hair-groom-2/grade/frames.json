@@ -1,0 +1,188 @@
+{
+ "canonical": {
+  "kMetresPerPx": 0.000556640625,
+  "targetZ": 1.462258371257782,
+  "reference": ".openclinxr/evidence/hair-groom-2/groom-r1/r6"
+ },
+ "side": {
+  "s": 1.0562440702087248,
+  "dy": -29.952658340181756,
+  "dx": -160.7864607029802,
+  "fit": {
+   "target_k": 0.0005270000000000019,
+   "target_r0": 3285.0,
+   "target_x0": 497.40903736653263,
+   "meanAbsErrPx": 1.8723093513442566,
+   "rows": [
+    380,
+    565
+   ]
+  },
+  "fit_rows240_565": {
+   "k": 0.0005280000000000019,
+   "r0": 3280.0,
+   "meanAbsErrPx": 2.548400918788091
+  },
+  "reference_free_fit": {
+   "k": 0.0005580000000000026,
+   "zc": 1.4619600000000068,
+   "meanAbsErrPx": 1.4672802885364755,
+   "known_k": 0.000556640625,
+   "known_zc": 1.462258371257782
+  },
+  "canonical_headPlaneY": -0.06214734779513453,
+  "eyeRowPredicted": 337.78115661593165,
+  "eyeZ": 1.5531843304634094
+ },
+ "front": {
+  "s": 1.2549999999999946,
+  "dy": -118.5,
+  "dx": -130.02999999999668,
+  "fit": {
+   "meanAbsErrPx": 4.363560000000078,
+   "canonicalRows": [
+    440,
+    574
+   ]
+  }
+ },
+ "three_quarter": {
+  "s": 1.1916631271469964,
+  "dx": -206.16729260277575,
+  "dy": -84.5276287453698,
+  "fit": {
+   "landmarks_canonical": [
+    [
+     355.0,
+     370.0
+    ],
+    [
+     350.0,
+     452.0
+    ],
+    [
+     478.0,
+     400.0
+    ],
+    [
+     555.0,
+     425.0
+    ]
+   ],
+   "landmarks_target": [
+    [
+     338.0,
+     243.0
+    ],
+    [
+     330.0,
+     330.0
+    ],
+    [
+     485.0,
+     275.0
+    ],
+    [
+     580.0,
+     290.0
+    ]
+   ],
+   "residualPx": [
+    [
+     0.5,
+     8.3
+    ],
+    [
+     2.6,
+     2.5
+    ],
+    [
+     0.1,
+     4.5
+    ],
+    [
+     3.2,
+     10.3
+    ]
+   ]
+  }
+ },
+ "back": {
+  "s": 1.2074999999999925,
+  "dy": -20.25749999999894,
+  "dx": -106.23999999999614,
+  "fit": {
+   "method": "skull silhouette (body_back.json) to target hair outline, hair top pinned",
+   "canonicalRows": [
+    142,
+    330
+   ],
+   "hairThicknessCanonicalPx": -3.0,
+   "meanAbsErrPx": 2.6997518421051727,
+   "targetHairTopRow": 150,
+   "canonicalSkullTopRow": 138
+  },
+  "shoulderCheck": {
+   "note": "garment top contour, body garment vs target garment (different garments); not fitted",
+   "points": [
+    {
+     "canonicalCol": 100,
+     "canonicalRow": 710,
+     "predictedTargetRow": 837.1,
+     "targetCol": 15,
+     "measuredTargetRow": 880
+    },
+    {
+     "canonicalCol": 150,
+     "canonicalRow": 663,
+     "predictedTargetRow": 780.3,
+     "targetCol": 75,
+     "measuredTargetRow": 792
+    },
+    {
+     "canonicalCol": 200,
+     "canonicalRow": 642,
+     "predictedTargetRow": 755.0,
+     "targetCol": 135,
+     "measuredTargetRow": 729
+    },
+    {
+     "canonicalCol": 250,
+     "canonicalRow": 636,
+     "predictedTargetRow": 747.7,
+     "targetCol": 196,
+     "measuredTargetRow": 690
+    },
+    {
+     "canonicalCol": 774,
+     "canonicalRow": 636,
+     "predictedTargetRow": 747.7,
+     "targetCol": 828,
+     "measuredTargetRow": 692
+    },
+    {
+     "canonicalCol": 824,
+     "canonicalRow": 642,
+     "predictedTargetRow": 755.0,
+     "targetCol": 889,
+     "measuredTargetRow": 728
+    },
+    {
+     "canonicalCol": 874,
+     "canonicalRow": 666,
+     "predictedTargetRow": 783.9,
+     "targetCol": 949,
+     "measuredTargetRow": 795
+    },
+    {
+     "canonicalCol": 924,
+     "canonicalRow": 709,
+     "predictedTargetRow": 835.9,
+     "targetCol": 1009,
+     "measuredTargetRow": 883
+    }
+   ],
+   "meanAbsErrPx": 34.90000000000002
+  }
+ }
+}
