@@ -82,7 +82,8 @@ PLAN = {
         "bytesAfter": 12353924,
         "triangleCountAfter": 45904,
         "faceAfter": 17725,
-        "faceBefore": 17725,
+        # faceBefore is the historical rung input (cap10 2026-11-10); a02b66f3e had raised it to live.
+        "faceBefore": 10779,
         "handBodyMeshAfter": 12833,
         "note": ("Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 12353944 -> 12353924 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 9254712 -> 12353944 B. Prior re-measure preserved below. "
@@ -119,7 +120,8 @@ PLAN = {
     "mpfb-family-partner-adult.glb": {
         "bytesAfter": 13327592,
         "triangleCountAfter": 45404,
-        "faceBefore": 20375,
+        # faceBefore is the historical rung input (cap10 2026-11-10); a02b66f3e had raised it to live.
+        "faceBefore": 13429,
         "faceAfter": 20375,
         "handBodyMeshAfter": 13357,
         "note": ("Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 13327612 -> 13327592 B. Prior re-measure preserved below. "
@@ -283,7 +285,8 @@ PLAN = {
     "mpfb-gown-inspect.glb": {
         "bytesAfter": 11262652,
         "triangleCountAfter": 79561,
-        "faceBefore": 59706,
+        # faceBefore is the historical rung input (cap10 2026-11-10); a02b66f3e had raised it to live.
+        "faceBefore": 52778,
         "faceAfter": 59706,
         "jointCountAfter": 137,
         "jointCountExpected": 137,
@@ -451,14 +454,14 @@ def main():
                 assert m["tris"] == post["rungTrisAfter"] + stage_tris, f"{body} live tris != rung + stage deltas"
                 assert m["face"] == post["rungFaceAfter"] + stage_face, f"{body} live face != rung + stage deltas"
                 assert scoped.get("faceBefore", row["faceBefore"]) == post["rungFaceAfter"], f"{body} rungFaceAfter != faceBefore"
-            for field in ("bytesAfter", "triangleCountAfter", "faceAfter", "faceBefore",
+            # faceBefore is a historical before-value: floored below, never pinned to live.
+            for field in ("bytesAfter", "triangleCountAfter", "faceAfter",
                           "handBodyMeshAfter"):
                 if field in scoped:
                     live_key = {"bytesAfter": "bytes", "triangleCountAfter": "tris",
-                                "faceAfter": "face", "faceBefore": "face",
+                                "faceAfter": "face",
                                 "handBodyMeshAfter": "hand"}[field]
-                    expected_live = scoped[field] + (stage_face if field == "faceBefore" else 0)
-                    assert m[live_key] == expected_live, \
+                    assert m[live_key] == scoped[field], \
                         f"{body} {field}: plan {scoped[field]} != live {m[live_key]}"
             if "outputSha256" in scoped:
                 assert m["sha256"] == scoped["outputSha256"], \
