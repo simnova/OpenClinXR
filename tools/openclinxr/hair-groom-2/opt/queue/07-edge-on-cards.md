@@ -1,6 +1,6 @@
 # 07 edge-on front cards at the hairline (CEO 09:45, 2026-11-10)
 
-Status: run 2026-11-10, verdict NOT THE CAUSE (front ratio 1.33 vs bars .5 and .82). Rule committed before the probe (4a9d61837).
+Status: run 2026-11-10. NOTE: the gap direction was not measured before queue/04-07; all four tested coverage loss, and the measured direction is overshoot (see end). Verdict NOT THE CAUSE (front ratio 1.33 vs bars .5 and .82). Rule committed before the probe (4a9d61837).
 Ruled out for the front hairlineRow gap (253 vs target 236, driver frame, objective v2): card root position (queue/04),
 edge fade (queue/00), scalp tint (queue/00 pre-fade build has none and reads 255), texture alpha (queue/06). Strands read
 142 vs target 140 in the P3 frame, cards 173, with card roots within 2 mm of strand roots.
