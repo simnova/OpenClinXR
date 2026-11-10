@@ -69,6 +69,8 @@ type Skin = Object3D & {
   getVertexPosition?: (index: number, target: Vector3) => Vector3;
 };
 
+const limbIndexCache = new WeakMap<object, Map<string, { signature: unknown[]; boneNames: string[]; indices: number[] }>>();
+
 /** Physical hand/forearm envelope; anatomical body only, never a hanging gown contact proxy. */
 function limbPoints(root: Object3D, side: string, family: "hand" | "forearm"): Vector3[] {
   root.updateMatrixWorld(true);
@@ -78,13 +80,49 @@ function limbPoints(root: Object3D, side: string, family: "hand" | "forearm"): V
     if (!mesh.isSkinnedMesh || !/mpfb.*body|reference_body/iu.test(mesh.name)) return;
     const { position, skinIndex, skinWeight } = mesh.geometry?.attributes ?? {};
     if (!position || !skinIndex || !skinWeight || !mesh.skeleton || !mesh.getVertexPosition) return;
+    const bones = mesh.skeleton.bones;
+    const key = `${side}|${family}`;
+    let byMesh = limbIndexCache.get(mesh as object);
+    let entry = byMesh?.get(key);
+    const skinIndexVersion = (skinIndex as unknown as { version?: unknown }).version;
+    const skinWeightVersion = (skinWeight as unknown as { version?: unknown }).version;
+    const signature: unknown[] = [mesh.geometry, position, skinIndex, skinIndexVersion, skinWeight, skinWeightVersion, bones, bones.length];
+    let hit = false;
+    if (entry && entry.signature.length === signature.length && entry.boneNames.length === bones.length) {
+      hit = true;
+      for (let s = 0; s < signature.length; s += 1) {
+        if (entry.signature[s] !== signature[s]) { hit = false; break; }
+      }
+      if (hit) {
+        for (let b = 0; b < bones.length; b += 1) {
+          if (entry.boneNames[b] !== bones[b]?.name) { hit = false; break; }
+        }
+      }
+    }
+    let stored: number[];
+    if (hit && entry) {
+      stored = entry.indices;
+    } else {
+      const collected: number[] = [];
+      for (let i = 0; i < position.count; i += 1) {
+        const weights = [skinWeight.getX(i), skinWeight.getY(i), skinWeight.getZ(i), skinWeight.getW(i)];
+        const lane = weights.indexOf(Math.max(...weights));
+        const indices = [skinIndex.getX(i), skinIndex.getY(i), skinIndex.getZ(i), skinIndex.getW(i)];
+        const name = bones[indices[lane] ?? 0]?.name.replaceAll(".", "") ?? "";
+        if (!name.endsWith(side) || !(family === "hand" ? /wrist|finger|metacarpal/iu : /lowerarm|forearm/iu).test(name)) continue;
+        collected.push(i);
+      }
+      const boneNames = bones.map((bone) => bone.name);
+      entry = { signature, boneNames, indices: collected };
+      if (!byMesh) {
+        byMesh = new Map<string, { signature: unknown[]; boneNames: string[]; indices: number[] }>();
+        limbIndexCache.set(mesh as object, byMesh);
+      }
+      byMesh.set(key, entry);
+      stored = collected;
+    }
     mesh.skeleton.update();
-    for (let i = 0; i < position.count; i += 1) {
-      const weights = [skinWeight.getX(i), skinWeight.getY(i), skinWeight.getZ(i), skinWeight.getW(i)];
-      const lane = weights.indexOf(Math.max(...weights));
-      const indices = [skinIndex.getX(i), skinIndex.getY(i), skinIndex.getZ(i), skinIndex.getW(i)];
-      const name = mesh.skeleton.bones[indices[lane] ?? 0]?.name.replaceAll(".", "") ?? "";
-      if (!name.endsWith(side) || !(family === "hand" ? /wrist|finger|metacarpal/iu : /lowerarm|forearm/iu).test(name)) continue;
+    for (const i of stored) {
       result.push(mesh.getVertexPosition(i, new Vector3()).applyMatrix4(mesh.matrixWorld));
     }
   });

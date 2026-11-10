@@ -8,7 +8,15 @@
 import {
   STRETCHER_LENGTH_METERS,
 } from "@openclinxr/xr-station";
-import { type Material, type Object3D, Vector3 } from "three";
+import { type Object3D, Matrix4, Vector3 } from "three";
+import {
+  accumulateSupportGapsFast,
+  isMaterialRendered,
+  resolveSupportSampleRows,
+  selectContactGap,
+  type SampleRow,
+  type SkinnedLike,
+} from "./supine-support-skin-cache.js";
 
 export type SupineSupportRegion = "pelvis" | "lumbar" | "thorax" | "heelL" | "heelR" | "occiput";
 
@@ -35,6 +43,7 @@ export function makeSupineSupportPlanes(
     return { pelvis: plane, lumbar: plane, thorax: plane, heelL: plane, heelR: plane, occiput: plane };
   }
   stretcher.updateMatrixWorld(true);
+  const stretcherInverse = new Matrix4().copy(stretcher.matrixWorld).invert();
   let back: Object3D | null = null;
   let seat: Object3D | null = null;
   stretcher.traverse((object) => {
@@ -54,7 +63,7 @@ export function makeSupineSupportPlanes(
     }
   }
   const seatContains = (world: Vector3): boolean => {
-    const local = stretcher.worldToLocal(world.clone());
+    const local = world.clone().applyMatrix4(stretcherInverse);
     return local.x >= -0.04
       && local.x <= STRETCHER_LENGTH_METERS / 2 + 0.04
       && Math.abs(local.z) <= STRETCHER_HALF_WIDTH_METERS + 0.04;
@@ -63,12 +72,13 @@ export function makeSupineSupportPlanes(
   if (!back) return { pelvis, lumbar: pelvis, thorax: pelvis, heelL: pelvis, heelR: pelvis, occiput: pelvis };
   const backObject: Object3D = back;
   backObject.updateWorldMatrix?.(true, false);
+  const backInverse = new Matrix4().copy(backObject.matrixWorld).invert();
   const e = backObject.matrixWorld.elements;
   const backPlane: SupineSupportPlane = {
     origin: new Vector3().setFromMatrixPosition(backObject.matrixWorld),
     normal: new Vector3(e[4]!, e[5]!, e[6]!).normalize(),
     contains: (world) => {
-      const local = backObject.worldToLocal(world.clone());
+      const local = world.clone().applyMatrix4(backInverse);
       return local.x >= -STRETCHER_LENGTH_METERS / 2 - 0.04
         && local.x <= 0.04
         && Math.abs(local.z) <= STRETCHER_HALF_WIDTH_METERS + 0.04;
@@ -77,12 +87,14 @@ export function makeSupineSupportPlanes(
   let pillow: Object3D | null = null;
   stretcher.traverse((object) => { if (/\.pillow$/u.test(object.name)) pillow = object; });
   const pillowObject = pillow as Object3D | null;
+  if (pillowObject) pillowObject.updateWorldMatrix(true, false);
+  const pillowInverse = pillowObject ? new Matrix4().copy(pillowObject.matrixWorld).invert() : null;
   const occiput: SupineSupportPlane = {
     ...backPlane,
     origin: backPlane.origin.clone().addScaledVector(backPlane.normal, 0.08),
     outsideCollisionPlane: backPlane,
     contains: provisionalPillow || !pillowObject ? (world) => backPlane.contains?.(world) ?? true : (world) => {
-      const local = pillowObject.worldToLocal(world.clone());
+      const local = world.clone().applyMatrix4(pillowInverse!);
       return Math.abs(local.x) <= 0.14 && Math.abs(local.z) <= 0.21;
     },
   };
@@ -99,60 +111,16 @@ export type SupineSupportRegionMetric = {
   contactPoint?: { x: number; y: number; z: number };
 };
 
-type Attribute = {
-  count: number;
-  getX: (index: number) => number;
-  getY: (index: number) => number;
-  getZ: (index: number) => number;
-  getW?: (index: number) => number;
-};
-
-type SkinnedLike = Object3D & {
-  isSkinnedMesh?: boolean;
-  material?: Material | Material[];
-  geometry?: { computeBoundingBox?: () => void; boundingBox?: { max: Vector3 }; index?: Attribute; groups?: Array<{ start: number; count: number; materialIndex?: number }>; attributes?: { position?: Attribute; normal?: Attribute; skinIndex?: Attribute; skinWeight?: Attribute } };
-  skeleton?: { bones: Object3D[]; update?: () => void };
-  getVertexPosition?: (index: number, target: Vector3) => Vector3;
-};
-
-const PELVIS = /pelvis|hips/iu;
-const LUMBAR = /spine0?[2-5]|spine1$|spine$|abdomen|lumbar/iu;
-const THORAX = /spine01$|spine2$|chest|breast|clavicle|shoulder/iu;
 const STRETCHER_HALF_WIDTH_METERS = 0.45;
 
-function regionForVertex(mesh: SkinnedLike, index: number): SupineSupportRegion | null {
-  const indices = mesh.geometry?.attributes?.skinIndex;
-  const weights = mesh.geometry?.attributes?.skinWeight;
-  if (!indices || !weights || !mesh.skeleton?.bones) return null;
-  let bestWeight = 0;
-  let bestName = "";
-  for (let lane = 0; lane < 4; lane += 1) {
-    const weight = lane === 0 ? weights.getX(index)
-      : lane === 1 ? weights.getY(index)
-        : lane === 2 ? weights.getZ(index)
-          : (weights.getW?.(index) ?? 0);
-    if (weight <= bestWeight) continue;
-    const boneIndex = lane === 0 ? indices.getX(index)
-      : lane === 1 ? indices.getY(index)
-        : lane === 2 ? indices.getZ(index)
-          : (indices.getW?.(index) ?? 0);
-    bestWeight = weight;
-    bestName = mesh.skeleton.bones[boneIndex]?.name ?? "";
-  }
-  bestName = bestName.replace(/\./gu, "");
-  if (/^head$/iu.test(bestName)) return "occiput";
-  if (/foot|heel/iu.test(bestName)) return /L$|left/iu.test(bestName) ? "heelL" : "heelR";
-  if (bestName === "root" || PELVIS.test(bestName)) return "pelvis";
-  if (THORAX.test(bestName)) return "thorax";
-  if (LUMBAR.test(bestName)) return "lumbar";
-  return null;
-}
-
-function quantile(sorted: readonly number[], fraction: number): number | null {
+function quantile(sorted: ArrayLike<number>, fraction: number): number | null {
   if (sorted.length === 0) return null;
   const index = Math.max(0, Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * fraction)));
   return sorted[index] ?? null;
 }
+
+const scratch = new Vector3();
+const scratchUnderlying = new Vector3();
 
 /**
  * Measure the deformed anatomical body underside against finite support surfaces.
@@ -163,6 +131,21 @@ function quantile(sorted: readonly number[], fraction: number): number | null {
 export function measureSupineSupportRegions(
   humanoid: Object3D,
   planes: Readonly<Record<SupineSupportRegion, SupineSupportPlane>>,
+): Readonly<Record<SupineSupportRegion, SupineSupportRegionMetric>> {
+  return measureCore(humanoid, planes, true);
+}
+
+export function measureSupineSupportGaps(
+  humanoid: Object3D,
+  planes: Readonly<Record<SupineSupportRegion, SupineSupportPlane>>,
+): Readonly<Record<SupineSupportRegion, SupineSupportRegionMetric>> {
+  return measureCore(humanoid, planes, false);
+}
+
+function measureCore(
+  humanoid: Object3D,
+  planes: Readonly<Record<SupineSupportRegion, SupineSupportPlane>>,
+  withPoints: boolean,
 ): Readonly<Record<SupineSupportRegion, SupineSupportRegionMetric>> {
   humanoid.updateMatrixWorld?.(true);
   const gaps: Record<SupineSupportRegion, number[]> = { pelvis: [], lumbar: [], thorax: [], heelL: [], heelR: [], occiput: [] };
@@ -182,44 +165,46 @@ export function measureSupineSupportRegions(
     if (!mesh.isSkinnedMesh || !position || !mesh.getVertexPosition || !mesh.skeleton) return;
     if (!mesh.visible) return;
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
-    const rendered = (material: Material | undefined) => material && material.visible
-      && !(material.opacity <= material.alphaTest || (material.transparent && material.opacity <= 0));
-    if (!anatomicalBody && materials.every((material) => !rendered(material))) return;
-    const visibleIndices = new Set<number>();
-    const groups = mesh.geometry?.groups;
-    if (groups?.length) for (const group of groups) {
-      if (!anatomicalBody && !rendered(materials[group.materialIndex ?? 0])) continue;
-      for (let i = group.start; i < group.start + group.count; i += 1) visibleIndices.add(mesh.geometry?.index?.getX(i) ?? i);
+    if (!anatomicalBody && materials.every((material) => !isMaterialRendered(material))) return;
+    if (!withPoints) {
+      accumulateSupportGapsFast(mesh, anatomicalBody, materials, planes, gaps, minimum);
+      return;
     }
-    mesh.skeleton.update?.();
-    const stride = Math.max(1, Math.floor(position.count / 6000));
-    for (let index = 0; index < position.count; index += stride) {
-      if (groups?.length && !visibleIndices.has(index)) continue;
-      const region = regionForVertex(mesh, index);
-      if (!region) continue;
+    const rows: SampleRow[] = resolveSupportSampleRows(mesh, anatomicalBody, materials);
+    for (const row of rows) {
+      const index = row.index;
+      const region = row.region;
       mesh.getVertexPosition(index, local);
       world.copy(local).applyMatrix4(mesh.matrixWorld);
       const plane = planes[region];
       if (plane.contains && !plane.contains(world)) {
         const underlying = plane.outsideCollisionPlane;
         if (underlying && (!underlying.contains || underlying.contains(world))) {
-          minimum[region] = Math.min(minimum[region], underlying.normal.dot(world.clone().sub(underlying.origin)));
+          minimum[region] = Math.min(minimum[region], underlying.normal.dot(scratchUnderlying.copy(world).sub(underlying.origin)));
         }
         continue;
       }
-      const gap = plane.normal.dot(world.clone().sub(plane.origin));
+      const gap = plane.normal.dot(scratch.copy(world).sub(plane.origin));
       minimum[region] = Math.min(minimum[region], gap);
       // Contact belongs to the posterior skull. The minimum retains the head-weighted
       // anatomical envelope, including its face-side points; jaw/neck-weighted vertices are
       // outside this metric and must also be checked in rendered acceptance.
-      const normal = mesh.geometry?.attributes?.normal;
-      if (region === "occiput" && normal && normal.getZ(index) >= 0) continue;
+      if (row.skipContact) continue;
       gaps[region].push(gap);
-      points[region].push(world.clone());
+      if (withPoints) points[region].push(world.clone());
     }
   });
   const result = {} as Record<SupineSupportRegion, SupineSupportRegionMetric>;
   for (const region of ["pelvis", "lumbar", "thorax", "heelL", "heelR", "occiput"] as const) {
+    if (!withPoints) {
+      result[region] = {
+        region,
+        samples: gaps[region].length,
+        contactGapMeters: selectContactGap(gaps[region]),
+        minGapMeters: Number.isFinite(minimum[region]) ? minimum[region] : null,
+      };
+      continue;
+    }
     const ordered = gaps[region].map((gap, i) => ({ gap, point: points[region][i]! })).sort((a, b) => a.gap - b.gap);
     const values = ordered.map((row) => row.gap);
     const patch = ordered.slice(0, Math.max(1, Math.ceil(ordered.length * 0.08)));

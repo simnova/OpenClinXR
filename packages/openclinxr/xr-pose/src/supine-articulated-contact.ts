@@ -1,7 +1,7 @@
 /** Bounded deterministic joint/contact solve; each support region keeps its own surface error. */
 import { type Object3D, Vector3 } from "three";
 import { findSupineBone } from "./hob-extremity-flex.js";
-import { makeSupineSupportPlanes, measureSupineSupportRegions, type SupineSupportPlane, type SupineSupportRegion } from "./supine-support-contact.js";
+import { makeSupineSupportPlanes, measureSupineSupportGaps, measureSupineSupportRegions, type SupineSupportPlane, type SupineSupportRegion } from "./supine-support-contact.js";
 
 const solvedRotations = new WeakMap<Object3D, Array<{ bone: Object3D; rotation: [number, number, number] }>>();
 const baselineRotations = new WeakMap<Object3D, Array<{ bone: Object3D; rotation: [number, number, number] }>>();
@@ -53,7 +53,7 @@ export function solveSupineArticulatedContact(
   const spine = findSupineBone(root, "spine05", "spine");
   const incline = Math.atan2(planes.lumbar.normal.dot(planes.pelvis.forward ?? new Vector3(1, 0, 0)), planes.lumbar.normal.dot(planes.pelvis.normal));
   if (spine && Math.abs(incline) > 0.001) spine.rotation.x += incline;
-  const first = measureSupineSupportRegions(root, planes);
+  const first = measureSupineSupportGaps(root, planes);
   const pelvisGap = first.pelvis.contactGapMeters;
   const world = root.getWorldPosition(new Vector3());
   const localNormal = root.parent ? root.parent.worldToLocal(world.clone().add(planes.pelvis.normal)).sub(root.parent.worldToLocal(world.clone())) : planes.pelvis.normal.clone();
@@ -66,7 +66,7 @@ export function solveSupineArticulatedContact(
   const pillow = root.userData["openClinXrSupinePillowWorld"] as { x: number; y: number; z: number } | undefined;
   const head = findSupineBone(root, "head");
   const loss = () => {
-    const metrics = measureSupineSupportRegions(root, planes);
+    const metrics = measureSupineSupportGaps(root, planes);
     let score = 0;
     for (const region of required) {
       const row = metrics[region];

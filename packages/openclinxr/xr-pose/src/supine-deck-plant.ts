@@ -43,10 +43,12 @@ import { plantLegacySupineIncline } from "./supine-legacy-incline.js";
 import { captureOwnedBoneRotations, composeOwnedBoneDeltas } from "./supine-overlay-compose.js";
 import { type ApplySupinePoseResult, applySupinePose } from "./supine-pose.js";
 import { makeSupineSupportPlanes, settleSupineSupportRegions } from "./supine-support-contact.js";
+import { finishPlantClock, plantLap, recordPlantPhase, restartPlantClock, startPlantClock } from "./supine-plant-timing.js";
 import { reapplyStoredGarmentSupport } from "./ward-garment-support.js";
 
 export type PlantStepMetrics = {
   step: string;
+  ms: number;
   inclineDeg: number;
   backToDeckGapMeters: number | null;
   pelvisOnSeatSection: boolean | null;
@@ -64,6 +66,7 @@ function recordPlantStep(
   const pillow = stretcher ? readStretcherPillowWorld(stretcher) : null;
   const metrics: PlantStepMetrics = {
     step,
+    ms: plantLap(humanoidRoot),
     inclineDeg,
     backToDeckGapMeters: stretcher ? measureBackToDeckGap(humanoidRoot, stretcher) : null,
     pelvisOnSeatSection: measurePelvisOnSeat(humanoidRoot, deckTopY),
@@ -72,7 +75,7 @@ function recordPlantStep(
   };
   const steps = (humanoidRoot.userData["openClinXrPlantSteps"] as PlantStepMetrics[] | undefined) ?? [];
   steps.push(metrics);
-  humanoidRoot.userData["openClinXrPlantSteps"] = steps;
+  humanoidRoot.userData["openClinXrPlantSteps"] = steps; restartPlantClock(humanoidRoot);
   return metrics;
 }
 
@@ -417,7 +420,7 @@ export function applyAndPlantSupineOnDeck(
    * #171 adds only: step metrics, stored tip quat, live pillow XZ, and a *bounded* seat
    * lift that cannot push back gap past 0.05 (or is skipped when already floating).
    */
-  humanoidRoot.userData["openClinXrPlantSteps"] = [];
+  humanoidRoot.userData["openClinXrPlantSteps"] = []; const plantStartMs = startPlantClock(humanoidRoot);
   const poseResult = applySupinePose(humanoidRoot, input.applyJointEulers === false ? { applyJointEulers: false } : {});
   if (isMpfb2Rig(collectJointNames(humanoidRoot)) && input.stretcher) {
     const bedRotation = input.stretcher.getWorldQuaternion(new Quaternion());
@@ -456,14 +459,11 @@ export function applyAndPlantSupineOnDeck(
     recordPlantStep(humanoidRoot, "final_flat", incline, input.stretcher, input.deckTopWorldY);
   }
   // Rest wrists after planting on the MPFB rail, whose absolute joint map is skipped.
-  if (poseResult.bonesTouched.length === 0) {
-    const armFlex = flexSupineArmsOntoDeck(humanoidRoot, input.deckTopWorldY);
-    humanoidRoot.userData["openClinXrSupineArmFlex"] = armFlex;
-  }
-  if (isMpfb2Rig(collectJointNames(humanoidRoot)) && input.stretcher) solveSupineArticulatedContact(humanoidRoot, makeSupineSupportPlanes(input.stretcher, input.deckTopWorldY, true), input.stretcher);
+  if (poseResult.bonesTouched.length === 0) { humanoidRoot.userData["openClinXrSupineArmFlex"] = flexSupineArmsOntoDeck(humanoidRoot, input.deckTopWorldY); recordPlantPhase(humanoidRoot, "arm_flex_pose_rail"); }
+  if (isMpfb2Rig(collectJointNames(humanoidRoot)) && input.stretcher) { solveSupineArticulatedContact(humanoidRoot, makeSupineSupportPlanes(input.stretcher, input.deckTopWorldY, true), input.stretcher); recordPlantPhase(humanoidRoot, "articulated_contact"); }
   if (isMpfb2Rig(collectJointNames(humanoidRoot)) && input.stretcher) {
-    humanoidRoot.userData["openClinXrSupineArmFlex"] = flexSupineArmsOntoDeck(humanoidRoot, input.deckTopWorldY, { targetAboveDeck: 0.065, floorAboveDeck: 0.035 });
-    applyContactAwareSupineArms(humanoidRoot, input.stretcher);
+    humanoidRoot.userData["openClinXrSupineArmFlex"] = flexSupineArmsOntoDeck(humanoidRoot, input.deckTopWorldY, { targetAboveDeck: 0.065, floorAboveDeck: 0.035 }); recordPlantPhase(humanoidRoot, "arm_flex_mpfb");
+    applyContactAwareSupineArms(humanoidRoot, input.stretcher); recordPlantPhase(humanoidRoot, "contact_aware_arms");
   }
   humanoidRoot.userData["openClinXrSupinePlantDeltaY"] = plant.deltaY;
   humanoidRoot.userData["openClinXrSupinePlantBodyMinBefore"] = plant.bodyMinYBefore;
@@ -477,7 +477,7 @@ export function applyAndPlantSupineOnDeck(
     z: humanoidRoot.quaternion.z,
     w: humanoidRoot.quaternion.w,
   };
-  humanoidRoot.updateMatrixWorld?.(true);
+  humanoidRoot.updateMatrixWorld?.(true); finishPlantClock(humanoidRoot, plantStartMs);
   captureSupineRestHeadReference(humanoidRoot);
   return {
     plantDeltaY: plant.deltaY,
