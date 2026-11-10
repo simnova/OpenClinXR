@@ -54,10 +54,11 @@
     "resolutionCheck": "sum delta_v >= sum Delta_v / 4 (= 9.45) => do not run DE"
   },
   "noise": {
-    "delta_seed_v": {"front": null, "three_quarter_left": null, "side": null, "back": null},
-    "delta_grader_v": {"front": null, "three_quarter_left": null, "side": null, "back": null},
+    "delta_seed_v": {"front": 2.2389, "three_quarter_left": 1.2173, "side": 0.5219, "back": 0.6458},
+    "delta_grader_v": {"front": 0.2399, "three_quarter_left": 0.0296, "side": 0.0358, "back": 0.0135},
     "Delta_v_A3": {"front": 9.85, "three_quarter_left": 12.94, "side": 7.49, "back": 7.52},
-    "note": "null until measured; the driver treats null as 0"
+    "note": "measured 2026-11-10 in frame p1-rt (unregistered): delta_seed from EV/p3/tol.json (matte-mask tol; metrics peak,base,black,streak,bandCont; bandRowCol has no objective term), delta_grader=|D_v(g2)-D_v(p2a)|; sum delta 4.62 < 9.45 PASS. Source: .openclinxr/opt/hair-groom-2/noise-floors.json",
+    "delta_v": {"front": 2.2389, "three_quarter_left": 1.2173, "side": 0.5219, "back": 0.6458}
   },
   "search": {
     "material": {
