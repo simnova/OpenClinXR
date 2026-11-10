@@ -243,6 +243,15 @@ describe("push-main-restamp.sh lock owner record", () => {
     expect(originHas(f, "lane-work.txt")).toBe(false);
   });
 
+  it("(e) a partial owner write (empty owner file) exits 7 and the lock dir is absent", () => {
+    const f = makeFixture("advance", "docs-note.txt");
+    const r = run(f, { OPENCLINXR_PUSH_LOCK_OWNER_FAIL: "partial" });
+    expect(r.status).toBe(7);
+    expect(r.out).toContain("lock owner write failed");
+    expect(existsSync(f.lock)).toBe(false);
+    expect(originHas(f, "lane-work.txt")).toBe(false);
+  });
+
   it("CW1 exit 0: a non-empty lock dir is removed by the trap", () => {
     const f = makeFixture("advance", "docs-note.txt");
     captureOwner(f);
