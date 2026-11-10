@@ -1,6 +1,6 @@
 # 09 groom parameter frontHairlineOffsetMm (CEO 10:15, 2026-11-10; from queue/08 CAUSE)
 
-Status: step 1 (CPU) running; rebuild rule to be written after step 1, before any render.
+Status: step 1 done 2026-11-10 (6/9/12 mm fall short; ~16-17 mm reaches the target). Rebuild rule not yet written; waiting on the offset choice.
 
 ## Gap direction (measured fact)
 Rendered front hair reaches 12-17 px further down the forehead than the v2 target (hairlineRow 253 vs 236; queue/07).
@@ -23,3 +23,22 @@ Fixed after step 1 and before the render (CEO bounds): full chain at the chosen 
 donor/sheen -> transplant -> tint), scored with objective v2 in all 4 views. PASS = front hairlineRow within 6 px of 236 AND
 no other view worse than D_inc_v + delta_v (objective-v2 noise). ship_a4 --bars v2 reported as information. The material/tint
 optimizer reruns on the new base only after this card passes.
+
+## Step 1 result (probe09, CPU; raw .openclinxr/opt/hair-groom-2/probe09/result.json, untracked)
+Root region: groom/groom.py build_scalp :225, table scalp.hairlineMmAboveHeadOriginByAzimuthDeg (:227), is_scalp_v (:231)
+interpolates by azimuth (:235) and keeps a vertex with local z > h (:241); nodes 0 deg = 100 mm, 40 deg = 96 mm. Guides: 700 by
+area-weighted dart throwing (sample_roots :338, Poisson radius 7.02 mm); 97,487 children by Interpolate, random, 1.6M/m2 (:855).
+groom-r9/s1 recipe = groom/recipes/straight_centre_part_collarbone.json (key-sorted identical). The front edge is not a parameter
+today; frontHairlineOffsetMm plugs in at :235 as a vertical add to h over az <= 40 deg, ramped to 0 at the 70 deg node.
+Simulation on the existing roots (no regeneration): remove roots below the raised h.
+| offset (vertical mm) | roots removed (% of 98,187) | % of queue/04 front band | front 20 mm density /cm2 | front-most root row med / p10 / p90 |
+|---|---|---|---|---|
+| 0 | 0 | 0 | 154.3 | 250.5 / 248.1 / 254.0 |
+| 6 | 890 (0.91) | 30.3 | 158.5 | 247.6 / 246.2 / 248.5 |
+| 9 | 1619 (1.65) | 55.9 | 157.2 | 244.0 / 241.4 / 244.8 |
+| 12 | 2378 (2.42) | 77.1 | 153.8 | 240.0 / 236.6 / 240.6 |
+| 16 | 3389 (3.45) | 98.1 | 155.4 | 235.2 / 232.9 / 235.9 |
+~0.87 px per vertical mm. Children follow area, so density in the kept band stays 154-158 /cm2. The 11.6 mm in queue/08
+was image-plane mm; on the sloped forehead the vertical offset needed is larger. Root row target ~234 (tint edge ~2 px below
+roots): 16 mm gives 235.2, ~17 mm ~233.7, 14 mm 237.5.
+Not tested: a real groom re-run (Interpolate seed and dart sequence move every root); overhang below roots; other views.
