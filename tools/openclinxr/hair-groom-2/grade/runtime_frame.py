@@ -7,7 +7,12 @@ the ported environment), so their luminance is comparable. Per view a similarity
 (dx, dy), and keeping the s with the best skin IoU above row 620 (face, neck, shoulders; background excluded). Check: an edge overlay per view
 (source edges red, mapped runtime edges green) is written beside the output and read before use; skin IoU is reported.
 
+fit-head (P3): for the same body under both cameras (P3 bald Cycles render vs harness hideHair crop) the skin fit
+fails (s at the scan edge); per s the runtime mask (saturation > .06) is placed, aligned to the source's head top
+(dy) and head-region column centroid (dx, +-3 px refine), and scored by IoU over the 380 rows below the head top.
+
 Usage: runtime_frame.py fit <cycles source dir> <harness nohair prefix> <out.json>
+       runtime_frame.py fit-head <cycles source dir> <harness nohair prefix> <out.json>
        runtime_frame.py warp <frames.json> <view> <in.png> <out.png>          (runtime -> target frame)
        runtime_frame.py to-runtime <frames.json> <view> <in.png> <out.png>    (target -> runtime frame)
 """
@@ -87,6 +92,48 @@ def fit(src_dir, nohair_prefix, out):
     json.dump(res, open(out, 'w'), indent=1)
 
 
+def sat(img):
+    a = np.asarray(img.convert('RGB'), float) / 255.
+    return (a.max(2) - a.min(2)) > 0.06
+
+
+def fit_head_view(src_img, rt_img, H=380):
+    A = sat(src_img)
+    ta = int(np.where(A.sum(1) > 3)[0].min())
+    Ar = np.zeros_like(A)
+    Ar[ta:ta + H] = A[ta:ta + H]
+    ca = np.nonzero(Ar)[1].mean()
+    best = None
+    for s in np.arange(1.3, 2.4, 0.005):
+        P = sat(place(rt_img.convert('RGB'), s, 0, 0))
+        rows = np.where(P.sum(1) > 3)[0]
+        if not len(rows):
+            continue
+        dy = ta - int(rows.min())
+        P = np.roll(P, dy, 0)
+        Pr = np.zeros_like(P)
+        Pr[ta:ta + H] = P[ta:ta + H]
+        dx = int(round(ca - np.nonzero(Pr)[1].mean()))
+        Pr = np.roll(Pr, dx, 1)
+        for ddx in range(-3, 4):
+            Q = np.roll(Pr, ddx, 1)
+            iou = float((Q & Ar).sum()) / float((Q | Ar).sum())
+            if best is None or iou > best[0]:
+                best = (iou, float(round(s, 3)), dx + ddx, dy)
+    return best
+
+
+def fit_head(src_dir, nohair_prefix, out):
+    res = {}
+    for v, sv in SRC.items():
+        iou, s, dx, dy = fit_head_view(Image.open('%s/source-%s.png' % (src_dir, sv)),
+                                       Image.open('%s-%s.png' % (nohair_prefix, v)))
+        res[v] = dict(s=s, dx=dx, dy=dy, headIoU=round(iou, 4), rtSize=N,
+                      note='col_t = s*col + dx, row_t = s*row + dy (runtime crop px -> Cycles px); fit-head, same body')
+        print(v, res[v], flush=True)
+    json.dump(res, open(out, 'w'), indent=1)
+
+
 def to_runtime(frames, v, src, dst):
     """Target image -> runtime crop frame (downsample with LANCZOS, then shift): the fair direction for streak."""
     f = json.load(open(frames))[v]
@@ -106,6 +153,8 @@ def warp(frames, v, src, dst):
 if __name__ == '__main__':
     if sys.argv[1] == 'fit':
         fit(*sys.argv[2:5])
+    elif sys.argv[1] == 'fit-head':
+        fit_head(*sys.argv[2:5])
     elif sys.argv[1] == 'to-runtime':
         to_runtime(*sys.argv[2:6])
     elif sys.argv[1] == 'warp':

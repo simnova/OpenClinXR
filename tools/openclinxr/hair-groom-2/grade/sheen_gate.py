@@ -13,7 +13,9 @@ New definitions (P1), reported beside the ported ones:
 
 Usage (Blender's python with numpy + PIL on PYTHONPATH):
   sheen_gate.py port-check
-  sheen_gate.py score <out.json> <label>=<crop prefix>[:<nohair prefix>] ...   (target scored as 'target')
+  sheen_gate.py score <out.json> <label>=<crop prefix>[:<nohair prefix>[:<matte prefix>]] ...   (target scored as 'target')
+A matte prefix (P3 Cycles strand renders, strands_in_target_scene.py --matte) replaces the diff mask with
+erode(matte alpha > .5, 2): on Cycles renders the diff mask also holds shirt and skin pixels the hair shades.
 """
 import colorsys
 import json
@@ -202,10 +204,16 @@ def score(out_path, specs, targets=TARGETS):
     for spec in specs:
         label, _, pre = spec.partition('=')
         pre, _, nh = pre.partition(':')
+        nh, _, mt = nh.partition(':')
         for v in VIEWS:
             img = load('%s-%s.png' % (pre, v))
-            nohair = load('%s-%s.png' % (nh or pre.rsplit('-', 1)[0] + '-nohair', v))
-            out.setdefault(label, {})[v] = full_row(img, render_hair(img, nohair))
+            if mt:
+                alpha = np.asarray(Image.open('%s-%s.png' % (mt, v)).convert('RGBA'), float)[..., 3] / 255.
+                m = erode(alpha > 0.5, 2)
+            else:
+                nohair = load('%s-%s.png' % (nh or pre.rsplit('-', 1)[0] + '-nohair', v))
+                m = render_hair(img, nohair)
+            out.setdefault(label, {})[v] = full_row(img, m)
     Path(out_path).write_text(json.dumps(out, indent=1))
     keys = ('peak', 'base', 'black', 'streak', 'bandRowCol', 'bandCont')
     for label, d in out.items():
