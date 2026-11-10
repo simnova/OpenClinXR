@@ -39,6 +39,12 @@ export type StationIncline = {
   torsoWorldDeg: number;
 };
 
+export type HeadDeckSettle = {
+  targetInclineDegrees: number;
+  rafTicks: number;
+  frames: (page: Page, ticks: number) => Promise<void>;
+};
+
 export type HeadDeckGeometry = {
   label: string;
   inclineDegrees: number;
@@ -49,6 +55,10 @@ export type HeadDeckGeometry = {
   /** Signed: positive when the head is inboard of the head end, negative when past it. */
   headInboardOfDeckEndMeters: number;
   pillowTopY: number | null;
+  waitMs: number;
+  rafTicks: number;
+  polls: number;
+  outcome: "finite" | "HEAD_DECK_NOT_FOUND" | "HEAD_DECK_NOT_SETTLED";
 };
 
 export type ShippedHeadOfBedReport = {
@@ -77,6 +87,17 @@ type LiveHeadDeck = {
   deckHeadEndZ: number;
   headInboardOfDeckEndMeters: number;
   pillowTopY: number | null;
+  supine: boolean;
+  headFound: boolean;
+  stretcher: boolean;
+};
+
+export type HeadDeckWait = {
+  deck: LiveHeadDeck;
+  waitMs: number;
+  rafTicks: number;
+  polls: number;
+  outcome: "finite";
 };
 
 let cachedReport: ShippedHeadOfBedReport | null = null;
@@ -173,6 +194,8 @@ async function measureLive(input: { baseUrl?: string }): Promise<ShippedHeadOfBe
         const stations: StationIncline[] = [];
         let edHeadDeckRaised: LiveHeadDeck | null = null;
         let edHeadDeckFlat: LiveHeadDeck | null = null;
+        let edHeadDeckRaisedWait: HeadDeckWait | null = null;
+        let edHeadDeckFlatWait: HeadDeckWait | null = null;
 
         for (const scenarioId of scenarios) {
           process.stdout.write(`shipped-hob: goto ${scenarioId}\n`);
@@ -201,12 +224,17 @@ async function measureLive(input: { baseUrl?: string }): Promise<ShippedHeadOfBe
 
           if (scenarioId === "ed_chest_pain_priority_v1") {
             // Raised pass = ambient shipped angle (after #171 wiring: 30°).
-            edHeadDeckRaised = await readHeadDeckFromPage(page);
+            edHeadDeckRaisedWait = await waitForHeadDeck(page, "shipped_angle", 30_000);
+            edHeadDeckRaised = edHeadDeckRaisedWait.deck;
             // Flat pass: force 0° on stretcher + humanoid userData; per-frame
             // applySupinePoseHoldingIncline re-flattens the body on the next rAF ticks.
             await forceStretcherInclineOnPage(page, 0);
-            await page.waitForTimeout(900);
-            edHeadDeckFlat = await readHeadDeckFromPage(page);
+            edHeadDeckFlatWait = await waitForHeadDeck(page, "flat_baseline", 30_000, undefined, {
+              targetInclineDegrees: 0,
+              rafTicks: 2,
+              frames: waitAnimationFrames,
+            });
+            edHeadDeckFlat = edHeadDeckFlatWait.deck;
             // Restore shipped angle so a later capture still shows the product state.
             if (edHeadDeckRaised && Math.abs(edHeadDeckRaised.inclineDegrees) >= 1e-3) {
               await forceStretcherInclineOnPage(page, edHeadDeckRaised.inclineDegrees);
@@ -222,7 +250,7 @@ async function measureLive(input: { baseUrl?: string }): Promise<ShippedHeadOfBe
           .map((s) => s.scenarioId);
 
         const headDeck: HeadDeckGeometry[] = [];
-        if (edHeadDeckFlat) {
+        if (edHeadDeckFlat && edHeadDeckFlatWait) {
           headDeck.push({
             label: "flat_baseline",
             inclineDegrees: 0,
@@ -232,9 +260,13 @@ async function measureLive(input: { baseUrl?: string }): Promise<ShippedHeadOfBe
             deckHeadEndZ: edHeadDeckFlat.deckHeadEndZ,
             headInboardOfDeckEndMeters: edHeadDeckFlat.headInboardOfDeckEndMeters,
             pillowTopY: edHeadDeckFlat.pillowTopY,
+            waitMs: edHeadDeckFlatWait.waitMs,
+            rafTicks: edHeadDeckFlatWait.rafTicks,
+            polls: edHeadDeckFlatWait.polls,
+            outcome: edHeadDeckFlatWait.outcome,
           });
         }
-        if (edHeadDeckRaised) {
+        if (edHeadDeckRaised && edHeadDeckRaisedWait) {
           headDeck.push({
             label: "shipped_angle",
             inclineDegrees: edHeadDeckRaised.inclineDegrees,
@@ -244,6 +276,10 @@ async function measureLive(input: { baseUrl?: string }): Promise<ShippedHeadOfBe
             deckHeadEndZ: edHeadDeckRaised.deckHeadEndZ,
             headInboardOfDeckEndMeters: edHeadDeckRaised.headInboardOfDeckEndMeters,
             pillowTopY: edHeadDeckRaised.pillowTopY,
+            waitMs: edHeadDeckRaisedWait.waitMs,
+            rafTicks: edHeadDeckRaisedWait.rafTicks,
+            polls: edHeadDeckRaisedWait.polls,
+            outcome: edHeadDeckRaisedWait.outcome,
           });
         }
 
@@ -395,6 +431,9 @@ async function readHeadDeckFromPage(page: Page): Promise<LiveHeadDeck> {
       deckHeadEndZ: NaN,
       headInboardOfDeckEndMeters: NaN,
       pillowTopY: null,
+      supine: false,
+      headFound: false,
+      stretcher: false,
     };
     var scene = window.__openClinXrDebugScene;
     if (!scene || typeof scene.traverse !== "function") return empty;
@@ -469,8 +508,100 @@ async function readHeadDeckFromPage(page: Page): Promise<LiveHeadDeck> {
       deckHeadEndZ: deckHeadEndX,
       headInboardOfDeckEndMeters: headInboardOfDeckEndMeters,
       pillowTopY: pillowTopY,
+      supine: (humanoid != null),
+      headFound: isFinite(headY),
+      stretcher: (stretcher != null),
     };
   })()`) as Promise<LiveHeadDeck>;
+}
+
+async function waitAnimationFrames(page: Page, ticks: number): Promise<void> {
+  const ticksJson = JSON.stringify(ticks);
+  await page.evaluate(`new Promise((resolve) => {
+    var remaining = ${ticksJson};
+    function next(left) {
+      if (left <= 0) {
+        resolve(undefined);
+        return;
+      }
+      requestAnimationFrame(function () { next(left - 1); });
+    }
+    next(remaining);
+  })`);
+}
+
+/**
+ * Poll the head/deck read until headCenterY and deckHeadEndZ are finite,
+ * instead of a fixed sleep. Throws HEAD_DECK_NOT_FOUND naming the three
+ * flags when the timeout elapses. In settle mode, waits rAF ticks and only
+ * accepts a settled read on the target incline with a still head.
+ */
+export async function waitForHeadDeck(
+  page: Page,
+  label: string,
+  timeoutMs = 30_000,
+  timing = { pollMs: 200, now: Date.now, sleep: (ms: number) => new Promise<void>((r) => setTimeout(r, ms)) },
+  settle?: HeadDeckSettle,
+): Promise<HeadDeckWait> {
+  const start = timing.now();
+  if (settle !== undefined) {
+    await settle.frames(page, settle.rafTicks);
+    let rafTicks = settle.rafTicks;
+    let polls = 0;
+    let previous: LiveHeadDeck | null = null;
+    for (;;) {
+      const deck = await readHeadDeckFromPage(page);
+      polls += 1;
+      const finite = isFinite(deck.headCenterY) && isFinite(deck.deckHeadEndZ);
+      const inclineOk = Math.abs(deck.inclineDegrees - settle.targetInclineDegrees) <= 1e-3;
+      const previousFinite = previous !== null
+        && isFinite(previous.headCenterY)
+        && isFinite(previous.deckHeadEndZ);
+      const previousInclineOk = previous !== null
+        && Math.abs(previous.inclineDegrees - settle.targetInclineDegrees) <= 1e-3;
+      const stable = previous !== null
+        && previousFinite === true
+        && previousInclineOk === true
+        && finite === true
+        && Math.abs(deck.headCenterY - (previous as LiveHeadDeck).headCenterY) <= 1e-3;
+      if (finite === true && inclineOk === true && stable === true) {
+        return { deck, waitMs: timing.now() - start, outcome: "finite", rafTicks, polls };
+      }
+      const elapsed = timing.now() - start;
+      if (elapsed >= timeoutMs) {
+        if (finite === true) {
+          let deltaY = Number.NaN;
+          if (previous !== null && isFinite(previous.headCenterY) && isFinite(deck.headCenterY)) {
+            deltaY = Math.abs(deck.headCenterY - (previous as LiveHeadDeck).headCenterY);
+          }
+          throw new Error(
+            `HEAD_DECK_NOT_SETTLED ${label} after ${elapsed}ms: incline=${deck.inclineDegrees} deltaY=${deltaY}`,
+          );
+        }
+        throw new Error(
+          `HEAD_DECK_NOT_FOUND ${label} after ${elapsed}ms: supine=${deck.supine} headFound=${deck.headFound} stretcher=${deck.stretcher}`,
+        );
+      }
+      await settle.frames(page, 1);
+      rafTicks += 1;
+      previous = deck;
+    }
+  }
+  let polls = 0;
+  for (;;) {
+    const deck = await readHeadDeckFromPage(page);
+    polls += 1;
+    if (isFinite(deck.headCenterY) && isFinite(deck.deckHeadEndZ)) {
+      return { deck, waitMs: timing.now() - start, outcome: "finite", rafTicks: 0, polls };
+    }
+    const elapsed = timing.now() - start;
+    if (elapsed >= timeoutMs) {
+      throw new Error(
+        `HEAD_DECK_NOT_FOUND ${label} after ${elapsed}ms: supine=${deck.supine} headFound=${deck.headFound} stretcher=${deck.stretcher}`,
+      );
+    }
+    await timing.sleep(timing.pollMs);
+  }
 }
 
 /**
@@ -550,6 +681,10 @@ if (isDirectRun) {
           deckHeadEndZ: Number.NaN,
           headInboardOfDeckEndMeters: Number.NaN,
           pillowTopY: null,
+          waitMs: 0,
+          rafTicks: 0,
+          polls: 0,
+          outcome: "HEAD_DECK_NOT_FOUND" as const,
         };
       const preFixReport: ShippedHeadOfBedReport = {
         stations,
