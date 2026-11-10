@@ -131,11 +131,41 @@ describe("machine inbox", () => {
     expect(calls[1]?.params.cursor).toBe("saved");
   });
 
+  it("drops an event the inclusive cursor re-returns and waits instead of spinning", async () => {
+    const again = () => page([{ taskId: "tsk_alpha", body: "from::beta\nonce", id: "cmt_a" }], "cA");
+    const { rpc, calls } = scriptedRpc([sub(), again(), again(), again()]);
+    const state = memoryState();
+    const w = watchOpts(rpc, state, { once: false });
+    expect(await runWatch(w.opts)).toBe(0);
+    expect(calls).toHaveLength(4);
+    expect(w.logged).toHaveLength(1);
+    expect(w.sleeps).toEqual([5000, 5000]);
+    expect(state.current().seenEventIds).toEqual(["cmt_a"]);
+  });
+
+  it("delivers a new event that shares the cursor's page with a seen one", async () => {
+    const { rpc } = scriptedRpc([
+      sub(),
+      page([{ taskId: "tsk_alpha", body: "from::beta\n1", id: "cmt_a" }], "cA"),
+      page(
+        [
+          { taskId: "tsk_alpha", body: "from::beta\n1", id: "cmt_a" },
+          { taskId: "tsk_alpha", body: "from::beta\n2", id: "cmt_b" },
+        ],
+        "cB",
+      ),
+    ]);
+    const w = watchOpts(rpc, memoryState(), { once: false });
+    await runWatch(w.opts);
+    expect(w.logged.map((m) => m.eventId)).toEqual(["cmt_a", "cmt_b"]);
+    expect(w.sleeps).toEqual([]);
+  });
+
   it("drains hasMore pages without waitMs", async () => {
     const { rpc, calls } = scriptedRpc([
       sub(),
-      page([{ taskId: "tsk_alpha", body: "from::beta\n1" }], "c1", true),
-      page([{ taskId: "tsk_alpha", body: "from::beta\n2" }], "c2"),
+      page([{ taskId: "tsk_alpha", body: "from::beta\n1", id: "cmt_1" }], "c1", true),
+      page([{ taskId: "tsk_alpha", body: "from::beta\n2", id: "cmt_2" }], "c2"),
     ]);
     const w = watchOpts(rpc, memoryState());
     await runWatch(w.opts);

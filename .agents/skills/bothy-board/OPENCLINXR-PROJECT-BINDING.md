@@ -206,6 +206,13 @@ network errors back off 1 s to 30 s and stay up.
 Measured 2026-11-10 on Patricks-MacBook-Pro: a post reached a held poll 1,110 ms after the send
 started; an empty hold returned after 8,110 ms for `waitMs: 8000` with `nextPollMs: 0`.
 
+The poll cursor is inclusive. Polling with cursor C re-returns the event at C at once, with the same
+cursor and `nextPollMs: 0` (measured 2026-11-10; the first watcher logged one message 165 times in
+about 20 s and drew a 429). Once any message exists, the hold therefore never waits. The watcher keeps
+the event ids seen at its cursor in `seenEventIds`, drops them, and waits 5 s after a page of only
+seen events. Delivery latency is up to about 5 s until the server cursor is exclusive; a live send
+arrived in 3 s and was logged once.
+
 Wakes per harness: Grok arms `monitor(command = "pnpm openclaw:inbox watch --mode monitor", persistent = true)`
 and runs `read` on `DONE`; Claude runs `watch` under the `Monitor` tool, one notification per message
 line; Codex starts one `codex exec` per batch, as in `CODEX-HARNESS.md`.

@@ -23,6 +23,13 @@ export const INBOX_LOG_REL = ".openclinxr/openclaw/machine-inbox.jsonl";
 export const INBOX_READ_REL = ".openclinxr/openclaw/machine-inbox-read.json";
 export const MAX_WAIT_MS = 20_000;
 export const MAX_BACKOFF_MS = 30_000;
+/**
+ * The server's poll cursor is inclusive: it re-returns the event at the cursor, at once, with the
+ * same cursor (measured 2026-11-10). A page of only already-seen events waits this long before the
+ * next poll instead of spinning.
+ */
+export const SEEN_ONLY_REPOLL_MS = 5_000;
+const SEEN_CAP = 50;
 
 export type InboxRegistry = {
   projectId: string;
@@ -34,6 +41,8 @@ export type InboxState = {
   subscriptionId: string | null;
   subscribedTaskIds: string[];
   cursor: string | null;
+  /** Event ids already delivered at `cursor`, dropped when the inclusive cursor re-returns them. */
+  seenEventIds?: string[];
 };
 
 export type InboxMessage = {
@@ -320,7 +329,14 @@ export async function runWatch(opts: {
     failures = 0;
     const page = (reply.result ?? {}) as PollResult;
     const delivered: InboxMessage[] = [];
+    const seen = new Set(state.seenEventIds ?? []);
+    const pageIds: string[] = [];
+    let fresh = 0;
     for (const ev of page.events ?? []) {
+      const id = ev.eventId ?? "";
+      if (id) pageIds.push(id);
+      if (id && seen.has(id)) continue;
+      fresh += 1;
       const body = ev.data?.body ?? "";
       const from = senderOf(body);
       if (from === opts.machine) continue;
@@ -337,7 +353,10 @@ export async function runWatch(opts: {
       delivered.push(msg);
     }
     // Persist the cursor only after the batch is logged, so a crash re-delivers rather than drops.
-    state = { ...state, cursor: page.cursor ?? state.cursor };
+    const cursor = page.cursor ?? state.cursor;
+    const carried = cursor === state.cursor ? [...seen] : [];
+    const seenEventIds = [...new Set([...carried, ...pageIds])].slice(-SEEN_CAP);
+    state = { ...state, cursor, seenEventIds };
     opts.state.write(state);
     if (delivered.length > 0) {
       if (mode === "monitor") opts.emit("DONE");
@@ -346,6 +365,7 @@ export async function runWatch(opts: {
     drain = page.hasMore === true;
     deliveredTotal += delivered.length;
     if (opts.once && deliveredTotal > 0 && !drain) return 0;
+    if (!drain && fresh === 0 && pageIds.length > 0) await sleep(SEEN_ONLY_REPOLL_MS);
   }
   return 0;
 }
