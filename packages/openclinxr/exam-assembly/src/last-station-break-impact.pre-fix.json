@@ -12,8 +12,9 @@
       ],
       "maxStationOrder": 3,
       "includesMaxOrder": true,
-      "totalFormTimeSecondsBefore": 4680,
-      "totalFormTimeSecondsAfter": 4680
+      "totalFormTimeSecondsBefore": 4720,
+      "totalFormTimeSecondsAfter": 4680,
+      "breakDurationSecondsSource": "exam-form-breaks.test.ts:287 passes breakDurationSeconds 40 to createExamFormRun"
     },
     {
       "path": "packages/openclinxr/exam-assembly/src/exam-assembly.test.ts:185 unsorted 3 slots [3,3,1]",
@@ -25,7 +26,32 @@
       "maxStationOrder": 3,
       "includesMaxOrder": true,
       "totalFormTimeSecondsBefore": 4680,
-      "totalFormTimeSecondsAfter": 4680
+      "totalFormTimeSecondsAfter": 4680,
+      "breakDurationSecondsSource": "none: timing.breakSeconds absent, break length 0"
+    },
+    {
+      "path": "packages/openclinxr/xr-sync-server/src/a-blueprint-break-pauses-the-synced-rotation.test.ts:137 (counterweight 3, 2 stations, breakSeconds 2)",
+      "blueprintId": "bp-fixture-c53",
+      "breakAfterStationOrders": [
+        2
+      ],
+      "maxStationOrder": 2,
+      "includesMaxOrder": true,
+      "totalFormTimeSecondsBefore": null,
+      "totalFormTimeSecondsAfter": null,
+      "breakDurationSecondsSource": "server fixture with no exam-assembly plan; the server dropped this break at base, so its runtime behaviour does not change"
+    },
+    {
+      "path": "packages/openclinxr/shared-schemas/src/schemas.test.ts:1253-1268 breakTimingBlueprint (1 station, breakSeconds 300 in one case)",
+      "blueprintId": "bp-fixture-c53",
+      "breakAfterStationOrders": [
+        1
+      ],
+      "maxStationOrder": 1,
+      "includesMaxOrder": true,
+      "totalFormTimeSecondsBefore": 1860,
+      "totalFormTimeSecondsAfter": 1560,
+      "breakDurationSecondsSource": "schema validation only; totals are what createExamTimingPlan would give for that blueprint with breakSeconds 300 (1560 station seconds + 300 before, 1560 after); the test asserts schema validity, which is unchanged"
     }
   ],
   "unaffectedChecked": [
@@ -57,5 +83,5 @@
     }
   ],
   "notAffectedByConstruction": "every other grep hit uses breakAfterStationOrders [] or [1] on a form with more than one station (xr-sync-server fixtures, tools/openclinxr/evidence/xr-sync/c*-run.mjs, data-mongodb, pin-station-bundles, blueprint-coverage, ui-route-*, apps/api, apps/ui-admin), or only validates schema (shared-schemas schemas.test.ts)",
-  "totalsNote": "Both affected fixtures carry no timing.breakSeconds (default timing), so their last-station break lasts 0 s and totals are equal; the breakCheckpoints list changes (exam-assembly.test.ts:185 expects a checkpoint after station 3 at second 4680, which is removed after the fix; exam-form-breaks.test.ts:281 asserts must be rechecked). With breakSeconds 120 on the 2-station form the total moves 3240 -> 3120 (C56 RED)."
+  "totalsNote": "The two exam-assembly fixtures: exam-form-breaks.test.ts:281 moves 4720 -> 4680 (40 s break passed as an option); exam-assembly.test.ts:185 has no break length, totals equal 4680, and its expected breakCheckpoints lose the order-3 entry. The 2-station C56 RED form with breakSeconds 120 moves 3240 -> 3120. The server fixture is listed for completeness; its runtime behaviour does not change."
 }

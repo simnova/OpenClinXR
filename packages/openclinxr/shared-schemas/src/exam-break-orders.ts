@@ -1,3 +1,8 @@
+/**
+ * The break orders that actually run: the sorted, unique entries of `breakAfterStationOrders` that are a station order and
+ * not the maximum station order. A break never follows the last station; "last" is the max order value, not the array position.
+ * Both the exam timing plan and the synced encounter server call this, so the two cannot disagree.
+ */
 export function effectiveBreakAfterStationOrders(
   stationOrders: readonly number[],
   breakAfterStationOrders: readonly number[],

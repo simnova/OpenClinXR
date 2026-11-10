@@ -51,7 +51,8 @@
     "EQUIPMENT_BINDING_PRECEDENCE": "Which list wins when the two disagree.",
     "InitialSceneSpec": "Reviewable initial scene specification for one encounter.",
     "ProductionStationId": "Compat re-export.",
-    "classifyScenarioEquipmentBinding": "Total classification of a scenario's equipment strings against its assetNeeds."
+    "classifyScenarioEquipmentBinding": "Total classification of a scenario's equipment strings against its assetNeeds.",
+    "effectiveBreakAfterStationOrders": "The break orders that actually run: the sorted, unique entries of `breakAfterStationOrders` that are a station order and not the maximum station order."
   },
   "workspaceDependencies": [
     "@cellix/provider-contracts",
