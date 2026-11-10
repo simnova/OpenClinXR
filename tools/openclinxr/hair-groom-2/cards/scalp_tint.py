@@ -2,7 +2,7 @@
 
     blender -b --factory-startup --python scalp_tint.py -- <in.glb> <strands.npz> <out.glb> <record.json> \
         [--sigma-mm S] [--rho-frac F] [--amax A] [--root-dark K] [--wide-sigma-mm SW --wide-amax AW]
-        [--sideburn-weight WS]
+        [--sideburn-weight WS] [--close-mm RC [--close-soft-mm SC]]
 
 DESIGN-realism.md P2 (T6). Production card hair sits on a scalp painted toward the hair colour, so the
 part and the hairline show tinted skin under the cards rather than bare skin. Here the tint comes from the
@@ -15,8 +15,13 @@ With --sideburn-weight WS < 1, roots in the groom's sideburn zone (head-local lo
 ear landmarks and earHairline of the groom's stats.json: |x| >= minAbsXMm, yFront - sideburnWidthMm -
 sideburnRampMm <= y < yFront, z < zTopMm) carry weight WS, and a is multiplied by the blurred local mean
 weight. P2 st2 grade: the sideburn cards sweep behind the ear, so root density alone painted a solid patch
-in front of it, where the target shows skin. The albedo becomes skin * (1 - a) + hair * a in linear light,
-hair = alpha-weighted mean linear colour of the hair_cards baseColorTexture x baseColorFactor x K.
+in front of it, where the target shows skin.
+With --close-mm RC, a is multiplied by the root-presence mask closed (dilated, then eroded) by RC mm and
+blurred by SC mm: a narrow part gap, with roots on both sides, is filled and keeps its tint, while skin
+outside the edge of the root field loses it (p2a showed tint on the forehead below the part base, on the
+neck below the ear and behind the ear; a density-ratio erosion removed those but also bared the part).
+The albedo becomes skin * (1 - a) + hair * a in linear light, hair = alpha-weighted mean linear colour of
+the hair_cards baseColorTexture x baseColorFactor x K.
 
 Only the skin baseColorTexture image bytes change (same size, PNG); the bufferViews are repacked, every
 other byte stays identical. The shipped body GLB is not read or written. Deterministic: no random draws.
@@ -102,7 +107,8 @@ def main(argv):
     from PIL import Image
 
     pos_args, opts = [], {"--sigma-mm": 1.2, "--rho-frac": 0.25, "--amax": 0.9, "--root-dark": 0.8,
-                         "--wide-sigma-mm": 0.0, "--wide-amax": 0.0, "--sideburn-weight": 1.0}
+                         "--wide-sigma-mm": 0.0, "--wide-amax": 0.0, "--sideburn-weight": 1.0,
+                         "--close-mm": 0.0, "--close-soft-mm": 0.5}
     it = iter(argv)
     for a in it:
         if a in opts:
@@ -197,6 +203,15 @@ def main(argv):
         Dw = gauss(D, opts["--wide-sigma-mm"] * px_mm)
         aw = opts["--wide-amax"] * (1 - np.exp(-Dw / (opts["--rho-frac"] * float(np.median(Dw[D > 0])))))
         a = np.maximum(a, aw)
+    if opts["--close-mm"] > 0:
+        # gate to the closed root field: dilate then erode the root-presence mask by close-mm, so a narrow
+        # part gap (roots on both sides) is filled and keeps its tint, while skin outside the field edge
+        # (forehead below the part base, neck, behind the ear) loses it; soft edge over close-soft-mm
+        O = (Db >= 0.05 * float(np.median(Db[D > 0]))).astype(np.float64)
+        rc = opts["--close-mm"] * px_mm
+        dil = (gauss(O, rc) > 0.1).astype(np.float64)
+        clo = (gauss(dil, rc) > 0.9).astype(np.float64)
+        a = a * np.clip(gauss(clo, opts["--close-soft-mm"] * px_mm), 0, 1)
     if sb_stats is not None:
         Ww = np.zeros_like(D)
         np.add.at(Ww, (px[keep, 1] - y0, px[keep, 0] - x0), wts[keep])

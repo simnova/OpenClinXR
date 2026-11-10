@@ -358,6 +358,23 @@ Each phase gate is graded independently at native resolution; each phase ends wi
     (part 5 px, as BEST3); an atlas alpha ramp over the first 6-20 mm from each edge card's root (st9-st12)
     left the falloff at 6 px with the tint already at 5.5 and lightened the part at the crown. Rubric 41/41
     not re-run: the rubric grades Cycles strand and card renders, which this slice does not change.
+  - Slice 2 done 2026-11-09 (g2). `scalp_tint.py --close-mm 2 --close-soft-mm 1.5`: the tint is multiplied by
+    the root-presence mask closed by 2 mm and blurred by 1.5 mm, so the narrow part gap keeps its tint and
+    skin outside the root field (forehead under the part base, neck, behind the ear) loses it. Chain
+    `cards/p2_scalp.sh` reproduces sha256 f346382e3945281b. Front report: part 2 px, peak L .447 (as p2a),
+    hairline falloff 4.5 px (p2a 6, target 12). Part-region shift vs p2a .03-.08 of the e1 shift.
+    Independent grader (EV/p2/gradeG/grade-g2.md): g2 closer to the target than p2a, 5 cells to 4 of 16, no
+    visible defect added or removed; side view slightly greyer in front of and behind the ear.
+  - Rejected in slice 2, with numbers: density-ratio erosion (e1, 3 mm) bared the part (front L 131-137 vs
+    target 102-126, EV/p2/gradeE); weaker erosions e4-e6 moved the part and the smudges by the same fraction
+    (.45/.45, .47/.59, .26/.19), so no setting keeps one and drops the other. Seeded strand break in the edge
+    fade (w2) lost in all 4 views (1 px stair-stepped hairline, back part 888 bright px vs 500, target 332).
+    Wisp ribbons from 80-160 root-field-edge strands (EV/p2/wisp/wisp_cards.py, not shipped): lifted off the
+    strand (wa) they lay on the crown cards as bright lines; hugging the skin under the cards (wb) they drew a
+    dark arc below the hairline (falloff 7.5 px by the report, a hard line by eye); short, thin and off the
+    part (wc) they were barely visible. The largest hairline gap is position: the card hairline sits about
+    30 rows lower and harder than the target's (front hairline row 253 vs 223), which is groom shape, not
+    wisps.
 - **P3 Strand reference (T4).**
   - Strand references: r10 B strands seeds 1-6 rendered in the target scene (make_sources.py lights,
     world, floor and cameras; groom imported in place of the removed library hair) at target framing; card
