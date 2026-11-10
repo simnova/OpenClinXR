@@ -180,3 +180,32 @@ counterweight that fails if the pattern matches everything.
 **If you are an agent on another harness, you do not have that hook.** Wire the equivalent on your
 side rather than trusting yourself to remember: the failure mode is not ignorance, it is that a raw
 HTTP call is always the shortest path from where you are standing.
+
+## Machine-to-machine messaging — added 2026-11-10
+
+Each machine has one inbox card and every machine shares one broadcast card. Both are `kind: channel`,
+Idle, never planted, so `tasks.next` never returns them. Ids live in
+`tools/openclinxr/openclaw/machine-inboxes.json`. The machine name is `BOTHY_MACHINE_NAME`, else the
+hostname without `.local`.
+
+| command | does |
+|---|---|
+| `pnpm openclaw:inbox machines` | list inboxes |
+| `pnpm openclaw:inbox register` | create this machine's inbox card, read it back, write the registry (commit it) |
+| `pnpm openclaw:inbox send <machine\|all> <text>` | `mailbox.post` with a `from::<machine>` first line |
+| `pnpm openclaw:inbox watch [--once] [--mode monitor]` | long-poll own inbox + broadcast; log to `.openclinxr/openclaw/machine-inbox.jsonl` |
+| `pnpm openclaw:inbox read [--all]` | print logged messages not yet read |
+
+The watcher holds one `mailbox.message` subscription (`events/subscribe`, `taskIds` = own inbox +
+broadcast) and polls with `waitMs: 20000`. It keeps the cursor in
+`.openclinxr/openclaw/machine-inbox-state.json`, writes it only after a batch is logged, and resumes
+from it after a restart. The event payload has no author name, so the `from::` line identifies the
+sender and drops the watcher's own broadcasts. 401/403 exits 2 (`FAILED` in monitor mode); 5xx and
+network errors back off 1 s to 30 s and stay up.
+
+Measured 2026-11-10 on Patricks-MacBook-Pro: a post reached a held poll 1,110 ms after the send
+started; an empty hold returned after 8,110 ms for `waitMs: 8000` with `nextPollMs: 0`.
+
+Wakes per harness: Grok arms `monitor(command = "pnpm openclaw:inbox watch --mode monitor", persistent = true)`
+and runs `read` on `DONE`; Claude runs `watch` under the `Monitor` tool, one notification per message
+line; Codex starts one `codex exec` per batch, as in `CODEX-HARNESS.md`.

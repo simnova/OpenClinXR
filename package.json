@@ -353,6 +353,7 @@
     "openclaw:epic": "tsx tools/openclinxr/openclaw/openclaw-epic-cli.ts",
     "openclaw:mailbox:poll": "tsx tools/openclinxr/openclaw/mailbox-poll-cli.ts",
     "openclaw:mailbox:monitor": "tsx tools/openclinxr/openclaw/bothy-mailbox-monitor.ts",
+    "openclaw:inbox": "tsx tools/openclinxr/openclaw/machine-inbox-cli.ts",
     "openclaw:run-next": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts",
     "openclaw:watchdog": "tsx tools/openclinxr/openclaw/openclaw-slice-runner.ts --watchdog",
     "openclaw:lease": "tsx tools/openclinxr/openclaw/openclaw-automation-lease.ts",
