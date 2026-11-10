@@ -61,6 +61,18 @@ describe("the supine plant parity between node and the GPU browser", () => {
     expect(derived).toEqual(grepped);
   });
 
+  it("each blueprint source authors as many supine actors as the json derives from it (literal count per file, not only the file set)", () => {
+    const dir = join(ROOT, "packages/openclinxr/scenario-fixtures/src");
+    const perFile = new Map<string, number>();
+    for (const f of readdirSync(dir).filter((x) => x.endsWith(".ts") && !x.endsWith(".test.ts"))) {
+      const n = (readFileSync(join(dir, f), "utf8").match(/supportSurface:\s*"(stretcher|bed|exam_table)"/g) ?? []).length;
+      if (n > 0) perFile.set(`packages/openclinxr/scenario-fixtures/src/${f}`, n);
+    }
+    const derivedPerFile = new Map<string, number>();
+    for (const s of parity.shippedCases as { blueprintPath: string }[]) derivedPerFile.set(s.blueprintPath, (derivedPerFile.get(s.blueprintPath) ?? 0) + 1);
+    expect(Object.fromEntries([...derivedPerFile].sort())).toEqual(Object.fromEntries([...perFile].sort()));
+  });
+
   it("a shipped case missing from the json fails the case-set check", () => {
     const dropped = parity.cases.filter((row) => caseKey(row) !== caseKey(shipped[0] as { body: string; deck: string; inclineDeg: number }));
     expect(dropped.length).toBe(parity.cases.length - 1);
@@ -88,11 +100,14 @@ describe("the supine plant parity between node and the GPU browser", () => {
     for (const b of parity.bundledPackages) {
       expect(b.matchesUiXr, b.name).toBe(true);
       expect(b.harnessDir).toBe(b.uiXrDir);
-      if (b.name !== "three") expect(b.harnessDistSha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(b.harnessDistSha256).toMatch(/^[0-9a-f]{64}$/);
       expect(b.harnessDistSha256).toBe(b.uiXrDistSha256);
+      // Recomputed, not trusted: the recorded hashes equal what this tree's ui-xr resolves now.
       const cur = now.find((n) => n.name === b.name) as Bundled;
+      expect(cur.matchesUiXr, `${b.name} now`).toBe(true);
       expect(b.lockfile).toEqual(cur.lockfile);
       expect(b.uiXrDir).toBe(cur.uiXrDir);
+      expect(b.uiXrDistSha256, `${b.name} dist sha256 recorded vs now`).toBe(cur.uiXrDistSha256);
     }
     expect(parity.notTested).toBe("shipped ui-xr bundle (minified graph) not run; C52d's live key check covers the shipped path");
     expect(parity.gitTreeSha).toMatch(/^[0-9a-f]{40}$/);

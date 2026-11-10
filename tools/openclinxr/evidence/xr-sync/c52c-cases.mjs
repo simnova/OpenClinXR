@@ -12,6 +12,7 @@ import { pathToFileURL } from "node:url";
 import { caseKey } from "./c52c-plant-core.mjs";
 
 export const DECK = "patient_stretcher";
+const INPUT_PATHS = ["packages/openclinxr/xr-pose/src", "packages/openclinxr/xr-station/src", "packages/openclinxr/asset-registry/src", "packages/openclinxr/scenario-fixtures/src", "tools/openclinxr/evidence/xr-sync/c52c-plant-core.mjs", "tools/openclinxr/evidence/xr-sync/c52c-cases.mjs", "apps/ui-xr/public/generated-humanoids"];
 /** Mirrors postureForSupportSurface (asset-registry case-actor-placements-mod.ts:28), not exported. */
 const SUPINE_SURFACES = new Set(["stretcher", "bed", "exam_table"]);
 /** Mirrors isStretcherSlotId (xr-station station-stretcher.ts:332), not exported. */
@@ -79,23 +80,23 @@ export function unionCases(red, shipped) {
 }
 
 /**
- * Hash of every input that can change a plant result: xr-pose / xr-station / asset-registry non-test
- * sources, the shared core, this case list, the RED A fixture and the GLB bytes of the bodies used.
+ * Hash of every input that can change a plant result or the case list: xr-pose / xr-station / asset-registry /
+ * scenario-fixtures non-test sources, the shared core, this case list, the RED A fixture and the GLB bytes of the bodies used.
  * A json cannot name the commit that contains it, so the test accepts headSha == HEAD, or the same
  * input hash at HEAD (survives the json commit and a rebase that leaves these inputs alone).
  */
 export function inputTreeHash(root, bodies) {
-  const listed = execFileSync("git", ["-C", root, "ls-tree", "-r", "HEAD", "--", "packages/openclinxr/xr-pose/src", "packages/openclinxr/xr-station/src", "packages/openclinxr/asset-registry/src", "tools/openclinxr/evidence/xr-sync/c52c-plant-core.mjs", "tools/openclinxr/evidence/xr-sync/c52c-cases.mjs", "apps/ui-xr/public/generated-humanoids"], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
+  // Working-tree bytes, not HEAD blobs: a run made before its inputs are committed must hash what it ran on,
+  // and the same hash is then reproduced at the commit that contains those bytes.
+  const listed = execFileSync("git", ["-C", root, "ls-files", "-co", "--exclude-standard", "--", ...INPUT_PATHS], { encoding: "utf8", maxBuffer: 64 * 1024 * 1024 });
   const wanted = new Set(bodies);
-  const lines = listed.split("\n").filter(Boolean).map((l) => {
-    const [meta, path] = l.split("\t");
-    return { sha: meta.split(" ")[2], path };
-  }).filter(({ path }) => {
+  const paths = [...new Set(listed.split("\n").filter(Boolean))].filter((path) => {
     if (path.startsWith("apps/ui-xr/public/generated-humanoids/")) return wanted.has(path.split("/").at(-1));
     if (path.endsWith(".test.ts") || path.endsWith("arch-index.json") || path.endsWith(".json") || path.endsWith(".md")) return path.endsWith("supine-plant-pose-before.json");
     return true;
-  }).sort((a, b) => (a.path < b.path ? -1 : 1));
-  return createHash("sha256").update(lines.map((l) => `${l.sha} ${l.path}`).join("\n")).digest("hex");
+  }).sort();
+  const shas = execFileSync("git", ["-C", root, "hash-object", "--stdin-paths"], { input: paths.join("\n"), encoding: "utf8", maxBuffer: 64 * 1024 * 1024 }).trim().split("\n");
+  return createHash("sha256").update(paths.map((path, i) => `${shas[i]} ${path}`).join("\n")).digest("hex");
 }
 
 /** True when the json's case keys equal the expected union exactly (no missing, no extra, no repeats). */
@@ -161,10 +162,13 @@ export function bundledPackageProvenance(root) {
   const harnessThree = ["xr-pose", "xr-station"].map((n) => realpathSync(join(root, "packages/openclinxr", n, "node_modules/three")));
   const uiXrThree = realpathSync(join(uiXr, "node_modules/three"));
   const threeVersion = JSON.parse(readFileSync(join(uiXrThree, "package.json"), "utf8")).version;
+  const threeSha = (dir) => createHash("sha256").update(dirSha256(join(dir, "build"))).update(readFileSync(join(dir, "package.json"))).digest("hex");
+  const harnessDistSha256 = threeSha(harnessThree[0]);
+  const uiXrDistSha256 = threeSha(uiXrThree);
   rows.push({
     name: "three", lockfile: lockEntry(lock, "apps/ui-xr", "three"), version: threeVersion,
-    harnessDir: relative(root, harnessThree[0]), uiXrDir: relative(root, uiXrThree),
-    matchesUiXr: harnessThree.every((d) => d === uiXrThree),
+    harnessDir: relative(root, harnessThree[0]), uiXrDir: relative(root, uiXrThree), harnessDistSha256, uiXrDistSha256,
+    matchesUiXr: harnessThree.every((d) => d === uiXrThree) && harnessThree.every((d) => threeSha(d) === uiXrDistSha256),
   });
   return rows;
 }

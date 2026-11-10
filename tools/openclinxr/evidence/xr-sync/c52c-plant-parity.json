@@ -1,13 +1,12 @@
 {
   "slice": "C52c",
-  "headSha": "185ddcc78b025f73fa6b091d44678a4638871d5e",
-  "gitTreeSha": "1acd6402f8499e55e38669e367d2a00e1bc5fde7",
+  "headSha": "cdc909567201b113f2160080802903288cdb7a39",
+  "gitTreeSha": "94621df4d79d8f462b9c05bd0854177ea5ff6ba8",
   "uncommittedPaths": [
     "tools/openclinxr/evidence/xr-sync/c52c-cases.mjs",
-    "tools/openclinxr/evidence/xr-sync/c52c-plant-parity.mjs",
     "tools/openclinxr/evidence/xr-sync/c52c-plant-parity.test.ts"
   ],
-  "inputTreeSha256": "f1a280aff1610b8c4c1551f4771892757f1c311dc8568e1f9e5d55e42930d4ba",
+  "inputTreeSha256": "4de6649a52d1769a2c8a9a4ec208c12f8a87e4d321beabb6d45b8c2801cf6b88",
   "bundledPackages": [
     {
       "name": "@openclinxr/xr-pose",
@@ -42,6 +41,8 @@
       "version": "0.184.0",
       "harnessDir": "node_modules/.pnpm/three@0.184.0/node_modules/three",
       "uiXrDir": "node_modules/.pnpm/three@0.184.0/node_modules/three",
+      "harnessDistSha256": "969870fea733af31dda09cfab871d11ae8d937c852cb73c21feea0a006acbb4d",
+      "uiXrDistSha256": "969870fea733af31dda09cfab871d11ae8d937c852cb73c21feea0a006acbb4d",
       "matchesUiXr": true
     }
   ],
@@ -49,8 +50,8 @@
   "nodeVersion": "v24.18.1",
   "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
   "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
-  "nodePid": 89378,
-  "browserPid": 89517,
+  "nodePid": 57617,
+  "browserPid": 58199,
   "toleranceM": 0.0001,
   "probe": null,
   "pageErrors": [],
