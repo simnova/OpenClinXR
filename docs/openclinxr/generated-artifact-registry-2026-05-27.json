@@ -5,6 +5,22 @@
   "usageRule": "Autonomous cleanup agents must classify generated non-Markdown artifacts here before deleting, ignoring, or committing them.",
   "preservedEntries": [
     {
+      "path": "tools/openclinxr/hair-groom-2/targets/target-back-a1.png",
+      "reason": "Hair-groom-2 grade target (back view): xAI Imagine image_edit output, operator-supplied 2026-11-07 (989c6c709, 56d32ca75), operator cleared to commit 2026-11-10; inputs = bald Cycles renders of MPFB Aisha (tools/openclinxr/evidence/hair-target2/make_sources.py); read by sheet3.py, frame_fit.py, sheen_gate.py, probe_*. md5 d922f7d9cd51ad2665f7c654c3e2ce13. Byte chain to the hair-target4 RESULT md5s UNVERIFIED."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/targets/target-front-a1.png",
+      "reason": "Hair-groom-2 grade target (front view): xAI Imagine image_edit output, operator-supplied 2026-11-07 (989c6c709, 56d32ca75), operator cleared to commit 2026-11-10; inputs = bald Cycles renders of MPFB Aisha (tools/openclinxr/evidence/hair-target2/make_sources.py); read by sheet3.py, frame_fit.py, sheen_gate.py, probe_*. md5 bc2193f6c761c3714afaca3f2f0d58ad. Byte chain to the hair-target4 RESULT md5s UNVERIFIED."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/targets/target-profile-a1.png",
+      "reason": "Hair-groom-2 grade target (profile view): xAI Imagine image_edit output, operator-supplied 2026-11-07 (989c6c709, 56d32ca75), operator cleared to commit 2026-11-10; inputs = bald Cycles renders of MPFB Aisha (tools/openclinxr/evidence/hair-target2/make_sources.py); read by sheet3.py, frame_fit.py, sheen_gate.py, probe_*. md5 834b447e224af75954bfe17374e3a6ff. Byte chain to the hair-target4 RESULT md5s UNVERIFIED."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/targets/target-three_quarter-a1.png",
+      "reason": "Hair-groom-2 grade target (three quarter view): xAI Imagine image_edit output, operator-supplied 2026-11-07 (989c6c709, 56d32ca75), operator cleared to commit 2026-11-10; inputs = bald Cycles renders of MPFB Aisha (tools/openclinxr/evidence/hair-target2/make_sources.py); read by sheet3.py, frame_fit.py, sheen_gate.py, probe_*. md5 40bcf1a861abb707f1f71dafc649abfd. Byte chain to the hair-target4 RESULT md5s UNVERIFIED."
+    },
+    {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
       "reason": "Promoted MPFB2 runtime cast under public/generated-humanoids, which scannedRoots does not walk (only public/xr-assets)."
     },
