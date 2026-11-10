@@ -84,40 +84,87 @@ function topSelfTime(events, mainPid, mainTid, win, n = 10) {
 }
 
 function cpuProfileTop(events, mainPid, mainTid, win, n = 10) {
+  void mainTid;
   const list = Array.isArray(events) ? events : (events?.traceEvents ?? []);
-  const agg = new Map();
-  for (const e of list) {
-    if (!e || e.pid !== mainPid || e.tid !== mainTid) continue;
-    const cpu = e.args?.data?.cpuProfile;
-    if (!cpu || !Array.isArray(cpu.nodes)) continue;
-    const nodeById = new Map();
-    for (const node of cpu.nodes) {
-      const cf = node?.callFrame ?? {};
-      nodeById.set(node.id, { functionName: String(cf.functionName ?? ""), url: String(cf.url ?? "") });
+  const getCpu = (e) => e?.args?.data?.cpuProfile ?? (Array.isArray(e?.args?.data?.samples) ? e.args.data : null);
+  const chunks = list.filter((e) => e && e.pid === mainPid && (e.name === "ProfileChunk" || getCpu(e)));
+  const nodeById = new Map();
+  for (const e of chunks) {
+    const cpu = getCpu(e);
+    const nodes = cpu?.nodes;
+    if (!Array.isArray(nodes)) continue;
+    for (const node of nodes) {
+      if (!node || node.id == null) continue;
+      const cf = node.callFrame ?? {};
+      nodeById.set(node.id, {
+        functionName: String(cf.functionName ?? ""),
+        url: String(cf.url ?? ""),
+        lineNumber: cf.lineNumber,
+        columnNumber: cf.columnNumber,
+        parent: node.parent,
+      });
     }
-    const samples = cpu.samples;
-    const deltas = cpu.timeDeltas;
+  }
+  const profEv = list.find((e) => e && e.name === "Profile" && e.pid === mainPid);
+  const base = Number(profEv?.args?.data?.startTime ?? profEv?.ts ?? 0);
+  const flat = [];
+  let cum = 0;
+  for (const e of chunks) {
+    const cpu = getCpu(e);
+    const samples = cpu?.samples;
+    const deltas = Array.isArray(e?.args?.data?.timeDeltas) ? e.args.data.timeDeltas : cpu?.timeDeltas;
     if (!Array.isArray(samples) || !Array.isArray(deltas)) continue;
-    const baseTs = typeof e.ts === "number" ? e.ts : 0;
-    let cum = 0;
     const m = Math.min(samples.length, deltas.length);
     for (let i = 0; i < m; i++) {
       const d = typeof deltas[i] === "number" ? deltas[i] : 0;
       cum += d;
-      const sampleTs = baseTs + cum;
-      if (sampleTs < win.startUs || sampleTs > win.endUs) continue;
-      const node = nodeById.get(samples[i]);
-      if (!node) continue;
-      const key = `${node.functionName}|${node.url}`;
-      const prev = agg.get(key);
-      if (prev) prev.sumUs += d;
-      else agg.set(key, { traceEventName: node.functionName, url: node.url, functionName: node.functionName, sumUs: d });
+      const sampleTs = base + cum;
+      flat.push({ nodeId: samples[i], delta: d, ts: sampleTs });
     }
   }
-  return [...agg.values()]
-    .map((v) => ({ traceEventName: v.traceEventName, url: v.url, functionName: v.functionName, selfMs: Math.round((v.sumUs / 1000) * 1000) / 1000, source: "cpu_profile" }))
+  const startUs = win?.startUs ?? -Infinity;
+  const endUs = win?.endUs ?? Infinity;
+  const inWin = flat.filter((s) => s.ts >= startUs && s.ts <= endUs);
+  const keyOf = (node) => `${node.functionName}|${node.url}|${node.lineNumber ?? ""}:${node.columnNumber ?? ""}`;
+  const selfAgg = new Map();
+  for (const s of inWin) {
+    const node = nodeById.get(s.nodeId);
+    if (!node) continue;
+    const key = keyOf(node);
+    const prev = selfAgg.get(key);
+    if (prev) prev.sumUs += s.delta;
+    else selfAgg.set(key, { traceEventName: "cpu_profile", url: node.url, functionName: node.functionName, lineNumber: node.lineNumber, columnNumber: node.columnNumber, sumUs: s.delta });
+  }
+  const self = [...selfAgg.values()]
+    .map((v) => ({ traceEventName: v.traceEventName, url: v.url, functionName: v.functionName, lineNumber: v.lineNumber, columnNumber: v.columnNumber, selfMs: Math.round((v.sumUs / 1000) * 1000) / 1000, source: "cpu_profile" }))
     .sort((a, b) => b.selfMs - a.selfMs)
     .slice(0, n);
+  const skipInc = new Set(["(root)", "(program)", "(idle)"]);
+  const incAgg = new Map();
+  for (const s of inWin) {
+    const leaf = nodeById.get(s.nodeId);
+    if (!leaf) continue;
+    const seen = new Set();
+    let cur = leaf;
+    let guard = 0;
+    while (cur && guard++ < 100000) {
+      const key = keyOf(cur);
+      if (!seen.has(key)) {
+        seen.add(key);
+        if (!skipInc.has(cur.functionName)) {
+          const prev = incAgg.get(key);
+          if (prev) prev.sumUs += s.delta;
+          else incAgg.set(key, { traceEventName: "cpu_profile", url: cur.url, functionName: cur.functionName, lineNumber: cur.lineNumber, columnNumber: cur.columnNumber, sumUs: s.delta });
+        }
+      }
+      cur = cur.parent == null ? null : nodeById.get(cur.parent);
+    }
+  }
+  const inclusive = [...incAgg.values()]
+    .map((v) => ({ traceEventName: v.traceEventName, url: v.url, functionName: v.functionName, lineNumber: v.lineNumber, columnNumber: v.columnNumber, inclusiveMs: Math.round((v.sumUs / 1000) * 1000) / 1000, source: "cpu_profile_inclusive" }))
+    .sort((a, b) => b.inclusiveMs - a.inclusiveMs)
+    .slice(0, n);
+  return { self, inclusive };
 }
 
 function classify(task) {
@@ -133,6 +180,12 @@ function classify(task) {
     ev += ` => ${cause}`;
     return ev;
   };
+  const src = String(task?.source ?? "");
+  if (src.startsWith("cpu_profile")) {
+    if (fn === "" && url === "") return { cause: "inconclusive", evidence: `traceEventName="${name}": no url and no function name` };
+    if (fn === "(garbage collector)") return { cause: "gc", evidence: evidenceFor("gc") };
+    if (fn === "(program)" || fn === "(idle)") return { cause: "other", evidence: evidenceFor("other") };
+  }
   if (/gltfloader|draco|meshopt|parseglb|decodegltf/.test(s)) return { cause: "glb_decode", evidence: evidenceFor("glb_decode") };
   if (evName.includes("json.parse") || evName.includes("parsejson")) return { cause: "asset_parse", evidence: evidenceFor("asset_parse") };
   if (/teximage|texsubimage|uploadtexture|compressedteximage/.test(s)) return { cause: "texture_upload", evidence: evidenceFor("texture_upload") };
@@ -157,6 +210,14 @@ if (process.argv.includes("--selftest")) {
   assert(child && child.selfMs === 40, `child self expected 40 got ${JSON.stringify(child)}`);
   assert(classify({ traceEventName: "MajorGC", url: "", functionName: "" }).cause === "gc", "classify MajorGC should be gc");
   assert(classify({ traceEventName: "Foo", url: "", functionName: "" }).cause === "inconclusive", "classify Foo should be inconclusive");
+  const profEv = [
+    { name: "Profile", ph: "P", pid: 1, ts: 1000, args: { data: { startTime: 1000 } } },
+    { name: "ProfileChunk", ph: "P", pid: 1, tid: 9, ts: 1000, args: { data: { cpuProfile: { nodes: [{ id: 1, callFrame: { functionName: "(root)", url: "" } }, { id: 2, parent: 1, callFrame: { functionName: "foo", url: "u.js", lineNumber: 3, columnNumber: 4 } }], samples: [2, 2] }, timeDeltas: [10, 20] } } },
+    { name: "ProfileChunk", ph: "P", pid: 1, tid: 9, ts: 1000, args: { data: { cpuProfile: { nodes: [], samples: [2] }, timeDeltas: [30] } } },
+  ];
+  const cpuRes = cpuProfileTop(profEv, 1, 999, { startUs: 1000, endUs: 1100 }, 10);
+  assert(cpuRes.self[0] && cpuRes.self[0].functionName === "foo", `cpu self top expected foo got ${JSON.stringify(cpuRes.self[0])}`);
+  assert(cpuRes.self[0] && cpuRes.self[0].selfMs === 0.06, `cpu self selfMs expected 0.06 got ${JSON.stringify(cpuRes.self[0])}`);
   console.log("SELFTEST ok");
   process.exit(0);
 }
@@ -304,7 +365,8 @@ try {
       run.largestGap = {
         startMs: run.gaps[bi].startMs, endMs: run.gaps[bi].endMs, durationMs: run.gaps[bi].durationMs,
         topTasks: top.map((t) => ({ ...t, ...classify(t) })),
-        cpuProfileTop: cpu.map((t) => ({ ...t, ...classify(t) })),
+        cpuProfileTop: cpu.self.map((t) => ({ ...t, ...classify(t) })),
+        cpuProfileInclusive: cpu.inclusive.map((t) => ({ ...t, ...classify(t) })),
         mainThread: { pid: win.mainPid, tid: win.mainTid },
       };
     }
