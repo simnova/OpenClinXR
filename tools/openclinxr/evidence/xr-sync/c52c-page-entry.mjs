@@ -1,13 +1,15 @@
 /** Page bundle for c52c-plant-parity.mjs: same plant + read code as node, running in the GPU browser. */
 import { Group, Vector3 } from "three";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { applyAndPlantSupineOnDeck } from "@openclinxr/xr-pose";
-import { buildPatientStretcher } from "@openclinxr/xr-station";
 import { plantLoadedHumanoid, readPose, caseKey } from "./c52c-plant-core.mjs";
 
 const registry = new Map();
 const state = { started: 0, finished: 0, errors: [] };
-const deps = { Group, buildPatientStretcher, applyAndPlantSupineOnDeck };
+let deps = null;
+/** Called by the generated wrapper in c52c-plant-parity.mjs with the xr-pose / xr-station dist functions (keeps tools/ consumes.json untouched). */
+export function install({ applyAndPlantSupineOnDeck, buildPatientStretcher }) {
+  deps = { Group, buildPatientStretcher, applyAndPlantSupineOnDeck };
+}
 
 async function plantOne(spec) {
   const gltf = await new GLTFLoader().loadAsync(`/generated-humanoids/${spec.body}`);

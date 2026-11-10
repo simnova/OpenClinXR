@@ -36,12 +36,19 @@ const { build } = await import("vite");
 const work = mkdtempSync(join(os.tmpdir(), "c52c-page-"));
 const pageDir = join(work, "page");
 mkdirSync(pageDir);
+const wrapper = join(work, "wrapper.mjs");
+writeFileSync(wrapper, [
+  `import { applyAndPlantSupineOnDeck } from ${JSON.stringify(join(ROOT, "packages/openclinxr/xr-pose/dist/index.js"))};`,
+  `import { buildPatientStretcher } from ${JSON.stringify(join(ROOT, "packages/openclinxr/xr-station/dist/index.js"))};`,
+  `import { install } from ${JSON.stringify(join(HERE, "c52c-page-entry.mjs"))};`,
+  "install({ applyAndPlantSupineOnDeck, buildPatientStretcher });",
+].join("\n"));
 await build({
   root: work, configFile: false, logLevel: "warn",
   resolve: { dedupe: ["three"] },
   build: {
     outDir: pageDir, emptyOutDir: true, minify: false, target: "es2022",
-    lib: { entry: join(HERE, "c52c-page-entry.mjs"), formats: ["es"], fileName: () => "page.js" },
+    lib: { entry: wrapper, formats: ["es"], fileName: () => "page.js" },
   },
 });
 writeFileSync(join(pageDir, "index.html"), '<!doctype html><meta charset="utf-8"><title>c52c</title><script type="module" src="/page.js"></script>');
