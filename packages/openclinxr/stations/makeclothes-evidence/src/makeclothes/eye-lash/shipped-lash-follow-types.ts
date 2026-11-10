@@ -1,3 +1,4 @@
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
@@ -18,10 +19,18 @@ export const ACTORS = [
 
 export const ROOT = repoRoot();
 export const GLB_DIR = join(ROOT, "apps/ui-xr/public/generated-humanoids");
-export const REPORT_PATH = join(
+// The pre-follow lash every gate compares against: main just before the follow bake landed (59980e7f6).
+// It is pinned because origin/main now carries the followed lashes, so an origin/main baseline compares
+// the shipped lash with itself and G1/F1 fail on every fresh checkout. Repin only on a new lash bake.
+export const BASELINE_REF = "a1944f7c219c124ad851d18c77195d50e4c528d0";
+export const TRACKED_REPORT_PATH = join(
   ROOT,
   "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/shipped-lash-follow-report.json",
 );
+// A test run writes to a temp file; only OPENCLINXR_WRITE_LASH_REPORT=1 rewrites the tracked report.
+export const REPORT_PATH = process.env["OPENCLINXR_WRITE_LASH_REPORT"] === "1"
+  ? TRACKED_REPORT_PATH
+  : join(tmpdir(), "openclinxr-shipped-lash-follow-report.json");
 export const CLOSURE = { left: "eye-left-closure", right: "eye-right-closure" } as const;
 export const MOVE_EPS_M = 1e-6;
 export const WELD_TOLERANCE_M = 1e-6;

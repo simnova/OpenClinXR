@@ -9,7 +9,7 @@ import { applyBlinkClosureToRoot } from "@openclinxr/xr-dialogue/evidence-viseme
 // @ts-expect-error three's examples path has no declaration in this package's dependency graph.
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { beforeAll, describe, expect, it } from "vitest";
-import { ACTORS, exactMedian, type ActorMeasurement, type HullVertex, interpolateUpperHull, measureActor, measureAllAndWrite, upperHull } from "./shipped-lash-follow-measure.js";
+import { ACTORS, type ActorMeasurement, exactMedian, type HullVertex, interpolateUpperHull, measureActor, measureAllAndWrite, upperHull } from "./shipped-lash-follow-measure.js";
 
 // LOOP BOUND (super-ceo, 2026-11-09): where the r8 hull G1 disagrees with native 1:1 mid-blink crops, the
 // crops decide and G1 is report-only for that side. Each entry names its crop verdict. A side not listed
@@ -57,8 +57,8 @@ describe("the shipped MPFB lashes follow the lid", () => {
   it("F1-F5, G1-G3, R3 and CW1-CW3 hold actor-by-actor and side-by-side", () => {
     const failures: string[] = [];
     for (const actor of measured) {
-      if (!actor.counterweights.bodyMorphsByteEqual) failures.push(`${actor.actor}: CW1 body morph accessor bytes differ from origin/main`);
-      if (!actor.counterweights.nonLashMeshesHashEqual) failures.push(`${actor.actor}: CW2 non-lash primitive accessor hash differs from origin/main`);
+      if (!actor.counterweights.bodyMorphsByteEqual) failures.push(`${actor.actor}: CW1 body morph accessor bytes differ from the pre-follow baseline (BASELINE_REF)`);
+      if (!actor.counterweights.nonLashMeshesHashEqual) failures.push(`${actor.actor}: CW2 non-lash primitive accessor hash differs from the pre-follow baseline (BASELINE_REF)`);
       for (const side of ["left", "right"] as const) {
         const r = actor.sides[side];
         if (r.upperCards !== r.rawUpperCards || r.lowerCards !== r.rawLowerCards || r.classChangedCardIds.length) failures.push(`${actor.actor} ${side}: P1 raw class counts ${r.rawUpperCards}/${r.rawLowerCards} -> ${r.upperCards}/${r.lowerCards}, changed=${r.classChangedCardIds.join(",")}`);

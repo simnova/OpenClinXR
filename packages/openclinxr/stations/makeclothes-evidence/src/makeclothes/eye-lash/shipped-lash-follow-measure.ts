@@ -28,32 +28,32 @@ import {
 } from "./shipped-lash-follow-geometry.js";
 import {
   ACTORS,
-  CLOSURE,
-  GLB_DIR,
-  MOVE_EPS_M,
-  PRESERVED_F4,
-  RED_QUADS,
-  REPORT_PATH,
-  ROOT,
-  UP_AXIS,
-  WELD_TOLERANCE_M,
   type ActorMeasurement,
+  BASELINE_REF,
+  CLOSURE,
   type Distribution,
   type EnvelopeCard,
   type EnvelopeSummary,
   type F4Diagnostic,
+  GLB_DIR,
   type HullVertex,
+  MOVE_EPS_M,
   type Mutation,
+  PRESERVED_F4,
+  RED_QUADS,
+  REPORT_PATH,
   type RegionTri,
+  ROOT,
   type Side,
   type SideMeasurement,
   type Tri,
+  UP_AXIS,
   type V3,
+  WELD_TOLERANCE_M,
 } from "./shipped-lash-follow-types.js";
 
-export { exactMedian, interpolateUpperHull, upperHull };
-export { ACTORS, REPORT_PATH };
 export type { ActorMeasurement, HullVertex, Mutation, SideMeasurement };
+export { ACTORS, exactMedian, interpolateUpperHull, REPORT_PATH, upperHull };
 export async function measureActor(file: string, mutation: Mutation = "none"): Promise<ActorMeasurement> {
   const path = join(GLB_DIR, file);
   const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
@@ -67,7 +67,7 @@ export async function measureActor(file: string, mutation: Mutation = "none"): P
     effectiveBytes = mutated.bytes;
     mutationProof = mutated.proof;
   }
-  const baseBytes = execFileSync("git", ["show", `origin/main:apps/ui-xr/public/generated-humanoids/${file}`], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
+  const baseBytes = execFileSync("git", ["show", `${BASELINE_REF}:apps/ui-xr/public/generated-humanoids/${file}`], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
   const base = await io.readBinary(new Uint8Array(baseBytes));
   const { body, lash } = matched(doc, file);
   const { lash: baseLash } = matched(base, file);
@@ -98,15 +98,15 @@ export async function measureActor(file: string, mutation: Mutation = "none"): P
   const eyeShells = connectedComponents(eyePoints.length, aggregateEye.indices);
   if (eyeShells.length !== 2) throw new Error(`${file}: CW3 expected two connected eye shells, found ${eyeShells.length}`);
   const basePosition = baseLash.getMesh()?.listPrimitives()[0]?.getAttribute("POSITION");
-  if (!basePosition) throw new Error(`${file}: CW3 origin/main lash POSITION missing`);
+  if (!basePosition) throw new Error(`${file}: CW3 baseline lash POSITION missing`);
   const basePoints = vecs(basePosition);
   const cards = connectedCards(lashPrim);
   const basePrim = baseLash.getMesh()?.listPrimitives()[0];
-  if (!basePrim) throw new Error(`${file}: CW3 origin/main lash primitive missing`);
+  if (!basePrim) throw new Error(`${file}: CW3 baseline lash primitive missing`);
   const baseCards = connectedCards(basePrim);
   if (cards.length !== baseCards.length || cards.some((card, index) =>
     card.indices.join(",") !== baseCards[index]?.indices.join(","))) {
-    throw new Error(`${file}: G3 connected-component topology differs from origin/main`);
+    throw new Error(`${file}: G3 connected-component topology differs from baseline`);
   }
   const bodyDeltas = {} as Record<Side, V3[]>;
   const regions = {} as Record<Side, RegionTri[]>;
