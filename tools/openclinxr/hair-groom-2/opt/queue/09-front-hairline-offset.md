@@ -1,6 +1,6 @@
 # 09 groom parameter frontHairlineOffsetMm (CEO 10:15, 2026-11-10; from queue/08 CAUSE)
 
-Status: step 1 done 2026-11-10 (6/9/12 mm fall short; ~16-17 mm reaches the target). Rebuild rule not yet written; waiting on the offset choice.
+Status: step 1 done; offset 16 chosen (CEO 10:30); rebuild rule below committed before the render.
 
 ## Gap direction (measured fact)
 Rendered front hair reaches 12-17 px further down the forehead than the v2 target (hairlineRow 253 vs 236; queue/07).
@@ -42,3 +42,15 @@ Simulation on the existing roots (no regeneration): remove roots below the raise
 was image-plane mm; on the sloped forehead the vertical offset needed is larger. Root row target ~234 (tint edge ~2 px below
 roots): 16 mm gives 235.2, ~17 mm ~233.7, 14 mm 237.5.
 Not tested: a real groom re-run (Interpolate seed and dart sequence move every root); overhang below roots; other views.
+
+## Rebuild rule (CEO 10:30; committed before the render)
+- Offset: frontHairlineOffsetMm = 16 (step 1 table supersedes the image-plane 6/9/12 set).
+- Pre-check (CPU): Aisha's forehead height, brow ridge to front hairline, vertical mm on the runtime mesh, at offsets 0 and 16.
+  Outside 45-80 mm at 16 -> stop and report (a hairline that matches the target by an implausible forehead is the wrong fix).
+- Build: real groom re-run with the recipe's seed, then cards -> atlas -> donor/sheen -> transplant -> tint with the incumbent
+  (g2) settings; every stage's output sha recorded.
+- PASS: rendered front hairlineRow (score_trial v2, measure_band) within 6 px of 236 (230-242) AND every other view
+  D_v <= D_inc_v + delta_v under v2 (3q <= 19.85, side <= 20.33, back <= 8.23; v2 incumbent + objective-v2 noise).
+- FALLBACK (fixed now): front passes and another view fails -> rebuild once at 12 mm under the same rule; 12 also fails ->
+  stop and report. Front fails at 16 -> stop and report.
+- ship_a4 --bars v2 reported as information only.
