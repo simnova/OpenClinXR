@@ -69,3 +69,14 @@ fd32d6baa). Against D_inc_v the other-view clause would measure body change plus
   report.
 - Information only (not the verdict): fh16 and fh0 against D_inc_v, and ship_a4 --bars v2. A4 still governs promotion.
 - The 12 mm fallback triggers on the amended clause (front passes, another view fails vs fh0 + delta_v).
+
+## Result at 16 mm (amendment 1): FAIL (CEO 09:53, verified from card09/render-fh0, render-fh16 score.json)
+Control valid: fh0 front hairlineRow 253 (251-255). fh16 groom: 94,047 strands (fh0 98,187), strands.npz sha c42bf6e6.
+| view | D_v fh0 | D_v fh16 | bar fh0 + delta_v | clause |
+|---|---|---|---|---|
+| front | 27.5907 | 25.9240 | row 233 in 230-242 | pass |
+| three_quarter_left | 18.6336 | 20.9561 | 19.8509 | FAIL |
+| side | 19.8049 | 18.1885 | 20.3260 | pass |
+| back | 7.5830 | 8.8011 | 8.2274 | FAIL |
+| sum D | 73.6121 | 73.8697 | | |
+Front passes and two other views fail: fixed fallback applies, one rebuild at 12 mm under the same rule.
