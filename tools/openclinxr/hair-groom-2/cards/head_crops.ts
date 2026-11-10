@@ -26,6 +26,7 @@ const specs: HeadCropSpec[] = views.map((view) => ({
   view,
   ...(headBodyFrame ? { headBodyFrame } : {}),
   ...(lightRig ? { rigOverride: rigOverrideFor(lightRig, view) } : {}),
+  ...(lightRig?.environmentEquirect ? { equirectEnvironment: lightRig.environmentEquirect } : {}),
 }));
 const run = await renderHeadFocusCrops({ cwd: process.cwd(), outputRoot: outDir, specs });
 console.log(JSON.stringify(run.summary));
