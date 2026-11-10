@@ -37,3 +37,13 @@ the D-level spread max_k |D_v(sK) - D_v(fh0)|, each seed's front hairlineRow, an
 - fh12r fails any clause -> stop and report the new excess per view.
 - A seed build that fails (groom, chain or render error) -> stop and report; no substitute seed.
 - No promotion, no main push.
+
+## Rule amendment 1 (CEO, 2026-11-10 12:21; committed before any card 11 score; amends 741875501)
+Why: sum_m max_k |delta wnorm_{v,m}| over ~14 terms per view takes each term's worst seed independently and drops sign
+cancellation; it bounds the D_v spread from above and grows with the term count, so the bar loosens by construction. The clause
+compares D_v, so the noise is measured on D_v.
+- VERDICT estimator: delta_regrow_v = max_{k=1..3} |D_v(sK) - D_v(fh0)| (seeds 1108-1110).
+- Bar unchanged in form: D_v(fh0) + max(delta_v, delta_regrow_v).
+- Information only: the per-term-sum estimator of the original rule.
+- Counterweight reported: each fh0 seed's front hairlineRow and tris (does a regrow alone move the front or tris clause).
+- Consequences unchanged: fh12r passes every clause -> card (b), material/tint optimizer on fh12r; else stop, report excess per view.
