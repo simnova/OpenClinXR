@@ -57,6 +57,8 @@ type Cli = {
   scenarioId: string;
   productEnvironmentId: string;
   patientYawFrom?: string;
+  skinOverride?: { kind: "lambert"; albedo: number };
+  skinSpecular?: "off";
 };
 
 export type PatientYawOverride = {
@@ -149,6 +151,14 @@ type RegionStats = {
   highPassEnergySigma2: number;
 };
 
+type PatchGeometry = {
+  meanNormal: [number, number, number];
+  cosKey: number;
+  cardNormal: [number, number, number];
+  cardCosKey: number;
+  vertexCount: number;
+};
+
 const TOOL_REL = "tools/openclinxr/evidence/skin-realism/vitruvian-compare.ts";
 const PUBLIC_GLBS = "apps/ui-xr/public/generated-humanoids";
 const DEFAULT_SCENARIO_ID = "ob_headache_preeclampsia_triage_v1";
@@ -210,6 +220,8 @@ export function parseCli(argv: string[]): Cli {
   let scenarioId = DEFAULT_SCENARIO_ID;
   let productEnvironmentId = DEFAULT_RUNTIME_RIG_ID;
   let patientYawFrom: string | undefined;
+  let skinOverride: Cli["skinOverride"];
+  let skinSpecular: Cli["skinSpecular"];
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i]!;
     const take = (): string => {
@@ -240,6 +252,20 @@ export function parseCli(argv: string[]): Cli {
     else if (arg === "--scenario-id") scenarioId = take();
     else if (arg === "--product-environment-id") productEnvironmentId = take();
     else if (arg === "--patient-yaw-from") patientYawFrom = take();
+    else if (arg === "--skin-override") {
+      const value = take();
+      const match = /^lambert:(.+)$/u.exec(value);
+      const albedo = Number(match?.[1]);
+      if (!match || !Number.isFinite(albedo) || albedo <= 0 || albedo > 1) {
+        throw new Error(`--skin-override must be lambert:<linear albedo in (0,1]> (got ${value})`);
+      }
+      skinOverride = { kind: "lambert", albedo };
+    }
+    else if (arg === "--skin-specular") {
+      const value = take();
+      if (value !== "off") throw new Error(`--skin-specular must be off (got ${value})`);
+      skinSpecular = value;
+    }
     else if (arg === "--region") {
       const value = take();
       if (value !== "head" && value !== "forearm" && value !== "neck" && value !== "shin" && value !== "forearm-close" && value !== "neck-close") {
@@ -266,11 +292,28 @@ export function parseCli(argv: string[]): Cli {
   if ((greyCardPlacement || lightToggle) && !greyCard) throw new Error("--grey-card-placement and --light-toggle require --grey-card");
   if (greyCardCamera && (!greyCardPlacement || !greyCardPosition)) throw new Error("--grey-card-camera card requires --grey-card-placement and --grey-card-position");
   if (patientYawFrom && !greyCardPlacement) throw new Error("--patient-yaw-from requires --grey-card-placement");
+  if (skinOverride && skinSpecular) throw new Error("--skin-override and --skin-specular are mutually exclusive");
   return {
     actors: [...new Set(actors)], newPath, origRef, outDir, size, region, greyCard, lightToggle, scenarioId, productEnvironmentId,
     ...(boxes ? { boxes } : {}), ...(origFile ? { origFile } : {}), ...(noiseFloorManifest ? { noiseFloorManifest } : {}),
     ...(greyCardPlacement ? { greyCardPlacement } : {}), ...(greyCardPosition ? { greyCardPosition } : {}), ...(greyCardCamera ? { greyCardCamera } : {}),
     ...(patientYawFrom ? { patientYawFrom } : {}),
+    ...(skinOverride ? { skinOverride } : {}), ...(skinSpecular ? { skinSpecular } : {}),
+  };
+}
+
+/** The factory's body-skin material contract; anchored to avoid eyes and hidden body partitions. */
+export function isSkinMaterialName(name: string): boolean {
+  return /^mpfb_skin_/iu.test(name);
+}
+
+export function greybodyManifestFields(cli: Pick<Cli, "skinOverride" | "skinSpecular">): {
+  skinOverride: string | null;
+  skinSpecular: "off" | null;
+} {
+  return {
+    skinOverride: cli.skinOverride ? `lambert:${cli.skinOverride.albedo}` : null,
+    skinSpecular: cli.skinSpecular ?? null,
   };
 }
 
@@ -565,10 +608,13 @@ function readPatientYawOverride(cwd: string, cli: Cli): PatientYawOverride | nul
   return patientYawFromSceneDump(sceneDump, cli.patientYawFrom);
 }
 
-function instrumentOnly(cli: Cli): Record<string, string> {
-  return cli.patientYawFrom
-    ? { instrumentOnly: "lab root yaw taken from app run scene-dump (idle sway is wall-clock driven)" }
-    : {};
+function instrumentOnly(cli: Cli): Record<string, unknown> {
+  return {
+    ...greybodyManifestFields(cli),
+    ...(cli.patientYawFrom
+      ? { instrumentOnly: "lab root yaw taken from app run scene-dump (idle sway is wall-clock driven)" }
+      : {}),
+  };
 }
 
 function gaussianKernel(sigma: number): Float64Array {
@@ -725,11 +771,35 @@ function readLive(page: Page): Promise<LiveReadback> {
   });
 }
 
+// 0.5 px is 1/6400 of the 3195 px head box; 1e-4 m is 0.017% of the 0.606 m portrait distance.
+const CAMERA_PX_TOL = 0.5;
+const CAMERA_M_TOL = 1e-4;
+// grey-card cameraDistanceRatio is a constant over focusTargetDistanceMeters, so it inherits CAMERA_M_TOL:
+// 1e-4 m / 0.606 m x 4.44 = 7.3e-4.
+const CAMERA_RATIO_TOL = 7.3e-4;
+export function cameraWithinTolerance(a: unknown, b: unknown, key = ""): boolean {
+  if (typeof a === "number" && typeof b === "number") {
+    const tol = /Px$/.test(key) ? CAMERA_PX_TOL : /(M|Meters)$/.test(key) ? CAMERA_M_TOL : key === "cameraDistanceRatio" ? CAMERA_RATIO_TOL : 1e-6;
+    return Math.abs(a - b) <= tol;
+  }
+  if (a && b && typeof a === "object" && typeof b === "object") {
+    if (Array.isArray(a) !== Array.isArray(b)) return false;
+    const ka = Object.keys(a).sort(), kb = Object.keys(b).sort();
+    if (ka.join("\u0000") !== kb.join("\u0000")) return false;
+    // keys inside a *Px object (headBoxPx.x0 ...) inherit the pixel tolerance
+    return ka.every((k) => cameraWithinTolerance((a as Record<string, unknown>)[k], (b as Record<string, unknown>)[k], /Px$/.test(key) ? `${k}Px` : k));
+  }
+  return a === b;
+}
+
 function cameraComparable(a: Captured, b: Captured): void {
   const stable = (value: unknown): string => JSON.stringify(value, (_key, v: unknown) => typeof v === "number" ? Math.round(v * 1e6) / 1e6 : v);
   const ac = a.readback.portrait ?? a.evidence.packFraming;
   const bc = b.readback.portrait ?? b.evidence.packFraming;
-  if (stable(ac) !== stable(bc)) throw new Error(`ORIGINAL and NEW did not use the same camera:\nORIGINAL ${stable(ac)}\nNEW ${stable(bc)}`);
+  // ORIGINAL and NEW are different GLBs, so the live portrait framing (fit to each mesh) can differ by float
+  // noise: measured 2e-6 m distance and 0.008 px box (greybody warm_light neck-close card, 2026-11-10).
+  // Pixel fields may differ by CAMERA_PX_TOL, metre fields by CAMERA_M_TOL; everything else stays equal at 1e-6.
+  if (!cameraWithinTolerance(ac, bc)) throw new Error(`ORIGINAL and NEW did not use the same camera:\nORIGINAL ${stable(ac)}\nNEW ${stable(bc)}`);
   const comparableCard = (card: CaptureEvidence["greyCard"]): unknown => {
     if (!card) return null;
     // The lab root's object name carries the capture side (original/new); placement equality is about geometry.
@@ -738,7 +808,7 @@ function cameraComparable(a: Captured, b: Captured): void {
     const { labPatientRootName: _labPatientRootName, ...placementGeometry } = placement as Record<string, unknown>;
     return { ...geometry, placement: placementGeometry };
   };
-  if (stable(comparableCard(a.evidence.greyCard)) !== stable(comparableCard(b.evidence.greyCard))) {
+  if (!cameraWithinTolerance(comparableCard(a.evidence.greyCard), comparableCard(b.evidence.greyCard))) {
     throw new Error(`ORIGINAL and NEW did not use the same grey-card placement:\nORIGINAL ${stable(a.evidence.greyCard)}\nNEW ${stable(b.evidence.greyCard)}`);
   }
 }
@@ -1055,6 +1125,272 @@ async function runLabLightToggle(page: Page, baselinePath: string, box: Rect, ba
   return { lightToggle, restoreCheck: { png: path.relative(process.cwd(), restorePath), allLightsVisible, cardLab: restoredLab, deltaLstar } };
 }
 
+async function applyGreybodyControlIfEnabled(
+  page: Page,
+  control: {
+    skinOverride?: Cli["skinOverride"] | undefined;
+    skinSpecular?: Cli["skinSpecular"] | undefined;
+  },
+): Promise<{ skinMaterialCount: number; materialNames: string[] } | null> {
+  if (!control.skinOverride && !control.skinSpecular) return null;
+  const applied = await page.evaluate(async ({ override, specular }) => {
+    type Color = { setRGB: (r: number, g: number, b: number, colorSpace?: string) => unknown; set: (value: number) => unknown };
+    type Material = {
+      name: string;
+      type?: string;
+      isMeshStandardMaterial?: boolean;
+      isMeshPhysicalMaterial?: boolean;
+      map?: unknown;
+      normalMap?: unknown;
+      roughnessMap?: unknown;
+      aoMap?: unknown;
+      bumpMap?: unknown;
+      displacementMap?: unknown;
+      emissiveMap?: unknown;
+      lightMap?: unknown;
+      envMap?: unknown;
+      emissive?: Color;
+      onBeforeCompile?: (shader: { fragmentShader: string }, renderer: unknown) => void;
+      customProgramCacheKey?: () => string;
+      needsUpdate?: boolean;
+      dispose?: () => void;
+    };
+    type Node = { material?: Material | Material[]; traverse?: (fn: (node: Node) => void) => void };
+    const g = globalThis as unknown as {
+      __openClinXrIsolatedSceneRoot?: Node;
+      __openClinXrIsolatedRenderFrame?: () => void;
+    };
+    const root = g.__openClinXrIsolatedSceneRoot;
+    const render = g.__openClinXrIsolatedRenderFrame;
+    if (!root?.traverse || !render) throw new Error("isolated lab grey-body hooks unavailable");
+    const matches = (material: Material): boolean => /^mpfb_skin_/iu.test(material.name ?? "");
+    const unique = new Set<Material>();
+    root.traverse((node) => {
+      const materials = Array.isArray(node.material) ? node.material : node.material ? [node.material] : [];
+      for (const material of materials) if (matches(material)) unique.add(material);
+    });
+    if (unique.size === 0) throw new Error("grey-body control found 0 skin materials; refusing capture");
+
+    if (override) {
+      const resourceNames = performance.getEntriesByType("resource").map((entry) => entry.name);
+      const chunkUrl = resourceNames.find((name) => /\/\.vite\/deps\/three\.module[^/]*\.js/u.test(name));
+      const threeUrl = resourceNames.find((name) => /\/\.vite\/deps\/three\.js(\?|$)/u.test(name))
+        ?? (chunkUrl ? chunkUrl.replace(/three\.module[^/?]*\.js/u, "three.js") : undefined);
+      if (!threeUrl) throw new Error("page three.js module URL not found for grey-body control");
+      const THREE = await import(/* @vite-ignore */ threeUrl) as {
+        MeshLambertMaterial: new () => Material & { color: Color };
+        LinearSRGBColorSpace: string;
+      };
+      const replacements = new Map<Material, Material>();
+      for (const source of unique) {
+        const next = new THREE.MeshLambertMaterial();
+        next.name = source.name;
+        next.color.setRGB(override.albedo, override.albedo, override.albedo, THREE.LinearSRGBColorSpace);
+        next.map = null;
+        next.normalMap = null;
+        next.roughnessMap = null;
+        next.aoMap = null;
+        next.bumpMap = null;
+        next.displacementMap = null;
+        next.emissiveMap = null;
+        next.lightMap = null;
+        next.envMap = null;
+        next.emissive?.set(0);
+        next.needsUpdate = true;
+        replacements.set(source, next);
+      }
+      root.traverse((node) => {
+        if (Array.isArray(node.material)) node.material = node.material.map((material) => replacements.get(material) ?? material);
+        else if (node.material) node.material = replacements.get(node.material) ?? node.material;
+      });
+    } else if (specular === "off") {
+      for (const material of unique) {
+        if (!material.isMeshStandardMaterial && !material.isMeshPhysicalMaterial) {
+          throw new Error(`skin material ${material.name} is ${material.type ?? "unknown"}; no separable specular term`);
+        }
+        const priorCacheKey = material.customProgramCacheKey?.bind(material);
+        const installedKey = priorCacheKey?.() ?? "";
+        if (!installedKey.startsWith("openclinxr-skin-shade:")) {
+          throw new Error(`skin material ${material.name} has no separable OPENCLINXR skin-shade specular term`);
+        }
+        const priorCompile = material.onBeforeCompile?.bind(material);
+        material.onBeforeCompile = (shader, renderer) => {
+          priorCompile?.(shader, renderer);
+          const marker = "#include <lights_fragment_end>";
+          if (!shader.fragmentShader.includes(marker)) {
+            throw new Error(`skin material ${material.name} shader lacks lights_fragment_end`);
+          }
+          shader.fragmentShader = shader.fragmentShader.replace(
+            marker,
+            `${marker}\nreflectedLight.directSpecular = vec3(0.0);\nreflectedLight.indirectSpecular = vec3(0.0);`,
+          );
+        };
+        material.customProgramCacheKey = () => `${installedKey}:greybody-specular-off`;
+        material.needsUpdate = true;
+      }
+    }
+    render();
+    return { skinMaterialCount: unique.size, materialNames: [...unique].map((material) => material.name).sort() };
+  }, { override: control.skinOverride ?? null, specular: control.skinSpecular ?? null });
+  console.log(`grey-body control found ${applied.skinMaterialCount} skin material(s): ${applied.materialNames.join(", ")}`);
+  return applied;
+}
+
+async function measurePatchGeometry(
+  page: Page,
+  mask: Mask,
+  crop: Rect,
+): Promise<PatchGeometry> {
+  const serialMask = mask.kind === "bitmap"
+    ? { ...mask, bits: Array.from(mask.bits) }
+    : mask;
+  return await page.evaluate(({ measuredMask, cropPx }) => {
+    type V = {
+      x: number; y: number; z: number;
+      add: (v: V) => V; sub: (v: V) => V; subVectors: (a: V, b: V) => V;
+      cross: (v: V) => V; normalize: () => V; multiplyScalar: (n: number) => V;
+      dot: (v: V) => number; lengthSq: () => number; applyMatrix4: (m: unknown) => V;
+      applyQuaternion: (q: unknown) => V; transformDirection: (m: unknown) => V; project: (camera: unknown) => V; toArray: () => number[];
+      copy: (v: V) => V; set: (x: number, y: number, z: number) => V;
+      constructor: new (x?: number, y?: number, z?: number) => V;
+    };
+    type Attribute = { count: number };
+    type Index = { count: number; getX: (i: number) => number };
+    type Material = { name?: string };
+    type Node = {
+      name?: string;
+      material?: Material | Material[];
+      geometry?: { attributes?: { position?: Attribute }; index?: Index | null };
+      matrixWorld: unknown;
+      quaternion?: unknown;
+      position: V;
+      target?: Node;
+      intensity?: number;
+      userData?: Record<string, unknown>;
+      isSkinnedMesh?: boolean;
+      isDirectionalLight?: boolean;
+      isSpotLight?: boolean;
+      isPointLight?: boolean;
+      getVertexPosition?: (index: number, target: V) => V;
+      getWorldPosition?: (target: V) => V;
+      traverse?: (fn: (node: Node) => void) => void;
+    };
+    type Camera = Node;
+    type Renderer = { domElement: { width: number; height: number } };
+    const g = globalThis as unknown as {
+      __openClinXrIsolatedSceneRoot?: Node;
+      __openClinXrIsolatedRenderFrame?: () => void;
+    };
+    const root = g.__openClinXrIsolatedSceneRoot;
+    const render = g.__openClinXrIsolatedRenderFrame;
+    const scene = root?.position ? (root as unknown as { parent?: Node }).parent : undefined;
+    if (!root?.traverse || !scene?.traverse || !render) throw new Error("patch-geometry hooks unavailable");
+    let renderer: Renderer | null = null;
+    let camera: Camera | null = null;
+    const sceneWithHook = scene as Node & { onAfterRender?: (...args: unknown[]) => void };
+    const priorAfterRender = sceneWithHook.onAfterRender;
+    sceneWithHook.onAfterRender = (...args: unknown[]) => {
+      renderer = args[0] as Renderer;
+      camera = args[2] as Camera;
+      priorAfterRender?.(...args);
+    };
+    render();
+    if (priorAfterRender) sceneWithHook.onAfterRender = priorAfterRender;
+    else delete sceneWithHook.onAfterRender;
+    if (!renderer || !camera) throw new Error("patch-geometry render hook did not expose renderer/camera");
+    const liveRenderer = renderer as Renderer;
+    const liveCamera = camera as Camera;
+    const VectorCtor = liveCamera.position.constructor;
+    const insideMask = (x: number, y: number): boolean => {
+      const localX = x - cropPx.x0;
+      const localY = y - cropPx.y0;
+      if (measuredMask.excludeRects?.some((r) => localX >= r.x0 && localX < r.x1 && localY >= r.y0 && localY < r.y1)) return false;
+      if (measuredMask.kind === "bitmap") {
+        const ix = Math.floor(localX), iy = Math.floor(localY);
+        return ix >= 0 && iy >= 0 && ix < measuredMask.w && iy < measuredMask.h && measuredMask.bits[iy * measuredMask.w + ix] === 1;
+      }
+      if (measuredMask.kind === "rects") return measuredMask.rects.some((r) => localX >= r.x0 && localX < r.x1 && localY >= r.y0 && localY < r.y1);
+      return measuredMask.discs.some((d) => {
+        const radius = Math.hypot(localX - d.cx, localY - d.cy);
+        return radius >= d.r0 && radius < d.r1;
+      });
+    };
+    const width = liveRenderer.domElement.width;
+    const height = liveRenderer.domElement.height;
+    const selected = new Set<string>();
+    const weightedNormal = new VectorCtor();
+    const centroid = new VectorCtor();
+    let selectedWeight = 0;
+    root.traverse((node) => {
+      const materials = Array.isArray(node.material) ? node.material : node.material ? [node.material] : [];
+      if (!materials.some((material) => /^mpfb_skin_/iu.test(material.name ?? ""))) return;
+      const position = node.geometry?.attributes?.position;
+      const getVertex = node.getVertexPosition?.bind(node);
+      if (!position || !getVertex) return;
+      const index = node.geometry?.index ?? null;
+      const triangleCount = index ? Math.floor(index.count / 3) : Math.floor(position.count / 3);
+      const local = [new VectorCtor(), new VectorCtor(), new VectorCtor()];
+      for (let triangle = 0; triangle < triangleCount; triangle += 1) {
+        const ids = [0, 1, 2].map((corner) => index ? index.getX(triangle * 3 + corner) : triangle * 3 + corner);
+        const world = ids.map((id, corner) => getVertex(id, local[corner]!).applyMatrix4(node.matrixWorld));
+        const faceWeighted = new VectorCtor().subVectors(world[1]!, world[0]!).cross(new VectorCtor().subVectors(world[2]!, world[0]!));
+        if (faceWeighted.lengthSq() <= 1e-20) continue;
+        for (let corner = 0; corner < 3; corner += 1) {
+          const projected = new VectorCtor().copy(world[corner]!).project(liveCamera);
+          const px = (projected.x + 1) * width / 2;
+          const py = (1 - projected.y) * height / 2;
+          if (!insideMask(px, py)) continue;
+          const key = `${node.name ?? "skin"}:${ids[corner]}`;
+          if (!selected.has(key)) {
+            selected.add(key);
+            centroid.add(world[corner]!);
+          }
+          weightedNormal.add(faceWeighted);
+          selectedWeight += Math.sqrt(faceWeighted.lengthSq());
+        }
+      }
+    });
+    if (selected.size === 0 || selectedWeight <= 0 || weightedNormal.lengthSq() <= 1e-20) {
+      throw new Error("patch-geometry mask selected 0 skin vertices");
+    }
+    centroid.multiplyScalar(1 / selected.size);
+    weightedNormal.normalize();
+    let card: Node | null = null;
+    let exactKeyLight: Node | null = null;
+    let fallbackKeyLight: Node | null = null;
+    scene.traverse((node) => {
+      if (node.userData?.["openClinXrGreyCard"] === true) card = node;
+      const role = node.userData?.["openClinXrLightingRigRole"] ?? node.userData?.["openClinXrStationInteriorLightingRole"];
+      const supportedLight = node.isDirectionalLight || node.isSpotLight || node.isPointLight;
+      if (!exactKeyLight && role === "key" && supportedLight) exactKeyLight = node;
+      if (!fallbackKeyLight && /(^|_)key($|_)/iu.test(node.name ?? "") && supportedLight) fallbackKeyLight = node;
+    });
+    const foundCard = card as Node | null;
+    const foundKey = (exactKeyLight ?? fallbackKeyLight) as Node | null;
+    if (!foundCard) throw new Error("patch-geometry grey card unavailable");
+    if (!foundKey) throw new Error("patch-geometry key light unavailable");
+    const cardNormal = new VectorCtor(0, 0, 1).transformDirection(foundCard.matrixWorld).normalize();
+    const lightPosition = foundKey.getWorldPosition ? foundKey.getWorldPosition(new VectorCtor()) : new VectorCtor().copy(foundKey.position);
+    const directionAt = (point: V): V => {
+      if (foundKey.isDirectionalLight && foundKey.target) {
+        const targetPosition = foundKey.target.getWorldPosition ? foundKey.target.getWorldPosition(new VectorCtor()) : new VectorCtor().copy(foundKey.target.position);
+        return new VectorCtor().subVectors(lightPosition, targetPosition).normalize();
+      }
+      return new VectorCtor().subVectors(lightPosition, point).normalize();
+    };
+    const patchDirection = directionAt(centroid);
+    const cardPosition = foundCard.getWorldPosition ? foundCard.getWorldPosition(new VectorCtor()) : new VectorCtor().copy(foundCard.position);
+    const cardDirection = directionAt(cardPosition);
+    return {
+      meanNormal: weightedNormal.toArray() as [number, number, number],
+      cosKey: weightedNormal.dot(patchDirection),
+      cardNormal: cardNormal.toArray() as [number, number, number],
+      cardCosKey: cardNormal.dot(cardDirection),
+      vertexCount: selected.size,
+    };
+  }, { measuredMask: serialMask, cropPx: crop });
+}
+
 async function captureVariant(input: {
   page: Page;
   baseUrl: string;
@@ -1068,6 +1404,8 @@ async function captureVariant(input: {
   greyCardPlacement: GreyCardPlacement | null;
   greyCardCamera: Cli["greyCardCamera"];
   lightToggle: boolean;
+  skinOverride?: Cli["skinOverride"];
+  skinSpecular?: Cli["skinSpecular"];
 }): Promise<Captured> {
   const spec = buildCaptureSpec(input);
   let evidence = await captureOne({
@@ -1077,6 +1415,8 @@ async function captureVariant(input: {
     imagePath: input.imagePath,
     spec,
   }) as CaptureEvidence;
+  const greybody = await applyGreybodyControlIfEnabled(input.page, input);
+  if (greybody) await screenshotLabCanvas(input.page, input.imagePath);
   if (input.greyCard) {
     const greyCard = await runGreyCardHookIfEnabled(true, () => injectHarnessGreyCard(input.page, evidence, input.greyCardPlacement, input.greyCardCamera));
     if (!greyCard) throw new Error("enabled grey-card hook did not run");
@@ -1331,8 +1671,8 @@ async function captureBodyRegion(input: {
   const origSource = path.join(frameOut, ".source-orig.png");
   const newSource = path.join(frameOut, ".source-new.png");
   const placement = readGreyCardPlacement(process.cwd(), input.cli);
-  const original = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "original", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: origSource, greyCard: input.cli.greyCard, greyCardPlacement: placement, greyCardCamera: input.cli.greyCardCamera, lightToggle: input.cli.lightToggle });
-  const candidate = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "new", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: newSource, greyCard: input.cli.greyCard, greyCardPlacement: placement, greyCardCamera: input.cli.greyCardCamera, lightToggle: false });
+  const original = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "original", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: origSource, greyCard: input.cli.greyCard, greyCardPlacement: placement, greyCardCamera: input.cli.greyCardCamera, lightToggle: input.cli.lightToggle, skinOverride: input.cli.skinOverride, skinSpecular: input.cli.skinSpecular });
+  const candidate = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "new", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: newSource, greyCard: input.cli.greyCard, greyCardPlacement: placement, greyCardCamera: input.cli.greyCardCamera, lightToggle: false, skinOverride: input.cli.skinOverride, skinSpecular: input.cli.skinSpecular });
   cameraComparable(original, candidate);
   const { crop: subjectCrop, method } = bodyCrop(captureSize, input.cli.boxes!, region);
   const crop = original.evidence.greyCard
@@ -1356,6 +1696,9 @@ async function captureBodyRegion(input: {
   const next = regionStats(newPng, fullMask);
   const delta = Math.round(deltaE76(orig, next) * 1_000_000) / 1_000_000;
   const metric = { ...metricRecord(orig, next), framing: region, maskMethod: `${method}; lit-bitmap mask from ORIGINAL crop (bg excluded, same mask on NEW)` };
+  const patchGeometry = (input.cli.skinOverride || input.cli.skinSpecular) && !input.cli.greyCardCamera
+    ? await measurePatchGeometry(input.page, fullMask, clampedNew)
+    : null;
   const numbers = withRecordedSubjectCrop({
     actor: input.subject.actor,
     lighting: input.lighting.id,
@@ -1372,6 +1715,7 @@ async function captureBodyRegion(input: {
     productRigReadback: original.readback.productRig,
     ...instrumentOnly(input.cli),
     regions: { [region]: metric },
+    ...(patchGeometry ? { patchGeometry } : {}),
     ...(cardRecord ?? {}),
   }, clampedOrig, subjectCrop);
   await writeFile(path.join(frameOut, "numbers.json"), `${JSON.stringify(numbers, null, 2)}\n`, "utf8");
@@ -1395,6 +1739,7 @@ async function captureBodyRegion(input: {
           diffSha256: sha256File(path.join(frameOut, "absolute-diff.png")),
           camera: numbers.camera,
           focusRegion: original.evidence.focusRegion,
+          ...(patchGeometry ? { patchGeometry } : {}),
           ...(cardRecord ?? {}),
         },
       },
@@ -1432,8 +1777,8 @@ async function captureCloseRegion(input: {
   const origSource = path.join(frameOut, ".source-orig.png");
   const newSource = path.join(frameOut, ".source-new.png");
   const placement = readGreyCardPlacement(process.cwd(), input.cli);
-  const original = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "original", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: origSource, greyCard: input.cli.greyCard, greyCardPlacement: placement, greyCardCamera: input.cli.greyCardCamera, lightToggle: input.cli.lightToggle });
-  const candidate = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "new", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: newSource, greyCard: input.cli.greyCard, greyCardPlacement: placement, greyCardCamera: input.cli.greyCardCamera, lightToggle: false });
+  const original = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "original", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: origSource, greyCard: input.cli.greyCard, greyCardPlacement: placement, greyCardCamera: input.cli.greyCardCamera, lightToggle: input.cli.lightToggle, skinOverride: input.cli.skinOverride, skinSpecular: input.cli.skinSpecular });
+  const candidate = await captureVariant({ page: input.page, baseUrl: input.serverUrl, actor: input.subject.actor, variant: "new", lightingSpec: input.lighting.spec, framing: region, captureSize, imagePath: newSource, greyCard: input.cli.greyCard, greyCardPlacement: placement, greyCardCamera: input.cli.greyCardCamera, lightToggle: false, skinOverride: input.cli.skinOverride, skinSpecular: input.cli.skinSpecular });
   cameraComparable(original, candidate);
   const wantKind = region === "forearm-close" ? "forearm_box" : "neck_close_box";
   const focusBounds = original.evidence.focusRegion && "boundsMeters" in original.evidence.focusRegion
@@ -1467,6 +1812,9 @@ async function captureCloseRegion(input: {
   const orig = regionStats(origPng, fullMask);
   const next = regionStats(newPng, fullMask);
   const delta = Math.round(deltaE76(orig, next) * 1_000_000) / 1_000_000;
+  const patchGeometry = (input.cli.skinOverride || input.cli.skinSpecular) && !input.cli.greyCardCamera
+    ? await measurePatchGeometry(input.page, fullMask, fullCrop)
+    : null;
   const numbers = withRecordedSubjectCrop({
     actor: input.subject.actor,
     lighting: input.lighting.id,
@@ -1487,6 +1835,7 @@ async function captureCloseRegion(input: {
     productRigReadback: original.readback.productRig,
     ...instrumentOnly(input.cli),
     regions: { [region]: { ...metricRecord(orig, next), framing: region, maskMethod: "lit-bitmap mask from ORIGINAL close frame (bg excluded, same mask on NEW)" } },
+    ...(patchGeometry ? { patchGeometry } : {}),
     ...(cardRecord ?? {}),
   }, fullCrop, fullCrop);
   await writeFile(path.join(frameOut, "numbers.json"), `${JSON.stringify(numbers, null, 2)}\n`, "utf8");
@@ -1518,6 +1867,7 @@ async function captureCloseRegion(input: {
           diffSha256: sha256File(path.join(frameOut, "absolute-diff.png")),
           camera: numbers.camera,
           focusRegion: original.evidence.focusRegion,
+          ...(patchGeometry ? { patchGeometry } : {}),
           ...(cardRecord ?? {}),
         },
       },
@@ -1567,7 +1917,11 @@ async function main(): Promise<void> {
         }
       : { enabled: false },
     renderer: "product apps/ui-xr isolated-subject three.js lab",
-    loaderMode: "skinShadeLoader factory mode; zero skinOverride; zero materialOverrides",
+    loaderMode: cli.skinOverride
+      ? "skinShadeLoader factory mode; page-only MeshLambertMaterial skin override; zero product materialOverrides"
+      : cli.skinSpecular
+        ? "skinShadeLoader factory mode; page-only skin specular ablation; shipped maps retained"
+        : "skinShadeLoader factory mode; zero skinOverride; zero materialOverrides",
     sheets: "native 1:1 pixels, no resampling or upscaling",
     regionsMethod: cli.region === "head"
       ? "asset-derived live head/eye boxes plus documented normalized masks; identical masks for ORIGINAL and NEW"
@@ -1599,7 +1953,7 @@ async function main(): Promise<void> {
     }).sceneCapture.withBrowser("skin-realism:vitruvian-compare", async (launched: unknown) => {
       const page = await (launched as HeadlessBrowser).newPage({ viewport: { width: cli.size, height: cli.size }, deviceScaleFactor: 1 });
       // tsx keeps function names by wrapping them in __name(); the card hook's page.evaluate bodies carry those calls.
-      if (cli.greyCard) await (page as unknown as { addInitScript(script: string): Promise<void> }).addInitScript("globalThis.__name = globalThis.__name || ((target) => target);");
+      if (cli.greyCard || cli.skinOverride || cli.skinSpecular) await (page as unknown as { addInitScript(script: string): Promise<void> }).addInitScript("globalThis.__name = globalThis.__name || ((target) => target);");
       // A shader compile/link failure only reaches the page console; the frames still write and
       // the skin silently stops drawing (st-vitbody3 r2 street, r4d smoothstep(int)). Fail the run.
       page.on("console", (message) => {
@@ -1649,8 +2003,8 @@ async function main(): Promise<void> {
             const origSource = path.join(frameOut, ".source-orig.png");
             const newSource = path.join(frameOut, ".source-new.png");
             const placement = readGreyCardPlacement(cwd, cli);
-            const original = await captureVariant({ page, baseUrl: server!.url, actor: subject.actor, variant: "original", lightingSpec: lighting.spec, framing, captureSize, imagePath: origSource, greyCard: cli.greyCard && framing !== "eyes", greyCardPlacement: placement, greyCardCamera: cli.greyCardCamera, lightToggle: cli.lightToggle && framing !== "eyes" });
-            const candidate = await captureVariant({ page, baseUrl: server!.url, actor: subject.actor, variant: "new", lightingSpec: lighting.spec, framing, captureSize, imagePath: newSource, greyCard: cli.greyCard && framing !== "eyes", greyCardPlacement: placement, greyCardCamera: cli.greyCardCamera, lightToggle: false });
+            const original = await captureVariant({ page, baseUrl: server!.url, actor: subject.actor, variant: "original", lightingSpec: lighting.spec, framing, captureSize, imagePath: origSource, greyCard: cli.greyCard && framing !== "eyes", greyCardPlacement: placement, greyCardCamera: cli.greyCardCamera, lightToggle: cli.lightToggle && framing !== "eyes", skinOverride: cli.skinOverride, skinSpecular: cli.skinSpecular });
+            const candidate = await captureVariant({ page, baseUrl: server!.url, actor: subject.actor, variant: "new", lightingSpec: lighting.spec, framing, captureSize, imagePath: newSource, greyCard: cli.greyCard && framing !== "eyes", greyCardPlacement: placement, greyCardCamera: cli.greyCardCamera, lightToggle: false, skinOverride: cli.skinOverride, skinSpecular: cli.skinSpecular });
             cameraComparable(original, candidate);
             const subjectCrop = framing === "eyes" ? { x0: 0, y0: 0, x1: cli.size, y1: cli.size }
               : framing === "face" ? centredCrop(captureSize, cli.size)
@@ -1716,6 +2070,9 @@ async function main(): Promise<void> {
             regionMetrics[region] = metric;
             allRegionDeltaEs.push({ actor: subject.actor, lighting: lighting.id, region, deltaE76: delta });
           }
+          const cheekPatchGeometry = cli.skinOverride || cli.skinSpecular
+            ? await measurePatchGeometry(page, masks["cheek"]!.mask, cheek.crop)
+            : null;
           const frameRecords: Record<string, unknown> = {};
           for (const framing of ["face", "eyes", "cheek"] as const) {
             const c = captures[framing]!;
@@ -1736,6 +2093,7 @@ async function main(): Promise<void> {
               productRigReadback: c.original.readback.productRig,
               ...instrumentOnly(cli),
               regions: applicable,
+              ...(framing === "cheek" && cheekPatchGeometry ? { patchGeometry: cheekPatchGeometry } : {}),
               ...(greyCardManifest(c.original, c.crop) ?? {}),
             }, c.crop, c.subjectCrop);
             await writeFile(path.join(frameOut, "numbers.json"), `${JSON.stringify(numbers, null, 2)}\n`, "utf8");
@@ -1747,6 +2105,7 @@ async function main(): Promise<void> {
               diffSha256: sha256File(path.join(frameOut, "absolute-diff.png")),
               camera: numbers.camera,
               focusRegion: numbers.focusRegion,
+              ...(framing === "cheek" && cheekPatchGeometry ? { patchGeometry: cheekPatchGeometry } : {}),
               ...(greyCardManifest(c.original, c.crop) ?? {}),
             };
           }
