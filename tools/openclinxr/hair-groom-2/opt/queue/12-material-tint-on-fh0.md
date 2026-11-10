@@ -1,6 +1,6 @@
 # 12 material/tint sweep on fh0 (CEO decision 2026-11-10, after queue/11; lane ceo-2026-11-10-b)
 
-Status: rule committed before any build or score.
+Status: round 1 STOP on the minimal falsifier (no eligible trial improves a view beyond noise). Rule cfd9a16a0; K3 accepted by CEO.
 
 ## Scope (CEO)
 Material and tint only: runtime sheen (spec, roughness, anisotropy), base-colour scale K, spec colour G/B, spec streaks,
@@ -50,3 +50,36 @@ Noise per view: n_v = max(delta_v, delta_regrow_v) (queue/11 d9465b421): front 2
 - Else pick = eligible trial with the most improved views; ties by lowest sum D. Not a win until the CEO grades a native
   front + three_quarter_left contact sheet of the pick vs fh0 (card12/sheet-pick-vs-fh0.png, 1024 px crops, no resampling).
 - ship_a4 --bars v2: information only. No second round, no promotion, no main push without a CEO decision.
+
+## CEO ruling (after commit, before scores)
+K3 accepted as written. Added (no rule change): t00 is judged against every clause; a control failing any clause = clause
+miscalibrated, stop.
+
+## Result, round 1 (2026-11-10 13:31; card12/judge.json, round1.json, sweep.log)
+Control: t00 GLB sha 5a62cfdd (= fh0), D_v identical to card09/render-fh0, passes every clause.
+Tris 63,024 in all 19 trials (K2 holds; no geometry leak). Each trial 54 s build+render+score.
+Bars D_v(fh0) + n_v: front 29.845, 3q 21.021, side 20.430, back 8.227. Improved means below: 25.336, 16.246, 19.180, 6.939.
+| trial | sum D | front | 3q | side | back | row | failed clauses | improved |
+|---|---|---|---|---|---|---|---|---|
+| t00 control | 73.612 | 27.59 | 18.63 | 19.80 | 7.58 | 253 | none | none |
+| p1 K .40 | 68.657 | 24.75 | 17.41 | 18.01 | 8.50 | 253 | C1 3q/side/back, K1 back, hard (side black) | front, side |
+| p2 fade max | 73.221 | 27.19 | 18.84 | 19.64 | 7.55 | 253 | none | none |
+| t06 | 75.817 | 29.03 | 18.76 | 20.71 | 7.32 | 252 | K1 side | none |
+| t05 | 88.247 | 27.39 | 18.58 | 17.60 | 24.68 | 252 | C2 3q/back, K1 back | side |
+| t07 | 79.601 | 26.82 | 21.81 | 21.32 | 9.65 | 252 | K1 3q/side/back | none |
+| t01-t04, t08-t16 | 81.3-122.8 | | | | | 250-255 | K1 in 3-4 views each; C2 in 9 of 13 | none |
+Eligible trials with an improved view: none. Minimal falsifier met: STOP, no pick, no contact sheet.
+
+## Counterweight probes
+- p1 (global darkening, K .40): C1 tripped (base L 3q .079 < .108, side .066 < .083, back .100 < .129), and objective hard G2
+  black failed in side. p1 is the lowest sum D of the round (68.66) and improves front and side beyond noise: global
+  darkening is the cheapest D reduction on fh0, and C1 refuses it.
+- p2 (fadeFrac .80, fadeLenMm 80): C3 not tripped. Matte px vs fh0: front -61, 3q -60, side -42, back -32, inside the
+  regrow spread. At its range ceiling the edge fade does not shrink the matte, so C3 is unexercised in this knob space;
+  C3 is unverified, not shown wrong.
+
+## Reading
+- 13 of 16 LHS trials fail K1 in 3+ views: the objective-v2 ranges around BEST3/g2 mostly move D up by 5-50.
+- C2 (desaturation) fails in 9 of 16 LHS trials; C1 in none of them (C1 tripped only by p1).
+- Not tested: a second round (DE from the round-1 population), single-knob sensitivity, K between .40 and .65 (the darkening
+  direction that improved front/side in p1 while failing C1 in 3q/side/back).
