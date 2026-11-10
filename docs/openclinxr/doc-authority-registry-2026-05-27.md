@@ -12,10 +12,10 @@ Protected-policy files are off-limits to routine agents: do not delete, weaken, 
 
 - agent-memory: 34
 - agent-methodology: 118
-- archive-candidate: 156
+- archive-candidate: 157
 - current-reference: 202
 - decision-record: 49
-- evidence: 209
+- evidence: 228
 - generated-evidence: 11
 - historical-synthesis: 18
 - protected-policy: 10
@@ -429,6 +429,7 @@ These files should be summarized, archived, or explicitly marked historical befo
 - `tools/openclinxr/asset-pipeline/anny/README-rest-skeleton.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/skin/coherent-normal/README.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/asset-pipeline/trellis/MULTIVIEW-GROK-PACKS.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
+- `tools/openclinxr/hair-groom-2/DESIGN-realism.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/hair-groom-2/DESIGN.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/hair-groom-2/briefs/accuracy-rubric.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
 - `tools/openclinxr/hair-groom-2/briefs/cards-opt1.md` - archive-candidate; Unclassified Markdown; review before using as instruction.
