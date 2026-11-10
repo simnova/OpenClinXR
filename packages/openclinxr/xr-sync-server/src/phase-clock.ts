@@ -6,7 +6,7 @@
  * phase is current, how many integer seconds remain, and when the next
  * boundary fires on the room clock (this.clock, never Date-based polling).
  *
- * Phases: "doorway" -> "encounter" -> "note" -> "closed". Durations come from
+ * Phases: "doorway" -> "encounter" -> "note" -> "closed" -> "break". Durations come from
  * server config (createEncounterServer({ timing })); client roomOptions.timing
  * and roomOptions.phase are never read (the room ignores them by construction).
  * Validation is local integer checks (no shared-schemas dependency, so the
@@ -22,9 +22,9 @@ export interface StationTiming {
 }
 
 /** Phase names in encounter order. "brief" is the no-timing mode (not a clock phase). */
-export type StationPhase = "doorway" | "encounter" | "note" | "closed";
+export type StationPhase = "doorway" | "encounter" | "note" | "closed" | "break";
 
-export const STATION_PHASES: readonly StationPhase[] = ["doorway", "encounter", "note", "closed"];
+export const STATION_PHASES: readonly StationPhase[] = ["doorway", "encounter", "note", "closed", "break"];
 
 /** Reject reason when conversation intents arrive outside "encounter". Pose is exempt. */
 export const OUTSIDE_ENCOUNTER_PHASE_REASON = "outside-encounter-phase";
@@ -81,7 +81,9 @@ export interface StationPhaseBindings {
   phaseChangedAtMs: Map<string, number>;
   /** C19 schedule driver: started at encounter start, cleared on every non-encounter phase. */
   schedule?: { startEncounter(): void; clear(): void } | null;
-  /** C7 rotation driver: invoked once when the station enters "closed". */
+  /** Fires once on entering "closed", before any break; the room promotes the note draft there. */
+  onStationClosed?: () => void;
+  /** Fires once when the station is finished: on entering "closed" when no break follows, else when the break ends (the room rotates there). */
   onClosed?: () => void;
 }
 
@@ -94,6 +96,7 @@ export interface StationPhaseBindings {
 export function attachStationPhaseClock(
   bindings: StationPhaseBindings,
   timing: StationTiming | null,
+  breakSeconds = 0,
 ): StationPhaseClock | null {
   if (timing === null) {
     bindings.state.phase = "brief";
@@ -157,7 +160,10 @@ export function attachStationPhaseClock(
     onClosed: () => {
       bindings.onClosed?.();
     },
-  });
+    onStationClosed: () => {
+      bindings.onStationClosed?.();
+    },
+  }, breakSeconds);
   clock.start();
   return clock;
 }
@@ -190,7 +196,9 @@ export interface PhaseClockHooks {
   onLeaveEncounter(): void;
   /** C19 schedule driver: started at encounter start (timers on the room clock). */
   onEnterEncounter?(): void;
-  /** C7 rotation driver: invoked once when the station enters "closed". */
+  /** Fires once on entering "closed", before any break; the room promotes the note draft there. */
+  onStationClosed?: () => void;
+  /** Fires once when the station is finished: on entering "closed" when no break follows, else when the break ends (the room rotates there). */
   onClosed?: () => void;
   now(): number;
 }
@@ -210,6 +218,7 @@ export class StationPhaseClock {
     private readonly clock: PhaseClockLike,
     private readonly timing: StationTiming,
     private readonly hooks: PhaseClockHooks,
+    private readonly breakSeconds = 0,
   ) {}
 
   start(): void {
@@ -235,6 +244,8 @@ export class StationPhaseClock {
         return this.timing.noteSeconds;
       case "closed":
         return 0;
+      case "break":
+        return this.breakSeconds;
     }
   }
 
@@ -247,6 +258,8 @@ export class StationPhaseClock {
       case "note":
         return "closed";
       case "closed":
+        return this.breakSeconds > 0 ? "break" : null;
+      case "break":
         return null;
     }
   }
@@ -277,8 +290,11 @@ export class StationPhaseClock {
       // C19: the scenario schedule starts on the room clock at encounter start.
       this.hooks.onEnterEncounter?.();
     }
+    if (phase === "closed") {
+      this.hooks.onStationClosed?.();
+    }
     const next = this.nextAfter(phase);
-    if (next === null) {
+    if (next === null && phase !== "break") {
       // Terminal phase: C8 rotation fires on the room clock at closed (learners
     // + observers rotate together; observer role preserved in the reservation).
       this.hooks.onClosed?.();
@@ -289,7 +305,7 @@ export class StationPhaseClock {
       // onCreate finishes before the first transition).
       this.boundary = this.clock.setTimeout(() => {
         if (!this.stopped && this.generation === gen) {
-          this.enter(next);
+          this.advance(next);
         }
       }, 0);
       return;
@@ -303,7 +319,7 @@ export class StationPhaseClock {
       }
       remaining -= 1;
       if (remaining <= 0) {
-        this.enter(next);
+        this.advance(next);
         return;
       }
       this.hooks.setPhase(phase, remaining);
@@ -314,7 +330,20 @@ export class StationPhaseClock {
       if (this.stopped || this.generation !== gen) {
         return;
       }
-      this.enter(next);
+      this.advance(next);
     }, duration * 1000);
+  }
+
+  private advance(next: StationPhase | null): void {
+    if (next !== null) {
+      this.enter(next);
+      return;
+    }
+    this.generation += 1;
+    this.countdown?.clear();
+    this.boundary?.clear();
+    this.countdown = null;
+    this.boundary = null;
+    this.hooks.onClosed?.();
   }
 }

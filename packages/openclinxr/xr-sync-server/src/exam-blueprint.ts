@@ -10,9 +10,12 @@
  *
  * Derived server config: stations = stationSlots sorted by (order, slotId)
  * -> their slotIds; timing = { doorwaySeconds, encounterSeconds,
- * noteSeconds } from the blueprint timing. Boot refuses (message names
- * "examBlueprint"): blueprint together with stations or timing; duplicate
- * slotId; duplicate order; any phase seconds not a positive integer.
+ * noteSeconds } from the blueprint timing; breakSeconds + break orders from
+ * timing.breakSeconds / timing.breakAfterStationOrders (indexes never the
+ * last station). Boot refuses (message names "examBlueprint"): blueprint
+ * together with stations or timing; duplicate slotId; duplicate order; any
+ * phase seconds not a positive integer; bad breakSeconds; bad
+ * breakAfterStationOrders; unknown break order.
  */
 
 import type { StationTiming } from "./phase-clock.js";
@@ -27,6 +30,9 @@ export interface ParsedExamBlueprint {
   stations: string[];
   timing: StationTiming;
   labels: Map<string, string>;
+  breakSeconds: number;
+  breakAfterStationIndexes: number[];
+  bootTrace: string[];
 }
 
 interface ParsedSlot {
@@ -97,10 +103,45 @@ export function parseExamBlueprint(value: unknown): ParsedExamBlueprint {
   for (const slot of parsed) {
     labels.set(slot.slotId, slot.label);
   }
+  const rawBreak = timing["breakSeconds"];
+  let breakSeconds: number;
+  if (rawBreak === undefined) {
+    breakSeconds = 0;
+  } else if (typeof rawBreak !== "number" || !Number.isInteger(rawBreak) || rawBreak < 0) {
+    throw new Error("bad-examBlueprint: examBlueprint.timing.breakSeconds must be an integer >= 0");
+  } else {
+    breakSeconds = rawBreak;
+  }
+  const rawOrders = timing["breakAfterStationOrders"];
+  let orders: number[];
+  if (rawOrders === undefined) {
+    orders = [];
+  } else {
+    if (!Array.isArray(rawOrders)) {
+      throw new Error("bad-examBlueprint: examBlueprint.timing.breakAfterStationOrders must be an array");
+    }
+    orders = [...new Set(rawOrders.filter((v): v is number => typeof v === "number" && Number.isInteger(v) && v >= 1))].sort((a, b) => a - b);
+  }
+  const slotOrders = new Set(parsed.map((slot) => slot.order));
+  for (const order of orders) {
+    if (!slotOrders.has(order)) {
+      throw new Error(`bad-examBlueprint: examBlueprint.timing.breakAfterStationOrders has ${order}, which is not a stationSlot order`);
+    }
+  }
+  const orderToIndex = new Map(parsed.map((slot, index) => [slot.order, index] as const));
+  const breakAfterStationIndexes = orders
+    .map((order) => orderToIndex.get(order) as number)
+    .filter((index) => index < parsed.length - 1);
+  const bootTrace = orders.length > 0 && breakSeconds === 0
+    ? ["examBlueprint.timing.breakAfterStationOrders is set but examBlueprint.timing.breakSeconds is absent or 0: no break runs"]
+    : [];
   return {
     blueprintId,
     stations: parsed.map((slot) => slot.slotId),
     timing: { doorwaySeconds, encounterSeconds, noteSeconds },
     labels,
+    breakSeconds,
+    breakAfterStationIndexes,
+    bootTrace,
   };
 }

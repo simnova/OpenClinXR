@@ -31,6 +31,7 @@
     "@openclinxr/shared-schemas"
   ],
   "tests": [
+    "src/a-blueprint-break-pauses-the-synced-rotation.test.ts",
     "src/a-matched-answer-traces-every-menu-tag-it-covers.test.ts",
     "src/topic-menu-asked.test.ts",
     "src/topic-menu-labels.test.ts",

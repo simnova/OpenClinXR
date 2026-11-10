@@ -123,6 +123,8 @@ export interface EncounterServer {
   getConversationTrace(): ConversationTrace;
   /** C8 exact per-station applied pose counts (survives room dispose). */
   getStationPoseCounts(): Record<string, number>;
+  /** C53 boot-time notes (a copy), e.g. a break order with no break length; empty when none. */
+  getBootTrace(): string[];
   close(): Promise<void>;
 }
 
@@ -136,7 +138,8 @@ export async function createEncounterServer(
   // C6/C7 path. A blueprint together with either refuses boot.
   let timing = parseStationTiming(options.timing);
   let stations = parseStationIds(options.stations);
-  let examBlueprint: { blueprintId: string; labels: ReadonlyMap<string, string> } | null = null;
+  let examBlueprint: { blueprintId: string; labels: ReadonlyMap<string, string>; breakSeconds: number; breakAfterStationIndexes: ReadonlySet<number> } | null = null;
+  const bootTrace: string[] = [];
   if (options.examBlueprint !== undefined) {
     if (options.stations !== undefined) {
       throw new Error("bad-examBlueprint: examBlueprint cannot be combined with stations");
@@ -147,7 +150,8 @@ export async function createEncounterServer(
     const parsed = parseExamBlueprint(options.examBlueprint);
     timing = parsed.timing;
     stations = parsed.stations;
-    examBlueprint = { blueprintId: parsed.blueprintId, labels: parsed.labels };
+    examBlueprint = { blueprintId: parsed.blueprintId, labels: parsed.labels, breakSeconds: parsed.breakSeconds, breakAfterStationIndexes: new Set(parsed.breakAfterStationIndexes) };
+    bootTrace.push(...parsed.bootTrace);
   }
   // C16: the session casts each station from its scenario when given
   // (scenarios[i] fills the sorted slot i). Without a blueprint, or on a
@@ -275,6 +279,9 @@ export async function createEncounterServer(
       getStationPoseCounts(): Record<string, number> {
         return {};
       },
+      getBootTrace(): string[] {
+        return [...bootTrace];
+      },
       async close(): Promise<void> {
         await server.gracefullyShutdown(false);
       },
@@ -307,6 +314,9 @@ export async function createEncounterServer(
     },
     getStationPoseCounts(): Record<string, number> {
       return Object.fromEntries(binding.appliedPoseByStation);
+    },
+    getBootTrace(): string[] {
+      return [...bootTrace];
     },
     async close(): Promise<void> {
       // Flush the trace file before shutdown (same content the room writes on

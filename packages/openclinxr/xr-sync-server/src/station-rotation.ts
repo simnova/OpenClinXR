@@ -182,7 +182,7 @@ export interface StationBinding {
   /** C9 held review entries + write-once flag (lazily attached on first close). */
   review?: SessionReviewCollector;
   /** C15 factory blueprint identity + per-station labels (null without a blueprint). */
-  examBlueprint: { blueprintId: string; labels: ReadonlyMap<string, string> } | null;
+  examBlueprint: { blueprintId: string; labels: ReadonlyMap<string, string>; breakSeconds: number; breakAfterStationIndexes: ReadonlySet<number> } | null;
   /** C16 per-slot scenario casts (null without scenarios; scenarios[i] fills stations[i]). */
   scenarioCasts: ScenarioCast[] | null;
 }

@@ -298,6 +298,7 @@ export const ExamBlueprintTimingSchema = Type.Object({
   doorwaySeconds: Type.Integer({ minimum: 0 }),
   encounterSeconds: Type.Integer({ minimum: 0 }),
   noteSeconds: Type.Integer({ minimum: 0 }),
+  breakSeconds: Type.Optional(Type.Integer({ minimum: 0 })),
   breakAfterStationOrders: Type.Array(Type.Integer({ minimum: 1 })),
 });
 

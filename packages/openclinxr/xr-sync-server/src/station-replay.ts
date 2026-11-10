@@ -391,6 +391,8 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
       switch (event.kind) {
         case "phase-changed": {
           const phase = event.phase ?? "";
+          // a break is between stations, not part of the replayed station, so a replay never enters it.
+          if (phase === "break") { break; }
           this.state.phase = phase;
           if (phase !== "encounter" && this.replayOpenTurn !== null) {
             const entry = this.replayTurnsById.get(this.replayOpenTurn.turnId);

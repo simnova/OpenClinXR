@@ -208,6 +208,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     // C6 station clock from the server binding; client roomOptions.timing /
     // roomOptions.phase are ignored (see phase-clock.ts). C7 rotation fires
     // on the station's "closed" phase-changed, on the room clock.
+    const breakSeconds = blueprint !== null && blueprint.breakAfterStationIndexes.has(station.stationIndex) ? blueprint.breakSeconds : 0;
     this.phaseClock = PhaseClock.attachStationPhaseClock(
       {
         clock: this.clock,
@@ -220,12 +221,11 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         },
         phaseChangedAtMs: this.phaseChangedAtMs,
         schedule: this.scheduleDriver,
-        onClosed: () => {
-          this.notes.promote(this.state, this.tracer);
-          void this.rotateStation();
-        },
+        onStationClosed: () => { this.notes.promote(this.state, this.tracer); },
+        onClosed: () => { if (breakSeconds > 0) { this.phaseChangedAtMs.set("rotation-start", Date.now()); } void this.rotateStation(); },
       },
       this.stationTiming,
+      breakSeconds,
     );
     // C7 isolation: non-first stations are server-created rooms for rotated learners only.
     if (station.stationIndex > 0) {
@@ -345,7 +345,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
         clients: this.clients,
         isObserver: (id) => this.observers.has(id),
         actorIds: [...this.state.actors.keys()],
-        closedAt: this.phaseChangedAtMs.get("closed"),
+        closedAt: this.phaseChangedAtMs.get("rotation-start") ?? this.phaseChangedAtMs.get("closed"),
         binding: this.stationBinding,
         traceDir: this.stationTraceDir,
         traceSnapshot: () => this.tracer.snapshot(),
