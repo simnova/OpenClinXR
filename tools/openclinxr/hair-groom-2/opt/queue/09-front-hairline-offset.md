@@ -54,3 +54,8 @@ Not tested: a real groom re-run (Interpolate seed and dart sequence move every r
 - FALLBACK (fixed now): front passes and another view fails -> rebuild once at 12 mm under the same rule; 12 also fails ->
   stop and report. Front fails at 16 -> stop and report.
 - ship_a4 --bars v2 reported as information only.
+
+## Pre-check result (probe09/forehead.json)
+Midline profile on mpfb-ob-patient-aisha.glb in the groom head frame: nasion z 34, glabella z 54 (brow plateau z 54-64), hairline
+z 100 (table; lowest midline scalp face 102.0) at offset 0 and 116 at 16. Forehead height 46 mm at 0, 62 mm at 16 (36 / 52 with
+glabella at z 64). Inside 45-80 mm: rebuild proceeds. Midline vertices are 10-26 mm apart, so landmarks carry ~±5 mm.
