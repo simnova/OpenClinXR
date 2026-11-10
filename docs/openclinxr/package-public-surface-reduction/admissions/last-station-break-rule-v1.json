@@ -1,0 +1,22 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "last-station-break-rule-v1",
+  "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review, session 01a1c625-adb5-7bf0-90b4-b407b940e790 (read-only, not an author), 2026-11-10",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "d0d00ac58e7ce8c4e84fa6f4b8de62144e2b85bb2d7ef266f6ff8e9cca730589",
+  "packages": [
+    "packages/openclinxr/shared-schemas"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/shared-schemas",
+      "entrypoint": ".",
+      "symbol": "effectiveBreakAfterStationOrders",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "xr-sync C56",
+      "rationale": "One rule for no break after the last station. Consumers: exam-assembly buildExamTimingPlan (exam-form-breaks.ts) and the xr-sync-server exam-blueprint parse (exam-blueprint.ts), so the plan and the synced server cannot disagree.",
+      "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review, session 01a1c625-adb5-7bf0-90b4-b407b940e790 (read-only, not an author), 2026-11-10"
+    }
+  ]
+}

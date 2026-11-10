@@ -27,7 +27,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - ignore-local-cache: 2787
 - keep-compatibility-input: 24
 - keep-current: 264
-- keep-evidence: 1971
+- keep-evidence: 1972
 - keep-template: 17
 
 ## Cleanup Actions
@@ -3873,6 +3873,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/package-public-surface-reduction/admissions/fixed-clock-v1.json` - keep-evidence; keep; Fixed-timestep clock admission: admits the accumulator, interpolation, and contact-window reads apps/ui-xr/src/main.ts binds for the fixed-clock actor simulation.
 - `docs/openclinxr/package-public-surface-reduction/admissions/foot-base-v1.json` - keep-evidence; keep; Foot-base admission: admits the footBase=1 flag parser, schedule constants and roles, and the stride-retarget step/state the slice tests pin through ./foot-base.
 - `docs/openclinxr/package-public-surface-reduction/admissions/patient-staging-v1.json` - keep-evidence; keep; Patient staging admission: pending independent review for the three xr-station-room root exports bound by ui-xr patient placement and product-lab staging.
+- `docs/openclinxr/package-public-surface-reduction/admissions/last-station-break-rule-v1.json` - keep-evidence; keep; Last-station break rule admission: independently reviewed shared-schemas root export effectiveBreakAfterStationOrders, the one rule behind the exam plan and the synced server break phase.
 - `docs/openclinxr/package-public-surface-reduction/admissions/skin-triplanar-detail-v1.json` - keep-evidence; keep; Skin triplanar detail admission: independently reviewed root exports (one constants record, one CPU-mirror record, the shader-installing applyMaterialOverrides) bind the triplanar skin detail tests.
 - `docs/openclinxr/package-public-surface-reduction/admissions/vitblink-eye-schedule-v1.json` - keep-evidence; keep; Conversational eye-schedule admission: independently reviewed root exports bind the G1/G2 deterministic blink and Lee/Badler gaze schedule tests.
 - `docs/openclinxr/package-public-surface-reduction/admissions/footstep-plan-v1.json` - keep-evidence; keep; Footstep-plan admission: admits the stride-plan, blend, capture, and flag-parser reads the footstep-plan tests pin through the ./footstep-plan subpath.

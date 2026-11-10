@@ -91,7 +91,7 @@
       "measured": 1271,
       "threshold": 1000,
       "owner": "st-vitblink worker (four conversational-eye schedule exports; none authored by the reviewer)",
-      "reviewedBy": "Codex GPT-5 independent API/C6 review /root/vitblink_api_review_default (not an author; approved exact 1267→1271 delta for four user-required conversational-eye schedule root exports; threshold remains 1000; 2026-11-04)",
+      "reviewedBy": "Codex GPT-5 independent API/C6 review /root/vitblink_api_review_default (not an author; approved exact 1267\u21921271 delta for four user-required conversational-eye schedule root exports; threshold remains 1000; 2026-11-04)",
       "reason": "Residual 1271 = this file's prior independently reviewed exact 1267 + exactly four user-mandated NEW @openclinxr/xr-humanoid-animation root exports: humanoidBlinkIntervalMs, humanoidGazeBoutDurationMs, sampleHumanoidBlinkSchedule, and sampleHumanoidGazeBout. Each is implemented, admitted, declared in public-api.json/consumes.json, and bound through package-entrypoint G1/G2 tests. No unrelated symbol is admitted. Threshold stays 1000. Snapshot-only; any later count drift re-refuses."
     },
     {
@@ -125,6 +125,14 @@
       "owner": "vitruvian-skin-eyes lane (Claude session vitruvian-resume and Codex workers st-skinref i1e/adm/adm2: three xr-station-room root exports; none authored by the reviewer)",
       "reviewedBy": "Claude Opus 5.5 super-ceo independent C6 review (not an author): recomputed via measureSurface/rootQuantiles on station-skinref (1278) and detached origin/main d0901742e (1275); delta = xr-station-room rootSymbols 11 -> 14, exactly applyStagedPatientRootTransform, defaultPatientActorPlacement, resolveRuntimeActorPlacement (patient-staging-v1); median 16, p90 38, maxRoot 116, duplicateNames 56 unchanged; threshold remains 1000; 2026-11-09",
       "reason": "Residual 1278 = the independently reviewed exact 1275 (skin-triplanar-detail-v1 entry above, origin/main d0901742e measured 1275) + exactly three @openclinxr/xr-station-room root exports admitted by patient-staging-v1: applyStagedPatientRootTransform, defaultPatientActorPlacement, resolveRuntimeActorPlacement. Repo measureSurface + rootQuantiles: HEAD 90 roots/195 entrypoints/1278 rootSymbols/median 16/p90 38/maxRoot 116/duplicateNames 56; base d0901742e 90/195/1275/16/38/116/56. No unrelated symbol is admitted. Threshold stays 1000. Snapshot-only; any later count drift re-refuses."
+    },
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1279,
+      "threshold": 1000,
+      "owner": "xr-sync C56 (one shared-schemas root export, effectiveBreakAfterStationOrders; none authored by the reviewer)",
+      "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review (not an author): session 01a1c625-adb5-7bf0-90b4-b407b940e790 recomputed via measureSurface/rootQuantiles rootExports 1279 = previous exact 1278 + exactly effectiveBreakAfterStationOrders on the @openclinxr/shared-schemas root; median 16, p90 38, maxRoot 116, duplicateNames 56 unchanged; threshold remains 1000; 2026-11-10",
+      "reason": "Residual 1279 = the independently reviewed exact 1278 (patient-staging-v1 entry above) + exactly one @openclinxr/shared-schemas root export admitted by last-station-break-rule-v1: effectiveBreakAfterStationOrders. Declared in public-api.json and consumes.json of exam-assembly and xr-sync-server, so the exam plan and the synced server share one last-station rule. No unrelated symbol is admitted. Threshold stays 1000. Snapshot-only; any later count drift re-refuses."
     }
   ],
   "sourceManifest": {
