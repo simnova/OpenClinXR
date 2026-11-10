@@ -12,6 +12,17 @@ from collections.abc import Iterable
 from pathlib import Path
 
 
+def installed_mpfb_root() -> Path:
+    """Directory of the enabled MPFB extension, whatever Blender version installed it.
+
+    hair-groom-2 (2026-11-07): this was hard-coded to Blender/5.1, so every bake on a
+    machine with only Blender 5.2 lost its face targets. Resolved from the imported module.
+    """
+    import bl_ext.user_default.mpfb as _mpfb
+
+    return Path(_mpfb.__file__).resolve().parent
+
+
 def enable_mpfb() -> dict:
     status: dict = {
         "module": "bl_ext.user_default.mpfb",
@@ -21,11 +32,7 @@ def enable_mpfb() -> dict:
     try:
         bpy.ops.preferences.addon_enable(module="bl_ext.user_default.mpfb")
         status["enabled"] = "bl_ext.user_default.mpfb" in bpy.context.preferences.addons
-        home = Path.home()
-        manifest = (
-            home
-            / "Library/Application Support/Blender/5.1/extensions/user_default/mpfb/blender_manifest.toml"
-        )
+        manifest = installed_mpfb_root() / "blender_manifest.toml"
         if manifest.is_file():
             status["manifestPath"] = str(manifest)
             text = manifest.read_text(encoding="utf-8", errors="replace")
@@ -88,11 +95,7 @@ def load_mpfb_face_shape_keys(
         "targetsRoot": None,
     }
     try:
-        home = Path.home()
-        targets_root = (
-            home
-            / "Library/Application Support/Blender/5.1/extensions/user_default/mpfb/data/targets"
-        )
+        targets_root = installed_mpfb_root() / "data/targets"
         if not targets_root.is_dir():
             status["error"] = f"MPFB targets dir missing: {targets_root}"
             return status

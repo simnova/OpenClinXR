@@ -6,8 +6,8 @@
   "counts": {
     "agent-methodology": 118,
     "current-reference": 202,
-    "archive-candidate": 136,
-    "evidence": 203,
+    "archive-candidate": 156,
+    "evidence": 209,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5849,6 +5849,188 @@
     },
     {
       "path": "tools/openclinxr/evidence/station-capture/station-room-occlusion-and-containment-2026-09-12.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/DESIGN.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/accuracy-rubric.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/cards-opt1.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/cards-opt2.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/cards-r10-defects.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/cards-r4.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/cards-r6.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/cards-r7.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/groom-loop.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/groom-r1.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/groom-r5-shape.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/groom-r8-margins.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/groom-r9-back.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/r11-side-seed.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/r12-margins-su18.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/r13-card-fidelity.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/r14-budget-hem.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/sheen-2-streaks.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/sheen-3-dual-light.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/briefs/sheen-light-match.md",
+      "authority": "archive-candidate",
+      "agentInstructionWeight": "none",
+      "action": "summarize-before-use",
+      "rationale": "Unclassified Markdown; review before using as instruction."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/reviews/adversarial_round3_report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/reviews/comprehension_report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/reviews/design_readiness_report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/reviews/reaudit_round2_report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/reviews/redteam_round3_report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/hair-groom-2/reviews/zoomout_round3_report.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",

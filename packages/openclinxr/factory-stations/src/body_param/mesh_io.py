@@ -14,6 +14,7 @@ import traceback
 from pathlib import Path
 
 from constants import MH_UNITS_TO_METRES
+from mpfb_body import installed_mpfb_root
 from paths import TOOLS_OPENCLINXR
 
 
@@ -30,11 +31,7 @@ def enable_mpfb() -> dict:
     try:
         bpy.ops.preferences.addon_enable(module="bl_ext.user_default.mpfb")
         status["enabled"] = "bl_ext.user_default.mpfb" in bpy.context.preferences.addons
-        home = Path.home()
-        manifest = (
-            home
-            / "Library/Application Support/Blender/5.1/extensions/user_default/mpfb/blender_manifest.toml"
-        )
+        manifest = installed_mpfb_root() / "blender_manifest.toml"
         if manifest.is_file():
             status["manifestPath"] = str(manifest)
             text = manifest.read_text(encoding="utf-8", errors="replace")

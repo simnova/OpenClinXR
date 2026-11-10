@@ -1,0 +1,13 @@
+glb	sha256_16	hair_tris	eyebrow_tris	eyelash_tris	total	hair_alphaMode	hair_has_texture
+mpfb-clinical-nurse-adult.glb	6c908f97c3048ada	2254	9597	388	12239	OPAQUE	False
+mpfb-clinical-physician-adult.glb	c06b6c065830d0db	2974	8953	395	12322	OPAQUE	False
+mpfb-family-partner-adult.glb	47134447a0a5e0fd	2260	9396	3239	14895	OPAQUE	False
+mpfb-gown-adult-patient.glb	f5c60292cca74033	3155	13187	386	16728	OPAQUE	False
+mpfb-gown-ed-robert-hayes.glb	2c4e1c772587a5d5	3154	12122	297	15573	OPAQUE	False
+mpfb-gown-inspect.glb	645db112d4b4e298	1988	35334	16632	53954	OPAQUE	False
+mpfb-ob-patient-aisha.glb	26a6b759e4f79fa8	1989	35334	16632	53955	OPAQUE	False
+mpfb-peds-nurse-kevin.glb	9cf92b1e96610609	1037	28716	16632	46385	OPAQUE	False
+mpfb-peds-parent-aisha.glb	a26b34773d90e7ae	4976	8988	16632	30596	MASK	True
+mpfb-peds-patient-child.glb	257f821bac2db2f0	4976	21816	16632	43424	OPAQUE	False
+mpfb-street-adult-male.glb	5b194cb4c6198d22	3460	28716	16632	48808	OPAQUE	False
+mpfb-viseme-inspect.glb	e59c6f5b39a18873	1989	35334	16632	53955	OPAQUE	False
