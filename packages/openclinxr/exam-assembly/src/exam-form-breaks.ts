@@ -46,7 +46,7 @@ export function buildExamTimingPlan(
       continue;
     }
 
-    const durationSeconds = breakDurationFor(slot.order, options);
+    const durationSeconds = breakDurationFor(slot.order, options, blueprint.timing.breakSeconds);
     const window: ExamBreakWindow = {
       afterStationOrder: slot.order,
       startsAtSecond: cursor,
@@ -241,12 +241,12 @@ function isBreakPhaseTransition(value: unknown): value is ExamFormBreakPhaseTran
     && typeof value["examRunId"] === "string";
 }
 
-function breakDurationFor(afterStationOrder: number, options: ExamFormTimingOptions): number {
+function breakDurationFor(afterStationOrder: number, options: ExamFormTimingOptions, blueprintBreakSeconds: number | undefined): number {
   const mapped = options.breakDurationsByAfterStationOrder?.[afterStationOrder];
   if (typeof mapped === "number") {
     return finiteNonNegative(mapped);
   }
-  return finiteNonNegative(options.breakDurationSeconds ?? 0);
+  return finiteNonNegative(options.breakDurationSeconds ?? blueprintBreakSeconds ?? 0);
 }
 
 function uniqueSortedPositiveIntegers(values: readonly number[]): number[] {
