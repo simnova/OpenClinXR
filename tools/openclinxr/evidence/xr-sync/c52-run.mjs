@@ -389,7 +389,7 @@ try {
     run.serverEvents = serverEvents; run.labelEvents = labelEvents;
     { const actors = await page.evaluate(() => [...globalThis.__c52plant.values()]);
       const sumOf = (a) => [...a.steps.map((x) => x.ms), ...a.phases.map((x) => x.ms)].reduce((t, v) => (typeof v === "number" ? t + v : t), 0);
-      const st1 = actors.filter((a) => /Station 1 of/.test(a.label));
+      const st1 = actors.filter((a) => /^\s*(Station 1 of|1\/\d+)/.test(a.label));
       const havems = st1.length > 0 && st1.every((a) => a.steps.length > 0 && a.steps.every((x) => typeof x.ms === "number"));
       run.plantMs = { actors, station1Actors: st1.length, station1SumMs: havems ? Math.round(st1.reduce((t, a) => t + sumOf(a), 0) * 1000) / 1000 : null, source: "userData.openClinXrPlantSteps[].ms + openClinXrPlantPhases[].ms" }; }
     run.loadAvg.end = os.loadavg()[0];
@@ -427,7 +427,7 @@ try {
       const events2 = rawTrace2.traceEvents ?? rawTrace2;
       const endAt = Date.now();
       const stationAt = [];
-      for (const n of [1, 2, 3]) { const hit = labelEvents.find((l) => new RegExp(`^Station ${n} of`).test(l.text)); stationAt.push(hit ? hit.at : null); }
+      for (const n of [1, 2, 3]) { const hit = labelEvents.find((l) => new RegExp(`^\\s*(Station ${n} of|${n}/\\d+)`).test(l.text)); stationAt.push(hit ? hit.at : null); }
       const bounds = [run.clock.dateNow - 600000, ...stationAt.slice(1).filter((x) => x !== null), endAt];
       const inclusiveOf = (win) => {
         const cpu = cpuProfileTop(events2, win.mainPid, win.mainTid, win, 1e9);
