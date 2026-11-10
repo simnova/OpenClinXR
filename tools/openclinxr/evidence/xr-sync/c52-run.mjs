@@ -293,7 +293,7 @@ const outDir = resolve(argv[argv.indexOf("--out") + 1]);
 const traceFlag = argv.includes("--trace") ? argv[argv.indexOf("--trace") + 1] : "1";
 const tracedWanted = traceFlag !== "0";
 mkdirSync(outDir, { recursive: true });
-const TRACE_DIR = join("/Volumes/files/openclinxr-assets/store/xr-sync/c52", runId);
+const TRACE_DIR = join(process.env.C52_TRACE_STORE ?? "/Volumes/files/openclinxr-assets/store/xr-sync/c52", runId);
 mkdirSync(dirname(TRACE_DIR), { recursive: true });
 if (existsSync(TRACE_DIR)) { console.error(`c52: trace dir already exists (write-once): ${TRACE_DIR}`); process.exit(2); }
 mkdirSync(TRACE_DIR);
