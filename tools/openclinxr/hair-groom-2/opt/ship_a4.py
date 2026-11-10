@@ -1,6 +1,7 @@
 """ship_a4.py: SPEC A4 ship rule S1-S4, applied post hoc to trials.csv rows of one stage label.
 
-Usage: python3 ship_a4.py <trials.csv> <stage label> [--json out.json]
+Usage: python3 ship_a4.py <trials.csv> <stage label> [--json out.json] [--bars v2]
+--bars v2: D_BEST3_v, r_v from full-{best3,r10}-v2.json and noise from objective-v2.json (CEO 2026-11-10: bars and objective same version).
 Bars from SPEC A4 (CEO 2026-11-10): incumbent D_v = the stage's incumbent row; D_BEST3_v and r_v from
 .openclinxr/opt/hair-groom-2/full-best3.json / full-r10.json; delta_v = objective.json noise (max seed, grader).
 """
@@ -15,11 +16,12 @@ STATE = W2 / ".openclinxr/opt/hair-groom-2"
 V = ["front", "three_quarter_left", "side", "back"]
 
 
-def bars(inc):
-    ob = json.load(open(HERE / "objective.json"))["noise"]
+def bars(inc, ver=""):
+    sfx = "-" + ver if ver else ""
+    ob = json.load(open(HERE / ("objective%s.json" % sfx)))["noise"]
     d = {v: max(ob["delta_seed_v"][v], ob["delta_grader_v"][v]) for v in V}
-    r10 = json.load(open(STATE / "full-r10.json"))["views"]
-    b3 = json.load(open(STATE / "full-best3.json"))["views"]
+    r10 = json.load(open(STATE / ("full-r10%s.json" % sfx)))["views"]
+    b3 = json.load(open(STATE / ("full-best3%s.json" % sfx)))["views"]
     r = {v: (r10[v]["D_v"] - b3[v]["D_v"]) / r10[v]["D_v"] for v in V}
     return dict(delta=d, best3={v: b3[v]["D_v"] for v in V}, r=r,
                 s1={v: inc[v] + d[v] for v in V},
@@ -53,7 +55,7 @@ def main():
     rows = [r for r in csv.DictReader(open(sys.argv[1])) if r["stage"] in (sys.argv[2], "incumbent@" + sys.argv[2].split("@")[1])]
     inc_rows = [r for r in rows if r["stage"].startswith("incumbent@") and r["D"] not in ("", "inf")]
     inc = {v: float(inc_rows[-1]["D_" + v]) for v in V}
-    B = bars(inc)
+    B = bars(inc, sys.argv[sys.argv.index("--bars") + 1] if "--bars" in sys.argv else "")
     out = dict(incumbent=inc, bars=B, passing=[], border=[], n=0)
     for r in rows:
         if r["stage"] != sys.argv[2] or r["D"] in ("", "inf") or r["feasible"] not in ("True", "1", "true"):
