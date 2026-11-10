@@ -5,18 +5,20 @@
  * (`Math.abs(deltaY) < 1e-4`, supine-deck-plant.ts), the same source as RED A.
  */
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { caseSetMatches, deriveShippedCases, inputTreeHash, redACases, treeIsCurrent, unionCases } from "./c52c-cases.mjs";
+import { bundledPackageProvenance, caseSetMatches, deriveShippedCases, inputTreeHash, redACases, treeIsCurrent, unionCases } from "./c52c-cases.mjs";
 import { caseKey, comparePoses } from "./c52c-plant-core.mjs";
 
 type Pose = { root: { position: number[]; quaternion: number[] }; bones: Record<string, number[]> };
 type Row = { body: string; deck: string; inclineDeg: number; source: string[]; maxAbsBoneDeltaM: number; worstBone: string | null; rootPosDeltaM: number; rootQuatDelta: number; node: Pose; page: Pose };
+type Bundled = { name: string; lockfile: { specifier: string; version: string }; harnessDir: string; uiXrDir: string; harnessDistSha256?: string; uiXrDistSha256?: string; matchesUiXr: boolean };
 type Parity = {
   headSha: string; inputTreeSha256: string; nodeVersion: string; userAgent: string; renderer: string; nodePid: number; browserPid: number;
-  humanoidCountPolls: number; pageErrors: string[]; shippedCases: unknown[]; cases: Row[]; probe: unknown;
+  gitTreeSha: string; uncommittedPaths: string[]; notTested: string; bundledPackages: Bundled[];
+  humanoidCountPolls: number; humanoidCountSequence: number[]; pageErrors: string[]; shippedCases: unknown[]; cases: Row[]; probe: unknown;
 };
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
@@ -48,6 +50,17 @@ describe("the supine plant parity between node and the GPU browser", () => {
     for (const s of parity.shippedCases as { blueprintPath: string }[]) expect(s.blueprintPath).toMatch(/^packages\/openclinxr\/scenario-fixtures\/src\/.+\.ts$/);
   });
 
+  it("every blueprint source that authors a supine support surface is a blueprintPath of a derived shipped case (literal grep, independent of the built scenarioBank)", () => {
+    const dir = join(ROOT, "packages/openclinxr/scenario-fixtures/src");
+    const grepped = readdirSync(dir)
+      .filter((f) => f.endsWith(".ts") && !f.endsWith(".test.ts") && /supportSurface:\s*"(stretcher|bed|exam_table)"/.test(readFileSync(join(dir, f), "utf8")))
+      .map((f) => `packages/openclinxr/scenario-fixtures/src/${f}`)
+      .sort();
+    const derived = [...new Set((parity.shippedCases as { blueprintPath: string }[]).map((s) => s.blueprintPath))].sort();
+    expect(grepped.length).toBeGreaterThan(0);
+    expect(derived).toEqual(grepped);
+  });
+
   it("a shipped case missing from the json fails the case-set check", () => {
     const dropped = parity.cases.filter((row) => caseKey(row) !== caseKey(shipped[0] as { body: string; deck: string; inclineDeg: number }));
     expect(dropped.length).toBe(parity.cases.length - 1);
@@ -69,6 +82,23 @@ describe("the supine plant parity between node and the GPU browser", () => {
     expect(treeIsCurrent(parity, head, current)).toBe(true);
   });
 
+  it("the harness bundled the xr-pose, xr-station dists and three that apps/ui-xr resolves (lockfile entry, directory, dist sha256)", () => {
+    const now = bundledPackageProvenance(ROOT) as Bundled[];
+    expect(parity.bundledPackages.map((b) => b.name)).toEqual(["@openclinxr/xr-pose", "@openclinxr/xr-station", "three"]);
+    for (const b of parity.bundledPackages) {
+      expect(b.matchesUiXr, b.name).toBe(true);
+      expect(b.harnessDir).toBe(b.uiXrDir);
+      if (b.name !== "three") expect(b.harnessDistSha256).toMatch(/^[0-9a-f]{64}$/);
+      expect(b.harnessDistSha256).toBe(b.uiXrDistSha256);
+      const cur = now.find((n) => n.name === b.name) as Bundled;
+      expect(b.lockfile).toEqual(cur.lockfile);
+      expect(b.uiXrDir).toBe(cur.uiXrDir);
+    }
+    expect(parity.notTested).toBe("shipped ui-xr bundle (minified graph) not run; C52d's live key check covers the shipped path");
+    expect(parity.gitTreeSha).toMatch(/^[0-9a-f]{40}$/);
+    expect(Array.isArray(parity.uncommittedPaths)).toBe(true);
+  });
+
   it("a json from another tree is refused: different headSha and a different input hash", () => {
     const current = inputTreeHash(ROOT, expected.map((c) => c.body)) as string;
     expect(treeIsCurrent({ ...parity, headSha: "0".repeat(40), inputTreeSha256: "f".repeat(64) }, head, current)).toBe(false);
@@ -76,7 +106,11 @@ describe("the supine plant parity between node and the GPU browser", () => {
   });
 
   it("the page read waited for a stable registered humanoid count and the page raised no error", () => {
-    expect(parity.humanoidCountPolls).toBeGreaterThanOrEqual(3);
+    const sequence = parity.humanoidCountSequence;
+    expect(sequence.length).toBe(parity.humanoidCountPolls);
+    expect(sequence.length).toBeGreaterThanOrEqual(3);
+    expect(sequence.slice(-3)).toEqual([expected.length, expected.length, expected.length]);
+    expect(sequence.every((n, i) => i === 0 || n >= (sequence[i - 1] as number))).toBe(true);
     expect(parity.pageErrors).toEqual([]);
   });
 

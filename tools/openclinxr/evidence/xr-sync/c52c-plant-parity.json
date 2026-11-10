@@ -1,16 +1,74 @@
 {
   "slice": "C52c",
-  "headSha": "1bcee47830651b36aa04c3c7ed84eb84ab222e85",
+  "headSha": "185ddcc78b025f73fa6b091d44678a4638871d5e",
+  "gitTreeSha": "1acd6402f8499e55e38669e367d2a00e1bc5fde7",
+  "uncommittedPaths": [
+    "tools/openclinxr/evidence/xr-sync/c52c-cases.mjs",
+    "tools/openclinxr/evidence/xr-sync/c52c-plant-parity.mjs",
+    "tools/openclinxr/evidence/xr-sync/c52c-plant-parity.test.ts"
+  ],
   "inputTreeSha256": "f1a280aff1610b8c4c1551f4771892757f1c311dc8568e1f9e5d55e42930d4ba",
+  "bundledPackages": [
+    {
+      "name": "@openclinxr/xr-pose",
+      "lockfile": {
+        "specifier": "workspace:*",
+        "version": "link:../../packages/openclinxr/xr-pose"
+      },
+      "harnessDir": "packages/openclinxr/xr-pose",
+      "uiXrDir": "packages/openclinxr/xr-pose",
+      "harnessDistSha256": "f3b179c36352f58c90fc3e0007efcd718a7034c42aca1b3717bb37f5f8f5b7ae",
+      "uiXrDistSha256": "f3b179c36352f58c90fc3e0007efcd718a7034c42aca1b3717bb37f5f8f5b7ae",
+      "matchesUiXr": true
+    },
+    {
+      "name": "@openclinxr/xr-station",
+      "lockfile": {
+        "specifier": "workspace:*",
+        "version": "link:../../packages/openclinxr/xr-station"
+      },
+      "harnessDir": "packages/openclinxr/xr-station",
+      "uiXrDir": "packages/openclinxr/xr-station",
+      "harnessDistSha256": "37a5015809040a5c7eaf37a918b1c1f7c69a0c8f57c568a44782cdc98a966bb1",
+      "uiXrDistSha256": "37a5015809040a5c7eaf37a918b1c1f7c69a0c8f57c568a44782cdc98a966bb1",
+      "matchesUiXr": true
+    },
+    {
+      "name": "three",
+      "lockfile": {
+        "specifier": "0.184.0",
+        "version": "0.184.0"
+      },
+      "version": "0.184.0",
+      "harnessDir": "node_modules/.pnpm/three@0.184.0/node_modules/three",
+      "uiXrDir": "node_modules/.pnpm/three@0.184.0/node_modules/three",
+      "matchesUiXr": true
+    }
+  ],
+  "notTested": "shipped ui-xr bundle (minified graph) not run; C52d's live key check covers the shipped path",
   "nodeVersion": "v24.18.1",
   "userAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/147.0.0.0 Safari/537.36",
   "renderer": "ANGLE (Apple, ANGLE Metal Renderer: Apple M1 Max, Unspecified Version)",
-  "nodePid": 65613,
-  "browserPid": 65796,
+  "nodePid": 89378,
+  "browserPid": 89517,
   "toleranceM": 0.0001,
   "probe": null,
   "pageErrors": [],
   "humanoidCountPolls": 12,
+  "humanoidCountSequence": [
+    0,
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    9,
+    9
+  ],
   "shippedCases": [
     {
       "scenarioId": "ed_chest_pain_priority_v1",

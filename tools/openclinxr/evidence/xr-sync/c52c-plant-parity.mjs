@@ -100,6 +100,12 @@ if (flag("--node-only")) {
 // ---- page side ----
 const headSha = execFileSync("git", ["-C", ROOT, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
 const inputTree = inputTreeHash(ROOT, cases.map((c) => c.body));
+// The tree the run used: HEAD's tree plus any uncommitted paths (a json cannot name the commit it lands in).
+const gitTreeSha = execFileSync("git", ["-C", ROOT, "rev-parse", "HEAD^{tree}"], { encoding: "utf8" }).trim();
+const uncommittedPaths = execFileSync("git", ["-C", ROOT, "status", "--porcelain"], { encoding: "utf8" })
+  .split("\n").filter(Boolean).map((l) => l.slice(3)).sort();
+const { bundledPackageProvenance } = await import("./c52c-cases.mjs");
+const bundledPackages = bundledPackageProvenance(ROOT);
 const lib = await import("./harness-lib.mjs");
 const staticServer = await lib.startStaticServer(pageDir);
 const { chromium } = await import("playwright");
@@ -149,8 +155,10 @@ try {
     return { body: c.body, deck: c.deck, inclineDeg: c.inclineDeg, source: c.source, ...d, node: n, page: p.pose };
   });
   report = {
-    slice: "C52c", headSha, inputTreeSha256: inputTree, nodeVersion: process.version, userAgent: env.userAgent, renderer: env.renderer,
-    nodePid: process.pid, browserPid, toleranceM: TOLERANCE_M, probe, pageErrors: errors, humanoidCountPolls: polls.length,
+    slice: "C52c", headSha, gitTreeSha, uncommittedPaths, inputTreeSha256: inputTree, bundledPackages,
+    notTested: "shipped ui-xr bundle (minified graph) not run; C52d's live key check covers the shipped path",
+    nodeVersion: process.version, userAgent: env.userAgent, renderer: env.renderer,
+    nodePid: process.pid, browserPid, toleranceM: TOLERANCE_M, probe, pageErrors: errors, humanoidCountPolls: polls.length, humanoidCountSequence: polls,
     shippedCases: shipped, cases: rows,
   };
 } finally {
@@ -166,4 +174,4 @@ for (const r of report.cases) {
   console.log(`CASE ${r.body} ${r.inclineDeg}deg bone ${r.maxAbsBoneDeltaM.toExponential(2)} (${r.worstBone}) rootPos ${r.rootPosDeltaM.toExponential(2)} rootQuat ${r.rootQuatDelta.toExponential(2)}`);
 }
 console.log(`WROTE ${outFile} worst ${worst.toExponential(2)} ${worst > TOLERANCE_M ? "STOP over 1e-4" : "within 1e-4"} renderer=${report.renderer}`);
-process.exit(0);
+process.exit(worst > TOLERANCE_M ? 1 : 0);

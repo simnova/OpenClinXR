@@ -6,8 +6,8 @@
  */
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync } from "node:fs";
-import { join } from "node:path";
+import { readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import { join, relative } from "node:path";
 import { pathToFileURL } from "node:url";
 import { caseKey } from "./c52c-plant-core.mjs";
 
@@ -108,4 +108,63 @@ export function caseSetMatches(jsonCases, expected) {
 /** The json belongs to this tree: its head is HEAD, or every plant input hashes the same as at HEAD. */
 export function treeIsCurrent(json, head, currentInputTree) {
   return json.headSha === head || json.inputTreeSha256 === currentInputTree;
+}
+
+/** sha256 over every file under dir: sorted relative path, NUL, bytes. */
+function dirSha256(dir) {
+  const files = [];
+  const walk = (d) => {
+    for (const f of readdirSync(d)) {
+      const p = join(d, f);
+      if (statSync(p).isDirectory()) walk(p);
+      else files.push(p);
+    }
+  };
+  walk(dir);
+  const h = createHash("sha256");
+  for (const p of files.map((f) => relative(dir, f)).sort()) h.update(`${p}\0`).update(readFileSync(join(dir, p)));
+  return h.digest("hex");
+}
+
+/** The pnpm-lock.yaml entry {specifier, version} for dep under importer. */
+function lockEntry(lock, importer, dep) {
+  const start = lock.indexOf(`\n  ${importer}:\n`);
+  if (start < 0) throw new Error(`pnpm-lock.yaml has no importer ${importer}`);
+  const rest = lock.slice(start + 1);
+  const end = rest.slice(1).search(/\n {2}\S/);
+  const block = end < 0 ? rest : rest.slice(0, end + 1);
+  const key = dep.startsWith("@") ? `'${dep}'` : dep;
+  const m = block.match(new RegExp(`\\n {6}${key.replace(/[/@.]/g, "\\$&")}:\\n {8}specifier: (.+)\\n {8}version: (.+)\\n`));
+  if (!m) throw new Error(`pnpm-lock.yaml importer ${importer} has no ${dep}`);
+  return { specifier: m[1], version: m[2] };
+}
+
+/**
+ * What the harness bundles (xr-pose, xr-station dists from packages/, three as those packages resolve it)
+ * against what apps/ui-xr resolves: lockfile entry, resolved directory, and dist sha256 for each.
+ */
+export function bundledPackageProvenance(root) {
+  const lock = readFileSync(join(root, "pnpm-lock.yaml"), "utf8");
+  const uiXr = join(root, "apps/ui-xr");
+  const rows = ["xr-pose", "xr-station"].map((name) => {
+    const dep = `@openclinxr/${name}`;
+    const harnessDir = realpathSync(join(root, "packages/openclinxr", name));
+    const uiXrDir = realpathSync(join(uiXr, "node_modules", dep));
+    const harnessDistSha256 = dirSha256(join(harnessDir, "dist"));
+    const uiXrDistSha256 = dirSha256(join(uiXrDir, "dist"));
+    return {
+      name: dep, lockfile: lockEntry(lock, "apps/ui-xr", dep),
+      harnessDir: relative(root, harnessDir), uiXrDir: relative(root, uiXrDir),
+      harnessDistSha256, uiXrDistSha256, matchesUiXr: harnessDir === uiXrDir && harnessDistSha256 === uiXrDistSha256,
+    };
+  });
+  const harnessThree = ["xr-pose", "xr-station"].map((n) => realpathSync(join(root, "packages/openclinxr", n, "node_modules/three")));
+  const uiXrThree = realpathSync(join(uiXr, "node_modules/three"));
+  const threeVersion = JSON.parse(readFileSync(join(uiXrThree, "package.json"), "utf8")).version;
+  rows.push({
+    name: "three", lockfile: lockEntry(lock, "apps/ui-xr", "three"), version: threeVersion,
+    harnessDir: relative(root, harnessThree[0]), uiXrDir: relative(root, uiXrThree),
+    matchesUiXr: harnessThree.every((d) => d === uiXrThree),
+  });
+  return rows;
 }
