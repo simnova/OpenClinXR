@@ -11,7 +11,7 @@ import { describe, expect, it } from "vitest";
 // c51-capture.mjs report (rects, visibility, font-size). A green file here is not evidence the label is on screen.
 // main.ts boots the page and cannot be imported, so its wiring is pinned by source, as in the C50 RED B.
 //
-// Planted clauses are `it.fails`; flip each to `it(` when its behaviour lands (`live:` requires 0 remaining).
+// The three planted clauses were expected-failure tests and are now plain tests; the counterweights passed before the change too.
 // The plain `it(` blocks are counterweights and pass today: the non-synced, replay and lobby header must not change.
 const SRC = fileURLToPath(new URL(".", import.meta.url));
 const MAIN = readFileSync(SRC + "main.ts", "utf8");
@@ -50,16 +50,16 @@ const HEADER_BLOCK = [
 ].join("\n");
 
 describe("the synced station position is in the doorway header (C51)", () => {
-  it.fails("main.ts declares #doorway-station inside the doorway <header> (after the subtitle line, so the block below stays contiguous)", () => {
+  it("main.ts declares #doorway-station inside the doorway <header> (after the subtitle line, so the block below stays contiguous)", () => {
     const header = /<header>\n\s*<p class="label">Doorway<\/p>[\s\S]*?<\/header>/u.exec(MAIN)?.[0] ?? "";
     expect(header).toMatch(/id="doorway-station"/u);
   });
 
-  it.fails("main.ts binds a doorwayStation element to #doorway-station", () => {
+  it("main.ts binds a doorwayStation element to #doorway-station", () => {
     expect(MAIN).toMatch(/const doorwayStation = requireElement<HTMLElement>\("#doorway-station"\);/u);
   });
 
-  it.fails("synced station 1 then station 2 of 3: the doorway header reads exactly 'Station 1 of 3' then 'Station 2 of 3' and is shown", async () => {
+  it("synced station 1 then station 2 of 3: the doorway header reads exactly 'Station 1 of 3' then 'Station 2 of 3' and is shown", async () => {
     const first = await headerAfter(SYNCED, [[0, 3]]);
     expect(first.doorway).toEqual({ textContent: "Station 1 of 3", hidden: false });
     const second = await headerAfter(SYNCED, [[0, 3], [1, 3]]);
