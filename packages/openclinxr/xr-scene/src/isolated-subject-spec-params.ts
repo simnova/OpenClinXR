@@ -8,6 +8,7 @@
 
 import type { CaptureView } from "./camera-fit-to-bounds.js";
 import type { IsolatedSubjectKind, IsolatedSubjectSpec } from "./isolated-subject-lab.js";
+import { type HeadBodyFrame, setPageHeadBodyFrame } from "./isolated-subject-focus.js";
 
 /** Driven by URLSearchParams (same pattern as model-vetting-studio capture routes). */
 export function parseIsolatedSubjectSpec(): IsolatedSubjectSpec {
@@ -15,7 +16,9 @@ export function parseIsolatedSubjectSpec(): IsolatedSubjectSpec {
   const raw = params.get("subject");
   if (raw) {
     try {
-      const parsed = JSON.parse(raw) as IsolatedSubjectSpec;
+      const parsed = JSON.parse(raw) as IsolatedSubjectSpec & { headBodyFrame?: HeadBodyFrame };
+      // focus=head only (hair-groom-2 cards-opt2 P1): body-only head box; absent = legacy framing
+      setPageHeadBodyFrame(parsed?.headBodyFrame);
       if (parsed?.subjectId && parsed?.subjectKind) return parsed;
     } catch {
       // fall through to query fields

@@ -1,0 +1,35 @@
+{
+ "source": ".openclinxr/evidence/hair-groom-2/groom-r4/s4/strands.npz (Kabsch head-local -> world, max residual 0.00002 mm); body_back.json patches.L.sideburn, ear.L",
+ "xMm": 71.1625657626141,
+ "sideburnYMm": [
+  -33.0,
+  -21.0
+ ],
+ "earTopZMm": 39.0,
+ "tragusZMm": 7.5,
+ "earTopRow": 335.97,
+ "tragusRow": 395.65,
+ "cols": [
+  485.45,
+  508.19
+ ],
+ "mmPerPx": 0.52721,
+ "corners": {
+  "-33,7.5": [
+   395.12,
+   484.05
+  ],
+  "-33,39": [
+   335.43,
+   486.86
+  ],
+  "-21,7.5": [
+   396.18,
+   506.79
+  ],
+  "-21,39": [
+   336.5,
+   509.59
+  ]
+ }
+}
