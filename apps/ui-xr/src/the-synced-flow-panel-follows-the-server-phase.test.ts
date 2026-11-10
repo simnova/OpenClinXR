@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 // onPhase(phase, remainingS) fires on the first snapshot and whenever (phase, remainingS) changes, never for replay or review-lobby
 // rooms. The shell's onPhase body writes, from those two arguments only: the .timer-row label (#station-clock-label) = the phase
 // name capitalised (Doorway, Encounter, Note, Break, Closed), #exam-flow-timer = "<Label> MM:SS left", #exam-flow-advance =
-// "server rotation". The local updateExamFlowEvidence writes of timer and advance are skipped once syncedPhase holds. main.ts cannot
+// "server rotation". The local updateExamFlowEvidence writes of timer and advance are skipped once syncedServerPhase holds. main.ts cannot
 // be imported (it boots the page): its wiring is pinned by source and its on-screen position by the evidence/c55 stills.
 const SRC = fileURLToPath(new URL(".", import.meta.url));
 const MAIN = readFileSync(SRC + "main.ts", "utf8");
@@ -25,7 +25,7 @@ async function drive(search: string, snapshots: Array<Record<string, unknown>>):
   const sink = (into: string[]) => ({ set textContent(value: string) { into.push(value); } });
   const formatStationClock = (seconds: number): string => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
   const body = ONPHASE.exec(MAIN)?.[1];
-  const make = new Function("examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "record", `let syncedPhase = false;\nreturn (phase, remaining) => {\n(() => {${body ?? ""}\n})();\nrecord(syncedPhase);\n};`);
+  const make = new Function("examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "record", `let syncedServerPhase = "";\nreturn (phase, remaining) => {\n(() => {${body ?? ""}\n})();\nrecord(syncedServerPhase !== "");\n};`);
   const run = make(sink(panel.timer), sink(panel.advance), sink(panel.label), formatStationClock, (value: boolean) => panel.synced.push(value)) as (phase: string, remaining: number) => void;
   let listener: ((s: unknown) => void) | undefined;
   await startEncounterSyncFromUrl({
@@ -92,9 +92,9 @@ describe("the synced flow panel follows the server phase (C55')", () => {
     expect(writers("examFlowTimer")).toHaveLength(2);
     expect(writers("examFlowAdvance")).toHaveLength(2);
     expect(writers("stationClockLabel")).toHaveLength(1);
-    expect(MAIN).toMatch(/if \(!syncedPhase\) \{\n\s*examFlowTimer\.textContent = evidence\.phase === "note"/u);
+    expect(MAIN).toMatch(/if \(!syncedServerPhase\) \{\n\s*examFlowTimer\.textContent = evidence\.phase === "note"/u);
     expect(MAIN).toMatch(/examFlowAdvance\.textContent = evidence\.canAdvanceToNextEncounter[\s\S]*?\n\s*\}\n\s*endEncounterButton\.disabled/u);
-    expect(ONPHASE.exec(MAIN)?.[1] ?? "").toContain("syncedPhase = true;");
+    expect(ONPHASE.exec(MAIN)?.[1] ?? "").toContain("syncedServerPhase = phase;");
   });
 
   it("the non-synced shell keeps the base label, timer and advance text byte for byte", () => {
@@ -107,10 +107,12 @@ describe("the synced flow panel follows the server phase (C55')", () => {
     expect(MAIN).toContain(': [evidence.fallbackLabel, evidence.lastAdvanceReason ?? "complete encounter, then submit a non-empty patient note"].filter(Boolean).join(" — ");');
   });
 
-  it("End encounter and Submit note keep their local phase gating", () => {
-    expect(MAIN).toContain('endEncounterButton.disabled = evidence.phase !== "encounter";');
-    expect(MAIN).toContain('submitNoteButton.disabled = evidence.phase !== "note";');
-    expect(MAIN).not.toMatch(/(endEncounterButton|submitNoteButton)\.disabled = [^;]*syncedPhase/u);
+  it("End encounter and Submit note follow the server phase while synced and keep the local rule otherwise (C57)", () => {
+    const why = "C55' CW4 local gating -> C57 server-phase gating (tsk_7f187d0381ff7964): restoring the local-only gating is wrong, it leaves both buttons live during a synced Break";
+    expect(MAIN, why).toContain('endEncounterButton.disabled = (syncedServerPhase || evidence.phase) !== "encounter";');
+    expect(MAIN, why).toContain('submitNoteButton.disabled = (syncedServerPhase || evidence.phase) !== "note";');
+    expect(MAIN, why).not.toContain('endEncounterButton.disabled = evidence.phase !== "encounter";');
+    expect(MAIN, why).not.toContain('submitNoteButton.disabled = evidence.phase !== "note";');
   });
 
   it("main.ts stays line-neutral", () => {

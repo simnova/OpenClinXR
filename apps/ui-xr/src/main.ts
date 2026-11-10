@@ -1654,7 +1654,7 @@ const clock = requireElement<HTMLElement>("#station-clock");
 let replayClock = false;
 let breakClock = false;
 let syncedStation = false;
-let syncedPhase = false;
+let syncedServerPhase = "";
 const traceSummary = requireElement<HTMLElement>("#trace-summary");
 const traceActions = requireElement<HTMLElement>("#trace-actions");
 const examFlowStation = requireElement<HTMLElement>("#exam-flow-station");
@@ -1733,11 +1733,11 @@ function applyExamFlowIntent(kind: "end_encounter" | "submit_note" | "encounter_
 }
 
 endEncounterButton.addEventListener("click", () => {
-  applyExamFlowIntent("end_encounter");
+  if (!syncedServerPhase || syncedServerPhase === "encounter") applyExamFlowIntent("end_encounter");
 });
 
 submitNoteButton.addEventListener("click", () => {
-  applyExamFlowIntent("submit_note");
+  if (!syncedServerPhase || syncedServerPhase === "note") applyExamFlowIntent("submit_note");
 });
 
 copyEvidenceButton.addEventListener("click", () => {
@@ -1876,7 +1876,7 @@ function updateExamFlowEvidence(): OpenClinXrExamFlowEvidence {
   if (!syncedStation) {
     examFlowStation.textContent = `${evidence.scenarioIndex + 1}/${evidence.totalScenarios}: ${evidence.scenarioId}`;
   }
-  if (!syncedPhase) {
+  if (!syncedServerPhase) {
     examFlowTimer.textContent = evidence.phase === "note"
       ? `note ${formatStationClock(evidence.noteElapsedSeconds)} / ${formatStationClock(evidence.noteDurationSeconds)}`
       : evidence.phase === "complete"
@@ -1886,8 +1886,8 @@ function updateExamFlowEvidence(): OpenClinXrExamFlowEvidence {
       ? `ready for ${nextScenarioId ?? "completion"}`
       : [evidence.fallbackLabel, evidence.lastAdvanceReason ?? "complete encounter, then submit a non-empty patient note"].filter(Boolean).join(" — ");
   }
-  endEncounterButton.disabled = evidence.phase !== "encounter";
-  submitNoteButton.disabled = evidence.phase !== "note";
+  endEncounterButton.disabled = (syncedServerPhase || evidence.phase) !== "encounter";
+  submitNoteButton.disabled = (syncedServerPhase || evidence.phase) !== "note";
   return evidence;
 }
 
@@ -4653,9 +4653,9 @@ if (window.location.search.includes("encounterSync=")) void import("@openclinxr/
     doorwayStation.textContent = "Break";
   },
   // C55': the server phase drives the flow panel (label, timer, advance).
-  // The local timer and advance writers in updateExamFlowEvidence skip once syncedPhase holds.
+  // The local timer and advance writers in updateExamFlowEvidence skip once syncedServerPhase is non-empty.
   onPhase: (phase, remaining) => {
-    syncedPhase = true;
+    syncedServerPhase = phase;
     const name = phase.charAt(0).toUpperCase() + phase.slice(1);
     stationClockLabel.textContent = name;
     examFlowTimer.textContent = `${name} ${formatStationClock(remaining)} left`;
