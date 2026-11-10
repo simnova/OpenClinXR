@@ -1,6 +1,6 @@
 # 06 MASK alpha cutoff sweep at the front hairline (CEO 2026-11-10 09:10, option b of queue/05)
 
-Status: rule written before any render. Probe GLBs are probe artifacts (public/_hair-transplant-probe/opt/cut-*.glb, gitignored);
+Status: run 2026-11-10, verdict NOT THE CAUSE (front hairlineRow 253 at every cutoff). Rule written before the renders (ef7a6a3b9). Probe GLBs are probe artifacts (public/_hair-transplant-probe/opt/cut-*.glb, gitignored);
 no shipped GLB changes.
 
 ## Hypothesis
@@ -26,3 +26,17 @@ falloff (part_width.measure_band), iou x 4, ship_a4 --bars v2 verdict.
   front-band cards only (queue/04 band: 32 cards) as a separate material.
 - Counterweight: the front hairline can rise because the outline grows. The front iou and the front D_v are reported next
   to the row; a row gain with front D_v worse than control by > delta_front 2.254 is recorded as a trade, not a win.
+
+## Result (raw .openclinxr/opt/hair-groom-2/probe06/result.json, untracked)
+Control valid: cut-85 sum D 73.6121 = v2 incumbent 73.6121.
+| cutoff | front | 3q | side | back | sum D | front hairlineRow (measure_band) | falloff | changed px vs .85, front / side | ship_a4 v2 |
+|---|---|---|---|---|---|---|---|---|---|
+| .85 | 27.59 | 18.63 | 19.80 | 7.58 | 73.61 | 253 | 4.5 | - | S3 S4 |
+| .75 | 27.37 | 18.59 | 19.81 | 7.56 | 73.33 | 253 | 4.5 | 3274 / 3682 | S3 S4 |
+| .65 | 27.19 | 18.19 | 19.87 | 7.81 | 73.05 | 253 | 4.5 | - | S3 S4 |
+| .50 | 27.51 | 18.03 | 20.17 | 7.57 | 73.28 | 253 | 4.0 | 8962 / 13223 | S3 S4 |
+No cutoff gives row <= 247: by the rule the MASK cutoff is not the hairline cause; next is queue/05 option (a), root stagger
+in the atlas. The .5 cutoff changes 904 px in the front hairline window (rows 230-270, cols 450-570) without moving the row.
+Instrument fact: the hair matte (batch.ts matte:true) and iou are identical to the pixel at every cutoff (front matte 3,175,072
+values), so iou does not see texture alpha. No runtime override of alphaTest in apps/ui-xr/src (grep). The 253 here vs 252
+in the scored row is the standalone measure_band call vs score_trial's; not reconciled.
