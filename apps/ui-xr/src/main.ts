@@ -27,7 +27,6 @@ import { responseClipForBodyRegion, scenarioBank } from "@openclinxr/scenario-fi
 import {
   createActorDialogueStore,
   type ActorDialoguePlaybackEvidence as PedsActorPlayerRuntimePlaybackEvidenceFromStore,
-  type ActorDialogueSequence as PedsActorPlayerRuntimeSequenceEvidenceFromStore,
   type ActorDialogueTurn as PedsActorPlayerRuntimeTurnFromStore,
   type ActorDialogueAdaptiveEvidence as PedsAdaptiveDialogueEvidenceFromStore,
 } from "@openclinxr/xr-actor-dialogue";
@@ -1222,7 +1221,6 @@ type HumanoidSpeechPlayback = PackageHumanoidSpeechPlayback;
 type HumanoidDialogueGazeTarget = PackageHumanoidDialogueGazeTarget;
 type HumanoidDialogueEmotionContext = PackageHumanoidDialogueEmotionContext;
 type PedsActorPlayerRuntimeTurn = PedsActorPlayerRuntimeTurnFromStore;
-type PedsActorPlayerRuntimeSequenceEvidence = PedsActorPlayerRuntimeSequenceEvidenceFromStore;
 type MouthGazePoseComparatorEvidence = PackageMouthGazePoseComparatorEvidenceRecord;
 type PedsAdaptiveDialogueEvidence = PedsAdaptiveDialogueEvidenceFromStore;
 type PedsActorPlayerRuntimePlaybackEvidence = PedsActorPlayerRuntimePlaybackEvidenceFromStore;
@@ -2901,9 +2899,6 @@ async function createStationScene(): Promise<StationSceneRuntime> {
   const stationEnvironment = stationRoomResult.stationEnvironment;
   const floor = stationRoomResult.floor;
   const gltfEnvContainer = stationRoomResult.gltfEnvContainer;
-  const _environmentShell = stationRoomResult.environmentShell;
-  const _bed = stationRoomResult.bed;
-  const _monitor = stationRoomResult.monitor;
   const fixtureOwnedRoles = stationRoomResult.fixtureOwnedRoles;
 
   // room stage: an out-of-order or repeated stage is a type error (station-scene-assembly.ts).
@@ -4661,7 +4656,11 @@ if (window.location.search.includes("encounterSync=")) void import("@openclinxr/
     replayAnchor: (document.querySelector(".ehr-panel") ?? undefined) as never,
   } as UtteranceBoxDeps,
   onReplay: () => { replayClock = true; clock.textContent = "Replay"; },
-  onStation: (index, count) => { syncedStation = true; examFlowStation.textContent = doorwayStation.textContent = `Station ${index + 1} of ${count}`; },
+  onStation: (index, count) => {
+    syncedStation = true;
+    examFlowStation.textContent = `Station ${index + 1} of ${count}`;
+    doorwayStation.textContent = `Station ${index + 1} of ${count}`;
+  },
   voice: { assetBase: "/mesm-tts/", slotFor: (id) => generatedHumanoidAnimationSlotsByActorId.get(id) as never, voiceFor: ((voices) => (id: string) => voices.get(id))(new Map([edChestPainScenario, ...scenarioBank].flatMap((scenario) => scenario.actors).reverse().map((actor) => [actor.actorId, actor.ttsVoice] as const))) },
   register: (payload, tag) => { const parsed = liveActorTurnFromPayload(payload); return parsed ? registerLiveActorTurn(parsed.plan, parsed.execution, tag) : undefined; },
   play: (actorId, caption, emotion) => { dialogueLine.textContent = caption; triggerHumanoidDialogue(actorId, caption, { kind: "learner_camera", actorId: null }, emotion as HumanoidExpressionEmotion, undefined, "plan.dialogueEmotionTo"); },

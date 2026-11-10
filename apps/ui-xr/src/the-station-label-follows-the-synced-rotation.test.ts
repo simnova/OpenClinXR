@@ -14,7 +14,7 @@ const flush = async (): Promise<void> => { for (let i = 0; i < 12; i += 1) await
 async function labelAfter(search: string, positions: Array<[number, number]>): Promise<string> {
   // The shell's onStation body, taken verbatim from main.ts, run against a stand-in element.
   const label = { textContent: "pending" };
-  const match = /onStation: \(index, count\) => \{ (.*?) \},?\s*$/mu.exec(MAIN);
+  const match = /onStation: \(index, count\) => \{\n([\s\S]*?)\n  \},\n/u.exec(MAIN);
   const body = new Function("examFlowStation", "doorwayStation", "index", "count", "let syncedStation = false;" + (match?.[1] ?? ""));
   let listener: ((s: unknown) => void) | undefined;
   await startEncounterSyncFromUrl({
@@ -33,7 +33,7 @@ async function labelAfter(search: string, positions: Array<[number, number]>): P
 
 describe("the station label follows the synced rotation (C50)", () => {
   it("main.ts hands the client an onStation dep that writes Station N of M with N = index + 1", () => {
-    expect(MAIN).toMatch(/onStation: \(index, count\) => \{ [^}]*Station \$\{index \+ 1\} of \$\{count\}/u);
+    expect(MAIN).toMatch(/onStation: \(index, count\) => \{\n\s*syncedStation = true;\n\s*examFlowStation\.textContent = `Station \$\{index \+ 1\} of \$\{count\}`;/u);
   });
 
   it("station 1 then station 2 of 3 read exactly 'Station 1 of 3' then 'Station 2 of 3'", async () => {

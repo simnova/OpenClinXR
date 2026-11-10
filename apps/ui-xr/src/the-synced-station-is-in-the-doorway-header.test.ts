@@ -15,7 +15,7 @@ async function labelsAfter(search: string, positions: Array<[number, number]>): 
   // The shell's onStation body, taken verbatim from main.ts, run against stand-in elements.
   const flow = { textContent: "pending" };
   const doorway = { textContent: "" };
-  const match = /onStation: \(index, count\) => \{ (.*?) \},?\s*$/mu.exec(MAIN);
+  const match = /onStation: \(index, count\) => \{\n([\s\S]*?)\n  \},\n/u.exec(MAIN);
   const body = new Function("examFlowStation", "doorwayStation", "index", "count", "let syncedStation = false;" + (match?.[1] ?? ""));
   let listener: ((s: unknown) => void) | undefined;
   await startEncounterSyncFromUrl({
@@ -54,11 +54,15 @@ describe("the synced station position is in the doorway header (C51)", () => {
     expect(await labelsAfter("?encounterSync=ws://127.0.0.1:9", [[0, 3], [1, 3], [2, 3]])).toEqual({ flow: "Station 3 of 3", doorway: "Station 3 of 3" });
   });
 
-  it("#doorway-station has exactly one writer, inside onStation", () => {
+  it("#doorway-station has exactly one writer, inside the onStation body", () => {
     const writers = MAIN.split("\n").filter((line) => /\bdoorwayStation\.textContent\b/u.test(line));
-    expect(writers).toHaveLength(1);
-    expect(writers[0]).toContain("onStation: (index, count) =>");
-    expect(writers[0]).toContain("Station ${index + 1} of ${count}");
+    expect(writers.map((line) => line.trim())).toEqual(["doorwayStation.textContent = `Station ${index + 1} of ${count}`;"]);
+    const onStation = /onStation: \(index, count\) => \{\n([\s\S]*?)\n  \},\n/u.exec(MAIN)?.[1] ?? "";
+    expect(onStation.split("\n").map((line) => line.trim())).toEqual([
+      "syncedStation = true;",
+      "examFlowStation.textContent = `Station ${index + 1} of ${count}`;",
+      "doorwayStation.textContent = `Station ${index + 1} of ${count}`;",
+    ]);
   });
 
   it("replay and review-lobby rooms get no onStation, so #doorway-station stays empty", async () => {
