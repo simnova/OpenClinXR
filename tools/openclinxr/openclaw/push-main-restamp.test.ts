@@ -98,7 +98,7 @@ function run(f: Fixture, extra: Record<string, string> = {}) {
     ...extra,
   });
   const r = spawnSync("zsh", [script, f.lane, f.log], { env, encoding: "utf8", timeout: 60_000 });
-  return { status: r.status, out: `${r.stdout}${r.stderr}`, hooks: Number(readFileSync(f.counter, "utf8")), env };
+  return { pid: r.pid, status: r.status, out: `${r.stdout}${r.stderr}`, hooks: Number(readFileSync(f.counter, "utf8")), env };
 }
 
 const originHas = (f: Fixture, file: string) => git(f.origin, "ls-tree", "-r", "--name-only", "main").split("\n").includes(file);
@@ -180,5 +180,122 @@ echo "{\\"measuredAgainstCommit\\":\\"$sha\\"}" > tools/openclinxr/evidence/stat
     expect(existsSync(sweepMarker)).toBe(true);
     expect(r.status).toBe(0);
     expect(git(f.origin, "log", "-1", "--format=%s", "main")).toContain("Re-run the luminance sweep");
+  });
+});
+
+// D4: the lock records its holder, and the EXIT trap removes only a lock this process took.
+/** Prepends a line to the fixture's pre-push hook: copy "$LOCK/owner" to owner-seen.<n> when it exists. */
+function captureOwner(f: Fixture) {
+  const hookPath = join(f.lane, ".git/hooks/pre-push");
+  const body = readFileSync(hookPath, "utf8").replace(
+    "#!/bin/sh\n",
+    `#!/bin/sh\ncp "${f.lock}/owner" "${f.root}/owner-seen.$(( $(cat "${f.counter}") + 1 ))" 2>/dev/null\n`,
+  );
+  writeFileSync(hookPath, body);
+  chmodSync(hookPath, 0o755);
+}
+const seen = (f: Fixture, n = 1) => join(f.root, `owner-seen.${n}`);
+
+describe("push-main-restamp.sh lock owner record", () => {
+  it("(a) the pre-push hook sees an owner file naming the script pid, the worktree and a parseable startedAt", () => {
+    const f = makeFixture("advance", "docs-note.txt");
+    captureOwner(f);
+    const r = run(f);
+    expect(r.status).toBe(0);
+    expect(existsSync(seen(f))).toBe(true);
+    const lines = readFileSync(seen(f), "utf8").trim().split("\n");
+    expect(lines).toHaveLength(4);
+    expect(lines[0]).toBe(`pid=${r.pid}`);
+    expect(lines[1]).toBe(`worktree=${f.lane}`);
+    expect(lines[2]).toMatch(/^startedAt=\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d+)?Z$/);
+    expect(Number.isNaN(Date.parse(lines[2].slice("startedAt=".length)))).toBe(false);
+    expect(lines[3]).toBe(`log=${f.log}`);
+  });
+
+  it("(b) the lock directory is absent after exit 0, and the owner file existed during the push", () => {
+    const f = makeFixture("advance", "docs-note.txt");
+    captureOwner(f);
+    const r = run(f);
+    expect(r.status).toBe(0);
+    expect(existsSync(seen(f))).toBe(true);
+    expect(existsSync(f.lock)).toBe(false);
+  });
+
+  it("(c) a hook that rewrites the owner to pid=1 leaves the lock in place and prints the refusal", () => {
+    const f = makeFixture("advance", "docs-note.txt");
+    const hookPath = join(f.lane, ".git/hooks/pre-push");
+    writeFileSync(hookPath, `#!/bin/sh\nprintf 'pid=1\\n' > "${f.lock}/owner"\nexit 0\n`);
+    chmodSync(hookPath, 0o755);
+    const r = run(f);
+    expect(r.out).toContain("lock owner changed: not removing");
+    expect(existsSync(f.lock)).toBe(true);
+    expect(readFileSync(join(f.lock, "owner"), "utf8")).toBe("pid=1\n");
+  });
+
+  it("(d) OPENCLINXR_PUSH_LOCK_OWNER_FAIL=1 exits 7 with no owner file and no push", () => {
+    const f = makeFixture("advance", "docs-note.txt");
+    captureOwner(f);
+    const r = run(f, { OPENCLINXR_PUSH_LOCK_OWNER_FAIL: "1" });
+    expect(r.status).toBe(7);
+    expect(r.out).toContain("lock owner write failed");
+    expect(existsSync(seen(f))).toBe(false);
+    expect(existsSync(f.lock)).toBe(false);
+    expect(originHas(f, "lane-work.txt")).toBe(false);
+  });
+
+  it("CW1 exit 0: a non-empty lock dir is removed by the trap", () => {
+    const f = makeFixture("advance", "docs-note.txt");
+    captureOwner(f);
+    const r = run(f);
+    expect(r.status).toBe(0);
+    expect(existsSync(seen(f))).toBe(true);
+    expect(existsSync(f.lock)).toBe(false);
+  });
+
+  it("CW1 exit 3: the lane-path refusal releases a lock that held an owner file", () => {
+    const f = makeFixture("advance", "packages/openclinxr/xr-sync-server/touch.txt");
+    captureOwner(f);
+    const r = run(f);
+    expect(r.status).toBe(3);
+    expect(existsSync(seen(f))).toBe(true);
+    expect(existsSync(f.lock)).toBe(false);
+  });
+
+  it("CW1 exit 6: main moved twice releases a lock that held an owner file", () => {
+    const f = makeFixture("advance", "docs-note.txt");
+    const hookPath = join(f.lane, ".git/hooks/pre-push");
+    writeFileSync(
+      hookPath,
+      `#!/bin/sh
+cp "${f.lock}/owner" "${f.root}/owner-seen" 2>/dev/null
+n=$(( $(cat "${f.counter}") + 1 ))
+echo $n > "${f.counter}"
+echo "$n" > "${join(f.other, "docs-note.txt")}"
+git -C "${f.other}" pull -q --rebase origin main
+git -C "${f.other}" add -A && git -C "${f.other}" commit -q -m "advance $n" && git -C "${f.other}" push -q origin main
+exit 0
+`,
+    );
+    chmodSync(hookPath, 0o755);
+    const r = run(f);
+    expect(r.status).toBe(6);
+    expect(existsSync(join(f.root, "owner-seen"))).toBe(true);
+    expect(existsSync(f.lock)).toBe(false);
+  });
+
+  it("CW2 a foreign owner is never removed: the lock dir and its owner file survive byte for byte", () => {
+    const f = makeFixture("advance", "docs-note.txt");
+    const hookPath = join(f.lane, ".git/hooks/pre-push");
+    writeFileSync(hookPath, `#!/bin/sh\nprintf 'pid=1\\nworktree=/x\\n' > "${f.lock}/owner"\nexit 0\n`);
+    chmodSync(hookPath, 0o755);
+    run(f);
+    expect(readFileSync(join(f.lock, "owner"), "utf8")).toBe("pid=1\nworktree=/x\n");
+  });
+
+  it("CW4 the default lock path and the 60 s acquire sleep are unchanged in the script text", () => {
+    const text = readFileSync(script, "utf8");
+    expect(text).toContain('LOCK="${OPENCLINXR_PUSH_LOCK:-/private/tmp/openclinxr-push.lock}"');
+    expect(text).toContain('until mkdir "$LOCK" 2>/dev/null; do');
+    expect(text).toMatch(/sleep 60; done/);
   });
 });

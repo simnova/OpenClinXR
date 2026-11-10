@@ -5,8 +5,12 @@ wt=$1; log=$2
 LANE_PATHS=(packages/openclinxr/xr-sync-server packages/openclinxr/xr-sync-client apps/arena/ui-xr-iwsdk-spike tools/openclinxr/evidence/xr-sync pnpm-lock.yaml)
 until (( $(sysctl -n vm.loadavg | awk -v max=${OPENCLINXR_PUSH_LOAD_MAX:-45} '{print ($3<max)}') )); do sleep 60; done
 LOCK="${OPENCLINXR_PUSH_LOCK:-/private/tmp/openclinxr-push.lock}"
-until mkdir "$LOCK" 2>/dev/null; do sleep 60; done
-trap 'rmdir "$LOCK"' EXIT
+until mkdir "$LOCK" 2>/dev/null; do
+  if [ -f "$LOCK/owner" ]; then echo "push lock held by:"; cat "$LOCK/owner"; fi
+  sleep 60
+done
+trap 'if [ ! -f "$LOCK/owner" ] || grep -qx "pid=$$" "$LOCK/owner"; then rm -f "$LOCK/owner"; rmdir "$LOCK"; else echo "lock owner changed: not removing"; fi' EXIT
+{ [ -z "$OPENCLINXR_PUSH_LOCK_OWNER_FAIL" ] && printf 'pid=%s\nworktree=%s\nstartedAt=%s\nlog=%s\n' $$ "$wt" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$log" > "$LOCK/owner"; } 2>/dev/null || { echo "lock owner write failed"; exit 7; }
 cd $wt || exit 2
 export MISE_TRUSTED_CONFIG_PATHS=$HOME/.codex/worktrees:/Volumes/files/src/openclinxr-wt TURBO_CACHE_DIR=$HOME/.cache/openclinxr/turbo
 SWEEP_CMD=${OPENCLINXR_SWEEP_CMD:-"pnpm exec tsx tools/openclinxr/evidence/station-luminance-sweep.ts"}
