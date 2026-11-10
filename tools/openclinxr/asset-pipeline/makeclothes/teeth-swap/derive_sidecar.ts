@@ -60,6 +60,31 @@ function sha256(bytes: Buffer): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
+/**
+ * Indexed-triangle counts of the teeth and tongue meshes in a GLB (names matching /teeth/i and
+ * /tongue/i), read from the JSON chunk the way HB-05 counts face triangles. The sidecar records
+ * this for the pre-image so the HB-05 ladder can bind its mouth-swap trisDelta to a sha-pinned
+ * pre-image without re-reading git history.
+ */
+export function mouthTris(glb: Buffer): { teeth: number; tongue: number } {
+  if (glb.toString("latin1", 0, 4) !== "glTF") throw new Error("mouthTris: not a GLB");
+  const jsonLength = glb.readUInt32LE(12);
+  const gltf = JSON.parse(glb.toString("utf8", 20, 20 + jsonLength)) as {
+    meshes?: Array<{ name?: string; primitives: Array<{ indices?: number }> }>;
+    accessors?: Array<{ count: number }>;
+  };
+  const out = { teeth: 0, tongue: 0 };
+  for (const mesh of gltf.meshes ?? []) {
+    const name = mesh.name ?? "";
+    const key = /teeth/i.test(name) ? "teeth" : /tongue/i.test(name) ? "tongue" : undefined;
+    if (!key) continue;
+    for (const prim of mesh.primitives) {
+      if (prim.indices !== undefined) out[key] += gltf.accessors![prim.indices]!.count / 3;
+    }
+  }
+  return out;
+}
+
 export function serializeWithTeethSwapBlock(
   document: Record<string, unknown>,
   block: Record<string, unknown>,
@@ -68,6 +93,12 @@ export function serializeWithTeethSwapBlock(
   const serialized = `${JSON.stringify(document, null, 1)}\n`;
   JSON.parse(serialized);
   return serialized;
+}
+
+function preImageMouthTris(input: string, expectedSha256: string): { teeth: number; tongue: number } {
+  const bytes = readFileSync(input);
+  if (sha256(bytes) !== expectedSha256) throw new Error("derive_sidecar: --input bytes do not match report input.sha256");
+  return mouthTris(bytes);
 }
 
 export function deriveTeethSwapSidecar(argv = process.argv.slice(2)): void {
@@ -149,6 +180,7 @@ export function deriveTeethSwapSidecar(argv = process.argv.slice(2)): void {
     reportPath,
     reportSha256: sha256(reportBytes),
     input: report.input,
+    preImageMouthTris: preImageMouthTris(input, report.input.sha256),
     scratch: report.scratch,
     output: steps.length > 0 ? { path: output, sha256: sha256(outputBytes), bytes: outputBytes.byteLength } : report.output,
     ...(steps.length > 0

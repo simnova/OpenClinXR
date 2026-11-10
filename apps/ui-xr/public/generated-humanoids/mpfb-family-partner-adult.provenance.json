@@ -1118,6 +1118,10 @@
    "sha256": "f4e9094ebb965e6296867906193df5cc1249dc3b3a55d395ca114e76b6884d67",
    "bytes": 10228348
   },
+  "preImageMouthTris": {
+   "teeth": 192,
+   "tongue": 430
+  },
   "scratch": {
    "path": ".openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-family-partner-adult.glb",
    "sha256": "6061de01bd20a09317347b0b0be8534f517488502470d4711ebe17d8fc66f75d",

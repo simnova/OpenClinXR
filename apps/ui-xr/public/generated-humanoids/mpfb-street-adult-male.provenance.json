@@ -419,6 +419,10 @@
    "sha256": "50e490ebb9af28371026f93ead4b41a21d563d4751c02344a04dc07498698ca2",
    "bytes": 17639164
   },
+  "preImageMouthTris": {
+   "teeth": 192,
+   "tongue": 448
+  },
   "scratch": {
    "path": ".openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-street-adult-male.glb",
    "sha256": "4d3ec8100f213aa2466fbebeead431c3dcf970b1127d00ea3979564d4db46391",

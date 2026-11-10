@@ -408,6 +408,10 @@
    "sha256": "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa",
    "bytes": 16926856
   },
+  "preImageMouthTris": {
+   "teeth": 192,
+   "tongue": 448
+  },
   "scratch": {
    "path": ".openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-peds-nurse-kevin.glb",
    "sha256": "f86aa7669fc424732583e4104339b04a2f35d4d019b2492b55b2a17f0a099e8b",

@@ -461,6 +461,10 @@
    "sha256": "8424c3872618d24cd94b7989b1673534eff817f0ada34700b912a05e25b89e02",
    "bytes": 7217372
   },
+  "preImageMouthTris": {
+   "teeth": 190,
+   "tongue": 422
+  },
   "scratch": {
    "path": ".openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-gown-adult-patient.glb",
    "sha256": "401b7dcd38757eb04ac22af5906abe806a669f35807683c4a64714889032d532",

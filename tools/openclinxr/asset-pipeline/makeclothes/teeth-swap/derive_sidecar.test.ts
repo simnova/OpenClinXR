@@ -40,3 +40,31 @@ describe("teeth swap post-step chain", () => {
     expect(postSteps(["--input", "a"])).toEqual([]);
   });
 });
+
+describe("pre-image mouth triangle count", () => {
+  function glb(meshes: Array<{ name: string; count: number }>): Buffer {
+    const json = Buffer.from(JSON.stringify({
+      meshes: meshes.map((m, i) => ({ name: m.name, primitives: [{ indices: i }] })),
+      accessors: meshes.map((m) => ({ count: m.count })),
+    }));
+    const head = Buffer.alloc(20);
+    head.write("glTF", 0, "latin1");
+    head.writeUInt32LE(2, 4);
+    head.writeUInt32LE(20 + json.length, 8);
+    head.writeUInt32LE(json.length, 12);
+    head.write("JSON", 16, "latin1");
+    return Buffer.concat([head, json]);
+  }
+
+  it("counts teeth and tongue triangles and ignores other meshes", async () => {
+    const { mouthTris } = await import("./derive_sidecar.js");
+    // Illustrative counts, not spec values.
+    expect(mouthTris(glb([{ name: "x_hm08_teeth_mesh", count: 33 }, { name: "x_tongue01", count: 9 }, { name: "x_body", count: 300 }])))
+      .toEqual({ teeth: 11, tongue: 3 });
+  });
+
+  it("refuses bytes that are not a GLB", async () => {
+    const { mouthTris } = await import("./derive_sidecar.js");
+    expect(() => mouthTris(Buffer.from("not a glb at all, twenty+ bytes"))).toThrow(/not a GLB/);
+  });
+});

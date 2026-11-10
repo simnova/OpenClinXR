@@ -23,7 +23,7 @@
    "bytesBefore": 8135672,
    "bytesAfter": 11262652,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
-   "faceBefore": 59706,
+   "faceBefore": 52778,
    "faceAfter": 59706,
    "faceRetentionRatio": 1,
    "jointCountBefore": 137,
@@ -59,7 +59,19 @@
     "faceAfter": 52778,
     "outputSha256": "0e718440bd978e939211d0da9ebecda7cb4ba01da8d81f8b1520723569e75c95",
     "supersededBecause": "input lineage replaced by the Nov03 gown rebake 9542f47b8; the Sep11 rung output it recorded matches no shipped bytes since the rebake"
-   }
+   },
+   "rungTrisAfter": 72633,
+   "rungFaceAfter": 52778,
+   "postRungStages": [
+    {
+     "stage": "mouth-swap",
+     "card": "tsk_27e0cec12cab410d",
+     "trisDelta": 6928,
+     "faceDelta": 6928,
+     "source": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json#teethSwapB1",
+     "sourceSha256": "9de8c75bc8e24acdfeaef51b21f633596796837855b66c7977fa9f4d4af7c18d"
+    }
+   ]
   },
   {
    "body": "mpfb-ob-patient-aisha.glb",
@@ -71,7 +83,7 @@
    "bytesAfter": 22269564,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 52778,
-   "faceAfter": 52778,
+   "faceAfter": 59706,
    "faceRetentionRatio": 1,
    "jointCountBefore": 137,
    "jointCountAfter": 137,
@@ -112,7 +124,19 @@
    ],
    "rederivedBy": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts (tsk_d6874d507ef8e3d7)",
    "lineageNote": "tightjeans re-bake output; second fp-r0.4 pass (2803b774) then albedo bake (42c42140)",
-   "remeasureNote": "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 19549552 -> 22269564 B. Prior re-measure preserved below. Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 19149460 -> 19549552 B. Pre-repack bytes are those of 7fd92dd87 (last origin/main commit touching this GLB). Prior re-measure preserved below. Re-measured 2026-11-06 (st-vitfamily r1 R4 fixed8): albedo-embed stage (post-export byte stage, not a rebake; embed_skin_albedo rewrites only the skin material baseColor image bytes to the 4096 D4a-exemplar-inpainted + D4b-temple-filled stage3-colour-fixed8.png (sha256 pinned as albedoSha256 in the Aisha provenance); geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, 19144852 -> 19149460 B; supersedes the R3 19144852 B embed). Prior st-vitfamily r1 R3 fixed3: albedo-embed stage (post-export byte stage, not a rebake; embed_skin_albedo rewrites only the skin material baseColor image bytes to the 4096 D4a-exemplar-inpainted + D4b-temple-filled stage3-colour-fixed3.png (sha256 recorded in the R3 Aisha provenance); geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, 19095616 -> 19144852 B; supersedes the R2 19095616 B embed). Prior st-vitfamily r1 R2: albedo-embed of the 4096 brow-cleared + temple-feathered stage3-colour-fixed.png (10219564 -> 19095616 B; superseded the R1 19097100 B embed). Prior st-vitfamily r1: first albedo embed at 19097100 B. Prior st-vitbody2 r8: face and body detail TextureInfo values share one 191439 B Vitruvian face tile texture; face scale 90 and stochastic-hex body scale 128 remain independent, removing the rejected Torso payload while geometry counts hold (tris 73392 / face 52778 / joints 137). Prior st-vitbody2 r7: the carrier embedded a separate 138314 B Torso crop at scale 118; rejected by native 1:1 anisotropy review and removed. Prior st-vitpore r2: the carrier added a 191439 B Vitruvian-derived periodic face detail normal through OPENCLINXR_skin_shade with KHR_texture_transform scale 90; geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, 10021840 -> 10213572 B. Prior st-viteye r3 re-measure: 931343e6b swapped the Vitruvian iris/sclera image, 9914108 -> 10021840 B. Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage (post-export byte stage, not a rebake; one RG image + OPENCLINXR_skin_shade material extension appended, geometry/BIN verbatim; tris 73392 / face 52778 / joints 137 hold, 9700420 -> 9914108 B). Prior re-measure (st-redgarm D1, 1225b8f95) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 19549552 -> 22269564 B. Prior re-measure preserved below. Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 19149460 -> 19549552 B. Pre-repack bytes are those of 7fd92dd87 (last origin/main commit touching this GLB). Prior re-measure preserved below. Re-measured 2026-11-06 (st-vitfamily r1 R4 fixed8): albedo-embed stage (post-export byte stage, not a rebake; embed_skin_albedo rewrites only the skin material baseColor image bytes to the 4096 D4a-exemplar-inpainted + D4b-temple-filled stage3-colour-fixed8.png (sha256 pinned as albedoSha256 in the Aisha provenance); geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, 19144852 -> 19149460 B; supersedes the R3 19144852 B embed). Prior st-vitfamily r1 R3 fixed3: albedo-embed stage (post-export byte stage, not a rebake; embed_skin_albedo rewrites only the skin material baseColor image bytes to the 4096 D4a-exemplar-inpainted + D4b-temple-filled stage3-colour-fixed3.png (sha256 recorded in the R3 Aisha provenance); geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, 19095616 -> 19144852 B; supersedes the R2 19095616 B embed). Prior st-vitfamily r1 R2: albedo-embed of the 4096 brow-cleared + temple-feathered stage3-colour-fixed.png (10219564 -> 19095616 B; superseded the R1 19097100 B embed). Prior st-vitfamily r1: first albedo embed at 19097100 B. Prior st-vitbody2 r8: face and body detail TextureInfo values share one 191439 B Vitruvian face tile texture; face scale 90 and stochastic-hex body scale 128 remain independent, removing the rejected Torso payload while geometry counts hold (tris 73392 / face 52778 / joints 137). Prior st-vitbody2 r7: the carrier embedded a separate 138314 B Torso crop at scale 118; rejected by native 1:1 anisotropy review and removed. Prior st-vitpore r2: the carrier added a 191439 B Vitruvian-derived periodic face detail normal through OPENCLINXR_skin_shade with KHR_texture_transform scale 90; geometry/BIN prefix verbatim; tris 73392 / face 52778 / joints 137 hold, 10021840 -> 10213572 B. Prior st-viteye r3 re-measure: 931343e6b swapped the Vitruvian iris/sclera image, 9914108 -> 10021840 B. Re-measured 2026-11-04 (st-vitskin): skin-shade carrier stage (post-export byte stage, not a rebake; one RG image + OPENCLINXR_skin_shade material extension appended, geometry/BIN verbatim; tris 73392 / face 52778 / joints 137 hold, 9700420 -> 9914108 B). Prior re-measure (st-redgarm D1, 1225b8f95) preserved in git history.",
+   "rungTrisAfter": 73392,
+   "rungFaceAfter": 52778,
+   "postRungStages": [
+    {
+     "stage": "mouth-swap",
+     "card": "tsk_27e0cec12cab410d",
+     "trisDelta": 6928,
+     "faceDelta": 6928,
+     "source": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json#teethSwapB1",
+     "sourceSha256": "286e47bcbe9fe1b3ba68e9fff950e872c3ce9acdd8dff20a0d2258d5f61582f1"
+    }
+   ]
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -124,7 +148,7 @@
    "bytesAfter": 20026072,
    "faceRule": "sum of triangle counts over meshes whose name matches /eye|brow|lash|teeth|tongue/i (eyes_low_poly, fitted eyebrow, fitted eyelash, hm08_teeth, hm08_tongue)",
    "faceBefore": 46160,
-   "faceAfter": 46160,
+   "faceAfter": 53088,
    "faceRetentionRatio": 1,
    "jointCountBefore": 137,
    "jointCountAfter": 137,
@@ -148,7 +172,19 @@
      "engine": "Blender EEVEE headless (baked Principled base colour, not Workbench)"
     }
    },
-   "remeasureNote": "Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 20026092 -> 20026072 B. Prior re-measure preserved below. Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 16926856 -> 20026092 B. Prior re-measure preserved below. Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 16526836 -> 16926856 B. Pre-repack bytes are those of 1c5027169 (last origin/main commit touching this GLB). Prior re-measure preserved below. Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 16105284 -> 16526836 B. Prior re-measure preserved below. Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, bytes-only drift, geometry counts hold (tris 98102 / face 46160 / joints 137 hold, 16074580 -> 16026048 B; asserted by main()). Superseding commit d5496bf5b. Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 15966652 -> 16074580 B). Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 20026092 -> 20026072 B. Prior re-measure preserved below. Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 16926856 -> 20026092 B. Prior re-measure preserved below. Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 16526836 -> 16926856 B. Pre-repack bytes are those of 1c5027169 (last origin/main commit touching this GLB). Prior re-measure preserved below. Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 16105284 -> 16526836 B. Prior re-measure preserved below. Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, bytes-only drift, geometry counts hold (tris 98102 / face 46160 / joints 137 hold, 16074580 -> 16026048 B; asserted by main()). Superseding commit d5496bf5b. Re-measured 2026-11-04 (st-viteye r3): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 931343e6b (Vitruvian iris/sclera image swap, 15966652 -> 16074580 B). Re-measured 2026-11-04 (st-palette): bytes-only drift, geometry counts hold (asserted by main()). Superseding commit 3969ae031 (sRGB palette fold). Re-measured 2026-11-02 (st-redgarm D1): shirt 2814->9384 / pants 810->2704 / boots 9230->30768 tris (+30002; tris 68100->98102, face 46160 / joints 137 hold; still under the 120000 acceptableSingleProp budget). Superseding commit 1225b8f95 (D1 garment smooth: full-res transplants + 60-deg post-export smooth). Prior re-measures (HB-05 rung, ci-w11b) preserved in git history.",
+   "rungTrisAfter": 98102,
+   "rungFaceAfter": 46160,
+   "postRungStages": [
+    {
+     "stage": "mouth-swap",
+     "card": "tsk_27e0cec12cab410d",
+     "trisDelta": 6928,
+     "faceDelta": 6928,
+     "source": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json#teethSwapB1",
+     "sourceSha256": "f43abb482b2fcf7a165583173ae50a0d1e2352ea3c1436f0783533ae0260a0a4"
+    }
+   ]
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",
@@ -293,7 +329,19 @@
    "lineageNote": "tightjeans fit output (57e27730); fp-r0.4 restore (d1d4b123) then bake-skip (factor already white)",
    "sweepNote": "fp-r0.4/fp-r0.3/fp-r0.15 entries were measured on the HB-02 input bytes (37d4460d); the fp-r0.4-jeans-lineage entry was measured on the current tightjeans lineage (57e27730) by rederive-evidence-drift-2026-09-14.ts. The promoted triangleCountAfter/bytesAfter above track the tightjeans lineage.",
    "falsifierStatus": "STALE PIN: re-running the recorded fp-r0.4 rung on the pinned HB-02 bytes (37d4460d) yields 68214/52778 and matches the fp-r0.4 sweep entry, but the promoted row tracks the tightjeans lineage (69067/13932816, rederivedFrom 57e27730). The rerun-vs-promoted-row comparison fails by construction until the pin is retargeted to the current lineage input. See rederive-evidence-drift-2026-09-14.ts, which re-runs the same recorded rung on 57e27730 and reproduces 69067/52778.",
-   "remeasureNote": "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 14421480 -> 17141520 B. Prior re-measure preserved below. Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 14021388 -> 14421480 B. Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, bytes-only drift, geometry counts identical (tris 69067 / face 52778 / joints 137 all hold, 13976324 -> 13939760 B). Superseding commit d5496bf5b. Prior re-measure (st-hemfin D2 e35ee741a hem-finish splice) preserved in git history."
+   "remeasureNote": "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 14421480 -> 17141520 B. Prior re-measure preserved below. Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 14021388 -> 14421480 B. Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, bytes-only drift, geometry counts identical (tris 69067 / face 52778 / joints 137 all hold, 13976324 -> 13939760 B). Superseding commit d5496bf5b. Prior re-measure (st-hemfin D2 e35ee741a hem-finish splice) preserved in git history.",
+   "rungTrisAfter": 69067,
+   "rungFaceAfter": 52778,
+   "postRungStages": [
+    {
+     "stage": "mouth-swap",
+     "card": "tsk_27e0cec12cab410d",
+     "trisDelta": 6928,
+     "faceDelta": 6928,
+     "source": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.provenance.json#teethSwapB1",
+     "sourceSha256": "75003ccd8b132a8f2258f27d5d76684ba94c46f22c60e4a17ce152492bc587b0"
+    }
+   ]
   }
  ],
  "exceptions": [

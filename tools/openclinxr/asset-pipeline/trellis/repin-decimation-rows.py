@@ -153,6 +153,7 @@ PLAN = {
     "mpfb-gown-adult-patient.glb": {
         "bytesAfter": 10316520,
         "triangleCountAfter": 47233,
+        "faceAfter": 21313,
         "handBodyMeshAfter": 14928,
         "note": ("Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 10316540 -> 10316520 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 7217372 -> 10316540 B. Prior re-measure preserved below. "
@@ -167,6 +168,7 @@ PLAN = {
     "mpfb-peds-patient-child.glb": {
         "bytesAfter": 14341940,
         "triangleCountAfter": 84350,
+        "faceAfter": 46188,
         "handBodyMeshAfter": 26756,
         "note": ("Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 14341960 -> 14341940 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 11242708 -> 14341960 B. Prior re-measure preserved below. "
@@ -187,6 +189,7 @@ PLAN = {
     "mpfb-ob-patient-aisha.glb": {
         "bytesAfter": 22269564,
         "triangleCountAfter": 80320,
+        "faceAfter": 59706,
         "note": ("Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 19549552 -> 22269564 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 19149460 -> 19549552 B. Pre-repack bytes are those of 7fd92dd87 (last origin/main commit touching this GLB). Prior re-measure preserved below. "
                  "Re-measured 2026-11-06 (st-vitfamily r1 R4 fixed8): albedo-embed stage (post-export byte "
@@ -216,6 +219,7 @@ PLAN = {
     "mpfb-peds-nurse-kevin.glb": {
         "bytesAfter": 20026072,
         "triangleCountAfter": 105030,
+        "faceAfter": 53088,
         "note": ("Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 20026092 -> 20026072 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 16926856 -> 20026092 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 16526836 -> 16926856 B. Pre-repack bytes are those of 1c5027169 (last origin/main commit touching this GLB). Prior re-measure preserved below. "
@@ -290,6 +294,9 @@ PLAN = {
             ],
         },
         "hb05": {
+            # B1 (cap10 2026-11-10): a02b66f3e raised this historical before-value to the live
+            # post-swap face 59706; the rung input face is 52778. The +6928 is in HB05_POST_RUNG.
+            "faceBefore": 52778,
             "triangleCountBefore": 72633,
             "bytesBefore": 8135672,
             "jointCountBefore": 137,
@@ -362,6 +369,62 @@ PLAN = {
 }
 
 
+# HB-05 rows whose shipped GLB gained geometry AFTER the rung (cap10 option B, 2026-11-10).
+# triangleCountAfter/faceAfter stay live (the-decimated-humanoid-keeps-its-face-and-rig and
+# measure-decimation-rows.ts read them as live); rungTrisAfter/rungFaceAfter keep the rung output,
+# and each postRungStages entry carries deltas copied from the sha-bound teethSwapB1 block of the
+# tracked sidecar (fitted mouth tris minus preImageMouthTris). main() asserts live == rung + deltas.
+HB05_POST_RUNG = {
+    "mpfb-gown-inspect.glb": {
+        "rungTrisAfter": 72633,
+        "rungFaceAfter": 52778,
+        "postRungStages": [{
+            "stage": "mouth-swap",
+            "card": "tsk_27e0cec12cab410d",
+            "trisDelta": 6928,
+            "faceDelta": 6928,
+            "source": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json#teethSwapB1",
+            "sourceSha256": "9de8c75bc8e24acdfeaef51b21f633596796837855b66c7977fa9f4d4af7c18d",
+        }],
+    },
+    "mpfb-ob-patient-aisha.glb": {
+        "rungTrisAfter": 73392,
+        "rungFaceAfter": 52778,
+        "postRungStages": [{
+            "stage": "mouth-swap",
+            "card": "tsk_27e0cec12cab410d",
+            "trisDelta": 6928,
+            "faceDelta": 6928,
+            "source": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json#teethSwapB1",
+            "sourceSha256": "286e47bcbe9fe1b3ba68e9fff950e872c3ce9acdd8dff20a0d2258d5f61582f1",
+        }],
+    },
+    "mpfb-peds-nurse-kevin.glb": {
+        "rungTrisAfter": 98102,
+        "rungFaceAfter": 46160,
+        "postRungStages": [{
+            "stage": "mouth-swap",
+            "card": "tsk_27e0cec12cab410d",
+            "trisDelta": 6928,
+            "faceDelta": 6928,
+            "source": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json#teethSwapB1",
+            "sourceSha256": "f43abb482b2fcf7a165583173ae50a0d1e2352ea3c1436f0783533ae0260a0a4",
+        }],
+    },
+    "mpfb-viseme-inspect.glb": {
+        "rungTrisAfter": 69067,
+        "rungFaceAfter": 52778,
+        "postRungStages": [{
+            "stage": "mouth-swap",
+            "card": "tsk_27e0cec12cab410d",
+            "trisDelta": 6928,
+            "faceDelta": 6928,
+            "source": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.provenance.json#teethSwapB1",
+            "sourceSha256": "75003ccd8b132a8f2258f27d5d76684ba94c46f22c60e4a17ce152492bc587b0",
+        }],
+    },
+}
+
 def main():
     for path, key in ((HB03, "hb03"), (HB05, "hb05")):
         with open(path, encoding="utf-8") as f:
@@ -377,13 +440,25 @@ def main():
             note = plan.get(key, {}).get("note", plan.get("note"))
             subs = plan.get(key, {}).get("textSubs", plan.get("textSubs", {}))
             m = live(body)
+            post = HB05_POST_RUNG.get(body) if key == "hb05" else None
+            stage_tris = sum(st["trisDelta"] for st in post["postRungStages"]) if post else 0
+            stage_face = sum(st["faceDelta"] for st in post["postRungStages"]) if post else 0
+            if post:
+                for st in post["postRungStages"]:
+                    src = os.path.join(REPO, st["source"].split("#", 1)[0])
+                    with open(src, "rb") as sf:
+                        assert hashlib.sha256(sf.read()).hexdigest() == st["sourceSha256"], f"{body} stage source sha moved"
+                assert m["tris"] == post["rungTrisAfter"] + stage_tris, f"{body} live tris != rung + stage deltas"
+                assert m["face"] == post["rungFaceAfter"] + stage_face, f"{body} live face != rung + stage deltas"
+                assert scoped.get("faceBefore", row["faceBefore"]) == post["rungFaceAfter"], f"{body} rungFaceAfter != faceBefore"
             for field in ("bytesAfter", "triangleCountAfter", "faceAfter", "faceBefore",
                           "handBodyMeshAfter"):
                 if field in scoped:
                     live_key = {"bytesAfter": "bytes", "triangleCountAfter": "tris",
                                 "faceAfter": "face", "faceBefore": "face",
                                 "handBodyMeshAfter": "hand"}[field]
-                    assert m[live_key] == scoped[field], \
+                    expected_live = scoped[field] + (stage_face if field == "faceBefore" else 0)
+                    assert m[live_key] == expected_live, \
                         f"{body} {field}: plan {scoped[field]} != live {m[live_key]}"
             if "outputSha256" in scoped:
                 assert m["sha256"] == scoped["outputSha256"], \
@@ -399,6 +474,8 @@ def main():
                 body == "mpfb-peds-parent-aisha.glb", f"{body} floor breach"
             for field, value in scoped.items():
                 row[field] = value
+            if post:
+                row.update(post)
             for target_field, pairs in subs.items():
                 for old, new in pairs:
                     if old in row.get(target_field, ""):

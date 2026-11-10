@@ -243,6 +243,10 @@
    "sha256": "d172a245fbe597ad886ea85c05c49da0b672e727566532539341421476f9c5df",
    "bytes": 14421480
   },
+  "preImageMouthTris": {
+   "teeth": 192,
+   "tongue": 448
+  },
   "scratch": {
    "path": ".openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-viseme-inspect.glb",
    "sha256": "4c846779e3468f5f545315b972580ec0db7e5fc7c0fb5056fdf1bf23af5c4a2a",

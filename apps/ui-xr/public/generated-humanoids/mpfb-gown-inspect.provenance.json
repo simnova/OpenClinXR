@@ -317,6 +317,10 @@
    "sha256": "a9c12e9cec11a2b2506e97b98f1845b17e6bec660514c0f93213bfad66afc427",
    "bytes": 8542692
   },
+  "preImageMouthTris": {
+   "teeth": 192,
+   "tongue": 448
+  },
   "scratch": {
    "path": ".openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-gown-inspect.glb",
    "sha256": "4c846779e3468f5f545315b972580ec0db7e5fc7c0fb5056fdf1bf23af5c4a2a",

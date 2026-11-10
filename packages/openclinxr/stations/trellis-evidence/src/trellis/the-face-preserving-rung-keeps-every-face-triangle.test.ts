@@ -23,10 +23,21 @@ import { repoRoot } from "@openclinxr/factory-station-core/runner";
  * the re-measured source (face 33360, tris 73012). previousFaceBefore preserves
  * the pre-rebuild 52778. This is a deliberate rebuild, not a silent loss, so
  * the row is re-pinned — not DEFECT.
+ *
+ * ## POST-RUNG STAGES (cap10 option B, tsk_27e0cec12cab410d)
+ *
+ * A row whose shipped GLB gained geometry after the rung keeps the rung output in
+ * rungTrisAfter/rungFaceAfter and lists each later stage in postRungStages with deltas copied
+ * from a tracked, sha-pinned source (the sidecar's teethSwapB1 block). triangleCountAfter and
+ * faceAfter stay live because the-decimated-humanoid-keeps-its-face-and-rig and
+ * measure-decimation-rows.ts read them as live. Asserted: rungFaceAfter == faceBefore,
+ * live == rung + sum(deltas), the source sha matches disk, and the fitted mouth tris of the live
+ * GLB minus the source's preImageMouthTris equal the delta.
  */
 import { describe, expect, it } from "vitest";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { NodeIO } from "@gltf-transform/core";
@@ -38,6 +49,11 @@ const REPORT_PATH = path.join(ROOT, "docs/openclinxr/humanoid-postopt-ladder-fac
 const MODE_PATH = path.join(ROOT, "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts");
 
 const FACE_RE = /eye|brow|lash|teeth|tongue/i;
+
+function readRepoFile(relPath: string): Buffer | undefined {
+  const abs = path.join(ROOT, relPath);
+  return existsSync(abs) ? readFileSync(abs) : undefined;
+}
 const GOWN_MARKER = "openclinxr_declared_upper_layers__hospital_gown_mesh";
 
 type FacePreservingBodyRow = {
@@ -64,6 +80,17 @@ type FacePreservingBodyRow = {
   noSurvivingRungReason?: string;
   remeasureNote?: string;
   previousFaceBefore?: number;
+  rungTrisAfter?: number;
+  rungFaceAfter?: number;
+  postRungStages?: PostRungStage[];
+};
+type PostRungStage = {
+  stage: string;
+  card: string;
+  trisDelta: number;
+  faceDelta: number;
+  source: string;
+  sourceSha256: string;
 };
 type FacePreservingReport = {
   bodies: FacePreservingBodyRow[];
@@ -74,6 +101,52 @@ type FacePreservingReport = {
     acceptableSingleProp: number;
   };
 };
+
+const MOUTH_RE = { teeth: /teeth/i, tongue: /tongue/i };
+
+/**
+ * Every reason a post-rung row does not bind live = rung + deltas to its sources. Empty = bound.
+ * Pure over its inputs so the counterweight clause can feed it mutated rows.
+ */
+function postRungErrors(
+  row: Pick<FacePreservingBodyRow, "body" | "faceBefore" | "rungTrisAfter" | "rungFaceAfter" | "postRungStages">,
+  live: { tris: number; face: number; sha256: string; mouth: { teeth: number; tongue: number } },
+  readSource: (relPath: string) => Buffer | undefined,
+): string[] {
+  const errors: string[] = [];
+  const stages = row.postRungStages ?? [];
+  if (stages.length === 0) return [`${row.body}: no postRungStages`];
+  if (row.rungTrisAfter === undefined || row.rungFaceAfter === undefined) errors.push(`${row.body}: rung record missing`);
+  if (row.rungFaceAfter !== row.faceBefore) errors.push(`${row.body}: rungFaceAfter ${row.rungFaceAfter} != faceBefore ${row.faceBefore}`);
+  const sumTris = stages.reduce((a, st) => a + st.trisDelta, 0);
+  const sumFace = stages.reduce((a, st) => a + st.faceDelta, 0);
+  if (live.tris !== (row.rungTrisAfter ?? NaN) + sumTris) errors.push(`${row.body}: live tris ${live.tris} != rung ${row.rungTrisAfter} + ${sumTris}`);
+  if (live.face !== (row.rungFaceAfter ?? NaN) + sumFace) errors.push(`${row.body}: live face ${live.face} != rung ${row.rungFaceAfter} + ${sumFace}`);
+  for (const st of stages) {
+    if (!st.source || !st.sourceSha256) {
+      errors.push(`${row.body}: stage ${st.stage} has no source/sourceSha256`);
+      continue;
+    }
+    const bytes = readSource(st.source.split("#", 1)[0]!);
+    if (!bytes) {
+      errors.push(`${row.body}: stage source ${st.source} is not on disk`);
+      continue;
+    }
+    if (createHash("sha256").update(bytes).digest("hex") !== st.sourceSha256) errors.push(`${row.body}: stage source sha does not match disk`);
+    if (st.stage !== "mouth-swap") continue;
+    const block = (JSON.parse(bytes.toString("utf8")) as { teethSwapB1?: { output?: { sha256?: string }; preImageMouthTris?: { teeth: number; tongue: number } } }).teethSwapB1;
+    const pre = block?.preImageMouthTris;
+    if (!pre) {
+      errors.push(`${row.body}: source has no teethSwapB1.preImageMouthTris`);
+      continue;
+    }
+    if (block?.output?.sha256 !== live.sha256) errors.push(`${row.body}: teethSwapB1.output.sha256 does not pin the live GLB`);
+    const mouthDelta = live.mouth.teeth + live.mouth.tongue - pre.teeth - pre.tongue;
+    if (st.trisDelta !== mouthDelta) errors.push(`${row.body}: trisDelta ${st.trisDelta} != live mouth - preImageMouthTris ${mouthDelta}`);
+    if (st.faceDelta !== mouthDelta) errors.push(`${row.body}: faceDelta ${st.faceDelta} != live mouth - preImageMouthTris ${mouthDelta}`);
+  }
+  return errors;
+}
 
 function facePreservingRungIdsFromSource(): string[] {
   const src = readFileSync(MODE_PATH, "utf8");
@@ -90,11 +163,14 @@ async function liveStats(file: string): Promise<{
   bodyMorphTargets: number;
   weightsChannels: number;
   zeroMeshes: string[];
+  sha256: string;
+  mouth: { teeth: number; tongue: number };
 }> {
   const doc = await new NodeIO().registerExtensions(ALL_EXTENSIONS).read(path.join(HUMANOIDS, file));
   let tris = 0;
   let face = 0;
   const zeroMeshes: string[] = [];
+  const mouth = { teeth: 0, tongue: 0 };
   for (const mesh of doc.getRoot().listMeshes()) {
     let mt = 0;
     for (const prim of mesh.listPrimitives()) {
@@ -102,6 +178,8 @@ async function liveStats(file: string): Promise<{
       if (idx) mt += idx.getCount() / 3;
     }
     tris += mt;
+    if (MOUTH_RE.teeth.test(mesh.getName())) mouth.teeth += mt;
+    else if (MOUTH_RE.tongue.test(mesh.getName())) mouth.tongue += mt;
     if (FACE_RE.test(mesh.getName())) face += mt;
     else if (Math.round(mt) === 0 && mesh.getName() !== GOWN_MARKER) zeroMeshes.push(mesh.getName());
   }
@@ -114,7 +192,8 @@ async function liveStats(file: string): Promise<{
       if (channel.getTargetPath() === "weights") weightsChannels += 1;
     }
   }
-  return { tris: Math.round(tris), face: Math.round(face), joints, bodyMorphTargets, weightsChannels, zeroMeshes };
+  const sha256 = createHash("sha256").update(readFileSync(path.join(HUMANOIDS, file))).digest("hex");
+  return { tris: Math.round(tris), face: Math.round(face), joints, bodyMorphTargets, weightsChannels, zeroMeshes, sha256, mouth };
 }
 
 describe("the face-preserving rung keeps every face triangle", () => {
@@ -145,7 +224,14 @@ describe("the face-preserving rung keeps every face triangle", () => {
     for (const row of report.bodies) {
       const live = await liveStats(row.body);
       expect(row.faceRetentionRatio).toBe(1);
-      expect(row.faceAfter).toBe(row.faceBefore);
+      if (row.postRungStages) {
+        // Supersedes faceAfter == faceBefore for rows with a post-rung stage: the rung kept every
+        // face triangle (rungFaceAfter == faceBefore) and the stage deltas account for the rest.
+        // Do not delete or widen this to make a stage-less row pass; add the stage with its source.
+        expect(postRungErrors(row, live, readRepoFile)).toEqual([]);
+      } else {
+        expect(row.faceAfter, `${row.body}: live face moved after the rung; record the stage in postRungStages (cap10 option B), never raise faceBefore`).toBe(row.faceBefore);
+      }
       expect(live.face).toBe(row.faceAfter);
       expect(live.joints).toBe(row.jointCountAfter);
       expect(row.jointCountAfter).toBe(row.jointCountExpected);
@@ -161,6 +247,22 @@ describe("the face-preserving rung keeps every face triangle", () => {
       }
     }
   }, 120_000);
+
+  it("a post-rung stage that does not bind to its source fails (counterweight)", async () => {
+    const row = report.bodies.find((candidate) => candidate.body === "mpfb-viseme-inspect.glb")!;
+    expect(row.postRungStages?.length, "viseme-inspect carries the mouth-swap stage").toBe(1);
+    const live = await liveStats(row.body);
+    expect(postRungErrors(row, live, readRepoFile)).toEqual([]);
+    const stage = row.postRungStages![0]!;
+    const mutate = (st: Partial<PostRungStage>, extra: Partial<FacePreservingBodyRow> = {}) =>
+      postRungErrors({ ...row, ...extra, postRungStages: [{ ...stage, ...st }] }, live, readRepoFile);
+    expect(mutate({ trisDelta: stage.trisDelta + 1 }).join("\n")).toMatch(/live tris .* != rung/);
+    expect(mutate({ trisDelta: stage.trisDelta + 1, faceDelta: stage.faceDelta }, { rungTrisAfter: row.rungTrisAfter! - 1 }).join("\n")).toMatch(/trisDelta .* != live mouth/);
+    expect(mutate({ source: "" }).join("\n")).toMatch(/no source/);
+    expect(mutate({ sourceSha256: "0".repeat(64) }).join("\n")).toMatch(/sha does not match disk/);
+    expect(mutate({}, { faceBefore: row.faceBefore + 6928 }).join("\n")).toMatch(/rungFaceAfter .* != faceBefore/);
+    expect(postRungErrors(row, { ...live, sha256: "f".repeat(64) }, readRepoFile).join("\n")).toMatch(/does not pin the live GLB/);
+  }, 60_000);
 
   it("every row either promotes a decimated rung or records a measured reason", () => {
     for (const row of report.bodies) {
@@ -248,8 +350,12 @@ describe("the face-preserving rung keeps every face triangle", () => {
       const rerun = await liveStatsFromPath(path.join(outDir, `${base}-fp-r${ratio}.glb`));
       expect(rerun.tris).toBe(sweep!.triangleCount);
       expect(rerun.face).toBe(sweep!.faceTriangles);
-      expect(rerun.tris).toBe(row!.triangleCountAfter);
-      expect(rerun.face).toBe(row!.faceAfter);
+      expect(rerun.tris).toBe(row!.rungTrisAfter ?? row!.triangleCountAfter);
+      expect(rerun.face).toBe(row!.rungFaceAfter ?? row!.faceAfter);
+      const live = await liveStats(row!.body);
+      const stages = row!.postRungStages ?? [];
+      expect(live.tris).toBe(rerun.tris + stages.reduce((a, st) => a + st.trisDelta, 0));
+      expect(live.face).toBe(rerun.face + stages.reduce((a, st) => a + st.faceDelta, 0));
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

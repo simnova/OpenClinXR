@@ -632,6 +632,10 @@
    "sha256": "db3c0f95572fcb9426c530cb52eee00254e8a2e46a2954891ebbbe32f73daf50",
    "bytes": 8635168
   },
+  "preImageMouthTris": {
+   "teeth": 190,
+   "tongue": 422
+  },
   "scratch": {
    "path": ".openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-gown-ed-robert-hayes.glb",
    "sha256": "0f60a5f7e6a9fc4df560f1694f27ba56adc384f2dee26ac4312ac5b6bcb2c980",

@@ -354,6 +354,10 @@
    "sha256": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68",
    "bytes": 9254712
   },
+  "preImageMouthTris": {
+   "teeth": 192,
+   "tongue": 430
+  },
   "scratch": {
    "path": ".openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-clinical-nurse-adult.glb",
    "sha256": "1d3155e80744425305d149f206fef60ca23304589343fecb058b458659eb1aff",

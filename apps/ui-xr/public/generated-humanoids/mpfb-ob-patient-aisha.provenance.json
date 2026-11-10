@@ -581,6 +581,10 @@
    "sha256": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
    "bytes": 19549552
   },
+  "preImageMouthTris": {
+   "teeth": 192,
+   "tongue": 448
+  },
   "scratch": {
    "path": ".openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-ob-patient-aisha.glb",
    "sha256": "67b2ee1f1d1c1045f63b2208d11654e507649a041b30916d5d5f617481a528ea",

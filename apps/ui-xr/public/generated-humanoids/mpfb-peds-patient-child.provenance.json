@@ -280,6 +280,10 @@
    "sha256": "463c85c9de6723d90b1e4f48e924ea06374ec5caaa9daec89f72f4494ab06a95",
    "bytes": 11242708
   },
+  "preImageMouthTris": {
+   "teeth": 192,
+   "tongue": 448
+  },
   "scratch": {
    "path": ".openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-peds-patient-child.glb",
    "sha256": "58739833e9534bfd979b7e6d2d022407bf6b5aae9a056edf94fb6c1f4822c21b",
