@@ -59,7 +59,8 @@
     "src/encounter-bundle-selection/pin-station-bundles.test.ts",
     "src/exam-assembly.test.ts",
     "src/exam-form-breaks.test.ts",
-    "src/sampling-plan/blueprint-coverage-blocks-activation-until-constraints-are-met.test.ts"
+    "src/sampling-plan/blueprint-coverage-blocks-activation-until-constraints-are-met.test.ts",
+    "src/the-break-duration-defaults-to-the-blueprint.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/exam-assembly test",
