@@ -1,0 +1,12 @@
+# Round 2, inventive (Goldfish), raw findings, unresolved
+
+- R2I1 Major [P1 step 0, P2 data map] one Cycles Shader-AOV multilayer EXR render of the atlas cells: albedo (hair colour), ID (Curves Info Random), root-tip (Intercept), depth (Z/Mist), coverage (film alpha); P1 and P2 share one bake. Liability: AOVs use the film filter; crisp ID may need a second low-filter render.
+- R2I2 Major [P1 rig_to_blender.py] skip the new file: write rigs as openclinxr.lighting-rig.v1 JSON and build them with packages/openclinxr/factory-stations/src/lighting_design/lighting-rig.py (used by room-albedo-ao-bake.py --rig-json). No P1 gate uses the strand render, so the rig port can move to P2. Liability: v1 schema has point/area/directional only; hemisphere needs a schema addition.
+- R2I3 Major [E1, K6] name the lighting_design station's per-room rig as candidate production light; judge under 2-3 rigs from shipped rooms. Liability: lighting-rig.py says runtime consumption is "follow-up work, not wired".
+- R2I4 Major [P2 shader] falsifier: per-strand tangent shift = per-strand normal tilt along v; bake into a standard normalTexture from ID (mean tilt sets band row); anisotropyTexture RG is constant (1, .5) today (transplant_donor.py:88) and can carry per-strand jitter. If gates pass, no extension/plugin/material-tint change/E2. Liability: single white lobe; transplant_donor.py:69 says three.js builds the anisotropy frame from geometry, so first check a normal tilt moves the highlight.
+- R2I5 Nit [P2 data map G] root-tip v exists as card_uv v (cards_from_strands.py:36,664); emit as TEXCOORD_1 and drop G.
+- R2I6 Major [K5, P4] drop atlas RGB for single-colour hair: albedo = baseColorFactor x f(ID, AO); one RGBA data map (coverage, ID, AO, shift) replaces atlas and spec map; 33.6 -> 16.8 MB. Liability: needs P2 hook; baked colour variation lost unless f(ID) reproduces it.
+- R2I7 Major [P4] toktx/basisu not installed (finalize-equipment-glb.ts:38); gltf-transform etc1s/uastc need toktx. Make KTX-Software (Apache-2.0) install a P4 precondition.
+- R2I8 Major [P3] probe alphaToCoverage = true on the existing MASK material first (lab renderer antialias: true, isolated-subject-lab.ts:271); split only if artifacts remain. Liability: desktop MSAA differs from Quest 4x.
+- R2I9 Nit [gates] derive thresholds from noise + perturbation floor with tools/openclinxr/evidence/face-regression/src/calibrate.ts.
+- R2I10 Nit [P2 secondary lobe] probe clearcoat with an opposite-tilted clearcoatNormalMap as the second lobe. Liability: isotropic, untinted.
