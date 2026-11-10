@@ -311,10 +311,10 @@ Each phase gate is graded independently at native resolution; each phase ends wi
     skin-mask IoU .88-.95 (`p1/runtime-frames.json`). G2 under the target-scene port, BEST3: black share 0
     (<= target + .02), peak .389-.475 (>= .8 x target) (`p1/score-ts-rt.json`). Tone mapping AgX.
   - Streak map KEEP. Independent grader: BEST3 beats the no-map control (spec .15) in 4 of 4 views
-    (`p1/grade-p1-map.md`). streak: BEST3 .069-.084, no-map .037-.048, target .108-.236.
+    (`.openclinxr/evidence/hair-groom-2/p1/grade-p1-map.md`). streak: BEST3 .069-.084, no-map .037-.048, target .108-.236.
   - A2C probe result: A2C loses. 48 stills (base, cutoff .85/.5/.3 with the BLEND fringe hidden; yaw 0-330
     step 30; MSAA samples 4 logged on all 36 probe renders). No webm was recorded; shimmer was judged from
-    stills only. Independent grader artifact totals over 12 yaws (`p1/grade-a2c.md`):
+    stills only. Independent grader artifact totals over 12 yaws (`.openclinxr/evidence/hair-groom-2/p1/grade-a2c.md`):
 
     | variant | sort pop | card-edge line | edge halo | shimmer (still) | other | total |
     |---|---|---|---|---|---|---|
