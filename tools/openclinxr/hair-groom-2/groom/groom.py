@@ -228,6 +228,10 @@ def build_scalp(body, origin, R, centre, rc, ear=None):
     min_up = rc["scalp"]["minUpwardNormal"]
     eh = rc["scalp"].get("earHairline")
     fh_off = float(rc["scalp"].get("frontHairlineOffsetMm", 0.0))
+    # frontHairlineRampDeg [full, zero]: azimuth (deg) to which the raise is full, and where it reaches 0 (default 40, 70)
+    fh_full, fh_zero = (float(x) for x in rc["scalp"].get("frontHairlineRampDeg", (40.0, 70.0)))
+    if not 0.0 <= fh_full < fh_zero <= 180.0:
+        raise ValueError("scalp.frontHairlineRampDeg must be 0 <= full < zero <= 180, got %r" % ((fh_full, fh_zero),))
 
     def is_scalp_v(co):
         p = to_local(co, origin, R)
@@ -235,8 +239,8 @@ def build_scalp(body, origin, R, centre, rc, ear=None):
         az = math.degrees(math.atan2(abs(rel[0]), -rel[1]))
         h = np.interp(az, table[:, 0], table[:, 1]) / 1000.0
         if fh_off:
-            # frontHairlineOffsetMm: vertical raise of the front hairline, full to 40 deg azimuth, linear to 0 at 70 deg
-            h += fh_off * min(1.0, max(0.0, (70.0 - az) / 30.0)) / 1000.0
+            # frontHairlineOffsetMm: vertical raise of the front hairline, full to fh_full deg azimuth, linear to 0 at fh_zero
+            h += fh_off * min(1.0, max(0.0, (fh_zero - az) / (fh_zero - fh_full))) / 1000.0
         if eh and ear:
             r = ear_hairline_mm(p * 1000.0, ear, eh)
             if r is not None:
