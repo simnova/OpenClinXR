@@ -108,7 +108,7 @@ button {
   font-weight: 700;
 }
 
-.xr-entry-button:disabled {
+.xr-entry-button:disabled, #end-encounter-button:disabled, #submit-note-button:disabled {
   border-color: #4f5f6e;
   background: #253141;
   color: #9ca9b5;

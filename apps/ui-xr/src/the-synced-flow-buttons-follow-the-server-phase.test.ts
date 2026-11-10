@@ -162,4 +162,14 @@ describe("the synced flow buttons follow the server phase (C57)", () => {
     expect(MAIN).toContain("examFlowStore.applyIntent(kind);");
     expect(MAIN.split("\n").length - (MAIN.endsWith("\n") ? 1 : 0)).toBeLessThanOrEqual(MAIN_LINES_AT_BASE);
   });
+
+  it("CW8 styles.css gives both flow buttons the existing disabled look through the .xr-entry-button:disabled rule only", () => {
+    const css = readFileSync(SRC + "styles.css", "utf8");
+    const rules = [...css.matchAll(/(^|\})\s*([^{}]+)\{/gu)].map((m) => (m[2] ?? "").trim());
+    const shared = rules.filter((selector) => selector.includes(".xr-entry-button:disabled"));
+    expect(shared).toHaveLength(1);
+    expect(shared[0]).toContain("#end-encounter-button:disabled");
+    expect(shared[0]).toContain("#submit-note-button:disabled");
+    expect(rules.filter((selector) => /#(end-encounter-button|submit-note-button)/u.test(selector))).toEqual(shared);
+  });
 });
