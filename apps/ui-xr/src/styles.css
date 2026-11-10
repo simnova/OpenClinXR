@@ -137,6 +137,10 @@ button {
   letter-spacing: 0;
 }
 
+#doorway-station:empty {
+  display: none;
+}
+
 h1,
 h2,
 p {

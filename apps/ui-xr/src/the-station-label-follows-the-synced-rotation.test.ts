@@ -15,7 +15,7 @@ async function labelAfter(search: string, positions: Array<[number, number]>): P
   // The shell's onStation body, taken verbatim from main.ts, run against a stand-in element.
   const label = { textContent: "pending" };
   const match = /onStation: \(index, count\) => \{ (.*?) \},?\s*$/mu.exec(MAIN);
-  const body = new Function("examFlowStation", "index", "count", "let syncedStation = false;" + (match?.[1] ?? ""));
+  const body = new Function("examFlowStation", "doorwayStation", "index", "count", "let syncedStation = false;" + (match?.[1] ?? ""));
   let listener: ((s: unknown) => void) | undefined;
   await startEncounterSyncFromUrl({
     search,
@@ -24,7 +24,7 @@ async function labelAfter(search: string, positions: Array<[number, number]>): P
     play: () => undefined,
     publish: () => undefined,
     nowMs: () => 1,
-    onStation: (index: number, count: number) => { body(label, index, count); },
+    onStation: (index: number, count: number) => { body(label, { textContent: "" }, index, count); },
     connectFn: async () => ({ sessionId: "s", sendIntent: async () => ({ status: "ack" }), onState: (fn: (s: unknown) => void) => { listener = fn; return () => undefined; }, leave: async () => undefined }) as never,
   } as never);
   for (const [stationIndex, stationCount] of positions) { listener?.({ serverTick: 1, phase: "encounter", turnId: 0, turnOwner: "none", actors: {}, learners: {}, stationIndex, stationCount }); await flush(); }

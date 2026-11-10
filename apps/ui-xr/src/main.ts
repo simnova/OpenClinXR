@@ -1544,6 +1544,7 @@ app.innerHTML = `
     <aside class="runtime-panel" aria-label="Station controls and clinical context">
       <header>
         <p class="label">Doorway</p>
+        <p class="label" id="doorway-station"></p>
         <h1>${selectedStationContext.title}</h1>
         <p class="subtle">${selectedStationContext.subtitle}</p>
       </header>
@@ -1661,6 +1662,7 @@ let syncedStation = false;
 const traceSummary = requireElement<HTMLElement>("#trace-summary");
 const traceActions = requireElement<HTMLElement>("#trace-actions");
 const examFlowStation = requireElement<HTMLElement>("#exam-flow-station");
+const doorwayStation = requireElement<HTMLElement>("#doorway-station");
 const examFlowCaseSource = requireElement<HTMLElement>("#exam-flow-case-source");
 const examFlowTimer = requireElement<HTMLElement>("#exam-flow-timer");
 const examFlowAdvance = requireElement<HTMLElement>("#exam-flow-advance");
@@ -4454,8 +4456,6 @@ function recordFrame(now: number, evidence: {
 }
 
 function manualEvidencePanelContext(): Parameters<typeof updatePackageTraceManualEvidencePanel>[0] {
-  const readiness = traceReadinessPanelContext();
-  void readiness;
   const full: Parameters<typeof updatePackageTraceManualEvidencePanel>[0] = {
     runtimeState: () => state,
     panels: {
@@ -4661,7 +4661,7 @@ if (window.location.search.includes("encounterSync=")) void import("@openclinxr/
     replayAnchor: (document.querySelector(".ehr-panel") ?? undefined) as never,
   } as UtteranceBoxDeps,
   onReplay: () => { replayClock = true; clock.textContent = "Replay"; },
-  onStation: (index, count) => { syncedStation = true; examFlowStation.textContent = `Station ${index + 1} of ${count}`; },
+  onStation: (index, count) => { syncedStation = true; examFlowStation.textContent = doorwayStation.textContent = `Station ${index + 1} of ${count}`; },
   voice: { assetBase: "/mesm-tts/", slotFor: (id) => generatedHumanoidAnimationSlotsByActorId.get(id) as never, voiceFor: ((voices) => (id: string) => voices.get(id))(new Map([edChestPainScenario, ...scenarioBank].flatMap((scenario) => scenario.actors).reverse().map((actor) => [actor.actorId, actor.ttsVoice] as const))) },
   register: (payload, tag) => { const parsed = liveActorTurnFromPayload(payload); return parsed ? registerLiveActorTurn(parsed.plan, parsed.execution, tag) : undefined; },
   play: (actorId, caption, emotion) => { dialogueLine.textContent = caption; triggerHumanoidDialogue(actorId, caption, { kind: "learner_camera", actorId: null }, emotion as HumanoidExpressionEmotion, undefined, "plan.dialogueEmotionTo"); },
