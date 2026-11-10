@@ -23,63 +23,19 @@ Archive1676 immutable entries verified. LOW_TOKEN: /Users/patrick/.codex/benchma
 <!-- WAKE-BLUF:BEGIN -->
 ## WAKE BLUF - replace this block every wake, never append
 
-**2026-10-23 | CEO — Aisha part groom stalled. part-open8 stays the keeper.**
+**2026-11-10 | board supervisor (Claude sub-manager under CEO) | Next product line: xr-sync C51-C54. Dequeue is mis-ranked.**
 
-part-sheet1 decision-row absolute error is 86 (part-open8 is 43). Row 96 is 24 px on part-sheet1 and 36 px on part-open8 (target 15). Row 92 on part-sheet1 is a 1024 px skin run. Do not parent from part-sheet1. Handoff: operator-hair-muse4h.md. No part-r45. Keeper: hair-hillclimb worktree tools/openclinxr/evidence/hair-muse4h/part-open8/treated.npz.
+Board rev 16068, project `prj_9b390b99b443a964`. The "0 ready" reading at rev 16055 was the in-flight cap, not an empty queue: `maxInFlight` 5 was held by 3 `review` + 2 `integrating` while 79 Planted cards had their deps satisfied.
 
-SWEEP: workers=0 hair-part-sheet1 stop-gate bothy=NOT DETERMINED
+- Bounced to `blocked` (proofs failed at `0b86d27c0`): `tsk_bb7f28a5e98dcc99`, `tsk_2f4554ac6197ee92`, `tsk_2d235611492479a7`. All three are Codex citation-gap instrument cards whose `done_when` targets are absent from main and from `/Users/patrick/.codex/benchmarks/`, which does not exist on this machine.
+- Closed `done/merged`: `tsk_589bc1f54bb0cac3` (MPFB tint, `1a8dfc23d`) and `tsk_c84df724a40437c6` (face cues, `d0901742e`). Both proofs pass at `0b86d27c0`: 2 files, 8 tests.
+- C51 `tsk_4953dd5dc871184b`: RED `e6fcfa21a` on `claude/supervisor-2026-11-10-b80165`, with 3 `it.fails` and 5 counterweights. Destructive probes: a correct fix with the clauses flipped passes 13/13 (with C50); dropping the doorway write gives 1 failure; unhidden pre-filled markup gives 3 failures. The C50 harness now passes a `doorwayStation` stand-in. C52/C53 wait on C51; C54 waits on C53. C53/C54 REDs are not written.
+- DEQUEUE DEFECT: `tasks.next` returns `tsk_03510a2bdb1c1fb7` (P0, Oct 26-30 Codex CI-closure campaign), whose only write root is under the missing `/Users/patrick/.codex/benchmarks/`. 29 P0 and 46 P1 cards rank above C51 (P2). About 20 of the P0 cards root under that missing directory, and most of the P1 cards are hair-lane cards. The board has no priority field to patch. Not spawned.
+- Hair is owned by the hair-groom-2 lane and its port; not touched. Aisha part-open8 remains the hair keeper (`operator-hair-muse4h.md`).
 
-<!-- WAKE-BLUF:END -->
+NEXT: decide how C51 reaches a worker (block the missing-root P0 cards, or dispatch outside `tasks.next` as C48-C50 were on `wt/xr-sync-cNN`), then C52 and C53.
 
-**OPERATOR MODEL LADDERS (2026-09-10) — CODIFIED in the `model-routing` skill**
-- Subagents / workers / wakes: `muse-spark-1` (default, vision OK) → `nemotron-ultra` (free text-only fallback) → `grok-4.6` (escalate).
-- DeepSeek is **HOLD** (402). Do not spawn `deepseek-v4-flash` / `-pro` / `-vision-exp`.
-- `ox-alpha` is **retired** (404). Do not spawn it.
-- USER `~/.grok/config.toml` `[subagents.models]` is the live spawn bind (project config does not merge that section).
-
-**LANDED**
-- `#570` `bced6456` — the Codex session's verified fix, blocked on a read-only `.git`, is committed.
-  Its `live:` negative fixture had gone green when `#569` landed; repointed at
-  `the-shipped-room-matches-its-declared-shape.test.ts` (1 unflipped `it.fails`). 5/5.
-- `#576` plant `650d66eb` — clause (1) was PASSING on main. Not a dead premise: `#598`'s shoe swap
-  moved the foot hide-carve, band 0 delta `0.012497` against a `0.006003` floor while bands 1-19
-  stayed at `0.0000016` (7,700x smaller). Band 0 excluded; the remaining max is EXACTLY the
-  `81d06dd6` recorded value. Plant is RED again for the right reason.
-
-**IN FLIGHT — HARVEST THIS, DO NOT RE-DISPATCH IT**
-- `#576` numeric phenotype -> MPFB macro. Worker session `ef42e49d`, `ox-alpha`,
-  `asset-pipeline-lead`, worktree `~/.grok/worktrees/src-openclinxr/issue-576`, 250 turns, 4 proofs
-  including the new `live:`. Spawned 20:47:58Z, LIVE. Requires a real Blender bake of
-  `mpfb-peds-parent-aisha.glb`.
-- The write root `materialize_mpfb_humanoid_candidate.py` is HELD. A second worker into it collides.
-  Per the drain loop's own step 2: a live product worker means harvest-only.
-
-**THIS SESSION'S LOOP IS STOPPED (Claude Opus 5, `f06447e0`, 2026-08-23 17:30).** The 15-minute
-autonomous board loop (`4fb4e97e`) reconnected and owns board dequeue. No wake is armed here and this
-session will not dispatch. It is still LIVE and taking direct operator instruction, so commits with
-this session id after 17:30 are operator-directed, not loop output.
-
-**OUTSIDE REVIEW LANDED (codex `gpt-5.6-sol`, xhigh, 295k tokens, read-only).** Two of its claims
-re-verified by my own probe, not taken on trust:
-- **`#576` CANNOT MOVE THE D9 ROLLUP.** `grep -c materialize_mpfb tools/openclinxr/dark-factory/
-  multi-case-runner.ts` = **0**. That runner drives `orchestrate_character.py`, `generate_mesh.py`,
-  `body_param_stage.py`, `fit_stage.py`, `automate_blender.py`. #576 is still right on the D11 MPFB
-  learner rail; it is NOT the D9 frontier and must stop being quoted as such.
-- **`#601`'s resolver has no read path into the metric.** `multi-case-runner.ts:234` does
-  `from orchestrate_character import CASE_ACTOR_PRESETS` directly, never `resolve_case_actor_params`.
-  So the rollup measures the preset table #601 was landed to bypass.
-- NOT RE-VERIFIED by me, and load-bearing if true: that `casesFullyDeterministic: 1` certifies an
-  ORPHAN actor (`ed_chest_pain_priority_v2` declares 3 actors, the preset actor is not among them),
-  that "downstream is 15/15" is false, and that the 6 adults are now 4 topology classes rather than
-  one body. Verify before acting. Full text: scratchpad `codex-review-answer.md`.
-
-**NEXT**: `#576` return -> `contract-verify-cli` -> integrate -> pixel grade, on its own merits.
-Then the metric itself, ahead of `#603`: the rollup cannot direct the queue while it reads a table
-two landed slices were meant to retire.
-
-NOT TESTED: whether any profile band above 0 is reachable by a wardrobe hide-carve; only the foot
-carve was measured to move. Whether wiring `macro_detail_dict` changes exported mesh dimensions —
-that is what `#576` is dispatched to find out.
+NOT TESTED: whether the 79 dep-satisfied Planted cards still have live REDs on main; whether the Codex benchmark outputs exist on another machine; C51 on-screen geometry (the worker's capture report owns it).
 <!-- WAKE-BLUF:END -->
 
 
