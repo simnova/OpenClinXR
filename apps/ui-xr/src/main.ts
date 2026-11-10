@@ -31,9 +31,7 @@ import {
   type ActorDialogueAdaptiveEvidence as PedsAdaptiveDialogueEvidenceFromStore,
 } from "@openclinxr/xr-actor-dialogue";
 import {
-  addActorSpecificIdentityVariantCue as addPackageActorSpecificIdentityVariantCue,
   addHumanoidSourceComparatorFaceReviewCues as addPackageHumanoidSourceComparatorFaceReviewCues,
-  addScenarioSpecificClinicalSetDressing as addPackageScenarioSpecificClinicalSetDressing,
   clinicalTouchResponseClipNamesForActor as clinicalPackageTouchResponseClipNamesForActor,
   comparatorCaptureSubjectActorId as comparatorPackageCaptureSubjectActorId,
   gazeProbeAnimationClipNamesFromGltf as gazePackageProbeAnimationClipNamesFromGltf,
@@ -43,7 +41,6 @@ import {
   neutralizeGeneratedHumanoidMorphTargets as neutralizePackageGeneratedHumanoidMorphTargets,
   type AssetLoadingContext as PackageAssetLoadingContext,
   type AssetLoadingScenarioTheme as PackageAssetLoadingScenarioTheme,
-  type HumanoidCueMode as PackageHumanoidCueMode,
   pedsAsthmaPatientBundleVisemeUtterance as pedsPackageAsthmaPatientBundleVisemeUtterance,
   roleAnimationClipNamesForActor as rolePackageAnimationClipNamesForActor,
   selectedHumanoidSourceComparator as selectedPackageHumanoidSourceComparator,
@@ -3656,9 +3653,6 @@ function resolveActiveEnvironmentId(): string {
   return scenario.environment?.environmentId ?? "ed_exam_bay_v1";
 }
 
-function _addScenarioSpecificClinicalSetDressing(scene: Scene, doorwayTheme: ScenarioDoorwayVisualTheme): void {
-  addPackageScenarioSpecificClinicalSetDressing(assetLoadingContext(), scene, doorwayTheme);
-}
 function recordDynamicSceneObjectNamingEvidence(scene: Scene): DynamicSceneObjectNamingEvidence {
   return recordPackageDynamicSceneObjectNamingEvidence(sceneCueNamingEvidence(), scene);
 }
@@ -3733,13 +3727,6 @@ function addScenarioExpectationPanel(scene: Scene, stationContext: ReturnType<ty
   }
 }
 
-function _addActorSpecificIdentityVariantCue(
-  humanoid: Group,
-  actorId: string,
-  faceCueMode: PackageHumanoidCueMode = "generated_glb",
-): void {
-  addPackageActorSpecificIdentityVariantCue(assetLoadingContext(), humanoid, actorId, faceCueMode);
-}
 function createClinicalPanel(): ReadableVrTextPanel {
   return createPackageClinicalPanel(sceneCueClinicalPanel());
 }
