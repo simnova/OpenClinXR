@@ -57,7 +57,6 @@
     "@openclinxr/factory-stations"
   ],
   "tests": [
-    "src/a-blueprint-timing-carries-an-optional-break-length.test.ts",
     "src/actor-turn-plan-forbids-dialogue-pain.test.ts",
     "src/face-phenotype/the-face-phenotype-fields-are-declared.test.ts",
     "src/schemas.test.ts",

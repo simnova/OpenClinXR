@@ -1247,3 +1247,30 @@ describe("OpenClinXR shared schemas", () => {
     ).toBe(true);
   });
 });
+
+// C53: ExamBlueprintTimingSchema carries an optional break length in whole seconds beside the other phase seconds.
+// Absent stays valid, so every existing blueprint still validates; a negative or fractional length does not.
+function breakTimingBlueprint(timing: Record<string, unknown>): unknown {
+  return {
+    blueprintId: "bp-fixture-c53",
+    title: "Fixture form",
+    stationSlots: [{ slotId: "slot-a", order: 1, label: "A", requiredEnvironmentIds: [], requiredTraceTags: [] }],
+    timing: { doorwaySeconds: 60, encounterSeconds: 900, noteSeconds: 600, breakAfterStationOrders: [1], ...timing },
+    requiredTraceTags: [],
+    requiredSafetyCriticalTraceTags: [],
+  };
+}
+
+describe("a blueprint timing carries an optional break length (C53)", () => {
+  it("accepts breakSeconds 0 and 300, and a blueprint without it", () => {
+    expect(validateExamBlueprint(breakTimingBlueprint({ breakSeconds: 0 })).ok).toBe(true);
+    expect(validateExamBlueprint(breakTimingBlueprint({ breakSeconds: 300 })).ok).toBe(true);
+    expect(validateExamBlueprint(breakTimingBlueprint({})).ok).toBe(true);
+  });
+
+  it("refuses a negative, fractional or non-numeric breakSeconds", () => {
+    expect(validateExamBlueprint(breakTimingBlueprint({ breakSeconds: -1 })).ok).toBe(false);
+    expect(validateExamBlueprint(breakTimingBlueprint({ breakSeconds: 1.5 })).ok).toBe(false);
+    expect(validateExamBlueprint(breakTimingBlueprint({ breakSeconds: "300" })).ok).toBe(false);
+  });
+});
