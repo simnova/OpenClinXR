@@ -13,7 +13,7 @@
     "agent-memory": 34,
     "generated-evidence": 11,
     "historical-synthesis": 18,
-    "decision-record": 48
+    "decision-record": 49
   },
   "entries": [
     {
@@ -3634,6 +3634,13 @@
       "agentInstructionWeight": "medium",
       "action": "use-as-current",
       "rationale": "Draft two-tier lip-sync seam: lipSyncTier selector, bundle content-hash key, fallback order, trace tier record; live tier is a cost decision pending tsk_978648d9f4f21c45."
+    },
+    {
+      "path": "docs/madr/0063-mise-env-for-lane-worktrees.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
       "path": "docs/madr/README.md",
