@@ -169,7 +169,7 @@ def real_trial(stage, knobs, tag, a, nohair_key):
     kj.write_text(json.dumps({**knobs, **extra}))
     out = sh([str(HERE / "build_trial.sh"), stage, str(kj), str(bdir)])
     glb_sha = [l.split()[1] for l in out.splitlines() if l.startswith("GLB_SHA256")][0]
-    glb = PUBLIC / "generated-humanoids/_hair-transplant-probe/opt/%s.glb" % tag
+    glb = PUBLIC / ("generated-humanoids/_hair-transplant-probe/opt/%s.glb" % tag)
     ro = sh([str(HERE / "render_trial.sh"), "generated-humanoids/_hair-transplant-probe/opt/%s.glb" % tag, tag, str(bdir), nohair_key])
     # per-trial render record (A1b): crops = colour 4 + hair-only 4 + empty 4 (+ nohair 4 on a cache miss)
     sec = [l.split()[1] for l in ro.splitlines() if l.startswith("RENDER_SECONDS")]
