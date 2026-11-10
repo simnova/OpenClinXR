@@ -16,7 +16,9 @@ import { createLobbyPicker, type LobbyEvidence } from "./encounter-lobby.js";
 import { mountRoomPanel, type RoomPanel } from "./encounter-room-panel.js";
 import { mountSpeechCapture, type SpeechEvidence, type SpeechRecorder, type XrSessionLike } from "./speech-capture.js";
 import { createBrowserSpeechRecorder } from "./speech-recorder-browser.js";
+import { createStationAnnouncer, encounterSyncUrl } from "./encounter-sync-flags.js";
 
+export { encounterSyncUrl };
 const SPEECH_LOW_CONFIDENCE = "speech_low_confidence";
 
 /** One server-authoritative actor turn, as seen on the speaking edge. */
@@ -31,21 +33,6 @@ export interface SyncedActorTurn {
 }
 
 const DIALOGUE_EMOTIONS: ReadonlySet<string> = new Set(["anxious", "concerned", "reassured", "neutral"]);
-
-/** Returns the room url when ?encounterSync= holds a ws:// or wss:// url. */
-export function encounterSyncUrl(search: string): { url: string; replayStation?: string; reviewLobby?: true } | null {
-  const params = new URLSearchParams(search);
-  const value = params.get("encounterSync");
-  if (value === null || !/^wss?:\/\/[^\s/]+/u.test(value)) return null;
-  const station = params.get("encounterReplayStation");
-  if (station !== null) {
-    if (!/^[A-Za-z0-9._:-]{1,64}$/u.test(station)) return null;
-    if (params.get("encounterReviewLobby") === "1") return null;
-    return { url: value, replayStation: station };
-  }
-  if (params.get("encounterReviewLobby") === "1") return { url: value, reviewLobby: true };
-  return { url: value };
-}
 
 /** Stateful detector: one turn per (actor, turnId) when the actor is speaking; turnId restarts per station room. */
 export function createActorTurnDetector(): (snapshot: EncounterSnapshot) => SyncedActorTurn[] {
@@ -317,6 +304,7 @@ export interface UtteranceBoxDeps {
 
 export interface StartEncounterSyncDeps {
   search: string; onReplay?(): void; // C48: fires once when the shell joined a replay (?encounterReplayStation=)
+  onStation?(index: number, count: number): void; // C50: the server's station position (0-based index, rotation length); fires on the first snapshot and whenever (index, count) changes; never for stationCount 0, replay or lobby rooms
   actorIds(): string[];
   /** Plays one registered turn: the shell's triggerHumanoidDialogue with plan-sourced emotion. */
   play(actorId: string, caption: string, faceEmotion: string): void;
@@ -347,6 +335,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
   if (flag === null) return null;
   const isReplayRoom = flag.replayStation !== undefined; if (isReplayRoom) deps.onReplay?.();
   const isLobby = flag.reviewLobby === true;
+  const announceStation = deps.onStation !== undefined && !isReplayRoom && !isLobby ? createStationAnnouncer(deps.onStation) : undefined;
   const evidence: EncounterSyncEvidence = { url: flag.url, state: "joining", sessionId: "", error: "", turns: [] };
   if (flag.replayStation !== undefined) evidence.replayStation = flag.replayStation;
   let sendSelect: (stationId: string) => Promise<{ status: string; reason?: string }> = () =>
@@ -397,7 +386,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
       actorIds: deps.actorIds(),
       ...(flag.replayStation === undefined ? {} : { replayStation: flag.replayStation }),
       reviewLobby: isLobby,
-      onSnapshot: (snapshot) => { lastSnapshot = snapshot; roomPanel?.render(snapshot); picker?.render(snapshot); serverSpeechSeen = snapshot.speechAvailable; speechEvidence?.setServerSpeech(serverSpeechSeen); },
+      onSnapshot: (snapshot) => { lastSnapshot = snapshot; announceStation?.(snapshot); roomPanel?.render(snapshot); picker?.render(snapshot); serverSpeechSeen = snapshot.speechAvailable; speechEvidence?.setServerSpeech(serverSpeechSeen); },
       ...(deps.connectFn === undefined ? {} : { connectFn: deps.connectFn }),
       onRefusal: (kind, reason) => roomPanel?.refuse(reason, kind),
       onTurn: (turn, stationId) => {

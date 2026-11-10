@@ -73,7 +73,7 @@ export const STAND_IN_FREEZE: Record<string, StandInCounts> = {
   "apps/ui-admin/src/app.test.tsx": { emptyArrows: 0, casts: 1 },
   "apps/ui-admin/src/the-scenario-edit-invalidates-stale-faculty-approval.test.tsx": { emptyArrows: 0, casts: 7 },
   "apps/ui-xr/src/lighting-rig-runtime.test.ts": { emptyArrows: 1, casts: 4 },
-  "apps/ui-xr/src/main.ts": { emptyArrows: 1, casts: 23 },
+  "apps/ui-xr/src/main.ts": { emptyArrows: 0, casts: 23 }, // C50: 1 -> 0 when the dead _updateTraceInteractionEvidenceSummary (its interactionSummaryWritten: () => {}) was deleted
 };
 
 function findWorkspaceRoot(): string {

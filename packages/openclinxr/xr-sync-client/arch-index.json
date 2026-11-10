@@ -33,6 +33,7 @@
     "src/a-replay-shell-shows-the-replayed-topic-chips.test.ts",
     "src/a-replayed-station-labels-and-places-its-panel.test.ts",
     "src/a-same-length-note-accepted-after-a-reject-clears-it.test.ts",
+    "src/a-synced-learner-is-told-which-station-they-are-in.test.ts",
     "src/actor-voice.test.ts",
     "src/client-connect.test.ts",
     "src/encounter-addressed-actor.test.ts",

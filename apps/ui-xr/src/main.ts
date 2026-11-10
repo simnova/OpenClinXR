@@ -353,7 +353,6 @@ import {
   updateTraceReadiness as updatePackageTraceReadiness,
   updateRuntimePosturePanel as updatePackageTraceRuntimePosturePanel,
   updateTraceActionHandoffEvidence as updatePackageTraceTraceActionHandoffEvidence,
-  updateTraceInteractionEvidenceSummary as updatePackageTraceTraceInteractionEvidenceSummary,
   updateXrStatus as updatePackageTraceXrStatus,
 } from "@openclinxr/xr-trace-readiness";
 import {
@@ -1658,6 +1657,7 @@ function refreshStationContextFromRuntimeBundle(): void {
 const canvas = requireElement<HTMLCanvasElement>("#station-canvas");
 const clock = requireElement<HTMLElement>("#station-clock");
 let replayClock = false;
+let syncedStation = false;
 const traceSummary = requireElement<HTMLElement>("#trace-summary");
 const traceActions = requireElement<HTMLElement>("#trace-actions");
 const examFlowStation = requireElement<HTMLElement>("#exam-flow-station");
@@ -1874,7 +1874,9 @@ function updateExamFlowEvidence(): OpenClinXrExamFlowEvidence {
   });
   window.__openClinXrExamFlowEvidence = evidence;
   updateExamRunSummaryEvidence();
-  examFlowStation.textContent = `${evidence.scenarioIndex + 1}/${evidence.totalScenarios}: ${evidence.scenarioId}`;
+  if (!syncedStation) {
+    examFlowStation.textContent = `${evidence.scenarioIndex + 1}/${evidence.totalScenarios}: ${evidence.scenarioId}`;
+  }
   examFlowTimer.textContent = evidence.phase === "note"
     ? `note ${formatStationClock(evidence.noteElapsedSeconds)} / ${formatStationClock(evidence.noteDurationSeconds)}`
     : evidence.phase === "complete"
@@ -2231,21 +2233,6 @@ function updateTraceActionHandoffEvidence(): XrTraceActionHandoffEvidence {
     },
     buildInteractionSummary: (handoff) => buildXrTraceInteractionEvidenceSummary(handoff),
   });
-}
-
-function _updateTraceInteractionEvidenceSummary(
-  handoff: XrTraceActionHandoffEvidence | null | undefined,
-): XrTraceInteractionEvidenceSummary {
-  const summary = updatePackageTraceTraceInteractionEvidenceSummary(
-    {
-      buildSummary: (input) => buildXrTraceInteractionEvidenceSummary(input),
-      interactionSummaryWritten: () => {},
-    },
-    handoff,
-  );
-  window.__openClinXrTraceInteractionEvidenceSummary = summary;
-  evidenceTraceInteraction.textContent = formatPackageTraceTraceInteractionEvidenceSummary(summary);
-  return summary;
 }
 
 function completeNextTraceActionFromXrSelect(
@@ -4674,6 +4661,7 @@ if (window.location.search.includes("encounterSync=")) void import("@openclinxr/
     replayAnchor: (document.querySelector(".ehr-panel") ?? undefined) as never,
   } as UtteranceBoxDeps,
   onReplay: () => { replayClock = true; clock.textContent = "Replay"; },
+  onStation: (index, count) => { syncedStation = true; examFlowStation.textContent = `Station ${index + 1} of ${count}`; },
   voice: { assetBase: "/mesm-tts/", slotFor: (id) => generatedHumanoidAnimationSlotsByActorId.get(id) as never, voiceFor: ((voices) => (id: string) => voices.get(id))(new Map([edChestPainScenario, ...scenarioBank].flatMap((scenario) => scenario.actors).reverse().map((actor) => [actor.actorId, actor.ttsVoice] as const))) },
   register: (payload, tag) => { const parsed = liveActorTurnFromPayload(payload); return parsed ? registerLiveActorTurn(parsed.plan, parsed.execution, tag) : undefined; },
   play: (actorId, caption, emotion) => { dialogueLine.textContent = caption; triggerHumanoidDialogue(actorId, caption, { kind: "learner_camera", actorId: null }, emotion as HumanoidExpressionEmotion, undefined, "plan.dialogueEmotionTo"); },
