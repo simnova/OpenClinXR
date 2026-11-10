@@ -41,3 +41,13 @@ Instrument fact: the hair matte (batch.ts matte:true) and iou are identical to t
 values), so iou does not see texture alpha. No runtime override of alphaTest in apps/ui-xr/src (grep). score_trial reads the same 253 (score.json hairlineRow raw)
 on the incumbent; the 252 quoted as control came from the trial-24 seed builds, so the rule's 247 bar sits 6 px above the
 incumbent row, not 5.
+
+## Amendment 1 (CEO 09:25; rule fixed before rendering)
+Why: queue/05 front root mean alpha .21 (0-2 mm), .25 (2-5 mm), .44 (5-10 mm), so cutoffs .85-.5 still discard the first ~10 mm
+of front roots; the sweep above tested the card body, not the roots.
+Probe: cutoffs .3 and .15, same harness, same v2 scoring, control = cut-85 above (sum D 73.6121, row 253).
+- MOVES: front hairlineRow <= 248 at .3 or .15 (control 253 - 5 px, CEO 09:25). Then card 07 (a) root stagger, aiming the
+  root-end alpha at the lowest cutoff level that moved the row, written into the card 07 rule.
+- NOT THE CAUSE: row > 248 at .15. Then texture alpha is out as the hairline cause; skip (a); report the next suspect.
+- Counterweight: at .15 most texels pass and cards render close to solid quads, so a row gain can come from quad edges rather
+  than strand roots. Reported beside the row: front D_v and changed px in the hairline window (rows 230-270, cols 450-570).
