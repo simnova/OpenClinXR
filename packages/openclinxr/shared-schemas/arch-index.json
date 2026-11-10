@@ -31,6 +31,7 @@
     "TraceEvent",
     "ValidationResult",
     "classifyScenarioEquipmentBinding",
+    "effectiveBreakAfterStationOrders",
     "validateAssetManifest",
     "validateCaseEmotionPolicy",
     "validateCommunicationProfile",
@@ -61,7 +62,8 @@
     "src/face-phenotype/the-face-phenotype-fields-are-declared.test.ts",
     "src/schemas.test.ts",
     "src/the-actor-card-schema-authors-placement.test.ts",
-    "src/the-factory-station-schemas-validate.test.ts"
+    "src/the-factory-station-schemas-validate.test.ts",
+    "src/the-last-station-is-never-followed-by-a-break.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/shared-schemas test",

@@ -60,7 +60,8 @@
     "src/exam-assembly.test.ts",
     "src/exam-form-breaks.test.ts",
     "src/sampling-plan/blueprint-coverage-blocks-activation-until-constraints-are-met.test.ts",
-    "src/the-break-duration-defaults-to-the-blueprint.test.ts"
+    "src/the-break-duration-defaults-to-the-blueprint.test.ts",
+    "src/the-plan-has-no-break-after-the-last-station.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/exam-assembly test",

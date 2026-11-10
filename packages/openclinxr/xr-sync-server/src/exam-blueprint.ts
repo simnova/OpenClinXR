@@ -11,13 +11,14 @@
  * Derived server config: stations = stationSlots sorted by (order, slotId)
  * -> their slotIds; timing = { doorwaySeconds, encounterSeconds,
  * noteSeconds } from the blueprint timing; breakSeconds + break orders from
- * timing.breakSeconds / timing.breakAfterStationOrders (indexes never the
- * last station). Boot refuses (message names "examBlueprint"): blueprint
- * together with stations or timing; duplicate slotId; duplicate order; any
- * phase seconds not a positive integer; bad breakSeconds; bad
- * breakAfterStationOrders; unknown break order.
+ * timing.breakSeconds / timing.breakAfterStationOrders (a break after the
+ * last station, the max order, is dropped by the shared rule). Boot refuses
+ * (message names "examBlueprint"): blueprint together with stations or
+ * timing; duplicate slotId; duplicate order; any phase seconds not a positive
+ * integer; bad breakSeconds; bad breakAfterStationOrders; unknown break order.
  */
 
+import { effectiveBreakAfterStationOrders } from "@openclinxr/shared-schemas";
 import type { StationTiming } from "./phase-clock.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -129,9 +130,7 @@ export function parseExamBlueprint(value: unknown): ParsedExamBlueprint {
     }
   }
   const orderToIndex = new Map(parsed.map((slot, index) => [slot.order, index] as const));
-  const breakAfterStationIndexes = orders
-    .map((order) => orderToIndex.get(order) as number)
-    .filter((index) => index < parsed.length - 1);
+  const breakAfterStationIndexes = effectiveBreakAfterStationOrders(parsed.map((slot) => slot.order), orders).map((order) => orderToIndex.get(order) as number);
   const bootTrace = orders.length > 0 && breakSeconds === 0
     ? ["examBlueprint.timing.breakAfterStationOrders is set but examBlueprint.timing.breakSeconds is absent or 0: no break runs"]
     : [];

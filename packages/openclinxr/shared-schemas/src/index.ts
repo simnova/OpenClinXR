@@ -10,6 +10,7 @@ export {
   classifyScenarioEquipmentBinding,
   EQUIPMENT_BINDING_PRECEDENCE,
 } from "./equipment-binding.js";
+export { effectiveBreakAfterStationOrders } from "./exam-break-orders.js";
 export type {
   ProductionStationId,
 } from "./factory-stations.js";

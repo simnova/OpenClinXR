@@ -28,6 +28,7 @@
       "TraceEvent",
       "ValidationResult",
       "classifyScenarioEquipmentBinding",
+      "effectiveBreakAfterStationOrders",
       "validateAssetManifest",
       "validateCaseEmotionPolicy",
       "validateCommunicationProfile",

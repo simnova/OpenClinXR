@@ -1,3 +1,4 @@
+import { effectiveBreakAfterStationOrders } from "@openclinxr/shared-schemas";
 import type {
   ExamBlueprint,
   ExamBlueprintTiming,
@@ -22,7 +23,7 @@ export function buildExamTimingPlan(
   const sortedSlots = [...blueprint.stationSlots].sort(
     (left, right) => left.order - right.order || left.slotId.localeCompare(right.slotId),
   );
-  const breakOrders = uniqueSortedPositiveIntegers(blueprint.timing.breakAfterStationOrders);
+  const breakOrders = effectiveBreakAfterStationOrders(sortedSlots.map((slot) => slot.order), blueprint.timing.breakAfterStationOrders);
   const stationDuration = stationDurationSeconds(blueprint.timing);
   const stationWindows: ExamStationTimingWindow[] = [];
   const breakWindows: ExamBreakWindow[] = [];
@@ -247,10 +248,6 @@ function breakDurationFor(afterStationOrder: number, options: ExamFormTimingOpti
     return finiteNonNegative(mapped);
   }
   return finiteNonNegative(options.breakDurationSeconds ?? blueprintBreakSeconds ?? 0);
-}
-
-function uniqueSortedPositiveIntegers(values: readonly number[]): number[] {
-  return [...new Set(values.filter((value) => Number.isInteger(value) && value >= 1))].sort((left, right) => left - right);
 }
 
 function stationDurationSeconds(timing: ExamBlueprintTiming): number {

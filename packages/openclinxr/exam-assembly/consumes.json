@@ -133,6 +133,10 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "effectiveBreakAfterStationOrders",
+        "kind": "runtime"
+      },
+      {
         "name": "ExamBlueprint",
         "kind": "type"
       },

@@ -191,7 +191,6 @@ describe("exam assembly", () => {
     expect(plan.stationWindows.map((window) => window.stationOrder)).toEqual([1, 2, 3]);
     expect(plan.breakCheckpoints).toEqual([
       { afterStationOrder: 1, atSecond: 1560 },
-      { afterStationOrder: 3, atSecond: 4680 },
     ]);
   });
 
