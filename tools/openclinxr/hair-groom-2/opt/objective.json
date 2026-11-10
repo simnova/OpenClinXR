@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "source": "tools/openclinxr/hair-groom-2/opt/SPEC.md OBJECTIVE/SEARCH/STOP, frozen 2026-11-10",
+  "views": ["front", "three_quarter_left", "side", "back"],
+  "formula": "D_v = sum_m w_m * |m(x) - m(target)| / s_m over terms applying to v; D = sum_v D_v",
+  "scaleKinds": {
+    "rel": "s = k * target[of or metric]",
+    "abs": "s = v",
+    "cropH": "s = k * crop height px"
+  },
+  "terms": [
+    {"name": "peak", "source": "sheen_gate.full_row.peak", "scale": {"kind": "rel", "k": 0.3}, "w": 1, "views": "all"},
+    {"name": "base", "source": "sheen_gate.full_row.base", "scale": {"kind": "rel", "k": 0.3}, "w": 1, "views": "all"},
+    {"name": "black", "source": "sheen_gate.full_row.black", "scale": {"kind": "abs", "v": 0.05}, "w": 1, "views": "all"},
+    {"name": "hue", "source": "sheen_gate.full_row.hue", "scale": {"kind": "abs", "v": 10.0}, "w": 0.5, "views": "all"},
+    {"name": "sat", "source": "sheen_gate.full_row.sat", "scale": {"kind": "rel", "k": 0.3}, "w": 1, "views": "all"},
+    {"name": "bandCont", "source": "sheen_gate.full_row.bandCont", "scale": {"kind": "abs", "v": 0.10}, "w": 0.5, "views": "all"},
+    {"name": "streak", "source": "sheen_gate.full_row.streak", "scale": {"kind": "rel", "k": 0.5}, "w": 1, "views": "all"},
+    {"name": "iou", "source": "score_trial.iou: |hair mask (render_hair) & target_hair(target)| / union; target value 1", "scale": {"kind": "abs", "v": 0.05}, "w": 1, "views": "all"},
+    {"name": "bandProfileL8", "source": "score_trial.bands8: median L per 8 equal row bands over the target hair row extent", "scale": {"kind": "rel", "k": 0.3, "of": "base"}, "w": 1, "views": "all"},
+    {"name": "bandBlack8", "source": "score_trial.bands8: black share (L<.06) per band", "scale": {"kind": "abs", "v": 0.05}, "w": 1, "views": "all"},
+    {"name": "bandRowVec", "source": "score_trial.band_row_vec: per crown column row of max L, median |d row|", "scale": {"kind": "cropH", "k": 0.05}, "w": 1, "views": "all"},
+    {"name": "skinL", "source": "score_trial.skin_band: mean L, rows hairline+5..+40 in target skin mask", "scale": {"kind": "abs", "v": 0.03}, "w": 1, "views": ["front", "three_quarter_left"]},
+    {"name": "skinHue", "source": "score_trial.skin_band: circular mean hue deg, same region", "scale": {"kind": "abs", "v": 5.0}, "w": 1, "views": ["front", "three_quarter_left"]},
+    {"name": "partWidthMedPx", "source": "part_width.measure.partWidthMedPx", "scale": {"kind": "abs", "v": 2.0}, "w": 1, "views": ["front"]},
+    {"name": "hairlineFalloffMedPx", "source": "part_width.measure.hairlineFalloffMedPx", "scale": {"kind": "abs", "v": 4.0}, "w": 1, "views": ["front"]},
+    {"name": "hairlineRow", "source": "part_width.measure.hairlineRow", "scale": {"kind": "abs", "v": 4.0}, "w": 1, "views": ["front"]},
+    {"name": "peakCeil", "source": "score_trial: max(0, peak - 1.25*target)/(.3*target)", "scale": {"kind": "rel", "k": 0.3, "ceil": 1.25}, "w": 2, "views": "all", "soft": true}
+  ],
+  "a3": {
+    "note": "compute.py SHEEN list, reproduction check only (sheen_gate full_row, target hair via target_hair)",
+    "terms": [
+      {"name": "peak", "field": "peak", "scale": {"kind": "rel", "k": 0.3}, "w": 1},
+      {"name": "base", "field": "base", "scale": {"kind": "rel", "k": 0.3}, "w": 1},
+      {"name": "black", "field": "black", "scale": {"kind": "abs", "v": 0.05}, "w": 1},
+      {"name": "hue", "field": "hue", "scale": {"kind": "abs", "v": 10.0}, "w": 0.5},
+      {"name": "sat", "field": "sat", "scale": {"kind": "rel", "k": 0.3}, "w": 1},
+      {"name": "bandRowCol", "field": "bandRowCol", "scale": {"kind": "abs", "v": 0.05}, "w": 1},
+      {"name": "bandCont", "field": "bandCont", "scale": {"kind": "abs", "v": 0.10}, "w": 0.5},
+      {"name": "streak", "field": "streak", "scale": {"kind": "rel", "k": 0.5}, "w": 1}
+    ]
+  },
+  "hard": {
+    "iouFloor": {"front": 0.79, "three_quarter_left": 0.83, "side": 0.84, "back": null, "backRule": "set from incumbent measured IoU"},
+    "g2": {"blackMaxOverTarget": 0.02, "peakMinFracOfTarget": 0.8},
+    "trisMax": 63024,
+    "shapeUntouched": "material/tint do not move geometry (41/41 not re-run)"
+  },
+  "stop": {
+    "plateau": {"trials": 32, "rule": "best sum D improving < sum delta_v over the window"},
+    "infeasible": {"afterTrials": 30, "feasibleAtLeast": 1},
+    "ship": "D_v(cand) <= D_v(inc) - max(2*delta_v, Delta_v/4) in every view and all HARD",
+    "rounds": "2 per stage/structure on a miss, then report to operator",
+    "resolutionCheck": "sum delta_v >= sum Delta_v / 4 (= 9.45) => do not run DE"
+  },
+  "noise": {
+    "delta_seed_v": {"front": null, "three_quarter_left": null, "side": null, "back": null},
+    "delta_grader_v": {"front": null, "three_quarter_left": null, "side": null, "back": null},
+    "Delta_v_A3": {"front": 9.85, "three_quarter_left": 12.94, "side": 7.49, "back": 7.52},
+    "note": "null until measured; the driver treats null as 0"
+  },
+  "search": {
+    "material": {
+      "start": "best3",
+      "knobs": {
+        "K": {"start": 0.65, "range": [0.4, 1.0], "flag": "--base-color-scale"},
+        "spec": {"start": 0.3, "range": [0.1, 1.0], "flag": "--runtime-sheen S"},
+        "roughness": {"start": 0.4, "range": [0.2, 0.6], "flag": "--runtime-sheen R"},
+        "anisotropy": {"start": 0.5, "range": [0.3, 1.0], "flag": "--runtime-sheen A"},
+        "specColorG": {"start": 0.45, "range": [0.3, 1.0], "flag": "--spec-color 1 G B"},
+        "specColorB": {"start": 0.25, "range": [0.15, 1.0], "flag": "--spec-color 1 G B"},
+        "streakAmp": {"start": 0.5, "range": [0.0, 1.0], "flag": "--spec-streaks ... AMP"},
+        "streakSigmaMm": {"start": 0.5, "range": [0.3, 1.0], "flag": "--spec-streaks ... SIGMA"}
+      },
+      "frozen": {"anisoRot": 0, "specColorR": 1, "streakRho": 0, "streakSeed": 0, "streakMapStructure": "P1 streak map kept (685c0056e)"},
+      "budget": {"trials": 96, "wallHours": 4},
+      "popsize": 16, "F": 0.6, "CR": 0.9
+    },
+    "tint": {
+      "start": "g2",
+      "knobs": {
+        "amax": {"start": 0.8, "range": [0.4, 1.0]},
+        "wideAmax": {"start": 0.3, "range": [0.0, 0.5]},
+        "closeMm": {"start": 2.0, "range": [1.0, 3.0]},
+        "closeSoftMm": {"start": 1.5, "range": [0.5, 3.0]},
+        "fadeFrac": {"start": 0.6, "range": [0.3, 0.8]},
+        "fadeLenMm": {"start": 60.0, "range": [20.0, 80.0]}
+      },
+      "frozen": {"sigmaMm": 0.6, "wideSigmaMm": 3, "sideburnWeight": 0.2},
+      "budget": {"trials": 32, "wallHours": null},
+      "popsize": 16, "F": 0.6, "CR": 0.9
+    },
+    "order": ["material", "tint"]
+  },
+  "counterweights": {
+    "K down": ["bandProfileL8", "sat", "hue"],
+    "spec up / roughness down": ["peakCeil", "bandRowVec", "bandCont"],
+    "streakAmp up": ["peak", "sat"],
+    "amax up / closeMm up": ["skinBand", "hairlineFalloff"],
+    "fadeLenMm up / fadeFrac up": ["hairlineRow", "iou front"]
+  },
+  "incumbent": "BEST3 + p2 g2 (aisha-cards-p2-b.glb, p2_scalp.sh sha f346382e3945281b)"
+}
