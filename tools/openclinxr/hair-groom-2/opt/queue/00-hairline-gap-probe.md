@@ -1,6 +1,18 @@
 # 00 hairline gap probe (SPEC D3)
 
-status: queued, not run. Needs the GPU gate open (the probe renders one front crop).
+status: run 2026-11-10, verdict S2 (fade is not the cause). Raw: .openclinxr/opt/hair-groom-2/probe00/part.json (untracked).
+
+## Result (front hairlineRow, part_width.py; renders via render_trial.sh, 25 s each, 4 views)
+| build | P3 frame (frames-samebody warp; identical s/dx/dy to frames-fithead) | driver frame (fithead-8f1709ab, target mapped to runtime = native crop) |
+|---|---|---|
+| target | 140 [EV/p3/part-s1.json] | 233 (tgt-fithead/target-front.png) |
+| pre-fade sheen3b-final | 177 | 255 |
+| faded incumbent p2-b | 173 (reproduces EV/p3 warped/ts-p2b-front.png, identical metrics) | 253 |
+Pre-fade minus faded: +4 rows in the P3 frame, +2 rows in the driver frame (both inside the hairlineRow scale of 4 px).
+Gap to target: 37 rows (P3 frame, sheen3b), 22 rows (driver frame, sheen3b). Removing the fade moves the row 0 rows toward 142.
+Accept rule: pre-fade 177 >= 165 -> S2 accepted; S1 rejected. Next: queue a cards_from_strands root-keep structural candidate (new card);
+tint-stage fadeFrac/fadeLenMm get no hairlineRow weight on this evidence. The strands row in the driver frame was not measured.
+
 
 ## Hypothesis
 The front hairline gap is card-side. Front hairlineRow in the P3 frame: target 140 | strands 142 | cards 173
