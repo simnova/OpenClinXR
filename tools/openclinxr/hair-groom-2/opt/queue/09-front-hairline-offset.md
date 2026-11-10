@@ -80,3 +80,25 @@ Control valid: fh0 front hairlineRow 253 (251-255). fh16 groom: 94,047 strands (
 | back | 7.5830 | 8.8011 | 8.2274 | FAIL |
 | sum D | 73.6121 | 73.8697 | | |
 Front passes and two other views fail: fixed fallback applies, one rebuild at 12 mm under the same rule.
+
+## Result at 12 mm (fallback, amendment 1): FAIL; card 09 stops (no third offset without a CEO decision)
+groom-fh12: 95,101 strands, positionsSha cb4963b0, guides 700 (Poisson 6.91 mm). Chain stage shas in card09/chain12/stages.tsv;
+probe GLB card09-fh12.glb sha 8f230b55. Run: card09/card09_run12.sh, log card09_run12.log.
+| view | D_v fh0 | D_v fh16 | D_v fh12 | bar fh0 + delta_v | fh12 clause |
+|---|---|---|---|---|---|
+| front | 27.5907 | 25.9240 | 25.0719 | row 238 in 230-242 | pass |
+| three_quarter_left | 18.6336 | 20.9561 | 21.0333 | 19.8509 | FAIL |
+| side | 19.8049 | 18.1885 | 15.9211 | 20.3260 | pass |
+| back | 7.5830 | 8.8011 | 7.5513 | 8.2274 | pass |
+| sum D | 73.6121 | 73.8697 | 69.5776 | | |
+Hard constraint: fh12 tris 63,192 > trisMax 63,024, feasible False (violation 0.267); fh0 63,024 and fh16 62,644 feasible.
+ship_a4 --bars v2 (information): fh0 fails S3 S4; fh16 fails S1 S2 S3 S4; fh12 fails S1 S2 S3 S4 (S3 views 1).
+
+## Breakdown (score.json views.<v>.terms wnorm, fh0 -> fh16 -> fh12)
+- 3q: iou 7.04 -> 7.94 -> 7.60 (raw .648 -> .603 -> .620), peak .21 -> .94 -> 1.01, peakCeil 0 -> .21 -> .36, bandProfileL8
+  2.33 -> 2.55 -> 2.71. Matte vs target: the lost hair sits in target hair rows 246-308, image cols 440-551 (left hair edge
+  at row 300 moves from col 407 to 544 / 537; right edge fixed at 631); target rows 358-583 unchanged within 120 px. The iou
+  loss is the raised front band seen from 3/4 (azimuth ramp 40-70 deg), where the 3q target keeps hair.
+- back: fh16 peak .51 -> .97, sat .88 -> 1.25, peakCeil 0 -> .27; iou .801 -> .800. At fh12 back is 7.55 (peak .45, sat .98).
+  The back regression at 16 mm is shading on an unchanged silhouette and does not repeat at 12 mm: groom reshuffle (every
+  root moves), not the hairline band.
