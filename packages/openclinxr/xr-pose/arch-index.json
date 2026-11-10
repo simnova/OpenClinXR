@@ -70,7 +70,8 @@
     "src/supine-per-rail.test.ts",
     "src/supine-support-contact.test.ts",
     "src/the-head-attention-preserves-a-non-identity-bind.test.ts",
-    "src/the-posture-pass-applies-an-owned-bone-once.test.ts"
+    "src/the-posture-pass-applies-an-owned-bone-once.test.ts",
+    "src/the-supine-plant-keeps-its-pose-while-getting-faster.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-pose test",
