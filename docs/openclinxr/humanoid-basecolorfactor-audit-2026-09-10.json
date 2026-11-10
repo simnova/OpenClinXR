@@ -667,7 +667,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -744,7 +744,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -915,7 +915,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -957,7 +957,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
@@ -977,7 +977,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1206,
+    "line": 1213,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1206",
@@ -997,7 +997,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1208,
+    "line": 1215,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1208",
@@ -1012,7 +1012,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -1104,7 +1104,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -1275,7 +1275,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -1317,7 +1317,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
@@ -1337,7 +1337,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1206,
+    "line": 1213,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1206",
@@ -1357,7 +1357,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1208,
+    "line": 1215,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1208",
@@ -1372,7 +1372,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 863,
+    "line": 870,
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in 13a94960 (feat(humanoid): fit family-partner lower from pants02 bootcut mhclo). Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
@@ -1387,7 +1387,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -1439,7 +1439,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -1610,7 +1610,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -1652,7 +1652,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
@@ -1672,7 +1672,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1206,
+    "line": 1213,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1206",
@@ -1692,7 +1692,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1208,
+    "line": 1215,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1208",
@@ -1707,7 +1707,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -1744,7 +1744,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -1915,7 +1915,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -1957,7 +1957,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
@@ -1977,7 +1977,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1206,
+    "line": 1213,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1206",
@@ -1997,7 +1997,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1208,
+    "line": 1215,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1208",
@@ -2250,7 +2250,7 @@
    "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "bodyLastChanged": "f8a1758348b50779f41b8c7f1686ccedc19fb6a8 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
@@ -2268,7 +2268,7 @@
    "reason": "Measured [0.9200000166893005, 0.8999999761581421, 0.8600000143051147, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:970. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1206",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1206,
+    "line": 1213,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "bodyLastChanged": "f8a1758348b50779f41b8c7f1686ccedc19fb6a8 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
@@ -2286,7 +2286,7 @@
    "reason": "Measured [0.8500000238418579, 0.44999998807907104, 0.44999998807907104, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:972. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1208",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1208,
+    "line": 1215,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "bodyLastChanged": "f8a1758348b50779f41b8c7f1686ccedc19fb6a8 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
@@ -2300,7 +2300,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -2357,7 +2357,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -2392,7 +2392,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -2434,7 +2434,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
@@ -2454,7 +2454,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1206,
+    "line": 1213,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1206",
@@ -2474,7 +2474,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1208,
+    "line": 1215,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1208",
@@ -2489,7 +2489,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 863,
+    "line": 870,
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-fit-time.json. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
@@ -2504,7 +2504,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -2556,7 +2556,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 863,
+    "line": 870,
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
@@ -2711,7 +2711,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 863,
+    "line": 870,
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
@@ -2753,7 +2753,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Authored lash colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
@@ -2773,7 +2773,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1206,
+    "line": 1213,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Authored teeth colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1206",
@@ -2793,7 +2793,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1208,
+    "line": 1215,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Authored tongue colour. Factor IS the albedo (no texture to multiply). origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1208",
@@ -2808,7 +2808,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -2881,7 +2881,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -3052,7 +3052,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -3094,7 +3094,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
@@ -3114,7 +3114,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1206,
+    "line": 1213,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1206",
@@ -3134,7 +3134,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1208,
+    "line": 1215,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1208",
@@ -3149,7 +3149,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 863,
+    "line": 870,
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-fit-time.json. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
@@ -3164,7 +3164,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -3423,7 +3423,7 @@
    "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "bodyLastChanged": "f8a1758348b50779f41b8c7f1686ccedc19fb6a8 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
@@ -3457,7 +3457,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -3510,7 +3510,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -3681,7 +3681,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -3723,7 +3723,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
@@ -3743,7 +3743,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1206,
+    "line": 1213,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1206",
@@ -3763,7 +3763,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1208,
+    "line": 1215,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1208",
@@ -3778,7 +3778,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -3815,7 +3815,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -3853,7 +3853,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -4024,7 +4024,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -4066,7 +4066,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
@@ -4086,7 +4086,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1206,
+    "line": 1213,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1206",
@@ -4106,7 +4106,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1208,
+    "line": 1215,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1208",
@@ -4121,7 +4121,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 863,
+    "line": 870,
     "literal": "color = props.get(\"diffuseColor\") or [\"1.0\", \"1.0\", \"1.0\"]"
    },
    "reason": "Fitted library garment; no tint authored. Factor absent = glTF default white; the baseColorTexture carries the look. Fit recorded in tools/openclinxr/evidence/humanoid-vetting/female-covering-lower-fit-time.json. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
@@ -4136,7 +4136,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -4189,7 +4189,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -4360,7 +4360,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 846,
+    "line": 853,
     "literal": "tex_path resolves -> image wired; no factor literal (exporter default)"
    },
    "alphaMode": "OPAQUE",
@@ -4402,7 +4402,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 7948,
+    "line": 7959,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7948",
@@ -4422,7 +4422,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1206,
+    "line": 1213,
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1206",
@@ -4442,7 +4442,7 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 1208,
+    "line": 1215,
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1208",
