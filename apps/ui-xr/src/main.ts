@@ -1543,7 +1543,7 @@ app.innerHTML = `
         <p class="subtle">${selectedStationContext.subtitle}</p>
       </header>
       <div class="timer-row">
-        <span>Encounter</span>
+        <span id="station-clock-label">Encounter</span>
         <strong id="station-clock">00:00</strong>
       </div>
       <section class="ehr-panel" aria-label="Simulated EHR">
@@ -1654,6 +1654,7 @@ const clock = requireElement<HTMLElement>("#station-clock");
 let replayClock = false;
 let breakClock = false;
 let syncedStation = false;
+let syncedPhase = false;
 const traceSummary = requireElement<HTMLElement>("#trace-summary");
 const traceActions = requireElement<HTMLElement>("#trace-actions");
 const examFlowStation = requireElement<HTMLElement>("#exam-flow-station");
@@ -1661,6 +1662,7 @@ const doorwayStation = requireElement<HTMLElement>("#doorway-station");
 const examFlowCaseSource = requireElement<HTMLElement>("#exam-flow-case-source");
 const examFlowTimer = requireElement<HTMLElement>("#exam-flow-timer");
 const examFlowAdvance = requireElement<HTMLElement>("#exam-flow-advance");
+const stationClockLabel = requireElement<HTMLElement>("#station-clock-label");
 void (async () => {
   await initializeRemoteTraceSession(stationApi);
   await bootLearnerExamFormFromApi({
@@ -1874,14 +1876,16 @@ function updateExamFlowEvidence(): OpenClinXrExamFlowEvidence {
   if (!syncedStation) {
     examFlowStation.textContent = `${evidence.scenarioIndex + 1}/${evidence.totalScenarios}: ${evidence.scenarioId}`;
   }
-  examFlowTimer.textContent = evidence.phase === "note"
-    ? `note ${formatStationClock(evidence.noteElapsedSeconds)} / ${formatStationClock(evidence.noteDurationSeconds)}`
-    : evidence.phase === "complete"
-      ? "exam sequence complete"
-      : `encounter ${formatStationClock(evidence.encounterElapsedSeconds)} / ${formatStationClock(evidence.encounterDurationSeconds)}`;
-  examFlowAdvance.textContent = evidence.canAdvanceToNextEncounter
-    ? `ready for ${nextScenarioId ?? "completion"}`
-    : [evidence.fallbackLabel, evidence.lastAdvanceReason ?? "complete encounter, then submit a non-empty patient note"].filter(Boolean).join(" — ");
+  if (!syncedPhase) {
+    examFlowTimer.textContent = evidence.phase === "note"
+      ? `note ${formatStationClock(evidence.noteElapsedSeconds)} / ${formatStationClock(evidence.noteDurationSeconds)}`
+      : evidence.phase === "complete"
+        ? "exam sequence complete"
+        : `encounter ${formatStationClock(evidence.encounterElapsedSeconds)} / ${formatStationClock(evidence.encounterDurationSeconds)}`;
+    examFlowAdvance.textContent = evidence.canAdvanceToNextEncounter
+      ? `ready for ${nextScenarioId ?? "completion"}`
+      : [evidence.fallbackLabel, evidence.lastAdvanceReason ?? "complete encounter, then submit a non-empty patient note"].filter(Boolean).join(" — ");
+  }
   endEncounterButton.disabled = evidence.phase !== "encounter";
   submitNoteButton.disabled = evidence.phase !== "note";
   return evidence;
@@ -4647,6 +4651,15 @@ if (window.location.search.includes("encounterSync=")) void import("@openclinxr/
     if (remaining === null) return;
     clock.textContent = `Break ${formatStationClock(remaining)}`;
     doorwayStation.textContent = "Break";
+  },
+  // C55': the server phase drives the flow panel (label, timer, advance).
+  // The local timer and advance writers in updateExamFlowEvidence skip once syncedPhase holds.
+  onPhase: (phase, remaining) => {
+    syncedPhase = true;
+    const name = phase.charAt(0).toUpperCase() + phase.slice(1);
+    stationClockLabel.textContent = name;
+    examFlowTimer.textContent = `${name} ${formatStationClock(remaining)} left`;
+    examFlowAdvance.textContent = "server rotation";
   },
   voice: { assetBase: "/mesm-tts/", slotFor: (id) => generatedHumanoidAnimationSlotsByActorId.get(id) as never, voiceFor: ((voices) => (id: string) => voices.get(id))(new Map([edChestPainScenario, ...scenarioBank].flatMap((scenario) => scenario.actors).reverse().map((actor) => [actor.actorId, actor.ttsVoice] as const))) },
   register: (payload, tag) => { const parsed = liveActorTurnFromPayload(payload); return parsed ? registerLiveActorTurn(parsed.plan, parsed.execution, tag) : undefined; },

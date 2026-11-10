@@ -37,6 +37,21 @@ export function createBreakAnnouncer(onBreak: (remainingS: number | null) => voi
   };
 }
 
+const PANEL_PHASES: ReadonlySet<string> = new Set(["doorway", "encounter", "note", "break", "closed"]);
+
+/** C55': fires onPhase with (phase, phaseRemainingS ?? 0) on the first snapshot and whenever either changes; only for the station phases doorway, encounter, note, break, closed. */
+export function createPhaseAnnouncer(onPhase: (phase: string, remainingS: number) => void): (snapshot: EncounterSnapshot) => void {
+  let last = "";
+  return (snapshot) => {
+    if (!PANEL_PHASES.has(snapshot.phase)) return;
+    const remaining = snapshot.phaseRemainingS ?? 0;
+    const key = snapshot.phase + "/" + remaining;
+    if (key === last) return;
+    last = key;
+    onPhase(snapshot.phase, remaining);
+  };
+}
+
 /** C50: fires onStation on the first station position and whenever (index, count) changes. */
 export function createStationAnnouncer(onStation: (index: number, count: number) => void): (snapshot: EncounterSnapshot) => void {
   let last = "";
