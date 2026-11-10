@@ -227,12 +227,16 @@ def build_scalp(body, origin, R, centre, rc, ear=None):
     table = np.array(rc["scalp"]["hairlineMmAboveHeadOriginByAzimuthDeg"], dtype=float)
     min_up = rc["scalp"]["minUpwardNormal"]
     eh = rc["scalp"].get("earHairline")
+    fh_off = float(rc["scalp"].get("frontHairlineOffsetMm", 0.0))
 
     def is_scalp_v(co):
         p = to_local(co, origin, R)
         rel = p - centre
         az = math.degrees(math.atan2(abs(rel[0]), -rel[1]))
         h = np.interp(az, table[:, 0], table[:, 1]) / 1000.0
+        if fh_off:
+            # frontHairlineOffsetMm: vertical raise of the front hairline, full to 40 deg azimuth, linear to 0 at 70 deg
+            h += fh_off * min(1.0, max(0.0, (70.0 - az) / 30.0)) / 1000.0
         if eh and ear:
             r = ear_hairline_mm(p * 1000.0, ear, eh)
             if r is not None:

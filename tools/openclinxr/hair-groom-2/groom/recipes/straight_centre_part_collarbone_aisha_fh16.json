@@ -1,0 +1,204 @@
+{
+ "schema": "hair-groom-2.strand-recipe.v0",
+ "name": "straight_centre_part_collarbone",
+ "seed": 1107,
+ "guides": {
+  "count": 700,
+  "pointsPerStrand": 32,
+  "marchStepMm": 3.0
+ },
+ "children": {
+  "densityPerM2": 1600000,
+  "interpolationGuides": 2
+ },
+ "scalp": {
+  "hairlineMmAboveHeadOriginByAzimuthDeg": [
+   [
+    0,
+    100
+   ],
+   [
+    40,
+    96
+   ],
+   [
+    70,
+    65
+   ],
+   [
+    90,
+    55
+   ],
+   [
+    110,
+    30
+   ],
+   [
+    140,
+    -25
+   ],
+   [
+    180,
+    -50
+   ]
+  ],
+  "minUpwardNormal": -0.35,
+  "earHairline": {
+   "minAbsXMm": 40,
+   "aboveEarClearMm": 0,
+   "sideburnWidthMm": 14,
+   "sideburnRampMm": 12,
+   "rampTopAboveEarMm": 20,
+   "behindEarMm": 0
+  },
+  "frontHairlineOffsetMm": 16
+ },
+ "lengthMm": {
+  "front": 705,
+  "temples": 685,
+  "crown": 725,
+  "nape": 505
+ },
+ "part": {
+  "type": "centre",
+  "partWidthMm": 1.2,
+  "partAwayGain": 0.9,
+  "partFadeBackMm": 50,
+  "backConvergeGain": 0.3,
+  "backConvergeWidthMm": 40,
+  "backConvergeStopAtMidline": true,
+  "partAwayFadeXMm": [
+   35,
+   80
+  ],
+  "partAwayFadeAboveZMm": 90
+ },
+ "fall": {
+  "rootLiftMm": 0.5,
+  "volumeMm": 4.0,
+  "gravityPerM": 55.0,
+  "combRailMm": 78.0,
+  "combRailGain": 0.9,
+  "combRailBackTargetMm": 40,
+  "combRailBackGain": 0.0,
+  "relaxIterations": 3,
+  "scalpHugGain": 1.5,
+  "shoulderForwardGain": 0.8,
+  "shoulderFieldBelowHeadOriginMm": -60,
+  "frontAzimuthMaxDeg": 0,
+  "rootNormalWeight": 0.1,
+  "scalpHugAnteriorOnly": false,
+  "scalpHugMinZMm": 60,
+  "scalpHugCrownHalfWidthMm": 60,
+  "shoulderFieldBottomMm": -180,
+  "backHugBelowMm": -300,
+  "backHugGain": 0.8,
+  "scalpHugOffsetMm": 1.5,
+  "shoulderRoute": {
+   "behindYMm": 70,
+   "topMm": -95,
+   "bottomMm": -200,
+   "gain": 1.2,
+   "rampMm": 30,
+   "medialHalfWidthMm": 108,
+   "medialGain": 0.5,
+   "medialTaper": {
+    "topMm": -175,
+    "mmPerMm": 1.2,
+    "minHalfWidthMm": 30,
+    "gain": 2.0
+   }
+  },
+  "relaxBelow": {
+   "belowMm": -30,
+   "iterations": 40
+  },
+  "layerMmPerMm": 0.15,
+  "layerCapMm": 150,
+  "layerApplyBelowMm": -60,
+  "layerMaxAbsXMm": 70,
+  "tipConverge": {
+   "belowMm": -310,
+   "yMm": 108,
+   "gain": 1.5,
+   "rampMm": 10
+  },
+  "layerPushBack": true
+ },
+ "clump": {
+  "factor": 0.35,
+  "shape": 0.4,
+  "tipSpreadMm": 0.6,
+  "distanceThresholdMm": 0.0,
+  "guideDistanceMm": 6.0
+ },
+ "curl": {
+  "factor": 0.0
+ },
+ "frizz": {
+  "factor": 0.1,
+  "distanceMm": 0.8,
+  "shape": 0.7
+ },
+ "trim": {
+  "randomOffset": 0.2
+ },
+ "shading": {
+  "model": "HUANG",
+  "melanin": 0.6,
+  "melaninRedness": 0.7,
+  "roughness": 0.3,
+  "radialRoughness": 0.3,
+  "coat": 0.0,
+  "randomColor": 0.05,
+  "randomRoughness": 0.1,
+  "lobeTransmission": 0.03,
+  "lobeReflection": 0.6
+ },
+ "lighting": {
+  "keyW": 55.0,
+  "fillW": 45.0,
+  "rimW": 25.0
+ },
+ "strand": {
+  "rootRadiusMm": 0.055,
+  "tipRadiusMm": 0.035
+ },
+ "earTuck": {
+  "minAbsXMm": 40,
+  "behindYMm": 15,
+  "topZMm": 50,
+  "bottomZMm": -20,
+  "rampMm": 35,
+  "gain": 6.0
+ },
+ "clearanceMm": 1.0,
+ "earLift": {
+  "minAbsXMm": 40,
+  "frontOfEarMm": 26,
+  "behindEarMm": 4,
+  "clearMm": 10,
+  "rampMm": 8,
+  "gain": 6.0,
+  "rootUpWeight": 0.5,
+  "rootBackWeight": 0.3
+ },
+ "hairlineTaper": {
+  "minAbsXMm": 40,
+  "depthMm": 26,
+  "behindMm": 0,
+  "fullBelowEarTopMm": 4,
+  "minLengthMm": 10,
+  "minRadiusScale": 0.15,
+  "power": 3
+ },
+ "hem": {
+  "centreZMm": -350,
+  "risePerMm2": 0.0,
+  "jitterMm": 4,
+  "yCentreMm": 115,
+  "risePerMmY2": 0.8,
+  "riseCapMm": 35
+ },
+ "_note": "queue card 09 (opt/queue/09-front-hairline-offset.md): Aisha runtime body vs target body hairline; front roots sit about 12-17 px below the v2 target hairline, so the front hairline is raised 16 mm vertically (full to 40 deg azimuth, ramp to 0 at 70 deg). Everything else equals straight_centre_part_collarbone.json."
+}
