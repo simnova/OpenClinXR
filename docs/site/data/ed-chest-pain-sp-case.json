@@ -1,0 +1,42 @@
+{
+  "source": "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts",
+  "openingLine": "It feels heavy, like someone is sitting on my chest.",
+  "historyAnswers": [
+    {
+      "topic": "patient_onset_history",
+      "answer": "It started on the stairs, a heavy pressure right in the middle of my chest."
+    },
+    {
+      "topic": "nurse_team_escalation",
+      "answer": "He looks worse to me. I am getting the ECG machine and paging the team now."
+    },
+    {
+      "topic": "spouse_family_communication",
+      "answer": "Please just tell me what is happening. Is it his heart?"
+    }
+  ],
+  "affect": [
+    {
+      "topic": "patient_onset_history",
+      "affect": "concerned"
+    },
+    {
+      "topic": "nurse_team_escalation",
+      "affect": "concerned"
+    },
+    {
+      "topic": "spouse_family_communication",
+      "affect": "anxious"
+    }
+  ],
+  "fieldSources": {
+    "source": "fixture file path packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts",
+    "openingLine": "edChestPainScenario.actors[actorId=patient_robert_hayes_v1].openingUtterance",
+    "historyAnswers": "edChestPainDialogueSeeds[?safetyExpectation=responds_from_visible_facts] (in fixture order)",
+    "historyAnswers[].topic": "edChestPainDialogueSeeds[].seedId",
+    "historyAnswers[].answer": "edChestPainDialogueSeeds[].spokenText (fallback edChestPainDialogueSeeds[].visibleFacts[0])",
+    "affect": "edChestPainDialogueSeeds[?safetyExpectation=responds_from_visible_facts][].affect (authored affect, in fixture order)",
+    "affect[].topic": "edChestPainDialogueSeeds[].seedId",
+    "affect[].affect": "edChestPainDialogueSeeds[].affect"
+  }
+}

@@ -344,6 +344,27 @@
         "kind": "none"
       },
       "note": "W4b may replace with a found probe",
+      "searchRecord": {
+        "date": "2026-11-10",
+        "patterns": [
+          "stop",
+          "end station",
+          "abort",
+          "panic",
+          "safe word",
+          "exit station"
+        ],
+        "hits": [
+          "packages/openclinxr/scenario-fixtures/src/psychiatric-safety.ts:142 — equipment string 'panic button', no UI control or end-station path",
+          "packages/openclinxr/xr-station/src/station-equipment-call-bell.ts:33 — comment describing panic-button geometry, not a user-visible end control",
+          "packages/openclinxr/xr-station/src/station-equipment-call-bell.ts:50 — parametric panic_button mesh tag, no click/end behavior",
+          "packages/openclinxr/xr-station/src/room-prop-classification.ts:287 — 'panic_button_equipment' classification string only",
+          "packages/openclinxr/xr-station/src/station-equipment-builders.ts:195 — factory routing to buildPanicButtonEquipment, no station-end path",
+          "packages/openclinxr/xr-station/src/station-equipment-families.ts:48 — 'panic_button' union member, type only",
+          "apps/ui-xr/src/main.ts:1576 — 'End encounter / start note' button is general encounter flow, not a sensitive-case content notice plus stop control",
+          "packages/openclinxr/domain/src/station-state.ts:73 — END_ENCOUNTER domain transition, not a user-visible sensitive-station stop control"
+        ]
+      },
       "slots": []
     },
     {

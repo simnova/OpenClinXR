@@ -1,0 +1,29 @@
+{
+  "source": "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts",
+  "note": "labels only; no definitions or anchors yet",
+  "items": [
+    {
+      "id": "history_focus",
+      "label": "Focused history"
+    },
+    {
+      "id": "urgent_recognition",
+      "label": "Urgent recognition and escalation"
+    },
+    {
+      "id": "communication_team_family",
+      "label": "Team and family communication"
+    },
+    {
+      "id": "documentation",
+      "label": "Patient note"
+    }
+  ],
+  "fieldSources": {
+    "source": "fixture file path packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts",
+    "note": "fixture limitation: edChestPainScenario.reviewRubric[] carries only rubricId + label (no definition/anchor fields) per B8",
+    "items": "edChestPainScenario.reviewRubric (in fixture order)",
+    "items[].id": "edChestPainScenario.reviewRubric[].rubricId",
+    "items[].label": "edChestPainScenario.reviewRubric[].label"
+  }
+}
