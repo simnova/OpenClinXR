@@ -34,13 +34,13 @@ async function labelsAfter(search: string, positions: Array<[number, number]>): 
 
 describe("the synced station position is in the doorway header (C51)", () => {
   it("the doorway header keeps its eyebrow, title and subtitle lines unchanged", () => {
-    expect(MAIN).toContain('<p class="label">Doorway</p>');
+    expect(MAIN).toContain('<p class="label" id="doorway-eyebrow">Doorway</p>');
     expect(MAIN).toContain("<h1>${selectedStationContext.title}</h1>");
     expect(MAIN).toContain('<p class="subtle">${selectedStationContext.subtitle}</p>');
   });
 
   it("the header holds an empty #doorway-station between the Doorway eyebrow and the title", () => {
-    expect(MAIN).toMatch(/<p class="label">Doorway<\/p>\n\s*<p class="label" id="doorway-station"><\/p>\n\s*<h1>\$\{selectedStationContext\.title\}<\/h1>/u);
+    expect(MAIN).toMatch(/<p class="label" id="doorway-eyebrow">Doorway<\/p>\n\s*<p class="label" id="doorway-station"><\/p>\n\s*<h1>\$\{selectedStationContext\.title\}<\/h1>/u);
     expect(MAIN).toContain('requireElement<HTMLElement>("#doorway-station")');
   });
 
