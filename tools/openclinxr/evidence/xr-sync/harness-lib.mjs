@@ -596,6 +596,243 @@ export async function checkStills(names, shots) {
   return { pass: rows.length > 0 && rows.every((row) => row.ok), rows };
 }
 
+/**
+ * Capture the complete independently scrolling product panel.  A narrow
+ * #room-panel clip can collapse to the cast strip at the graded viewport;
+ * .runtime-panel is the composition boundary used by website evidence.
+ */
+export async function shootRuntimePanel(page, path) {
+  const panel = page.locator(".runtime-panel");
+  await panel.waitFor({ state: "visible", timeout: 60000 });
+  const box = await panel.boundingBox();
+  if (box === null || box.width <= 0 || box.height <= 0) {
+    throw new Error(`shootRuntimePanel: .runtime-panel has no usable box for ${path}`);
+  }
+  await panel.screenshot({ path, timeout: 30000 });
+  return {
+    path,
+    bbox: { x: box.x, y: box.y, width: box.width, height: box.height },
+    innerText: await panel.innerText(),
+  };
+}
+
+/**
+ * Capture every vertical pixel of the independently scrolling runtime panel.
+ * The temporary inline override is removed before the video continues.
+ */
+export async function shootRuntimePanelFullHeight(page, path) {
+  const panel = page.locator(".runtime-panel");
+  await panel.waitFor({ state: "visible", timeout: 60000 });
+  const saved = await panel.evaluate((node) => ({
+    height: node.style.height,
+    maxHeight: node.style.maxHeight,
+    overflow: node.style.overflow,
+    scrollTop: node.scrollTop,
+    scrollHeight: node.scrollHeight,
+  }));
+  try {
+    await panel.evaluate((node) => {
+      node.style.height = `${node.scrollHeight}px`;
+      node.style.maxHeight = "none";
+      node.style.overflow = "visible";
+      node.scrollTop = 0;
+    });
+    const box = await panel.boundingBox();
+    if (box === null || box.height < saved.scrollHeight) {
+      throw new Error(`shootRuntimePanelFullHeight: expanded panel is shorter than scrollHeight for ${path}`);
+    }
+    await panel.screenshot({ path, timeout: 30000 });
+    return { path, width: box.width, height: box.height, scrollHeight: saved.scrollHeight, innerText: await panel.innerText() };
+  } finally {
+    await panel.evaluate((node, prior) => {
+      node.style.height = prior.height;
+      node.style.maxHeight = prior.maxHeight;
+      node.style.overflow = prior.overflow;
+      node.scrollTop = prior.scrollTop;
+    }, saved);
+  }
+}
+
+/**
+ * Capture the runtime panel at its intrinsic content height.  The production
+ * desktop layout intentionally stretches the panel to 100vh; that is useful
+ * in the app, but adds a large empty tail to evidence stills when presentation
+ * CSS hides the debug-only sections.
+ */
+export function contentClipHeight(originalHeight, contentBottomFromTop, paddingBottom = 0) {
+  return Math.min(originalHeight, Math.max(1, contentBottomFromTop + paddingBottom));
+}
+
+export async function shootRuntimePanelContentHeight(page, path) {
+  const panel = page.locator(".runtime-panel");
+  await panel.waitFor({ state: "visible", timeout: 60000 });
+  const measured = await panel.evaluate((node) => {
+    const box = node.getBoundingClientRect();
+    const visibleChildren = [...node.children].filter((child) => {
+      const style = getComputedStyle(child);
+      const rect = child.getBoundingClientRect();
+      return style.display !== "none" && style.visibility !== "hidden" && rect.width > 0 && rect.height > 0;
+    });
+    const contentBottom = visibleChildren.reduce((bottom, child) => Math.max(bottom, child.getBoundingClientRect().bottom), box.top);
+    const paddingBottom = Number.parseFloat(getComputedStyle(node).paddingBottom) || 0;
+    return {
+      x: box.x,
+      y: box.y,
+      width: box.width,
+      originalHeight: box.height,
+      contentHeight: { originalHeight: box.height, contentBottomFromTop: contentBottom - box.top, paddingBottom },
+    };
+  });
+  const contentHeight = contentClipHeight(
+    measured.contentHeight.originalHeight,
+    measured.contentHeight.contentBottomFromTop,
+    measured.contentHeight.paddingBottom,
+  );
+  const clip = {
+    x: Math.max(0, measured.x),
+    y: Math.max(0, measured.y),
+    width: measured.width,
+    height: contentHeight,
+  };
+  if (clip.width <= 0 || clip.height <= 0) {
+    throw new Error(`shootRuntimePanelContentHeight: panel has no usable content clip for ${path}`);
+  }
+  const captureStartedWallMs = Date.now();
+  await page.screenshot({ path, clip, timeout: 30000 });
+  const captureEndedWallMs = Date.now();
+  return {
+    path,
+    width: clip.width,
+    height: clip.height,
+    originalHeight: measured.originalHeight,
+    contentHeight,
+    croppedToContent: contentHeight < measured.originalHeight,
+    captureStartedWallMs,
+    captureEndedWallMs,
+    innerText: await panel.innerText(),
+  };
+}
+
+/** Record the two server-phase DOM writers on every mutation, on the page clock. */
+export async function installPhaseAgreementLog(page) {
+  await page.evaluate(() => {
+    const eyebrow = document.querySelector("#doorway-eyebrow");
+    const row = document.querySelector("#station-clock-label");
+    globalThis.__openClinXrPhaseAgreementLog = [];
+    const sample = () => {
+      const next = {
+        atMs: Date.now(),
+        eyebrow: eyebrow?.textContent?.trim() ?? "",
+        phaseRow: row?.textContent?.trim() ?? "",
+      };
+      const log = globalThis.__openClinXrPhaseAgreementLog;
+      const prior = log.at(-1);
+      if (prior?.eyebrow !== next.eyebrow || prior?.phaseRow !== next.phaseRow) log.push(next);
+    };
+    sample();
+    globalThis.__openClinXrPhaseAgreementObserver = new MutationObserver(sample);
+    if (eyebrow !== null) globalThis.__openClinXrPhaseAgreementObserver.observe(eyebrow, { childList: true, characterData: true, subtree: true });
+    if (row !== null) globalThis.__openClinXrPhaseAgreementObserver.observe(row, { childList: true, characterData: true, subtree: true });
+  });
+}
+
+/** Read and stop the mutation-driven phase agreement log. */
+export async function takePhaseAgreementLog(page) {
+  return page.evaluate(() => {
+    globalThis.__openClinXrPhaseAgreementObserver?.disconnect();
+    return JSON.parse(JSON.stringify(globalThis.__openClinXrPhaseAgreementLog ?? []));
+  });
+}
+
+/** Install the RR1 evidence-only 250 ms visible-DOM sampler. */
+export async function installVisibleDomTextLog(page, intervalMs = 250) {
+  await page.evaluate((ms) => {
+    const target = document.querySelector(".runtime-panel") ?? document.body;
+    globalThis.__openClinXrVisibleDomTextLog = [];
+    const sample = () => {
+      globalThis.__openClinXrVisibleDomTextLog.push({
+        atMs: Date.now(),
+        innerText: target.innerText,
+      });
+    };
+    sample();
+    globalThis.__openClinXrVisibleDomTextTimer = setInterval(sample, ms);
+  }, intervalMs);
+}
+
+/** Read and stop the RR1 evidence-only visible-DOM sampler. */
+export async function takeVisibleDomTextLog(page) {
+  return page.evaluate(() => {
+    clearInterval(globalThis.__openClinXrVisibleDomTextTimer);
+    return JSON.parse(JSON.stringify(globalThis.__openClinXrVisibleDomTextLog ?? []));
+  });
+}
+
+/**
+ * Project one stamped actor's complete world-space geometry through the live
+ * learner camera into viewport pixels.  This is a scene measurement, not a
+ * DOM rectangle or an authored box.
+ */
+export async function projectActorBbox(page, actorId) {
+  return page.evaluate((wanted) => {
+    const scene = globalThis.__openClinXrDebugScene;
+    const camera = globalThis.__openClinXrGazeCamera;
+    const canvas = document.getElementById("station-canvas");
+    if (scene == null || camera == null || canvas == null) {
+      return { ok: false, why: "missing debug scene, active camera or station canvas" };
+    }
+    let actor = null;
+    scene.traverse((node) => {
+      if (node.userData?.openClinXrActorId === wanted) actor = node;
+    });
+    if (actor === null) return { ok: false, why: `no scene node stamped ${wanted}` };
+    scene.updateMatrixWorld(true);
+    camera.updateMatrixWorld(true);
+    const points = [];
+    actor.traverse((node) => {
+      const geometry = node.geometry;
+      if (geometry == null) return;
+      if (geometry.boundingBox == null) geometry.computeBoundingBox();
+      const box = geometry.boundingBox;
+      if (box == null) return;
+      const Vector3 = node.position.constructor;
+      for (const x of [box.min.x, box.max.x]) {
+        for (const y of [box.min.y, box.max.y]) {
+          for (const z of [box.min.z, box.max.z]) {
+            points.push(new Vector3(x, y, z).applyMatrix4(node.matrixWorld).project(camera));
+          }
+        }
+      }
+    });
+    if (points.length === 0) return { ok: false, why: "actor has no projected geometry" };
+    const rect = canvas.getBoundingClientRect();
+    let minX = Infinity;
+    let minY = Infinity;
+    let maxX = -Infinity;
+    let maxY = -Infinity;
+    let visible = 0;
+    for (const point of points) {
+      if (point.z < -1 || point.z > 1) continue;
+      const px = rect.left + (point.x * 0.5 + 0.5) * rect.width;
+      const py = rect.top + (-point.y * 0.5 + 0.5) * rect.height;
+      minX = Math.min(minX, Math.max(rect.left, Math.min(rect.right, px)));
+      minY = Math.min(minY, Math.max(rect.top, Math.min(rect.bottom, py)));
+      maxX = Math.max(maxX, Math.max(rect.left, Math.min(rect.right, px)));
+      maxY = Math.max(maxY, Math.max(rect.top, Math.min(rect.bottom, py)));
+      visible += 1;
+    }
+    if (visible === 0) return { ok: false, why: "actor is outside the active camera frustum" };
+    const bbox = {
+      x: Math.round(minX),
+      y: Math.round(minY),
+      width: Math.round(maxX - minX),
+      height: Math.round(maxY - minY),
+    };
+    if (bbox.width <= 0 || bbox.height <= 0) return { ok: false, why: `degenerate projected box ${JSON.stringify(bbox)}` };
+    return { ok: true, bbox, canvas: { x: rect.x, y: rect.y, width: rect.width, height: rect.height }, cameraFov: camera.fov ?? null };
+  }, actorId);
+}
+
 /** Watch the live conversation trace for activity: polls getTrace().events.length and stamps lastEventAt only when the length changes; errorCount() counts read errors after the first successful read. */
 export function watchTraceActivity(getTrace, intervalMs = 100) {
   let lastEventAt = null;

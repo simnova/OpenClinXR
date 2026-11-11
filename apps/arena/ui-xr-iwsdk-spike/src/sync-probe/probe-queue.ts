@@ -36,6 +36,7 @@ export interface IntentQueueProbe {
   lastSentPose: { x: number; y: number; z: number; seq: number } | null;
   acks: number;
   ackSeqs: number[];
+  ackServerTsBySeq: Record<number, number>;
   rejects: number;
   rejectDetails: Array<{ seq: number; reason: string }>;
   rttMs: number[];
@@ -76,6 +77,7 @@ export function createIntentQueue(
         if (result.status === "ack") {
           probe.acks += 1;
           probe.ackSeqs.push(result.seq);
+          probe.ackServerTsBySeq[result.seq] = result.serverTs;
           probe.rttMs.push(Number(result.rttMs.toFixed(2)));
         } else {
           probe.rejects += 1;

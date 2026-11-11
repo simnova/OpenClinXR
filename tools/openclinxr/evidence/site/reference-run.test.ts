@@ -120,3 +120,11 @@ it("known-good: layout and claims checks pass on the real tree", async () => {
   const claims = readClaims();
   expect(checkClaimsHtml(readPage(), claims, pageRel)).toEqual([]);
 });
+
+it("renders the reference run from media.json without embedding a run id", () => {
+  const html = readPage();
+  expect(html).toContain('fetch("site/data/media.json")');
+  expect(html).toContain("media.referenceRun");
+  expect(html).toContain("data-reference-run");
+  expect(html).not.toMatch(/\brun-\d+\b/u);
+});

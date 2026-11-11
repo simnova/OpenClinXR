@@ -51,3 +51,10 @@ section[aria-label="Runtime posture"] {
 section[aria-label="Quest manual evidence"] {
   display: none !important;
 }
+
+/* Fixed entry-page links otherwise overlap the final independently scrolling
+ * runtime-panel line at 960x600.
+ * Source: apps/ui-xr/index.html:11 body > footer. */
+body > footer {
+  display: none !important;
+}

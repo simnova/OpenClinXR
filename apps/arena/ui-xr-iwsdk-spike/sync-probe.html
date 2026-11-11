@@ -7,6 +7,9 @@
     <style>
       html, body { margin: 0; height: 100%; background: #0d1715; color: #e8f2ec; font-family: system-ui, sans-serif; }
       #sync-probe-canvas { width: 800px; height: 600px; display: block; }
+      body > div { padding-inline: 12px; }
+      #sync-probe-iwer-container { box-sizing: border-box; }
+      body > div:not(#sync-probe-iwer-container) { position: relative; z-index: 1000; pointer-events: none; }
       #sync-probe-status { padding: 8px 12px; font-size: 14px; }
     </style>
   </head>

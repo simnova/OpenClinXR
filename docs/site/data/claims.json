@@ -94,7 +94,7 @@
     },
     {
       "id": "CL6",
-      "text": "Faculty replay a station from its recorded trace.",
+      "text": "Stations replay from their recorded traces over the protocol (protocol today; faculty review UI pending).",
       "state": "",
       "shas": [
         "512db92cd",
@@ -108,13 +108,13 @@
       "slots": [
         {
           "slot": "K4",
-          "demonstrates": "faculty replay of station 1 from its trace"
+          "demonstrates": "station 1 replays from its trace over the protocol (protocol today; faculty review UI pending)"
         }
       ]
     },
     {
       "id": "CL7",
-      "text": "Faculty enter rubric marks; a sign-off packet locks them.",
+      "text": "Rubric marks are entered against replayable station traces, and a sign-off packet locks them (protocol today; faculty review UI pending).",
       "state": "",
       "shas": [
         "7dc43db28",
@@ -128,7 +128,7 @@
       "slots": [
         {
           "slot": "K4",
-          "demonstrates": "faculty ticks rubric labels and the packet locks"
+          "demonstrates": "rubric labels are ticked and the packet locks over the protocol (protocol today; faculty review UI pending)"
         }
       ]
     },

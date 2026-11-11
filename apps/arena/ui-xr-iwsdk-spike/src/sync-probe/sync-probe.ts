@@ -16,8 +16,26 @@
  *   utterance start/end pairs with a mid-turn interrupt, all waits on
  *   observed server state).
  */
+
+import { type ConnectOptions, connect, type EncounterSnapshot, type SyncConnection } from "@openclinxr/xr-sync-client/headset";
 import * as THREE from "three";
-import { connect, type ConnectOptions, type EncounterSnapshot, type SyncConnection } from "@openclinxr/xr-sync-client/headset";
+import { C4MouthRender, type SyncProbeCueObservation } from "./probe-c4.js";
+import { createPhaseRing, runC6PreEncounterProbe } from "./probe-c6.js";
+import { type AimPose, createAimAndTrigger, createNeedActors } from "./probe-c7.js";
+import { attachC8RotationFailed, createC8ObserverTracker, pushC8StationObservation } from "./probe-c8.js";
+import { type C10ReplayEvidence, createC10ReplayObserver } from "./probe-c10.js";
+import type { C11NoteEvidence } from "./probe-c11.js";
+import { createC11NoteEvidence, createC11NoteTracker } from "./probe-c11.js";
+import { type C12LobbyEvidence, createC12LobbyEvidence, createC12LobbyTracker, handleC12SelectEvent } from "./probe-c12.js";
+import { type C13Evidence, createC13Evidence, createC13Tracker, handleC13Trigger } from "./probe-c13.js";
+import { type C14Evidence, createC14Evidence, createC14Tracker, handleC14Trigger } from "./probe-c14.js";
+import { type C15Evidence, createC15Evidence, trackC15Snapshot } from "./probe-c15.js";
+import { handleC20Trigger } from "./probe-c20.js";
+import { installIwerRuntime } from "./probe-iwer.js";
+import { parseC13Rubric, parseProbeQuery } from "./probe-query.js";
+import { createIntentQueue, drainIntents, waitFor } from "./probe-queue.js";
+import { runProbeScript } from "./probe-script.js";
+import { HEAD_SWEEP_SCRIPTS, LOBBY_SCRIPTS, NO_LEARNER_CATCH_UP_SCRIPTS, POSE_OFF_SCRIPTS, PRE_ENCOUNTER_PROBE_SCRIPTS, REPLAY_SCRIPTS, RUBRIC_SCRIPTS, SELECT_ONLY_TRIGGER_SCRIPTS } from "./probe-scripts.js";
 import {
   BASE_ACTOR_COLOUR,
   BASE_TURN_COLOUR,
@@ -29,22 +47,6 @@ import {
   sweepYawDegrees,
   yawQuaternionDegrees,
 } from "./probe-state.js";
-import { C4MouthRender, type SyncProbeCueObservation } from "./probe-c4.js";
-import { createPhaseRing, runC6PreEncounterProbe } from "./probe-c6.js";
-import { createAimAndTrigger, createNeedActors, type AimPose } from "./probe-c7.js";
-import { createC10ReplayObserver, type C10ReplayEvidence } from "./probe-c10.js";
-import { createC11NoteEvidence, createC11NoteTracker } from "./probe-c11.js";
-import type { C11NoteEvidence } from "./probe-c11.js";
-import { createC12LobbyEvidence, createC12LobbyTracker, handleC12SelectEvent, type C12LobbyEvidence } from "./probe-c12.js";
-import { createC13Evidence, createC13Tracker, handleC13Trigger, type C13Evidence } from "./probe-c13.js";
-import { createC14Evidence, createC14Tracker, handleC14Trigger, type C14Evidence } from "./probe-c14.js";
-import { createC15Evidence, trackC15Snapshot, type C15Evidence } from "./probe-c15.js";
-import { handleC20Trigger } from "./probe-c20.js";
-import { runProbeScript } from "./probe-script.js";
-import { attachC8RotationFailed, createC8ObserverTracker, pushC8StationObservation } from "./probe-c8.js";
-import { createIntentQueue, drainIntents, waitFor } from "./probe-queue.js";
-import { parseC13Rubric, parseProbeQuery } from "./probe-query.js";
-import { HEAD_SWEEP_SCRIPTS, LOBBY_SCRIPTS, NO_LEARNER_CATCH_UP_SCRIPTS, POSE_OFF_SCRIPTS, PRE_ENCOUNTER_PROBE_SCRIPTS, REPLAY_SCRIPTS, RUBRIC_SCRIPTS, SELECT_ONLY_TRIGGER_SCRIPTS } from "./probe-scripts.js";
 
 interface ProbePose {
   x: number;
@@ -52,13 +54,6 @@ interface ProbePose {
   z: number;
   seq: number;
 }
-
-type NavigatorWithXr = Navigator & {
-  xr?: {
-    isSessionSupported(mode: string): Promise<boolean>;
-    requestSession(mode: string, options?: { optionalFeatures?: string[] }): Promise<XRSession>;
-  };
-};
 
 interface SyncProbeTurnObservation {
   turnId: number;
@@ -75,6 +70,7 @@ interface SyncProbeEvidence {
   lastSentPose: ProbePose | null;
   acks: number;
   ackSeqs: number[];
+  ackServerTsBySeq: Record<number, number>;
   rejects: number;
   rejectDetails: Array<{ seq: number; reason: string }>;
   rttMs: number[];
@@ -135,6 +131,7 @@ function createEvidence(): SyncProbeEvidence {
     lastSentPose: null,
     acks: 0,
     ackSeqs: [],
+    ackServerTsBySeq: {},
     rejects: 0,
     rejectDetails: [],
     rttMs: [],
@@ -472,29 +469,7 @@ async function main(): Promise<void> {
   }, SCRIPT_TIMEOUT_MS);
 
   try {
-    const iwer = await import("iwer");
-    const container = document.createElement("div");
-    document.body.appendChild(container);
-    const device = new iwer.XRDevice(iwer.metaQuest3, { canvasContainer: container });
-    // Host: refuse to run against a real runtime (emulation only). Quest mode
-    // (?forceIwer=1) explicitly installs the emulator over the native runtime
-    // so root runs the identical deterministic script on-device; this is still
-    // IWER emulation, never a native Quest runtime claim.
-    if (!query.forceIwer && device.isNativeXRAvailable() !== false) {
-      throw new Error("native XR runtime present; refusing to run emulated probe");
-    }
-    device.installRuntime(query.forceIwer ? { forceInstall: true } : undefined);
-    const navigatorWithXr = navigator as NavigatorWithXr;
-    if (!navigatorWithXr.xr) {
-      throw new Error("navigator.xr unavailable after IWER installRuntime");
-    }
-    const supported = await navigatorWithXr.xr.isSessionSupported("immersive-vr");
-    if (!supported) {
-      throw new Error("immersive-vr unsupported after installRuntime");
-    }
-    const session = await navigatorWithXr.xr.requestSession("immersive-vr", {
-      optionalFeatures: ["local-floor"],
-    });
+    const { device, session } = await installIwerRuntime(query.forceIwer);
     xrSession = session;
     session.addEventListener("select", onSelectEvent as EventListener);
     const space = await session.requestReferenceSpace("local-floor");

@@ -23,7 +23,7 @@
   <a href="progress.html">Progress</a>
 </nav>
     <main>
-      <header class="band"><h1>Reference run</h1></header>
+      <header class="band"><h1>Reference run <span data-reference-run></span></h1></header>
       <section id="intro" class="band">
         <p class="status-copy claim-copy" data-claim="CL18">This page summarises reference run RR1: one emergency department (ED) chest pain case, compiled from its case blueprint into a synced multi-station practice circuit.</p>
       </section>
@@ -55,9 +55,9 @@
         <figure class="capture-pending" data-slot="K6"><figcaption>capture pending</figcaption></figure>
       </section>
       <section id="ch5" class="band" data-claim="CL6 CL7 CL20">
-        <div class="section-heading"><h2>Chapter 5 — Faculty lobby, replay, marks, lock</h2></div>
-        <p class="status-copy claim-copy" data-claim="CL6">Faculty replay the station from its recorded trace.</p>
-        <p class="status-copy claim-copy" data-claim="CL7">Faculty enter rubric marks; a sign-off packet locks them.</p>
+        <div class="section-heading"><h2>Chapter 5 — Faculty sign-off acknowledged by the server (protocol probe; no faculty console UI yet)</h2></div>
+        <p class="status-copy claim-copy" data-claim="CL6">Stations replay from their recorded traces over the protocol (protocol today; faculty review UI pending).</p>
+        <p class="status-copy claim-copy" data-claim="CL7">Rubric marks are entered against replayable station traces, and a sign-off packet locks them (protocol today; faculty review UI pending).</p>
         <p class="status-copy claim-copy" data-claim="CL20">The full run will live on the Release; trace link arrives with the capture.</p>
       </section>
     </main>
@@ -67,5 +67,12 @@
   <a href="engineering.html">Engineering</a>
   <a href="attribution.html">Attribution</a>
 </footer>
+    <script type="module">
+      const response = await fetch("site/data/media.json");
+      if (!response.ok) throw new Error(`reference-run metadata request failed: ${response.status}`);
+      const media = await response.json();
+      if (typeof media.referenceRun !== "string") throw new Error("media.json referenceRun is missing");
+      document.querySelector("[data-reference-run]").textContent = media.referenceRun;
+    </script>
   </body>
 </html>
