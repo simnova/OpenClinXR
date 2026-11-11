@@ -4639,7 +4639,8 @@ if (window.location.search.includes("encounterSync=")) void import("@openclinxr/
     doc: document as never, parent: (dialogueLine.parentElement ?? document.body) as never,
     replayAnchor: (document.querySelector(".ehr-panel") ?? undefined) as never,
   } as UtteranceBoxDeps,
-  onReplay: () => { replayClock = true; clock.textContent = "Replay"; }, onTopicMenu: (m) => formatSyncedTopicsLabel(traceSummary, m),
+  onReplay: () => { replayClock = true; clock.textContent = "Replay"; },
+  onTopicMenu: (m) => formatSyncedTopicsLabel(traceSummary, m),
   onStation: (index, count) => {
     syncedStation = true;
     examFlowStation.textContent = `Station ${index + 1} of ${count}`;

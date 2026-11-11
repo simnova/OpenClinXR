@@ -12,7 +12,7 @@ import { writeSyncedDoorwayEyebrow as writeEyebrowThrough } from "@openclinxr/xr
 // be imported (it boots the page): its wiring is pinned by source and its on-screen position by the evidence/c55 stills.
 const SRC = fileURLToPath(new URL(".", import.meta.url));
 const MAIN = readFileSync(SRC + "main.ts", "utf8");
-const MAIN_LINES_AT_BASE = 4723; // origin/main 0152d3bd4: card tsk_bf84681b185c6766 imports the eyebrow writer on the existing xr-sync-client/headset line (+0)
+const MAIN_LINES_AT_BASE = 4724; // origin/main 0152d3bd4: card tsk_bf84681b185c6766 imports the eyebrow writer on the existing xr-sync-client/headset line (+0); 4724 after B'' tsk_0d56fb3d8be0c6d7 onTopicMenu own line (C49)
 const flush = async (): Promise<void> => { for (let i = 0; i < 12; i += 1) await Promise.resolve(); };
 const ONPHASE = /onPhase: \(phase, remaining\) => \{\n([\s\S]*?)\n  \},\n/u;
 const SYNC = "?encounterSync=ws://127.0.0.1:9";
