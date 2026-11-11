@@ -8,9 +8,10 @@ const execFileAsync = promisify(execFile);
 
 type CliOptions = {
   outputPath?: string;
+  bomPath?: string;
 };
 
-type PnpmLicensePackage = {
+export type PnpmLicensePackage = {
   name: string;
   versions: string[];
   license?: string;
@@ -48,6 +49,39 @@ type LicensePolicyReport = {
 type LicensePolicyContext = {
   iwsdkSharpLibvipsExceptionAllowed?: boolean;
 };
+
+export type LicenceBomPackage = {
+  name: string;
+  version: string;
+  license: string;
+  scope: string;
+};
+
+export type LicenceBomBuildTimeTool = {
+  name: string;
+  license: string;
+  use: string;
+  redistributed: boolean;
+  source: string;
+};
+
+export type LicenceBom = {
+  schema: string;
+  generatedFrom: string;
+  packageCount: number;
+  packages: LicenceBomPackage[];
+  buildTimeTools: LicenceBomBuildTimeTool[];
+};
+
+export const LICENCE_BOM_BUILD_TIME_TOOLS: LicenceBomBuildTimeTool[] = [
+  {
+    name: "MPFB (MakeHuman plugin for Blender)",
+    license: "GPL-3.0-or-later",
+    use: "build-time",
+    redistributed: false,
+    source: "docs/madr/0044-makeclothes-with-anny-as-reference-cagematch.md:59",
+  },
+];
 
 type PackageJsonDependencyFields = {
   devDependencies?: Record<string, string>;
@@ -205,7 +239,14 @@ const licenseOverrides: LicenseOverride[] = [
 
 async function main(): Promise<void> {
   const options = parseArgs(process.argv.slice(2));
-  const report = await buildReport();
+  const inventory = options.bomPath ? await readLicenseInventory() : undefined;
+  const report = await buildReport(inventory);
+  if (options.bomPath) {
+    const bom = buildLicenceBom(inventory ?? {});
+    await mkdir(path.dirname(options.bomPath), { recursive: true });
+    await writeFile(options.bomPath, `${JSON.stringify(bom, null, 2)}\n`, "utf8");
+    console.log(`Wrote ${options.bomPath}`);
+  }
   if (options.outputPath) {
     await mkdir(path.dirname(options.outputPath), { recursive: true });
     await writeFile(options.outputPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
@@ -234,6 +275,11 @@ function parseArgs(args: string[]): CliOptions {
       index += 1;
       continue;
     }
+    if (arg === "--bom") {
+      options.bomPath = requireValue(normalizedArgs, index, arg);
+      index += 1;
+      continue;
+    }
     throw new Error(`Unknown argument: ${arg ?? ""}`);
   }
 
@@ -248,13 +294,17 @@ function requireValue(args: string[], index: number, flag: string): string {
   return value;
 }
 
-async function buildReport(): Promise<LicensePolicyReport> {
+async function buildReport(inventory?: Record<string, PnpmLicensePackage[]>): Promise<LicensePolicyReport> {
+  const resolvedInventory = inventory ?? (await readLicenseInventory());
+  return buildLicensePolicyReportFromInventory(resolvedInventory, new Date(), await buildLicensePolicyContext(process.cwd()));
+}
+
+async function readLicenseInventory(): Promise<Record<string, PnpmLicensePackage[]>> {
   const { stdout } = await execFileAsync("pnpm", ["licenses", "list", "--json"], {
     encoding: "utf8",
     maxBuffer: 20 * 1024 * 1024,
   });
-  const inventory = JSON.parse(stdout) as Record<string, PnpmLicensePackage[]>;
-  return buildLicensePolicyReportFromInventory(inventory, new Date(), await buildLicensePolicyContext(process.cwd()));
+  return JSON.parse(stdout) as Record<string, PnpmLicensePackage[]>;
 }
 
 export function buildLicensePolicyReportFromInventory(
@@ -307,6 +357,46 @@ export function buildLicensePolicyReportFromInventory(
       reviewCount: reviewFindings.length,
     },
   };
+}
+
+export function buildLicenceBom(
+  inventory: Record<string, PnpmLicensePackage[]>,
+  buildTimeTools: LicenceBomBuildTimeTool[] = LICENCE_BOM_BUILD_TIME_TOOLS,
+): LicenceBom {
+  const packages: LicenceBomPackage[] = [];
+  for (const [rawLicense, dependencies] of Object.entries(inventory)) {
+    const license = normalizeLicense(rawLicense);
+    for (const dependency of dependencies) {
+      packages.push({
+        name: dependency.name,
+        version: dependency.versions.join(","),
+        license,
+        scope: "dependency",
+      });
+    }
+  }
+  packages.sort((left, right) => compareBomPackage(left, right));
+
+  return {
+    schema: "openclinxr.licence-bom.v1",
+    generatedFrom: "tools/openclinxr/evidence/check-license-policy.ts",
+    packageCount: packages.length,
+    packages,
+    buildTimeTools,
+  };
+}
+
+function compareBomPackage(left: LicenceBomPackage, right: LicenceBomPackage): number {
+  if (left.name !== right.name) {
+    return left.name < right.name ? -1 : 1;
+  }
+  if (left.version !== right.version) {
+    return left.version < right.version ? -1 : 1;
+  }
+  if (left.license !== right.license) {
+    return left.license < right.license ? -1 : 1;
+  }
+  return 0;
 }
 
 function normalizeLicense(license: string): string {
