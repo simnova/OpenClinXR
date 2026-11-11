@@ -396,6 +396,7 @@ import { isPedsAsthmaScenario, learnerVisiblePedsDialogueForTraceTag } from "./p
 import "./styles.css";
 
 import { applyPhysicsBoneTransforms as applyPhysicsBoneTransformsImpl } from "./physics-touch/apply-physics-bone-transforms.js";
+import { writeSyncedDoorwayEyebrow } from "./synced-shell-writers.js";
 
 /** Pre-production fence: physics bone apply is opt-in capture only. Default session path does NOT apply physics transforms. */
 export const UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED = false;
@@ -1537,7 +1538,7 @@ app.innerHTML = `
     </section>
     <aside class="runtime-panel" aria-label="Station controls and clinical context">
       <header>
-        <p class="label">Doorway</p>
+        <p class="label" id="doorway-eyebrow">Doorway</p>
         <p class="label" id="doorway-station"></p>
         <h1>${selectedStationContext.title}</h1>
         <p class="subtle">${selectedStationContext.subtitle}</p>
@@ -4656,7 +4657,7 @@ if (window.location.search.includes("encounterSync=")) void import("@openclinxr/
   onPhase: (phase, remaining) => {
     syncedServerPhase = phase;
     updateExamFlowEvidence();
-    const name = phase.charAt(0).toUpperCase() + phase.slice(1);
+    const name = writeSyncedDoorwayEyebrow(requireElement("#doorway-eyebrow"), phase);
     stationClockLabel.textContent = name;
     examFlowTimer.textContent = `${name} ${formatStationClock(remaining)} left`;
     examFlowAdvance.textContent = "server rotation";

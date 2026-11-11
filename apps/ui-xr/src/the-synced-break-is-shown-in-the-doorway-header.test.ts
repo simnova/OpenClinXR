@@ -87,7 +87,7 @@ describe("the synced break is shown in the doorway header (C53)", () => {
   });
 
   it("the static doorway header, the clock element and the replay clock are unchanged", () => {
-    expect(MAIN).toContain('<p class="label">Doorway</p>');
+    expect(MAIN).toContain('<p class="label" id="doorway-eyebrow">Doorway</p>');
     expect(MAIN).toContain('<p class="label" id="doorway-station"></p>');
     expect(MAIN).toContain('<strong id="station-clock">00:00</strong>');
     expect(MAIN).toContain('onReplay: () => { replayClock = true; clock.textContent = "Replay"; },');

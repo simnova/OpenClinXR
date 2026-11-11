@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { startEncounterSyncFromUrl } from "@openclinxr/xr-sync-client/headset";
 import { describe, expect, it } from "vitest";
+import { writeSyncedDoorwayEyebrow as writeEyebrowThrough } from "./synced-shell-writers.js";
 
 // C57 RED (main.ts lines cited at origin/main 087f061e7): while the shell is joined to a synced rotation, "End encounter / start note"
 // (#end-encounter-button, handler main.ts:1735-1737) and "Submit note / next encounter" (#submit-note-button, handler :1739-1741) act only in
@@ -14,7 +15,7 @@ import { describe, expect, it } from "vitest";
 // source and run against stand-in elements, driven by the real xr-sync-client.
 const SRC = fileURLToPath(new URL(".", import.meta.url));
 const MAIN = readFileSync(SRC + "main.ts", "utf8");
-const MAIN_LINES_AT_BASE = 4723; // origin/main 087f061e7
+const MAIN_LINES_AT_BASE = 4724; // origin/main d962cc74 card tsk_bf84681b185c6766: +1 import of the synced shell writer module
 const flush = async (): Promise<void> => { for (let i = 0; i < 12; i += 1) await Promise.resolve(); };
 const ONPHASE = /onPhase: \(phase, remaining\) => \{\n([\s\S]*?)\n  \},\n/u;
 const END_LINES = MAIN.split("\n").filter((line) => /\bendEncounterButton\.disabled =/u.test(line));
@@ -47,15 +48,20 @@ async function boot(search: string): Promise<Shell> {
     else if (kind === "submit_note" && local.phase === "note") local.phase = "encounter";
   };
   const buttons = { end: { disabled: true }, submit: { disabled: true } };
+  const eyebrowSink = { textContent: "Doorway" };
+  const selectors: string[] = [];
+  const requireElement = (selector: string): { textContent: string | null } => { selectors.push(selector); return eyebrowSink; };
+  const writeSyncedDoorwayEyebrow = (el: { textContent: string | null }, phase: string | undefined): string =>
+    writeEyebrowThrough(el, phase);
   const make = new Function(
-    "examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "applyExamFlowIntent", "endEncounterButton", "submitNoteButton",
+    "examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "applyExamFlowIntent", "endEncounterButton", "submitNoteButton", "writeSyncedDoorwayEyebrow", "requireElement",
     `let syncedServerPhase = "";\nlet updateExamFlowEvidence = () => undefined;\n` +
       `const onPhase = (phase, remaining) => {\n${ONPHASE.exec(MAIN)?.[1] ?? ""}\n};\n` +
       `const flags = (evidence) => {\n${END_LINES[0] ?? ""}\n${SUBMIT_LINES[0] ?? ""}\n};\n` +
       `const clickEnd = () => {\n${END_HANDLER}\n};\nconst clickSubmit = () => {\n${SUBMIT_HANDLER}\n};\n` +
       `return { onPhase, flags, clickEnd, clickSubmit, setUpdate: (fn) => { updateExamFlowEvidence = fn; } };`,
   );
-  const shell = make(sink(), sink(), sink(), formatStationClock, applyExamFlowIntent, buttons.end, buttons.submit) as {
+  const shell = make(sink(), sink(), sink(), formatStationClock, applyExamFlowIntent, buttons.end, buttons.submit, writeSyncedDoorwayEyebrow, requireElement) as {
     onPhase(phase: string, remaining: number): void; flags(evidence: { phase: string }): void; clickEnd(): void; clickSubmit(): void; setUpdate(fn: () => void): void;
   };
   shell.setUpdate(() => shell.flags({ phase: local.phase }));

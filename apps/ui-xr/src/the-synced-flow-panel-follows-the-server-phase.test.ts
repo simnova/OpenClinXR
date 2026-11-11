@@ -2,6 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { startEncounterSyncFromUrl } from "@openclinxr/xr-sync-client/headset";
 import { describe, expect, it } from "vitest";
+import { writeSyncedDoorwayEyebrow as writeEyebrowThrough } from "./synced-shell-writers.js";
 
 // C55' RED B: while the shell is joined to a synced rotation the Encounter Flow panel follows the server phase. The client dep
 // onPhase(phase, remainingS) fires on the first snapshot and whenever (phase, remainingS) changes, never for replay or review-lobby
@@ -11,22 +12,28 @@ import { describe, expect, it } from "vitest";
 // be imported (it boots the page): its wiring is pinned by source and its on-screen position by the evidence/c55 stills.
 const SRC = fileURLToPath(new URL(".", import.meta.url));
 const MAIN = readFileSync(SRC + "main.ts", "utf8");
-const MAIN_LINES_AT_BASE = 4723; // origin/main 1f79e1a72
+const MAIN_LINES_AT_BASE = 4724; // origin/main d962cc74 card tsk_bf84681b185c6766: +1 import of the synced shell writer module
 const flush = async (): Promise<void> => { for (let i = 0; i < 12; i += 1) await Promise.resolve(); };
 const ONPHASE = /onPhase: \(phase, remaining\) => \{\n([\s\S]*?)\n  \},\n/u;
 const SYNC = "?encounterSync=ws://127.0.0.1:9";
 const at = (phase: string, phaseRemainingS: number, stationIndex = 0, stationCount = 3): Record<string, unknown> => ({ phase, phaseRemainingS, stationIndex, stationCount });
 
-interface Panel { label: string[]; timer: string[]; advance: string[]; phases: Array<[string, number]>; synced: boolean[] }
+interface Panel { label: string[]; timer: string[]; advance: string[]; phases: Array<[string, number]>; synced: boolean[]; eyebrowPhases: string[]; selectors: string[] }
 
 /** Drive the real client with snapshots and run the shell's onPhase body, taken verbatim from main.ts, against stand-in elements. */
 async function drive(search: string, snapshots: Array<Record<string, unknown>>): Promise<Panel> {
-  const panel: Panel = { label: [], timer: [], advance: [], phases: [], synced: [] };
+  const panel: Panel = { label: [], timer: [], advance: [], phases: [], synced: [], eyebrowPhases: [], selectors: [] };
   const sink = (into: string[]) => ({ set textContent(value: string) { into.push(value); } });
   const formatStationClock = (seconds: number): string => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
+  const eyebrowSink = { textContent: "Doorway" };
+  const requireElement = (selector: string): { textContent: string | null } => { panel.selectors.push(selector); return eyebrowSink; };
+  const writeSyncedDoorwayEyebrow = (el: { textContent: string | null }, phase: string | undefined): string => {
+    panel.eyebrowPhases.push(phase ?? "");
+    return writeEyebrowThrough(el, phase);
+  };
   const body = ONPHASE.exec(MAIN)?.[1];
-  const make = new Function("examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "record", "updateExamFlowEvidence", `let syncedServerPhase = "";\nreturn (phase, remaining) => {\n(() => {${body ?? ""}\n})();\nrecord(syncedServerPhase !== "");\n};`);
-  const run = make(sink(panel.timer), sink(panel.advance), sink(panel.label), formatStationClock, (value: boolean) => panel.synced.push(value), () => undefined) as (phase: string, remaining: number) => void;
+  const make = new Function("examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "record", "updateExamFlowEvidence", "writeSyncedDoorwayEyebrow", "requireElement", `let syncedServerPhase = "";\nreturn (phase, remaining) => {\n(() => {${body ?? ""}\n})();\nrecord(syncedServerPhase !== "");\n};`);
+  const run = make(sink(panel.timer), sink(panel.advance), sink(panel.label), formatStationClock, (value: boolean) => panel.synced.push(value), () => undefined, writeSyncedDoorwayEyebrow, requireElement) as (phase: string, remaining: number) => void;
   let listener: ((s: unknown) => void) | undefined;
   await startEncounterSyncFromUrl({
     search,
@@ -54,6 +61,12 @@ describe("the synced flow panel follows the server phase (C55')", () => {
     expect(panel.timer).toEqual(["Doorway 00:12 left", "Encounter 05:00 left", "Note 01:30 left", "Break 00:05 left", "Closed 00:00 left"]);
     expect(panel.advance).toEqual(Array(5).fill("server rotation"));
     expect(panel.synced).toEqual(Array(5).fill(true));
+  });
+
+  it("the eyebrow recorder sees every server phase in order", async () => {
+    const panel = await drive(SYNC, [at("doorway", 12), at("encounter", 300), at("note", 90), at("break", 5), at("closed", 0)]);
+    expect(panel.eyebrowPhases).toEqual(panel.phases.map(([phase]) => phase));
+    expect(panel.selectors).toEqual(Array(panel.phases.length).fill("#doorway-eyebrow"));
   });
 
   it("the timer counts down with the server second by second", async () => {
