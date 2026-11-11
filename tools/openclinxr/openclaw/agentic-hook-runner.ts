@@ -698,6 +698,11 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[], commi
     /^tools\/openclinxr\/evidence\/scene-closure\/proofs\/sc-05\//u,
   ]);
 
+  const teethSwapToolChanged = matchesAnyPath(changedFiles, [
+    // tsk_50e2c327ce8b3d73: teeth-swap dir has no package.json, so turbo 'Affected package tests' never reaches it.
+    /^tools\/openclinxr\/asset-pipeline\/makeclothes\/teeth-swap\//u,
+  ]);
+
   // #739 follow-up: the teeth retreat is a post-export byte edit that any pipeline path which
   // rewrites a shipped GLB without running the retreat station silently drops (measured
   // 2026-09-27: the CC0 fitted-teeth rebake moved teeth forward ~10 mm while the retreat step
@@ -766,6 +771,15 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[], commi
       command: ["pnpm", "exec", "vitest", "run", "tools/openclinxr/evidence/scene-closure/proofs/sc-05/"],
       reason:
         "sc-05 is not a workspace package, so 'Affected package tests' above never reaches it — this is the only pre-push step that does",
+    });
+  }
+
+  if (profile === "pre-push" && teethSwapToolChanged) {
+    steps.push({
+      label: "Teeth-swap tool tests (tools/openclinxr/asset-pipeline/makeclothes/teeth-swap changed)",
+      command: ["pnpm", "exec", "vitest", "run", "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/"],
+      reason:
+        "teeth-swap is not a workspace package, so 'Affected package tests' above never reaches it — its python-suites.test.ts (which runs the .py unittest suite) must run here",
     });
   }
 

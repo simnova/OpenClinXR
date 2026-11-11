@@ -217,6 +217,32 @@ describe("agentic-hook-runner path-scoped architecture", () => {
     ).toBe(false);
   });
 
+  it("runs the teeth-swap tool tests on pre-push when that directory is touched — teeth-swap is not a workspace package, so 'Affected package tests' never reaches it", () => {
+    const label = "Teeth-swap tool tests (tools/openclinxr/asset-pipeline/makeclothes/teeth-swap changed)";
+    const teethSwapStep = stepsForProfile("pre-push", [
+      "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/feature_hashes.py",
+    ]).find((s) => s.label === label);
+    expect(teethSwapStep?.command).toEqual([
+      "pnpm",
+      "exec",
+      "vitest",
+      "run",
+      "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/",
+    ]);
+    // A sibling tool dir must not trigger this step — scoped to exactly the teeth-swap directory.
+    expect(
+      stepsForProfile("pre-push", ["tools/openclinxr/asset-pipeline/makeclothes/recorded-garment-provenance.ts"]).some(
+        (s) => s.label === label,
+      ),
+    ).toBe(false);
+    // Not on pre-commit: this is a pre-push-only cost, same tier as "Affected package tests".
+    expect(
+      stepsForProfile("pre-commit", [
+        "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/feature_hashes.py",
+      ]).some((s) => s.label === label),
+    ).toBe(false);
+  });
+
   it("runs the large-file guard first on pre-commit/pre-push/strict, never on local-exam", () => {
     const label = "Large-file / .env / .bak guard";
     // NOT path-scoped: present even when the only changed file is PROJECT_STATUS.md.
