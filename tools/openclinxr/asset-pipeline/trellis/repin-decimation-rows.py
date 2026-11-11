@@ -100,11 +100,12 @@ PLAN = {
     # (texture refold); face/hand/joints hold. Asserted live.
 
     "mpfb-clinical-physician-adult.glb": {
-        "bytesAfter": 9497600,
-        "triangleCountAfter": 41718,
-        "faceAfter": 10130,
+        "bytesAfter": 12596836,
+        "triangleCountAfter": 46183,
+        "faceAfter": 14595,
         "handBodyMeshAfter": 12890,
-        "note": ("Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 9476168 -> 9497600 B. "
+        "note": ("Re-measured 2026-11-11 (physician teeth swap, tsk_2a74bbdb3f03cb3e, superseding commit 66ae52771): fitted CC0 teeth/tongue replace the hm08 mouth through retreat 6.1 mm / couple / decimate_teeth.mts 0.65, error 0.005 (teeth 7120 -> 4627); tris and face grow by 4465 (41718 -> 46183, 10130 -> 14595), hand/joints hold (asserted by main()), 9497600 -> 12596836 B. Prior re-measure preserved below. "
+                 "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 9476168 -> 9497600 B. "
                  "Re-measured 2026-11-06 (st-vitphys r1): family-skin-albedo deep r8 + vitruvian-eye brown post-export byte stages, "
                  "bytes-only drift (tris 41718 / face 10130 / hand 12890 / joints 137 hold, "
                  "9320372 -> 9476168 B). Supersedes 0ed4fcfc7. Family source sha256 "

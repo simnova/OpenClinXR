@@ -24,7 +24,7 @@
   "peds_patient_child.glb"
  ],
  "bodyCount": 20,
- "materialRowCount": 277,
+ "materialRowCount": 279,
  "refusalRule": "baseColorFactor != [1,1,1] on a material WITH baseColorTexture and no recorded reason = refusal",
  "factorSpreadTexturedNonWhite": {
   "0.34,0.44,0.34": [
@@ -1008,7 +1008,7 @@
    "material": "mat_openclinxr_fitted_teeth_mpfb_ed_chest_pain_nurse_adult_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -1021,7 +1021,7 @@
    "material": "mat_openclinxr_fitted_tongue_mpfb_ed_chest_pain_nurse_adult_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -1044,7 +1044,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1064,7 +1064,7 @@
     "literal": "return (0.18, 0.13, 0.10, 1.0)  # nurse / default — mid-dark brown"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:353",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1084,7 +1084,7 @@
     "literal": "_GARMENT_COLOR_LAB_COAT = (0.92, 0.92, 0.90, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lab coat, locked white (untextured). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1716. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1799.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1104,7 +1104,7 @@
     "literal": "_GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1119,7 +1119,7 @@
    },
    "kind": "baked albedo: HB-02 per-texel fold of locked scrub role colour x authored weave",
    "decision": "resolved",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1136,7 +1136,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1158,7 +1158,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1180,7 +1180,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1202,7 +1202,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1224,7 +1224,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1246,7 +1246,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1268,7 +1268,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1290,7 +1290,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1307,7 +1307,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1327,7 +1327,7 @@
     "literal": "se = sm.node_tree.nodes.new(\"ShaderNodeEmission\"); se.inputs[0].default_value = (0.05, 0.03, 0.02, 1.0); se.inputs[1].default_value = 1.0"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides. origin relocated 2026-10-30 to tools/openclinxr/evidence/hair-cap5/flow6.py:864.",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1347,7 +1347,7 @@
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1367,7 +1367,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1213",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-clinical-physician-adult.glb",
@@ -1387,7 +1387,33 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1215",
-   "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "mat_openclinxr_fitted_teeth_mpfb_ward_delirium_senior_resident_adult_mesh",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
+   "origin": {
+    "file": "",
+    "line": 0,
+    "literal": "no numeric literal in tree"
+   },
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
+  },
+  {
+   "body": "mpfb-clinical-physician-adult.glb",
+   "material": "mat_openclinxr_fitted_tongue_mpfb_ward_delirium_senior_resident_adult_mesh",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
+   "origin": {
+    "file": "",
+    "line": 0,
+    "literal": "no numeric literal in tree"
+   },
+   "bodyLastChanged": "66ae52771542259a3be815695fb282fc1430241c 2026-11-11 Teeth: swap, retreat, couple and decimate the physician's teeth (tsk_2a74bbdb3f03cb3e)"
   },
   {
    "body": "mpfb-family-partner-adult.glb",
@@ -1729,7 +1755,7 @@
    "material": "mat_openclinxr_fitted_teeth_mpfb_ed_chest_pain_spouse_adult_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -1742,7 +1768,7 @@
    "material": "mat_openclinxr_fitted_tongue_mpfb_ed_chest_pain_spouse_adult_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -2080,7 +2106,7 @@
    "material": "mat_openclinxr_fitted_teeth_mpfb_robert_reference_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -2093,7 +2119,7 @@
    "material": "mat_openclinxr_fitted_tongue_mpfb_robert_reference_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -2374,7 +2400,7 @@
    "material": "mat_openclinxr_fitted_teeth_mpfb_robert_reference_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -2387,7 +2413,7 @@
    "material": "mat_openclinxr_fitted_tongue_mpfb_robert_reference_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -2589,7 +2615,7 @@
    "material": "mat_openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -2602,7 +2628,7 @@
    "material": "mat_openclinxr_fitted_tongue_mpfb_ob_patient_aisha_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -2934,7 +2960,7 @@
    "material": "mat_openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -2947,7 +2973,7 @@
    "material": "mat_openclinxr_fitted_tongue_mpfb_ob_patient_aisha_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -3301,7 +3327,7 @@
    "material": "mat_openclinxr_fitted_teeth_mpfb_peds_nurse_kevin_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -3314,7 +3340,7 @@
    "material": "mat_openclinxr_fitted_tongue_mpfb_peds_nurse_kevin_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -3956,7 +3982,7 @@
    "material": "mat_openclinxr_fitted_teeth_mpfb_peds_patient_child_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -3969,7 +3995,7 @@
    "material": "mat_openclinxr_fitted_tongue_mpfb_peds_patient_child_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -4325,7 +4351,7 @@
    "material": "mat_openclinxr_fitted_teeth_mpfb_adult_male_street_casual_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -4338,7 +4364,7 @@
    "material": "mat_openclinxr_fitted_tongue_mpfb_adult_male_street_casual_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -4687,7 +4713,7 @@
    "material": "mat_openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
@@ -4700,7 +4726,7 @@
    "material": "mat_openclinxr_fitted_tongue_mpfb_ob_patient_aisha_mesh",
    "baseColorFactor": null,
    "hasBaseColorTexture": true,
-   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured.",
+   "reason": "Measured on live bytes 2026-10-30: factor absent (glTF default white); textured. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
     "file": "",
     "line": 0,
