@@ -68,6 +68,12 @@
           "demonstrates": {
             "type": "string"
           },
+          "files": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
           "id": {
             "type": "string"
           },
