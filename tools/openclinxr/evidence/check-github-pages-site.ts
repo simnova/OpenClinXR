@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
 import { access, constants, readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
@@ -19,26 +21,13 @@ const requiredSiteFiles = [
 ];
 
 /**
- * The hero image is the first thing a visitor sees, so the gate has to be about the PROPERTY
- * ("the hero points at an image asset that is really on disk"), not about one filename.
- *
- * It used to be `indexHtml.includes('src="assets/openclinxr-xr-evidence.png"')`. That pinned a
- * literal name while never opening the file, so it was green if the PNG were deleted and RED if
- * a bad hero were replaced by a good one — which is what happened on 2026-08-10. The pinned image
- * was a degraded-state capture: "WebXR unavailable", "Trace 0/10", "Full VR evidence blocked;
- * 21 blockers", actors drawn as a capsule with a sphere head, three debug panels overlapping.
- * It was also 1910x3706 in a `aspect-ratio: 16/10; object-fit: cover` slot, so visitors saw a
- * cropped middle band of debug text. The gate was holding that in place.
- *
- * This does NOT grade the picture. No automated check can. The orchestrator reads the pixels
- * (D12) before any image is published; this only refuses a hero that is missing, external, or
- * a placeholder-sized stub.
+ * The hero gate reads media.json slot hero-poster. Any state other than GRADED
+ * requires the shared capture-pending hero figure with no img in it; GRADED
+ * requires a hero-figure img whose sha256 equals the grades.json entry.
+ * An unreadable or unparsable media.json means no hero-poster slot, i.e. the
+ * PLACEHOLDER default. This does NOT grade the picture. No automated check can.
+ * The orchestrator reads the pixels (D12) before any image is published.
  */
-const heroImagePattern = /<figure class="hero__image">\s*<img\s+src="([^"]+)"/;
-
-/** A real render of a station is hundreds of KB. The 26 KB error screenshots this repo once
- *  shipped as evidence sat far below this; a truthfully small artifact never appears here. */
-const MIN_HERO_IMAGE_BYTES = 40_000;
 const knownPagesSnapshotKeys = [
   "asset-production-evidence-ladder",
   "asset-production-artifact-evidence",
@@ -82,23 +71,146 @@ async function factoryStationStillBlocker(indexHtml: string): Promise<string | u
   return undefined;
 }
 
-async function heroImageBlocker(indexHtml: string): Promise<string | undefined> {
-  const match = heroImagePattern.exec(indexHtml);
-  if (!match) return "pages_index_hero_image_missing";
+export type HeroMediaFile = {
+  slots?: { id?: string; state?: string }[];
+};
 
-  const src = match[1];
-  if (/^https?:\/\//.test(src)) return `pages_index_hero_image_external:${src}`;
+export type HeroGradesFile = {
+  entries?: { slot?: string; path?: string; sha256?: string }[];
+};
 
-  const onDisk = path.join("docs", src);
-  try {
-    const { size } = await stat(onDisk);
-    if (size < MIN_HERO_IMAGE_BYTES) {
-      return `pages_index_hero_image_stub:${src}:${size}b`;
-    }
-  } catch {
-    return `pages_index_hero_image_file_absent:${onDisk}`;
+export type HeroBytesReader = (docsRelativePath: string) => Buffer | undefined;
+
+function heroFigureOpenTag(figureHtml: string): string {
+  return (/<figure\b[^>]*>/i.exec(figureHtml) ?? [])[0] ?? "";
+}
+
+function hasClassToken(openTag: string, token: string): boolean {
+  const match = /\sclass\s*=\s*("[^"]*"|'[^']*')/.exec(openTag);
+  if (!match?.[1]) {
+    return false;
   }
-  return undefined;
+  return match[1].slice(1, -1).split(/\s+/).includes(token);
+}
+
+function hasSlotToken(openTag: string, slotId: string): boolean {
+  const match = /\sdata-slot\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)/.exec(openTag);
+  if (!match?.[1]) {
+    return false;
+  }
+  return match[1].replace(/^['"]|['"]$/g, "") === slotId;
+}
+
+function heroImgSrcs(figures: string[]): string[] {
+  const srcs: string[] = [];
+  for (const figure of figures) {
+    const openTag = heroFigureOpenTag(figure);
+    const isHeroFigure =
+      hasClassToken(openTag, "hero__image") ||
+      (hasClassToken(openTag, "capture-pending") && hasSlotToken(openTag, "hero-poster"));
+    if (!isHeroFigure) {
+      continue;
+    }
+    for (const match of figure.matchAll(/<img\b[^>]*\bsrc\s*=\s*("[^"]*"|'[^']*')/gi)) {
+      const src = (match[1] ?? "").slice(1, -1).trim();
+      if (src === "" || /^(https?:)?\/\//i.test(src) || /^data:/i.test(src)) {
+        continue;
+      }
+      srcs.push(src);
+    }
+  }
+  return srcs;
+}
+
+/**
+ * Pure hero gate used by heroImageBlocker so tests can call it with fixtures.
+ * media.json slot hero-poster decides the branch: any state other than GRADED
+ * requires the shared capture-pending figure (no img inside it or inside a
+ * figure.hero__image); GRADED requires an img inside figure.hero__image or inside
+ * the hero-poster capture-pending figure whose file sha256 equals the grades.json
+ * entry for hero-poster. An img anywhere else does not count.
+ */
+export function heroImageBlockerFor(
+  indexHtml: string,
+  media: HeroMediaFile,
+  grades: HeroGradesFile,
+  readBytes: HeroBytesReader,
+): string | undefined {
+  const slot = (media.slots ?? []).find((entry) => entry?.id === "hero-poster");
+  const state = slot?.state ?? "PLACEHOLDER";
+  const figures = [...indexHtml.matchAll(/<figure\b[^>]*>[\s\S]*?<\/figure>/gi)].map(
+    (match) => match[0],
+  );
+  if (state !== "GRADED") {
+    const heroFigure = figures.find(
+      (figure) =>
+        hasClassToken(heroFigureOpenTag(figure), "capture-pending") &&
+        hasSlotToken(heroFigureOpenTag(figure), "hero-poster"),
+    );
+    if (heroFigure === undefined) {
+      return "pages_index_hero_image_missing";
+    }
+    if (/<img\b/i.test(heroFigure)) {
+      return "pages_index_hero_image_ungraded_has_img";
+    }
+    if (
+      figures.some(
+        (figure) =>
+          hasClassToken(heroFigureOpenTag(figure), "hero__image") && /<img\b/i.test(figure),
+      )
+    ) {
+      return "pages_index_hero_image_ungraded_has_img";
+    }
+    return undefined;
+  }
+  const expected = (grades.entries ?? [])
+    .filter((entry) => entry?.slot === "hero-poster")
+    .map((entry) => entry?.sha256)
+    .find((sha): sha is string => typeof sha === "string" && sha.length > 0);
+  if (expected === undefined) {
+    return "pages_index_hero_image_grade_missing";
+  }
+  const srcs = heroImgSrcs(figures);
+  if (srcs.length === 0) {
+    return "pages_index_hero_image_missing";
+  }
+  for (const src of srcs) {
+    const bytes = readBytes(src.startsWith("docs/") ? src : `docs/${src}`);
+    if (bytes === undefined) {
+      continue;
+    }
+    if (createHash("sha256").update(bytes).digest("hex").toLowerCase() === expected.toLowerCase()) {
+      return undefined;
+    }
+  }
+  return "pages_index_hero_image_sha_mismatch";
+}
+
+export async function heroImageBlocker(indexHtml: string): Promise<string | undefined> {
+  // Unreadable or unparsable media.json means no hero-poster slot, i.e. PLACEHOLDER.
+  let media: HeroMediaFile = {};
+  try {
+    media = JSON.parse(
+      await readFile(path.join("docs", "site", "data", "media.json"), "utf8"),
+    ) as HeroMediaFile;
+  } catch {
+    media = {};
+  }
+  let grades: HeroGradesFile = {};
+  try {
+    grades = JSON.parse(
+      await readFile(path.join("docs", "site", "data", "grades.json"), "utf8"),
+    ) as HeroGradesFile;
+  } catch {
+    grades = {};
+  }
+  return heroImageBlockerFor(indexHtml, media, grades, (docsRelativePath) => {
+    try {
+      return readFileSync(docsRelativePath);
+    } catch {
+      return undefined;
+    }
+  });
 }
 
 export async function validateGitHubPagesSite(): Promise<ValidationResult> {

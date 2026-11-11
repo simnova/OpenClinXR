@@ -162,7 +162,7 @@ export function checkTypecheckBaseline(config?: TypecheckBaselineConfig): string
  */
 export const TOOLS_STRICT_ERROR_CEILING_AT_PLANT = 4708;
 /** Shrink-only. Lower it in the commit that pays the count down. Do not raise it. */
-export const TOOLS_STRICT_ERROR_CEILING = 4708;
+export const TOOLS_STRICT_ERROR_CEILING = 4706;
 
 export function collectToolsStrictDiagnostics(config?: TypecheckBaselineConfig): TypecheckDiagnostic[] {
   if (config?.diagnosticOutput !== undefined) {

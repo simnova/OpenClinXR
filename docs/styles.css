@@ -792,3 +792,36 @@ h3 {
 .site-footer .claims-as-of:has(> [data-claims-as-of]:empty) {
   display: none;
 }
+
+/* Shared capture-pending figure (W3/W5): PLACEHOLDER slots render as a dashed
+   slot with a centred, muted caption until super-ceo grades the capture. */
+.capture-pending {
+  border: 1px dashed var(--muted);
+  min-height: 160px;
+  margin: 1.5rem 0 0;
+  display: grid;
+  place-items: center;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Home role cards (W3 modifier): the shared .progress-grid / .progress-card
+   rules below are also used by engineering.html and progress.html and are left
+   untouched. role-grid lays the 4 home cards 2x2 at desktop widths (the shared
+   auto-fit grid orphans the 4th card 3+1 at 1280) and 1 column at narrow widths.
+   The link gap (12px) matches the card's internal scale (h3 margin-bottom 8px,
+   grid gap 16px); inline-block so the top margin applies to the inline anchor. */
+.progress-grid.role-grid {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.progress-grid.role-grid .progress-card a {
+  display: inline-block;
+  margin-top: 12px;
+}
+
+@media (max-width: 860px) {
+  .progress-grid.role-grid {
+    grid-template-columns: 1fr;
+  }
+}
