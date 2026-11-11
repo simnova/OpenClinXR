@@ -1,0 +1,20 @@
+{
+  "run": "store-run-7",
+  "provenance": {
+    "sourceRunDir": "/Volumes/files/openclinxr-assets/store/site-reimagine/rr1/run-7",
+    "note": "Minimal framing-evidence copy: values below are verbatim from the source run's capture.json (seed, blueprintId, viewport, camera, buildSha) and chapters.json (ch1 offsetSeconds); ch1RightStripMeanLuma was measured, not recorded in the run dir.",
+    "measuredWith": "ffmpeg -ss <ch1OffsetSeconds> -i <runDir>/rr1-min.webm -frames:v 1 out.png; mean L of crop x=432,y=0,w=108,h=600 (right 20% of the 540-wide 3D canvas in the 960x600 shell)"
+  },
+  "cameraPosition": { "status": "unrecorded", "lookedIn": "capture.json (camera block has preset/source/chapters only), renderer.json (viewport/cameraSource only), chapters.json, video.json, dom-text-log.json" },
+  "cameraTarget": { "status": "unrecorded", "lookedIn": "capture.json (camera block has preset/source/chapters only), renderer.json, chapters.json" },
+  "cameraFov": { "status": "unrecorded", "lookedIn": "capture.json (camera block has preset/source/chapters only), renderer.json, chapters.json" },
+  "roomAssetPath": { "status": "unrecorded", "lookedIn": "capture.json, renderer.json, chapters.json, video.json, trace/*.conversation-trace.json (scenarioId only), dom-text-log.json" },
+  "roomAssetSha256": { "status": "unrecorded", "lookedIn": "capture.json, renderer.json, chapters.json, video.json; no room-bytes record in run dir" },
+  "seed": { "status": "recorded", "value": "rr1-min-ed-chest-pain", "source": "capture.json:seed" },
+  "blueprint": { "status": "recorded", "value": "rr1-min-ed-chest-pain", "source": "capture.json:blueprintId" },
+  "viewport": { "status": "recorded", "value": "960x600", "source": "capture.json:viewport + renderer.json:viewport" },
+  "buildSha": { "status": "recorded", "value": "45ab4007b9d2e214f9c58da56b3abd10c7ebae6b", "source": "capture.json:buildSha" },
+  "cameraPreset": { "status": "recorded", "value": "shared-learner-viewport", "source": "capture.json:camera.preset" },
+  "ch1OffsetSeconds": 0,
+  "ch1RightStripMeanLuma": 206.9551
+}
