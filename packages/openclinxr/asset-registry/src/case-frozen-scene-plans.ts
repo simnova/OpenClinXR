@@ -70,7 +70,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "patient_margaret_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
-          "assetSha256": "380703964dccf1e1e96ae2d559b4d6683e20da68984fdae5460fb3459f141cc7",
+          "assetSha256": "107d7ec951744032298b5e4fafd1d14b33f4860538fe1480968db02678014864",
           "byteCount": 10316520
         },
         {
@@ -86,7 +86,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "ward_nurse_patel_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-          "assetSha256": "55ba118b95684e4466490bcff9adb2f655cd13544ccaea763123fe624eff300b",
+          "assetSha256": "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
           "byteCount": 12353924
         },
         {
@@ -94,7 +94,7 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
           "kind": "actor",
           "contentId": "daughter_lena_ellis_v1",
           "assetPath": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
-          "assetSha256": "eed1247688f5c0f12e79e4ea05d539657523ded4740041217be805d1e4c4d9eb",
+          "assetSha256": "1fd58873ddba9519d442396635bd2d91a08c8b4b63606b186ecc56a9c0f5cb8b",
           "byteCount": 13327592
         }
       ],
@@ -167,11 +167,11 @@ export const CASE_FROZEN_SCENE_PLANS: Readonly<Record<string, DurableAcceptedSce
       "dialogueTurnIds": [
         "turn-001"
       ],
-      "planRevision": "plan-v1-ac7c98934c90da69ba624e3553933cd9",
+      "planRevision": "plan-v1-9aa387d0d8ef5814fdaadca6701dfc12",
       "acknowledgment": {
         "acknowledgedBy": "scene_closure_build_time_freeze",
         "acknowledgedAtIso": "2026-09-10T00:05:00.000Z",
-        "acknowledgedPlanRevision": "plan-v1-ac7c98934c90da69ba624e3553933cd9"
+        "acknowledgedPlanRevision": "plan-v1-9aa387d0d8ef5814fdaadca6701dfc12"
       }
     }
   } as Record<string, DurableAcceptedScenePlanRecord>);

@@ -57,6 +57,7 @@ import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { measureWaistAt } from "../../../../../../tools/openclinxr/evidence/garments-meet-at-the-waist-measure.js";
+import { mouthSwapDelta } from "./mouth-swap-delta.js";
 
 const REPO_ROOT = repoRoot();
 const GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb");
@@ -67,6 +68,8 @@ const REPORT = join(REPO_ROOT, "tools/openclinxr/evidence/humanoid-vetting/lower
 const FAMILY_TRIS_AT_PLANT = 38657;
 /** Postopt 0.4 / error 0.001 on this rebake lands 39974 (delta +1317). Pants stay 5708. */
 const FAMILY_TRIS_WINDOW = 1500;
+/** Nurse total before the teeth swap (origin/main 963d78e13); the swap delta is added from its sidecar. */
+const NURSE_TRIS_BEFORE_MOUTH_SWAP = 38958;
 const BOOTCUT_TRIS = 5708;
 
 type TriMesh = { verts: Float64Array; tris: number[] };
@@ -247,12 +250,17 @@ describe("a fitted lower keeps its own standoff spread", () => {
   it("counterweight: triangle counts stay near the planted family-partner / nurse / street figures", async () => {
     expect(existsSync(GLB), `${GLB} exists`).toBe(true);
     const family = await totalTris(GLB);
-    expect(family, "family-partner total tris").toBeGreaterThan(FAMILY_TRIS_AT_PLANT - FAMILY_TRIS_WINDOW);
-    expect(family, "family-partner total tris").toBeLessThan(FAMILY_TRIS_AT_PLANT + FAMILY_TRIS_WINDOW);
+    // Teeth swap tsk_27e0cec12cab410d added the fitted mouth after this plant: the window centre moves by
+    // the sidecar-recorded mouth delta (fitted mouth tris - preImageMouthTris), the window does not widen.
+    const familyMouth = mouthSwapDelta(GLB).delta;
+    expect(family, "family-partner total tris").toBeGreaterThan(FAMILY_TRIS_AT_PLANT + familyMouth - FAMILY_TRIS_WINDOW);
+    expect(family, "family-partner total tris").toBeLessThan(FAMILY_TRIS_AT_PLANT + familyMouth + FAMILY_TRIS_WINDOW);
     const pants = await readNamed(GLB, /bootcut_jeans_pants/);
     expect(pants.tris.length / 3, "family-partner lower stays bootcut 5708").toBe(BOOTCUT_TRIS);
     if (existsSync(NURSE)) {
-      expect(await totalTris(NURSE), "nurse not rebaked").toBe(38958);
+      expect(await totalTris(NURSE), "nurse not rebaked (pre-swap total + sidecar mouth delta)").toBe(
+        NURSE_TRIS_BEFORE_MOUTH_SWAP + mouthSwapDelta(NURSE).delta,
+      );
     }
     if (existsSync(STREET)) {
       const streetLower = await readNamed(STREET, /straight_leg_jeans_pants/);

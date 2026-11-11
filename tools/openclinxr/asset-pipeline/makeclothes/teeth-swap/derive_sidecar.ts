@@ -34,7 +34,8 @@ const MAKECLOTHES = "tools/openclinxr/asset-pipeline/makeclothes";
 
 /**
  * Post-swap steps in the order they ran: retreat (teeth-rest-clearance --delta), tongue
- * (tongue-forward-place --delta), couple (couple-fitted-teeth-to-lip-viseme). Each is a
+ * (tongue-forward-place --delta), couple (couple-fitted-teeth-to-lip-viseme), decimate
+ * (teeth-swap/decimate_teeth.mts --in-place --ratio --error). Each is a
  * deterministic station run on the swapped GLB in place. Retreat and tongue run with
  * --in-place-bytes so OPENCLINXR_* extensions and accessor indices survive (cap9 D1).
  */
@@ -45,6 +46,14 @@ export function postSteps(argv: string[]): Array<{ tool: string; args: string[] 
   if (retreat !== undefined) steps.push({ tool: `${MAKECLOTHES}/teeth-rest-clearance.ts`, args: ["--delta", retreat, "--in-place-bytes"] });
   if (tongue !== undefined) steps.push({ tool: `${MAKECLOTHES}/tongue-forward-place.ts`, args: ["--delta", tongue, "--in-place-bytes"] });
   if (argv.includes("--couple")) steps.push({ tool: `${MAKECLOTHES}/couple-fitted-teeth-to-lip-viseme.ts`, args: [] });
+  // Last: teeth decimation (super-ceo-cap13 2026-11-10, ED budget asset-generation-pipeline.md:87),
+  // an in-place index rewrite, so extensions and accessor indices survive like the steps above.
+  const decimateRatio = optional(argv, "--decimate-ratio");
+  if (decimateRatio !== undefined) {
+    const decimateError = optional(argv, "--decimate-error");
+    if (decimateError === undefined) throw new Error("derive_sidecar: --decimate-ratio needs --decimate-error");
+    steps.push({ tool: `${MAKECLOTHES}/teeth-swap/decimate_teeth.mts`, args: ["--in-place", "--ratio", decimateRatio, "--error", decimateError] });
+  }
   return steps;
 }
 
@@ -95,9 +104,14 @@ export function serializeWithTeethSwapBlock(
   return serialized;
 }
 
-function preImageMouthTris(input: string, expectedSha256: string): { teeth: number; tongue: number } {
-  const bytes = readFileSync(input);
-  if (sha256(bytes) !== expectedSha256) throw new Error("derive_sidecar: --input bytes do not match report input.sha256");
+/**
+ * Mouth tris of the swap's pre-image, read from --pre-image-revision (git show). The installed --input
+ * already carries the swap and its post-steps, so its bytes can never equal report input.sha256 on a
+ * re-derive; the revision blob is the pre-image the report hashed.
+ */
+export function preImageMouthTris(preImageRevision: string, expectedSha256: string): { teeth: number; tongue: number } {
+  const bytes = execFileSync("git", ["show", preImageRevision], { maxBuffer: 1024 * 1024 * 256 });
+  if (sha256(bytes) !== expectedSha256) throw new Error("derive_sidecar: --pre-image-revision bytes do not match report input.sha256");
   return mouthTris(bytes);
 }
 
@@ -115,6 +129,10 @@ export function deriveTeethSwapSidecar(argv = process.argv.slice(2)): void {
   const steps = postSteps(argv);
   const swapOutput = steps.length > 0 ? value(argv, "--swap-output") : undefined;
 
+  // correctSidecarByteLineage keeps only the superseded sha/bytes; the prior byteLineage (for the ED gown,
+  // the blender bake argv recorded-garment-provenance.ts authenticates) is kept verbatim below
+  // (super-ceo-cap14 R7, 2026-11-10).
+  const priorByteLineage = (JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>)["byteLineage"];
   correctSidecarByteLineage({
     assetPath: output,
     provenancePath: sidecar,
@@ -169,18 +187,39 @@ export function deriveTeethSwapSidecar(argv = process.argv.slice(2)): void {
       return { ...row, accessorIndex: after.accessorIndex };
     });
   }
+  // The swap report's features.*.outputAccessorHashes describe swapOutput. After post-steps the installed
+  // GLB differs (retreat moves POSITION, couple adds targets, decimate rewrites indices), so the final rows
+  // are hashed from the output by feature_hashes.py (super-ceo-cap14 2026-11-10) and recorded beside them.
+  let features = report.features as Record<string, Record<string, unknown>>;
+  const featureTool = "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/feature_hashes.py";
+  if (steps.length > 0) {
+    const finalRows = JSON.parse(
+      execFileSync("mise", ["exec", "--", "python3", featureTool, output], { maxBuffer: 1024 * 1024 * 64 }).toString("utf8"),
+    ) as Record<string, Array<{ slot: string; sha256: string }>>;
+    features = Object.fromEntries(
+      Object.entries(features).map(([name, feature]) => {
+        const rows = finalRows[name];
+        if (!rows) throw new Error(`derive_sidecar: feature_hashes.py returned no ${name} rows`);
+        return [name, { ...feature, finalAccessorHashes: rows }];
+      }),
+    );
+  }
   if (path.resolve(report.input.path) !== path.resolve(input)) {
     throw new Error("derive_sidecar: report input path does not match --input");
   }
 
   const document = JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>;
+  if (priorByteLineage !== undefined) {
+    const lineage = document["byteLineage"] as { recordedBefore: Record<string, unknown> };
+    lineage.recordedBefore["byteLineage"] = priorByteLineage;
+  }
   const teethSwapB1 = {
     tool: report.tool,
     toolSha256: sha256(readFileSync(path.join(repoRoot, report.tool))),
     reportPath,
     reportSha256: sha256(reportBytes),
     input: report.input,
-    preImageMouthTris: preImageMouthTris(input, report.input.sha256),
+    preImageMouthTris: preImageMouthTris(preImageRevision, report.input.sha256),
     scratch: report.scratch,
     output: steps.length > 0 ? { path: output, sha256: sha256(outputBytes), bytes: outputBytes.byteLength } : report.output,
     ...(steps.length > 0
@@ -194,7 +233,10 @@ export function deriveTeethSwapSidecar(argv = process.argv.slice(2)): void {
         }
       : {}),
     cw1OriginalBinPrefix: report.cw1OriginalBinPrefix,
-    features: report.features,
+    features,
+    ...(steps.length > 0
+      ? { finalAccessorHashesTool: { path: featureTool, sha256: sha256(readFileSync(path.join(repoRoot, featureTool))) } }
+      : {}),
     protectedAccessorHashes: protectedRows,
     ...(report.alignedRelayout ? { alignedRelayout: report.alignedRelayout } : {}),
     claimScope: "fitted teeth/tongue mesh, skin, material and embedded CC0 texture transplant only",

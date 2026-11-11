@@ -7,8 +7,10 @@
  * T5 is deliberately skipped with a named reason until OPENCLINXR_TEETH_SCRATCH_DIR points at
  * the owner-run scratch bakes. It is never inferred from a stale directory.
  */
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
@@ -389,6 +391,66 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     "mpfb-street-adult-male.glb": { teethDz: 0, tongueDz: 0, coupled: true }, // not in deltas.txt: rest cleared
     "mpfb-viseme-inspect.glb": { teethDz: -0.0031, tongueDz: 0, coupled: false }, // line 8
   };
+  /**
+   * T5' decimation post-step (super-ceo-cap13 ruling 2026-11-10: ONE ratio 0.65, error 0.005 for
+   * all 10 swapped actors; budget 180,000 at asset-generation-pipeline.md:87). The shipped teeth
+   * indices are not compared to scratch by hash: they are re-produced by running the decimation tool
+   * the sidecar's postSteps names (path + toolSha256 read from the sidecar; the file on disk must hash
+   * to the recorded sha, so a tool edit reds here) on the shipped GLB with the scratch teeth indices
+   * restored. The replay runs twice; both runs and the shipped indices must be byte-equal
+   * (determinism of meshopt simplify on this lockfile). Vertices, skin and targets stay checked
+   * against scratch above and below.
+   */
+  const DECIMATE_ARGS = ["--in-place", "--ratio", "0.65", "--error", "0.005"];
+  const decimateStep = (actor: string): { tool: string; args: string[] } => {
+    const provenance = JSON.parse(readFileSync(join(DIR, actor.replace(/\.glb$/, ".provenance.json")), "utf8")) as {
+      teethSwapB1?: { postSteps?: Array<{ tool: string; toolSha256: string; args: string[] }> };
+    };
+    const steps = (provenance.teethSwapB1?.postSteps ?? []).filter((candidate) => /\/decimate_[^/]*$/.test(candidate.tool));
+    if (steps.length !== 1) throw new Error(`T5' expected 1 recorded decimation post-step, found ${steps.length}`);
+    const step = steps[0]!;
+    if (step.toolSha256 !== sha256(readFileSync(step.tool))) throw new Error(`T5' ${step.tool} moved since the sidecar recorded it`);
+    if (JSON.stringify(step.args) !== JSON.stringify(DECIMATE_ARGS)) throw new Error(`T5' decimate args ${JSON.stringify(step.args)} != ${JSON.stringify(DECIMATE_ARGS)}`);
+    return step;
+  };
+  const replayDecimatedIndices = (shipped: Glb, outputIndices: number, scratch: Glb, scratchIndices: number, tool: string, args: string[]): Buffer => {
+    const document = structuredClone(shipped.document);
+    const accessor = document.accessors[outputIndices]! as Accessor & { min?: number[]; max?: number[] };
+    const scratchAccessor = scratch.document.accessors[scratchIndices]!;
+    if (accessor.componentType !== scratchAccessor.componentType) throw new Error("T5' teeth indices component type differs from scratch");
+    const view = document.bufferViews[accessor.bufferView!]!;
+    const start = (view.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
+    const preImage = accessorBytes(scratch, scratchIndices);
+    if (preImage.length > view.byteLength - (accessor.byteOffset ?? 0)) throw new Error("T5' scratch teeth indices exceed the shipped bufferView");
+    const binary = Buffer.from(shipped.binary);
+    preImage.copy(binary, start);
+    accessor.count = scratchAccessor.count;
+    delete accessor.min;
+    delete accessor.max;
+    let json = Buffer.from(JSON.stringify(document), "utf8");
+    json = Buffer.concat([json, Buffer.alloc((4 - (json.length % 4)) % 4, 0x20)]);
+    const tail = shipped.raw.subarray(20 + shipped.raw.readUInt32LE(12) + 8 + shipped.binary.length);
+    const header = Buffer.alloc(12);
+    header.write("glTF", 0, "ascii");
+    header.writeUInt32LE(2, 4);
+    const chunk = (length: number, type: number) => {
+      const out = Buffer.alloc(8);
+      out.writeUInt32LE(length, 0);
+      out.writeUInt32LE(type, 4);
+      return out;
+    };
+    const glb = Buffer.concat([header, chunk(json.length, 0x4e4f534a), json, chunk(binary.length, 0x004e4942), binary, tail]);
+    glb.writeUInt32LE(glb.length, 8);
+    const dir = mkdtempSync(join(tmpdir(), "t5-decimate-"));
+    try {
+      const file = join(dir, "pre-image.glb");
+      writeFileSync(file, glb);
+      execFileSync(join(repoRoot(), "node_modules/.bin/tsx"), [tool, file, ...args], { stdio: "pipe" });
+      return accessorBytes(parseGlb(file), outputIndices);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  };
   /** float32 ulp at 0.2 m is 1.5e-8 m; one add of dz rounds once. */
   const POSITION_TOLERANCE_M = 1e-6;
   const t5Title = SCRATCH
@@ -416,6 +478,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
         const steps = POST_STEPS[actor]!;
         const shipped = parseGlb(join(DIR, actor));
         const scratch = parseGlb(join(SCRATCH!, actor));
+        const decimate = decimateStep(actor);
         for (const name of FEATURES) {
           const outputFeature = feature(shipped, name, true);
           const scratchFeature = feature(scratch, name, true);
@@ -474,6 +537,14 @@ describe("the shipped teeth carry their own CC0 texture", () => {
               }
               if (worst > POSITION_TOLERANCE_M) {
                 throw new Error(`T5' ${name} POSITION: max |shipped - (scratch + dz ${dz})| ${worst} m > ${POSITION_TOLERANCE_M}`);
+              }
+            } else if (name === "teeth" && outputRow.slot.endsWith(".indices")) {
+              // (d) decimated teeth indices == production decimate_teeth.mts replayed on the scratch indices.
+              const replay = () => replayDecimatedIndices(shipped, outputRow.accessorIndex, scratch, scratchRow.accessorIndex, decimate.tool, decimate.args);
+              const first = replay();
+              if (!first.equals(replay())) throw new Error(`T5' teeth ${outputRow.slot}: ${decimate.tool} replay is not deterministic`);
+              if (!first.equals(accessorBytes(shipped, outputRow.accessorIndex))) {
+                throw new Error(`T5' teeth ${outputRow.slot}: shipped indices != ${decimate.tool} ${decimate.args.join(" ")} replayed on scratch`);
               }
             } else if (accessorHash(shipped, outputRow.accessorIndex) !== accessorHash(scratch, scratchRow.accessorIndex)) {
               // (a) every other base accessor is the scratch accessor.

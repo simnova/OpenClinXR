@@ -5,16 +5,37 @@
  "declarationNote": "This sidecar records what the asset is FOR, not how it was baked. It was written by the orchestrator on 2026-08-25 because the asset shipped with no provenance at all and runtime-humanoid-reachability requires every published humanoid to say what it is. It makes no claim about the bake.",
  "runtimeRole": "inspection_fixture",
  "runtimeRoleWhy": "Inspection subject for garment/gown contracts. Never cast; the shipped-bank cast resolver does not name it.",
- "outputSha256": "881af5057291735f11d48f34055525b666ae955165028baf37750015b6a41be3",
+ "outputSha256": "ba8f7ad538510baa9fdd328f1afbbda9eb243ba224c72fca324dd7c771451d91",
  "outputBytes": 11262652,
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.401Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes. HB-05 (2026-09-11): face-preserving decimation rung rewrote the GLB (selective weld+simplifyPrimitive on non-face meshes only, face meshes untouched, joints and 47 body morph targets unchanged); outputSha256/outputBytes re-recorded in the same change that moved the bytes. Reproduce: pnpm exec tsx tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts --input <hb02-bytes> --out <dir> --face-preserving --face-preserving-ratio 0.15 (face-preserving mode, tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts).",
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-11-10T10:27:52.451Z",
+  "correctedAt": "2026-11-11T02:16:04.551Z",
   "recordedBefore": {
    "outputSha256": "a9c12e9cec11a2b2506e97b98f1845b17e6bec660514c0f93213bfad66afc427",
-   "outputBytes": 8542692
+   "outputBytes": 8542692,
+   "byteLineage": {
+    "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+    "correctedAt": "2026-09-28T04:06:36.024Z",
+    "recordedBefore": {
+     "outputSha256": "77a99379a95355f53f885f5ad0926b9e7b2c70573baafe43e439bccc5373101e",
+     "outputBytes": 7922732
+    },
+    "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
+    "preImageSha256": "77a99379a95355f53f885f5ad0926b9e7b2c70573baafe43e439bccc5373101e",
+    "preImageBytes": 7922732,
+    "derivationArgv": [
+     "sh",
+     "-c",
+     "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0198 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.010",
+     "x",
+     "{pre}",
+     "{out}"
+    ],
+    "reproduction": "byte-identical to the shipped file",
+    "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+   }
   },
   "preImageRevision": "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
   "preImageSha256": "a9c12e9cec11a2b2506e97b98f1845b17e6bec660514c0f93213bfad66afc427",
@@ -22,14 +43,14 @@
   "derivationArgv": [
    "sh",
    "-c",
-   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-gown-inspect.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0031' '--in-place-bytes'",
+   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-gown-inspect.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0031' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'",
    "x",
    "{pre}",
    "{out}",
    "{report}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts."
+  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts, decimate_teeth.mts."
  },
  "gownRebake20261103": {
   "producer": "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py --input-glb mpfb-viseme-inspect.glb --output-glb mpfb-gown-inspect.glb (blender --background)",
@@ -328,7 +349,7 @@
   },
   "output": {
    "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.glb",
-   "sha256": "881af5057291735f11d48f34055525b666ae955165028baf37750015b6a41be3",
+   "sha256": "ba8f7ad538510baa9fdd328f1afbbda9eb243ba224c72fca324dd7c771451d91",
    "bytes": 11262652
   },
   "swapOutput": {
@@ -344,6 +365,17 @@
      "--delta",
      "0.0031",
      "--in-place-bytes"
+    ]
+   },
+   {
+    "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts",
+    "toolSha256": "a7cba6178be1d07b5f8ecc83a5012a35927aee0da07a132287cc1e05e8d09fd7",
+    "args": [
+     "--in-place",
+     "--ratio",
+     "0.65",
+     "--error",
+     "0.005"
     ]
    }
   ],
@@ -443,7 +475,33 @@
      "sourceJointCount": 137,
      "targetJointCount": 137,
      "unmapped": []
-    }
+    },
+    "finalAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "9a34bf9e98c9836235303842626d139eadbcd20fcd2d1049a9d29775e843bd0f"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "dd28d665ca7243647e96eb797ad84c54a0a97ec3f51766eed684c9d2b790da65"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "0d90586d3d9a7ea10f8f45cc67a5d5ffc82a5aebfea3657d9be524b004c174f5"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "915394df4aba3e625661cd61d7f4a69bd6b66e85dec967db474f5a309faa66f1"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "af331f824d53aae9569a4a8237ca869a8c85f98ee829d1e95a0159b5ca056c17"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "28ddf6f9fcdfc0932ae2de24f33e2b1db2783476ceed137ff7ac02595680d1f3"
+     }
+    ]
    },
    "tongue": {
     "replacedMeshIndex": 9,
@@ -559,8 +617,38 @@
      "sourceJointCount": 137,
      "targetJointCount": 137,
      "unmapped": []
-    }
+    },
+    "finalAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "dc5fbd099868523e2a05fce04497d5f81022bcb2ddc7f02015ed78fd1ea02f52"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "9ad1009b51a29006fbde36f7e486622ec776e8b9bb3e1bd9f1cc5c5d4d68ba31"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "e601c605f84c6193e0e1472a324bf668f90845ddaf84d80b3d0e17443a5542a8"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "396006e8a6d0cc774254eae0a8680e77e1e97342d64fd664cf755b70ec5892e4"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "2ea562b228f65328e237c97743d013fabad9b3ef000c49bc0829739188736d05"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "1e5bd7c23a31e490407400687bc9ce4b70f65754fda51903809e8c29aa5b551b"
+     }
+    ]
    }
+  },
+  "finalAccessorHashesTool": {
+   "path": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/feature_hashes.py",
+   "sha256": "c474796baa2494acc4b71a88417ed6e4b628a4202a7a2a7c4addcad3d79f19df"
   },
   "protectedAccessorHashes": [
    {

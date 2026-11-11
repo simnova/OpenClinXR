@@ -138,14 +138,35 @@
  "sourceNotes": [
   "2026-11-05 st-vitbody3 r2: post-export skin-shade carrier repack via repack_skin_shade.py; face strength 0.15 (st-vitbody3 r4 sweep pick 0.15/0.25/0.35/0.5, CEO 1:1 grade 2026-11-06), body strength 0.3; curvature 481be3ba4e4e3bff4adad9e02de7c3c727fee030b48b4fd94805512981a785e0, cavity d18376567b250376e9b2076e4c65862e4e5ec07018508ce4683b1ca91ffc72f9; geometry, rig, garments, eyes, and animations unchanged."
  ],
- "outputSha256": "380703964dccf1e1e96ae2d559b4d6683e20da68984fdae5460fb3459f141cc7",
+ "outputSha256": "107d7ec951744032298b5e4fafd1d14b33f4860538fe1480968db02678014864",
  "outputBytes": 10316520,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-11-10T12:41:06.515Z",
+  "correctedAt": "2026-11-11T02:15:51.543Z",
   "recordedBefore": {
    "outputSha256": "8424c3872618d24cd94b7989b1673534eff817f0ada34700b912a05e25b89e02",
-   "outputBytes": 7217372
+   "outputBytes": 7217372,
+   "byteLineage": {
+    "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+    "correctedAt": "2026-09-28T04:06:25.232Z",
+    "recordedBefore": {
+     "outputSha256": "ceb34c139a5f21460cd4518e2fb023fabed45279a87d48d983bc22b9dd744643",
+     "outputBytes": 19149628
+    },
+    "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+    "preImageSha256": "ceb34c139a5f21460cd4518e2fb023fabed45279a87d48d983bc22b9dd744643",
+    "preImageBytes": 19149628,
+    "derivationArgv": [
+     "sh",
+     "-c",
+     "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0037",
+     "x",
+     "{pre}",
+     "{out}"
+    ],
+    "reproduction": "byte-identical to the shipped file",
+    "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+   }
   },
   "preImageRevision": "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
   "preImageSha256": "8424c3872618d24cd94b7989b1673534eff817f0ada34700b912a05e25b89e02",
@@ -153,14 +174,14 @@
   "derivationArgv": [
    "sh",
    "-c",
-   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-gown-adult-patient.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0023' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts' \"$2\"",
+   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-gown-adult-patient.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0023' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts' \"$2\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'",
    "x",
    "{pre}",
    "{out}",
    "{report}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts, couple-fitted-teeth-to-lip-viseme.ts."
+  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts, couple-fitted-teeth-to-lip-viseme.ts, decimate_teeth.mts."
  },
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.392Z",
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
@@ -472,7 +493,7 @@
   },
   "output": {
    "path": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
-   "sha256": "380703964dccf1e1e96ae2d559b4d6683e20da68984fdae5460fb3459f141cc7",
+   "sha256": "107d7ec951744032298b5e4fafd1d14b33f4860538fe1480968db02678014864",
    "bytes": 10316520
   },
   "swapOutput": {
@@ -494,6 +515,17 @@
     "tool": "tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts",
     "toolSha256": "a82196b27fb4702f76ba7de2014d338d0804857bda813fc27632b95a74c79523",
     "args": []
+   },
+   {
+    "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts",
+    "toolSha256": "a7cba6178be1d07b5f8ecc83a5012a35927aee0da07a132287cc1e05e8d09fd7",
+    "args": [
+     "--in-place",
+     "--ratio",
+     "0.65",
+     "--error",
+     "0.005"
+    ]
    }
   ],
   "cw1OriginalBinPrefix": {
@@ -592,7 +624,61 @@
      "sourceJointCount": 137,
      "targetJointCount": 138,
      "unmapped": []
-    }
+    },
+    "finalAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "1df10c88ec4bae3e66640d777890baf9be775eacc64ead63f6604ccd0951e5e4"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "dd28d665ca7243647e96eb797ad84c54a0a97ec3f51766eed684c9d2b790da65"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "70d2feedb57b4549d5f2da02289e6f62d88ef01b9700ba72c9ea860af830a398"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "8f1d3eb959992528bd6bc7d59fe3fda5ce03f8f9303196b23d4d20ea593b4c70"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "af331f824d53aae9569a4a8237ca869a8c85f98ee829d1e95a0159b5ca056c17"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "28ddf6f9fcdfc0932ae2de24f33e2b1db2783476ceed137ff7ac02595680d1f3"
+     },
+     {
+      "slot": "primitive[0].targets[0].POSITION",
+      "sha256": "1936cb3f08bbca98e52517c3f6affa6055f9329d9129811726bdd57be0473401"
+     },
+     {
+      "slot": "primitive[0].targets[1].POSITION",
+      "sha256": "6d0f6efbdd6ba98f9b41992db24876dbcbcecabd9dbffb025fa3da5c7a91c8b7"
+     },
+     {
+      "slot": "primitive[0].targets[2].POSITION",
+      "sha256": "64fc313fa46af9e90200c22a289c4fbffa98cf294b02fa392286787c7093fc62"
+     },
+     {
+      "slot": "primitive[0].targets[3].POSITION",
+      "sha256": "0ced8974f328f777ae63d289fec1a1ce93f801bff2f857e624aec73c06d66340"
+     },
+     {
+      "slot": "primitive[0].targets[4].POSITION",
+      "sha256": "ee2fe160c570f4f5ee6f25be62f7ec88592e1397020dfbc28773e1518e4cdd73"
+     },
+     {
+      "slot": "primitive[0].targets[5].POSITION",
+      "sha256": "d3ea9d6a6048501fe0a0ebc024f6525ce7127536f92ec66294af6cb40fe664cb"
+     },
+     {
+      "slot": "primitive[0].targets[6].POSITION",
+      "sha256": "d3ea9d6a6048501fe0a0ebc024f6525ce7127536f92ec66294af6cb40fe664cb"
+     }
+    ]
    },
    "tongue": {
     "replacedMeshIndex": 8,
@@ -708,8 +794,38 @@
      "sourceJointCount": 137,
      "targetJointCount": 138,
      "unmapped": []
-    }
+    },
+    "finalAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "dc5fbd099868523e2a05fce04497d5f81022bcb2ddc7f02015ed78fd1ea02f52"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "9ad1009b51a29006fbde36f7e486622ec776e8b9bb3e1bd9f1cc5c5d4d68ba31"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "c9b8d1173f5d4ab577def01142651d3971bc9be93c79670ce3426e656bc36a67"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "4ac291d753c73d31de09fa4f06344ffc0787319230574b2299d13ab1632f8406"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "2ea562b228f65328e237c97743d013fabad9b3ef000c49bc0829739188736d05"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "1e5bd7c23a31e490407400687bc9ce4b70f65754fda51903809e8c29aa5b551b"
+     }
+    ]
    }
+  },
+  "finalAccessorHashesTool": {
+   "path": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/feature_hashes.py",
+   "sha256": "c474796baa2494acc4b71a88417ed6e4b628a4202a7a2a7c4addcad3d79f19df"
   },
   "protectedAccessorHashes": [
    {

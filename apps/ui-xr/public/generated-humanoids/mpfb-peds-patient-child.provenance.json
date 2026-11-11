@@ -73,7 +73,7 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-11T23:26:23Z",
- "outputSha256": "15c4a0a93f7f39c6feefef4d78f99a30e7f7442b19e59c94878386d1b7fbe769",
+ "outputSha256": "1e90c396b7eeba779fa33be9ebfffef3a76f4b15c28b1f63b7e85656be4f980b",
  "outputBytes": 14341940,
  "albedoBakeWrittenAt": "2026-09-11T23:26:23Z",
  "albedoBakeNote": "HB-07 attempt 5 full-chain rebake (materialize -> bake-humanoid-albedo.ts -> separate_chest_anchor_joints.mjs; decimation skipped, chosenRungId=raw). Capture-aligned 4096 screen-space unhide after REHIDE; garment-only occluder; sleeve prim4 f79/f190 restored to skin.",
@@ -115,10 +115,31 @@
  ],
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-11-10T12:41:11.586Z",
+  "correctedAt": "2026-11-11T02:16:17.251Z",
   "recordedBefore": {
    "outputSha256": "463c85c9de6723d90b1e4f48e924ea06374ec5caaa9daec89f72f4494ab06a95",
-   "outputBytes": 11242708
+   "outputBytes": 11242708,
+   "byteLineage": {
+    "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+    "correctedAt": "2026-09-28T04:07:17.147Z",
+    "recordedBefore": {
+     "outputSha256": "38755a96e10945d34265b33b1ef6e8d2b17f34faa2cd84ae8ccdbd8da950c4de",
+     "outputBytes": 11743280
+    },
+    "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
+    "preImageSha256": "38755a96e10945d34265b33b1ef6e8d2b17f34faa2cd84ae8ccdbd8da950c4de",
+    "preImageBytes": 11743280,
+    "derivationArgv": [
+     "sh",
+     "-c",
+     "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0016",
+     "x",
+     "{pre}",
+     "{out}"
+    ],
+    "reproduction": "byte-identical to the shipped file",
+    "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+   }
   },
   "preImageRevision": "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
   "preImageSha256": "463c85c9de6723d90b1e4f48e924ea06374ec5caaa9daec89f72f4494ab06a95",
@@ -126,14 +147,14 @@
   "derivationArgv": [
    "sh",
    "-c",
-   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-peds-patient-child.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts' \"$2\"",
+   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-peds-patient-child.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts' \"$2\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'",
    "x",
    "{pre}",
    "{out}",
    "{report}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: couple-fitted-teeth-to-lip-viseme.ts."
+  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: couple-fitted-teeth-to-lip-viseme.ts, decimate_teeth.mts."
  },
  "garmentWeaveFold": {
   "tool": "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts",
@@ -291,7 +312,7 @@
   },
   "output": {
    "path": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.glb",
-   "sha256": "15c4a0a93f7f39c6feefef4d78f99a30e7f7442b19e59c94878386d1b7fbe769",
+   "sha256": "1e90c396b7eeba779fa33be9ebfffef3a76f4b15c28b1f63b7e85656be4f980b",
    "bytes": 14341940
   },
   "swapOutput": {
@@ -304,6 +325,17 @@
     "tool": "tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts",
     "toolSha256": "a82196b27fb4702f76ba7de2014d338d0804857bda813fc27632b95a74c79523",
     "args": []
+   },
+   {
+    "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts",
+    "toolSha256": "a7cba6178be1d07b5f8ecc83a5012a35927aee0da07a132287cc1e05e8d09fd7",
+    "args": [
+     "--in-place",
+     "--ratio",
+     "0.65",
+     "--error",
+     "0.005"
+    ]
    }
   ],
   "cw1OriginalBinPrefix": {
@@ -402,7 +434,61 @@
      "sourceJointCount": 137,
      "targetJointCount": 137,
      "unmapped": []
-    }
+    },
+    "finalAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "1a120e9ff2c0b34abd052c3280fa1bb905a468b85db8bd0ffe7c3c8f42110b54"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "dd28d665ca7243647e96eb797ad84c54a0a97ec3f51766eed684c9d2b790da65"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "c2edc47d598f245dbfa2bfc109738921f777176c93c18edf9e21d2b16f1d5678"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "596d7bcc3529aa796b78b22e689d222807302ecd365b35bb73869567ab6e13f6"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "af331f824d53aae9569a4a8237ca869a8c85f98ee829d1e95a0159b5ca056c17"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "28ddf6f9fcdfc0932ae2de24f33e2b1db2783476ceed137ff7ac02595680d1f3"
+     },
+     {
+      "slot": "primitive[0].targets[0].POSITION",
+      "sha256": "1936cb3f08bbca98e52517c3f6affa6055f9329d9129811726bdd57be0473401"
+     },
+     {
+      "slot": "primitive[0].targets[1].POSITION",
+      "sha256": "6d0f6efbdd6ba98f9b41992db24876dbcbcecabd9dbffb025fa3da5c7a91c8b7"
+     },
+     {
+      "slot": "primitive[0].targets[2].POSITION",
+      "sha256": "64fc313fa46af9e90200c22a289c4fbffa98cf294b02fa392286787c7093fc62"
+     },
+     {
+      "slot": "primitive[0].targets[3].POSITION",
+      "sha256": "0ced8974f328f777ae63d289fec1a1ce93f801bff2f857e624aec73c06d66340"
+     },
+     {
+      "slot": "primitive[0].targets[4].POSITION",
+      "sha256": "ee2fe160c570f4f5ee6f25be62f7ec88592e1397020dfbc28773e1518e4cdd73"
+     },
+     {
+      "slot": "primitive[0].targets[5].POSITION",
+      "sha256": "d3ea9d6a6048501fe0a0ebc024f6525ce7127536f92ec66294af6cb40fe664cb"
+     },
+     {
+      "slot": "primitive[0].targets[6].POSITION",
+      "sha256": "d3ea9d6a6048501fe0a0ebc024f6525ce7127536f92ec66294af6cb40fe664cb"
+     }
+    ]
    },
    "tongue": {
     "replacedMeshIndex": 9,
@@ -518,8 +604,38 @@
      "sourceJointCount": 137,
      "targetJointCount": 137,
      "unmapped": []
-    }
+    },
+    "finalAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "dc5fbd099868523e2a05fce04497d5f81022bcb2ddc7f02015ed78fd1ea02f52"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "9ad1009b51a29006fbde36f7e486622ec776e8b9bb3e1bd9f1cc5c5d4d68ba31"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "57b8486d579f986a5246cf79f141b2d632078c408da31dc9cd4a954efba7a206"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "18e5182d754afcddac822873a2b4603a66e9766af9a4db7200deb6c9e880fbee"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "2ea562b228f65328e237c97743d013fabad9b3ef000c49bc0829739188736d05"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "1e5bd7c23a31e490407400687bc9ce4b70f65754fda51903809e8c29aa5b551b"
+     }
+    ]
    }
+  },
+  "finalAccessorHashesTool": {
+   "path": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/feature_hashes.py",
+   "sha256": "c474796baa2494acc4b71a88417ed6e4b628a4202a7a2a7c4addcad3d79f19df"
   },
   "protectedAccessorHashes": [
    {

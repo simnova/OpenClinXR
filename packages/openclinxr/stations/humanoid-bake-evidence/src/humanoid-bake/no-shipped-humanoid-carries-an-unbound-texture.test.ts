@@ -101,7 +101,9 @@ const PINNED = {
   // Teeth swap tsk_27e0cec12cab410d (fitted CC0 teeth/tongue replace hm08, byte-preserving retreat):
   // fileBytes 19549552 -> 22269564; textures/boundTextures 7 -> 9 and boundBytes 13695156 -> 16120505
   // (+2425349 B = teeth.png 1799930 + tongue01_diffuse.png 625419); materials 17 -> 19; tris 73392 -> 80320.
-  "mpfb-ob-patient-aisha.glb":  { fileBytes: 22269564, textures: 9, boundTextures: 9, boundBytes: 16120505, meshes: 10, materials: 19, tris: 80320, joints: 137, animations: 3 },
+  // Teeth decimation tsk_27e0cec12cab410d (decimate_teeth.mts --ratio 0.65 --error 0.005, in-place indices):
+  // teeth 7120 -> 4628 tris, tris 80320 -> 77828 (-2492, same delta as the HB-05 ladder); bytes/images/materials verbatim.
+  "mpfb-ob-patient-aisha.glb":  { fileBytes: 22269564, textures: 9, boundTextures: 9, boundBytes: 16120505, meshes: 10, materials: 19, tris: 77828, joints: 137, animations: 3 },
   // ci-w11 re-pin 2026-10-30, measured pre-prune (post-afe8abced full-res hair + D2 grade).
   // Old #598: fileBytes 11456228, textures 5, boundTextures 5, boundBytes 4598965, tris 74732.
   // st-palette 2026-11-04: 3969ae031 re-encoded the toigo t-shirt texture (sRGB palette renorm,

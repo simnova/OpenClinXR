@@ -38,6 +38,7 @@ import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { mouthSwapDelta } from "./mouth-swap-delta.js";
 
 const REPO_ROOT = repoRoot();
 const REPORT = join(REPO_ROOT, "tools/openclinxr/evidence/humanoid-vetting/street-waist-meet-at-bake-time-2026-09-12.md");
@@ -133,9 +134,13 @@ describe("the waist-meet runs at bake time not after export", () => {
 
   it("COUNTERWEIGHT: nurse triangle count and street jeans mesh stay put", () => {
     expect(existsSync(NURSE_GLB), "nurse GLB exists").toBe(true);
-    expect(triangleCount(NURSE_GLB), "nurse stays 38,958 triangles").toBe(38958);
+    // Pre-swap totals (origin/main 963d78e13) + each actor's sidecar mouth delta (teeth swap + decimation,
+    // tsk_27e0cec12cab410d): the waist meet itself moves no triangle.
+    expect(triangleCount(NURSE_GLB), "nurse stays 38,958 triangles + its mouth-swap delta").toBe(38958 + mouthSwapDelta(NURSE_GLB).delta);
     expect(existsSync(STREET_GLB), "street GLB exists").toBe(true);
-    expect(triangleCount(STREET_GLB), "street stays the HB-03 115,552-triangle exception").toBe(115552);
+    expect(triangleCount(STREET_GLB), "street stays the HB-03 115,552-triangle exception + its mouth-swap delta").toBe(
+      115552 + mouthSwapDelta(STREET_GLB).delta,
+    );
     const streetBytes = readFileSync(STREET_GLB);
     const jsonLength = streetBytes.readUInt32LE(12);
     const json = JSON.parse(streetBytes.subarray(20, 20 + jsonLength).toString("utf8")) as {

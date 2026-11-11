@@ -88,7 +88,7 @@
  ],
  "claimScope": "first_mpfb2_humanoid_promoted_to_a_station_cast_not_readiness",
  "promotionGates": false,
- "outputSha256": "94c3b4127550738704f9a140fed482163038a4c7493bd342c502a1e3a73d3812",
+ "outputSha256": "37e905ea9fa0d4f3664d95a1c34ab45219a77ed63a46b4976b0bb1a063443ce9",
  "outputBytes": 22269564,
  "fitTimeLower": {
   "garment": "punkduck_female_tight_jeans",
@@ -102,10 +102,31 @@
  "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: ClothesService PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt iterate-optimize --face-preserving --face-preserving-ratio 0.4 then chest-anchor 0.085 m. Shipped 69093 tris / 13927908 B (jeans 1986). Fit-time faces x 2 lives in fitTimeLower; shipped shell-vs-fit is standoff spread. Previous raw pin cfdcd5a3c2828daa / 17002120. Report: female-covering-lower-acquisition-2026-09-12.md. 2026-09-14 tsk_2cdb306c4e7069af: targeted rebake through the producer-path station (bakeProducedHumanoidAlbedo on the shipped bytes, no re-fit): toigo t-shirt factor folded into its 2048x2048 texture and reset to white. Geometry, rig and animations unchanged; outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-11-10T10:27:54.576Z",
+  "correctedAt": "2026-11-11T02:16:08.045Z",
   "recordedBefore": {
    "outputSha256": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
-   "outputBytes": 19549552
+   "outputBytes": 19549552,
+   "byteLineage": {
+    "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+    "correctedAt": "2026-09-28T04:06:48.298Z",
+    "recordedBefore": {
+     "outputSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
+     "outputBytes": 10069444
+    },
+    "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    "preImageSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
+    "preImageBytes": 10069444,
+    "derivationArgv": [
+     "sh",
+     "-c",
+     "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0135 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+     "x",
+     "{pre}",
+     "{out}"
+    ],
+    "reproduction": "byte-identical to the shipped file",
+    "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+   }
   },
   "preImageRevision": "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
   "preImageSha256": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
@@ -113,14 +134,14 @@
   "derivationArgv": [
    "sh",
    "-c",
-   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-ob-patient-aisha.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0031' '--in-place-bytes'",
+   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-ob-patient-aisha.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0031' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'",
    "x",
    "{pre}",
    "{out}",
    "{report}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts."
+  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts, decimate_teeth.mts."
  },
  "motionClips": [
   {
@@ -592,7 +613,7 @@
   },
   "output": {
    "path": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-   "sha256": "94c3b4127550738704f9a140fed482163038a4c7493bd342c502a1e3a73d3812",
+   "sha256": "37e905ea9fa0d4f3664d95a1c34ab45219a77ed63a46b4976b0bb1a063443ce9",
    "bytes": 22269564
   },
   "swapOutput": {
@@ -608,6 +629,17 @@
      "--delta",
      "0.0031",
      "--in-place-bytes"
+    ]
+   },
+   {
+    "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts",
+    "toolSha256": "a7cba6178be1d07b5f8ecc83a5012a35927aee0da07a132287cc1e05e8d09fd7",
+    "args": [
+     "--in-place",
+     "--ratio",
+     "0.65",
+     "--error",
+     "0.005"
     ]
    }
   ],
@@ -707,7 +739,33 @@
      "sourceJointCount": 137,
      "targetJointCount": 137,
      "unmapped": []
-    }
+    },
+    "finalAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "9a34bf9e98c9836235303842626d139eadbcd20fcd2d1049a9d29775e843bd0f"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "dd28d665ca7243647e96eb797ad84c54a0a97ec3f51766eed684c9d2b790da65"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "0d90586d3d9a7ea10f8f45cc67a5d5ffc82a5aebfea3657d9be524b004c174f5"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "915394df4aba3e625661cd61d7f4a69bd6b66e85dec967db474f5a309faa66f1"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "af331f824d53aae9569a4a8237ca869a8c85f98ee829d1e95a0159b5ca056c17"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "28ddf6f9fcdfc0932ae2de24f33e2b1db2783476ceed137ff7ac02595680d1f3"
+     }
+    ]
    },
    "tongue": {
     "replacedMeshIndex": 9,
@@ -823,8 +881,38 @@
      "sourceJointCount": 137,
      "targetJointCount": 137,
      "unmapped": []
-    }
+    },
+    "finalAccessorHashes": [
+     {
+      "slot": "primitive[0].indices",
+      "sha256": "dc5fbd099868523e2a05fce04497d5f81022bcb2ddc7f02015ed78fd1ea02f52"
+     },
+     {
+      "slot": "primitive[0].attributes.JOINTS_0",
+      "sha256": "9ad1009b51a29006fbde36f7e486622ec776e8b9bb3e1bd9f1cc5c5d4d68ba31"
+     },
+     {
+      "slot": "primitive[0].attributes.NORMAL",
+      "sha256": "ba1b211d4d71998b95018f1a25cc156245daf8d3ee8f11340e05057ff5db2e49"
+     },
+     {
+      "slot": "primitive[0].attributes.POSITION",
+      "sha256": "952d6f6cddc2278e57854cae1888625c8dc68474ccf58ed7aa9791154b197f23"
+     },
+     {
+      "slot": "primitive[0].attributes.TEXCOORD_0",
+      "sha256": "2ea562b228f65328e237c97743d013fabad9b3ef000c49bc0829739188736d05"
+     },
+     {
+      "slot": "primitive[0].attributes.WEIGHTS_0",
+      "sha256": "1e5bd7c23a31e490407400687bc9ce4b70f65754fda51903809e8c29aa5b551b"
+     }
+    ]
    }
+  },
+  "finalAccessorHashesTool": {
+   "path": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/feature_hashes.py",
+   "sha256": "c474796baa2494acc4b71a88417ed6e4b628a4202a7a2a7c4addcad3d79f19df"
   },
   "protectedAccessorHashes": [
    {

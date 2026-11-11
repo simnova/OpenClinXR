@@ -35,6 +35,18 @@ describe("teeth swap post-step chain", () => {
     );
   });
 
+  it("runs decimation last, in place, and refuses a ratio without an error bound", async () => {
+    const { postSteps } = await import("./derive_sidecar.js");
+    const steps = postSteps(["--decimate-ratio", "0.65", "--decimate-error", "0.005", "--couple", "--retreat-delta", "0.0061"]);
+    expect(steps.map((s) => s.tool.split("/").pop())).toEqual([
+      "teeth-rest-clearance.ts",
+      "couple-fitted-teeth-to-lip-viseme.ts",
+      "decimate_teeth.mts",
+    ]);
+    expect(steps[2]?.args).toEqual(["--in-place", "--ratio", "0.65", "--error", "0.005"]);
+    expect(() => postSteps(["--decimate-ratio", "0.65"])).toThrow(/needs --decimate-error/);
+  });
+
   it("adds no chain when no post-step flag is given", async () => {
     const { postSteps } = await import("./derive_sidecar.js");
     expect(postSteps(["--input", "a"])).toEqual([]);
@@ -66,5 +78,21 @@ describe("pre-image mouth triangle count", () => {
   it("refuses bytes that are not a GLB", async () => {
     const { mouthTris } = await import("./derive_sidecar.js");
     expect(() => mouthTris(Buffer.from("not a glb at all, twenty+ bytes"))).toThrow(/not a GLB/);
+  });
+});
+
+describe("pre-image mouth triangles from --pre-image-revision", () => {
+  // ebe98e0a5 is on main; its partner blob is the teeth swap's recorded input (teethSwapB1.input.sha256).
+  const REV = "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb";
+  const SHA = "f4e9094ebb965e6296867906193df5cc1249dc3b3a55d395ca114e76b6884d67";
+
+  it("known-good: the recorded pre-image blob counts 192 teeth and 430 tongue tris", async () => {
+    const { preImageMouthTris } = await import("./derive_sidecar.js");
+    expect(preImageMouthTris(REV, SHA)).toEqual({ teeth: 192, tongue: 430 });
+  });
+
+  it("throws when the revision blob sha differs from report input.sha256", async () => {
+    const { preImageMouthTris } = await import("./derive_sidecar.js");
+    expect(() => preImageMouthTris(REV, "0".repeat(64))).toThrow(/do not match report input\.sha256/);
   });
 });

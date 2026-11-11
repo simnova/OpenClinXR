@@ -5,11 +5,11 @@
     "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": "8816c56eceafd02398077b623975d8948c09549fd9d43bce489040c8c58d42ea",
     "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
     "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27",
-    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "380703964dccf1e1e96ae2d559b4d6683e20da68984fdae5460fb3459f141cc7",
-    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "eed1247688f5c0f12e79e4ea05d539657523ded4740041217be805d1e4c4d9eb",
-    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "55ba118b95684e4466490bcff9adb2f655cd13544ccaea763123fe624eff300b",
+    "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "107d7ec951744032298b5e4fafd1d14b33f4860538fe1480968db02678014864",
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "1fd58873ddba9519d442396635bd2d91a08c8b4b63606b186ecc56a9c0f5cb8b",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "f73229fe6ed22d7db0e35ce726901d1d6d750680d7bde5e8a0cb6c965b73998d",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "3003faf671608b81fa69b7a946cd0d90c56dff0aa1d0d7ab261c494c8881c955"
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444"
   },
   "staged": {
     "posture": "supine",
@@ -17,9 +17,9 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "teeth-F3 (tsk_27e0cec12cab410d)",
-    "observedAtIso": "2026-11-10T13:34:26.122Z",
-    "reason": "Teeth F3: aa upper-shell lateral mean -> 0 on 7 coupled MPFB GLBs; refresh live control byte pins.",
+    "observedBy": "teeth decimation (tsk_27e0cec12cab410d)",
+    "observedAtIso": "2026-11-11T01:48:11.259Z",
+    "reason": "Teeth decimation 0.65/0.005 on 10 swapped MPFB GLBs (super-ceo-cap13); refresh live control byte pins.",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,

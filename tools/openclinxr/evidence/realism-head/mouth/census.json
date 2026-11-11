@@ -97,7 +97,7 @@
     },
     {
       "label": "control",
-      "sha256": "94c3b4127550738704f9a140fed482163038a4c7493bd342c502a1e3a73d3812",
+      "sha256": "37e905ea9fa0d4f3664d95a1c34ab45219a77ed63a46b4976b0bb1a063443ce9",
       "visemes": [
         "viseme_CH",
         "viseme_DD",
@@ -162,7 +162,7 @@
       "teeth": [
         {
           "mesh": "openclinxr_fitted_teeth_mpfb_ob_patient_aisha_mesh",
-          "tris": 7120,
+          "tris": 4628,
           "skinned": true,
           "maxZ": 0.13811777532100677
         }
