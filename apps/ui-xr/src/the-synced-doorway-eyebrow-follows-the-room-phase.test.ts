@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { startEncounterSyncFromUrl } from "@openclinxr/xr-sync-client/headset";
 import { describe, expect, it } from "vitest";
-import { writeSyncedDoorwayEyebrow } from "./synced-shell-writers.js";
+import { writeSyncedDoorwayEyebrow } from "@openclinxr/xr-sync-client/headset";
 
 // Eyebrow RED: in a synced room the eyebrow above the station title follows the
 // server phase (Doorway, Encounter, Note, ...) instead of the fixed text
@@ -90,7 +90,7 @@ describe("the synced doorway eyebrow follows the room phase", () => {
     expect(eyebrow.el.textContent).not.toBe("");
   });
 
-  it("main.ts imports the writer from ./synced-doorway-eyebrow", () => {
-    expect(MAIN).toMatch(/import \{ writeSyncedDoorwayEyebrow \} from "\.\/synced-shell-writers\.js";/u);
+  it("main.ts takes the writer from the lazy xr-sync-client/headset import", () => {
+    expect(MAIN).toMatch(/import\("@openclinxr\/xr-sync-client\/headset"\)\.then\(\(\{ startEncounterSyncFromUrl, writeSyncedDoorwayEyebrow \}\)/u);
   });
 });

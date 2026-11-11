@@ -65,3 +65,11 @@ export function createStationAnnouncer(onStation: (index: number, count: number)
     onStation(index, count);
   };
 }
+
+/** A': writes the capitalised server phase into the doorway eyebrow; an empty or missing phase writes nothing and returns "". */
+export function writeSyncedDoorwayEyebrow(el: { textContent: string | null }, phase: string | undefined): string {
+  if (!phase) return "";
+  const name = phase.charAt(0).toUpperCase() + phase.slice(1);
+  el.textContent = name;
+  return name;
+}

@@ -30,7 +30,8 @@
       "UtteranceBoxDeps",
       "VoiceEngine",
       "VoiceSink",
-      "VoiceSlot"
+      "VoiceSlot",
+      "writeSyncedDoorwayEyebrow"
     ]
   }
 }

@@ -396,7 +396,6 @@ import { isPedsAsthmaScenario, learnerVisiblePedsDialogueForTraceTag } from "./p
 import "./styles.css";
 
 import { applyPhysicsBoneTransforms as applyPhysicsBoneTransformsImpl } from "./physics-touch/apply-physics-bone-transforms.js";
-import { writeSyncedDoorwayEyebrow } from "./synced-shell-writers.js";
 
 /** Pre-production fence: physics bone apply is opt-in capture only. Default session path does NOT apply physics transforms. */
 export const UI_XR_PHYSICS_TOUCH_RUNTIME_PROMOTION_ALLOWED = false;
@@ -4634,7 +4633,7 @@ initPreparedActorAudioBridge({ getSlot: (id) => generatedHumanoidAnimationSlotsB
 initSpeakFixtureBridge({ triggerDialogue: (actorId: string, text: string): void => { startPreparedActorTurnAudio({ actorId, spokenText: text }); } });
 window.__openClinXrRequestLiveVoiceTurn = requestUnscriptedLiveTurn;
 // C25: ?encounterSync=ws://... joins the xr-sync room; the server's actor turn plays through the live actor-turn consumer.
-if (window.location.search.includes("encounterSync=")) void import("@openclinxr/xr-sync-client/headset").then(({ startEncounterSyncFromUrl }) => startEncounterSyncFromUrl({
+if (window.location.search.includes("encounterSync=")) void import("@openclinxr/xr-sync-client/headset").then(({ startEncounterSyncFromUrl, writeSyncedDoorwayEyebrow }) => startEncounterSyncFromUrl({
   gazeView: () => { const cam = (window as unknown as Record<string, PerspectiveCamera | undefined>)["__openClinXrGazeCamera"]; return cam ? { eye: cam.getWorldPosition(new Vector3()), forward: cam.getWorldDirection(new Vector3()), actors: [...generatedHumanoidActorSlotsByActorId].map(([actorId, slot]) => { const at = slot.getWorldPosition(new Vector3()); return { actorId, x: at.x, y: at.y + 1.18, z: at.z }; }) } : undefined; }, search: window.location.search, noteText: () => patientNoteText.value, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), speech: { xrSession: () => (window as unknown as Record<string, unknown>)["__openClinXrXrSession"] as never, inject: window.location.search.includes("encounterMicInject=1") }, publish: (evidence) => { window.__openClinXrEncounterSync = evidence; },
   utteranceBox: {
     doc: document as never, parent: (dialogueLine.parentElement ?? document.body) as never,

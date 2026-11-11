@@ -2,7 +2,7 @@ import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { startEncounterSyncFromUrl } from "@openclinxr/xr-sync-client/headset";
 import { describe, expect, it } from "vitest";
-import { writeSyncedDoorwayEyebrow as writeEyebrowThrough } from "./synced-shell-writers.js";
+import { writeSyncedDoorwayEyebrow as writeEyebrowThrough } from "@openclinxr/xr-sync-client/headset";
 
 // C55' RED B: while the shell is joined to a synced rotation the Encounter Flow panel follows the server phase. The client dep
 // onPhase(phase, remainingS) fires on the first snapshot and whenever (phase, remainingS) changes, never for replay or review-lobby
@@ -12,7 +12,7 @@ import { writeSyncedDoorwayEyebrow as writeEyebrowThrough } from "./synced-shell
 // be imported (it boots the page): its wiring is pinned by source and its on-screen position by the evidence/c55 stills.
 const SRC = fileURLToPath(new URL(".", import.meta.url));
 const MAIN = readFileSync(SRC + "main.ts", "utf8");
-const MAIN_LINES_AT_BASE = 4724; // origin/main d962cc74 card tsk_bf84681b185c6766: +1 import of the synced shell writer module
+const MAIN_LINES_AT_BASE = 4723; // origin/main 0152d3bd4: card tsk_bf84681b185c6766 imports the eyebrow writer on the existing xr-sync-client/headset line (+0)
 const flush = async (): Promise<void> => { for (let i = 0; i < 12; i += 1) await Promise.resolve(); };
 const ONPHASE = /onPhase: \(phase, remaining\) => \{\n([\s\S]*?)\n  \},\n/u;
 const SYNC = "?encounterSync=ws://127.0.0.1:9";
