@@ -1,8 +1,8 @@
 import { randomUUID } from "node:crypto";
 import { readFile, unlink, writeFile } from "node:fs/promises";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 import { syncGithubPagesEvidenceLinks } from "../../../../../../tools/openclinxr/evidence/sync-github-pages-evidence-links.js";
-import { repoRoot } from "@openclinxr/factory-station-core/runner";
 
 process.chdir(repoRoot());
 
@@ -10,6 +10,18 @@ const staleSnapshotPath = "docs/openclinxr/asset-production-readiness-benchmark-
 const latestSnapshotPath = "docs/openclinxr/asset-production-readiness-benchmark-2099-01-01.json";
 const staleSnapshotUrl = `https://github.com/simnova/OpenClinXR/blob/main/${staleSnapshotPath}`;
 const latestSnapshotUrl = `https://github.com/simnova/OpenClinXR/blob/main/${latestSnapshotPath}`;
+// The page fixture is owned here, not read from the live docs/index.html: the live page dropped
+// its readiness-benchmark link in website W3 (1040ed3c1), which made the stale-link swap a no-op.
+const staleIndex = `<!doctype html>
+<html><body>
+  <a
+    data-pages-snapshot="asset-production-readiness-benchmark"
+    href="${staleSnapshotUrl}"
+  >
+    Local launch selection (peds)
+  </a>
+</body></html>
+`;
 
 async function withTemporarySnapshotFixtures(run: () => Promise<void>): Promise<void> {
   await writeFile(staleSnapshotPath, "{}\n", "utf8");
@@ -24,11 +36,6 @@ async function withTemporarySnapshotFixtures(run: () => Promise<void>): Promise<
 describe("GitHub Pages snapshot link syncing", () => {
   it("updates stale snapshot links to the latest available files", async () => {
     const tempIndexPath = `docs/index.${randomUUID()}.html`;
-    const originalIndex = await readFile("docs/index.html", "utf8");
-    const staleIndex = originalIndex.replace(
-      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-local-launch-selection-peds-asthma-parent-anxiety-2026-05-28.json"',
-      `href="${staleSnapshotUrl}"`,
-    );
 
     try {
       await writeFile(tempIndexPath, staleIndex, "utf8");
@@ -77,10 +84,6 @@ describe("GitHub Pages snapshot link syncing", () => {
 
   it("supports check-mode updates without writing when write is disabled", async () => {
     const tempIndexPath = `docs/index.${randomUUID()}.html`;
-    const staleIndex = (await readFile("docs/index.html", "utf8")).replace(
-      'href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-local-launch-selection-peds-asthma-parent-anxiety-2026-05-28.json"',
-      `href="${staleSnapshotUrl}"`,
-    );
 
     try {
       await writeFile(tempIndexPath, staleIndex, "utf8");
