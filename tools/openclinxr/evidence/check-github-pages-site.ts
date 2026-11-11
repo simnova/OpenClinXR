@@ -52,13 +52,16 @@ const factoryStationCardsPattern = /src="(assets\/factory-station-cards-[^"]+\.p
 const factoryStationEquipmentPattern = /src="(assets\/factory-station-equipment-generate-[^"]+\.png)"/;
 const MIN_FACTORY_STATION_CARDS_BYTES = 40_000;
 
-async function factoryStationStillBlocker(indexHtml: string): Promise<string | undefined> {
+async function factoryStationStillBlocker(
+  indexHtml: string,
+  root: string = process.cwd(),
+): Promise<string | undefined> {
   const cards = factoryStationCardsPattern.exec(indexHtml);
   const equipment = factoryStationEquipmentPattern.exec(indexHtml);
   if (!cards?.[1]) return "pages_index_factory_station_cards_image_missing";
   if (!equipment?.[1]) return "pages_index_factory_station_equipment_image_missing";
   for (const src of [cards[1], equipment[1]]) {
-    const onDisk = path.join("docs", src);
+    const onDisk = path.join(root, "docs", src);
     try {
       const { size } = await stat(onDisk);
       if (src.includes("factory-station-cards-") && size < MIN_FACTORY_STATION_CARDS_BYTES) {
@@ -186,12 +189,15 @@ export function heroImageBlockerFor(
   return "pages_index_hero_image_sha_mismatch";
 }
 
-export async function heroImageBlocker(indexHtml: string): Promise<string | undefined> {
+export async function heroImageBlocker(
+  indexHtml: string,
+  root: string = process.cwd(),
+): Promise<string | undefined> {
   // Unreadable or unparsable media.json means no hero-poster slot, i.e. PLACEHOLDER.
   let media: HeroMediaFile = {};
   try {
     media = JSON.parse(
-      await readFile(path.join("docs", "site", "data", "media.json"), "utf8"),
+      await readFile(path.join(root, "docs", "site", "data", "media.json"), "utf8"),
     ) as HeroMediaFile;
   } catch {
     media = {};
@@ -199,27 +205,30 @@ export async function heroImageBlocker(indexHtml: string): Promise<string | unde
   let grades: HeroGradesFile = {};
   try {
     grades = JSON.parse(
-      await readFile(path.join("docs", "site", "data", "grades.json"), "utf8"),
+      await readFile(path.join(root, "docs", "site", "data", "grades.json"), "utf8"),
     ) as HeroGradesFile;
   } catch {
     grades = {};
   }
   return heroImageBlockerFor(indexHtml, media, grades, (docsRelativePath) => {
     try {
-      return readFileSync(docsRelativePath);
+      return readFileSync(path.join(root, docsRelativePath));
     } catch {
       return undefined;
     }
   });
 }
 
-export async function validateGitHubPagesSite(): Promise<ValidationResult> {
+export async function validateGitHubPagesSite(
+  { root }: { root?: string } = {},
+): Promise<ValidationResult> {
+  const base = root ?? process.cwd();
   const blockers: string[] = [];
   const fileText = new Map<string, string>();
 
   for (const file of requiredSiteFiles) {
     try {
-      fileText.set(file, await readFile(file, "utf8"));
+      fileText.set(file, await readFile(path.join(base, file), "utf8"));
     } catch {
       blockers.push(`missing_required_pages_file:${file}`);
     }
@@ -231,7 +240,7 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
   const readme = fileText.get("README.md") ?? "";
   let workflow: string | undefined;
   try {
-    workflow = await readFile(".github/workflows/pages.yml", "utf8");
+    workflow = await readFile(path.join(base, ".github/workflows/pages.yml"), "utf8");
   } catch {
     workflow = undefined;
   }
@@ -239,11 +248,11 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
   blockers.push(...[
     indexHtml.includes("<title>OpenClinXR</title>") ? undefined : "pages_index_title_missing",
     indexHtml.includes('href="styles.css"') ? undefined : "pages_index_stylesheet_link_missing",
-    await heroImageBlocker(indexHtml),
+    await heroImageBlocker(indexHtml, base),
     indexHtml.includes("https://github.com/simnova/OpenClinXR") ? undefined : "pages_index_repo_link_missing",
     engineeringHtml.includes("Evidence Docs") ? undefined : "pages_index_evidence_docs_link_missing",
     engineeringHtml.includes('id="factory-stations"') ? undefined : "pages_index_factory_stations_section_missing",
-    await factoryStationStillBlocker(engineeringHtml),
+    await factoryStationStillBlocker(engineeringHtml, base),
     styles.includes("@media (max-width: 860px)") ? undefined : "pages_styles_mobile_breakpoint_missing",
     readme.match(/https?:\/\/developers\.simnova\.com\/OpenClinXR\//) ? undefined : "readme_pages_url_missing",
     readme.includes("main") && readme.includes("/docs") ? undefined : "readme_pages_source_missing",
@@ -259,8 +268,8 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
     const normalizedDocPath = rawPath.startsWith("docs/") ? rawPath.slice(5) : rawPath;
     const fullDocPath = rawPath.startsWith("docs/") ? rawPath : `docs/${rawPath}`;
 
-    const existsWithDocs = await fileExists(fullDocPath);
-    const existsWithoutDocs = await fileExists(normalizedDocPath);
+    const existsWithDocs = await fileExists(fullDocPath, base);
+    const existsWithoutDocs = await fileExists(normalizedDocPath, base);
     try {
       if (!existsWithDocs && !existsWithoutDocs) {
         throw new Error("missing_link");
@@ -298,7 +307,7 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
 
     const currentDate = snapshotMatch[1];
     const extension = snapshotMatch[2];
-    const latestDate = await latestSnapshotDate(key, extension);
+    const latestDate = await latestSnapshotDate(key, extension, base);
     if (!latestDate) {
       blockers.push(`pages_index_snapshot_missing:${key}`);
       continue;
@@ -324,8 +333,8 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
     }
   }
 
-  blockers.push(...(await validateSiteData(process.cwd())));
-  blockers.push(...(await checkLayout(process.cwd())));
+  blockers.push(...(await validateSiteData(base)));
+  blockers.push(...(await checkLayout(base)));
   return {
     passed: blockers.length === 0,
     blockers,
@@ -340,9 +349,9 @@ function githubDocsLinkMatchPattern(indexHtml: string): RegExp {
   return /href="https:\/\/github\.com\/simnova\/OpenClinXR\/blob\/main\/([^"]+)"/g;
 }
 
-async function fileExists(pathname: string): Promise<boolean> {
+async function fileExists(pathname: string, root: string = process.cwd()): Promise<boolean> {
   try {
-    await access(pathname, constants.F_OK);
+    await access(path.join(root, pathname), constants.F_OK);
     return true;
   } catch {
     return false;
@@ -358,9 +367,13 @@ function pagesSnapshotFilePattern(key: string): RegExp {
   return /([0-9]{4}-[0-9]{2}-[0-9]{2})(\.[a-z0-9]+)$/i;
 }
 
-async function latestSnapshotDate(key: string, extension: string): Promise<string | undefined> {
+async function latestSnapshotDate(
+  key: string,
+  extension: string,
+  root: string = process.cwd(),
+): Promise<string | undefined> {
   // Relaxed post bloat-trim/reorg for current 05-28 evidence naming (keys are now tags in succinct site; files use peds-*-2026-05-28.json)
-  const files = await readdir("docs/openclinxr", { withFileTypes: true });
+  const files = await readdir(path.join(root, "docs/openclinxr"), { withFileTypes: true });
   const candidates = files
     .filter((entry) => entry.isFile() && /2026-05-28/.test(entry.name))
     .map(() => "2026-05-28")

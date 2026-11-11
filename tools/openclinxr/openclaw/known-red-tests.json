@@ -342,11 +342,6 @@
       "card": "unfiled: re-pin the IWSDK evidence-contract snapshot and 0.3.1 pins to the installed IWSDK package set (0.5.1, phase_2)"
     },
     {
-      "path": "tools/openclinxr/evidence/iwsdk/check-github-pages-site.test.ts",
-      "reason": "1 of 4 fails ('validates upload-path wiring and tracked GitHub doc links'): the broken-index negative probe passes validation it should fail. Failed identically at the root path pre-move (baseline 2026-10-31) with zero branch drift on the checker, site, or workflow inputs; the file now lives at tools/openclinxr/evidence/iwsdk/ so the pre-push sidecar stays green. Diagnosing the upload-path wiring is a pages/tooling fix, out of this move's scope.",
-      "card": "unfiled: diagnose the GitHub Pages upload-path wiring negative probe (broken index validates clean)"
-    },
-    {
       "path": "tools/openclinxr/evidence/brow-form/the-brow-gate-is-kept-or-inverted.test.ts",
       "reason": "Clause (2) only: the operator-approved 2026-10-31 humanoid-bake sidecar move relocated the two gate files (path-only git mv plus repoRoot import anchoring; the /eyebrow/i, fitted_eyebrow and floor marker clauses still pass) so the card-scoped `git diff --numstat origin/main` byte-identity check reports them as added. The gate content is unchanged; clauses (1), (3), (4) pass.",
       "card": "unfiled: re-pin the brow gate byte-identity check to the sidecar paths or re-scope it to the brow-form card"
