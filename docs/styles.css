@@ -787,3 +787,8 @@ h3 {
 .site-footer a {
   color: #f8f7f2;
 }
+
+/* Hide the footer's claims-as-of line until WC2 fills its span. */
+.site-footer .claims-as-of:has(> [data-claims-as-of]:empty) {
+  display: none;
+}

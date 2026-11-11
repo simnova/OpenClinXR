@@ -104,7 +104,7 @@ it("counterweight: the band range in docs/engineering.html is byte-identical to 
     index: refBand.findIndex((line) => line.includes('id="evidence-docs-title"')),
     before:
       '          <h2 id="evidence-docs-title">Deeper artifacts stay in the repository.</h2>',
-    after: '          <h2 id="evidence-docs-title">Evidence snapshots (2026-05-28)</h2>',
+    after: '          <h2 id="evidence-docs-title">Evidence snapshots <span style="white-space: nowrap">(2026-05-28)</span></h2>',
   });
 });
 
