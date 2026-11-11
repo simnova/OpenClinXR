@@ -38,20 +38,22 @@ def live(body):
     jl = struct.unpack("<I", raw[12:16])[0]
     g = json.loads(raw[20:20 + jl].decode())
     acc = g.get("accessors", [])
-    tris = face = hand = 0
+    tris = face = hand = mouth = 0
     for m in g.get("meshes", []):
         n = m.get("name", "")
         t = sum(acc[p["indices"]]["count"] // 3 for p in m["primitives"] if "indices" in p)
         tris += t
         if FACE_RE.search(n):
             face += t
+        if re.search(r"teeth|tongue", n, re.I):
+            mouth += t
         if re.search(r"_body$", n):
             hand += t
     skins = g.get("skins", [])
     joints = None
     if skins:
         joints = len(skins[0]["joints"])
-    return {"tris": tris, "face": face, "joints": joints, "bytes": len(raw), "hand": hand,
+    return {"tris": tris, "face": face, "joints": joints, "bytes": len(raw), "hand": hand, "mouth": mouth,
             "sha256": hashlib.sha256(raw).hexdigest()}
 
 
@@ -80,12 +82,12 @@ PLAN = {
     # pinned values (asserted live per row by main()).
     "mpfb-clinical-nurse-adult.glb": {
         "bytesAfter": 12353924,
-        "triangleCountAfter": 45904,
-        "faceAfter": 17725,
+        "triangleCountAfter": 43412,
+        "faceAfter": 15233,
         # faceBefore is the historical rung input (cap10 2026-11-10); a02b66f3e had raised it to live.
         "faceBefore": 10779,
         "handBodyMeshAfter": 12833,
-        "note": ("Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 12353944 -> 12353924 B. Prior re-measure preserved below. "
+        "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (45904 -> 43412, 17725 -> 15233), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 12353944 -> 12353924 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 9254712 -> 12353944 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 9233948 -> 9254712 B. "
                  "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 8807408 -> 9233948 B. Prior re-measure preserved below. "
@@ -119,12 +121,12 @@ PLAN = {
     # --- HB-03 rows (partner includes the deliberate r5b brow-only geometry change) ---
     "mpfb-family-partner-adult.glb": {
         "bytesAfter": 13327592,
-        "triangleCountAfter": 45404,
+        "triangleCountAfter": 42912,
         # faceBefore is the historical rung input (cap10 2026-11-10); a02b66f3e had raised it to live.
         "faceBefore": 13429,
-        "faceAfter": 20375,
+        "faceAfter": 17883,
         "handBodyMeshAfter": 13357,
-        "note": ("Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 13327612 -> 13327592 B. Prior re-measure preserved below. "
+        "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (45404 -> 42912, 20375 -> 17883), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 13327612 -> 13327592 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 10228348 -> 13327612 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 10077060 -> 10228348 B. "
                  "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 9649116 -> 10077060 B. Prior re-measure preserved below. "
@@ -141,9 +143,9 @@ PLAN = {
     },
     "mpfb-viseme-inspect.glb": {
         "bytesAfter": 17141520,
-        "triangleCountAfter": 75995,
-        "faceAfter": 59706,
-        "note": ("Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 14421480 -> 17141520 B. Prior re-measure preserved below. "
+        "triangleCountAfter": 73503,
+        "faceAfter": 57214,
+        "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (75995 -> 73503, 59706 -> 57214), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 14421480 -> 17141520 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 14021388 -> 14421480 B. "
                  "Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                  "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
@@ -154,10 +156,10 @@ PLAN = {
     },
     "mpfb-gown-adult-patient.glb": {
         "bytesAfter": 10316520,
-        "triangleCountAfter": 47233,
-        "faceAfter": 21313,
+        "triangleCountAfter": 44741,
+        "faceAfter": 18821,
         "handBodyMeshAfter": 14928,
-        "note": ("Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 10316540 -> 10316520 B. Prior re-measure preserved below. "
+        "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (47233 -> 44741, 21313 -> 18821), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 10316540 -> 10316520 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 7217372 -> 10316540 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 7196640 -> 7217372 B. Pre-repack bytes are those of 1c5027169 (last origin/main commit touching this GLB). Prior re-measure preserved below. "
                  "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 6763692 -> 7196640 B. Prior re-measure preserved below. "
@@ -169,10 +171,10 @@ PLAN = {
     },
     "mpfb-peds-patient-child.glb": {
         "bytesAfter": 14341940,
-        "triangleCountAfter": 84350,
-        "faceAfter": 46188,
+        "triangleCountAfter": 81858,
+        "faceAfter": 43696,
         "handBodyMeshAfter": 26756,
-        "note": ("Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 14341960 -> 14341940 B. Prior re-measure preserved below. "
+        "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (84350 -> 81858, 46188 -> 43696), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 14341960 -> 14341940 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 11242708 -> 14341960 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 10842652 -> 11242708 B. Pre-repack bytes are those of 1c5027169 (last origin/main commit touching this GLB). Prior re-measure preserved below. "
                  "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 10418700 -> 10842648 B. Prior re-measure preserved below. "
@@ -190,9 +192,9 @@ PLAN = {
     # post-export smooth).
     "mpfb-ob-patient-aisha.glb": {
         "bytesAfter": 22269564,
-        "triangleCountAfter": 80320,
-        "faceAfter": 59706,
-        "note": ("Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 19549552 -> 22269564 B. Prior re-measure preserved below. "
+        "triangleCountAfter": 77828,
+        "faceAfter": 57214,
+        "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (80320 -> 77828, 59706 -> 57214), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 19549552 -> 22269564 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 19149460 -> 19549552 B. Pre-repack bytes are those of 7fd92dd87 (last origin/main commit touching this GLB). Prior re-measure preserved below. "
                  "Re-measured 2026-11-06 (st-vitfamily r1 R4 fixed8): albedo-embed stage (post-export byte "
                  "stage, not a rebake; embed_skin_albedo rewrites only the skin material baseColor "
@@ -220,9 +222,9 @@ PLAN = {
     },
     "mpfb-peds-nurse-kevin.glb": {
         "bytesAfter": 20026072,
-        "triangleCountAfter": 105030,
-        "faceAfter": 53088,
-        "note": ("Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 20026092 -> 20026072 B. Prior re-measure preserved below. "
+        "triangleCountAfter": 102537,
+        "faceAfter": 50595,
+        "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4627 tris; tris and face drop by 2493 (105030 -> 102537, 53088 -> 50595), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 20026092 -> 20026072 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 16926856 -> 20026092 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 16526836 -> 16926856 B. Pre-repack bytes are those of 1c5027169 (last origin/main commit touching this GLB). Prior re-measure preserved below. "
                  "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 16105284 -> 16526836 B. Prior re-measure preserved below. "
@@ -284,10 +286,10 @@ PLAN = {
     # undecimated source. Every after-value below is asserted live by main().
     "mpfb-gown-inspect.glb": {
         "bytesAfter": 11262652,
-        "triangleCountAfter": 79561,
+        "triangleCountAfter": 77069,
         # faceBefore is the historical rung input (cap10 2026-11-10); a02b66f3e had raised it to live.
         "faceBefore": 52778,
-        "faceAfter": 59706,
+        "faceAfter": 57214,
         "jointCountAfter": 137,
         "jointCountExpected": 137,
         "textSubs": {
@@ -298,7 +300,7 @@ PLAN = {
         },
         "hb05": {
             # B1 (cap10 2026-11-10): a02b66f3e raised this historical before-value to the live
-            # post-swap face 59706; the rung input face is 52778. The +6928 is in HB05_POST_RUNG.
+            # post-swap face 59706; the rung input face is 52778. The post-swap delta is in HB05_POST_RUNG.
             "faceBefore": 52778,
             "triangleCountBefore": 72633,
             "bytesBefore": 8135672,
@@ -328,8 +330,8 @@ PLAN = {
                 "supersededBecause": ("input lineage replaced by the Nov03 gown rebake 9542f47b8; the Sep11 rung "
                     "output it recorded matches no shipped bytes since the rebake"),
             },
-            "outputSha256": "881af5057291735f11d48f34055525b666ae955165028baf37750015b6a41be3",
-            "note": ("Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 8542692 -> 11262652 B. Prior re-measure preserved below. "
+            "outputSha256": "ba8f7ad538510baa9fdd328f1afbbda9eb243ba224c72fca324dd7c771451d91",
+            "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (79561 -> 77069, 59706 -> 57214), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 8542692 -> 11262652 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 8142588 -> 8542692 B. Pre-repack bytes are those of 0ed4fcfc7 (last origin/main commit touching this GLB). Prior re-measure preserved below. "
                      "Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                 "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
@@ -356,7 +358,7 @@ PLAN = {
                      "so no rung was promoted and the live GLB stayed on the Sep11 rung bytes until the Nov03 rebake 9542f47b8 re-based it on the new gown shell (undecimated: raw 72882 tris already inside the 80000 preferred budget; the fp-r0.15 re-run breaks the drape counterweight, see the HB-05 row). The sibling mpfb-gown-adult-patient.glb export covers the same gown subject at 64140 tris inside budget."),
                 ],
             },
-            "note": ("Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 8542692 -> 11262652 B. Prior re-measure preserved below. "
+            "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (79561 -> 77069, 59706 -> 57214), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 8542692 -> 11262652 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 8142588 -> 8542692 B. Pre-repack bytes are those of 0ed4fcfc7 (last origin/main commit touching this GLB). Prior re-measure preserved below. "
                      "Re-measured 2026-11-05 (st-vitfacet r7): per-actor dermal seed from the output stem (seeded F1 recipe, strength 0.8 default), bytes-only drift, geometry counts hold (asserted by main()). Superseding commit d5496bf5b. Prior re-measure (st-vitfacet r6) preserved below. "
                 "Re-measured 2026-11-05 (st-vitfacet r6): skin normalTexture re-bake, "
@@ -384,10 +386,11 @@ HB05_POST_RUNG = {
         "postRungStages": [{
             "stage": "mouth-swap",
             "card": "tsk_27e0cec12cab410d",
-            "trisDelta": 6928,
-            "faceDelta": 6928,
+            "trisDelta": 4436,
+            "faceDelta": 4436,
+            "note": ("fitted CC0 teeth/tongue swap, then decimate_teeth.mts ratio 0.65, error 0.005 (teeth 7120 -> 4628); delta = fitted mouth tris 5076 - preImageMouthTris 640"),
             "source": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json#teethSwapB1",
-            "sourceSha256": "9de8c75bc8e24acdfeaef51b21f633596796837855b66c7977fa9f4d4af7c18d",
+            "sourceSha256": "3370e3d0897d1dc695903de22c9b3fbc4579f20386b120f32a9b3e76b66ddebd",
         }],
     },
     "mpfb-ob-patient-aisha.glb": {
@@ -396,10 +399,11 @@ HB05_POST_RUNG = {
         "postRungStages": [{
             "stage": "mouth-swap",
             "card": "tsk_27e0cec12cab410d",
-            "trisDelta": 6928,
-            "faceDelta": 6928,
+            "trisDelta": 4436,
+            "faceDelta": 4436,
+            "note": ("fitted CC0 teeth/tongue swap, then decimate_teeth.mts ratio 0.65, error 0.005 (teeth 7120 -> 4628); delta = fitted mouth tris 5076 - preImageMouthTris 640"),
             "source": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json#teethSwapB1",
-            "sourceSha256": "286e47bcbe9fe1b3ba68e9fff950e872c3ce9acdd8dff20a0d2258d5f61582f1",
+            "sourceSha256": "22088ed70e6c5868b42ec0153ed4dccf148489e336041e51738b5e23f168a9df",
         }],
     },
     "mpfb-peds-nurse-kevin.glb": {
@@ -408,10 +412,11 @@ HB05_POST_RUNG = {
         "postRungStages": [{
             "stage": "mouth-swap",
             "card": "tsk_27e0cec12cab410d",
-            "trisDelta": 6928,
-            "faceDelta": 6928,
+            "trisDelta": 4435,
+            "faceDelta": 4435,
+            "note": ("fitted CC0 teeth/tongue swap, then decimate_teeth.mts ratio 0.65, error 0.005 (teeth 7120 -> 4627); delta = fitted mouth tris 5075 - preImageMouthTris 640"),
             "source": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json#teethSwapB1",
-            "sourceSha256": "f43abb482b2fcf7a165583173ae50a0d1e2352ea3c1436f0783533ae0260a0a4",
+            "sourceSha256": "35cedc965485743c899f4fc44ff2ebecd1f8a72924c05b2cdf0495413befbda5",
         }],
     },
     "mpfb-viseme-inspect.glb": {
@@ -420,10 +425,11 @@ HB05_POST_RUNG = {
         "postRungStages": [{
             "stage": "mouth-swap",
             "card": "tsk_27e0cec12cab410d",
-            "trisDelta": 6928,
-            "faceDelta": 6928,
+            "trisDelta": 4436,
+            "faceDelta": 4436,
+            "note": ("fitted CC0 teeth/tongue swap, then decimate_teeth.mts ratio 0.65, error 0.005 (teeth 7120 -> 4628); delta = fitted mouth tris 5076 - preImageMouthTris 640"),
             "source": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.provenance.json#teethSwapB1",
-            "sourceSha256": "75003ccd8b132a8f2258f27d5d76684ba94c46f22c60e4a17ce152492bc587b0",
+            "sourceSha256": "b5a601689c01a7f2bc57b3ac249ad363b6e25c6724d6d17ff50e8273e6576ee7",
         }],
     },
 }
@@ -451,6 +457,9 @@ def main():
                     src = os.path.join(REPO, st["source"].split("#", 1)[0])
                     with open(src, "rb") as sf:
                         assert hashlib.sha256(sf.read()).hexdigest() == st["sourceSha256"], f"{body} stage source sha moved"
+                    with open(src, encoding="utf-8") as sf:
+                        pre = json.load(sf)["teethSwapB1"]["preImageMouthTris"]
+                    assert m["mouth"] - sum(pre.values()) == st["trisDelta"], f"{body} live fitted mouth - preImageMouthTris != trisDelta"
                 assert m["tris"] == post["rungTrisAfter"] + stage_tris, f"{body} live tris != rung + stage deltas"
                 assert m["face"] == post["rungFaceAfter"] + stage_face, f"{body} live face != rung + stage deltas"
                 assert scoped.get("faceBefore", row["faceBefore"]) == post["rungFaceAfter"], f"{body} rungFaceAfter != faceBefore"
