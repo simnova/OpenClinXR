@@ -3,7 +3,7 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 
 const evidenceDocsDir = "docs/openclinxr";
-const evidencePageRepoRoot = "docs/index.html";
+const evidencePageRepoRoot = "docs/engineering.html";
 const githubRepoBlobPrefix = "https://github.com/simnova/OpenClinXR/blob/main/";
 const knownSnapshots = [
   "asset-production-evidence-ladder",

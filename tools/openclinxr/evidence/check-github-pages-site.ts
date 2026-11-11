@@ -11,6 +11,7 @@ type ValidationResult = {
 
 const requiredSiteFiles = [
   "docs/index.html",
+  "docs/engineering.html",
   "docs/styles.css",
   "docs/.nojekyll",
   "docs/CNAME",
@@ -113,6 +114,7 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
   }
 
   const indexHtml = fileText.get("docs/index.html") ?? "";
+  const engineeringHtml = fileText.get("docs/engineering.html") ?? "";
   const styles = fileText.get("docs/styles.css") ?? "";
   const readme = fileText.get("README.md") ?? "";
   let workflow: string | undefined;
@@ -127,9 +129,9 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
     indexHtml.includes('href="styles.css"') ? undefined : "pages_index_stylesheet_link_missing",
     await heroImageBlocker(indexHtml),
     indexHtml.includes("https://github.com/simnova/OpenClinXR") ? undefined : "pages_index_repo_link_missing",
-    indexHtml.includes("Evidence Docs") ? undefined : "pages_index_evidence_docs_link_missing",
-    indexHtml.includes('id="factory-stations"') ? undefined : "pages_index_factory_stations_section_missing",
-    await factoryStationStillBlocker(indexHtml),
+    engineeringHtml.includes("Evidence Docs") ? undefined : "pages_index_evidence_docs_link_missing",
+    engineeringHtml.includes('id="factory-stations"') ? undefined : "pages_index_factory_stations_section_missing",
+    await factoryStationStillBlocker(engineeringHtml),
     styles.includes("@media (max-width: 860px)") ? undefined : "pages_styles_mobile_breakpoint_missing",
     readme.match(/https?:\/\/developers\.simnova\.com\/OpenClinXR\//) ? undefined : "readme_pages_url_missing",
     readme.includes("main") && readme.includes("/docs") ? undefined : "readme_pages_source_missing",
@@ -156,7 +158,7 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
     }
   }
 
-  const snapshotLinks = [...indexHtml.matchAll(pageLiveSnapshotPattern())];
+  const snapshotLinks = [...engineeringHtml.matchAll(pageLiveSnapshotPattern())];
   const snapshotStatuses = new Map<string, string>();
   for (const match of snapshotLinks) {
     const key = match[1];

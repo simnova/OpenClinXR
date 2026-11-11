@@ -134,6 +134,7 @@ it("counterweight: on fixtures/wv0 the validator's blocker ids equal those recor
   const root = makeSiteRoot();
   mkdirSync(path.join(root, "docs", "openclinxr"), { recursive: true });
   cpSync(path.join(fixtureDir, "docs", "index.html"), path.join(root, "docs", "index.html"));
+  cpSync(path.join(fixtureDir, "docs", "index.html"), path.join(root, "docs", "engineering.html"));
   const run = spawnSync(
     path.join(process.cwd(), "node_modules", ".bin", "tsx"),
     [path.join(process.cwd(), "tools", "openclinxr", "evidence", "check-github-pages-site.ts")],

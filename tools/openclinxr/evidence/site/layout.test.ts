@@ -92,7 +92,7 @@ it("known-good: a v2 page with both partials and only existing targets gives []"
   expect(await checkLayout(root)).toEqual([]);
 });
 
-it("known-good: the real worktree gives [] (no v2 pages yet; old pages are not v2)", async () => {
+it("known-good: the real worktree gives []", async () => {
   expect(await checkLayout(process.cwd())).toEqual([]);
 });
 
