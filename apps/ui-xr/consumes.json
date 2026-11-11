@@ -2159,6 +2159,10 @@
         "kind": "type"
       },
       {
+        "name": "formatSyncedTopicsLabel",
+        "kind": "runtime"
+      },
+      {
         "name": "writeSyncedDoorwayEyebrow",
         "kind": "runtime"
       }

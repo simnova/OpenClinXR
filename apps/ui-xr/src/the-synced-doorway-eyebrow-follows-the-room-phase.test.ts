@@ -91,6 +91,6 @@ describe("the synced doorway eyebrow follows the room phase", () => {
   });
 
   it("main.ts takes the writer from the lazy xr-sync-client/headset import", () => {
-    expect(MAIN).toMatch(/import\("@openclinxr\/xr-sync-client\/headset"\)\.then\(\(\{ startEncounterSyncFromUrl, writeSyncedDoorwayEyebrow \}\)/u);
+    expect(MAIN).toMatch(/import\("@openclinxr\/xr-sync-client\/headset"\)\.then\(\(\{ startEncounterSyncFromUrl, writeSyncedDoorwayEyebrow[^}]*\}\)/u);
   });
 });

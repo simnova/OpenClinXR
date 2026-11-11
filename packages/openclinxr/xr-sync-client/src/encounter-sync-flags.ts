@@ -66,10 +66,36 @@ export function createStationAnnouncer(onStation: (index: number, count: number)
   };
 }
 
+/** B'': fires onTopicMenu with the snapshot's topicMenu on the first snapshot carrying one and whenever the asked set changes; never for snapshots without a menu. */
+export function createTopicMenuAnnouncer(onTopicMenu: (menu: NonNullable<EncounterSnapshot["topicMenu"]>) => void): (snapshot: EncounterSnapshot) => void {
+  let last = "";
+  let fired = false;
+  return (snapshot) => {
+    const menu = snapshot.topicMenu;
+    if (menu === undefined) return;
+    const key = menu.map((m) => `${m.tag}:${m.asked ? "1" : "0"}`).join(",");
+    if (fired && key === last) return;
+    fired = true;
+    last = key;
+    onTopicMenu(menu);
+  };
+}
+
 /** A': writes the capitalised server phase into the doorway eyebrow; an empty or missing phase writes nothing and returns "". */
 export function writeSyncedDoorwayEyebrow(el: { textContent: string | null }, phase: string | undefined): string {
   if (!phase) return "";
   const name = phase.charAt(0).toUpperCase() + phase.slice(1);
   el.textContent = name;
   return name;
+}
+
+/** B': writes "Topics N/M" from the current station snapshot's topicMenu (M = entries, N = asked); a missing menu writes nothing and returns "". */
+export function formatSyncedTopicsLabel(el: { textContent: string | null }, menu: EncounterSnapshot["topicMenu"]): string {
+  if (menu === undefined || menu === null) return "";
+  const total = menu.length;
+  let asked = 0;
+  for (const m of menu) if (m.asked) asked += 1;
+  const label = `Topics ${asked}/${total}`;
+  el.textContent = label;
+  return label;
 }

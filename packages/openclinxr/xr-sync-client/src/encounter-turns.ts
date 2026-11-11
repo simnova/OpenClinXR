@@ -16,7 +16,7 @@ import { createLobbyPicker, type LobbyEvidence } from "./encounter-lobby.js";
 import { mountRoomPanel, type RoomPanel } from "./encounter-room-panel.js";
 import { mountSpeechCapture, type SpeechEvidence, type SpeechRecorder, type XrSessionLike } from "./speech-capture.js";
 import { createBrowserSpeechRecorder } from "./speech-recorder-browser.js";
-import { createBreakAnnouncer, createPhaseAnnouncer, createStationAnnouncer, encounterSyncUrl } from "./encounter-sync-flags.js";
+import { createBreakAnnouncer, createPhaseAnnouncer, createStationAnnouncer, createTopicMenuAnnouncer, encounterSyncUrl } from "./encounter-sync-flags.js";
 
 export { encounterSyncUrl };
 const SPEECH_LOW_CONFIDENCE = "speech_low_confidence";
@@ -307,6 +307,7 @@ export interface StartEncounterSyncDeps {
   onStation?(index: number, count: number): void; // C50: the server's station position (0-based index, rotation length); fires on the first snapshot and whenever (index, count) changes; never for stationCount 0, replay or lobby rooms
   onBreak?(remainingS: number | null): void; // C53: the server's break countdown (whole seconds) while the room is in phase "break", then null once when it ends; never for replay or lobby rooms
   onPhase?(phase: string, remainingS: number): void; // C55': the server phase and whole-second countdown; fires on the first snapshot and whenever either changes; never for replay or lobby rooms
+  onTopicMenu?(menu: NonNullable<EncounterSnapshot["topicMenu"]>): void; // B'': the station's topic menu; fires on the first snapshot carrying one and whenever the asked set changes; never for replay or lobby rooms
   actorIds(): string[];
   /** Plays one registered turn: the shell's triggerHumanoidDialogue with plan-sourced emotion. */
   play(actorId: string, caption: string, faceEmotion: string): void;
@@ -340,6 +341,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
   const announceStation = deps.onStation !== undefined && !isReplayRoom && !isLobby ? createStationAnnouncer(deps.onStation) : undefined;
   const announceBreak = deps.onBreak !== undefined && !isReplayRoom && !isLobby ? createBreakAnnouncer(deps.onBreak) : undefined;
   const announcePhase = deps.onPhase !== undefined && !isReplayRoom && !isLobby ? createPhaseAnnouncer(deps.onPhase) : undefined;
+  const announceTopicMenu = deps.onTopicMenu !== undefined && !isReplayRoom && !isLobby ? createTopicMenuAnnouncer(deps.onTopicMenu) : undefined;
   const evidence: EncounterSyncEvidence = { url: flag.url, state: "joining", sessionId: "", error: "", turns: [] };
   if (flag.replayStation !== undefined) evidence.replayStation = flag.replayStation;
   let sendSelect: (stationId: string) => Promise<{ status: string; reason?: string }> = () =>
@@ -390,7 +392,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
       actorIds: deps.actorIds(),
       ...(flag.replayStation === undefined ? {} : { replayStation: flag.replayStation }),
       reviewLobby: isLobby,
-      onSnapshot: (snapshot) => { lastSnapshot = snapshot; announceStation?.(snapshot); announceBreak?.(snapshot); announcePhase?.(snapshot); roomPanel?.render(snapshot); picker?.render(snapshot); serverSpeechSeen = snapshot.speechAvailable; speechEvidence?.setServerSpeech(serverSpeechSeen); },
+      onSnapshot: (snapshot) => { lastSnapshot = snapshot; announceStation?.(snapshot); announceBreak?.(snapshot); announcePhase?.(snapshot); announceTopicMenu?.(snapshot); roomPanel?.render(snapshot); picker?.render(snapshot); serverSpeechSeen = snapshot.speechAvailable; speechEvidence?.setServerSpeech(serverSpeechSeen); },
       ...(deps.connectFn === undefined ? {} : { connectFn: deps.connectFn }),
       onRefusal: (kind, reason) => roomPanel?.refuse(reason, kind),
       onTurn: (turn, stationId) => {

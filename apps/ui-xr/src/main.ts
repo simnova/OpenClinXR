@@ -2358,7 +2358,7 @@ function traceReadinessPanelContext(): Parameters<typeof updatePackageTraceReadi
   return {
     runtimeState: () => state,
     panels: {
-      traceSummary,
+      traceSummary: syncedStation ? document.createElement("span") : traceSummary,
       postureSummary,
       postureModel,
       postureVoice,
@@ -4438,7 +4438,7 @@ function manualEvidencePanelContext(): Parameters<typeof updatePackageTraceManua
   const full: Parameters<typeof updatePackageTraceManualEvidencePanel>[0] = {
     runtimeState: () => state,
     panels: {
-      traceSummary,
+      traceSummary: syncedStation ? document.createElement("span") : traceSummary,
       postureSummary,
       postureModel,
       postureVoice,
@@ -4633,13 +4633,13 @@ initPreparedActorAudioBridge({ getSlot: (id) => generatedHumanoidAnimationSlotsB
 initSpeakFixtureBridge({ triggerDialogue: (actorId: string, text: string): void => { startPreparedActorTurnAudio({ actorId, spokenText: text }); } });
 window.__openClinXrRequestLiveVoiceTurn = requestUnscriptedLiveTurn;
 // C25: ?encounterSync=ws://... joins the xr-sync room; the server's actor turn plays through the live actor-turn consumer.
-if (window.location.search.includes("encounterSync=")) void import("@openclinxr/xr-sync-client/headset").then(({ startEncounterSyncFromUrl, writeSyncedDoorwayEyebrow }) => startEncounterSyncFromUrl({
+if (window.location.search.includes("encounterSync=")) void import("@openclinxr/xr-sync-client/headset").then(({ startEncounterSyncFromUrl, writeSyncedDoorwayEyebrow, formatSyncedTopicsLabel }) => startEncounterSyncFromUrl({
   gazeView: () => { const cam = (window as unknown as Record<string, PerspectiveCamera | undefined>)["__openClinXrGazeCamera"]; return cam ? { eye: cam.getWorldPosition(new Vector3()), forward: cam.getWorldDirection(new Vector3()), actors: [...generatedHumanoidActorSlotsByActorId].map(([actorId, slot]) => { const at = slot.getWorldPosition(new Vector3()); return { actorId, x: at.x, y: at.y + 1.18, z: at.z }; }) } : undefined; }, search: window.location.search, noteText: () => patientNoteText.value, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), speech: { xrSession: () => (window as unknown as Record<string, unknown>)["__openClinXrXrSession"] as never, inject: window.location.search.includes("encounterMicInject=1") }, publish: (evidence) => { window.__openClinXrEncounterSync = evidence; },
   utteranceBox: {
     doc: document as never, parent: (dialogueLine.parentElement ?? document.body) as never,
     replayAnchor: (document.querySelector(".ehr-panel") ?? undefined) as never,
   } as UtteranceBoxDeps,
-  onReplay: () => { replayClock = true; clock.textContent = "Replay"; },
+  onReplay: () => { replayClock = true; clock.textContent = "Replay"; }, onTopicMenu: (m) => formatSyncedTopicsLabel(traceSummary, m),
   onStation: (index, count) => {
     syncedStation = true;
     examFlowStation.textContent = `Station ${index + 1} of ${count}`;
