@@ -15,6 +15,7 @@ import { CAST_OPENING_CUE_ID, openingCaption, type CastVoiceActor } from "./scen
 import type { LearnerStateInstance } from "./schema.js";
 import type { TurnRecord } from "./room-types.js";
 import { validateTopicTag } from "./topic-menu.js";
+import { resolveTurnCueId } from "./turn-cue.js";
 import { matchUtterance, pickTopicAnswer, SPEECH_LOW_CONFIDENCE_TAG, UNMATCHED_TOPIC_TAG, type TopicAnswer } from "./topic-answers.js";
 
 /** Trace tag recorded when free text matches no authored phrase. */
@@ -236,7 +237,7 @@ export function applyUtteranceIntent(
   const table = pickC3Reply(turnCount);
   const answer = opening === undefined && matchKind !== "fallback" ? pickTopicAnswer(bindings.topicAnswers, actorId, resolvedTag) : undefined;
   const replyId = opening !== undefined ? `${actorId}:opening` : answer?.replyId ?? table.id;
-  const cueId = opening !== undefined ? CAST_OPENING_CUE_ID : table.cueId;
+  const cueId = resolveTurnCueId({ isOpening: opening !== undefined, openingCueId: CAST_OPENING_CUE_ID, answerReplyId: answer?.replyId, fallbackCueId: table.cueId });
   const durationMs = opening !== undefined || answer !== undefined ? pickC3Reply(1).durationMs : table.durationMs;
   const turnId = bindings.turnId + 1;
   bindings.setTurnId(turnId);

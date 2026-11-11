@@ -30,6 +30,7 @@ import {
 } from "./conversation-trace-cast.js";
 import { validateCoveredTags } from "./covered-tags.js";
 import { pickTopicAnswer, SPEECH_LOW_CONFIDENCE_TAG, UNMATCHED_TOPIC_TAG } from "./topic-answers.js";
+import { resolveTurnCueId } from "./turn-cue.js";
 
 export type { ConversationCastContext } from "./conversation-trace-cast.js";
 /** Learner speech completed: the acknowledgement that opens an actor reply. */
@@ -272,7 +273,7 @@ export function reduceConversationEvents(
         const reply = pickC3Reply(turnCount);
         const answer = isOpening || event.match === "fallback" ? undefined : pickTopicAnswer(cast?.topicAnswers, actorId, event.tag);
         const replyId = isOpening ? castOpeningReplyId(actorId) : answer?.replyId ?? reply.id;
-        const cueId = isOpening ? CAST_TRACE_OPENING_CUE_ID : reply.cueId;
+        const cueId = resolveTurnCueId({ isOpening, openingCueId: CAST_TRACE_OPENING_CUE_ID, answerReplyId: answer?.replyId, fallbackCueId: reply.cueId });
         const turnId = turns.length + 1;
         turns.push({
           turnId,

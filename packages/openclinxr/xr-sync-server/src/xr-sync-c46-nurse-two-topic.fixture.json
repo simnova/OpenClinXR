@@ -174,7 +174,7 @@
         "turnId": 4,
         "actorId": "nurse_maria_alvarez_v1",
         "replyId": "nurse_maria_alvarez_v1:seed:nurse_team_escalation",
-        "cueId": "cue-recap-03",
+        "cueId": "cue-answer:nurse_maria_alvarez_v1:seed:nurse_team_escalation",
         "startSeq": 13,
         "end": "completed",
         "endSeq": null
