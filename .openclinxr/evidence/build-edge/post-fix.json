@@ -1,0 +1,29 @@
+{
+ "baseSha": "e8ab790ffe90d2bb56e21d3806c5635d4164f369",
+ "treeSha": null,
+ "perPackageEdges": {
+  "@openclinxr/station-capture-evidence": 23,
+  "@openclinxr/staging-evidence": 23
+ },
+ "derivedSetSize": 28,
+ "bootsList": [
+  "@openclinxr/staging-evidence",
+  "@openclinxr/station-capture-evidence"
+ ],
+ "castFleetBoots": false,
+ "probeResults": {
+  "A": "red names station-capture-evidence + xr-station-room; green after revert",
+  "B": "red names foot-plant-evidence at the-runtime-displays-the-walk.test.ts:1; comment-only mention green; green after revert",
+  "C": "red names foot-plant-evidence; green after revert"
+ },
+ "tests": {
+  "newTest": "5 passed",
+  "architecture": "29 files 312 tests passed",
+  "stationCaptureEvidenceFreshDist": "23 files passed|1 skipped, 113 tests passed|4 skipped",
+  "uiXr": "36 files 258 tests passed"
+ },
+ "dryRunRc": 0,
+ "dryRunTasks": 105,
+ "lockfileOk": true,
+ "typecheckArchitectureRules": "rc=0"
+}

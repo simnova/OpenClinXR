@@ -1,0 +1,462 @@
+{
+ "treeSha": "81d9a32375944db285a55ed57d2843603dabf4b4",
+ "devServerImportSet": {
+  "direct": [
+   {
+    "pkg": "@openclinxr/xr-capacity",
+    "dir": "packages/openclinxr/xr-capacity",
+    "via": "apps/ui-xr/index.html:16",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/asset-registry",
+    "dir": "packages/openclinxr/asset-registry",
+    "via": "apps/ui-xr/src/main.ts:4",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/conversation-policy",
+    "dir": "packages/openclinxr/conversation-policy",
+    "via": "apps/ui-xr/src/main.ts:24",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/scenario-fixtures",
+    "dir": "packages/openclinxr/scenario-fixtures",
+    "via": "apps/ui-xr/src/main.ts:25",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-actor-dialogue",
+    "dir": "packages/openclinxr/xr-actor-dialogue",
+    "via": "apps/ui-xr/src/main.ts:32",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-asset-loading",
+    "dir": "packages/openclinxr/xr-asset-loading",
+    "via": "apps/ui-xr/src/main.ts:49",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-capture-evidence",
+    "dir": "packages/openclinxr/xr-capture-evidence",
+    "via": "apps/ui-xr/src/main.ts:77",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-dialogue",
+    "dir": "packages/openclinxr/xr-dialogue",
+    "via": "apps/ui-xr/src/main.ts:84",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-exam-flow",
+    "dir": "packages/openclinxr/xr-exam-flow",
+    "via": "apps/ui-xr/src/main.ts:103",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-humanoid-animation",
+    "dir": "packages/openclinxr/xr-humanoid-animation",
+    "via": "apps/ui-xr/src/main.ts:126",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-locomotion",
+    "dir": "packages/openclinxr/xr-locomotion",
+    "via": "apps/ui-xr/src/main.ts:158",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-pose",
+    "dir": "packages/openclinxr/xr-pose",
+    "via": "apps/ui-xr/src/main.ts:164",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-runtime-state",
+    "dir": "packages/openclinxr/xr-runtime-state",
+    "via": "apps/ui-xr/src/main.ts:231",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-runtime-wiring",
+    "dir": "packages/openclinxr/xr-runtime-wiring",
+    "via": "apps/ui-xr/src/main.ts:243",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-scene",
+    "dir": "packages/openclinxr/xr-scene",
+    "via": "apps/ui-xr/src/main.ts:252",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-scene-cues",
+    "dir": "packages/openclinxr/xr-scene-cues",
+    "via": "apps/ui-xr/src/main.ts:292",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-station",
+    "dir": "packages/openclinxr/xr-station",
+    "via": "apps/ui-xr/src/main.ts:309",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-station-room",
+    "dir": "packages/openclinxr/xr-station-room",
+    "via": "apps/ui-xr/src/main.ts:319",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-sync-client",
+    "dir": "packages/openclinxr/xr-sync-client",
+    "via": "apps/ui-xr/src/main.ts:321",
+    "direct": true
+   },
+   {
+    "pkg": "@openclinxr/xr-trace-readiness",
+    "dir": "packages/openclinxr/xr-trace-readiness",
+    "via": "apps/ui-xr/src/main.ts:352",
+    "direct": true
+   }
+  ],
+  "transitive": [
+   {
+    "pkg": "@openclinxr/exam-assembly",
+    "dir": "packages/openclinxr/exam-assembly",
+    "via": "dep of @openclinxr/xr-station",
+    "direct": false
+   },
+   {
+    "pkg": "@openclinxr/shared-schemas",
+    "dir": "packages/openclinxr/shared-schemas",
+    "via": "dep of @openclinxr/exam-assembly",
+    "direct": false
+   },
+   {
+    "pkg": "@openclinxr/factory-stations",
+    "dir": "packages/openclinxr/factory-stations",
+    "via": "dep of @openclinxr/shared-schemas",
+    "direct": false
+   },
+   {
+    "pkg": "@openclinxr/compute-services-spec",
+    "dir": "packages/openclinxr/compute-services-spec",
+    "via": "dep of @openclinxr/factory-stations",
+    "direct": false
+   },
+   {
+    "pkg": "@openclinxr/compute-slots",
+    "dir": "packages/openclinxr/compute-slots",
+    "via": "dep of @openclinxr/factory-stations",
+    "direct": false
+   },
+   {
+    "pkg": "@openclinxr/factory-station-core",
+    "dir": "packages/openclinxr/factory-station-core",
+    "via": "dep of @openclinxr/factory-stations",
+    "direct": false
+   },
+   {
+    "pkg": "@openclinxr/service-local-compute",
+    "dir": "packages/openclinxr/service-local-compute",
+    "via": "dep of @openclinxr/factory-stations",
+    "direct": false
+   },
+   {
+    "pkg": "@openclinxr/station-face-realism",
+    "dir": "packages/openclinxr/stations/face-realism",
+    "via": "dep of @openclinxr/factory-stations",
+    "direct": false
+   }
+  ],
+  "size": 28
+ },
+ "candidates": [
+  {
+   "pkg": "@openclinxr/station-capture-evidence",
+   "testFiles": "isolated-subject/head-focus-derivation.test.ts:271,299; isolated-subject/articulating-head-of-bed.test.ts:124",
+   "harnessImport": "tools/openclinxr/evidence/isolated-subject-harness.ts (spawnPortlessDevServer at :330,:622,:849; probeHeadFocusRefusal, renderHeadFocusCrops called, timeout 1_800_000); tools/openclinxr/evidence/articulating-head-of-bed.ts inspectArticulatingHeadOfBed",
+   "boots": true,
+   "bootsNote": "tests call exported functions that reach spawnPortlessDevServer (tools/openclinxr/evidence/lib/portless-server.ts:258-304 runs pnpm --filter @openclinxr/ui-xr dev:portless)"
+  },
+  {
+   "pkg": "@openclinxr/staging-evidence",
+   "testFiles": "actor-prop-intersection.test.ts:73,142; generated-scene-mode-predicate.test.ts:113; shipped-head-of-bed-incline.test.ts:123; the-loaded-mesh-matches-the-cast.test.ts:60; the-room-camera-lands-in-the-same-place-twice.test.ts:2",
+   "harnessImport": "tools/openclinxr/evidence/{actor-prop-intersection,generated-scene-mode-predicate,shipped-head-of-bed-incline,the-loaded-mesh-matches-the-cast,the-room-camera-lands-in-the-same-place-twice}.ts",
+   "boots": true,
+   "bootsNote": "tests call inspectEquipmentActorOverlap, inspectGeneratedSceneModePredicate, inspectShippedHeadOfBedIncline, inspectLoadedMeshMatchesCast, measureRoomCameraLandings; each reaches spawnPortlessDevServer. Worker confirms by reading the call at test-run level"
+  },
+  {
+   "pkg": "@openclinxr/cast-fleet-evidence",
+   "testFiles": "cast-fleet/every-dev-server-spawn-has-a-teardown.test.ts:120",
+   "harnessImport": "tools/openclinxr/evidence/lib/portless-server.ts",
+   "boots": "other",
+   "bootsNote": "dynamic import of the helper for a pure orphan-selector function; no spawn call"
+  },
+  {
+   "pkg": "@openclinxr/foot-plant-evidence",
+   "testFiles": "foot-plant/the-runtime-displays-the-walk.test.ts:5",
+   "harnessImport": "tools/openclinxr/evidence/foot-plant/displayed-walk-on-the-loaded-physician.ts",
+   "boots": false,
+   "bootsNote": "imports pure measurement helpers; test (4)/(5) read a landed REPORT_PATH json; vitest.config.ts comment names the import closure but no test calls the spawner"
+  },
+  {
+   "pkg": "@openclinxr/model-vetting-evidence",
+   "testFiles": "model-vetting/the-station-sheet-records-whether-the-actors-loaded.test.ts:105",
+   "harnessImport": "tools/openclinxr/evidence/station-room-not-empty.ts",
+   "boots": false,
+   "bootsNote": "reads source text + pure functions"
+  },
+  {
+   "pkg": "@openclinxr/body-param-evidence",
+   "testFiles": "body-param/library-figure-finish-parity.test.ts:27; the-gauge-sees-what-the-resolver-resolves.test.ts:2",
+   "harnessImport": "tools/openclinxr/evidence/library-figure-finish-parity.ts; tools/openclinxr/dark-factory/multi-case-runner.ts",
+   "boots": false,
+   "bootsNote": "resolveScenarioActorCast and pure fns only"
+  },
+  {
+   "pkg": "architecture-rules",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "agent-loop",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "motion-compiler",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "cast-readiness-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "humanoid-bake-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "humanoid-probe-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "room-generate-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "runtime-scene-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "scene-closure-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "trellis-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "xr-humanoid-animation",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "xr-scene",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "@openclinxr/ui-xr (apps/ui-xr)",
+   "testFiles": "src/the-runtime-reproduces-the-frozen-room-digest.test.ts; src/static-assets.test.ts",
+   "harnessImport": "spawnPortlessDevServer named in comments/strings; tools/openclinxr/factory/*.ts imports reach no spawner",
+   "boots": false,
+   "bootsNote": "ui-xr test graph already contains the whole closure (own deps)"
+  }
+ ],
+ "costs": {
+  "uiXrViteBuildColdS": null,
+  "closureBuildColdS": null,
+  "note": "cold ui-xr vite build and cold closure build not run (not required by the contract); post-fix H8 rebuilt xr-station-room from deleted dist via turbo cache replay"
+ },
+ "freshWorktreeRun": null,
+ "freshWorktreeRunNote": "the \"Failed to resolve import @openclinxr/xr-station-room\" 500 was not re-captured on base; the edge gap is measured by the in-test closure assertion (redOnBase)",
+ "derivation": "static import scan, /private scratch scripts g.mjs h.mjs i.mjs; read-only",
+ "packages": [
+  {
+   "pkg": "@openclinxr/station-capture-evidence",
+   "testFiles": "isolated-subject/head-focus-derivation.test.ts:271,299; isolated-subject/articulating-head-of-bed.test.ts:124",
+   "harnessImport": "tools/openclinxr/evidence/isolated-subject-harness.ts (spawnPortlessDevServer at :330,:622,:849; probeHeadFocusRefusal, renderHeadFocusCrops called, timeout 1_800_000); tools/openclinxr/evidence/articulating-head-of-bed.ts inspectArticulatingHeadOfBed",
+   "boots": true,
+   "bootsNote": "tests call exported functions that reach spawnPortlessDevServer (tools/openclinxr/evidence/lib/portless-server.ts:258-304 runs pnpm --filter @openclinxr/ui-xr dev:portless)"
+  },
+  {
+   "pkg": "@openclinxr/staging-evidence",
+   "testFiles": "actor-prop-intersection.test.ts:73,142; generated-scene-mode-predicate.test.ts:113; shipped-head-of-bed-incline.test.ts:123; the-loaded-mesh-matches-the-cast.test.ts:60; the-room-camera-lands-in-the-same-place-twice.test.ts:2",
+   "harnessImport": "tools/openclinxr/evidence/{actor-prop-intersection,generated-scene-mode-predicate,shipped-head-of-bed-incline,the-loaded-mesh-matches-the-cast,the-room-camera-lands-in-the-same-place-twice}.ts",
+   "boots": true,
+   "bootsNote": "tests call inspectEquipmentActorOverlap, inspectGeneratedSceneModePredicate, inspectShippedHeadOfBedIncline, inspectLoadedMeshMatchesCast, measureRoomCameraLandings; each reaches spawnPortlessDevServer. Worker confirms by reading the call at test-run level"
+  },
+  {
+   "pkg": "@openclinxr/cast-fleet-evidence",
+   "testFiles": "cast-fleet/every-dev-server-spawn-has-a-teardown.test.ts:120",
+   "harnessImport": "tools/openclinxr/evidence/lib/portless-server.ts",
+   "boots": "other",
+   "bootsNote": "dynamic import of the helper for a pure orphan-selector function; no spawn call"
+  },
+  {
+   "pkg": "@openclinxr/foot-plant-evidence",
+   "testFiles": "foot-plant/the-runtime-displays-the-walk.test.ts:5",
+   "harnessImport": "tools/openclinxr/evidence/foot-plant/displayed-walk-on-the-loaded-physician.ts",
+   "boots": false,
+   "bootsNote": "imports pure measurement helpers; test (4)/(5) read a landed REPORT_PATH json; vitest.config.ts comment names the import closure but no test calls the spawner"
+  },
+  {
+   "pkg": "@openclinxr/model-vetting-evidence",
+   "testFiles": "model-vetting/the-station-sheet-records-whether-the-actors-loaded.test.ts:105",
+   "harnessImport": "tools/openclinxr/evidence/station-room-not-empty.ts",
+   "boots": false,
+   "bootsNote": "reads source text + pure functions"
+  },
+  {
+   "pkg": "@openclinxr/body-param-evidence",
+   "testFiles": "body-param/library-figure-finish-parity.test.ts:27; the-gauge-sees-what-the-resolver-resolves.test.ts:2",
+   "harnessImport": "tools/openclinxr/evidence/library-figure-finish-parity.ts; tools/openclinxr/dark-factory/multi-case-runner.ts",
+   "boots": false,
+   "bootsNote": "resolveScenarioActorCast and pure fns only"
+  },
+  {
+   "pkg": "architecture-rules",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "agent-loop",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "motion-compiler",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "cast-readiness-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "humanoid-bake-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "humanoid-probe-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "room-generate-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "runtime-scene-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "scene-closure-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "trellis-evidence",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "xr-humanoid-animation",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "xr-scene",
+   "testFiles": "(see RECON-PLAN)",
+   "harnessImport": "tools imports reach no module containing a spawnPortlessDevServer call",
+   "boots": false,
+   "bootsNote": "derivation script: no import path reaches a spawner"
+  },
+  {
+   "pkg": "@openclinxr/ui-xr (apps/ui-xr)",
+   "testFiles": "src/the-runtime-reproduces-the-frozen-room-digest.test.ts; src/static-assets.test.ts",
+   "harnessImport": "spawnPortlessDevServer named in comments/strings; tools/openclinxr/factory/*.ts imports reach no spawner",
+   "boots": false,
+   "bootsNote": "ui-xr test graph already contains the whole closure (own deps)"
+  }
+ ],
+ "baseSha": "e8ab790ffe90d2bb56e21d3806c5635d4164f369",
+ "redOnBase": {
+  "test": "architecture-rules dev-server-tests-build-what-the-dev-server-imports.test.ts",
+  "result": "2 failed (staging-evidence, station-capture-evidence: does not build xr-capacity, conversation-policy, xr-actor-dialogue, xr-asset-loading, xr-capture-evidence, xr-dialogue, xr-exam-flow, ...), 3 passed",
+  "log": "H5a-red.log"
+ }
+}

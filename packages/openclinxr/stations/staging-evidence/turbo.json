@@ -3,7 +3,31 @@
   "tags": ["internal"],
   "tasks": {
     "test": {
-      "dependsOn": ["build", "^build", "@openclinxr/factory-station-core#build", "@openclinxr/xr-scene#build", "@openclinxr/xr-station#build"],
+      "dependsOn": [
+        "build",
+        "^build",
+        "@openclinxr/factory-station-core#build",
+        "@openclinxr/xr-scene#build",
+        "@openclinxr/xr-station#build",
+        "@openclinxr/xr-capacity#build",
+        "@openclinxr/asset-registry#build",
+        "@openclinxr/conversation-policy#build",
+        "@openclinxr/scenario-fixtures#build",
+        "@openclinxr/xr-actor-dialogue#build",
+        "@openclinxr/xr-asset-loading#build",
+        "@openclinxr/xr-capture-evidence#build",
+        "@openclinxr/xr-dialogue#build",
+        "@openclinxr/xr-exam-flow#build",
+        "@openclinxr/xr-humanoid-animation#build",
+        "@openclinxr/xr-locomotion#build",
+        "@openclinxr/xr-pose#build",
+        "@openclinxr/xr-runtime-state#build",
+        "@openclinxr/xr-runtime-wiring#build",
+        "@openclinxr/xr-scene-cues#build",
+        "@openclinxr/xr-station-room#build",
+        "@openclinxr/xr-sync-client#build",
+        "@openclinxr/xr-trace-readiness#build"
+      ],
       "inputs": [
         "$TURBO_ROOT$/apps/ui-xr/public/generated-humanoids/**",
         "$TURBO_ROOT$/apps/ui-xr/src/**",
