@@ -8,6 +8,7 @@ import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import * as ts from "typescript";
 import { describe, expect, it } from "vitest";
 import { bundledPackageProvenance, caseSetMatches, deriveShippedCases, inputTreeHash, redACases, treeIsCurrent, unionCases } from "./c52c-cases.mjs";
 import { caseKey, comparePoses } from "./c52c-plant-core.mjs";
@@ -23,6 +24,41 @@ type Parity = {
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "../../../..");
 const TOLERANCE_M = 1e-4;
+const SUPINE = new Set(["stretcher", "bed", "exam_table"]);
+
+/**
+ * Pairs each supine placement with the actor object that structurally owns it: the object literal holding
+ * `placement: { supportSurface }` names its actor by its own `actorId: "x"` property or by a `...actor("x", ...)`
+ * spread. Exactly one id per owning object; text position plays no part, so another actorId elsewhere cannot re-pair it.
+ */
+function supinePlacementOwners(text: string, fileName: string): { actorId: string; surface: string }[] {
+  const sf = ts.createSourceFile(fileName, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS);
+  const out: { actorId: string; surface: string }[] = [];
+  const propName = (p: ts.ObjectLiteralElementLike) => (p.name && (ts.isIdentifier(p.name) || ts.isStringLiteral(p.name)) ? p.name.text : undefined);
+  const visit = (node: ts.Node) => {
+    if (ts.isObjectLiteralExpression(node)) {
+      const placement = node.properties.find((p) => ts.isPropertyAssignment(p) && propName(p) === "placement") as ts.PropertyAssignment | undefined;
+      const surfaceProp = placement && ts.isObjectLiteralExpression(placement.initializer)
+        ? (placement.initializer.properties.find((p) => ts.isPropertyAssignment(p) && propName(p) === "supportSurface") as ts.PropertyAssignment | undefined)
+        : undefined;
+      const surface = surfaceProp && ts.isStringLiteral(surfaceProp.initializer) ? surfaceProp.initializer.text : undefined;
+      if (surface && SUPINE.has(surface)) {
+        const ids: string[] = [];
+        for (const p of node.properties) {
+          if (ts.isPropertyAssignment(p) && propName(p) === "actorId" && ts.isStringLiteral(p.initializer)) ids.push(p.initializer.text);
+          if (ts.isSpreadAssignment(p) && ts.isCallExpression(p.expression) && ts.isIdentifier(p.expression.expression) && p.expression.expression.text === "actor") {
+            const first = p.expression.arguments[0];
+            if (first && ts.isStringLiteral(first)) ids.push(first.text);
+          }
+        }
+        out.push({ actorId: ids.length === 1 ? (ids[0] as string) : `unowned(${ids.length})`, surface });
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sf);
+  return out;
+}
 const jsonPath = process.env["C52C_PARITY_JSON"] ?? join(ROOT, "tools/openclinxr/evidence/xr-sync/c52c-plant-parity.json");
 const parity = JSON.parse(readFileSync(jsonPath, "utf8")) as Parity;
 const head = execFileSync("git", ["-C", ROOT, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
@@ -73,17 +109,16 @@ describe("the supine plant parity between node and the GPU browser", () => {
     expect(Object.fromEntries([...derivedPerFile].sort())).toEqual(Object.fromEntries([...perFile].sort()));
   });
 
-  it("each supine actor authored in blueprint source is a derived shipped case with the same actorId, surface and environmentId (literal pairing, independent of the built scenarioBank)", () => {
+  it("each supine actor authored in blueprint source is a derived shipped case with the same actorId, surface and environmentId (AST ownership pairing, independent of the built scenarioBank)", () => {
     const dir = join(ROOT, "packages/openclinxr/scenario-fixtures/src");
     const authored: string[] = [];
     for (const f of readdirSync(dir).filter((x) => x.endsWith(".ts") && !x.endsWith(".test.ts"))) {
       const text = readFileSync(join(dir, f), "utf8");
       const envs = [...text.matchAll(/environmentId:\s*"([^"]+)"/g)].map((m) => m[1]);
-      for (const m of text.matchAll(/supportSurface:\s*"(stretcher|bed|exam_table)"/g)) {
-        // The actor that owns this placement is the nearest actorId literal (or actor("id", ...) helper call) before it.
-        const before = [...text.slice(0, m.index).matchAll(/(?:actorId:\s*|\bactor\(\s*)"([^"]+)"/g)].at(-1)?.[1] ?? "none";
-        authored.push(`packages/openclinxr/scenario-fixtures/src/${f}|${before}|${m[1]}|${envs.join(",")}`);
-      }
+      const owned = supinePlacementOwners(text, f);
+      // Every supine supportSurface literal in the file must be attributed by the AST walk; none may be skipped.
+      expect(owned.length, f).toBe([...text.matchAll(/supportSurface:\s*"(stretcher|bed|exam_table)"/g)].length);
+      for (const o of owned) authored.push(`packages/openclinxr/scenario-fixtures/src/${f}|${o.actorId}|${o.surface}|${envs.join(",")}`);
     }
     const derived = (parity.shippedCases as { blueprintPath: string; actorId: string; supportSurface: string; environmentId: string }[]).map((s) => {
       const text = readFileSync(join(ROOT, s.blueprintPath), "utf8");
