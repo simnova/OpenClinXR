@@ -1,0 +1,45 @@
+name: Pilot / evaluation interest
+description: Tell us what you want to evaluate with OpenClinXR.
+title: "[pilot] "
+labels: ["pilot-interest"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for your interest in evaluating OpenClinXR with your programme.
+
+        Please note our current limits: not exam-equivalent; no clinical validity; no validity claimed for faculty marks or learner readiness; no Quest readiness claim; history-taking and communication only, no physical examination or touch assessed; formative practice and case authoring.
+  - type: dropdown
+    id: role
+    attributes:
+      label: Your role
+      description: Which of the four role cards on the home page brought you here?
+      options:
+        - clinical educator
+        - standardized-patient program
+        - assessment / psychometrics
+        - IT / deployment
+        - other
+    validations:
+      required: false
+  - type: input
+    id: organisation-type
+    attributes:
+      label: Organisation type
+      description: For example, a medical school, teaching hospital or simulation centre.
+    validations:
+      required: false
+  - type: textarea
+    id: evaluate
+    attributes:
+      label: What you want to evaluate
+      description: Which stations, cases or review workflows would you pilot, and with whom?
+    validations:
+      required: false
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Where would you run it, for example a local network host with headsets or desktop browsers?
+    validations:
+      required: false

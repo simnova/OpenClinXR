@@ -501,6 +501,7 @@
     "vitest": "catalog:",
     "ws": "8.21.1",
     "@types/ws": "8.18.1",
-    "@cellix/config-typescript": "workspace:*"
+    "@cellix/config-typescript": "workspace:*",
+    "yaml": "2.9.0"
   }
 }
