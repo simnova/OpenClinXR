@@ -123,14 +123,19 @@ describe("the API readiness surface weighs shipped geometry (#705)", () => {
    * The exact literal is self-retiring: size-stage card tsk_3ca6855b25d50331 brings ED back under
    * 180,000, this clause then reds, and it must be flipped back to budget_exceeded ABSENT with the
    * new measured literal. Do not widen the literal or touch the ceiling to make it pass.
+   *
+   * RE-RECORDED 2026-11-10 (teeth decimation tsk_27e0cec12cab410d, out-of-root by super-ceo-cap14
+   * ruling): decimate_teeth.mts --ratio 0.65 --error 0.005 takes each fitted teeth mesh 7120 -> 4628
+   * tris, -2492 per actor: robert 43,586 + nurse 43,412 + anna 42,912 = 129,910, + 54,000 = 183,910,
+   * still OVER the 180,000 ceiling, so `station_triangle_budget_exceeded` stays PRESENT.
    */
   it("(1) the ED station is not devReady, and names an honest measured-geometry reason", () => {
     const row = edRow();
     expect(
       row.stationBudget.totalTriangles,
-      "ED must weigh the measured artifact (137,386 over three shipped GLBs + 54,000 declared "
-        + "remainder = 191,386, teeth swap tsk_27e0cec12cab410d), not the 108,000 declarations-only sum",
-    ).toBe(191_386);
+      "ED must weigh the measured artifact (129,910 over three shipped GLBs + 54,000 declared "
+        + "remainder = 183,910, teeth swap + decimation tsk_27e0cec12cab410d), not the 108,000 declarations-only sum",
+    ).toBe(183_910);
     expect(
       row.stationBudget.blockers,
       "env/equipment counts are still declared, so the fail-closed measurements_incomplete blocker "
@@ -138,7 +143,7 @@ describe("the API readiness surface weighs shipped geometry (#705)", () => {
     ).toContain("station_triangle_measurements_incomplete");
     expect(
       row.stationBudget.blockers,
-      "191,386 measured (teeth swap tsk_27e0cec12cab410d) is OVER the 180,000 ceiling, so "
+      "183,910 measured (teeth swap + decimation tsk_27e0cec12cab410d) is OVER the 180,000 ceiling, so "
         + "budget_exceeded must be present. When size card tsk_3ca6855b25d50331 brings ED under "
         + "180,000, flip this back to not.toContain with the new measured literal",
     ).toContain("station_triangle_budget_exceeded");
