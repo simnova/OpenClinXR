@@ -1,0 +1,548 @@
+{
+  "schemaVersion": "openclinxr.site-claims-seed.v3",
+  "note": "Seed for docs/data/claims.json (card WC1). Claims carry text and probes; page copy is built from SEGMENTS, each with text and the claim ids it rests on (empty = connective copy). Composites list segment ids in render order. state is derived by WC2 at landing at sourceSha, never typed. probe.kind: test = file exists and passes in the landing slot; path = file exists; grep-present = every file exists and each matches pattern (case-sensitive); grep-absent = every file exists and none matches (case-sensitive, *.test.ts excluded, workspace closure resolved by WC2 from package.json); none = ROADMAP. slots lists {slot, demonstrates}; SHOWN needs every slot GRADED with a grade entry echoing demonstrates.",
+  "measuredAgainst": "origin/main 1f6480ca7 (sourceSha at landing replaces this)",
+  "claims": [
+    {
+      "id": "CL1",
+      "text": "Each learner sees \"Station N of M\" from the server.",
+      "state": "",
+      "shas": [
+        "e223e9759",
+        "d275f1a53"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/xr-sync-client/src/a-synced-learner-is-told-which-station-they-are-in.test.ts"
+      },
+      "slots": [
+        {
+          "slot": "K2",
+          "demonstrates": "learner pane shows 'Station 1 of 3' from the server"
+        }
+      ]
+    },
+    {
+      "id": "CL2",
+      "text": "A blueprint break pauses the rotation and shows a countdown.",
+      "state": "",
+      "shas": [
+        "62ae76d6d",
+        "cbff77fb6"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/xr-sync-server/src/a-blueprint-break-pauses-the-synced-rotation.test.ts"
+      },
+      "slots": [
+        {
+          "slot": "K6",
+          "demonstrates": "break countdown between station 1 and station 2"
+        }
+      ]
+    },
+    {
+      "id": "CL3",
+      "text": "Encounter flow buttons follow the server phase.",
+      "state": "",
+      "shas": [
+        "b7a1c823f",
+        "9f8f9238c"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "apps/ui-xr/src/the-synced-flow-buttons-follow-the-server-phase.test.ts"
+      },
+      "slots": []
+    },
+    {
+      "id": "CL4",
+      "text": "The patient note opens only in the note phase, is saved per station and replayed.",
+      "state": "",
+      "shas": [
+        "1608c67a7",
+        "7c20baad7"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/xr-sync-server/src/xr-sync-c11-patient-note.test.ts"
+      },
+      "slots": [
+        {
+          "slot": "K7",
+          "demonstrates": "note box before and after submit in the note phase"
+        }
+      ]
+    },
+    {
+      "id": "CL5",
+      "text": "Faculty can join a station read-only.",
+      "state": "",
+      "shas": [
+        "6a63ac5e1"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/xr-sync-server/src/xr-sync-c5-observer.test.ts"
+      },
+      "slots": [
+        {
+          "slot": "K2",
+          "demonstrates": "faculty pane joined read-only beside the learner"
+        }
+      ]
+    },
+    {
+      "id": "CL6",
+      "text": "Faculty replay a station from its recorded trace.",
+      "state": "",
+      "shas": [
+        "512db92cd",
+        "6a36228da",
+        "ba8871cb2"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/xr-sync-server/src/xr-sync-c10-station-replay.test.ts"
+      },
+      "slots": [
+        {
+          "slot": "K4",
+          "demonstrates": "faculty replay of station 1 from its trace"
+        }
+      ]
+    },
+    {
+      "id": "CL7",
+      "text": "Faculty enter rubric marks; a sign-off packet locks them.",
+      "state": "",
+      "shas": [
+        "7dc43db28",
+        "dabe5a603",
+        "94ff0fb8d"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/xr-sync-server/src/xr-sync-c14-review-signoff.test.ts"
+      },
+      "slots": [
+        {
+          "slot": "K4",
+          "demonstrates": "faculty ticks rubric labels and the packet locks"
+        }
+      ]
+    },
+    {
+      "id": "CL8",
+      "text": "The learner speaks (speech-to-text on the host); the actor answers with synthesized speech and asks to repeat when confidence is low.",
+      "state": "",
+      "shas": [
+        "753d8fa62",
+        "9042cd45c",
+        "c98d8711f",
+        "f90bcd96a"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/xr-sync-server/src/xr-sync-c30-speech-retry.test.ts"
+      },
+      "slots": [
+        {
+          "slot": "K3",
+          "demonstrates": "spoken question, transcript with confidence, TTS reply"
+        }
+      ]
+    },
+    {
+      "id": "CL9",
+      "text": "A Quest 3 browser harness exists; no worn-headset station run has been recorded.",
+      "state": "",
+      "shas": [
+        "8ee3f0afc"
+      ],
+      "probe": {
+        "kind": "path",
+        "path": "tools/openclinxr/evidence/xr-sync/c36-run.mjs"
+      },
+      "note": "harness existence only; device claims ROADMAP until K14",
+      "slots": []
+    },
+    {
+      "id": "CL10",
+      "text": "The case sets each actor's phenotype, skin family and iris.",
+      "state": "",
+      "shas": [
+        "88a477354"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/scenario-fixtures/src/actor-phenotype-export.test.ts"
+      },
+      "slots": [
+        {
+          "slot": "KD",
+          "demonstrates": "one blueprint field changed, actor phenotype differs, same seed"
+        }
+      ]
+    },
+    {
+      "id": "CL11",
+      "text": "Skin and eye assets from the Vitruvian work are on main.",
+      "state": "",
+      "shas": [
+        "6ebc3a274",
+        "d36709f3b"
+      ],
+      "probe": {
+        "kind": "path",
+        "path": "tools/openclinxr/asset-pipeline/eyes/vitruvian/hazel.mhmat"
+      },
+      "slots": [
+        {
+          "slot": "K9",
+          "demonstrates": "before/after crops of skin and eye"
+        }
+      ]
+    },
+    {
+      "id": "CL12",
+      "text": "Teeth follow the jaw, open and closed.",
+      "state": "",
+      "shas": [
+        "e77f5a0ef"
+      ],
+      "probe": {
+        "kind": "none"
+      },
+      "note": "branch only; L2",
+      "slots": [
+        {
+          "slot": "K8",
+          "demonstrates": ""
+        }
+      ]
+    },
+    {
+      "id": "CL13",
+      "text": "Rebuilt hair groom.",
+      "state": "",
+      "shas": [],
+      "probe": {
+        "kind": "none"
+      },
+      "note": "L3",
+      "slots": [
+        {
+          "slot": "K10",
+          "demonstrates": ""
+        }
+      ]
+    },
+    {
+      "id": "CL14",
+      "text": "Fifteen scenario fixtures; fourteen are at draft status.",
+      "state": "",
+      "shas": [],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/scenario-fixtures/src/scenario-bank.test.ts"
+      },
+      "slots": []
+    },
+    {
+      "id": "CL15",
+      "text": "The synced circuit sends no data off the local network.",
+      "state": "",
+      "shas": [],
+      "probe": {
+        "kind": "none"
+      },
+      "note": "L5 egress repo test; scope is the synced circuit only",
+      "slots": []
+    },
+    {
+      "id": "CL16",
+      "text": "Open source (MIT, code).",
+      "state": "",
+      "shas": [
+        "963d78e13"
+      ],
+      "probe": {
+        "kind": "grep-present",
+        "paths": [
+          "LICENSE"
+        ],
+        "pattern": "MIT License[\\s\\S]*Simnova"
+      },
+      "note": "LICENSE (MIT, Simnova) committed as 963d78e13 on wt/xr-sync-c52c; lands with the C52c push; L1 gate = LICENSE on origin/main",
+      "slots": []
+    },
+    {
+      "id": "CL17",
+      "text": "Several learners at once, more than three stations in a recorded run, LTI/SSO/xAPI, a validation study, accreditation.",
+      "state": "",
+      "shas": [],
+      "probe": {
+        "kind": "none"
+      },
+      "slots": []
+    },
+    {
+      "id": "CL18",
+      "text": "The blueprint casts each station: actors, dialogue seeds, rubric and trace come from the scenario.",
+      "state": "",
+      "shas": [
+        "2c1a4e89d",
+        "6da228746"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/xr-sync-server/src/xr-sync-c16-scenario-cast.test.ts"
+      },
+      "slots": [
+        {
+          "slot": "KD",
+          "demonstrates": "one blueprint line changed, station output differs, same seed"
+        }
+      ]
+    },
+    {
+      "id": "CL19",
+      "text": "The synced server and client have no language-model dependency.",
+      "state": "",
+      "shas": [],
+      "probe": {
+        "kind": "grep-absent",
+        "roots": [
+          "packages/openclinxr/xr-sync-server",
+          "packages/openclinxr/xr-sync-client"
+        ],
+        "closure": "workspace dependencies from package.json, transitive",
+        "pattern": "from \"(@openclinxr/model-gateway|openai|@anthropic-ai/[^\"]+|openrouter[^\"]*)\"|\"@openclinxr/model-gateway\""
+      },
+      "slots": []
+    },
+    {
+      "id": "CL20",
+      "text": "Each turn is recorded with modality and confidence; replay captions are recomputed from the trace.",
+      "state": "",
+      "shas": [
+        "e51a4db56"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/xr-sync-server/src/xr-sync-c31-replay-captions.test.ts"
+      },
+      "slots": []
+    },
+    {
+      "id": "CL21",
+      "text": "Sensitive cases carry a content notice and a stop control.",
+      "state": "",
+      "shas": [],
+      "probe": {
+        "kind": "none"
+      },
+      "note": "W4b may replace with a found probe",
+      "slots": []
+    },
+    {
+      "id": "CL22",
+      "text": "Rubric items are labels without definitions or anchors.",
+      "state": "",
+      "shas": [],
+      "probe": {
+        "kind": "grep-present",
+        "paths": [
+          "packages/openclinxr/xr-sync-server/src/scenario-rubric.ts"
+        ],
+        "pattern": "rubricId, label"
+      },
+      "slots": []
+    },
+    {
+      "id": "CL23",
+      "text": "One server rotates a learner through the stations of a circuit, one station at a time.",
+      "state": "",
+      "shas": [
+        "e223e9759"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/xr-sync-server/src/xr-sync-c7-station-rotation.test.ts"
+      },
+      "slots": [
+        {
+          "slot": "K6",
+          "demonstrates": "after the break the learner pane reads 'Station 2 of 3'"
+        }
+      ]
+    },
+    {
+      "id": "CL24",
+      "text": "Synthesized speech for the actor runs in the browser (WebAssembly).",
+      "state": "",
+      "shas": [
+        "753d8fa62"
+      ],
+      "probe": {
+        "kind": "test",
+        "path": "packages/openclinxr/xr-sync-client/src/actor-voice.test.ts",
+        "alsoPath": "apps/ui-xr/public/mesm-tts/SOURCE.json"
+      },
+      "slots": []
+    },
+    {
+      "id": "CL25",
+      "text": "Traces, patient notes and faculty marks are written as files on the host.",
+      "state": "",
+      "shas": [],
+      "probe": {
+        "kind": "grep-present",
+        "paths": [
+          "packages/openclinxr/xr-sync-server/src/conversation-tracer.ts",
+          "packages/openclinxr/xr-sync-server/src/patient-note.ts",
+          "packages/openclinxr/xr-sync-server/src/faculty-score.ts"
+        ],
+        "pattern": "writeFileSync"
+      },
+      "slots": []
+    },
+    {
+      "id": "CL26",
+      "text": "Generated and third-party assets keep their own licences, listed in attribution.html and the licence ledger.",
+      "state": "",
+      "shas": [],
+      "probe": {
+        "kind": "path",
+        "paths": [
+          "docs/attribution.html",
+          "docs/openclinxr/third-party-asset-licence-ledger.md"
+        ]
+      },
+      "slots": []
+    },
+    {
+      "id": "CL27",
+      "text": "Where an asset pack's index lists an open licence and the file carries none, the project follows the permissive listing by operator rule.",
+      "state": "",
+      "shas": [],
+      "probe": {
+        "kind": "path",
+        "paths": [
+          "LICENSE-CLASHES.md"
+        ]
+      },
+      "slots": []
+    }
+  ],
+  "segments": [
+    {
+      "id": "M1",
+      "text": "OpenClinXR gives clinical educators an",
+      "claims": []
+    },
+    {
+      "id": "M2",
+      "text": "open-source (MIT, code),",
+      "claims": [
+        "CL16"
+      ]
+    },
+    {
+      "id": "M3",
+      "text": "local-first",
+      "claims": [
+        "CL19",
+        "CL24",
+        "CL25"
+      ]
+    },
+    {
+      "id": "M4",
+      "text": "factory that compiles inspectable case blueprints into seeded multi-station WebXR practice encounters",
+      "claims": [
+        "CL18",
+        "CL23"
+      ]
+    },
+    {
+      "id": "M5",
+      "text": "with replayable traces",
+      "claims": [
+        "CL20",
+        "CL6"
+      ]
+    },
+    {
+      "id": "M6",
+      "text": "and auditable debrief records.",
+      "claims": [
+        "CL7",
+        "CL25"
+      ]
+    },
+    {
+      "id": "T1",
+      "text": "One case blueprint.",
+      "claims": [
+        "CL18"
+      ]
+    },
+    {
+      "id": "T2",
+      "text": "A multi-station practice circuit.",
+      "claims": [
+        "CL23"
+      ]
+    },
+    {
+      "id": "T3",
+      "text": "Every turn on the record.",
+      "claims": [
+        "CL20"
+      ]
+    },
+    {
+      "id": "LL1",
+      "text": "Code: MIT.",
+      "claims": [
+        "CL16"
+      ]
+    },
+    {
+      "id": "LL2",
+      "text": "Generated and third-party assets keep their own licences (attribution.html, licence ledger).",
+      "claims": [
+        "CL26"
+      ]
+    },
+    {
+      "id": "LL3",
+      "text": "Where an asset pack's index lists an open licence and the file carries none, the project follows the permissive listing by operator rule (LICENSE-CLASHES.md).",
+      "claims": [
+        "CL27"
+      ]
+    }
+  ],
+  "composites": {
+    "mission": [
+      "M1",
+      "M2",
+      "M3",
+      "M4",
+      "M5",
+      "M6"
+    ],
+    "tagline": [
+      "T1",
+      "T2",
+      "T3"
+    ],
+    "licence": [
+      "LL1",
+      "LL2",
+      "LL3"
+    ]
+  }
+}
