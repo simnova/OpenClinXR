@@ -1,0 +1,58 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "entries": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "claimId": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          },
+          "demonstrates": {
+            "type": "string"
+          },
+          "gradeMessageId": {
+            "type": "string"
+          },
+          "grader": {
+            "type": "string"
+          },
+          "graderSession": {
+            "type": "string"
+          },
+          "path": {
+            "type": "string"
+          },
+          "sampleRule": {
+            "type": "string"
+          },
+          "sha256": {
+            "pattern": "^[0-9a-fA-F]{64}$",
+            "type": "string"
+          },
+          "slot": {
+            "type": "string"
+          },
+          "verdict": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "path",
+          "sha256",
+          "grader",
+          "graderSession",
+          "gradeMessageId",
+          "demonstrates"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "type": "object"
+}

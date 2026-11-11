@@ -1,0 +1,1443 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="OpenClinXR: timed XR clinical skills encounters from case blueprint to WebXR runtime—with evidence gates, not exam-equivalence claims."
+    >
+    <meta property="og:title" content="OpenClinXR">
+    <meta
+      property="og:description"
+      content="Build, review, and run timed clinical skills stations in WebXR. Blueprint-driven factory. Honest proof boundaries."
+    >
+    <meta property="og:type" content="website">
+    <title>OpenClinXR</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <nav class="top-nav" aria-label="Main navigation">
+      <div class="nav-inner">
+        <a href="#" class="nav-logo">OpenClinXR</a>
+        <div class="nav-links">
+          <a href="#platform">Platform</a>
+          <a href="#motion-proof">Motion</a>
+          <a href="#now">Now</a>
+          <a href="#worldview">Worldview</a>
+          <a href="#factory-stations">Stations</a>
+          <a href="#dark-factory">Factory</a>
+          <a href="#trellis-hatch">Hatch</a>
+          <a href="#supine">Patient</a>
+          <a href="#garment-contrast">Patients</a>
+          <a href="#garment-class">Wardrobe</a>
+          <a href="#see-it">See it</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="#evidence-docs"></a>
+          <a href="progress.html">Progress</a>
+          <a href="attribution.html">Attribution</a>
+          <a href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </nav>
+
+    <main>
+      <section class="hero" aria-labelledby="openclinxr-title">
+        <div class="hero__copy">
+          <p class="eyebrow">Clinical skills simulation · WebXR-first</p>
+          <h1 id="openclinxr-title">OpenClinXR</h1>
+          <p class="lede">
+            Timed clinical skills stations—from case blueprint to WebXR runtime—
+            with faculty review, durable traces, and promotion bound to the reviewed revision.
+          </p>
+          <p class="lede" style="margin-top: 14px; font-size: 1.05rem;">
+            Inspired by Step&nbsp;2&nbsp;CS-style multi-station flow. Built as an
+            <strong>encounter factory</strong>, not a pile of one-off scenes.
+            Not an exam-equivalence or clinical-validity product.
+          </p>
+          <div class="actions" aria-label="Project links">
+            <a class="button button--primary" href="#now">Where we are</a>
+            <a class="button" href="#dark-factory">Factory pipeline</a>
+            <a class="button" href="#see-it">Runtime evidence</a>
+            <a class="button" href="#roadmap">Next proof</a>
+            <a class="button" href="https://github.com/simnova/OpenClinXR">GitHub</a>
+          </div>
+        </div>
+        <div class="hero__panel" aria-label="At a glance">
+          
+          <div>
+            <span class="metric">Who it’s for</span>
+            <strong>Simulation programs &amp; clinical education teams</strong>
+            <p>Authors define stations. Learners run timed encounters. Faculty review traces and packets. Admins hold the gates.</p>
+          </div>
+          <div>
+            <span class="metric">What we prove today</span>
+            <strong>Reviewed blueprint → pinned runtime → replay</strong>
+            <p>
+              Authored content identity now follows an encounter through faculty promotion,
+              a pinned runtime bundle, timed learner phases, actor execution, and review.
+            </p>
+          </div>
+          <div>
+            <span class="metric">Trust line</span>
+            <strong>No clinical scoring or Quest readiness claims</strong>
+            <p>Promotion and readiness flags stay false until hardware and policy say otherwise. We document limits in public.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="motion-proof" class="band band--evidence" aria-labelledby="motion-proof-title">
+        <div class="section-heading">
+          <p class="eyebrow">Cleared movement evidence · 2026-09-04</p>
+          <h2 id="motion-proof-title">The rig moves. The license boundary moves with it.</h2>
+        </div>
+        <div class="motion-proof">
+          <video
+            class="motion-proof__video"
+            controls
+            muted
+            loop
+            playsinline
+            preload="metadata"
+            poster="assets/mpfb-parent-upper-body-motion-poster-2026-09-04.png"
+            aria-label="Upper-body capture of an OpenClinXR humanoid moving its head, torso, shoulders, arms, and hands"
+          >
+            <source src="assets/mpfb-parent-upper-body-motion-2026-09-04.webm" type="video/webm">
+            Your browser does not support WebM video.
+          </video>
+          <div>
+            <p class="status-copy">
+              This six-second browser capture shows skeletal motion reaching the head, torso,
+              shoulders, arms, and hands. It is a rig-deformation proof, not a polished performance.
+            </p>
+            <p class="status-copy">
+              The visible body, hair, shirt, and motion sources cleared the project’s publication
+              review. The lower-body crop is deliberate: the source trousers have an unresolved
+              per-item license conflict, so that geometry is not published here. Viseme footage is
+              also withheld until its separate source provenance is resolved.
+            </p>
+            <p class="evidence-note">
+              <a href="assets/mpfb-parent-upper-body-motion-2026-09-04.provenance.json">Machine-readable provenance</a>
+              · <a href="openclinxr/public-humanoid-motion-license-review-2026-09-04.md">license review</a>
+            </p>
+            <p class="evidence-note">
+              <strong>notEvidenceFor:</strong> production animation, cloth behavior, speech or viseme
+              synchronization, Quest readiness, clinical validity, or exam equivalence.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="speech-proof" class="band band--evidence" aria-labelledby="speech-proof-title">
+        <div class="section-heading">
+          <p class="eyebrow">Speech · emotion · hair · skin · 2026-09-19</p>
+          <h2 id="speech-proof-title">The factory nurse speaks, with sound — PP sealed, aa graded.</h2>
+        </div>
+        <div class="motion-proof">
+          <video
+            class="motion-proof__video"
+            controls
+            loop
+            playsinline
+            preload="metadata"
+            poster="assets/speech-emotion-blink-2026-09-19-sealopen-poster.png"
+            aria-label="Factory nurse speaking three lines with emotion, blinking, hair texture and skin pores. Audio is included. PP sealed, aa graded."
+          >
+            <source src="assets/speech-emotion-blink-2026-09-19-sealopen.webm" type="video/webm">
+            <source src="assets/speech-emotion-blink-2026-09-19-sealopen.mp4" type="video/mp4">
+            Your browser does not support this video.
+          </video>
+          <div>
+            <p class="status-copy">
+              Thirty-four seconds of the factory scratch nurse: three spoken lines, an authored
+              emotion arc, blinking, strand-textured hair, and pore-level skin. The file includes
+              an audio track. Turn the sound on. CEO grade: sil sealed; PP sealed (first time);
+              aa open with upper tooth row; lower cavity still a dark hole.
+            </p>
+            <p class="evidence-note">
+              <a href="progress.html#entry-2026-09-19T2024">Progress log entry 109</a>
+              · scratch bake, not the shipped GLB
+            </p>
+            <p class="evidence-note">
+              <strong>notEvidenceFor:</strong> production TTS, Quest readiness, clinical validity,
+              exam equivalence, gums/cavity detail, the shipped GLB, or a live station-reply capture.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section id="platform" class="band" aria-labelledby="what-title">
+        <div class="section-heading">
+          <p class="eyebrow">Platform</p>
+          <h2 id="what-title">Four pieces. One factory.</h2>
+        </div>
+        <div class="grid">
+          <article>
+            <h3>Exam surface</h3>
+            <p>
+              Author, assemble, run, and replay timed stations for learners, faculty, and admins—
+              with traces, actor turns, and review packets in the loop.
+            </p>
+          </article>
+          <article>
+            <h3>Encounter factory</h3>
+            <p>
+              Reviewed case definitions drive scenes, actors, dialogue posture, emotion timelines,
+              asset needs, and persistence—so work scales past hand-built demos.
+            </p>
+          </article>
+          <article>
+            <h3>Asset commons</h3>
+            <p>
+              Rooms, humanoids, clothing, equipment, and provenance intended for reuse across encounters—
+              with cage-match style comparison before anything is treated as “ready.”
+            </p>
+          </article>
+          <article>
+            <h3>Capability arena</h3>
+            <p>
+              Sidecars for humanoid generation, voice, IWSDK spikes, and providers stay isolated
+              until evidence supports a promotion decision. Experiments don’t become product by accident.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section id="now" class="band band--evidence" aria-labelledby="now-title">
+        <div class="section-heading">
+          <p class="eyebrow">Current state · 10 September 2026</p>
+          <h2 id="now-title">A reviewed encounter can now become a resumable, replayable run.</h2>
+        </div>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>Author and promote</h3>
+            <ul>
+              <li><strong>Revision-bound review:</strong> a scenario edit invalidates stale approval; API promotion refuses missing or stale authored-content identity. <em>Qualified 2026-09-10:</em> that held for authored scenario text and did <em>not</em> hold for the frozen scene &mdash; SC-06 measured the accepted plan carrying 0 of 14 identity fields, with a stale acceptance silently reused. It now refuses; see the measurements below.</li>
+              <li><strong>Immutable encounter bundles:</strong> reviewed factory outputs are promoted together, with the room, actors, equipment, and dialogue configuration pinned to the approved revision.</li>
+              <li><strong>Faculty-visible delta:</strong> Admin can preview what an authored change will alter at runtime before promotion.</li>
+              <li><strong>Scenario bank freeze:</strong> approved revisions and promoted station-bundle pins survive later authoring changes.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Run and resume</h3>
+            <ul>
+              <li><strong>Bundle-driven boot:</strong> the learner runtime mounts the promoted room and starts from the pinned encounter bundle, failing closed when compiled-room readiness is incomplete.</li>
+              <li><strong>Assembled exam clock:</strong> encounter, note, and timed-break phases emit monotonic, replayable events with exactly-once timeout behavior.</li>
+              <li><strong>Restart-safe progress:</strong> API and MongoDB adapters rebuild an assembled run from its durable ledger; incompatible resume state is rejected.</li>
+              <li><strong>End-to-end acceptance:</strong> repository tests exercise learner progress through faculty review across a restart boundary.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Speak, move, replay</h3>
+            <ul>
+              <li><strong>One frozen actor turn:</strong> voice, visemes, affect, facial expression, and motion start from an identity-bound plan rather than loosely interpreting dialogue text.</li>
+              <li><strong>Audio-clock synchronization:</strong> visible and audible modalities follow the same playback clock.</li>
+              <li><strong>Replayable interruption:</strong> learner barge-in is recorded across turn modalities without rewriting the approved plan.</li>
+              <li><strong>Plan versus execution:</strong> the immutable intent and observed execution are persisted separately and exposed in faculty replay.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Evidence and boundaries</h3>
+            <ul>
+              <li><strong>Committed proof:</strong> the claims above are backed by runtime and package tests in the repository, including restart-safe learner-to-faculty acceptance. Nine independently graded evidence reports are now published &mdash; see the section below.</li>
+              <li><strong>Visual proof remains bounded:</strong> the screenshots below demonstrate browser-rendered factory, actor, garment, room, and equipment work. They do not prove the entire new lifecycle as one polished user journey.</li>
+              <li><strong>No clinical validity, scoring validity, licensure, or exam-equivalence claim.</strong></li>
+              <li><strong>No Quest readiness claim:</strong> browser/WebXR and emulation evidence do not substitute for worn-headset validation.</li>
+              <li><strong>No production deployment claim:</strong> development remains local-first, with external providers and promotion paths gated.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="progress-note">
+          Source of truth for status is the repo ledger (<code>PROJECT_STATUS.md</code>), not this page.
+          Public copy here is a snapshot for humans—updated when the product story actually moves.
+        </p>
+        <figure style="margin:20px 0 0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620; max-width:960px;">
+          <img src="assets/room-carpet-trim-seed7-2026-09-22.png" alt="Simplified seed 7 room: a wood-grain casing frames the doorway in a blue-grey plaster wall. Native 1280 by 720." style="width:100%; height:auto; display:block;">
+          <figcaption style="padding:8px 10px; font-size:0.85rem; color:var(--muted); border-top:1px solid var(--line);">
+            22 September 2026, after simplify. Skirting and openings 162,648 to 101,702 triangles, walls and floors 6,336 to 3,205.
+            The clinic file a learner loads was not replaced.
+            <a href="progress.html#entry-2026-09-22T2223">Progress log entry 112</a>
+            has the lighting pair and the triangle counts.
+          </figcaption>
+        </figure>
+      </section>
+
+      <section id="scene-closure" class="band band--evidence" aria-labelledby="scene-closure-title">
+        <div class="section-heading">
+          <p class="eyebrow">Measured, not asserted &middot; 2026-09-10</p>
+          <h2 id="scene-closure-title">Nine graded reports, and the numbers that did not clear.</h2>
+        </div>
+        <p class="status-copy">
+          Nine cards landed against a frozen acceptance contract. Each carries an evidence report graded by its own
+          verifier against retained artifacts, and each was re-measured by the owner against the tree rather than
+          accepted from its report. Three of nine were rejected at least once; one was rejected three times. The
+          rejections and the failures are published alongside the passes, because a report that only lists passes
+          is not evidence.
+        </p>
+        <div class="metric-table-wrap">
+          <table class="metric-table">
+            <caption>The bedside approach, measured in a browser on an M1 Max over 373 skeleton samples.</caption>
+            <thead>
+              <tr><th scope="col">Metric</th><th scope="col">Measured</th><th scope="col">Threshold</th><th scope="col">Outcome</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Arrival error</td><td>0.03597 m</td><td>&le; 0.05 m</td><td>pass</td></tr>
+              <tr><td>Settled heading error</td><td>0.000&deg;</td><td>&le; 10&deg;</td><td>pass</td></tr>
+              <tr><td>Stopped duration</td><td>4.816 s</td><td>&ge; 2 s</td><td>pass</td></tr>
+              <tr><td>Root travel while stopped</td><td>0.000000 m</td><td>0 m</td><td>pass</td></tr>
+              <tr><td>Deepest floor penetration</td><td>0.00179 m</td><td>&le; 0.005 m</td><td>pass</td></tr>
+              <tr><td>Foot slide</td><td>8.00 Hz capture</td><td>~132 Hz needed</td><td><strong>not gradeable</strong></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="status-copy">
+          The last row is the useful one. Identifying a foot-contact window at the rubric's 0.005 m per-frame
+          allowance needs roughly 132 Hz; four skinned humanoids and a compiled room through software rendering
+          gave 8.00 Hz. Rather than grade an aliased stream, the instrument refuses and reports the number. An
+          earlier revision of that report graded it as <em>failing</em> from an assumed 60 Hz that was never
+          measured; that verdict was wrong in the same way a passing one would have been, and is retracted in
+          place in the published report.
+        </p>
+        <p class="status-copy">
+          Other findings worth naming: the shipped locomotion clip <em>fails</em> the frozen rubric, and no clip
+          this pipeline has produced meets the foot-plant threshold. A learned-motion candidate was screened and
+          <strong>held</strong>, not adopted &mdash; its text encoder depends transitively on a gated model licence
+          this project does not hold, and the host has no CUDA device. Twenty-eight open items are declared across
+          the nine reports.
+        </p>
+        <p class="evidence-note">
+          Reports:
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-00.md">SC-00 rubric</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01.md">SC-01</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-01s.md">SC-01S</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-02.md">SC-02</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-03.md">SC-03</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-04.md">SC-04 rights</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-05.md">SC-05 approach</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-06.md">SC-06 replay</a> &middot;
+          <a href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/scene-closure-2026-09-09/evidence/sc-10.md">SC-10 research hold</a>
+        </p>
+        <p class="evidence-note">
+          <strong>notEvidenceFor:</strong> clinical validity, scoring validity, exam equivalence, and worn-headset
+          readiness are not claimed and have no evidence here. Three of twelve acceptance rows &mdash; an
+          uninterrupted workflow recording, a website demonstration, and independent final acceptance &mdash; are
+          unstarted, so this package is <strong>not closed</strong>. No humanoid imagery from these cards is
+          published: their public render rights are blocked pending a named upstream licence resolution.
+        </p>
+      </section>
+
+      <section id="worldview" class="band band--evidence" aria-labelledby="worldview-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at · 2026-08-31</p>
+          <h2 id="worldview-title">The case is a compile graph faculty can edit.</h2>
+        </div>
+        <p class="status-copy">
+          These screenshots were captured from commit <code>05120405</code>, where
+          BothyBoard children W1–W19 (plus W14a/W14b/W11s) had landed.
+          Faculty author the encounter as a Scenario, then review a World Compile Graph
+          of baker families. Add node / Remove node mutate the graph; the lock table stays
+          the lock write path. Chromium Playwright of the running admin app
+          (<code>ui-admin</code> + local API), not a schematic.
+          Since this capture, authored revision identity now invalidates stale approval,
+          and Admin can preview the runtime delta before a reviewed revision is promoted
+          into an immutable encounter bundle.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img
+            class="w-full h-auto object-contain"
+            src="assets/worldview-case-authoring-2026-08-31.png"
+            width="1600"
+            height="1200"
+            alt="OpenClinXR Admin Encounter Case Authoring: load ED Chest Pain example, scenario id ed_chest_pain_priority_v1, title ED Chest Pain With Nurse Interruption And Family Pressure, claim boundary notEvidenceFor clinical validity"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            Renderer: Chromium Playwright, <code>http://127.0.0.1:5174/authoring</code>, 1600×1200 native.
+            Subject: CaseAuthoringWorkbench with the bank case loaded.
+          </figcaption>
+        </figure>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+          <img
+            class="w-full h-auto object-contain"
+            src="assets/worldview-compile-graph-2026-09.png"
+            width="1400"
+            height="420"
+            alt="World compile graph canvas: Add node and Remove node buttons, three columns Body, Wardrobe, and Equipment baker nodes with body_to_clothing and wardrobe_to_equipment edges"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            Renderer: Chromium Playwright of <code>CompileGraphCanvas</code> via an isolated
+            ui-admin shot page (<code>127.0.0.1:5174/compile-graph-shot.html</code>;
+            live <code>/exam-forms</code> does not render in dev), 1400×420 native,
+            captured 2026-09-10 at HEAD <code>bbf3f84a</code>.
+            Subject: Body → Wardrobe → Equipment baker DAG with Add node / Remove node;
+            edges seeded in <code>buildCompileEdges</code> shape.
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          <strong>claimScope:</strong> local admin UI capture of an authored Scenario at
+          capture commit <code>05120405</code> plus the compile DAG recaptured 2026-09-10
+          at <code>bbf3f84a</code>; current revision identity and runtime-delta behavior
+          are supported by later committed application tests, not by these stills.
+          <strong>notEvidenceFor:</strong> Quest readiness, clinical validity, live Blender bake,
+          LLM draft quality, or that the parent BothyBoard program card is closed (it is still Idle).
+          Node labels truncate in this crop; that is the canvas, not missing data.
+        </p>
+      </section>
+
+      <section id="factory-stations" class="band band--evidence" aria-labelledby="factory-stations-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at · 2026-09-01</p>
+          <h2 id="factory-stations-title">Faculty configure the nine production stations as cards, not a hand list.</h2>
+        </div>
+        <p class="status-copy">
+          Each production factory station is a Standard Schema V1 interface
+          (<code>~standard.validate</code> plus <code>jsonSchema.input</code>).
+          Admin cards are derived from that schema: one card per id, one control per
+          property, Apply refuses invalid payloads.
+          <code>instrument</code> is a gate and is not a card.
+          The TRELLIS control adds a worldview bake model (subject/pack
+          <code>ecg-cart-imagine-box</code>), distinct from a fixtureSlot bind.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: auto; max-height: 720px; background: #f5f5f5;">
+          <img
+            class="w-full h-auto object-contain"
+            src="assets/factory-station-cards-2026-09.png"
+            width="688"
+            height="3870"
+            alt="Factory station cards: nine production stations as Ant Design cards with schema-derived fields, Add TRELLIS bake model, body_param filled for patient_maya_johnson_v1, equipment_generate filled for ecg-cart-imagine-box viewCount 4"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); position: sticky; bottom: 0; background: #fff;">
+            Renderer: Chromium Playwright of isolated <code>FactoryStationCards</code>
+            (Vite 127.0.0.1:5174/factory-station-cards-shot.html), 688×3870 native,
+            captured 2026-09-10 at HEAD <code>bbf3f84a</code>.
+            Subject: all nine production station cards. Scroll the figure for the full stack.
+          </figcaption>
+        </figure>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff; max-width: 720px;">
+          <img
+            class="w-full h-auto object-contain"
+            src="assets/factory-station-equipment-generate-2026-09-01.png"
+            width="688"
+            height="363"
+            alt="equipment_generate station card: subjectId and packId ecg-cart-imagine-box, seed 7, remesh on, viewCount 4, decimationTarget 80000, Apply"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            Native close-up of the <code>equipment_generate</code> card from the same render.
+            Knobs include schema-only <code>decimationTarget</code>.
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          <strong>claimScope:</strong> local admin React cards derived from
+          <code>factoryStationSchemas</code> on <code>origin/main</code>.
+          <strong>notEvidenceFor:</strong> live TRELLIS GPU bake, Quest readiness,
+          clinical validity, or that Apply invokes a baker (it validates and emits
+          the payload).
+        </p>
+      </section>
+
+
+      <section id="supine" class="band band--evidence" aria-labelledby="supine-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="supine-title">The patient on the bed was a wad of geometry. Now she is a person.</h2>
+        </div>
+        <p class="status-copy">
+          Three of the fourteen stations lay their patient down. For weeks those three rendered a
+          crumpled knot on the mattress. <strong>Five separate fixes landed and none of them changed
+          a pixel</strong> — each was aimed at a cause nobody had located. On 2026-08-20 the sixth
+          worked, because an ablation was run first instead of a sixth guess: render the pose's two
+          mechanisms separately and see which one is the damage.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img
+            src="assets/supine-ablation-2026-08-20.png"
+            alt="Three-cell ablation contact sheet. Left: the gowned MPFB body standing upright, no supine call. Centre: the same body lying on its back with only the root basis applied. Right: the full supine path. Centre and right are identical."
+            class="w-full h-auto object-contain"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            The ablation, isolated harness, product renderer. <code>standing</code> · <code>root_only</code> ·
+            <code>full</code>. The centre cell was always a person; the right cell used to be the knot.
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          The cause was seventeen joint rotations hand-tuned against Anny's 23-bone skeleton, being
+          applied to an MPFB body with <strong>138 joints</strong>. They are correct for the rail they
+          were written for, so the fix was not to delete them — it was to scope them. Anny keeps its
+          table; MPFB skips it. One switch, and the right-hand cell above became the centre cell.
+        </p>
+
+        <p class="status-copy">
+          <strong>The part worth keeping is the measurement that could not tell them apart.</strong>
+          Before the fix, the knot and the person had <em>identical</em> envelope metrics — height
+          446&nbsp;mm, minimum Y 0.570, to three decimal places. One was a patient and one was refuse,
+          and every bounding-box assertion in the repository scored them the same. Any future contract
+          that grades a lying figure by its bounding box is measuring nothing.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img
+            src="assets/supine-patient-is-a-person-2026-08-20.png"
+            alt="Assembled postoperative ward station: a patient in a blue gown lying on her back on the bed, with a nurse and a surgical resident standing near the doorway, EHR panel to the right."
+            class="w-full h-auto object-contain"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            <code>postop_fever_consult_pressure_v1</code>, assembled station, graded by eye. All three
+            recumbent stations were re-captured and all three now render a person on the bed.
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          <strong>Not fixed, and visible in that capture:</strong> her arms rest raised in the air
+          rather than at her sides. That is the bind pose showing through now that the wrong rotations
+          are gone, and the answer to it is a retargeted recumbent motion clip — not a second table of
+          hand-authored angles. That work is open. Nothing here is a claim about clinical validity of
+          the pose; it is a claim that a figure on a bed reads as a human being.
+        </p>
+      </section>
+
+
+      <section id="case-driven-phenotype" class="band band--evidence" aria-labelledby="phenotype-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="phenotype-title">The case said 52 years old. The factory was reading a Python file.</h2>
+        </div>
+        <p class="status-copy">
+          A case definition describes a person in numbers: age, height, build, how tense they look.
+          Until today the factory did not read them. Bodies were baked from hand-written Python
+          presets &mdash; four of them, covering four actors out of a hundred and four. Every other
+          figure a learner met was the same body with a different job title, and the numbers in the
+          case were decoration.
+        </p>
+        <p class="status-copy">
+          The case now authors the phenotype and the generator resolves it. Measured in the shipped
+          fixture data: <strong>32 of 32 actor records carry numeric phenotype</strong>, where before
+          the audit found thirty-eight of forty-two actors with none at all.
+        </p>
+        <figure style="border: 1px solid var(--line); border-radius: 8px; overflow: hidden; margin-top: 16px;">
+          <pre style="margin: 0; padding: 12px 16px; overflow-x: auto; font-size: 0.8rem; line-height: 1.6;"><code>patient_robert_hayes_v1
+  age            52
+  height_cm     178
+  bmi            26
+  brow_tension  0.55
+  anxious       0.65
+  flush         0.15</code></pre>
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            <code>actor-phenotype.v1.json</code>, generated from the case bank. The chest-pain patient
+            is fifty-two because the case says so, not because a preset did.
+          </figcaption>
+        </figure>
+        <p class="status-copy" style="margin-top: 16px;">
+          <strong>What this is not:</strong> it is not a claim that every shipped body has been
+          re-baked from these numbers. It is the data and the seam that reads it &mdash; the resolver
+          now has something to resolve. Re-baking the cast against it is the next piece of work and it
+          is open. Nothing here is a claim about clinical validity of any figure; it is a claim that
+          the case definition finally reaches the body.
+        </p>
+      </section>
+
+
+      <section id="case-driven-iris" class="band band--evidence" aria-labelledby="iris-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="iris-title">The case says brown eyes. Now the figure has brown eyes.</h2>
+        </div>
+        <p class="status-copy">
+          A case definition describes a person: age, build, hair colour, eye colour. The factory was
+          reading almost none of it. Every shipped figure's iris came from a <em>role default</em> —
+          patients brown, family green, nurses blue — assigned by matching words in a job title. The
+          case's own <code>eye_color</code> field was carried all the way to the bake and then
+          dropped, because the one call site passed an empty dictionary where the phenotype belonged.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img src="assets/iris-case-driven-2026-08-21.png" alt="Four close-up crops of rendered eyes. Top row: the paediatric parent, green irises before and brown irises after. Bottom row: the nurse, blue irises before and brown irises after." class="w-full h-auto object-contain" loading="lazy">
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            Isolated renders at 4096&#178;, cropped to the eyes at native resolution &#183; parent green &#8594; brown, nurse blue &#8594; brown, both as their case authored
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          The more useful half is what happens when a case asks for something the factory
+          <em>cannot</em> build. One patient is authored with hazel eyes. There is no hazel material
+          in the licensed set, and the old behaviour was to silently fall back to a role default —
+          the case asked for one thing, the learner saw another, and nothing anywhere said so. The
+          factory now <strong>refuses</strong> that value out loud, and publishes the nine colours it
+          can actually produce, each with its licence, generated from the same list the renderer
+          reads so the two cannot drift apart.
+        </p>
+
+        <p class="status-copy">
+          That refusal is deliberate and it is the point. A factory that quietly substitutes is a
+          factory whose output nobody can trust to match the case; a factory that refuses forces the
+          question upstream, where a human or an authoring tool can answer it against a real list of
+          options. The hazel patient is still unbuilt, and that is the correct state until someone
+          chooses.
+        </p>
+
+        <p class="status-copy" style="color: var(--muted); font-size: 0.85rem;">
+          Not claimed: that these faces look finished. The skin is procedurally baked and carries no
+          painted facial detail, which is visible in these crops and tracked separately. This shows
+          one field of the case definition reaching one property of the render, verified by
+          comparing the shipped bytes and by looking at the pixels.
+        </p>
+      </section>
+
+      <section id="garment-contrast" class="band band--evidence" aria-labelledby="garment-contrast-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at · 2026-08-28</p>
+          <h2 id="garment-contrast-title">Roles now wear distinct fitted garments, not one beige palette.</h2>
+        </div>
+        <p class="status-copy">
+          Shipped MPFB bodies carry MakeClothes library garments fitted onto the standard rig:
+          teal scrubs on the nurse, a cyan exam gown on the adult patient, sage street clothes
+          and boots on the walk-in, muted rose on the family partner. Contrast against skin is
+          visible at a glance. These are isolated grade captures of the tracked GLBs under
+          <code>apps/ui-xr/public/generated-humanoids/</code>, not the 2026-08-21 sage t-shirt
+          pair that documented a palette bug.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/mpfb-clinical-nurse-clothed-2026-08-28.png" alt="Isolated lit grade of the MPFB clinical nurse in teal V-neck scrubs, trousers, and shoes." class="w-full h-auto object-contain" loading="lazy">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Nurse · <code>mpfb-clinical-nurse-adult.glb</code> · scrubs
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/mpfb-gown-patient-clothed-2026-08-25.png" alt="Isolated lit grade of the MPFB adult patient in a cyan knee-length exam gown and shoes." class="w-full h-auto object-contain" loading="lazy">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Patient · <code>mpfb-gown-adult-patient.glb</code> · exam gown
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/mpfb-street-adult-clothed-2026-09-10.png" alt="Isolated EEVEE grade of the MPFB street-casual adult male in a sage t-shirt and MakeClothes punkduck classic jeans, brown boots, world ambient lighting." class="w-full h-auto object-contain" loading="lazy">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Street patient · pants02 <code>punkduck_male_classic_jeans</code> (CC-BY)
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/mpfb-family-partner-clothed-2026-08-28.png" alt="Isolated lit grade of the MPFB family partner in a rose t-shirt, trousers, and shoes." class="w-full h-auto object-contain" loading="lazy">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Family · <code>mpfb-family-partner-adult.glb</code>
+            </figcaption>
+          </figure>
+        </div>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          Street still: isolated EEVEE <code>finished_figure_grade.py --frame full</code> with
+          world Background strength 0.55 (grade-lighting.json), 2026-09-10. Other cells:
+          <code>model-vetting-glb-grade-capture</code> front_lit, 2026-08-25/28. Garments are
+          fitted via MakeClothes <code>ClothesService.fit_clothes_to_human</code> onto the MPFB
+          basemesh. A 2026-08-21 incident (cream <code>closed_casual</code> tint 21 RGB units
+          from skin) is closed.
+        </p>
+
+        <p class="status-copy">
+          <strong>Still visible and not claimed as production cloth:</strong> nurse and family
+          still show a waistband gap (cargo cover shell). Street trousers are MakeClothes
+          pants02 <code>punkduck_male_classic_jeans</code> (pack-page CC-BY), not a cover shell.
+          Isolated EEVEE bake includes world Background strength 0.55. Poke-through at the
+          chest on some shirts. Isolated harness, not a station.
+          <strong>claimScope:</strong> role-distinct fitted clothing on shipped MPFB
+          GLBs. <strong>notEvidenceFor:</strong> production cloth, Quest readiness, pregnancy
+          morphology, clinical validity, or exam equivalence.
+        </p>
+      </section>
+
+      <section id="garment-class" class="band" aria-labelledby="garment-class-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="garment-class-title">The audited legacy MakeClothes cache contains no hospital gown.</h2>
+        </div>
+        <p class="status-copy">
+          Every garment in the audited legacy MakeHuman/MakeClothes cache was fitted, rendered,
+          and assigned a geometry-derived class. Within that specific cache,
+          <code>hospital_gown</code> has <strong>zero members</strong>. This does not describe the
+          separate case-linked real-gown path shown elsewhere in the repository and on this page.
+        </p>
+
+        <figure style="margin: 20px 0 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img
+            src="assets/garment-class-sheet-2026-08-20.png"
+            alt="Thirteen-cell contact sheet of every cached garment, each fitted and rendered in a distinct colour with its filename and assigned class: an evening dress, two open lab coats, scrub top and trousers, several t-shirts and a sweater, boots, flats and cloth shoes."
+            class="w-full h-auto object-contain"
+            loading="lazy"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            13 unique garments from 16 cached files. Classes derived from fitted geometry — hem height
+            and shoulder coverage — not from the filename.
+          </figcaption>
+        </figure>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          <code>street&nbsp;8 · footwear&nbsp;3 · labcoat&nbsp;2 · scrub&nbsp;2 · evening_dress&nbsp;1 ·
+          hospital_gown&nbsp;0</code>. Nothing fell into <code>other</code> and nothing was left unknown.
+        </p>
+
+        <p class="status-copy">
+          <strong>The first cell is the whole reason this was built.</strong> A file named
+          <code>crudegown.mhclo</code> once passed three machine contracts — its licence was verified,
+          its vertex indices were verified, its presence on the body was verified — and then somebody
+          looked at the render and found a floor-length spaghetti-strap evening dress. Presence,
+          placement and provenance are three questions, and none of them is <em>class</em>. The
+          inventory now answers the fourth one from geometry, in machine-readable form, before anyone
+          opens an image: <code>crudegown → evening_dress</code>, hem at 3% of body height.
+        </p>
+
+        <p class="status-copy">
+          The practical consequence is narrower: this legacy cache cannot satisfy a hospital-gown
+          request, and the resolver must not substitute its evening dress because the filename sounds
+          plausible. The current real-gown path is a separate, provenance-tracked source and still has
+          to pass its own fit, motion, and runtime evidence gates.
+        </p>
+      </section>
+
+      <section id="see-it" class="band" aria-labelledby="see-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="see-title">Clothing is visible and case-linked, but remains below production realism.</h2>
+        </div>
+        <p class="status-copy">
+          Garment layers now come from the case definition and are visible on browser-rendered actors,
+          including the real-gown path and clothed multi-role stations shown on this page. That is
+          evidence of case-to-runtime wiring, not a claim of production-quality cloth, fit, or motion.
+        </p>
+        <p class="status-copy">
+          <strong>Correction, 2026-08-10 evening.</strong> This section previously said one actor
+          “renders translucent”. That was our diagnosis and measurement disproved it. Nothing on that
+          figure is transparent; the garment covers <em>every</em> face of the region it claims —
+          across four body/slot pairs, hidden-plus-behind-cloth accounts for all of them and
+          zero faces have no garment nearby. The skin a viewer notices sits <em>outside</em> the
+          claimed region, which makes it a question about how far the garment should reach, not a
+          rendering fault.
+        </p>
+        <p class="status-copy">
+          The open quality bar is visible: some garments still read as rigid shells, hems and joins
+          remain rough, and motion evidence does not yet establish production cloth behavior. New
+          clothing claims therefore require measured Model Vetting and UI-XR evidence rather than
+          inference from asset presence alone.
+        </p>
+        <p class="evidence-note" style="margin-top: 16px;">
+          Inspection packet:
+          <a href="assets/ed-real-garment-webxr-inspection.json">ed-real-garment-webxr-inspection.json</a>.
+          Deeper factory reports live under
+          <a href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">docs/openclinxr</a>
+          and Model Vetting cagematch outputs in the repo.
+        </p>
+      </section>
+
+      <section id="grader" class="band band--evidence" aria-labelledby="grader-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="grader-title">The grader caught a figure with no trousers.</h2>
+        </div>
+        <p class="status-copy">
+          On 2026-08-11 a rig upgrade landed on the library bodies — MPFB's 64-bone
+          <code>mixamo_unity</code> skeleton and its shipped CC0 weight map, replacing a hand-rolled
+          bounding-box armature whose hands carried <strong>0.00%</strong> of the skin weight with
+          20,216 vertices collapsed onto a single upper-arm bone. Three machine contracts passed.
+          Then the capture was graded by eye, and the figure had no trousers.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/library-female-dressed-2026-08-11.png"
+              alt="Isolated grade capture of the adult lean female library body: an upright clothed figure in a blue shirt and teal trousers, shoes on the ground plane"
+              class="w-full h-auto object-contain"
+              loading="lazy"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Before · <code>makeclothes_library_cargo_pants…</code> at 2,530 triangles.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/library-female-bottomless-regression-2026-08-11.png"
+              alt="The same body after the rig upgrade: the blue shirt remains but the legs are bare skin from hem to shoes, the trousers mesh absent"
+              class="w-full h-auto object-contain"
+              loading="lazy"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              After the upgrade, since reverted · same mesh list minus the trousers. The lower garment is gone, not mis-shaded.
+            </figcaption>
+            <figcaption style="padding: 0 12px 8px; font-size: 0.8rem; color: var(--muted);">
+              <strong>Update, same day:</strong> the rig upgrade has since landed cleanly. Both bodies
+              carry trousers again (2,530 and 3,767 triangles) on the 64-bone rig, and the re-graded
+              capture is indistinguishable from the “before” image — which is the correct outcome for
+              a skeleton change. The acquired CC0 trousers geometry is still not the thing that ships;
+              a deterministic cover shell is. That half is open.
+            </figcaption>
+          </figure>
+        </div>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          The revert took one commit. What it exposed took the rest of the day: the trousers were
+          never rebuildable. <code>Scrub_Shirt.mhclo</code> and <code>cortu_cargo_pants.mhclo</code>
+          were on <strong>no disk in the repository</strong> — the staging directory is empty and
+          gitignored, and the provider cache held three upper garments and no lower-body source at
+          all. The 2,530 triangles in the tracked asset came from a bake whose input no longer
+          existed. Meanwhile the pipeline's own “find-or-stop” guard, asked for a lower garment and
+          finding none, logged a warning and baked the body anyway.
+        </p>
+        <p class="status-copy">
+          Both halves are fixed and in the repository: the guard now <strong>throws</strong> instead
+          of warning, and the sources are acquired, tracked, and recorded in the licence ledger at
+          acquisition time — <code>makehuman-pants01</code> (<strong>CC0</strong>, Cortu Johnstone)
+          and <code>Scrub_Shirt</code> (<strong>CC-BY</strong>, WojackOWL). A re-bake now finds its
+          inputs with no network, or refuses loudly.
+        </p>
+
+        <p class="status-copy">
+          <strong>What this picture is not.</strong> It is not a claim that the figure looks good.
+          The same capture carries three defects we have measured and not fixed: a sawtooth band of
+          bare skin where the shirt hem meets the trousers; hands painted the garment colour rather
+          than clothed — the shirt mesh spans Y&nbsp;0.913–1.505&nbsp;m on a 1.760&nbsp;m body while
+          the hands sit near 0.79&nbsp;m, below its lowest vertex; and a shirt with no volume of its
+          own, breast and navel anatomy reading straight through it.
+        </p>
+        <p class="status-copy">
+          <strong>A correction we made to ourselves.</strong> Grading the lit pass alone, we recorded
+          the hands as “mittens with no separated fingers” and were about to file missing hand
+          geometry. The structure pass shows fingers and thumbs present and well formed. Lit resolves
+          silhouette, structure resolves topology, and the lit pass flatters. The wrong finding was
+          caught because both passes are captured, not because anyone was careful.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/library-female-structure-2026-08-11.png"
+              alt="Structure pass of the same body: a normal-shaded wireframe showing complete continuous topology including separated fingers and thumbs"
+              class="w-full h-auto object-contain"
+              loading="lazy"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Structure pass · same asset, same run. Complete continuous topology, fingers included — the detail the lit pass hid.
+            </figcaption>
+          </figure>
+        </div>
+
+        <p class="evidence-note" style="margin-top: 16px;">
+          Captures produced by <code>model-vetting-glb-grade-capture</code>, whose NodeIO-versus-scene-graph
+          self-check agreed to 1.2&nbsp;×&nbsp;10⁻⁵ relative error. That agreement proves the renderer drew
+          the file and nothing about whether the file is right — which is why a human graded the pixels,
+          and why the missing trousers were noticed at all.
+        </p>
+      </section>
+
+      <section id="rig" class="band band--evidence" aria-labelledby="rig-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="rig-title">These hands could not bend this morning.</h2>
+        </div>
+        <p class="status-copy">
+          The two library bodies were bound to a hand-rolled bounding-box armature with Blender's
+          automatic weights. Measured, that put <strong>0.00%</strong> of the skin weight on
+          <code>hand.L/R</code> and collapsed <strong>20,216 vertices onto a single upper-arm
+          bone</strong> — an arm that moved as one rigid piece from shoulder to fingertip. The fingers
+          were in the mesh. Nothing could move them.
+        </p>
+        <p class="status-copy">
+          They now ride MPFB's 64-bone <code>mixamo_unity</code> rig with its shipped
+          <strong>CC0</strong> weight map — <code>mixamorig:LeftHand</code> alone carries 592 vertex
+          entries, with full finger chains. Both files shipped with MPFB and neither was being used.
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/mpfb-rig-posed-heavy-male-2026-08-11.png"
+              alt="Supine isolated render of the heavy-male library body in green scrubs, hands resting together on the abdomen with individually posed fingers, knees slightly flexed"
+              class="w-full h-auto object-contain"
+              loading="lazy"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              hm08 heavy-male body · recumbent posture lab · hands folded on the abdomen, fingers posed individually.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/mpfb-rig-posed-lean-female-2026-08-11.png"
+              alt="Supine isolated render of the lean-female library body in a blue top and teal trousers, hands together on the abdomen with posed fingers"
+              class="w-full h-auto object-contain"
+              loading="lazy"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              hm08 lean-female body · same lab, same rig · the arms fold across the body rather than swinging as one piece.
+            </figcaption>
+          </figure>
+        </div>
+
+        <p class="status-copy" style="margin-top: 16px;">
+          <strong>Why supine, and why that is the better evidence.</strong> A standing rest pose looks
+          identical before and after a skeleton change — it would prove nothing. These are recumbent
+          renders from the isolated posture harness, and the folded arms and separated fingers are
+          shapes the previous rig could not produce at all.
+        </p>
+        <p class="status-copy">
+          <strong>What these are not.</strong> Isolated lab renders, not in-station frames: no room, no
+          other actors, no clinical context. Framing is computed from the subject's bounding box by the
+          harness, not authored — which is the point, because the authored per-mode cameras in the full
+          scene are a separate and still-open defect. Two attempts at hand-tuning those camera
+          positions today were measured and reverted, one of them producing a 7.4&nbsp;KB blank frame.
+        </p>
+        <p class="status-copy">
+          Defects still visible and unfixed: the sawtooth seam where the top meets the trousers, and
+          low-polygon faceting across the limbs. Neither is claimed as solved.
+        </p>
+      </section>
+
+      <section id="dark-factory" class="band band--factory" aria-labelledby="dark-factory-title">
+        <div class="section-heading">
+          <p class="eyebrow">Dark software factory · shaping up</p>
+          <h2 id="dark-factory-title">Prompt in. Budget mesh out. Deterministic stations in between.</h2>
+        </div>
+        <p class="status-copy">
+          Lights-out generation: a hard-surface prompt becomes a budget mesh through
+          <em>named, measured stations</em> — not a person pushing sliders on one GLB.
+          Grok Imagine packs condition TRELLIS Metal in an isolated process; then
+          <code>factory:trellis:optimize</code> runs high-error meshopt targets from the
+          <em>raw</em> mesh, a weld pass, and optional <code>factory:trellis:pack</code> (gltfpack).
+          One ECG cart, VR hard-surface pack, measured 2026-08-11:
+          <strong>973,639 raw → 60,000 preferred</strong> (clears ≤80k);
+          the same ladder can stretch to <strong>34,443</strong> (−96.5%) when a station
+          needs the share band. Photoreal packs on the same ladder stalled at ~186k.
+          Meta Quest&nbsp;3 class scene guidance is ~1.3–1.8M tris for a <em>whole scene</em>;
+          ≤40k is a multi-prop share, not the device limit. Not worn-headset readiness.
+          Not clinical realism.
+        </p>
+
+        <ol class="pipeline-strip" aria-label="Dark factory pipeline stages">
+          <li class="pipeline-step">
+            <div class="pipeline-step__meta">
+              <span class="pipeline-step__n">1</span>
+              <span class="pipeline-step__label">Imagine prompt</span>
+            </div>
+            <div class="pipeline-step__body pipeline-step__body--prompt">
+              <pre class="pipeline-prompt" tabindex="0">Low-poly game-ready medical ECG monitor cart prop for WebXR / Quest.
+Hard-surface stylized, NOT photoreal. Clean boxy forms only.
+Wheeled base · upright column · large matte black screen.
+6–8 square button pads · ≤6 circular jacks. NO free cables.
+NO logos, labels, text. Matte grey plastic. Studio grey bg.
+Maximize large flat planes for 3D reconstruction.</pre>
+            </div>
+            <p class="pipeline-step__note">
+              Hard-surface pack prompt — not a photoreal product shot. Photoreal inputs defeat post-opt
+              (measured ~186k floor); hard-surface packs unlock preferred / share bands without fighting
+              high-frequency detail.
+            </p>
+          </li>
+
+          <li class="pipeline-step" aria-hidden="true">
+            <div class="pipeline-arrow" title="then">→</div>
+          </li>
+
+          <li class="pipeline-step">
+            <div class="pipeline-step__meta">
+              <span class="pipeline-step__n">2</span>
+              <span class="pipeline-step__label">Image output</span>
+            </div>
+            <figure class="pipeline-step__figure">
+              <img
+                class="w-full h-auto object-contain"
+                src="assets/factory-pipeline/01-imagine-image.png"
+                width="1024"
+                height="1024"
+                alt="Grok Imagine hard-surface ECG cart: grey boxy monitor on casters, black screen, colorful button pads and ports"
+                loading="lazy"
+              >
+              <figcaption>
+                Grok Imagine · VR hard-surface reference (single view).
+                Multi-view pack (front / side / ±¾) conditions TRELLIS.
+              </figcaption>
+            </figure>
+            <figure class="pipeline-step__figure pipeline-step__figure--pack">
+              <img
+                class="w-full h-auto object-contain"
+                src="assets/factory-pipeline/01b-multiview-pack.png"
+                width="2048"
+                height="512"
+                alt="Four-view multi-view pack of the same ECG cart for TRELLIS conditioning"
+                loading="lazy"
+              >
+              <figcaption>Multi-view pack · factory input to <code>factory:trellis:bake</code></figcaption>
+            </figure>
+          </li>
+
+          <li class="pipeline-step" aria-hidden="true">
+            <div class="pipeline-arrow" title="then">→</div>
+          </li>
+
+          <li class="pipeline-step">
+            <div class="pipeline-step__meta">
+              <span class="pipeline-step__n">3</span>
+              <span class="pipeline-step__label">Pre-optimized mesh</span>
+            </div>
+            <figure class="pipeline-step__figure">
+              <img
+                class="w-full h-auto object-contain"
+                src="assets/factory-pipeline/02-preopt-mesh.png"
+                width="1280"
+                height="1280"
+                alt="Raw TRELLIS ECG cart, three-quarter, studio grey lighting matching the Imagine still"
+                loading="lazy"
+              >
+              <figcaption>
+                Raw TRELLIS Metal bake · Blender EEVEE studio (same grey world + key/fill/rim as the Imagine still)
+              </figcaption>
+            </figure>
+            <dl class="complexity-card complexity-card--pre">
+              <div>
+                <dt>Triangles</dt>
+                <dd>973,639</dd>
+              </div>
+              <div>
+                <dt>Stage</dt>
+                <dd>raw export</dd>
+              </div>
+              <div>
+                <dt>vs prop preferred</dt>
+                <dd class="complexity-card__warn">~12× over 80k</dd>
+              </div>
+            </dl>
+            <p class="pipeline-step__note">
+              MADR 0050: do not reject the generator on raw tris. Judge after optimization.
+              Raw megameshes are never delivery assets.
+            </p>
+          </li>
+
+          <li class="pipeline-step" aria-hidden="true">
+            <div class="pipeline-arrow" title="then">→</div>
+          </li>
+
+          <li class="pipeline-step pipeline-step--result">
+            <div class="pipeline-step__meta">
+              <span class="pipeline-step__n">4</span>
+              <span class="pipeline-step__label">Post-optimized mesh</span>
+            </div>
+            <figure class="pipeline-step__figure">
+              <img
+                class="w-full h-auto object-contain"
+                src="assets/factory-pipeline/03-postopt-mesh.png"
+                width="1280"
+                height="1280"
+                alt="Post-opt ECG cart at 34443 triangles, three-quarter, studio grey lighting matching the Imagine still"
+                loading="lazy"
+              >
+              <figcaption>
+                Stretch rung 34,443 tris · same EEVEE studio and camera as the raw still
+              </figcaption>
+            </figure>
+            <dl class="complexity-card complexity-card--post">
+              <div>
+                <dt>Preferred rung</dt>
+                <dd class="complexity-card__ok">60,000</dd>
+              </div>
+              <div>
+                <dt>Stretch rung</dt>
+                <dd>34,443</dd>
+              </div>
+              <div>
+                <dt>From raw</dt>
+                <dd class="complexity-card__savings">−93.8% / −96.5%</dd>
+              </div>
+            </dl>
+            <p class="pipeline-step__note">
+              Direct high-error targets from raw. Chain ratios plateau ~59k on this pack.
+              Stop at the first graded rung under ≤80k; 34k is share-band stretch, not “Quest wants 40k.”
+              Delivery: optional <code>factory:trellis:pack</code>. Harness prop — not a worn-headset claim.
+            </p>
+          </li>
+        </ol>
+
+        <div class="pipeline-savings-banner" role="status">
+          <strong>Measured optimize path (ECG cart, hard-surface pack):</strong>
+          973,639 raw → 60,000 preferred
+          <span class="pipeline-savings-banner__pct">−93.8%</span>
+          · stretch 34,443 when share-band pressure · same subject, 2026-08-11
+        </div>
+
+        <div class="measure-table-wrap">
+          <table class="measure-table">
+            <caption>Deterministic stations between the prompt and the budget mesh. ECG cart unless noted.</caption>
+            <thead>
+              <tr>
+                <th scope="col">Station</th>
+                <th scope="col">What it does</th>
+                <th scope="col">Measured</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <th scope="row">Hard-surface pack</th>
+                <td>Grok Imagine prompt for boxy planes, not a photoreal product shot</td>
+                <td>Photoreal pack post-opt floor ~186k. Hard-surface chain ~59k; high-error stretch 34k</td>
+              </tr>
+              <tr>
+                <th scope="row">Isolated Metal bake</th>
+                <td>One OS process per subject (<code>factory:trellis:bake</code>)</td>
+                <td>Same-process multi-subject TRELLIS OOMs the MPS heap and cascades</td>
+              </tr>
+              <tr>
+                <th scope="row">Multi-view condition</th>
+                <td>front / side / ±¾ PNGs concatenated into TRELLIS embeddings</td>
+                <td>ECG far-side fill 0.35 → 0.44, surface area +47%, 3.7% fewer triangles</td>
+              </tr>
+              <tr>
+                <th scope="row">High-error from raw</th>
+                <td><code>factory:trellis:optimize</code> direct targets (180k / 120k / 80k / 60k / 40k)</td>
+                <td>973,639 → 179,999 / 60,000 / 39,999. Chain ratios plateau; further 0.05 cuts barely move</td>
+              </tr>
+              <tr>
+                <th scope="row">Weld, then same targets</th>
+                <td>Position merge so split verts stop inflating the count</td>
+                <td>40k rung stays 39,999 after weld; 25k stretch floors ~34.5k</td>
+              </tr>
+              <tr>
+                <th scope="row">Pack</th>
+                <td><code>factory:trellis:pack</code> gltfpack quantize + meshopt compress</td>
+                <td>Delivery size. Do not use <code>-sa -se 1</code> (can zero the mesh)</td>
+              </tr>
+              <tr>
+                <th scope="row">Champion policy</th>
+                <td>First graded rung under preferred ≤80k; denser sibling if ≤40k looks worse</td>
+                <td>60k is a legitimate champion. 34,443 is a measured stretch, not a Quest-3 prop limit</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p class="evidence-note" style="margin-top: 16px;">
+          <strong>Budget policy:</strong> prop preferred ≤80k (default stop) ·
+          share ≤40k only under multi-prop pressure · acceptable ≤120k · skeleton hard ≤180k
+          (partial station, not a full multi-actor exam) · Quest&nbsp;3 device-class ceiling ~1.3–1.8M
+          <em>scene</em> tris (Meta native). Draw calls, materials, and fill-rate usually beat
+          another −15k on one cart. Order: batching → materials → KTX2 → multiview → tris.
+          CLIs: <code>pnpm factory:trellis:bake</code> →
+          <code>pnpm factory:trellis:optimize</code> →
+          <code>pnpm factory:trellis:pack</code>
+          (hatch: <code>pnpm factory:trellis:hatch</code>).
+          Skill: <code>.agents/skills/trellis-vr-equipment-optimize/</code>.
+          Evidence: <code>.openclinxr/evidence/trellis-bake-vr-hard/</code>,
+          <code>trellis-vr-optimize-iterations/ecg-cart-vr-hard/</code>.
+          claimScope: factory automation path for equipment props, measured on the ECG cart hard-surface pack.
+          notEvidenceFor: Quest readiness, clinical accuracy, exam equivalence, sampler-knob sweeps
+          (those fifteen knobs are still vendor balanced-tier defaults).
+        </p>
+      </section>
+
+      <section id="trellis-equipment" class="band" aria-labelledby="trellis-equipment-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at</p>
+          <h2 id="trellis-equipment-title">Clinical equipment, generated from a single reference image.</h2>
+        </div>
+        <p class="status-copy">
+          <strong>The input half, added 2026-08-10.</strong> Before anything is reconstructed, the factory
+          renders reference views of the object from its own parametric builder. On 2026-08-10 that step
+          went from 3 subjects to <strong>38</strong>: 35 clinical objects, five views each, 175 renders in a
+          single 61-second pass with one browser and one dev server. Every view is measured for isolation —
+          no room geometry, no HUD, no ground plane — and every one passed.
+        </p>
+        <figure style="margin: 20px 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+          <img
+            src="assets/equipment-parametric-source-montage.png"
+            alt="Six procedurally generated clinical objects rendered on a plain background: a whiteboard, two chairs, an ECG machine, a wall oxygen port and a tissue box."
+            class="w-full h-auto object-contain"
+          >
+          <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+            Six of the 35, three-quarter view. These are the <em>parametric source</em> — low-poly, untextured,
+            deterministic. They are not the finished asset; they are the reference input the reconstruction
+            step above consumes. Shown so the two halves of the pipeline can be compared honestly.
+          </figcaption>
+        </figure>
+        <p class="status-copy">
+          Each of these began as one reference image and was reconstructed to a textured mesh by TRELLIS running on Apple Silicon Metal — no hand-modelling, no per-asset artist pass. Rendered here in isolation from the shipped GLB, lit and wireframe, at the triangle budget each survives.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/trellis-wall-clock.png"
+              alt="Wall clock generated by TRELLIS, lit render"
+              class="w-full h-auto object-contain"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Wall clock · 34.5k triangles · under the 60k soft station band.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/trellis-bedside-monitor.png"
+              alt="Bedside monitor generated by TRELLIS, lit three-quarter render"
+              class="w-full h-auto object-contain"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Bedside monitor · 106k triangles · hard band. Front three-quarter; the unseen rear reconstructs poorly.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/trellis-ecg-cart.png"
+              alt="ECG cart generated by TRELLIS, lit three-quarter render"
+              class="w-full h-auto object-contain"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              ECG cart · 151k triangles · hard band. Lead wires and casters are geometry, not texture.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/station-equipment-contrast.png"
+              alt="A clinical station showing a detailed generated wall clock on the wall at left and a simple procedural bedside monitor at right."
+              class="w-full h-auto object-contain"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              The same station, one capture: the generated wall clock (left) beside the procedural bedside monitor (right). Cropped to the equipment band — the figures in the full frame are fixture-grade and are not part of this claim.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/station-two-generated.png"
+              alt="A clinical station with a generated wall clock mounted on the wall and a generated bedside monitor standing on the floor."
+              class="w-full h-auto object-contain"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              Two generated assets in a live station: the wall clock on the wall at 34,885 triangles, and the bedside monitor at 60,378. The monitor is standing on the floor — a bedside monitor belongs at bedside height, and the fix is open. Shown as it renders, not as we would like it to.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #fff;">
+            <img
+              src="assets/multiview-ab.png"
+              alt="Side-by-side renders of a generated ECG cart, one from a single reference view and one from four."
+              class="w-full h-auto object-contain"
+            >
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line);">
+              The same ECG cart from one reference image (left) and four (right). Four views close the torn hole in the side panel and add a drawer stack and casters; they also flatten the monitor screen into a blank panel, because the views carry no camera poses. Both results are real.
+            </figcaption>
+          </figure>
+        </div>
+        <p class="evidence-note" style="margin-top: 16px;">
+          The wall clock is now consumed by the runtime: a station that declares it renders the generated mesh, measured at 34,885 triangles in a live scene, up from a 26-triangle placeholder. The monitor (~106k) and denser ECG cart variants remain isolated harness renders pending grade + multi-prop station share — 106k is still under prop acceptable (≤120k) and far under Quest&nbsp;3 scene class (~1.3–1.8M). None of this is a Quest performance claim, and none of it is evidence of clinical realism.
+        </p>
+      </section>
+
+      <section id="trellis-hatch" class="band band--evidence" aria-labelledby="trellis-hatch-title">
+        <div class="section-heading">
+          <p class="eyebrow">Evidence you can look at · 2026-08-14</p>
+          <h2 id="trellis-hatch-title">Escape hatch: text → Imagine → remesh → 80k.</h2>
+        </div>
+        <p class="status-copy">
+          Last-resort factory when the object is <strong>not</strong> in the kit/parametric store and
+          <strong>not</strong> acquirable CC0/CC-BY. One Grok Imagine upper-¾ on a black void,
+          flood-keyed (Imagine writes JPEG RGB — no native alpha), then TRELLIS.2 Metal with
+          Space-order remesh on compact extracts, then <code>factory:trellis:optimize</code> to the
+          preferred ≤80k stop. Six subjects ran that path. The 49M medication cart is a recorded miss.
+          Kit remains exam SSOT. These GLBs are harness champions — <strong>not</strong> promoted into
+          <code>ui-xr</code>.
+        </p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-top: 20px;">
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/fetal-imagine.png" width="1024" height="1024" alt="Grok Imagine fetal monitor: thick grey CRT box, four square pads, knob, two top pucks, handle, black void" loading="lazy" class="w-full h-auto object-contain">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Fetal monitor · Imagine input. Thick volumes so occupancy keeps a screen face.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/fetal-80k.png" width="1280" height="1280" alt="Isolated three-quarter lit grade of the 80k fetal-monitor champion: CRT well, four pads, knob, two pucks survive" loading="lazy" class="w-full h-auto object-contain">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Same subject · 80,000 triangles. CRT well, four pads, knob, two pucks survive. Softer than the Imagine plate — expected after remesh + high-error simplify.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/o2-imagine.png" width="1024" height="1024" alt="Grok Imagine wall oxygen port: beige plate, two metal barrels, green bar, latch cube, black void" loading="lazy" class="w-full h-auto object-contain">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Wall O₂ port · Imagine input. Plate + two barrels + green bar + latch.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/o2-80k.png" width="1280" height="1280" alt="Isolated three-quarter lit grade of the 80k oxygen-port champion: two barrels, green bar, latch with a dark albedo smudge" loading="lazy" class="w-full h-auto object-contain">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Same subject · 79,991 triangles. Barrels and latch are geometry. Dark blotch on the latch is albedo, not a hole.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/pump-imagine.png" width="1152" height="864" alt="Grok Imagine standalone IV pump: brick body, recessed screen, button row, knob, black void" loading="lazy" class="w-full h-auto object-contain">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              IV pump · Imagine input. Standalone brick, not a tablet slab.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/pump-80k.png" width="1280" height="1280" alt="Isolated three-quarter lit grade of the 80k IV-pump champion: screen well, six buttons, knob, side C-clamp" loading="lazy" class="w-full h-auto object-contain">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Same subject · 79,998 triangles. Screen well, six pads, knob, C-clamp. No crack islands after remesh.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/thermo-imagine.png" width="1024" height="1024" alt="Grok Imagine handheld digital thermometer: grey brick, LCD well, square button, metal probe tip, black void" loading="lazy" class="w-full h-auto object-contain">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Digital thermometer · Imagine input. First live <code>factory:trellis:hatch</code> subject.
+            </figcaption>
+          </figure>
+          <figure style="margin: 0; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; background: #111;">
+            <img src="assets/trellis-hatch/thermo-80k.png" width="1280" height="1280" alt="Isolated three-quarter lit grade of the 80k thermometer champion after planted-AABB framing: whole brick and probe visible" loading="lazy" class="w-full h-auto object-contain">
+            <figcaption style="padding: 8px 12px; font-size: 0.8rem; color: var(--muted); border-top: 1px solid var(--line); background: #fff;">
+              Same subject · 80,000 triangles. Whole object after the grade camera framed the planted AABB — the prior humanoid camera sat inside the long brick. Reads as a handheld with a probe, not a photoreal clinical device.
+            </figcaption>
+          </figure>
+        </div>
+        <p class="evidence-note" style="margin-top: 16px;">
+          Orchestrator pixel grade, 2026-08-14: four Imagine plates are isolated black-void product shots;
+          four 80k champions are the same silhouettes with remesh-soft surfaces.
+          Pulse-ox and glucometer also ran the hatch to 80k; their grade crops are either too tight (hinge cavity)
+          or flank-on, so they stay in the ledger and off this page.
+          <strong>claimScope:</strong> escape-hatch factory stills for compact hard-surface props.
+          <strong>notEvidenceFor:</strong> Quest readiness, clinical accuracy, device equivalence,
+          kit replacement, UI-XR promote, Imagine-shader smoothness.
+          CLI: <code>pnpm factory:trellis:hatch</code> (commit <code>c758a276</code>).
+          Evidence: <code>.openclinxr/evidence/trellis-escape-hatch/</code> (gitignored champions).
+        </p>
+      </section>
+
+      <section id="roadmap" class="band band--evidence" aria-labelledby="roadmap-title">
+        <div class="section-heading">
+          <p class="eyebrow">Next proof</p>
+          <h2 id="roadmap-title">The contracts are connected. The experience still has to earn trust.</h2>
+        </div>
+        <p class="status-copy">
+          The next work is to turn the newly connected lifecycle into visible, measured product evidence.
+          Dates are not SLAs, and nothing here promises production deployment, headset certification, exam equivalence, or clinical validation.
+        </p>
+        <div class="progress-grid">
+          <div class="progress-card">
+            <h3>One visible encounter</h3>
+            <ul>
+              <li>Capture a single reviewed scenario moving from authoring delta through promotion, learner runtime, interruption, note phase, and faculty replay.</li>
+              <li>Keep every visible state tied to the immutable scenario revision and promoted bundle that produced it.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Raise runtime quality</h3>
+            <ul>
+              <li>Replace fixture-grade actor and garment presentation only when Model Vetting and UI-XR evidence both show the improvement.</li>
+              <li>Grade voice, viseme, affect, gaze, and motion synchronization as an observed performance, not merely a passing contract test.</li>
+              <li>Continue publishing verified room and equipment assets through the same review-gated encounter bundle.</li>
+            </ul>
+          </div>
+          <div class="progress-card">
+            <h3>Prove the hard boundaries</h3>
+            <ul>
+              <li>Exercise the learner flow on physical Quest hardware before making any readiness statement.</li>
+              <li>Keep faculty review, evidence provenance, and stale-identity rejection fail closed as the experience broadens.</li>
+              <li>Treat educational and clinical outcome validation as separate future work, not an inference from software completeness.</li>
+            </ul>
+          </div>
+        </div>
+        <p class="progress-note">
+          Public roadmap copy follows committed product evidence and the repository’s protected claim boundaries.
+          The operational queue remains in <code>PROJECT_STATUS.md</code> and the project board.
+        </p>
+      </section>
+
+      <section id="deployment" class="band" aria-labelledby="deployment-title">
+        <div class="section-heading">
+          <p class="eyebrow">Deployment posture</p>
+          <h2 id="deployment-title">Local-first by default.</h2>
+        </div>
+        <p class="status-copy">
+          Development and validation run locally with deterministic providers and preconfigured assets where possible.
+          Connected adapters exist behind explicit gates. Azure is a long-term home for API, orchestration, and admin surfaces—
+          not a claim that production is live today.
+        </p>
+        <div class="actions" style="margin-top: 24px;">
+          <a class="button button--primary" href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">Repository</a>
+          <a class="button" href="https://github.com/simnova/OpenClinXR/blob/main/AGENTS.md">Build operating contract</a>
+          <a class="button" href="https://github.com/simnova/OpenClinXR/tree/main/docs/madr">Architecture decisions</a>
+        </div>
+      </section>
+
+      <section id="agents" class="band band--evidence" aria-labelledby="agents-title">
+        <div class="section-heading">
+          <p class="eyebrow">Build model</p>
+          <h2 id="agents-title">Disciplined multi-agent execution—not vibes.</h2>
+        </div>
+        <p class="status-copy">
+          The repo runs an OpenClaw-<em>style</em> operating model: role charters, path scopes, leases, drift guards, and slice records.
+          That keeps long autonomous work from inventing features outside the blueprint-factory mission.
+          It is how we build OpenClinXR—not a separate product you install.
+        </p>
+      </section>
+
+      <section id="evidence-docs" class="band" aria-labelledby="evidence-docs-title">
+        <div class="section-heading">
+          <p class="eyebrow"></p>
+          <h2 id="evidence-docs-title">Deeper artifacts stay in the repository.</h2>
+        </div>
+        <p class="status-copy">
+          Marketing pages should not replace the ledger. The following links are committed factory and evidence posts for operators and auditors.
+        </p>
+        <div class="evidence-list">
+          <a href="https://github.com/simnova/OpenClinXR/tree/main/docs/openclinxr">
+             folder
+          </a>
+          <a
+            data-pages-snapshot="asset-production-evidence-ladder"
+            href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-materialization-evidence-attachments-peds-asthma-parent-anxiety-2026-05-28.json"
+          >
+            Materialization evidence attachments (peds)
+          </a>
+          <a
+            data-pages-snapshot="asset-production-artifact-evidence"
+            href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json"
+          >
+            Asset generation worker (peds)
+          </a>
+          <a
+            data-pages-snapshot="asset-production-readiness-benchmark"
+            href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-local-launch-selection-peds-asthma-parent-anxiety-2026-05-28.json"
+          >
+            Local launch selection (peds)
+          </a>
+          <a
+            data-pages-snapshot="github-pages-site"
+            href="https://github.com/simnova/OpenClinXR/blob/main/docs/openclinxr/encounter-runtime-evidence-capture-scaffold-peds-asthma-parent-anxiety-2026-05-28.json"
+          >
+            Runtime evidence capture scaffold (peds)
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-inner">
+        <p>
+          OpenClinXR · XR clinical skills encounters · evidence-gated factory<br>
+          <small>
+            Snapshot page for humans. Status ledger in-repo. No exam-equivalence or clinical-validity claim.
+            Local-first; connected/Azure-capable when approved.
+          </small>
+        </p>
+        <div class="footer-links">
+          <a href="https://github.com/simnova/OpenClinXR" target="_blank" rel="noopener">GitHub</a>
+          <a href="#now">Current state</a>
+          <a href="#scene-closure">Measured evidence</a>
+          <a href="attribution.html">Attribution</a>
+          <a href="#roadmap">Roadmap</a>
+          <a href="https://github.com/simnova/OpenClinXR/issues" target="_blank" rel="noopener">Issues</a>
+        </div>
+      </div>
+    </footer>
+  </body>
+</html>

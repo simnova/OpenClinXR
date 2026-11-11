@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "slots": {
+      "items": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "other"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "required": [
+                "kindNote"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "other"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "required": [
+                "stateNote"
+              ]
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "voice": {
+                  "const": "other"
+                }
+              },
+              "required": [
+                "voice"
+              ]
+            },
+            "then": {
+              "required": [
+                "voiceNote"
+              ]
+            }
+          }
+        ],
+        "properties": {
+          "audio": {
+            "type": "boolean"
+          },
+          "ceilingBytes": {
+            "type": "integer"
+          },
+          "demonstrates": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "kind": {
+            "enum": [
+              "data",
+              "other",
+              "visual"
+            ]
+          },
+          "kindNote": {
+            "type": "string"
+          },
+          "releaseTag": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "state": {
+            "enum": [
+              "GRADED",
+              "PLACEHOLDER",
+              "TEXT_ONLY",
+              "other"
+            ]
+          },
+          "stateNote": {
+            "type": "string"
+          },
+          "voice": {
+            "enum": [
+              "consented-speaker",
+              "none",
+              "other",
+              "synthetic"
+            ]
+          },
+          "voiceNote": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "kind",
+          "state",
+          "ceilingBytes",
+          "audio",
+          "voice",
+          "releaseTag"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "type": "object"
+}

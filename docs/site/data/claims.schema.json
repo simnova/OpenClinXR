@@ -1,0 +1,210 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$comment": "Shape of claims-seed v3 (website-reimagine) plus state. state is empty until WC2 derives it at landing.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "segments",
+    "composites",
+    "claims"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "string"
+    },
+    "note": {
+      "type": "string"
+    },
+    "measuredAgainst": {
+      "type": "string"
+    },
+    "sourceSha": {
+      "type": "string"
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "text",
+          "claims"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "claims": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "composites": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        }
+      }
+    },
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "text",
+          "state",
+          "probe",
+          "slots"
+        ],
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "state": {
+                  "const": "other"
+                }
+              },
+              "required": [
+                "state"
+              ]
+            },
+            "then": {
+              "required": [
+                "stateNote"
+              ]
+            }
+          }
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "text": {
+            "type": "string"
+          },
+          "shas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "note": {
+            "type": "string"
+          },
+          "state": {
+            "enum": [
+              "",
+              "BUILT_PENDING",
+              "CODE",
+              "ROADMAP",
+              "SHOWN",
+              "other"
+            ]
+          },
+          "stateNote": {
+            "type": "string"
+          },
+          "probe": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind"
+            ],
+            "allOf": [
+              {
+                "if": {
+                  "properties": {
+                    "kind": {
+                      "const": "other"
+                    }
+                  },
+                  "required": [
+                    "kind"
+                  ]
+                },
+                "then": {
+                  "required": [
+                    "kindNote"
+                  ]
+                }
+              }
+            ],
+            "properties": {
+              "kind": {
+                "enum": [
+                  "test",
+                  "path",
+                  "grep-present",
+                  "grep-absent",
+                  "none",
+                  "other"
+                ]
+              },
+              "kindNote": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "paths": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "alsoPath": {
+                "type": "string"
+              },
+              "roots": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "closure": {
+                "type": "string"
+              },
+              "pattern": {
+                "type": "string"
+              },
+              "note": {
+                "type": "string"
+              }
+            }
+          },
+          "slots": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "slot",
+                "demonstrates"
+              ],
+              "properties": {
+                "slot": {
+                  "type": "string"
+                },
+                "demonstrates": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "recordedFrom": "963d78e13:tools/openclinxr/evidence/check-github-pages-site.ts",
+  "fixture": "tools/openclinxr/evidence/site/fixtures/wv0/docs/index.html",
+  "blockerIds": [
+    "missing_required_pages_file:docs/styles.css",
+    "missing_required_pages_file:docs/.nojekyll",
+    "missing_required_pages_file:docs/CNAME",
+    "missing_required_pages_file:README.md",
+    "pages_index_hero_image_missing",
+    "pages_index_evidence_docs_link_missing",
+    "pages_index_factory_station_image_absent:docs/assets/factory-station-cards-2026-09.png",
+    "pages_styles_mobile_breakpoint_missing",
+    "readme_pages_url_missing",
+    "readme_pages_source_missing",
+    "pages_index_github_link_missing:openclinxr/scene-closure-2026-09-09/evidence/sc-00.md",
+    "pages_index_github_link_missing:openclinxr/scene-closure-2026-09-09/evidence/sc-01.md",
+    "pages_index_github_link_missing:openclinxr/scene-closure-2026-09-09/evidence/sc-01s.md",
+    "pages_index_github_link_missing:openclinxr/scene-closure-2026-09-09/evidence/sc-02.md",
+    "pages_index_github_link_missing:openclinxr/scene-closure-2026-09-09/evidence/sc-03.md",
+    "pages_index_github_link_missing:openclinxr/scene-closure-2026-09-09/evidence/sc-04.md",
+    "pages_index_github_link_missing:openclinxr/scene-closure-2026-09-09/evidence/sc-05.md",
+    "pages_index_github_link_missing:openclinxr/scene-closure-2026-09-09/evidence/sc-06.md",
+    "pages_index_github_link_missing:openclinxr/scene-closure-2026-09-09/evidence/sc-10.md",
+    "pages_index_github_link_missing:AGENTS.md",
+    "pages_index_github_link_missing:openclinxr/encounter-materialization-evidence-attachments-peds-asthma-parent-anxiety-2026-05-28.json",
+    "pages_index_github_link_missing:openclinxr/encounter-asset-generation-worker-peds-asthma-parent-anxiety-2026-05-28.json",
+    "pages_index_github_link_missing:openclinxr/encounter-local-launch-selection-peds-asthma-parent-anxiety-2026-05-28.json",
+    "pages_index_github_link_missing:openclinxr/encounter-runtime-evidence-capture-scaffold-peds-asthma-parent-anxiety-2026-05-28.json"
+  ]
+}

@@ -1,6 +1,7 @@
 import { access, constants, readdir, readFile, stat } from "node:fs/promises";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
+import { validateSiteData } from "./site/site-data-schemas.js";
 
 type ValidationResult = {
   passed: boolean;
@@ -208,6 +209,7 @@ export async function validateGitHubPagesSite(): Promise<ValidationResult> {
     }
   }
 
+  blockers.push(...(await validateSiteData(process.cwd())));
   return {
     passed: blockers.length === 0,
     blockers,

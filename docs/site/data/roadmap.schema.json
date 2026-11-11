@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "items": {
+      "items": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "status": {
+                  "const": "other"
+                }
+              },
+              "required": [
+                "status"
+              ]
+            },
+            "then": {
+              "required": [
+                "statusNote"
+              ]
+            }
+          }
+        ],
+        "properties": {
+          "exitCriteria": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "item": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "DONE",
+              "NOT STARTED",
+              "PARTIAL",
+              "PLANNED",
+              "other"
+            ]
+          },
+          "statusNote": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "item",
+          "exitCriteria",
+          "status",
+          "source"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    }
+  },
+  "type": "object"
+}
