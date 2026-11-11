@@ -82,4 +82,23 @@ describe("recorded garment provenance", () => {
     const bareCase = { ...ED_LIN, caseInputs: {} };
     expect(isLegacyRecordedProceduralGown({ meshName: "openclinxr_real_garment_hospital_gown_mesh", extras: GOWN_EXTRAS, sidecar: bareCase, sidecarAssetPath: ED_PATH, expectedAssetPath: ED_PATH, actualGlbSha256: ED_SHA, generatorFileExists: true }).ok).toBe(false);
   });
+  it("a post-step lineage keeps the ED bake lineage only through an intact chain link (R7, tsk_27e0cec12cab410d)", () => {
+    // A byte-preserving post-step (correct-sidecar-byte-lineage) replaces byteLineage; the bake lineage moves
+    // to recordedBefore.byteLineage and counts only when preImageSha256 == recordedBefore.outputSha256.
+    const PRE = "db3c0f95572fcb9426c530cb52eee00254e8a2e46a2954891ebbbe32f73daf50";
+    const chained = (preImageSha256: string, prior: unknown) => ({
+      ...ED_LIN,
+      byteLineage: {
+        correctedBy: "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+        recordedBefore: { outputSha256: PRE, outputBytes: 1, byteLineage: prior },
+        preImageSha256,
+        derivationArgv: ["sh", "-c", "swap_teeth.py ..."],
+      },
+    });
+    const run = (sidecar: Record<string, unknown>) => isLegacyRecordedProceduralGown({ meshName: "openclinxr_real_garment_hospital_gown_mesh", extras: GOWN_EXTRAS, sidecar, sidecarAssetPath: ED_PATH, expectedAssetPath: ED_PATH, actualGlbSha256: ED_SHA, generatorFileExists: true });
+    expect(run(chained(PRE, ED_LIN.byteLineage))).toEqual({ ok: true, legacyType: "LEGACY_RECORDED_PROCEDURAL" });
+    expect(run(chained("0".repeat(64), ED_LIN.byteLineage)), "broken chain link").toEqual({ ok: false, failed: "C5" });
+    expect(run(chained(PRE, { derivationArgv: ["sh", "-c", "x"], inputSha256: ED_LIN.byteLineage.inputSha256 })), "prior is not the bake").toEqual({ ok: false, failed: "C5" });
+    expect(run(chained(PRE, undefined)), "post-step lineage with no prior").toEqual({ ok: false, failed: "C5" });
+  });
 });

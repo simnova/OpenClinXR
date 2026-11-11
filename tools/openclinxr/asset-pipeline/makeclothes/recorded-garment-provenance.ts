@@ -74,6 +74,23 @@ function isHex64(v: unknown): v is string {
   return typeof v === "string" && HEX64.test(v);
 }
 
+/**
+ * The ED bake lineage. A later byte-preserving post-step (correct-sidecar-byte-lineage, e.g. the teeth
+ * swap tsk_27e0cec12cab410d) replaces byteLineage and keeps the prior one at recordedBefore.byteLineage.
+ * That prior lineage is used only when the chain link holds: the post-step's preImageSha256 equals the
+ * recordedBefore.outputSha256 the bake had pinned. A broken link returns undefined (C5 refuses).
+ */
+function edBakeLineage(raw: unknown): Record<string, unknown> | undefined {
+  if (typeof raw !== "object" || raw === null) return undefined;
+  const lineage = raw as Record<string, unknown>;
+  if (Array.isArray(lineage["derivationArgv"]) && (lineage["derivationArgv"] as unknown[]).includes("--python")) return lineage;
+  const before = lineage["recordedBefore"] as Record<string, unknown> | undefined;
+  const prior = before?.["byteLineage"];
+  if (typeof prior !== "object" || prior === null) return lineage;
+  if (!isHex64(lineage["preImageSha256"]) || lineage["preImageSha256"] !== before?.["outputSha256"]) return undefined;
+  return prior as Record<string, unknown>;
+}
+
 function hasConcreteLineage(s: Record<string, unknown>): boolean {
   const ops = s["operations"];
   const opsArr = Array.isArray(ops) ? (ops as Array<Record<string, unknown>>) : [];
@@ -102,7 +119,7 @@ function hasConcreteLineage(s: Record<string, unknown>): boolean {
     (o) => typeof o === "object" && o !== null && o["tool"] === RECORDED_GOWN_GENERATOR_TOOL && o["exit"] === 0,
   );
   if (!edOp) return false;
-  const lineage = s["byteLineage"] as Record<string, unknown> | undefined;
+  const lineage = edBakeLineage(s["byteLineage"]);
   const argv = lineage?.["derivationArgv"];
   const inputSha = lineage?.["inputSha256"];
   if (!Array.isArray(argv)) return false;
