@@ -25,40 +25,38 @@
     <main>
       <header class="band"><h1>Reference run <span data-reference-run></span></h1></header>
       <section id="intro" class="band">
-        <p class="status-copy claim-copy" data-claim="CL18">This page summarises reference run RR1: one emergency department (ED) chest pain case, compiled from its case blueprint into a synced multi-station practice circuit.</p>
+        <p class="status-copy claim-copy" data-claim="CL18">This page summarises reference run RR1: one emergency department (ED) chest pain case, compiled from its case blueprint into a synced multi-station practice circuit. Its published cuts follow the learner from doorway to encounter at Station 1, then doorway to encounter at Station 2, before the faculty sign-off acknowledgement.</p>
       </section>
-      <section id="ch1" class="band" data-claim="CL1 CL23 CL18">
+      <section id="ch1" class="band" data-run-chapter="ch1" data-claim="CL1 CL23 CL18">
         <div class="section-heading"><h2>Chapter 1 — Doorway and Station 1 of 3</h2></div>
         <p class="status-copy claim-copy" data-claim="CL1">The learner enters and sees Station 1 of 3 from the server.</p>
         <p class="status-copy claim-copy" data-claim="CL23">One server rotates the learner through the stations of a circuit, one station at a time, starting here.</p>
         <p class="status-copy claim-copy" data-claim="CL18">The station comes from the case blueprint: actors, dialogue seeds, rubric labels and trace come from the scenario.</p>
       </section>
-      <section id="ch2" class="band" data-claim="CL8 CL20 CL24 CL1 CL5">
-        <div class="section-heading"><h2>Chapter 2 — Spoken question and reply</h2></div>
+      <section id="ch2" class="band" data-run-chapter="ch2" data-claim="CL8 CL20 CL24 CL1 CL5">
+        <div class="section-heading"><h2>Chapter 2 — Encounter and Station 1 of 3</h2></div>
         <p class="status-copy claim-copy" data-claim="CL8">The learner speaks; speech-to-text (STT) on the host transcribes the question, the actor answers with synthesized speech, and asks to repeat when confidence is low.</p>
         <p class="status-copy claim-copy" data-claim="CL24">Actor speech is synthesized in the browser with text-to-speech (TTS).</p>
         <p class="status-copy claim-copy" data-claim="CL20">Each turn is recorded with modality and confidence; replay captions are recomputed from the trace.</p>
-        <p class="status-copy claim-copy" data-claim="CL1 CL5">The capture will show learner and faculty panes side by side with the server clock; the learner pane shows Station 1 of 3 from the server and the faculty pane stays read-only; debug overlays hidden for capture.</p>
+        <p class="status-copy claim-copy" data-claim="CL1 CL5">The published encounter cut shows Station 1 of 3 from the server; the faculty observer stays read-only.</p>
         <figure class="capture-pending" data-slot="K2"><figcaption>capture pending</figcaption></figure>
       </section>
-      <section id="ch3" class="band" data-claim="CL4 CL25">
-        <div class="section-heading"><h2>Chapter 3 — Patient note</h2></div>
-        <p class="status-copy claim-copy" data-claim="CL4">The patient note opens only in the note phase, is saved per station and replayed.</p>
-        <p class="status-copy claim-copy" data-claim="CL25">Notes are written as files on the host, alongside traces and faculty marks.</p>
-        <figure class="capture-pending" data-slot="K7"><figcaption>capture pending</figcaption></figure>
-      </section>
-      <section id="ch4" class="band" data-claim="CL2 CL23 CL3">
-        <div class="section-heading"><h2>Chapter 4 — Station end, break, Station 2 of 3</h2></div>
-        <p class="status-copy claim-copy" data-claim="CL2">A blueprint break pauses the rotation and shows a countdown.</p>
-        <p class="status-copy claim-copy" data-claim="CL23">After the break the learner pane reads Station 2 of 3.</p>
-        <p class="status-copy claim-copy" data-claim="CL3">Encounter flow buttons follow the server phase through the break.</p>
+      <section id="ch3" class="band" data-run-chapter="rot-doorway" data-claim="CL2 CL23 CL3">
+        <div class="section-heading"><h2>Chapter 3 — Doorway and Station 2 of 3</h2></div>
+        <p class="status-copy claim-copy" data-claim="CL2 CL23">The published doorway cut shows Station 2 of 3 after the blueprint break.</p>
+        <p class="status-copy claim-copy" data-claim="CL3">Encounter controls follow the server into the next station.</p>
         <figure class="capture-pending" data-slot="K6"><figcaption>capture pending</figcaption></figure>
       </section>
-      <section id="ch5" class="band" data-claim="CL6 CL7 CL20">
+      <section id="ch4" class="band" data-run-chapter="rot-encounter" data-claim="CL1 CL3 CL23">
+        <div class="section-heading"><h2>Chapter 4 — Encounter and Station 2 of 3</h2></div>
+        <p class="status-copy claim-copy" data-claim="CL1 CL23">The next published cut shows the learner in the Station 2 encounter.</p>
+        <p class="status-copy claim-copy" data-claim="CL3">The phase and encounter controls remain server-authoritative after rotation.</p>
+      </section>
+      <section id="ch5" class="band" data-run-chapter="ch5" data-claim="CL6 CL7 CL20">
         <div class="section-heading"><h2>Chapter 5 — Faculty sign-off acknowledged by the server (protocol probe; no faculty console UI yet)</h2></div>
         <p class="status-copy claim-copy" data-claim="CL6">Stations replay from their recorded traces over the protocol (protocol today; faculty review UI pending).</p>
         <p class="status-copy claim-copy" data-claim="CL7">Rubric marks are entered against replayable station traces, and a sign-off packet locks them (protocol today; faculty review UI pending).</p>
-        <p class="status-copy claim-copy" data-claim="CL20">The full run will live on the Release; trace link arrives with the capture.</p>
+        <p class="status-copy claim-copy" data-claim="CL20">The published cut ends after the server acknowledges the finalized sign-off.</p>
       </section>
     </main>
 <footer class="site-footer">
