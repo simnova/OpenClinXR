@@ -589,6 +589,14 @@
         "kind": "runtime"
       },
       {
+        "name": "edChestPainDialogueSeeds",
+        "kind": "runtime"
+      },
+      {
+        "name": "edChestPainScenario",
+        "kind": "runtime"
+      },
+      {
         "name": "edChestPainScenario",
         "kind": "runtime",
         "via": "path-reach"

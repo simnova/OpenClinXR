@@ -2,7 +2,7 @@ import { existsSync, mkdtempSync, readFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { expect, it } from "vitest";
-import { edChestPainScenario } from "../../../../packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.js";
+import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
 import {
   buildRubricDoc,
   buildSpCaseDoc,

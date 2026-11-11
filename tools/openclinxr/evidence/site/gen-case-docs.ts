@@ -4,7 +4,7 @@ import { pathToFileURL } from "node:url";
 import {
   edChestPainDialogueSeeds,
   edChestPainScenario,
-} from "../../../../packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.js";
+} from "@openclinxr/scenario-fixtures";
 
 export const FIXTURE_REL_PATH = "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts";
 export const RUBRIC_NOTE = "labels only; no definitions or anchors yet";
