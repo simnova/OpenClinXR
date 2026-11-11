@@ -168,20 +168,26 @@ const BODY_TRIS_BY_ACTOR: Record<string, number> = {
   "mpfb-viseme-inspect.glb": 10705,
 };
 
-/** Per-actor sibling pins; actors absent here keep SIBLING_FACIAL_TRIS_ON_EVERY_ACTOR. */
+/** Per-actor sibling pins; actors absent here keep SIBLING_FACIAL_TRIS_ON_EVERY_ACTOR.
+ * teeth — option-B swap to fitted CC0 teeth, decimated in place at ratio 0.65 (tsk_27e0cec12cab410d,
+ * super-ceo-cap13 2026-11-10; ED budget asset-generation-pipeline.md:87): 7120 -> 4628 (4627 kevin/street).
+ * tongue — the same swap (tsk_27e0cec12cab410d T1) transplanted the fitted tongue (448, the default):
+ * nurse/partner carried openclinxr_hm08_tongue 430, gown-adult-patient/robert the robert_reference
+ * hm08 tongue 422; the other swapped actors already had 448.
+ */
 const SIBLING_OVERRIDES_BY_ACTOR: Record<string, Partial<Record<FacialGroup, number>>> = {
-  "mpfb-clinical-nurse-adult.glb": { eyelash: 388, tongue: 430 },
+  "mpfb-clinical-nurse-adult.glb": { eyelash: 388, teeth: 4628 },
   "mpfb-clinical-physician-adult.glb": { eyelash: 395, tongue: 418 },
-  "mpfb-family-partner-adult.glb": { eyelash: 3239, tongue: 430 },
-  "mpfb-gown-adult-patient.glb": { eyelash: 386, teeth: 190, tongue: 422 },
-  "mpfb-gown-ed-robert-hayes.glb": { eyelash: 297, teeth: 190, tongue: 422 },
-  "mpfb-gown-inspect.glb": { eyelash: 16632 },
-  "mpfb-ob-patient-aisha.glb": { eyelash: 16632 },
-  "mpfb-peds-nurse-kevin.glb": { eyelash: 16632 },
+  "mpfb-family-partner-adult.glb": { eyelash: 3239, teeth: 4628 },
+  "mpfb-gown-adult-patient.glb": { eyelash: 386, teeth: 4628 },
+  "mpfb-gown-ed-robert-hayes.glb": { eyelash: 297, teeth: 4628 },
+  "mpfb-gown-inspect.glb": { eyelash: 16632, teeth: 4628 },
+  "mpfb-ob-patient-aisha.glb": { eyelash: 16632, teeth: 4628 },
+  "mpfb-peds-nurse-kevin.glb": { eyelash: 16632, teeth: 4627 },
   "mpfb-peds-parent-aisha.glb": { eyelash: 16632, teeth: 7120 },
-  "mpfb-peds-patient-child.glb": { eyelash: 16632 },
-  "mpfb-street-adult-male.glb": { eyelash: 16632 },
-  "mpfb-viseme-inspect.glb": { eyelash: 16632 },
+  "mpfb-peds-patient-child.glb": { eyelash: 16632, teeth: 4628 },
+  "mpfb-street-adult-male.glb": { eyelash: 16632, teeth: 4627 },
+  "mpfb-viseme-inspect.glb": { eyelash: 16632, teeth: 4628 },
 };
 
 /** Distinct eyebrow styles across the shipped cast, measured on HEAD 8519ebce. */
