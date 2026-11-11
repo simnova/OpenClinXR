@@ -11,7 +11,7 @@
  * Exit 1 on any failed assertion.
  */
 import { execFile, spawn } from "node:child_process";
-import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { access, mkdir, readFile, readdir, writeFile } from "node:fs/promises";
 import { createServer } from "node:net";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -27,6 +27,7 @@ const LISTEN_RE = /xr-sync listening ws:\/\/127\.0\.0\.1:(\d+) instance=(\S+)/;
 const READY_TIMEOUT_MS = 240000;
 const JOIN_TIMEOUT_MS = 240000;
 const DOORWAY_SECONDS = 90;
+const CAPTURE_ENCOUNTER_SECONDS = 30;
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 const median = (values) => { const s = [...values].sort((a, b) => a - b); return s.length === 0 ? null : s[Math.floor(s.length / 2)]; };
 
@@ -73,6 +74,18 @@ async function waitFor(predicate, timeoutMs, label) {
     await sleep(200);
   }
 }
+async function waitForFile(path, timeoutMs, label) {
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    try {
+      await access(path);
+      return;
+    } catch {
+      if (Date.now() > deadline) throw new Error(`timed out waiting for ${label}: ${path}`);
+      await sleep(200);
+    }
+  }
+}
 async function descendants(rootPid) {
   const { stdout } = await run_("ps", ["-axo", "pid=,ppid=,command="]);
   const rows = stdout.split("\n").map((line) => line.trim().match(/^(\d+)\s+(\d+)\s+(.*)$/)).filter(Boolean).map((m) => ({ pid: Number(m[1]), ppid: Number(m[2]), command: m[3] }));
@@ -100,8 +113,12 @@ async function stopStack(record) {
   return true;
 }
 
-async function shootPanel(page, path) {
+async function shootPanel(page, path, capture) {
   try {
+    if (capture) {
+      await page.locator(".runtime-panel").screenshot({ path, timeout: 30000 });
+      return;
+    }
     const box = await page.locator("#room-panel").boundingBox({ timeout: 10000 });
     if (box === null) return;
     await page.screenshot({ path, fullPage: true, clip: { x: box.x, y: box.y + await page.evaluate(() => window.scrollY), width: box.width, height: box.height }, timeout: 30000 });
@@ -111,6 +128,10 @@ async function main(argv) {
   const options = parseArgs(argv);
   const outDir = resolve(options.out);
   await mkdir(outDir, { recursive: true });
+  const capture = process.env.OPENCLINXR_CAPTURE === "1";
+  const sessionDir = join(outDir, "session");
+  const traceDir = join(sessionDir, "trace");
+  const reviewIndexPath = join(traceDir, "exam-session.review-index.json");
   const run = { mode: options.mode, serial: options.mode === "quest" ? options.serial : null, script: "c36", assertions: [], stack: null, pageErrors: [], consoleErrors: [], notEvidenceFor: { soundHeardByPerson: true, clinicalValidity: true } };
   const check = (name, pass, detail = "") => {
     run.assertions.push({ name, pass: Boolean(pass), detail: String(detail) });
@@ -187,7 +208,10 @@ async function main(argv) {
     });
     const waitJoined = (page) => page.waitForFunction(() => { const e = globalThis.__openClinXrEncounterSync; return e !== undefined && e.state !== "joining"; }, undefined, { timeout: JOIN_TIMEOUT_MS });
 
-    const stack = startStack(`c36-${process.pid}`, { XR_SYNC_DOORWAY_SECONDS: String(DOORWAY_SECONDS) });
+    const stack = startStack(`c36-${process.pid}`, {
+      XR_SYNC_DOORWAY_SECONDS: String(DOORWAY_SECONDS),
+      ...(capture ? { XR_SYNC_TRACE_DIR: traceDir, XR_SYNC_ENCOUNTER_SECONDS: String(CAPTURE_ENCOUNTER_SECONDS) } : {}),
+    });
     stacks.push(stack);
     await waitFor(() => stack.port !== null || stack.exited, READY_TIMEOUT_MS, "stack listening line");
     run.stack = { instance: stack.instance, port: stack.port, bootLines: stack.output.split("\n").filter((l) => l.startsWith("xr-sync ")).slice(0, 8), exited: stack.exited };
@@ -209,14 +233,14 @@ async function main(argv) {
       await page.evaluate((value) => { document.getElementById("utterance-input").value = value; document.getElementById("utterance-send").click(); }, TYPED_PHRASE);
       await page.waitForFunction(() => (document.getElementById("room-refusal")?.textContent ?? "") !== "", undefined, { timeout: 15000 }).catch(() => undefined);
       probe.refused = await readPanel(page);
-      await shootPanel(page, join(outDir, "c36-doorway-refusal.png"));
+      await shootPanel(page, join(outDir, "c36-doorway-refusal.png"), capture);
       await page.waitForFunction((before) => document.getElementById("room-countdown")?.textContent !== before, probe.doorwayA.countdown, { timeout: 15000 });
       probe.doorwayB = await readPanel(page);
       // Encounter opens: countdown switches, refusal clears.
       await page.waitForFunction(() => /^Encounter: /u.test(document.getElementById("room-countdown")?.textContent ?? ""), undefined, { timeout: 120000 });
       await page.waitForFunction(() => (document.getElementById("room-refusal")?.textContent ?? "") === "", undefined, { timeout: 15000 }).catch(() => undefined);
       probe.open = await readPanel(page);
-      await shootPanel(page, join(outDir, "c36-encounter.png"));
+      await shootPanel(page, join(outDir, "c36-encounter.png"), capture);
       const patientTurns = async () => (await readPanel(page)).turns.filter((t) => t.actorId === actor.actorId).length;
       const waitTurn = async (count) => {
         await page.waitForFunction(({ id, count }) => globalThis.__openClinXrEncounterSync.turns.filter((t) => t.actorId === id).length >= count, { id: actor.actorId, count }, { timeout: 120000 }).catch(async (error) => { run.diag = { waiting: count, panel: await readPanel(page) }; throw error; });
@@ -240,6 +264,10 @@ async function main(argv) {
       await waitTurn(have + 1);
       probe.spoken = await readPanel(page);
       probe.final = probe.spoken;
+      // Keep the learner/context alive through the one-slot note phase. With
+      // no connected client Colyseus disposes the room before station close,
+      // yielding only a loose trace and no review index.
+      if (capture) await waitForFile(reviewIndexPath, 120000, "captured session review index");
       return probe;
     };
     const out = await probeFn(pageUrl, drive);
@@ -264,6 +292,14 @@ async function main(argv) {
     check("S9 the harness source holds none of the shipped actor names, topic labels or utterance phrases (expected values are computed from the shipped scenario)", copied.length === 0, copied.join(", "));
     const other = out.consoleErrors.filter((text) => !isAsset404(text));
     check("S10 no page errors and no console errors other than missing-asset 404s", out.pageErrors.length === 0 && other.length === 0, [...out.pageErrors, ...other].join(" | ") || `${out.consoleErrors.length} asset 404s`);
+    if (capture) {
+      // The dev blueprint's one station must finish encounter + note so C14
+      // receives a complete, server-authored review index rather than a loose
+      // dispose-time trace. Capture shortens only the encounter; note remains
+      // the canonical dev-stack 60 s.
+      await access(reviewIndexPath);
+      run.captureSession = { sessionDir, traceDir, reviewIndex: reviewIndexPath };
+    }
     const stopped = await stopStack(stack);
     await sleep(1000);
     check("S11 SIGTERM stops the stack within 10 s and its port is released", stopped && (await bindLoopback(stack.port)) === "bound", `stopped=${stopped}`);

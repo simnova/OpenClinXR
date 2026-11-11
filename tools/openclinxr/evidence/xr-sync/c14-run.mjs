@@ -110,8 +110,24 @@ async function hashDirFiles(root) {
   return out;
 }
 
+function parseC14Args(argv) {
+  const index = argv.indexOf("--session-dir");
+  if (index === -1) return { ...parseArgs(argv), sessionDir: null };
+  const sessionDir = argv[index + 1];
+  if (typeof sessionDir !== "string" || sessionDir === "" || argv.indexOf("--session-dir", index + 1) !== -1) {
+    throw new Error("--session-dir requires exactly one <dir>");
+  }
+  return { ...parseArgs([...argv.slice(0, index), ...argv.slice(index + 2)]), sessionDir: resolve(sessionDir) };
+}
+
+async function waitForState(read, predicate, label) {
+  const deadline = Date.now() + 15000;
+  while (!predicate(read()) && Date.now() < deadline) await new Promise((resolvePromise) => setTimeout(resolvePromise, 10));
+  if (!predicate(read())) throw new Error(`timed out waiting for ${label}`);
+}
+
 async function main(argv) {
-  const options = parseArgs(argv);
+  const options = parseC14Args(argv);
   const outDir = resolve(options.out);
   await mkdir(outDir, { recursive: true });
   const seedOut = join(outDir, "c12seed");
@@ -155,6 +171,7 @@ async function main(argv) {
     frameMs: null,
     elapsedMs: null,
   };
+  if (options.sessionDir !== null) run.providedSessionDir = options.sessionDir;
 
   const check = (name, pass, detail) => {
     run.assertions.push({ name, pass: Boolean(pass), detail: String(detail ?? "") });
@@ -168,22 +185,24 @@ async function main(argv) {
   let secondServer = null;
   const cleanup = { seedExit: null, replayClosed: false, replayStaticClosed: false, secondClosed: false, l3Left: false, l5Left: false };
   try {
-    // Phase 1: reuse the c12 pipeline as a subprocess (its session dir is the
-    // C14 replay source; its exit code is the C12 regression signal).
-    const seedArgs = ["--mode", options.mode, "--out", seedOut];
-    if (options.mode === "quest") {
-      seedArgs.push("--serial", options.serial);
+    // Default is the byte-for-byte C12 seed flow. --session-dir skips phase 1
+    // and reviews the caller's immutable persisted session.
+    if (options.sessionDir === null) {
+      const seedArgs = ["--mode", options.mode, "--out", seedOut];
+      if (options.mode === "quest") {
+        seedArgs.push("--serial", options.serial);
+      }
+      try {
+        await execFileAsync("node", [C12_RUN, ...seedArgs], { timeout: 1200000 });
+        cleanup.seedExit = 0;
+      } catch (error) {
+        cleanup.seedExit = typeof error?.code === "number" ? error.code : 1;
+        throw new Error(`c12 seed run failed (exit ${cleanup.seedExit}): ${String(error?.stdout ?? error).slice(0, 500)}`);
+      }
+      check("phase1 c12 seed run exited 0", cleanup.seedExit === 0, `exit=${cleanup.seedExit}`);
     }
-    try {
-      await execFileAsync("node", [C12_RUN, ...seedArgs], { timeout: 1200000 });
-      cleanup.seedExit = 0;
-    } catch (error) {
-      cleanup.seedExit = typeof error?.code === "number" ? error.code : 1;
-      throw new Error(`c12 seed run failed (exit ${cleanup.seedExit}): ${String(error?.stdout ?? error).slice(0, 500)}`);
-    }
-    check("phase1 c12 seed run exited 0", cleanup.seedExit === 0, `exit=${cleanup.seedExit}`);
 
-    const sessionDir = join(seedOut, "session");
+    const sessionDir = options.sessionDir ?? join(seedOut, "session");
     const traceDir = join(sessionDir, "trace");
     run.sessionDir = sessionDir;
     run.traceDir = traceDir;
@@ -197,6 +216,46 @@ async function main(argv) {
 
     const index = JSON.parse(await readFile(join(traceDir, SESSION_REVIEW_INDEX_FILE), "utf8"));
     run.reviewIndex = index;
+    if (options.sessionDir !== null) {
+      const { connect: connectNode } = await import(CLIENT_DIST);
+      const stations = index.stations ?? [];
+      if (stations.length === 0) throw new Error("provided session review index has no stations");
+      replayServer = await createEncounterServer({
+        replayDir: traceDir,
+        replayStepMs: REPLAY_STEP_MS,
+        scoreDir,
+        reviewRubric: RUBRIC.map((item) => ({ ...item })),
+      });
+      const scoreItems = Object.fromEntries(SEED_ITEMS.map((item) => [item.id, item.checked]));
+      const scoreResults = [];
+      for (const station of stations) {
+        const reviewer = await connectNode(replayServer.url, { roomOptions: { replayStationId: station.stationId } });
+        let latest = null;
+        reviewer.onState((snapshot) => { latest = snapshot; });
+        await waitForState(() => latest, (state) => state?.mode === "replay", `provided replay ${station.stationId}`);
+        const result = await reviewer.sendIntent("score-station", { items: scoreItems });
+        scoreResults.push({ stationId: station.stationId, status: result.status, reason: result.status === "reject" ? result.reason : null });
+        await reviewer.leave();
+      }
+      const lobby = await connectNode(replayServer.url, { roomOptions: { reviewLobby: true } });
+      let lobbyState = null;
+      lobby.onState((snapshot) => { lobbyState = snapshot; });
+      await waitForState(() => lobbyState, (state) => state?.mode === "lobby" && state?.lobbyStations?.length === stations.length, "provided review lobby");
+      const finalized = await lobby.sendIntent("finalize-review", {});
+      await lobby.leave();
+      const packetRaw = await readFile(join(scoreDir, PACKET_FILE), "utf8");
+      run.packetRaw = packetRaw;
+      run.packet = JSON.parse(packetRaw);
+      run.externalReview = { scoreResults, finalized };
+      check("provided session scored every indexed station", scoreResults.every((entry) => entry.status === "ack"), JSON.stringify(scoreResults));
+      check("provided session finalize-review acked", finalized.status === "ack", JSON.stringify(finalized));
+      run.sessionHashesAfter = await hashDirFiles(sessionDir);
+      check("provided session dir byte-identical after review", JSON.stringify(run.sessionHashesAfter) === JSON.stringify(run.sessionHashesBefore), `files=${Object.keys(run.sessionHashesBefore).length}`);
+      await replayServer.close();
+      replayServer = null;
+      cleanup.replayClosed = true;
+      return;
+    }
     const scoreEntry = (index.stations ?? []).find((s) => s.stationId === SCORE_STATION_ID);
     if (!scoreEntry) {
       throw new Error(`seed index has no ${SCORE_STATION_ID} entry`);

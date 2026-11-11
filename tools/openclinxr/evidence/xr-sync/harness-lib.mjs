@@ -8,16 +8,28 @@
  */
 import { execFile } from "node:child_process";
 import { createServer } from "node:http";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { createReadStream, existsSync, statSync } from "node:fs";
 import { extname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { promisify } from "node:util";
+import { GPU_ARGS, VIEWPORT } from "../site/capture/capture-instrument.mjs";
 
 const execFileAsync = promisify(execFile);
+const REPO_ROOT = fileURLToPath(new URL("../../../..", import.meta.url));
 
 export const PLAYWRIGHT_CDP_PORT = 9222;
 export const DONE_TIMEOUT_MS = 150000;
 export const POLL_MS = 250;
+
+export function mergeCaptureLaunchArgs(launchArgs) {
+  return [...new Set([...GPU_ARGS, ...launchArgs])];
+}
+
+export function assertUiXrDist(root) {
+  const path = join(root, "apps/ui-xr/dist/index.html");
+  if (!existsSync(path)) throw new Error(`ui_xr_dist_missing: ${path}`);
+}
 
 export function usage() {
   return [
@@ -217,14 +229,61 @@ export async function collectBundleSentry({ appDist, appSrcSyncProbe, extraBanne
 }
 
 export async function runHostProbe({ pageUrl, outDir, drive, launchArgs = [], initScript }) {
+  assertUiXrDist(REPO_ROOT);
   const { chromium } = await import("playwright");
-  const browser = await chromium.launch({ headless: true, args: ["--disable-features=WebXR", ...launchArgs] });
+  const capture = process.env.OPENCLINXR_CAPTURE === "1";
+  const captureLaunchArgs = capture ? mergeCaptureLaunchArgs(launchArgs) : null;
+  const browser = capture
+    ? await chromium.launch({ headless: true, channel: "chromium", args: captureLaunchArgs })
+    : await chromium.launch({ headless: true, args: ["--disable-features=WebXR", ...launchArgs] });
   const pageErrors = [];
   const consoleErrors = [];
+  let context = null;
+  let contextClosed = false;
+  let captureVideo = null;
+  let renderer = null;
+  let captureStartedAtMs = null;
+  const closeContext = async () => {
+    if (context === null || contextClosed) return;
+    await context.close();
+    contextClosed = true;
+    if (capture) {
+      const captureEndedAtMs = Date.now();
+      if (captureVideo === null) {
+        throw new Error("capture context closed without a recorded page video");
+      }
+      const videoPath = await captureVideo.path();
+      const { stdout: ffprobeJson } = await execFileAsync("ffprobe", [
+        "-v", "error", "-show_streams", "-show_format", "-of", "json", videoPath,
+      ]);
+      JSON.parse(ffprobeJson);
+      await writeFile(join(outDir, "video.json"), ffprobeJson.endsWith("\n") ? ffprobeJson : `${ffprobeJson}\n`, "utf8");
+      await writeFile(join(outDir, "renderer.json"), `${JSON.stringify({
+        renderer,
+        launchArgs: captureLaunchArgs,
+        viewport: VIEWPORT,
+        deviceScaleFactor: 1,
+        captureStartedAtMs,
+        captureEndedAtMs,
+        captureDurationSeconds: (captureEndedAtMs - captureStartedAtMs) / 1000,
+      }, null, 2)}\n`, "utf8");
+    }
+  };
   try {
-    const context = await browser.newContext({ viewport: { width: 800, height: 600 } });
+    if (capture) {
+      await mkdir(join(outDir, "video"), { recursive: true });
+      context = await browser.newContext({
+        viewport: VIEWPORT,
+        deviceScaleFactor: 1,
+        recordVideo: { dir: join(outDir, "video"), size: VIEWPORT },
+      });
+      captureStartedAtMs = Date.now();
+    } else {
+      context = await browser.newContext({ viewport: { width: 800, height: 600 } });
+    }
     if (initScript) await context.addInitScript(initScript);
     const page = await context.newPage();
+    if (capture) captureVideo = page.video();
     page.on("pageerror", (error) => pageErrors.push(String(error).slice(0, 300)));
     page.on("console", (message) => {
       if (message.type() === "error") {
@@ -232,9 +291,16 @@ export async function runHostProbe({ pageUrl, outDir, drive, launchArgs = [], in
       }
     });
     await page.goto(pageUrl, { timeout: 60000, waitUntil: "load" });
+    if (capture) {
+      renderer = await page.evaluate(() => {
+        const probe = document.createElement("canvas").getContext("webgl");
+        const ext = probe !== null ? probe.getExtension("WEBGL_debug_renderer_info") : null;
+        return ext !== null && probe !== null ? probe.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null;
+      });
+    }
     if (drive) {
       const driven = await drive(page);
-      await context.close();
+      await closeContext();
       return { probe: driven, pageErrors, consoleErrors, browserProduct: await browser.version() };
     }
     const deadline = Date.now() + DONE_TIMEOUT_MS;
@@ -250,10 +316,11 @@ export async function runHostProbe({ pageUrl, outDir, drive, launchArgs = [], in
       await new Promise((resolve) => setTimeout(resolve, POLL_MS));
     }
     probe = await page.evaluate(() => window.__syncProbe);
-    await context.close();
+    await closeContext();
     void outDir;
     return { probe, pageErrors, consoleErrors, browserProduct: await browser.version() };
   } finally {
+    await closeContext().catch(() => undefined);
     await browser.close();
   }
 }

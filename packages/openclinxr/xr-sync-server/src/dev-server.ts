@@ -37,6 +37,11 @@ if (!Number.isInteger(port) || port > 65535) {
 // biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates ["XR_SYNC_INSTANCE"] on process.env.
 const rawInstance = process.env["XR_SYNC_INSTANCE"] ?? process.argv[2] ?? "local";
 const instance = rawInstance.startsWith("xr-sync-") ? rawInstance : `xr-sync-${rawInstance}`;
+// WRC capture is opt-in at the harness boundary; an absent/empty trace dir
+// preserves the local dev stack's no-persistence default.
+// biome-ignore lint/complexity/useLiteralKeys: tsc noPropertyAccessFromIndexSignature mandates bracket access on process.env.
+const rawTraceDir = process.env["XR_SYNC_TRACE_DIR"];
+const traceDir = rawTraceDir !== undefined && rawTraceDir !== "" ? rawTraceDir : undefined;
 
 // Signal handlers first: SIGTERM during the (up to 180 s) model probe must still kill the sidecar.
 let closeSpeech: () => void = () => undefined;
@@ -91,8 +96,8 @@ if (speech.recognizer !== null) {
 
 server = await createEncounterServer(
   speech.recognizer !== null
-    ? { port, examBlueprint: stack.examBlueprint, scenarios: stack.scenarios, dialogueSeeds: stack.dialogueSeeds, speechRecognizer: speech.recognizer }
-    : { port, examBlueprint: stack.examBlueprint, scenarios: stack.scenarios, dialogueSeeds: stack.dialogueSeeds },
+    ? { port, examBlueprint: stack.examBlueprint, scenarios: stack.scenarios, dialogueSeeds: stack.dialogueSeeds, speechRecognizer: speech.recognizer, ...(traceDir === undefined ? {} : { traceDir }) }
+    : { port, examBlueprint: stack.examBlueprint, scenarios: stack.scenarios, dialogueSeeds: stack.dialogueSeeds, ...(traceDir === undefined ? {} : { traceDir }) },
 );
 console.log(`xr-sync listening ws://127.0.0.1:${server.port} instance=${instance}`);
 if (closing) {

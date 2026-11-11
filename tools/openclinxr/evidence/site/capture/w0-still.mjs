@@ -44,8 +44,11 @@ import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { GPU_ARGS, VIEWPORT } from "./capture-instrument.mjs";
 import { planCapture } from "./rr1.mjs";
 import { startStaticServer } from "../../xr-sync/harness-lib.mjs";
+
+export { GPU_ARGS, VIEWPORT } from "./capture-instrument.mjs";
 
 const SCRIPT_DIR = fileURLToPath(new URL("./", import.meta.url));
 const TREE_TOP = resolve(SCRIPT_DIR, "..", "..", "..", "..", "..");
@@ -55,8 +58,6 @@ const SERVER_STACK = join(TREE_TOP, "packages", "openclinxr", "xr-sync-server", 
 const FIXTURES_INDEX = join(TREE_TOP, "packages", "openclinxr", "scenario-fixtures", "dist", "index.js");
 const CSS_PATH = join(SCRIPT_DIR, "presentation.css");
 
-const VIEWPORT = { width: 960, height: 600 };
-const GPU_ARGS = ["--disable-features=WebXR", "--use-angle=metal", "--ignore-gpu-blocklist", "--enable-gpu-rasterization"];
 const DOORWAY_SECONDS = "90";
 const POLL_MS = 250;
 const STABLE_POLLS = 8;
