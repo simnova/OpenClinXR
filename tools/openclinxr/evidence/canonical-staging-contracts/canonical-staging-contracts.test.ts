@@ -175,15 +175,18 @@ describe("canonical staging contracts (fake/static units, no browser)", () => {
     // texture (3969ae031; 9618436 -> 9293412 B, geometry identical); was 4b823cbd….
     // st-weld2 re-pinned 2026-11-03: garment topology weld (post-export byte stage;
     // size holds at 9618436); was 921d7a60….
+    // tsk_2a74bbdb3f03cb3e re-pinned 2026-11-11: physician teeth swap (fitted CC0 teeth/tongue,
+    // retreat 6.1 mm, viseme coupling, decimation 7120 -> 4627 tris);
+    // 9497600 -> 12596836 B (old pin was the pre-swap GLB).
     expect(physician?.assetSha256).toBe(
-      "f73229fe6ed22d7db0e35ce726901d1d6d750680d7bde5e8a0cb6c965b73998d",
+      "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
     );
-    expect(physician?.byteCount).toBe(9497600);
+    expect(physician?.byteCount).toBe(12596836);
     expect(expected.expectedClipRevision).toBe("openclinxr_retarget_walk_source");
     expect(expected.expectedAssetSha256).toBe(
-      "f73229fe6ed22d7db0e35ce726901d1d6d750680d7bde5e8a0cb6c965b73998d",
+      "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
     );
-    expect(expected.expectedBytes).toBe(9497600);
+    expect(expected.expectedBytes).toBe(12596836);
     // Independent provenance lineage agrees; retired formal_cc0 preserved.
     const provenance = JSON.parse(
       readFileSync(

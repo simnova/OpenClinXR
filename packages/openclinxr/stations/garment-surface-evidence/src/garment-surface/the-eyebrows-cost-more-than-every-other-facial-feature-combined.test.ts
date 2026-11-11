@@ -173,11 +173,11 @@ const BODY_TRIS_BY_ACTOR: Record<string, number> = {
  * super-ceo-cap13 2026-11-10; ED budget asset-generation-pipeline.md:87): 7120 -> 4628 (4627 kevin/street).
  * tongue — the same swap (tsk_27e0cec12cab410d T1) transplanted the fitted tongue (448, the default):
  * nurse/partner carried openclinxr_hm08_tongue 430, gown-adult-patient/robert the robert_reference
- * hm08 tongue 422; the other swapped actors already had 448.
+ * hm08 tongue 422, the physician (tsk_2a74bbdb3f03cb3e) hm08 418; the other swapped actors already had 448.
  */
 const SIBLING_OVERRIDES_BY_ACTOR: Record<string, Partial<Record<FacialGroup, number>>> = {
   "mpfb-clinical-nurse-adult.glb": { eyelash: 388, teeth: 4628 },
-  "mpfb-clinical-physician-adult.glb": { eyelash: 395, tongue: 418 },
+  "mpfb-clinical-physician-adult.glb": { eyelash: 395, teeth: 4627 },
   "mpfb-family-partner-adult.glb": { eyelash: 3239, teeth: 4628 },
   "mpfb-gown-adult-patient.glb": { eyelash: 386, teeth: 4628 },
   "mpfb-gown-ed-robert-hayes.glb": { eyelash: 297, teeth: 4628 },
