@@ -1,214 +1,223 @@
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { describe, expect, it } from "vitest";
-import { type ActorTurnBindings, applyUtteranceIntent, type TurnActorState } from "./actor-turns.js";
-import { type ConversationTraceEvent, PROBE_CASE_EMOTION_POLICY, reduceConversationEvents } from "./conversation-trace.js";
-import { CAST_TRACE_OPENING_CUE_ID } from "./conversation-trace-cast.js";
-import { ConversationTracer } from "./conversation-tracer.js";
-import { CAST_OPENING_CUE_ID } from "./scenario-cast.js";
-import type { TopicAnswer } from "./topic-answers.js";
+import { clinicKneePainScenario, edChestPainScenario, scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures";
+import { connect, type SyncConnection } from "@openclinxr/xr-sync-client";
+import { afterEach, describe, expect, it } from "vitest";
+import { createEncounterServer, type EncounterServer } from "./index.js";
 
-const loadFixture = (name: string): unknown => JSON.parse(readFileSync(join(dirname(fileURLToPath(import.meta.url)), name), "utf8"));
-const c46Fixture = loadFixture("xr-sync-c46-nurse-two-topic.fixture.json");
-const c47DraftFixture = loadFixture("xr-sync-c47-draft-note.fixture.json");
-const c47ExplicitFixture = loadFixture("xr-sync-c47-explicit-note.fixture.json");
+// FOLLOWUP-2 (card tsk_01ffa76a77357230): the cue-author rule end to end.
+// Only the public entrypoint ./index.js is imported relatively: live actor
+// cueIds come from server state snapshots, stored cueIds from the persisted
+// trace file, replayed cueIds from the replay room's client snapshots. The
+// rule under test: a resolved topic answer carries `cue-answer:<replyId>`,
+// the cast opening keeps cue-opening-01, anything else keeps the scripted
+// C3 cue for its turn count.
+const ACTOR = "patient_jordan_cole_v1";
+const MECH = "mechanism_of_injury_history";
+const ROM = "knee_rom_exam_requested";
+const WEATHER = "do you like the weather in june";
+const OPENING_CUE = "cue-opening-01";
+const TRACE_SUFFIX = ".conversation-trace.json";
 
-// CUE-AUTHOR RED (task cue-author-01): a topic-answer actor turn carries
-// cueId `cue-answer:${replyId}` instead of the scripted C3 row picked by
-// turn count. Drives the exported applyUtteranceIntent directly.
+const TIMING = { doorwaySeconds: 1, encounterSeconds: 8, noteSeconds: 1, breakAfterStationOrders: [] };
+const neverFires = <T extends { eventSchedule: Array<{ atSecond: number }> }>(scenario: T): T => ({
+  ...scenario,
+  status: "approved",
+  eventSchedule: scenario.eventSchedule.map((entry) => ({ ...entry, atSecond: TIMING.encounterSeconds })),
+});
+const KNEE = neverFires(clinicKneePainScenario);
+const CHEST = { ...edChestPainScenario, status: "approved" };
 
-const ACTOR = "actor-a";
-const OTHER = "actor-b";
-
-function actorState(): TurnActorState {
-  return { speaking: false, emotion: "neutral", replyId: "", cueId: "", caption: "", intake: "", retries: 0 };
+function blueprint(): Record<string, unknown> {
+  return {
+    blueprintId: "bp-fixture-cue",
+    title: "Fixture two-station form",
+    stationSlots: [
+      { slotId: "slot-a", order: 1, label: "Fixture label A", requiredEnvironmentIds: [], requiredTraceTags: [] },
+      { slotId: "slot-b", order: 2, label: "Fixture label B", requiredEnvironmentIds: [], requiredTraceTags: [] },
+    ],
+    timing: TIMING,
+    requiredTraceTags: [],
+    requiredSafetyCriticalTraceTags: [],
+  };
 }
 
-interface Harness {
-  bindings: ActorTurnBindings;
-  client: Parameters<typeof applyUtteranceIntent>[1];
-  learner: Parameters<typeof applyUtteranceIntent>[2];
+const servers: EncounterServer[] = [];
+const leavers: Array<() => Promise<unknown>> = [];
+afterEach(async () => {
+  while (leavers.length > 0) await leavers.pop()?.().catch(() => undefined);
+  while (servers.length > 0) await servers.pop()?.close().catch(() => undefined);
+});
+const bootServer = createEncounterServer as (o: Record<string, unknown>) => Promise<EncounterServer>;
+async function boot(options: Record<string, unknown>): Promise<EncounterServer> {
+  const server = await bootServer(options);
+  servers.push(server);
+  return server;
+}
+async function waitFor(condition: () => boolean, timeoutMs: number, label: string): Promise<void> {
+  const deadline = Date.now() + timeoutMs;
+  while (!condition()) {
+    if (Date.now() > deadline) throw new Error(`timed out waiting for ${label}`);
+    await new Promise((resolve) => setTimeout(resolve, 10));
+  }
+}
+type LiveState = { phase: string; actors: Record<string, { speaking: boolean; replyId: string; cueId: string }> };
+const snap = (server: EncounterServer): LiveState => JSON.parse(server.getStateJSON()) as LiveState;
+
+async function ask(server: EncounterServer, learner: SyncConnection, payload: Record<string, unknown>): Promise<{ replyId: string; cueId: string }> {
+  expect(await learner.sendIntent("select-actor", { actorId: ACTOR })).toMatchObject({ status: "ack" });
+  expect(await learner.sendIntent("utterance-start", {})).toMatchObject({ status: "ack" });
+  expect(await learner.sendIntent("utterance-end", { actorId: ACTOR, ...payload })).toMatchObject({ status: "ack" });
+  const actor = snap(server).actors[ACTOR] ?? { speaking: false, replyId: "", cueId: "" };
+  return { replyId: actor.replyId, cueId: actor.cueId };
 }
 
-function setup(topicMenu: readonly string[] | null, topicAnswers: readonly TopicAnswer[] | null, castVoice: ActorTurnBindings["castVoice"] = null): Harness {
-  const actors = new Map<string, TurnActorState>([
-    [ACTOR, actorState()],
-    [OTHER, actorState()],
-  ]);
-  const bindings = {
-    actors,
-    selectedActor: new Map<string, string>([["sess1", ACTOR]]),
-    turnId: 0,
-    setTurnId: (id: number): void => {
-      bindings.turnId = id;
-    },
-    turnOwner: "none",
-    setTurnOwner: (owner: string): void => {
-      bindings.turnOwner = owner;
-    },
-    tracer: new ConversationTracer(),
-    clock: { setTimeout: (): { clear(): void } => ({ clear(): void {} }) },
-    turnLog: [],
-    actorTurnCounts: new Map<string, number>(),
-    castVoice,
-    topicMenu,
-    topicAnswers,
-    turnOpenedAtMs: new Map<number, number>(),
-    open: null as { turnId: number; actorId: string; timer: { clear(): void } } | null,
-    getOpenTurn(): { turnId: number; actorId: string; timer: { clear(): void } } | null {
-      return bindings.open;
-    },
-    setOpenTurn(turn: { turnId: number; actorId: string; timer: { clear(): void } } | null): void {
-      bindings.open = turn;
-    },
-    reject: (_client: unknown, _seq: number, reason: string): void => {
-      throw new Error(`rejected: ${reason}`);
-    },
-  } as unknown as ActorTurnBindings & { open: { turnId: number; actorId: string; timer: { clear(): void } } | null };
-  const client = { sessionId: "sess1" } as unknown as Parameters<typeof applyUtteranceIntent>[1];
-  const learner = { speaking: false } as unknown as Parameters<typeof applyUtteranceIntent>[2];
-  return { bindings, client, learner };
+interface SharedLive {
+  live: Array<{ replyId: string; cueId: string }>;
+  stored: Array<{ turnId: number; actorId: string; replyId: string; cueId: string }>;
+  traceDir: string;
+}
+let shared: Promise<SharedLive> | null = null;
+function liveRun(): Promise<SharedLive> {
+  if (shared === null) {
+    shared = (async (): Promise<SharedLive> => {
+      const traceDir = mkdtempSync(join(tmpdir(), "xr-sync-cue-"));
+      const server = await boot({ examBlueprint: blueprint(), scenarios: [KNEE, CHEST], dialogueSeeds: scenarioDialogueSeedBank, traceDir });
+      const learner = await connect(server.url, { roomOptions: { actors: ["a1", "a2"] } });
+      leavers.push(() => learner.leave());
+      await waitFor(() => snap(server).phase === "encounter", 5000, "slot-a encounter");
+      const live = [
+        await ask(server, learner, {}),
+        await ask(server, learner, { topicTag: MECH }),
+        await ask(server, learner, { topicTag: MECH }),
+        await ask(server, learner, { topicTag: ROM }),
+        await ask(server, learner, { text: WEATHER }),
+        await ask(server, learner, { text: WEATHER }),
+      ];
+      await waitFor(() => readdirSync(traceDir).includes("exam-session.review-index.json"), 30000, "review index");
+      await server.close();
+      const name = readdirSync(traceDir).find(
+        (entry) => entry.endsWith(TRACE_SUFFIX) && (JSON.parse(readFileSync(join(traceDir, entry), "utf8")) as { stationId: string }).stationId === "slot-a",
+      );
+      if (name === undefined) throw new Error("no slot-a trace");
+      const trace = JSON.parse(readFileSync(join(traceDir, name), "utf8")) as {
+        turns: Array<{ turnId: number; actorId: string; replyId: string; cueId: string }>;
+      };
+      return { live, stored: trace.turns, traceDir };
+    })();
+  }
+  return shared;
 }
 
-/** One full learner turn: utterance-start then utterance-end with the payload. */
-function utter(harness: Harness, seq: number, payload: Record<string, unknown>): void {
-  expect(applyUtteranceIntent(harness.bindings, harness.client, harness.learner, seq, "utterance-start", {})).toBe(true);
-  expect(applyUtteranceIntent(harness.bindings, harness.client, harness.learner, seq + 1, "utterance-end", payload)).toBe(true);
-}
-
-const cueOf = (harness: Harness, actorId: string): string => harness.bindings.actors.get(actorId)?.cueId ?? "";
-const replyOf = (harness: Harness, actorId: string): string => harness.bindings.actors.get(actorId)?.replyId ?? "";
-
-/** Cast voice rostering exactly `ids` (mirrors scenario-cast voice lines). */
-function voiceFor(ids: string[]): NonNullable<ActorTurnBindings["castVoice"]> {
-  const map = new Map(ids.map((id) => [id, { actorId: id, displayName: id, role: "", openingUtterance: `Hello from ${id}` }]));
-  return { actors: map };
-}
-
-/** Events the live room pushed for this harness (timers never fire, so no turn-completed). */
-function liveEvents(harness: Harness): ConversationTraceEvent[] {
-  return harness.bindings.tracer.snapshot().events;
-}
-
-/** Reducer cueIds for `events`: `cast` mirrors the live room's roster + selectors (null = off-cast). */
-function reducedCues(
-  events: readonly ConversationTraceEvent[],
-  cast: { actors: string[]; topicAnswers: readonly TopicAnswer[] } | null,
-): string[] {
-  const context =
-    cast === null
-      ? undefined
-      : {
-          scenarioId: "cue-author-station",
-          actors: [...cast.actors],
-          baseline: "neutral",
-          emotionPolicy: PROBE_CASE_EMOTION_POLICY,
-          topicAnswers: cast.topicAnswers.map((answer) => ({ actorId: answer.actorId, topicTags: [...answer.topicTags], replyId: answer.replyId })),
-        };
-  return reduceConversationEvents(events, context).turns.map((turn) => turn.cueId);
-}
-
-const ANSWERS: readonly TopicAnswer[] = [
-  { actorId: ACTOR, topicTags: ["tag-a"], replyId: `${ACTOR}:seed:answer_a`, line: "Answer A line", phrases: [] },
-  { actorId: ACTOR, topicTags: ["tag-b"], replyId: `${ACTOR}:seed:answer_b`, line: "Answer B line", phrases: [] },
-];
-const MENU = ["tag-a", "tag-b"] as const;
-
-describe("topic answers carry their own cue", () => {
-  it("C1: two turns resolving to the SAME topic answer carry the same cueId, exactly cue-answer plus replyId", () => {
-    const harness = setup([...MENU], ANSWERS);
-    utter(harness, 1, { actorId: ACTOR, topicTag: "tag-a" });
-    const replyId = replyOf(harness, ACTOR);
-    const firstCue = cueOf(harness, ACTOR);
-    utter(harness, 3, { actorId: ACTOR, topicTag: "tag-a" });
-    expect(replyOf(harness, ACTOR)).toBe(replyId);
-    expect(cueOf(harness, ACTOR)).toBe(firstCue);
-    expect(cueOf(harness, ACTOR)).toBe(`cue-answer:${replyId}`);
-  });
-
-  it("C2 counterweight: two DIFFERENT topic answers on the same actor carry different cueIds", () => {
-    const harness = setup([...MENU], ANSWERS);
-    utter(harness, 1, { actorId: ACTOR, topicTag: "tag-a" });
-    const replyA = replyOf(harness, ACTOR);
-    const cueA = cueOf(harness, ACTOR);
-    utter(harness, 3, { actorId: ACTOR, topicTag: "tag-b" });
-    const replyB = replyOf(harness, ACTOR);
-    const cueB = cueOf(harness, ACTOR);
-    expect(replyA).not.toBe(replyB);
-    expect(cueA).toBe(`cue-answer:${replyA}`);
-    expect(cueB).toBe(`cue-answer:${replyB}`);
-    expect(cueA).not.toBe(cueB);
-  });
-
-  it("C3 known-good: fallback keeps the C3 cue by turn count; the cast opening keeps CAST_OPENING_CUE_ID", () => {
-    const offCast = setup(null, null);
-    utter(offCast, 1, { actorId: ACTOR });
-    expect(cueOf(offCast, ACTOR)).toBe("cue-greeting-01");
-    utter(offCast, 3, { actorId: ACTOR });
-    expect(cueOf(offCast, ACTOR)).toBe("cue-followup-02");
-    utter(offCast, 5, { actorId: ACTOR });
-    expect(cueOf(offCast, ACTOR)).toBe("cue-recap-03");
-
-    const castVoice = {
-      actors: {
-        get: (id: string) => (id === ACTOR ? { actorId: ACTOR, displayName: "Actor A", role: "", openingUtterance: "Hello there" } : undefined),
-        has: (id: string) => id === ACTOR,
-      },
-    } as unknown as ActorTurnBindings["castVoice"];
-    const onCast = setup(null, null, castVoice);
-    utter(onCast, 1, { actorId: ACTOR });
-    expect(replyOf(onCast, ACTOR)).toBe(`${ACTOR}:opening`);
-    expect(cueOf(onCast, ACTOR)).toBe(CAST_OPENING_CUE_ID);
-  });
-
-  it("S0 live==reduced: a seeded topic answer's live cueId equals the reducer's cueId for the same events", () => {
-    // ACTOR has no voice line (OTHER is rostered) so both turns resolve the
-    // topic answer, exactly like the live room's castVoice/topicAnswers split.
-    const harness = setup([...MENU], ANSWERS, voiceFor([OTHER]));
-    utter(harness, 1, { actorId: ACTOR, topicTag: "tag-a" });
-    const liveCue1 = cueOf(harness, ACTOR);
-    utter(harness, 3, { actorId: ACTOR, topicTag: "tag-a" });
-    const liveCue2 = cueOf(harness, ACTOR);
-    expect(liveCue1).toBe(`cue-answer:${replyOf(harness, ACTOR)}`);
-    const reduced = reducedCues(liveEvents(harness), { actors: [OTHER], topicAnswers: ANSWERS });
-    expect(reduced).toEqual([liveCue1, liveCue2]);
-  });
-
-  it("counterweight both-sides: fallback C3 cues by turn count and the cast opening agree in live and reduced", () => {
-    // The actors map holds only the latest turn, so capture each turn's cue with its own harness.
-    const first = setup(null, null);
-    utter(first, 1, { actorId: ACTOR });
-    const f1 = cueOf(first, ACTOR);
-    const second = setup(null, null);
-    utter(second, 1, { actorId: ACTOR });
-    utter(second, 3, { actorId: ACTOR });
-    const f2 = cueOf(second, ACTOR);
-    expect([f1, f2]).toEqual(["cue-greeting-01", "cue-followup-02"]);
-    expect(reducedCues(liveEvents(second), null)).toEqual([f1, f2]);
-
-    const onCast = setup(null, null, voiceFor([ACTOR]));
-    utter(onCast, 1, { actorId: ACTOR });
-    expect(cueOf(onCast, ACTOR)).toBe(CAST_OPENING_CUE_ID);
-    const reducedOpening = reducedCues(liveEvents(onCast), { actors: [ACTOR], topicAnswers: [] });
-    expect(reducedOpening).toEqual([CAST_TRACE_OPENING_CUE_ID]);
-    expect(reducedOpening[0]).toBe(cueOf(onCast, ACTOR));
-  });
-
-  it("STORED_EQ: every stored fixture turn cue equals the reducer recompute", () => {
-    const fixtures = [
-      ["c46", c46Fixture],
-      ["c47-explicit", c47ExplicitFixture],
-      ["c47-draft", c47DraftFixture],
-    ] as const;
-    for (const [name, fixture] of fixtures) {
-      const trace = (fixture as { trace: { events: ConversationTraceEvent[]; turns: Array<{ turnId: number; cueId: string }>; cast?: Parameters<typeof reduceConversationEvents>[1] } }).trace;
-      const recomputed = reduceConversationEvents(trace.events, trace.cast).turns;
-      expect(recomputed.map((turn) => turn.turnId), `${name} turn ids`).toEqual(trace.turns.map((turn) => turn.turnId));
-      for (const stored of trace.turns) {
-        const match = recomputed.find((turn) => turn.turnId === stored.turnId);
-        expect(match?.cueId, `${name} turn ${stored.turnId}`).toBe(stored.cueId);
+type ObservedTurn = { turnId: number; actorId: string; replyId: string; cueId: string };
+async function replayObserved(replayDir: string, stationId: string, scenarios: unknown[]): Promise<ObservedTurn[]> {
+  const server = await boot({ replayDir, replayStepMs: 120, scenarios, dialogueSeeds: scenarioDialogueSeedBank });
+  const conn = await connect(server.url, { roomOptions: { replayStationId: stationId } });
+  leavers.push(() => conn.leave());
+  const seen: ObservedTurn[] = [];
+  let done = false;
+  conn.onState((raw) => {
+    const s = raw as { replayDone?: boolean; turnId?: number; actors?: Record<string, { speaking: boolean; replyId: string; cueId: string } | undefined> };
+    const turnId = s.turnId ?? 0;
+    for (const [id, actor] of Object.entries(s.actors ?? {})) {
+      if (actor?.speaking === true && !seen.some((t) => t.turnId === turnId && t.actorId === id)) {
+        seen.push({ turnId, actorId: id, replyId: actor.replyId, cueId: actor.cueId });
       }
     }
+    if (s.replayDone === true) done = true;
   });
+  await waitFor(() => done, 30000, "replayDone");
+  return seen;
+}
+
+const strip = (turns: Array<{ turnId: number; actorId: string; replyId: string; cueId: string }>): ObservedTurn[] =>
+  turns.map((t) => ({ turnId: t.turnId, actorId: t.actorId, replyId: t.replyId, cueId: t.cueId }));
+
+describe("topic answers carry their own cue (end to end)", () => {
+  it("C1: two turns resolving to the SAME topic answer carry the same cueId, exactly cue-answer plus replyId", async () => {
+    const { live, stored } = await liveRun();
+    expect(live[1]?.replyId).toBe(live[2]?.replyId);
+    expect(live[2]?.cueId).toBe(live[1]?.cueId);
+    expect(live[2]?.cueId).toBe(`cue-answer:${live[2]?.replyId}`);
+    expect(stored[1]?.replyId).toBe(live[1]?.replyId);
+    expect(stored[1]?.cueId).toBe(live[1]?.cueId);
+    expect(stored[2]?.replyId).toBe(live[2]?.replyId);
+    expect(stored[2]?.cueId).toBe(live[2]?.cueId);
+  }, 120000);
+
+  it("C2 counterweight: two DIFFERENT topic answers on the same actor carry different cueIds", async () => {
+    const { live, stored } = await liveRun();
+    expect(live[1]?.replyId).not.toBe(live[3]?.replyId);
+    expect(live[1]?.cueId).toBe(`cue-answer:${live[1]?.replyId}`);
+    expect(live[3]?.cueId).toBe(`cue-answer:${live[3]?.replyId}`);
+    expect(live[1]?.cueId).not.toBe(live[3]?.cueId);
+    expect(stored[1]?.cueId).toBe(live[1]?.cueId);
+    expect(stored[3]?.cueId).toBe(live[3]?.cueId);
+  }, 120000);
+
+  it("C3 known-good: the cast opening keeps the opening cue; fallback keeps the scripted C3 cue by turn count", async () => {
+    const { live, stored } = await liveRun();
+    expect(live[0]?.replyId).toBe(`${ACTOR}:opening`);
+    expect(live[0]?.cueId).toBe(OPENING_CUE);
+    expect(live[4]?.cueId).toBe("cue-followup-02");
+    expect(live[5]?.cueId).toBe("cue-recap-03");
+    expect(strip(stored)).toEqual(live.map((turn, index) => ({ turnId: index + 1, actorId: ACTOR, replyId: turn.replyId, cueId: turn.cueId })));
+  }, 120000);
+
+  it("C3 no-cast counterweight: without a cast the scripted C3 cues by turn count agree in live and stored", async () => {
+    // No blueprint/scenarios: the default roster, no cast voice, no topic
+    // answers. The scripted table (conversation-trace.ts C3_REPLY_TABLE,
+    // picked by (turnCount-1)%3) gives turns 1..3 cue-greeting-01,
+    // cue-followup-02, cue-recap-03. Live cueIds come from server state,
+    // stored cueIds from the trace file persisted on dispose.
+    const traceDir = mkdtempSync(join(tmpdir(), "xr-sync-cue-nocast-"));
+    const server = await boot({ traceDir });
+    const learner = await connect(server.url, { roomOptions: { actors: ["a1", "a2"] } });
+    leavers.push(() => learner.leave());
+    const live: string[] = [];
+    for (let i = 0; i < 3; i++) {
+      expect(await learner.sendIntent("select-actor", { actorId: "a1" })).toMatchObject({ status: "ack" });
+      expect(await learner.sendIntent("utterance-start", {})).toMatchObject({ status: "ack" });
+      expect(await learner.sendIntent("utterance-end", { actorId: "a1" })).toMatchObject({ status: "ack" });
+      live.push(snap(server).actors["a1"]?.cueId ?? "");
+    }
+    await server.close();
+    const expected = ["cue-greeting-01", "cue-followup-02", "cue-recap-03"];
+    expect(live).toEqual(expected);
+    let name: string | undefined;
+    await waitFor(() => {
+      name = readdirSync(traceDir).find((entry) => entry.endsWith(TRACE_SUFFIX));
+      return name !== undefined;
+    }, 15000, "no-cast trace file");
+    const trace = JSON.parse(readFileSync(join(traceDir, name as string), "utf8")) as {
+      turns: Array<{ turnId: number; actorId: string; cueId: string }>;
+    };
+    expect(trace.turns.map((turn) => turn.turnId)).toEqual([1, 2, 3]);
+    expect(trace.turns.map((turn) => turn.cueId)).toEqual(expected);
+    expect(trace.turns.map((turn) => turn.cueId)).toEqual(live);
+  }, 120000);
+
+  it("S0 LIVE==REPLAY: the live turn cueIds in the stored trace equal the cueIds the replayed station shows", async () => {
+    const { live, stored, traceDir } = await liveRun();
+    const replayed = await replayObserved(traceDir, "slot-a", [KNEE, CHEST]);
+    expect(replayed).toEqual(strip(stored));
+    expect(replayed.map((t) => t.cueId)).toEqual(live.map((t) => t.cueId));
+  }, 120000);
+
+  it("STORED_EQ fixture guard (passes under a reducer revert by design): every stored c46 fixture turn cue equals what the replay produces", async () => {
+    const fixture = JSON.parse(
+      readFileSync(join(dirname(fileURLToPath(import.meta.url)), "xr-sync-c46-nurse-two-topic.fixture.json"), "utf8"),
+    ) as { trace: { stationId: string; turns: Array<{ turnId: number; actorId: string; replyId: string; cueId: string }> } };
+    const dir = mkdtempSync(join(tmpdir(), "xr-sync-cue-c46-"));
+    const traceFile = "c46-station.conversation-trace.json";
+    writeFileSync(join(dir, traceFile), JSON.stringify(fixture.trace));
+    writeFileSync(
+      join(dir, "exam-session.review-index.json"),
+      JSON.stringify({ schema: "openclinxr.xr-sync.exam-session-review-index.v1", complete: true, stationCount: 1, stations: [{ stationId: fixture.trace.stationId, stationIndex: 0, scenarioId: "ed_chest_pain_priority_v1", traceFile, phases: [], turnCount: fixture.trace.turns.length, turnEnds: [], observerPresent: false, notePresent: false, noteChars: 0, noteFile: null }] }),
+    );
+    const replayed = await replayObserved(dir, fixture.trace.stationId, [{ ...edChestPainScenario, status: "approved" }]);
+    expect(replayed).toEqual(strip(fixture.trace.turns));
+  }, 120000);
 });
