@@ -1,0 +1,53 @@
+/* W0 presentation capture mode (card W0, capture-side CSS).
+ *
+ * Lane decision: capture-side CSS, not a product data-presentation path, so
+ * this file (not apps/ui-xr) owns the hiding. LANE STEER (xr-sync-ceo): hide
+ * ONLY debug chrome. The doorway countdown, typed question box, captions and
+ * repeat prompt are capabilities the site shows (claims CL1-CL7, CL20), not
+ * G4 strings, so they stay visible.
+ *
+ * Each rule hides one debug-chrome panel by selector; the source file:line
+ * that creates the panel is named so a selector-drift review can re-check it.
+ * No rule targets canvas, any ancestor of the canvas, or a selector matching
+ * more than its panel (w0-still.mjs records per-selector match counts and
+ * rects, and stops BLOCKED if a selector ever matches the canvas or a canvas
+ * ancestor).
+ */
+
+/* Status strip: holds #xr-status ("WebXR unavailable", G4) and #trace-summary
+ * ("Trace 0/10", G4) plus the Enter Full VR button.
+ * Source: apps/ui-xr/src/main.ts:1532 <div class="status-strip">. */
+.status-strip {
+  display: none !important;
+}
+
+/* "Trace Actions" button panel (debug controls).
+ * Source: apps/ui-xr/src/main.ts:1561 <section class="trace-panel">. */
+.trace-panel {
+  display: none !important;
+}
+
+/* "Encounter Flow" panel: the fallbackLabel ("local-only fallback", G4) is
+ * rendered into #exam-flow-advance here when no server phase drives it.
+ * Source: apps/ui-xr/src/main.ts:1565 <section class="exam-flow-panel">. */
+.exam-flow-panel {
+  display: none !important;
+}
+
+/* "Room State" evidence panel ("baseline room state").
+ * Source: apps/ui-xr/src/main.ts:1580 section[aria-label="Reactive room state"]. */
+section[aria-label="Reactive room state"] {
+  display: none !important;
+}
+
+/* "Runtime Posture" evidence panel ("Mock model/voice active; ...").
+ * Source: apps/ui-xr/src/main.ts:1584 section[aria-label="Runtime posture"]. */
+section[aria-label="Runtime posture"] {
+  display: none !important;
+}
+
+/* "Quest Evidence" panel ("0 / 0", "pending", "not observed").
+ * Source: apps/ui-xr/src/main.ts:1596 section[aria-label="Quest manual evidence"]. */
+section[aria-label="Quest manual evidence"] {
+  display: none !important;
+}
