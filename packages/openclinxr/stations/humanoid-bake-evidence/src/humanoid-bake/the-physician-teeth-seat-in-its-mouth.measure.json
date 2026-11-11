@@ -1,0 +1,208 @@
+{
+  "schema": "openclinxr.teeth-seat-measure.v1",
+  "card": "tsk_2a74bbdb3f03cb3e",
+  "measuredAt": "2026-11-11T05:03:20.197Z",
+  "tool": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/teeth-seat-measure.ts",
+  "rows": [
+    {
+      "actor": "mpfb-clinical-nurse-adult.glb",
+      "glbSha256": "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
+      "m1SignedSide": 3114,
+      "m1f": 30,
+      "teethVertexCount": 3114,
+      "orphanCount": 1380,
+      "skinTriangleCount": 8322,
+      "m2ClearanceMm": 10.470584,
+      "m2sMm": 8.51581,
+      "m2SkinVertexId": 153,
+      "m2SkinVertex": [
+        0,
+        1.6100953817367554,
+        0.13970498740673065
+      ]
+    },
+    {
+      "actor": "mpfb-family-partner-adult.glb",
+      "glbSha256": "1fd58873ddba9519d442396635bd2d91a08c8b4b63606b186ecc56a9c0f5cb8b",
+      "m1SignedSide": 3110,
+      "m1f": 12,
+      "teethVertexCount": 3110,
+      "orphanCount": 1384,
+      "skinTriangleCount": 7461,
+      "m2ClearanceMm": 10.156598,
+      "m2sMm": 8.609586,
+      "m2SkinVertexId": 169,
+      "m2SkinVertex": [
+        0,
+        1.5159465074539185,
+        0.1343575417995453
+      ]
+    },
+    {
+      "actor": "mpfb-gown-adult-patient.glb",
+      "glbSha256": "107d7ec951744032298b5e4fafd1d14b33f4860538fe1480968db02678014864",
+      "m1SignedSide": 3112,
+      "m1f": 6,
+      "teethVertexCount": 3113,
+      "orphanCount": 1381,
+      "skinTriangleCount": 9810,
+      "m2ClearanceMm": 7.914843,
+      "m2sMm": 6.98253,
+      "m2SkinVertexId": 211,
+      "m2SkinVertex": [
+        2.2337047766995966e-9,
+        1.6078566312789917,
+        0.14479680359363556
+      ]
+    },
+    {
+      "actor": "mpfb-gown-ed-robert-hayes.glb",
+      "glbSha256": "4707db8662d8de790370efaf3356b41780f5ee0b880470ef496d70b82f79a27e",
+      "m1SignedSide": 3112,
+      "m1f": 7,
+      "teethVertexCount": 3113,
+      "orphanCount": 1381,
+      "skinTriangleCount": 9810,
+      "m2ClearanceMm": 7.915699,
+      "m2sMm": 6.98515,
+      "m2SkinVertexId": 211,
+      "m2SkinVertex": [
+        -3.325790309816057e-9,
+        1.6078606843948364,
+        0.1447966992855072
+      ]
+    },
+    {
+      "actor": "mpfb-gown-inspect.glb",
+      "glbSha256": "ba8f7ad538510baa9fdd328f1afbbda9eb243ba224c72fca324dd7c771451d91",
+      "m1SignedSide": 3109,
+      "m1f": 78,
+      "teethVertexCount": 3115,
+      "orphanCount": 1379,
+      "skinTriangleCount": 9808,
+      "m2ClearanceMm": 7.873872,
+      "m2sMm": 6.03339,
+      "m2SkinVertexId": 172,
+      "m2SkinVertex": [
+        -6.63464883032816e-9,
+        1.504181146621704,
+        0.13795004785060883
+      ]
+    },
+    {
+      "actor": "mpfb-ob-patient-aisha.glb",
+      "glbSha256": "37e905ea9fa0d4f3664d95a1c34ab45219a77ed63a46b4976b0bb1a063443ce9",
+      "m1SignedSide": 3109,
+      "m1f": 78,
+      "teethVertexCount": 3115,
+      "orphanCount": 1379,
+      "skinTriangleCount": 7060,
+      "m2ClearanceMm": 7.875429,
+      "m2sMm": 6.034602,
+      "m2SkinVertexId": 172,
+      "m2SkinVertex": [
+        0,
+        1.5041828155517578,
+        0.13794998824596405
+      ]
+    },
+    {
+      "actor": "mpfb-peds-nurse-kevin.glb",
+      "glbSha256": "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444",
+      "m1SignedSide": 3110,
+      "m1f": 17,
+      "teethVertexCount": 3114,
+      "orphanCount": 1380,
+      "skinTriangleCount": 5771,
+      "m2ClearanceMm": 13.298886,
+      "m2sMm": 12.55091,
+      "m2SkinVertexId": 112,
+      "m2SkinVertex": [
+        0,
+        1.6091382503509521,
+        0.13815030455589294
+      ]
+    },
+    {
+      "actor": "mpfb-peds-patient-child.glb",
+      "glbSha256": "1e90c396b7eeba779fa33be9ebfffef3a76f4b15c28b1f63b7e85656be4f980b",
+      "m1SignedSide": 3109,
+      "m1f": 18,
+      "teethVertexCount": 3109,
+      "orphanCount": 1385,
+      "skinTriangleCount": 19802,
+      "m2ClearanceMm": 6.073292,
+      "m2sMm": 5.94157,
+      "m2SkinVertexId": 560,
+      "m2SkinVertex": [
+        -0.012584461830556393,
+        1.1018695831298828,
+        0.11280182003974915
+      ]
+    },
+    {
+      "actor": "mpfb-street-adult-male.glb",
+      "glbSha256": "5acd5f16fc90f0116d8878587511a45e858e35ff549be60fe8d6eb3983b6abb8",
+      "m1SignedSide": 3107,
+      "m1f": 6,
+      "teethVertexCount": 3109,
+      "orphanCount": 1385,
+      "skinTriangleCount": 19262,
+      "m2ClearanceMm": 5.454591,
+      "m2sMm": 5.132704,
+      "m2SkinVertexId": 626,
+      "m2SkinVertex": [
+        0,
+        1.5995062589645386,
+        0.14724022150039673
+      ]
+    },
+    {
+      "actor": "mpfb-viseme-inspect.glb",
+      "glbSha256": "b517b416dca5f0921d4be8224560ed07bdab9e7cc2e4009d9b0b654e3007ece0",
+      "m1SignedSide": 3109,
+      "m1f": 78,
+      "teethVertexCount": 3115,
+      "orphanCount": 1379,
+      "skinTriangleCount": 7060,
+      "m2ClearanceMm": 7.875429,
+      "m2sMm": 6.034602,
+      "m2SkinVertexId": 172,
+      "m2SkinVertex": [
+        0,
+        1.5041828155517578,
+        0.13794998824596405
+      ]
+    }
+  ],
+  "bounds": {
+    "m1fMax": 78,
+    "m1fMaxActors": [
+      "mpfb-gown-inspect.glb",
+      "mpfb-ob-patient-aisha.glb",
+      "mpfb-viseme-inspect.glb"
+    ],
+    "m2sMinMm": 5.132704,
+    "m2sMinActor": "mpfb-street-adult-male.glb"
+  },
+  "negativeControl": {
+    "skinActor": "mpfb-street-adult-male.glb",
+    "teethFrom": "mpfb-clinical-physician-adult.glb",
+    "m1f": 170,
+    "teethVertexCount": 3114,
+    "orphanCount": 1380,
+    "m2sMm": 0.133892,
+    "m2SkinVertexId": 761,
+    "m2SkinVertex": [
+      -0.007129461970180273,
+      1.5355523824691772,
+      0.12835648655891418
+    ],
+    "verdict": "outside"
+  },
+  "supersededM1": {
+    "definition": "signed side to nearest skin triangle",
+    "verdict": "vacuous",
+    "evidence": "KG 3107-3114 of 3109-3115; nurse +5 mm 3114 -> 3114; card comment cmt_43acd416b71d3bca"
+  }
+}

@@ -26,12 +26,13 @@ const FEATURES = ["teeth", "tongue"] as const;
 const SCRATCH = process.env["OPENCLINXR_TEETH_SCRATCH_DIR"];
 const BAKE_NATIVE_KNOWN_GOOD = "mpfb-peds-parent-aisha.glb";
 /**
- * Excluded from this swap (super-ceo-cap8 ruling, 2026-11-10): its scratch bake missed the body
- * gate on the mouth row only (compare_body_v2 mouth p99 5.304 mm > 5.13 mm, whole 3.837 mm;
- * chin verts). The swap moves to tsk_2a74bbdb3f03cb3e, which gates on a seat measure instead.
+ * Swapped later than the other 10 (super-ceo-cap8 ruling, 2026-11-10): its scratch bake missed the
+ * body gate on the mouth row only (compare_body_v2 mouth p99 5.304 mm > 5.13 mm, whole 3.837 mm;
+ * chin verts). tsk_2a74bbdb3f03cb3e swapped it, gated on the seat measure in
+ * the-physician-teeth-seat-in-its-mouth.test.ts instead of body similarity.
  */
-const PENDING_SWAP = "mpfb-clinical-physician-adult.glb";
-const PENDING_SWAP_CARD = "tsk_2a74bbdb3f03cb3e";
+const LATE_SWAP = "mpfb-clinical-physician-adult.glb";
+const LATE_SWAP_CARD = "tsk_2a74bbdb3f03cb3e";
 
 type Accessor = {
   bufferView?: number;
@@ -324,12 +325,12 @@ function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>): 
 }
 
 describe("the shipped teeth carry their own CC0 texture", () => {
-  it("T1-T3: 11 of the 12 actors (physician pending, see the guard below) carry a fitted textured pair, valid weights, and swap or bake-native lineage", () => {
+  it("T1-T3: all 12 actors carry a fitted textured pair, valid weights, and swap or bake-native lineage", () => {
     const problems: string[] = [];
     let knownGood = "KNOWN_GOOD not measured";
     const actors = actorFiles();
     expect(actors, "K3: this contract is pinned to the 12 shipped MPFB actors").toHaveLength(12);
-    for (const actor of actors.filter((name) => name !== PENDING_SWAP)) {
+    for (const actor of actors) {
       try {
         const glb = parseGlb(join(DIR, actor));
         const splits = validateT1T2(glb);
@@ -343,12 +344,12 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     }
     expect(
       problems,
-      `${knownGood}\nteeth/tongue swap failures (${problems.length}/11):\n${problems.join("\n")}`,
+      `${knownGood}\nteeth/tongue swap failures (${problems.length}/12):\n${problems.join("\n")}`,
     ).toEqual([]);
   }, 1_800_000);
 
-  it(`inverted guard: ${PENDING_SWAP} still carries the hm08 teeth/tongue until ${PENDING_SWAP_CARD} lands`, () => {
-    const names = parseGlb(join(DIR, PENDING_SWAP)).document.meshes.map((mesh) => mesh.name ?? "");
+  it(`former inverted guard: ${LATE_SWAP} carries the fitted teeth/tongue and no hm08 pair since ${LATE_SWAP_CARD}`, () => {
+    const names = parseGlb(join(DIR, LATE_SWAP)).document.meshes.map((mesh) => mesh.name ?? "");
     const count = (token: string) => names.filter((name) => name.includes(token)).length;
     expect(
       {
@@ -357,10 +358,9 @@ describe("the shipped teeth carry their own CC0 texture", () => {
         fittedTeeth: count("openclinxr_fitted_teeth"),
         fittedTongue: count("openclinxr_fitted_tongue"),
       },
-      `physician teeth swap pending ${PENDING_SWAP_CARD}: when that card lands, replace this guard with ` +
-        "the swapped-teeth assertion used for the other 10 (drop PENDING_SWAP from the T1-T3 and T5 " +
-        "filters); do not delete or widen it",
-    ).toEqual({ hm08Teeth: 1, hm08Tongue: 1, fittedTeeth: 0, fittedTongue: 0 });
+      `${LATE_SWAP} lost its fitted pair or regained the hm08 slab: restore it from ${LATE_SWAP_CARD}'s ` +
+        "swap chain (sidecar teethSwapB1.postSteps); do not delete or widen this check",
+    ).toEqual({ hm08Teeth: 0, hm08Tongue: 0, fittedTeeth: 1, fittedTongue: 1 });
   });
 
   it("known-good: the current peds-parent bake passes T1/T2 without teethSwapB1", () => {
@@ -390,6 +390,9 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     "mpfb-peds-patient-child.glb": { teethDz: 0, tongueDz: 0, coupled: true }, // not in deltas.txt: rest cleared
     "mpfb-street-adult-male.glb": { teethDz: 0, tongueDz: 0, coupled: true }, // not in deltas.txt: rest cleared
     "mpfb-viseme-inspect.glb": { teethDz: -0.0031, tongueDz: 0, coupled: false }, // line 8
+    // tsk_2a74bbdb3f03cb3e: same rule (|marginAtCap| + 0.5 mm), physician marginAtCap -5.5596 mm
+    // (phys-seat/swap/retreat-delta.record.json, recorded before the seat measure).
+    "mpfb-clinical-physician-adult.glb": { teethDz: -0.0061, tongueDz: 0, coupled: true },
   };
   /**
    * T5' decimation post-step (super-ceo-cap13 ruling 2026-11-10: ONE ratio 0.65, error 0.005 for
@@ -454,8 +457,8 @@ describe("the shipped teeth carry their own CC0 texture", () => {
   /** float32 ulp at 0.2 m is 1.5e-8 m; one add of dz rounds once. */
   const POSITION_TOLERANCE_M = 1e-6;
   const t5Title = SCRATCH
-    ? "T5': the 10 transplanted mouth accessors equal each actor's scratch bake plus its recorded post-steps"
-    : "T5': the 10 transplanted mouth accessors equal each actor's scratch bake plus its recorded post-steps [SKIP: OPENCLINXR_TEETH_SCRATCH_DIR is unset]";
+    ? "T5': the 11 transplanted mouth accessors equal each actor's scratch bake plus its recorded post-steps"
+    : "T5': the 11 transplanted mouth accessors equal each actor's scratch bake plus its recorded post-steps [SKIP: OPENCLINXR_TEETH_SCRATCH_DIR is unset]";
   // NOT TESTED: T5' skips without OPENCLINXR_TEETH_SCRATCH_DIR (the scratch bakes are machine-local),
   // so it runs locally only, never in CI.
   (SCRATCH ? it : it.skip)(t5Title, () => {
@@ -465,9 +468,9 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     // and its tongue 1 (couple-fitted-teeth-to-lip-viseme.ts, after the bake; fresh scratch: 0), and
     // 2180 of 4494 teeth verts are skinned head/jaw/oris blends where the fresh bake skins jaw 1.0
     // (measured 2026-11-10). That is producer-vs-shipped drift outside this swap; T1/T2 still pass on it.
-    const swapped = actorFiles().filter((name) => name !== PENDING_SWAP && name !== BAKE_NATIVE_KNOWN_GOOD);
-    expect(swapped, "T5' covers the 10 swapped actors").toHaveLength(10);
-    expect(Object.keys(POST_STEPS).sort(), "T5' post-step table names the 10 swapped actors").toEqual([...swapped].sort());
+    const swapped = actorFiles().filter((name) => name !== BAKE_NATIVE_KNOWN_GOOD);
+    expect(swapped, "T5' covers the 11 swapped actors").toHaveLength(11);
+    expect(Object.keys(POST_STEPS).sort(), "T5' post-step table names the 11 swapped actors").toEqual([...swapped].sort());
     const knownGood = parseGlb(join(DIR, BAKE_NATIVE_KNOWN_GOOD));
     const knownGoodNames = (feature(knownGood, "teeth", true).mesh as Mesh & { extras?: { targetNames?: string[] } })
       .extras?.targetNames ?? [];

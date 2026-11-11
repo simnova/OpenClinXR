@@ -213,7 +213,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // st-vitphys r1 re-pinned 2026-11-06: deep family r8 skin albedo + Vitruvian brown iris as post-export byte stages
   // (apply_family_skin_albedo.py, apply_vitruvian_eye_texture.py; image bytes only, mesh inventory identical):
   // 9476168 B live; was 34c5aec8fe30….
-  "mpfb-clinical-physician-adult": "f73229fe6ed22d7db0e35ce726901d1d6d750680d7bde5e8a0cb6c965b73998d",
+  // tsk_2a74bbdb3f03cb3e re-pinned 2026-11-11: physician teeth swap (fitted CC0 teeth/tongue,
+  // teeth-rest-clearance --delta 0.0061, couple-fitted-teeth-to-lip-viseme, decimate 7120 -> 4627 tris):
+  // 12596836 B live (was 9497600 B pre-swap).
+  "mpfb-clinical-physician-adult": "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
 }
 
 type Prov = {
