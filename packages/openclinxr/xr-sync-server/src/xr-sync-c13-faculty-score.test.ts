@@ -196,7 +196,11 @@ describe("xr-sync-server C13 faculty score + return to lobby", () => {
     expect(await intent(r.c, "score-station", { items: ITEMS })).toMatchObject({ status: "ack" });
     expect(await intent(r.c, "return-to-lobby", {})).toMatchObject({ status: "ack" });
     await waitFor(() => r.last()?.mode === "lobby", 5000, "back in lobby");
-    expect(r.last()?.lobbyScores).toEqual([{ stationId: "station-2", checkedCount: 2 }]);
+    expect(r.last()?.lobbyScores).toEqual([{ stationId: "station-2", checkedCount: 2, items: [
+      { id: "hpi-onset", checked: true },
+      { id: "pe-lungs", checked: false },
+      { id: "plan-shared", checked: true },
+    ] }]);
     expect(r.last()?.lobbyStations?.map((s) => Object.keys(s).sort())).toEqual([
       ["available", "noteChars", "notePresent", "noteSource", "stationId", "stationIndex", "turnCount", "unavailableReason"],
       ["available", "noteChars", "notePresent", "noteSource", "stationId", "stationIndex", "turnCount", "unavailableReason"],
@@ -208,7 +212,11 @@ describe("xr-sync-server C13 faculty score + return to lobby", () => {
     const second = await boot(config);
     const fresh = await joinRoom(second, { reviewLobby: true });
     await waitFor(() => fresh.last()?.mode === "lobby" && (fresh.last()?.lobbyStations?.length ?? 0) === 2, 5000, "fresh lobby");
-    expect(fresh.last()?.lobbyScores).toEqual([{ stationId: "station-2", checkedCount: 2 }]);
+    expect(fresh.last()?.lobbyScores).toEqual([{ stationId: "station-2", checkedCount: 2, items: [
+      { id: "hpi-onset", checked: true },
+      { id: "pe-lungs", checked: false },
+      { id: "plan-shared", checked: true },
+    ] }]);
   }, 60000);
 
   it("C12 carry-overs: launch reaches only the selector, one launch per lobby, live onAuth refuses reviewLobby", async () => {

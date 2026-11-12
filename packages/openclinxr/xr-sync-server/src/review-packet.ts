@@ -106,7 +106,7 @@ export function readValidLobbyScores(
   for (const stationId of stationIds) {
     const file = readValidScoreFile(scoreDir, stationId, rubric);
     if (file !== null) {
-      scores.push({ stationId, checkedCount: file.checkedCount });
+      scores.push({ stationId, checkedCount: file.checkedCount, items: file.items });
     }
   }
   return scores;

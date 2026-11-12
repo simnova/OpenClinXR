@@ -13,20 +13,22 @@
  * live learner seat.
  */
 
-import { ArraySchema, MapSchema } from "@colyseus/schema";
-import { matchMaker } from "@colyseus/core";
 import type { Client } from "@colyseus/core";
+import { matchMaker } from "@colyseus/core";
+import { ArraySchema, MapSchema } from "@colyseus/schema";
+import { LAUNCH_PENDING_REASON, type LobbyScore } from "./faculty-score.js";
 import {
-  LobbyScoreState,
-  LobbyStationState,
   type ActorStateInstance,
   type EncounterStateInstance,
   type LearnerStateInstance,
+  LobbyScoreItemState,
+  type LobbyScoreItemStateInstance,
+  LobbyScoreState,
   type LobbyScoreStateInstance,
+  LobbyStationState,
   type LobbyStationStateInstance,
 } from "./schema.js";
 import type { LoadedStationReplay } from "./station-replay-loading.js";
-import { LAUNCH_PENDING_REASON, type LobbyScore } from "./faculty-score.js";
 
 /** Reject reason for every non-select intent in the lobby. */
 export const LOBBY_READ_ONLY_REASON = "lobby-read-only";
@@ -114,6 +116,17 @@ export function setupLobbyState(state: EncounterStateInstance, replay: LoadedSta
     const badge = new LobbyScoreState();
     badge.stationId = score.stationId;
     badge.checkedCount = score.checkedCount;
+    // Per-item flags from the same validated score file as the badge, in
+    // rubric order (faculty-score buildFacultyScore shape { id, checked }).
+    // Scores read before items existed carry no items: the badge then holds [].
+    badge.items = new ArraySchema<LobbyScoreItemStateInstance>();
+    const items = (score as { items?: { id: string; checked: boolean }[] }).items ?? [];
+    for (const item of items) {
+      const row = new LobbyScoreItemState();
+      row.id = item.id;
+      row.checked = item.checked;
+      badge.items.push(row);
+    }
     state.lobbyScores.push(badge);
   }
   state.reviewFinalized = reviewFinalized;

@@ -105,8 +105,8 @@ export interface EncounterSnapshot {
   lobbyStations?: Array<{ stationId: string; stationIndex: number; turnCount: number; notePresent: boolean; noteChars: number; noteSource?: string; available?: boolean; unavailableReason?: string }>;
   /** C13 checked rubric count for the replayed station (replay only). */
   scoreChecked?: number;
-  /** C13 one badge per scored index station, in index order (lobby only). */
-  lobbyScores?: Array<{ stationId: string; checkedCount: number }>;
+  /** C13 one badge per scored index station, in index order (lobby only). items ride the same validated score file in rubric order; absent on old servers. */
+  lobbyScores?: Array<{ stationId: string; checkedCount: number; items?: Array<{ id: string; checked: boolean }> }>;
   /** C14 true once the reviewer signed off (the packet exists in scoreDir; lobby only). */
   reviewFinalized?: boolean;
   /** C15 factory blueprint id ("" without a blueprint; absent on old servers). */

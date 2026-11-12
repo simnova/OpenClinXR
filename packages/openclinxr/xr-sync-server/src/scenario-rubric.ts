@@ -169,7 +169,7 @@ export function readScenarioLobbyScores(
     }
     const file = readValidScenarioScoreFile(scoreDir, stationId, resolved.scenarioId, resolved.rubric);
     if (file !== null) {
-      scores.push({ stationId, checkedCount: file.checkedCount });
+      scores.push({ stationId, checkedCount: file.checkedCount, items: file.items });
     }
   }
   return scores;

@@ -59,6 +59,8 @@ export interface FacultyScoreBinding {
 export interface LobbyScore {
   stationId: string;
   checkedCount: number;
+  /** Per-item flags in rubric order, from the same validated score file. */
+  items?: { id: string; checked: boolean }[];
 }
 
 /** Persisted faculty score (review-safe: no session id, no timestamps, no labels). */

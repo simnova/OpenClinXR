@@ -5,17 +5,45 @@ import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { FacultyReviewConsole } from "./faculty-review-console.js";
 
 // FOLLOWUP r2: one block element per fact line (sign-off, stations, rubric,
-// scored, action row, finalized, reject), faculty-readable labels with the
-// machine tokens on data-* attributes, and the ack serverTs as an ISO string
-// with the raw ms on data-server-ts. Each line is located by role or data
-// attribute and asserted with per-element textContent equality.
+// scored, station scores, action row, finalized, reject), faculty-readable labels
+// with the machine tokens on data-* attributes, and the ack serverTs as an ISO
+// string with the raw ms on data-server-ts. Each line is located by role or data
+// attribute and asserted with per-element textContent equality. Station score
+// lines render the SERVER items (?rubric= supplies only id->label): checked is
+// ✓, unchecked is ✗, and a station with no valid score file shows "not scored".
 const RUBRIC = [
   { id: "hpi-onset", label: "Asked onset", checked: true },
   { id: "pe-lungs", label: "Examined lungs", checked: true },
   { id: "plan-shared", label: "Shared the plan", checked: false },
 ];
 
-function lobbySnapshot(reviewFinalized: boolean): EncounterSnapshot {
+// Server items in rubric order (run-7: station-1 T/F/T, station-2 T/T/F,
+// station-3 T/F/T). The URL RUBRIC above claims pe-lungs checked and
+// plan-shared unchecked; the server says the opposite for station 1.
+function lobbySnapshot(reviewFinalized: boolean, unscored: string[] = []): EncounterSnapshot {
+  const badges = [
+    {
+      stationId: "station-1", checkedCount: 2, items: [
+        { id: "hpi-onset", checked: true },
+        { id: "pe-lungs", checked: false },
+        { id: "plan-shared", checked: true },
+      ],
+    },
+    {
+      stationId: "station-2", checkedCount: 2, items: [
+        { id: "hpi-onset", checked: true },
+        { id: "pe-lungs", checked: true },
+        { id: "plan-shared", checked: false },
+      ],
+    },
+    {
+      stationId: "station-3", checkedCount: 2, items: [
+        { id: "hpi-onset", checked: true },
+        { id: "pe-lungs", checked: false },
+        { id: "plan-shared", checked: true },
+      ],
+    },
+  ].filter((badge) => !unscored.includes(badge.stationId));
   return {
     serverTick: 7,
     phase: "lobby",
@@ -29,16 +57,12 @@ function lobbySnapshot(reviewFinalized: boolean): EncounterSnapshot {
       { stationId: "station-2", stationIndex: 1, turnCount: 0, notePresent: false, noteChars: 0 },
       { stationId: "station-3", stationIndex: 2, turnCount: 0, notePresent: false, noteChars: 0 },
     ],
-    lobbyScores: [
-      { stationId: "station-1", checkedCount: 2 },
-      { stationId: "station-2", checkedCount: 2 },
-      { stationId: "station-3", checkedCount: 2 },
-    ],
+    lobbyScores: badges,
     reviewFinalized,
   } as EncounterSnapshot;
 }
 
-function stubHarness(outcome: { serverTs: number } | { rejectReason: string }): {
+function stubHarness(outcome: { serverTs: number } | { rejectReason: string }, unscored: string[] = []): {
   sent: Array<{ kind: string; payload: unknown }>;
   connectFn: () => Promise<unknown>;
 } {
@@ -53,12 +77,12 @@ function stubHarness(outcome: { serverTs: number } | { rejectReason: string }): 
       }
       // The server marks the lobby finalized BEFORE the ack lands, so the
       // next snapshot already carries reviewFinalized.
-      listener?.(lobbySnapshot(true));
+      listener?.(lobbySnapshot(true, unscored));
       return { status: "ack", seq: sent.length, serverTs: outcome.serverTs, rttMs: 1 };
     },
     onState: (callback: (snapshot: EncounterSnapshot) => void) => {
       listener = callback;
-      callback(lobbySnapshot(false));
+      callback(lobbySnapshot(false, unscored));
       return () => {
         listener = undefined;
       };
@@ -91,7 +115,7 @@ describe("the faculty console shows the acked finalize time", () => {
     cleanup();
   });
 
-  it("lists stations with turn counts, rubric item labels, and per-station scores from the snapshot", async () => {
+  it("lists stations with turn counts, rubric item labels, per-station scores, and one server-item line per station", async () => {
     const { connectFn } = stubHarness({ serverTs: 1800000000000 });
     render(<FacultyReviewConsole syncUrl="ws://127.0.0.1:9/faculty" rubric={RUBRIC} connectFn={connectFn as never} />);
 
@@ -117,7 +141,24 @@ describe("the faculty console shows the acked finalize time", () => {
     expect(scored?.textContent).toBe("Scores: Station 1: 2 · Station 2: 2 · Station 3: 2");
     expect(scored?.getAttribute("data-scored")).toBe("station-1:2 | station-2:2 | station-3:2");
 
-    expect(new Set([signoff, rubric, scored]).size).toBe(3);
+    const stationScores = await screen.findByRole("list", { name: "Station scores" });
+    expect(within(stationScores).getAllByRole("listitem").map((item) => item.textContent)).toEqual([
+      "Station 1: Asked onset ✓, Examined lungs ✗, Shared the plan ✓",
+      "Station 2: Asked onset ✓, Examined lungs ✓, Shared the plan ✗",
+      "Station 3: Asked onset ✓, Examined lungs ✗, Shared the plan ✓",
+    ]);
+
+    expect(new Set([signoff, rubric, scored, stationScores]).size).toBe(4);
+
+    cleanup();
+    // CW2: a URL param naming an id the server lacks renders no glyph for it.
+    const extra = [...RUBRIC, { id: "ghost-item", label: "Ghost item", checked: true }];
+    const second = stubHarness({ serverTs: 1800000000000 });
+    render(<FacultyReviewConsole syncUrl="ws://127.0.0.1:9/faculty" rubric={extra} connectFn={second.connectFn as never} />);
+    const rescored = await screen.findByRole("list", { name: "Station scores" });
+    expect(rescored.textContent ?? "").not.toContain("Ghost item");
+    const glyphs = [...(rescored.textContent ?? "")].filter((ch) => ch === "✓" || ch === "✗" || ch === "✕");
+    expect(glyphs.length).toBe(9);
   });
 
   it("shows the acked serverTs after Finalize, not the client clock", async () => {
@@ -151,23 +192,26 @@ describe("the faculty console shows the acked finalize time", () => {
     expect(screen.queryByText("Finalize rejected: review-finalized")).not.toBeInTheDocument();
   });
 
-  it("shows no check glyph a URL rubric param could set (B2 guard until per-station server items land)", async () => {
-    // The ?rubric= param is caller-supplied; the lobby carries only per-station
-    // checkedCount (xr-sync-server schema.ts LobbyScoreState). Run-7 shows the
-    // conflict: the param says lungs checked, the server scored station 1 lungs unchecked.
-    const { connectFn } = stubHarness({ serverTs: 1800000000000 });
+  it("shows the server item values, never the URL param flags, and not scored without a score file", async () => {
+    // RED2 (card tsk_3b2b5bb28eb3a5de): the ?rubric= param says lungs checked
+    // and plan unchecked, while the server items say pe-lungs false and
+    // plan-shared true for station 1. The console renders the server values.
+    // E2 pinned here too: station 2 has no valid score file, so no items and
+    // the UI shows "Station 2: not scored".
+    const { connectFn } = stubHarness({ serverTs: 1800000000000 }, ["station-2"]);
     render(<FacultyReviewConsole syncUrl="ws://127.0.0.1:9/faculty" rubric={RUBRIC} connectFn={connectFn as never} />);
 
-    expect(await screen.findByText("Scores: Station 1: 2 · Station 2: 2 · Station 3: 2")).toBeInTheDocument();
-    const text = document.body.textContent ?? "";
-    const glyphs = [...text].filter((ch) => ch === "\u2713" || ch === "\u2717" || ch === "\u2715");
-    expect(
-      glyphs,
-      "A URL rubric param must not set a check glyph. Replace this guard with the per-station server-value test when card tsk_c5be909e3c22bf7e lands; never delete it.",
-    ).toEqual([]);
-    const rubric = document.querySelector("[data-rubric]");
-    expect(rubric?.textContent).toBe("Rubric items: Asked onset · Examined lungs · Shared the plan");
-    expect(rubric?.getAttribute("data-rubric")).toBe("hpi-onset | pe-lungs | plan-shared");
+    const stationScores = await screen.findByRole("list", { name: "Station scores" });
+    expect(within(stationScores).getAllByRole("listitem").map((item) => item.textContent)).toEqual([
+      "Station 1: Asked onset ✓, Examined lungs ✗, Shared the plan ✓",
+      "Station 2: not scored",
+      "Station 3: Asked onset ✓, Examined lungs ✗, Shared the plan ✓",
+    ]);
+    const text = stationScores.textContent ?? "";
+    expect(text).toContain("Examined lungs ✗");
+    expect(text).toContain("Shared the plan ✓");
+    expect(text).not.toContain("Examined lungs ✓");
+    expect(text).not.toContain("Shared the plan ✗");
   });
 
   it("names the reject reason and shows no finalized time on reject", async () => {

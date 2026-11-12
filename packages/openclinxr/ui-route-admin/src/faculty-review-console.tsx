@@ -8,17 +8,16 @@ import { useSearchParams } from "react-router";
  * Faculty review console: joins a finished encounter room as faculty over the
  * existing C13/C14 review protocol (review rubric; finalize-review) and
  * renders the same facts the sync probes render — station turn counts from
- * lobbyStations, the rubric on/off state plus the per-station score badges
- * from the probe-c13 `rubric: ... || scored: ...` facts, and the sign-off
- * state from the probe-c14 `signoff:finalized/open` fact. Faculty-readable
- * labels render as block elements (one per line); the machine tokens ride on
- * data-* attributes on the same elements. Finalize sends finalize-review and
- * shows the server-acked serverTs as an ISO string (never the client clock),
- * with the raw ms on data-server-ts and title. The rubric checklist arrives
- * like the probe's ?rubric= page parameter; per-item checked state is
- * faculty-supplied review input (the protocol exposes only the per-station
- * checkedCount, never item booleans), so no new protocol messages and no new
- * server state.
+ * lobbyStations, the per-station score badges from the probe-c13
+ * `rubric: ... || scored: ...` facts, and the sign-off state from the
+ * probe-c14 `signoff:finalized/open` fact. Faculty-readable labels render as
+ * block elements (one per line); the machine tokens ride on data-*
+ * attributes on the same elements. Finalize sends finalize-review and shows
+ * the server-acked serverTs as an ISO string (never the client clock), with
+ * the raw ms on data-server-ts and title. The ?rubric= param supplies only
+ * id->label; per-item checked state comes from the server lobbyScores items
+ * (one rubric line per station, server values win over the param), so no new
+ * protocol messages and no new server state.
  */
 export interface FacultyReviewRubricItem {
   id: string;
@@ -87,9 +86,9 @@ export function FacultyReviewConsole({
   const scores = snapshot?.lobbyScores ?? [];
   const signoffToken = snapshot?.reviewFinalized === true ? "signoff:finalized" : "signoff:open";
   const signoffLabel = snapshot?.reviewFinalized === true ? "Sign-off: finalized" : "Sign-off: open";
-  // B1 (super-ceo-cap21 2026-11-12): the ?rubric= param is caller-supplied, so it
-  // names the items only. Check values come from the server, and the lobby
-  // carries per-station counts only (LobbyScoreState), so no check glyph here.
+  // The ?rubric= param is caller-supplied, so it names the items only
+  // (id->label). Check values come from the server lobbyScores items; a
+  // station with no valid score file has no items and renders "not scored".
   const rubricToken = rubric.map((item) => item.id).join(" | ");
   const rubricLabel = rubric.length > 0 ? `Rubric items: ${rubric.map((item) => item.label).join(" · ")}` : "Rubric items: -";
   const scoredToken = scores.map((badge) => `${badge.stationId}:${badge.checkedCount}`).join(" | ");
@@ -97,6 +96,20 @@ export function FacultyReviewConsole({
     scores.length > 0
       ? `Scores: ${scores.map((badge) => `${stationDisplayName(badge.stationId)}: ${badge.checkedCount}`).join(" · ")}`
       : "Scores: -";
+  const labelById = new Map(rubric.map((item) => [item.id, item.label]));
+  const badgeByStation = new Map(scores.map((badge) => [badge.stationId, badge]));
+  const stationScoreRows = stations.map((station) => {
+    const badge = badgeByStation.get(station.stationId);
+    const items = badge?.items ?? [];
+    if (items.length > 0) {
+      const parts = items.map((item) => `${labelById.get(item.id) ?? item.id} ${item.checked ? "✓" : "✗"}`);
+      return { stationId: station.stationId, text: `${stationDisplayName(station.stationId)}: ${parts.join(", ")}` };
+    }
+    if (badge !== undefined) {
+      return { stationId: station.stationId, text: `${stationDisplayName(station.stationId)}: ${badge.checkedCount} checked` };
+    }
+    return { stationId: station.stationId, text: `${stationDisplayName(station.stationId)}: not scored` };
+  });
 
   const finalize = (): void => {
     const connection = connectionRef.current;
@@ -123,8 +136,8 @@ export function FacultyReviewConsole({
   };
 
   // F1: one block element per fact line, in order: sign-off, stations,
-  // rubric, scored, action row, finalized, reject. Plain block elements (never
-  // adjacent inline Text) so labels cannot fuse across lines.
+  // rubric, scored, station scores, action row, finalized, reject. Plain
+  // block elements (never adjacent inline Text) so labels cannot fuse lines.
   return (
     <Card title="Faculty Review Console">
       <Typography.Paragraph>
@@ -139,6 +152,11 @@ export function FacultyReviewConsole({
       </ul>
       <p data-rubric={rubricToken}>{rubricLabel}</p>
       <p data-scored={scoredToken}>{scoredLabel}</p>
+      <ul aria-label="Station scores">
+        {stationScoreRows.map((row) => (
+          <li key={row.stationId} data-station={row.stationId}>{row.text}</li>
+        ))}
+      </ul>
       <div style={{ marginBottom: "1em" }}>
         <Button onClick={finalize} disabled={sending || finalizedTs !== null}>
           Finalize
