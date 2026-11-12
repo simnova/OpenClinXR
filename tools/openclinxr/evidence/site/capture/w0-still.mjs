@@ -43,27 +43,27 @@ import { createHash } from "node:crypto";
 import { execSync } from "node:child_process";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { GPU_ARGS, VIEWPORT } from "./capture-instrument.mjs";
 import { planCapture } from "./rr1.mjs";
 import { startStaticServer } from "../../xr-sync/harness-lib.mjs";
 
 export { GPU_ARGS, VIEWPORT } from "./capture-instrument.mjs";
 
-const SCRIPT_DIR = fileURLToPath(new URL("./", import.meta.url));
-const TREE_TOP = resolve(SCRIPT_DIR, "..", "..", "..", "..", "..");
-const APP_DIST = join(TREE_TOP, "apps", "ui-xr", "dist");
-const SERVER_INDEX = join(TREE_TOP, "packages", "openclinxr", "xr-sync-server", "dist", "index.js");
-const SERVER_STACK = join(TREE_TOP, "packages", "openclinxr", "xr-sync-server", "dist", "dev-stack.js");
-const FIXTURES_INDEX = join(TREE_TOP, "packages", "openclinxr", "scenario-fixtures", "dist", "index.js");
-const CSS_PATH = join(SCRIPT_DIR, "presentation.css");
+export const SCRIPT_DIR = fileURLToPath(new URL("./", import.meta.url));
+export const TREE_TOP = resolve(SCRIPT_DIR, "..", "..", "..", "..", "..");
+export const APP_DIST = join(TREE_TOP, "apps", "ui-xr", "dist");
+export const SERVER_INDEX = join(TREE_TOP, "packages", "openclinxr", "xr-sync-server", "dist", "index.js");
+export const SERVER_STACK = join(TREE_TOP, "packages", "openclinxr", "xr-sync-server", "dist", "dev-stack.js");
+export const FIXTURES_INDEX = join(TREE_TOP, "packages", "openclinxr", "scenario-fixtures", "dist", "index.js");
+export const CSS_PATH = join(SCRIPT_DIR, "presentation.css");
 
-const DOORWAY_SECONDS = "90";
+export const DOORWAY_SECONDS = "90";
 const POLL_MS = 250;
 const STABLE_POLLS = 8;
 const STABLE_WAIT_MS = 120000;
-const JOIN_WAIT_MS = 240000;
-const ENCOUNTER_WAIT_MS = 240000;
+export const JOIN_WAIT_MS = 240000;
+export const ENCOUNTER_WAIT_MS = 240000;
 
 // Debug-chrome selectors hidden for the proof still (presentation.css owns
 // the rules; this table owns the order, source lines, and runtime checks).
@@ -81,7 +81,7 @@ const SELECTORS = [
 // table names them so capture.json records per-element visibility in the
 // control and proof stills, and the artifact test reds if any of them is
 // hidden by the presentation CSS.
-const PROTECTED = [
+export const PROTECTED = [
   { selector: "#room-countdown", source: "packages/openclinxr/xr-sync-client/src/encounter-room-panel.ts:19" },
   { selector: "#room-refusal", source: "packages/openclinxr/xr-sync-client/src/encounter-room-panel.ts:23" },
   { selector: "#room-note", source: "packages/openclinxr/xr-sync-client/src/encounter-room-panel.ts:39" },
@@ -97,11 +97,11 @@ function failBlocked(why) {
   throw new Error(why);
 }
 
-function sha256File(path) {
+export function sha256File(path) {
   return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
-function readPngSize(path) {
+export function readPngSize(path) {
   const bytes = readFileSync(path);
   if (bytes.length < 24 || bytes.toString("ascii", 1, 4) !== "PNG") {
     failBlocked(`not a PNG still: ${path}`);
@@ -109,11 +109,11 @@ function readPngSize(path) {
   return { width: bytes.readUInt32BE(16), height: bytes.readUInt32BE(20), bytes: bytes.length };
 }
 
-function pause(ms) {
+export function pause(ms) {
   return new Promise((done) => setTimeout(done, ms));
 }
 
-function buildSha() {
+export function buildSha() {
   try {
     return execSync("git rev-parse HEAD", { cwd: TREE_TOP, encoding: "utf8" }).trim();
   } catch {
@@ -121,7 +121,7 @@ function buildSha() {
   }
 }
 
-function pickRunDir(root) {
+export function pickRunDir(root) {
   let n = 1;
   while (existsSync(join(root, `run-${n}`))) n += 1;
   const dir = join(root, `run-${n}`);
@@ -129,7 +129,7 @@ function pickRunDir(root) {
   return { dir, n };
 }
 
-function phaseLog(runDir, mark) {
+export function phaseLog(runDir, mark) {
   writeFileSync(join(runDir, "w0-progress.log"), `${new Date().toISOString()} ${mark}\n`, { flag: "a" });
 }
 
@@ -175,7 +175,7 @@ async function humanoidSignature(page) {
   });
 }
 
-async function waitStableHumanoids(page) {
+export async function waitStableHumanoids(page) {
   const series = [];
   const started = Date.now();
   let last = "";
@@ -268,7 +268,7 @@ async function hiddenRects(page) {
   }), SELECTORS);
 }
 
-async function protectedVisibility(page) {
+export async function protectedVisibility(page) {
   return page.evaluate((rows) => rows.map((row) => {
     const nodes = [...document.querySelectorAll(row.selector)];
     const shown = nodes.filter((node) => {
@@ -283,6 +283,91 @@ function overlapArea(a, b) {
   const w = Math.min(a.x + a.width, b.x + b.width) - Math.max(a.x, b.x);
   const h = Math.min(a.y + a.height, b.y + b.height) - Math.max(a.y, b.y);
   return w > 0 && h > 0 ? w * h : 0;
+}
+
+export async function applyPresentationCss(page) {
+  const cssText = readFileSync(CSS_PATH, "utf8");
+  await page.addStyleTag({ content: cssText });
+}
+
+/**
+ * Shared settled-frame stage: exactly what captureRun does up to the
+ * settled frame (same server stack, GPU launch, viewport, join and
+ * encounter waits, settled-frame wait, collectors, progress marks).
+ * css:true applies presentation.css exactly as the w0-proof still does;
+ * css:false matches control-a. Callers own their run dir, heartbeat and
+ * still logic; close() is captureRun's finally cleanup.
+ */
+export async function openW0Stage({ css = false, runDir = null } = {}) {
+  const log = (mark) => {
+    if (runDir !== null) phaseLog(runDir, mark);
+  };
+  const { createEncounterServer } = await import(SERVER_INDEX);
+  const { resolveDevStack } = await import(SERVER_STACK);
+  const fixtures = await import(FIXTURES_INDEX);
+  const stack = resolveDevStack({ XR_SYNC_DOORWAY_SECONDS: DOORWAY_SECONDS }, {
+    scenarioBank: fixtures.scenarioBank,
+    scenarioDialogueSeedBank: fixtures.scenarioDialogueSeedBank,
+  });
+  const server = await createEncounterServer({
+    examBlueprint: stack.examBlueprint,
+    scenarios: stack.scenarios,
+    dialogueSeeds: stack.dialogueSeeds,
+  });
+  let staticServer = null;
+  let browser = null;
+  const close = async () => {
+    if (browser !== null) await browser.close().catch(() => undefined);
+    if (staticServer !== null) await staticServer.close().catch(() => undefined);
+    await server.close().catch(() => undefined);
+  };
+  try {
+    staticServer = await startStaticServer(
+      APP_DIST,
+    );
+    log(`server-up port=${server.port} static-up port=${staticServer.port}`);
+    const pageUrl = `http://127.0.0.1:${staticServer.port}/?encounterSync=${encodeURIComponent(server.url)}`;
+
+    const { chromium } = await import("playwright");
+    browser = await chromium.launch({ headless: true, channel: "chromium", args: GPU_ARGS });
+    const pageErrors = [];
+    const consoleErrors = [];
+    const context = await browser.newContext({ viewport: { width: VIEWPORT.width, height: VIEWPORT.height }, deviceScaleFactor: 1 });
+    const page = await context.newPage();
+    page.on("pageerror", (error) => pageErrors.push(String(error).slice(0, 300)));
+    page.on("console", (message) => {
+      if (message.type() === "error") consoleErrors.push(message.text().slice(0, 300));
+    });
+    await page.goto(pageUrl, { waitUntil: "load", timeout: 60000 });
+    log("page-load");
+    await page.waitForFunction(
+      () => window.__openClinXrEncounterSync !== undefined && window.__openClinXrEncounterSync.state !== "joining",
+      undefined,
+      { timeout: JOIN_WAIT_MS },
+    );
+    log("joined");
+    const openedBy = Date.now() + ENCOUNTER_WAIT_MS;
+    for (;;) {
+      let snap = null;
+      try {
+        snap = JSON.parse(server.getStateJSON());
+      } catch {
+        snap = null;
+      }
+      if (snap !== null && snap.phase === "encounter") break;
+      if (Date.now() > openedBy) failBlocked(`encounter phase never opened: ${JSON.stringify(snap)}`);
+      await pause(500);
+    }
+    const stable = await waitStableHumanoids(page);
+    log(`stable count=${stable.count} polls=${stable.polls}`);
+    if (css) {
+      await applyPresentationCss(page);
+    }
+    return { page, server, staticServer, browser, pageErrors, consoleErrors, close, stable, stack };
+  } catch (error) {
+    await close();
+    throw error;
+  }
 }
 
 async function captureRun() {
@@ -304,42 +389,15 @@ async function captureRun() {
   const base = plan.captureJson;
   const patientId = "patient_robert_hayes_v1";
 
-  const { createEncounterServer } = await import(SERVER_INDEX);
-  const { resolveDevStack } = await import(SERVER_STACK);
-  const fixtures = await import(FIXTURES_INDEX);
-  const stack = resolveDevStack({ XR_SYNC_DOORWAY_SECONDS: DOORWAY_SECONDS }, {
-    scenarioBank: fixtures.scenarioBank,
-    scenarioDialogueSeedBank: fixtures.scenarioDialogueSeedBank,
-  });
-  const server = await createEncounterServer({
-    examBlueprint: stack.examBlueprint,
-    scenarios: stack.scenarios,
-    dialogueSeeds: stack.dialogueSeeds,
-  });
-  const staticServer = await startStaticServer(APP_DIST);
-  phaseLog(runDir, `server-up port=${server.port} static-up port=${staticServer.port}`);
-  const pageUrl = `http://127.0.0.1:${staticServer.port}/?encounterSync=${encodeURIComponent(server.url)}`;
-
-  const { chromium } = await import("playwright");
-  const browser = await chromium.launch({ headless: true, channel: "chromium", args: GPU_ARGS });
-  const pageErrors = [];
-  const consoleErrors = [];
+  const { page, server, pageErrors, consoleErrors, close, stable, stack } = await openW0Stage({ css: false, runDir });
   const stills = [];
   try {
-    const context = await browser.newContext({ viewport: { width: VIEWPORT.width, height: VIEWPORT.height }, deviceScaleFactor: 1 });
-    const page = await context.newPage();
-    page.on("pageerror", (error) => pageErrors.push(String(error).slice(0, 300)));
-    page.on("console", (message) => {
-      if (message.type() === "error") consoleErrors.push(message.text().slice(0, 300));
+    const renderer = await page.evaluate(() => {
+      const probe = document.createElement("canvas").getContext("webgl");
+      const ext = probe !== null ? probe.getExtension("WEBGL_debug_renderer_info") : null;
+      return ext !== null && probe !== null ? probe.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null;
     });
-    await page.goto(pageUrl, { waitUntil: "load", timeout: 60000 });
-    phaseLog(runDir, "page-load");
-    await page.waitForFunction(
-      () => window.__openClinXrEncounterSync !== undefined && window.__openClinXrEncounterSync.state !== "joining",
-      undefined,
-      { timeout: JOIN_WAIT_MS },
-    );
-    phaseLog(runDir, "joined");
+    phaseLog(runDir, `renderer ${String(renderer).slice(0, 80)}`);
     const phaseOf = () => {
       try {
         return JSON.parse(server.getStateJSON());
@@ -347,21 +405,6 @@ async function captureRun() {
         return null;
       }
     };
-    const openedBy = Date.now() + ENCOUNTER_WAIT_MS;
-    for (;;) {
-      const snap = phaseOf();
-      if (snap !== null && snap.phase === "encounter") break;
-      if (Date.now() > openedBy) failBlocked(`encounter phase never opened: ${JSON.stringify(snap)}`);
-      await pause(500);
-    }
-    const stable = await waitStableHumanoids(page);
-    phaseLog(runDir, `stable count=${stable.count} polls=${stable.polls}`);
-    const renderer = await page.evaluate(() => {
-      const probe = document.createElement("canvas").getContext("webgl");
-      const ext = probe !== null ? probe.getExtension("WEBGL_debug_renderer_info") : null;
-      return ext !== null && probe !== null ? probe.getParameter(ext.UNMASKED_RENDERER_WEBGL) : null;
-    });
-    phaseLog(runDir, `renderer ${String(renderer).slice(0, 80)}`);
 
     const readStill = async (name) => {
       const path = join(runDir, `${name}.png`);
@@ -396,8 +439,7 @@ async function captureRun() {
     // Pre-CSS layout rects are the honest hidden zones (post-CSS they are 0).
     const rectRows = await hiddenRects(page);
     const controlProtected = await protectedVisibility(page);
-    const cssText = readFileSync(CSS_PATH, "utf8");
-    await page.addStyleTag({ content: cssText });
+    await applyPresentationCss(page);
     const proofCounts = await hiddenCounts(page);
     for (const row of proofCounts) {
       if (row.hitsCanvas) failBlocked(`selector matches canvas or canvas ancestor: ${row.selector}`);
@@ -461,13 +503,15 @@ async function captureRun() {
     console.log(`wrote ${join(runDir, "capture.json")}`);
   } finally {
     clearInterval(heartbeat);
-    await browser.close().catch(() => undefined);
-    await staticServer.close().catch(() => undefined);
-    await server.close().catch(() => undefined);
+    await close();
   }
 }
 
-await captureRun().catch((error) => {
-  console.error(error?.stack ?? String(error));
-  process.exitCode = 1;
-});
+const isEntryScript =
+  typeof process.argv[1] === "string" && import.meta.url === pathToFileURL(resolve(process.argv[1])).href;
+if (isEntryScript) {
+  await captureRun().catch((error) => {
+    console.error(error?.stack ?? String(error));
+    process.exitCode = 1;
+  });
+}
