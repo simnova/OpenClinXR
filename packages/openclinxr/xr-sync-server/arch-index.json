@@ -35,6 +35,7 @@
     "src/a-matched-answer-traces-every-menu-tag-it-covers.test.ts",
     "src/a-topic-answer-carries-its-own-cue.test.ts",
     "src/close-releases-the-listener.test.ts",
+    "src/servers-in-one-process-release-listeners-only-when-sequential.test.ts",
     "src/the-server-shares-the-last-station-break-rule.test.ts",
     "src/topic-menu-asked.test.ts",
     "src/topic-menu-labels.test.ts",
