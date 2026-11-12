@@ -2672,6 +2672,9 @@ importers:
       '@openclinxr/ui-shared':
         specifier: workspace:*
         version: link:../ui-shared
+      '@openclinxr/xr-sync-client':
+        specifier: workspace:*
+        version: link:../xr-sync-client
       antd:
         specifier: 'catalog:'
         version: 6.3.7(react-dom@19.2.8(react@19.2.8))(react@19.2.8)

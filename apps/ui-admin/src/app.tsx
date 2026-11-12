@@ -1,12 +1,12 @@
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
-import { adminPublicationGates, adminWorkbenchRoutes, capabilityTagColor, ReviewReplayWorkbenchProvider, ReviewReplayWorkbenchUI, ScenarioBankWorkbenchProvider, ScenarioBankWorkbenchUI, ScenarioDetailWorkbenchProvider, ScenarioDetailWorkbenchUI, SeedBlueprintWorkbenchProvider, SeedBlueprintWorkbenchUI } from "@openclinxr/ui-route-admin";
+import { adminPublicationGates, adminWorkbenchRoutes, capabilityTagColor, FacultyReviewRoute, ReviewReplayWorkbenchProvider, ReviewReplayWorkbenchUI, ScenarioBankWorkbenchProvider, ScenarioBankWorkbenchUI, ScenarioDetailWorkbenchProvider, ScenarioDetailWorkbenchUI, SeedBlueprintWorkbenchProvider, SeedBlueprintWorkbenchUI, WorkbenchOverview } from "@openclinxr/ui-route-admin";
 import { adminWorkbenchCapabilityTags, openClinXrAdminTheme } from "@openclinxr/ui-shared";
 import "@xyflow/react/dist/style.css";
 import { CaseAuthoringWorkbench } from "@openclinxr/ui-route-admin/case-authoring-workbench";
 import type { FacultyCompileLockClient } from "@openclinxr/ui-route-admin/faculty-compile-lock-types";
 import { type AdminControlPlaneClient, buildAdminGraphqlEndpoint, compileEncounterWorld, createAdminControlPlaneClient } from "@openclinxr/ui-route-shared";
-import { Card, ConfigProvider, Layout, Space, Steps, Tag, Typography } from "antd";
+import { ConfigProvider, Layout, Space, Tag, Typography } from "antd";
 import { useMemo } from "react";
 import { BrowserRouter, Link, MemoryRouter, Route, Routes } from "react-router";
 
@@ -64,7 +64,7 @@ export function AdminApp({ router = "memory", initialPath = "/", controlPlaneCli
               </section>
 
               <Routes>
-                <Route path="/" element={<WorkbenchOverview />} />
+                <Route path="/" element={<WorkbenchOverview routes={adminWorkbenchRoutes} gates={adminPublicationGates} />} />
                 <Route path="/authoring" element={<CaseAuthoringWorkbench />} />
                 <Route path="/scenarios" element={
                   <ScenarioBankWorkbenchProvider controlPlaneClient={client}>
@@ -81,6 +81,7 @@ export function AdminApp({ router = "memory", initialPath = "/", controlPlaneCli
                     <ReviewReplayWorkbenchUI />
                   </ReviewReplayWorkbenchProvider>
                 } />
+                <Route path="/faculty-review" element={<FacultyReviewRoute />} />
                 {/* SeedBlueprintWorkbench owns its own factory-run fetch, world-compile wiring,
                     SeedWorldviewQueue, and snapshot UI. The composition root passes only the
                     client surface and env-derived config. */}
@@ -112,27 +113,4 @@ function AdminRouter({
   }
 
   return <MemoryRouter initialEntries={[initialPath]}>{children}</MemoryRouter>;
-}
-
-function WorkbenchOverview(): React.ReactElement {
-  return (
-    <div className="admin-grid">
-      {adminWorkbenchRoutes.map((route) => (
-        <Card key={route.path} title={route.label}>
-          <Typography.Paragraph>{route.description}</Typography.Paragraph>
-          <Link to={route.path}>Open {route.label}</Link>
-        </Card>
-      ))}
-      <Card title="Publication gates">
-        <Steps
-          orientation="vertical"
-          size="small"
-          items={adminPublicationGates.map((title, index) => ({
-            title,
-            status: index === 0 ? "process" : "wait",
-          }))}
-        />
-      </Card>
-    </div>
-  );
 }

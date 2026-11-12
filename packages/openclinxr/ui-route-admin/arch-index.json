@@ -3,6 +3,7 @@
   "name": "@openclinxr/ui-route-admin",
   "entrypoint": "packages/openclinxr/ui-route-admin/src/index.ts",
   "exports": [
+    "FacultyReviewRoute",
     "ReviewReplayWorkbenchProvider",
     "ReviewReplayWorkbenchUI",
     "ScenarioBankWorkbenchProvider",
@@ -11,12 +12,16 @@
     "ScenarioDetailWorkbenchUI",
     "SeedBlueprintWorkbenchProvider",
     "SeedBlueprintWorkbenchUI",
+    "WorkbenchOverview",
     "adminPublicationGates",
     "adminWorkbenchRoutes",
     "capabilityTagColor",
     "findAdminWorkbenchRoute"
   ],
-  "exportSummaries": {},
+  "exportSummaries": {
+    "FacultyReviewRoute": "The /faculty-review route: joins a finished encounter room as faculty and finalizes the review.",
+    "WorkbenchOverview": "The admin \"/\" overview: one card per workbench route, then the publication gates in review order."
+  },
   "workspaceDependencies": [
     "@openclinxr/asset-registry",
     "@openclinxr/domain",
@@ -26,7 +31,8 @@
     "@openclinxr/scenario-fixtures",
     "@openclinxr/shared-schemas",
     "@openclinxr/ui-route-shared",
-    "@openclinxr/ui-shared"
+    "@openclinxr/ui-shared",
+    "@openclinxr/xr-sync-client"
   ],
   "tests": [
     "src/admin-routes.test.ts",
@@ -55,6 +61,8 @@
     "src/the-authoring-form-writes-equipment.test.tsx",
     "src/the-dialogue-authoring-workflow-rejects-unsafe-seeds.test.tsx",
     "src/the-faculty-adjudication-workspace-preserves-assembled-evidence.test.tsx",
+    "src/the-faculty-console-shows-the-acked-finalize-time.test.tsx",
+    "src/the-overview-shows-one-card-per-workbench-route.test.tsx",
     "src/the-worldview-authors-communication-profile.test.tsx",
     "src/the-worldview-authors-environment-name-description-and-seed.test.tsx",
     "src/the-worldview-authors-governance-and-review-rubric.test.tsx",

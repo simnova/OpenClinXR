@@ -54,6 +54,9 @@
     },
     {
       "path": "../ui-route-shared"
+    },
+    {
+      "path": "../xr-sync-client"
     }
   ]
 }

@@ -133,6 +133,14 @@
       "owner": "xr-sync C56 (one shared-schemas root export, effectiveBreakAfterStationOrders; none authored by the reviewer)",
       "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review (not an author): session 01a1c625-adb5-7bf0-90b4-b407b940e790 recomputed via measureSurface/rootQuantiles rootExports 1279 = previous exact 1278 + exactly effectiveBreakAfterStationOrders on the @openclinxr/shared-schemas root; median 16, p90 38, maxRoot 116, duplicateNames 56 unchanged; threshold remains 1000; 2026-11-10",
       "reason": "Residual 1279 = the independently reviewed exact 1278 (patient-staging-v1 entry above) + exactly one @openclinxr/shared-schemas root export admitted by last-station-break-rule-v1: effectiveBreakAfterStationOrders. Declared in public-api.json and consumes.json of exam-assembly and xr-sync-server, so the exam plan and the synced server share one last-station rule. No unrelated symbol is admitted. Threshold stays 1000. Snapshot-only; any later count drift re-refuses."
+    },
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1281,
+      "threshold": 1000,
+      "owner": "xr-sync card tsk_d5504a82031e71b7 (two @openclinxr/ui-route-admin root exports, FacultyReviewRoute and WorkbenchOverview; none authored by the reviewer)",
+      "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review (not an author): session 01a1ce7a-69d4-78c3-8c2b-8d062823133f recomputed via measureSurface(process.cwd()).totals.rootSymbols rootExports 1281 = previous exact 1279 + exactly FacultyReviewRoute and WorkbenchOverview (ui-route-admin 12 -> 14), 2026-11-12",
+      "reason": "Residual 1281 = the independently reviewed exact 1279 (last-station-break-rule-v1 entry above) + exactly two @openclinxr/ui-route-admin root exports admitted by faculty-review-route-v1: FacultyReviewRoute and WorkbenchOverview. Declared in public-api.json and consumed by apps/ui-admin app.tsx."
     }
   ],
   "sourceManifest": {

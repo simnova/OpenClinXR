@@ -386,7 +386,9 @@ describe("compiler-resolved surface meter", () => {
     expect(byDir.get("packages/openclinxr/rest")?.rootSymbols).toBe(94);
     // 277 before PSR-06; 12 after it (approval psr-01d ui-route-admin subset), re-derived with
     // ts.TypeChecker.getExportsOfModule on ui-route-admin/src/index.ts, which still returns 94 for rest.
-    expect(byDir.get("packages/openclinxr/ui-route-admin")?.rootSymbols).toBe(12);
+    // 2026-11-12 faculty-review-route-v1 admission (super-ceo-cap21 ruling, pending operator ratification):
+    // FacultyReviewRoute + WorkbenchOverview, both consumed by apps/ui-admin app.tsx (tsk_d5504a82031e71b7) (12 -> 14).
+    expect(byDir.get("packages/openclinxr/ui-route-admin")?.rootSymbols).toBe(14);
   });
 
   it("(3) all four arena packages are reported", () => {

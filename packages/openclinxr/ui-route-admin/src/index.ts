@@ -29,6 +29,13 @@ export const adminWorkbenchRoutes = createRouteManifest([
     description: "Assemble locked station sequences from approved scenarios and coverage targets.",
     capabilityTags: ["Psychometric Review", "MongoDB"],
   },
+  {
+    id: "faculty-review",
+    path: "/faculty-review",
+    label: "Faculty Review",
+    description: "Join a finished encounter room as faculty, read each station's turns and score, and finalize the review.",
+    capabilityTags: ["Colyseus"],
+  },
 ]);
 
 export const adminPublicationGates = Object.freeze([
@@ -42,8 +49,12 @@ export function findAdminWorkbenchRoute(path: string) {
   return findRouteByPath(adminWorkbenchRoutes, path);
 }
 
+/** The /faculty-review route: joins a finished encounter room as faculty and finalizes the review. */
+export { FacultyReviewRoute } from "./faculty-review-console.js";
 export { capabilityTagColor } from "./formatters.js";
 export { ReviewReplayWorkbenchProvider, ReviewReplayWorkbenchUI } from "./review-replay-workbench.js";
 export { ScenarioBankWorkbenchProvider, ScenarioBankWorkbenchUI } from "./scenario-bank-workbench.js";
 export { ScenarioDetailWorkbenchProvider, ScenarioDetailWorkbenchUI } from "./scenario-detail-workbench.js";
 export { SeedBlueprintWorkbenchProvider, SeedBlueprintWorkbenchUI } from "./seed-blueprint-workbench.js";
+/** The admin "/" overview: one card per workbench route, then the publication gates in review order. */
+export { WorkbenchOverview } from "./workbench-overview.js";

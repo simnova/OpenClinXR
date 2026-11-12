@@ -1,0 +1,32 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "faculty-review-route-v1",
+  "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review, session 01a1ce7a-69d4-78c3-8c2b-8d062823133f (read-only, not an author), 2026-11-12",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "0ab8a91c12074f47439beebc83883ae6670405282cc6168df79add64df8d21bc",
+  "packages": [
+    "packages/openclinxr/ui-route-admin"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "FacultyReviewRoute",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "xr-sync card tsk_d5504a82031e71b7",
+      "rationale": "The /faculty-review route (reads ?sync= and ?rubric=, renders the private FacultyReviewConsole). Sole consumer: apps/ui-admin app.tsx Route element; the app is a frozen composition root, so the console lives in this package.",
+      "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review, session 01a1ce7a-69d4-78c3-8c2b-8d062823133f (read-only, not an author), 2026-11-12"
+    },
+    {
+      "package": "packages/openclinxr/ui-route-admin",
+      "entrypoint": ".",
+      "symbol": "WorkbenchOverview",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "xr-sync card tsk_d5504a82031e71b7",
+      "rationale": "Pure render of the admin '/' overview from routes + gates props, moved out of apps/ui-admin app.tsx (239 -> 217 lines under its composition-root budget). Sole consumer: apps/ui-admin app.tsx Route '/'.",
+      "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review, session 01a1ce7a-69d4-78c3-8c2b-8d062823133f (read-only, not an author), 2026-11-12"
+    }
+  ]
+}

@@ -51,7 +51,8 @@ export const COMPOSITION_ROOT_APP_BUDGETS: readonly CompositionRootAppBudget[] =
   {
     app: "apps/ui-admin",
     maxFiles: 4,
-    maxLines: 239,
+    // 239 -> 217 on 2026-11-12: WorkbenchOverview moved to @openclinxr/ui-route-admin (card tsk_d5504a82031e71b7, super-ceo-cap21 ruling A3).
+    maxLines: 217,
     reason:
       "frozen at the 2026-09-07 measurement; ratchet toward the CellixJs largest app (ui-community, 19 files / 1,506 lines) — behaviour moves to packages",
   },

@@ -1,6 +1,7 @@
 {
   "entrypoints": {
     ".": [
+      "FacultyReviewRoute",
       "ReviewReplayWorkbenchProvider",
       "ReviewReplayWorkbenchUI",
       "ScenarioBankWorkbenchProvider",
@@ -9,6 +10,7 @@
       "ScenarioDetailWorkbenchUI",
       "SeedBlueprintWorkbenchProvider",
       "SeedBlueprintWorkbenchUI",
+      "WorkbenchOverview",
       "adminPublicationGates",
       "adminWorkbenchRoutes",
       "capabilityTagColor",

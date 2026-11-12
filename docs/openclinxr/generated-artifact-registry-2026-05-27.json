@@ -58,7 +58,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1972,
+    "keep-evidence": 1973,
     "ignore-local-cache": 2787,
     "keep-current": 266,
     "keep-template": 17,
@@ -26769,6 +26769,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Last-station break rule admission: independently reviewed shared-schemas root export effectiveBreakAfterStationOrders, the one rule behind the exam plan and the synced server break phase."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/faculty-review-route-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Faculty review route admission: independently reviewed ui-route-admin root exports FacultyReviewRoute and WorkbenchOverview, both consumed by the ui-admin composition root (card tsk_d5504a82031e71b7)."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/skin-shade-loader-v1.json",

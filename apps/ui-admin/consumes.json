@@ -46,6 +46,10 @@
         "kind": "runtime"
       },
       {
+        "name": "FacultyReviewRoute",
+        "kind": "runtime"
+      },
+      {
         "name": "ReviewReplayWorkbenchProvider",
         "kind": "runtime"
       },
@@ -75,6 +79,10 @@
       },
       {
         "name": "SeedBlueprintWorkbenchUI",
+        "kind": "runtime"
+      },
+      {
+        "name": "WorkbenchOverview",
         "kind": "runtime"
       }
     ]
