@@ -11,6 +11,33 @@ export const PATIENT_ACTOR_ID = "patient_robert_hayes_v1";
 
 export const MIN_PATIENT_HEIGHT_FRACTION = 0.1;
 
+/**
+ * Silhouette-vs-bbox ratios (card W4a-1a): width, height, and area of the
+ * mask rect relative to the projectActorBbox region. Returns null when the
+ * mask is missing or the bbox has no positive area.
+ */
+export function ratiosOf(bbox, maskRect) {
+  const bw = Number(bbox?.width);
+  const bh = Number(bbox?.height);
+  const mw = Number(maskRect?.width);
+  const mh = Number(maskRect?.height);
+  if (
+    Number.isFinite(bw) === false ||
+    Number.isFinite(bh) === false ||
+    bw <= 0 ||
+    bh <= 0 ||
+    Number.isFinite(mw) === false ||
+    Number.isFinite(mh) === false
+  ) {
+    return null;
+  }
+  return {
+    width: mw / bw,
+    height: mh / bh,
+    area: (mw * mh) / (bw * bh),
+  };
+}
+
 export function validateRegions(doc, blueprintActorIds) {
   const blockers = [];
   const canvas = doc?.canvasRect ?? null;

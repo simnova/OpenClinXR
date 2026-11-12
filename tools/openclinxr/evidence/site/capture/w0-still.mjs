@@ -47,6 +47,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { GPU_ARGS, VIEWPORT } from "./capture-instrument.mjs";
 import { planCapture } from "./rr1.mjs";
 import { startStaticServer } from "../../xr-sync/harness-lib.mjs";
+import { readCamera } from "./inspector-still.mjs";
 
 export { GPU_ARGS, VIEWPORT } from "./capture-instrument.mjs";
 
@@ -448,6 +449,7 @@ async function captureRun() {
     const proofProtected = await protectedVisibility(page);
     stills.push(await readStill("w0-proof"));
     phaseLog(runDir, "shot w0-proof");
+    const camera = await readCamera(page);
 
     const hiddenSelectors = SELECTORS.map((row) => ({
       selector: row.selector,
@@ -472,6 +474,7 @@ async function captureRun() {
       ...base,
       seed: "w0-ed-chest-pain-settled",
       cameraPreset: "station-layout-desktop-960x600",
+      camera,
       clientRoles: ["learner"],
       stills,
       presentationCss: "tools/openclinxr/evidence/site/capture/presentation.css",
