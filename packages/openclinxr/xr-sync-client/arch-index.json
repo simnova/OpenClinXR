@@ -51,6 +51,7 @@
     "src/encounter-trace-intents.test.ts",
     "src/encounter-turns.test.ts",
     "src/encounter-voice.test.ts",
+    "src/is-encounter-sync-search.test.ts",
     "src/the-panel-shows-an-auto-collected-note.test.ts",
     "src/the-review-lobby-shows-how-each-note-arrived.test.ts",
     "src/the-synced-shell-submits-the-patient-note.test.ts",

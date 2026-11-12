@@ -15,6 +15,11 @@ export function encounterSyncUrl(search: string): { url: string; replayStation?:
   return { url: value };
 }
 
+/** C25/c1hdr: one predicate decides "this page joins a synced room"; the pre-sync header default and the join test both call it. */
+export function isEncounterSyncSearch(search: string): boolean {
+  return search.includes("encounterSync=");
+}
+
 /** C53: fires onBreak with phaseRemainingS on entering phase break and whenever it changes there, and once with null when a later snapshot reports another phase. */
 export function createBreakAnnouncer(onBreak: (remainingS: number | null) => void): (snapshot: EncounterSnapshot) => void {
   let inBreak = false;

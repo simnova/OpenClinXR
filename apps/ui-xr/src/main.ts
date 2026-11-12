@@ -318,7 +318,7 @@ import {
   wireStationPointerInteraction,
 } from "@openclinxr/xr-station-room";
 import { applyEnvironmentAffectCue } from "@openclinxr/xr-station-room/station-environment-affect-cue";
-import type { EncounterSyncEvidence, UtteranceBoxDeps } from "@openclinxr/xr-sync-client/headset";
+import { type EncounterSyncEvidence, isEncounterSyncSearch, type UtteranceBoxDeps } from "@openclinxr/xr-sync-client/headset";
 
 const caseOwnedBedsideApproach = createStationBedsideApproachState();
 let frozenScenePlanAdmission: ScenePlanAdmission = { status: "no_plan_carried" };
@@ -1543,7 +1543,7 @@ app.innerHTML = `
         <p class="subtle">${selectedStationContext.subtitle}</p>
       </header>
       <div class="timer-row">
-        <span id="station-clock-label">Encounter</span>
+        <span id="station-clock-label">${isEncounterSyncSearch(window.location.search) ? "Doorway" : "Encounter"}</span>
         <strong id="station-clock">00:00</strong>
       </div>
       <section class="ehr-panel" aria-label="Simulated EHR">
@@ -4633,7 +4633,7 @@ initPreparedActorAudioBridge({ getSlot: (id) => generatedHumanoidAnimationSlotsB
 initSpeakFixtureBridge({ triggerDialogue: (actorId: string, text: string): void => { startPreparedActorTurnAudio({ actorId, spokenText: text }); } });
 window.__openClinXrRequestLiveVoiceTurn = requestUnscriptedLiveTurn;
 // C25: ?encounterSync=ws://... joins the xr-sync room; the server's actor turn plays through the live actor-turn consumer.
-if (window.location.search.includes("encounterSync=")) void import("@openclinxr/xr-sync-client/headset").then(({ startEncounterSyncFromUrl, writeSyncedDoorwayEyebrow, formatSyncedTopicsLabel }) => startEncounterSyncFromUrl({
+if (isEncounterSyncSearch(window.location.search)) void import("@openclinxr/xr-sync-client/headset").then(({ startEncounterSyncFromUrl, writeSyncedDoorwayEyebrow, formatSyncedTopicsLabel }) => startEncounterSyncFromUrl({
   gazeView: () => { const cam = (window as unknown as Record<string, PerspectiveCamera | undefined>)["__openClinXrGazeCamera"]; return cam ? { eye: cam.getWorldPosition(new Vector3()), forward: cam.getWorldDirection(new Vector3()), actors: [...generatedHumanoidActorSlotsByActorId].map(([actorId, slot]) => { const at = slot.getWorldPosition(new Vector3()); return { actorId, x: at.x, y: at.y + 1.18, z: at.z }; }) } : undefined; }, search: window.location.search, noteText: () => patientNoteText.value, actorIds: () => encounterRuntimeAssetBundle.actors.map((actor) => actor.actorId), nowMs: () => performance.now(), speech: { xrSession: () => (window as unknown as Record<string, unknown>)["__openClinXrXrSession"] as never, inject: window.location.search.includes("encounterMicInject=1") }, publish: (evidence) => { window.__openClinXrEncounterSync = evidence; },
   utteranceBox: {
     doc: document as never, parent: (dialogueLine.parentElement ?? document.body) as never,

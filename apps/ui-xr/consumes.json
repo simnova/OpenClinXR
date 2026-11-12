@@ -2163,6 +2163,10 @@
         "kind": "runtime"
       },
       {
+        "name": "isEncounterSyncSearch",
+        "kind": "runtime"
+      },
+      {
         "name": "writeSyncedDoorwayEyebrow",
         "kind": "runtime"
       }

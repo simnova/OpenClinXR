@@ -111,7 +111,7 @@ describe("the synced flow panel follows the server phase (C55')", () => {
   });
 
   it("the non-synced shell keeps the base label, timer and advance text byte for byte", () => {
-    expect(MAIN).toContain('<span id="station-clock-label">Encounter</span>');
+    expect(MAIN).toContain('<span id="station-clock-label">${isEncounterSyncSearch(window.location.search) ? "Doorway" : "Encounter"}</span>');
     expect(MAIN).toContain('<strong id="station-clock">00:00</strong>');
     expect(MAIN).toContain("? `note ${formatStationClock(evidence.noteElapsedSeconds)} / ${formatStationClock(evidence.noteDurationSeconds)}`");
     expect(MAIN).toContain('? "exam sequence complete"');

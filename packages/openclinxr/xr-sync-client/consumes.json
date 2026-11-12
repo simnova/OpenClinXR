@@ -45,6 +45,11 @@
         "via": "own-test"
       },
       {
+        "name": "isEncounterSyncSearch",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "MESM_VOICE_IDS",
         "kind": "runtime",
         "via": "own-test"
