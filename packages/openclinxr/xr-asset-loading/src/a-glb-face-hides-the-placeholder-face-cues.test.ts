@@ -16,7 +16,7 @@ import {
   SkinnedMesh,
   Vector3,
 } from "three";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { type GLTF, GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { describe, expect, it, vi } from "vitest";
 import {
   type AssetLoadingContext,
@@ -167,10 +167,21 @@ async function loadAishaThroughPublicEntrypoint(records: CueRecord[]): Promise<{
   aisha.traverse((object) => {
     if (object instanceof Mesh) shippedMeshes.add(object);
   });
+  const gltfFixture: GLTF = {
+    scene: aisha,
+    animations: [],
+    scenes: [aisha],
+    cameras: [],
+    asset: {},
+    parser: {} as GLTF["parser"],
+    userData: {},
+  };
   const load = vi.spyOn(GLTFLoader.prototype, "load").mockImplementation((_url, onLoad) => {
-    onLoad({ scene: aisha, animations: [] } as Parameters<typeof onLoad>[0]);
+    onLoad(gltfFixture);
   });
-  const runtimeWindow = window as typeof window & { requestAnimationFrame?: (callback: FrameRequestCallback) => number };
+  const runtimeWindow = window as Omit<typeof window, "requestAnimationFrame"> & {
+    requestAnimationFrame?: (callback: FrameRequestCallback) => number;
+  };
   const originalRequestAnimationFrame = runtimeWindow.requestAnimationFrame;
   runtimeWindow.requestAnimationFrame = (callback) => {
     callback(0);
