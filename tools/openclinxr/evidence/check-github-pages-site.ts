@@ -68,7 +68,7 @@ async function factoryStationStillBlocker(
         return `pages_index_factory_station_cards_stub:${src}:${size}b`;
       }
     } catch {
-      return `pages_index_factory_station_image_absent:${onDisk}`;
+      return `pages_index_factory_station_image_absent:${path.join("docs", src)}`;
     }
   }
   return undefined;

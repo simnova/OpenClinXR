@@ -1,5 +1,5 @@
 import { createHash } from "node:crypto";
-import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
+import { cp, mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -253,6 +253,61 @@ describe("GitHub Pages static site", () => {
       const result = await validateGitHubPagesSite({ root });
       expect(result.passed).toBe(false);
       expect(result.blockers).toContain("missing_required_pages_file:docs/CNAME");
+    });
+  });
+
+  it("counterweight: missing cards image gives identical relative blocker ids under two roots", async () => {
+    await withFixture(async (srcRoot) => {
+      await rm(path.join(srcRoot, "docs/assets/factory-station-cards-fixture.png"), {
+        force: true,
+      });
+      const baseA = await mkdtemp(path.join(tmpdir(), "pages-site-cw1a-"));
+      const baseB = await mkdtemp(path.join(tmpdir(), "pages-site-cw1b-"));
+      const destA = path.join(baseA, "site");
+      const destB = path.join(baseB, "site");
+      try {
+        await cp(srcRoot, destA, { recursive: true });
+        await cp(srcRoot, destB, { recursive: true });
+        const resultA = await validateGitHubPagesSite({ root: destA });
+        const resultB = await validateGitHubPagesSite({ root: destB });
+        expect(resultA.passed).toBe(false);
+        expect(resultA.blockers).toEqual(resultB.blockers);
+        const absent = resultA.blockers.filter((blocker) =>
+          blocker.startsWith("pages_index_factory_station_image_absent:"),
+        );
+        expect(absent.length).toBeGreaterThan(0);
+        for (const id of absent) {
+          expect(id).not.toContain(destA);
+          expect(id).not.toContain(destB);
+          expect(id).not.toContain(srcRoot);
+        }
+        expect(
+          absent.some((id) =>
+            id.startsWith("pages_index_factory_station_image_absent:docs/assets/"),
+          ),
+        ).toBe(true);
+      } finally {
+        await rm(baseA, { recursive: true, force: true });
+        await rm(baseB, { recursive: true, force: true });
+      }
+    });
+  });
+
+  it("counterweight: fixture image present under its own root but absent under cwd gives no image_absent blocker", async () => {
+    await withFixture(async (root) => {
+      const src = "assets/factory-station-cards-fixture.png";
+      await expect(readFile(path.join(root, "docs", src))).resolves.toBeDefined();
+      const underCwd = await readFile(path.join(process.cwd(), "docs", src)).then(
+        () => true,
+        () => false,
+      );
+      expect(underCwd).toBe(false);
+      const result = await validateGitHubPagesSite({ root });
+      expect(
+        result.blockers.filter((blocker) =>
+          blocker.startsWith("pages_index_factory_station_image_absent:"),
+        ),
+      ).toEqual([]);
     });
   });
 });
