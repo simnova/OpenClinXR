@@ -1,0 +1,304 @@
+{
+  "$defs": {
+    "FacultyScoreBinding": {
+      "description": "Source: packages/openclinxr/xr-sync-server/src/faculty-score.ts:47. Runtime binding, not a downloaded file; kept so the schema covers every exported type of the in-scope files.",
+      "properties": {
+        "rubric": {
+          "description": "Server rubric, or null when scoring is disabled.",
+          "items": {
+            "$ref": "#/$defs/ReviewRubricItem"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
+        "scenarioRubrics": {
+          "additionalProperties": {
+            "items": {
+              "$ref": "#/$defs/ReviewRubricItem"
+            },
+            "type": "array"
+          },
+          "description": "TypeScript Map<string, ReviewRubricItem[]>; serialised as a JSON object keyed by scenario id.",
+          "type": [
+            "object",
+            "null"
+          ]
+        },
+        "scoreDir": {
+          "description": "Score directory, or null when scoring is disabled.",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "scoreDir",
+        "rubric"
+      ],
+      "type": "object"
+    },
+    "FacultyScoreFile": {
+      "description": "Source: packages/openclinxr/xr-sync-server/src/faculty-score.ts:67. Persisted faculty score file, review-safe: no session id, no timestamps, no labels.",
+      "properties": {
+        "checkedCount": {
+          "type": "integer"
+        },
+        "items": {
+          "items": {
+            "properties": {
+              "checked": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "checked"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "rubricSize": {
+          "type": "integer"
+        },
+        "scenarioId": {
+          "description": "Present only on scores written against a scenarios bank; absent on C13 single-rubric scores.",
+          "type": "string"
+        },
+        "schema": {
+          "type": "string"
+        },
+        "stationId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "checkedCount",
+        "items",
+        "rubricSize",
+        "scenarioId",
+        "schema",
+        "stationId"
+      ],
+      "type": "object"
+    },
+    "LobbyScore": {
+      "description": "Source: packages/openclinxr/xr-sync-server/src/faculty-score.ts:59. One lobby score badge for a station with a score file on disk.",
+      "properties": {
+        "checkedCount": {
+          "type": "integer"
+        },
+        "items": {
+          "description": "Per-item flags in rubric order, from the same validated score file.",
+          "items": {
+            "properties": {
+              "checked": {
+                "type": "boolean"
+              },
+              "id": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "id",
+              "checked"
+            ],
+            "type": "object"
+          },
+          "type": "array"
+        },
+        "stationId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "checkedCount",
+        "stationId"
+      ],
+      "type": "object"
+    },
+    "ReplayReviewState": {
+      "description": "Source: packages/openclinxr/xr-sync-server/src/faculty-score.ts:301. Narrow replay-room state surface the C13 review handler mutates; the learners map is a runtime method surface, not a JSON value.",
+      "properties": {
+        "learners": {
+          "description": "Runtime lookup learners.get(id) -> { lastSeq } | undefined; not a JSON value.",
+          "type": "object"
+        },
+        "scoreChecked": {
+          "type": "integer"
+        },
+        "serverTick": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "learners",
+        "scoreChecked",
+        "serverTick"
+      ],
+      "type": "object"
+    },
+    "ReplayRoomGuard": {
+      "description": "Source: packages/openclinxr/xr-sync-server/src/review-packet.ts:287. Per-replay-room C14 guard: a lobby is launched back at most once.",
+      "properties": {
+        "returnPending": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "returnPending"
+      ],
+      "type": "object"
+    },
+    "ReviewPacketFile": {
+      "description": "Source: packages/openclinxr/xr-sync-server/src/review-packet-file.ts:20. Persisted faculty review packet, review-safe: no identity, no labels, no timestamps.",
+      "properties": {
+        "schema": {
+          "type": "string"
+        },
+        "sessionComplete": {
+          "type": "boolean"
+        },
+        "stationCount": {
+          "type": "integer"
+        },
+        "stations": {
+          "items": {
+            "$ref": "#/$defs/ReviewPacketStation"
+          },
+          "type": "array"
+        },
+        "totalChecked": {
+          "type": "integer"
+        },
+        "totalPossible": {
+          "type": "integer"
+        }
+      },
+      "required": [
+        "schema",
+        "sessionComplete",
+        "stationCount",
+        "stations",
+        "totalChecked",
+        "totalPossible"
+      ],
+      "type": "object"
+    },
+    "ReviewPacketStation": {
+      "description": "Source: packages/openclinxr/xr-sync-server/src/review-packet-file.ts:9. One packet station row: the index row plus note text and the score.",
+      "properties": {
+        "notePresent": {
+          "type": "boolean"
+        },
+        "noteText": {
+          "description": "Patient-note file text when the station noted, else null.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "score": {
+          "properties": {
+            "checkedCount": {
+              "type": "integer"
+            },
+            "items": {
+              "items": {
+                "properties": {
+                  "checked": {
+                    "type": "boolean"
+                  },
+                  "id": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "checked"
+                ],
+                "type": "object"
+              },
+              "type": "array"
+            },
+            "rubricSize": {
+              "type": "integer"
+            }
+          },
+          "required": [
+            "checkedCount",
+            "items",
+            "rubricSize"
+          ],
+          "type": "object"
+        },
+        "stationId": {
+          "type": "string"
+        },
+        "stationIndex": {
+          "type": "integer"
+        },
+        "turnCount": {
+          "type": "integer"
+        },
+        "turnEnds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "notePresent",
+        "noteText",
+        "score",
+        "stationId",
+        "stationIndex",
+        "turnCount",
+        "turnEnds"
+      ],
+      "type": "object"
+    },
+    "ReviewRubricItem": {
+      "description": "Source: packages/openclinxr/xr-sync-server/src/faculty-score.ts:39. One rubric checklist entry (server config only).",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "requiredTraceTags": {
+          "description": "C21/C22 scenario-bank trace requirements; absent on the C13 server rubric.",
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "id",
+        "label"
+      ],
+      "type": "object"
+    }
+  },
+  "$id": "https://developers.simnova.com/OpenClinXR/site/data/trace-schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "description": "JSON Schema for the reviewer download files: the faculty review packet file (exam-session.review-packet.json) and the faculty score file (*.faculty-score.json), plus the remaining exported types of the three product source files so field coverage is total. Properties and requiredness equal the TypeScript fields; optionality (?) means absent from required.",
+  "source": {
+    "base": "59d0f84449da4b46b89f2a45dc1ec4b11d3e1fce",
+    "files": [
+      "packages/openclinxr/xr-sync-server/src/review-packet-file.ts",
+      "packages/openclinxr/xr-sync-server/src/faculty-score.ts",
+      "packages/openclinxr/xr-sync-server/src/review-packet.ts"
+    ]
+  },
+  "title": "Reviewer download files schema"
+}

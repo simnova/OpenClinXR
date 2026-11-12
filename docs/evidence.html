@@ -83,7 +83,35 @@
         <h3>Downloads, schema and trace table</h3>
         <p class="status-copy claim-copy" data-claim="CL20 CL6">Each turn is recorded with modality and confidence; replay captions are recomputed from the trace. Stations replay from their recorded traces over the protocol (protocol today; faculty review UI pending).</p>
         <p class="status-copy claim-copy" data-claim="CL20">The trace, the sign-off packet and the schema ride the Release; the static trace table below is text only until the release bundle lands.</p>
-        <figure class="capture-pending" data-slot="TT"><figcaption>capture pending</figcaption></figure>
+        <div class="measure-table-wrap"><table class="measure-table">
+          <caption>Static trace table for 72yIxt5aR.conversation-trace.json (run-7), text only</caption>
+          <thead>
+            <tr>
+              <th scope="col">turn</th>
+              <th scope="col">addressed actor</th>
+              <th scope="col">tag</th>
+              <th scope="col">match</th>
+              <th scope="col">modality</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">1</th>
+              <td>patient_robert_hayes_v1</td>
+              <td>history_opqrst</td>
+              <td>matched</td>
+              <td>typed</td>
+            </tr>
+            <tr>
+              <th scope="row">2</th>
+              <td>patient_robert_hayes_v1</td>
+              <td>history_opqrst</td>
+              <td>matched</td>
+              <td>typed</td>
+            </tr>
+          </tbody>
+        </table></div>
+        <p class="status-copy">Schema: <a href="site/data/trace-schema.json">site/data/trace-schema.json</a>. The match column is the MN1 outcome recomputed from each utterance-end event; every other cell is copied from the trace file.</p>
         <h3>Counts with N</h3>
         <p class="status-copy claim-copy" data-claim="CL8 CL20">Turn counts are reported as counts with N: turns matched, turns unmatched and please-repeat turns from the reference run and the graded traces. The counts come from a single speaker, a single run and scripted utterances, not a rate.</p>
         <p class="status-copy claim-copy" data-claim="CL24">Actor speech is synthesized in the browser with text-to-speech (TTS). Learner voice: synthetic (injected).</p>
