@@ -183,14 +183,29 @@ function summarySourceFiles(entry: string): string[] {
       continue;
     }
     for (const match of text.matchAll(REEXPORT_SOURCE)) {
-      const resolved = resolve(dirname(file), (match[1] ?? "").replace(/\.js$/u, ".ts"));
-      if (!resolved.startsWith(pkgDir) || !resolved.endsWith(".ts")) continue;
+      // A ".js" specifier names the emitted file, so the source is whichever of ".ts"/".tsx"
+      // exists beside it. ".ts" is tried first, pinning the long-standing behaviour when both
+      // are present; a direct ".ts"/".tsx" specifier resolves as written.
+      const spec = match[1] ?? "";
+      const candidates: string[] = spec.endsWith(".js")
+        ? [`${spec.slice(0, -".js".length)}.ts`, `${spec.slice(0, -".js".length)}.tsx`]
+        : [spec];
       let canonical = "";
-      try {
-        canonical = realpathSync(resolved);
-      } catch {
-        continue;
+      for (const candidate of candidates) {
+        const resolved = resolve(dirname(file), candidate);
+        if (!resolved.startsWith(pkgDir)) continue;
+        if (!(resolved.endsWith(".ts") || resolved.endsWith(".tsx"))) continue;
+        try {
+          const actual = realpathSync(resolved);
+          if (!actual.startsWith(pkgDir)) continue;
+          if (!(actual.endsWith(".ts") || actual.endsWith(".tsx"))) continue;
+          canonical = actual;
+        } catch {
+          continue;
+        }
+        break;
       }
+      if (canonical === "") continue;
       if (seen.has(canonical)) continue;
       seen.add(canonical);
       tail.add(canonical);
