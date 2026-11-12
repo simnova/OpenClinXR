@@ -9,7 +9,7 @@
     "build": "vite build",
     "probe:iwsdk": "node scripts/probe-iwsdk.mjs",
     "lint": "biome lint --no-errors-on-unmatched .",
-    "typecheck": "cellix-tsc --noEmit -p tsconfig.json",
+    "typecheck": "cellix-tsc --noEmit -p tsconfig.json && cellix-tsc --noEmit -p tsconfig.test.json",
     "test": "vitest run --root ."
   },
   "dependencies": {

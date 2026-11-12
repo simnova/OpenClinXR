@@ -64,8 +64,7 @@ describe("IWSDK sidecar Vite config", () => {
   });
 
   it("keeps portless HTTP so Quest Browser can load via adb reverse without cert privacy errors", async () => {
-    const { default: viteConfig } = await import("./vite.config.js");
-    const resolved = typeof viteConfig === "function" ? await viteConfig({ command: "serve", mode: "development" }) : viteConfig;
+    const { default: resolved } = await import("./vite.config.js");
     // The guarantee is NO TLS, not a specific literal. Vite 8 dropped `false` from the
     // `server.https` type, so the idiom for plain HTTP is to OMIT the key — `undefined` and
     // `false` both mean "no TLS". Anything truthy (an object carrying key/cert) does not, and
@@ -79,14 +78,14 @@ describe("IWSDK sidecar Vite config", () => {
   });
 
   it("disables Vite HMR error overlay so non-fatal dynamic-import failures on Quest do not block shellLoaded CDP gate", async () => {
-    const { default: viteConfig } = await import("./vite.config.js");
-    const resolved = typeof viteConfig === "function" ? await viteConfig({ command: "serve", mode: "development" }) : viteConfig;
-    expect(resolved.server?.hmr?.overlay).toBe(false);
+    const { default: resolved } = await import("./vite.config.js");
+    // server.hmr is `boolean | HmrOptions`: read overlay only after narrowing
+    // to the object form; `false` already means no overlay (and no HMR).
+    expect(typeof resolved.server?.hmr === "object" ? resolved.server.hmr.overlay : resolved.server?.hmr).toBe(false);
   });
 
   it("pre-bundles @pmndrs/uikitml so Quest Browser can load it without failing on dynamic Vite deps import", async () => {
-    const { default: viteConfig } = await import("./vite.config.js");
-    const resolved = typeof viteConfig === "function" ? await viteConfig({ command: "serve", mode: "development" }) : viteConfig;
+    const { default: resolved } = await import("./vite.config.js");
     expect(resolved.optimizeDeps?.include).toContain("@pmndrs/uikitml");
   });
 

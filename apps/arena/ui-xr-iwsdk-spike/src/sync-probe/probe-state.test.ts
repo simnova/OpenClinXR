@@ -13,6 +13,7 @@ import {
   type EncounterServer,
 } from "@openclinxr/xr-sync-server";
 import { afterEach, describe, expect, it } from "vitest";
+import { parseProbeQuery } from "./probe-query.js";
 import {
   ACTOR_TURN_COLOUR,
   BASE_ACTOR_COLOUR,
@@ -23,7 +24,6 @@ import {
   LEARNER_TURN_COLOUR,
   PHASE_COLOURS,
   PROBE_ACTOR_IDS,
-  SPEAKING_ACTOR_COLOUR,
   quantizePoseComponent,
   resolveActorColour,
   resolveActorTint,
@@ -33,11 +33,11 @@ import {
   resolvePhaseLabel,
   resolveStationLabel,
   resolveTurnIndicatorColour,
+  SPEAKING_ACTOR_COLOUR,
   summarizeMs,
   sweepYawDegrees,
   yawQuaternionDegrees,
 } from "./probe-state.js";
-import { parseProbeQuery } from "./probe-query.js";
 
 const servers: EncounterServer[] = [];
 const leavers: Array<() => Promise<unknown>> = [];
@@ -156,14 +156,14 @@ describe("sync-probe server authority", () => {
     connection.onState((snapshot) => {
       latest = snapshot;
     });
-    await waitFor(() => latest?.actors?.a1 !== undefined, 5000, "a1 snapshot");
+    await waitFor(() => latest?.actors?.["a1"] !== undefined, 5000, "a1 snapshot");
     const before = server.getStateJSON();
 
     // Page-side mutation of the local copy (the strongest thing the page can do
     // outside intents): flip the snapshot and re-derive colour from it.
     const local = latest as EncounterSnapshot;
-    local.actors.a1 = { id: "a1", speaking: true, emotion: "hijacked", replyId: "hijacked", cueId: "hijacked" };
-    expect(resolveActorColour(local.actors.a1?.speaking === true)).toBe(SPEAKING_ACTOR_COLOUR);
+    local.actors["a1"] = { id: "a1", speaking: true, emotion: "hijacked", replyId: "hijacked", cueId: "hijacked" };
+    expect(resolveActorColour(local.actors["a1"]?.speaking === true)).toBe(SPEAKING_ACTOR_COLOUR);
     expect(server.getStateJSON()).toBe(before);
     expect(JSON.parse(server.getStateJSON()).actors.a1.speaking).toBe(false);
   }, 30000);
@@ -177,21 +177,21 @@ describe("sync-probe server authority", () => {
     connection.onState((snapshot) => {
       latest = snapshot;
     });
-    await waitFor(() => latest?.actors?.a1 !== undefined, 5000, "a1 snapshot");
+    await waitFor(() => latest?.actors?.["a1"] !== undefined, 5000, "a1 snapshot");
     const before = server.getStateJSON();
 
     // Page-side mutation of the local turn fields: forge a turn the server never opened.
     const local = latest as EncounterSnapshot;
     local.turnId = 99;
     local.turnOwner = "actor";
-    local.actors.a1 = { id: "a1", speaking: true, emotion: "hijacked", replyId: "page-forged", cueId: "page-forged" };
+    local.actors["a1"] = { id: "a1", speaking: true, emotion: "hijacked", replyId: "page-forged", cueId: "page-forged" };
     const learnerEntry = local.learners[connection.sessionId];
     if (learnerEntry) {
       learnerEntry.speaking = true;
     }
     // The indicator resolver still derives from whatever server state it is given,
     // but the forgery never reaches the server: state is byte-identical.
-    expect(resolveTurnIndicatorColour(local.turnOwner, local.actors.a1?.speaking === true)).toBe(
+    expect(resolveTurnIndicatorColour(local.turnOwner, local.actors["a1"]?.speaking === true)).toBe(
       ACTOR_TURN_COLOUR,
     );
     expect(server.getStateJSON()).toBe(before);
@@ -213,12 +213,12 @@ describe("sync-probe server authority", () => {
 
 describe("sync-probe C4 emotion tint and cue mouth amplitude", () => {
   it("tint is a pure function of the server emotion", () => {
-    expect(resolveActorTint("neutral")).toBe(EMOTION_TINTS.neutral);
-    expect(resolveActorTint("reassured")).toBe(EMOTION_TINTS.reassured);
-    expect(resolveActorTint("concerned")).toBe(EMOTION_TINTS.concerned);
-    expect(resolveActorTint("anxious")).toBe(EMOTION_TINTS.anxious);
+    expect(resolveActorTint("neutral")).toBe(EMOTION_TINTS["neutral"]);
+    expect(resolveActorTint("reassured")).toBe(EMOTION_TINTS["reassured"]);
+    expect(resolveActorTint("concerned")).toBe(EMOTION_TINTS["concerned"]);
+    expect(resolveActorTint("anxious")).toBe(EMOTION_TINTS["anxious"]);
     // Unknown server values fall back to neutral; the resolver reads no page state.
-    expect(resolveActorTint("page-forged")).toBe(EMOTION_TINTS.neutral);
+    expect(resolveActorTint("page-forged")).toBe(EMOTION_TINTS["neutral"]);
     expect(new Set(Object.values(EMOTION_TINTS)).size).toBe(4);
   });
 
@@ -262,11 +262,11 @@ describe("sync-probe C6 station phase label and ring", () => {
   });
 
   it("phase ring colour is a pure function of the server phase", () => {
-    expect(resolvePhaseColour("doorway")).toBe(PHASE_COLOURS.doorway);
-    expect(resolvePhaseColour("encounter")).toBe(PHASE_COLOURS.encounter);
-    expect(resolvePhaseColour("note")).toBe(PHASE_COLOURS.note);
-    expect(resolvePhaseColour("closed")).toBe(PHASE_COLOURS.closed);
-    expect(resolvePhaseColour("brief")).toBe(PHASE_COLOURS.brief);
+    expect(resolvePhaseColour("doorway")).toBe(PHASE_COLOURS["doorway"]);
+    expect(resolvePhaseColour("encounter")).toBe(PHASE_COLOURS["encounter"]);
+    expect(resolvePhaseColour("note")).toBe(PHASE_COLOURS["note"]);
+    expect(resolvePhaseColour("closed")).toBe(PHASE_COLOURS["closed"]);
+    expect(resolvePhaseColour("brief")).toBe(PHASE_COLOURS["brief"]);
     expect(new Set(Object.values(PHASE_COLOURS)).size).toBe(5);
     // Unknown server values fall back; the resolver reads no page state.
     expect(resolvePhaseColour("page-forged")).toBe(BASE_TURN_COLOUR);
