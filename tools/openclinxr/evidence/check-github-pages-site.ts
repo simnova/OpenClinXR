@@ -219,6 +219,99 @@ export async function heroImageBlocker(
   });
 }
 
+const releaseTagPattern = /^(rr1|rr1-min|data-only)-\d{4}-\d{2}-\d{2}$/;
+
+export type ReleaseTagSlot = {
+  id?: string;
+  releaseTag?: string | null;
+};
+
+/**
+ * WV1c: every footer Release link (one form: `<a ... data-release="TAG" ...>`)
+ * carries a tag matching /^(rr1|rr1-min|data-only)-\d{4}-\d{2}-\d{2}$/ and equal
+ * to the media.json releaseTag. Green when no page carries the link (Stage A: the
+ * footer link lands in Stage B after W6b), red when a link carries a bad tag.
+ * This checks the link form only, never the release contents.
+ */
+export function releaseLinkBlockerFor(
+  pageHtmls: { name: string; html: string }[],
+  slotTags: (string | null | undefined)[],
+): string | undefined {
+  const found: string[] = [];
+  for (const { html } of pageHtmls) {
+    for (const match of html.matchAll(
+      /<a\b[^>]*\bdata-release\s*=\s*("[^"]*"|'[^']*'|[^\s>]+)[^>]*>/gi,
+    )) {
+      found.push((match[1] ?? "").replace(/^['"]|['"]$/g, ""));
+    }
+  }
+  if (found.length === 0) {
+    return undefined;
+  }
+  const expected = [
+    ...new Set(
+      slotTags.filter((tag): tag is string => typeof tag === "string" && tag.length > 0),
+    ),
+  ].sort();
+  const want = expected.length === 1 ? expected[0] : undefined;
+  if (want === undefined) {
+    return `pages_release_tag_inconsistent:${expected.join(",") || "none"}`;
+  }
+  for (const tag of found) {
+    if (!releaseTagPattern.test(tag)) {
+      return `pages_release_link_tag_format_invalid:${tag}`;
+    }
+    if (tag !== want) {
+      return `pages_release_link_tag_mismatch:${tag}:expected:${want}`;
+    }
+  }
+  return undefined;
+}
+
+export async function releaseLinkBlocker(
+  root: string = process.cwd(),
+): Promise<string | undefined> {
+  const pageHtmls: { name: string; html: string }[] = [];
+  try {
+    const docsEntries = await readdir(path.join(root, "docs"), { withFileTypes: true });
+    const pages = docsEntries
+      .filter((entry) => entry.isFile() && entry.name.endsWith(".html"))
+      .map((entry) => entry.name)
+      .sort();
+    for (const name of pages) {
+      try {
+        pageHtmls.push({
+          name: `docs/${name}`,
+          html: await readFile(path.join(root, "docs", name), "utf8"),
+        });
+      } catch {
+        // Skip an unreadable page; other rules report missing required files.
+      }
+    }
+    try {
+      pageHtmls.push({
+        name: "docs/site/partials/footer.html",
+        html: await readFile(path.join(root, "docs", "site", "partials", "footer.html"), "utf8"),
+      });
+    } catch {
+      // The footer partial is optional in fixtures.
+    }
+  } catch {
+    // No docs tree to scan means no Release link, which is green in Stage A.
+    return undefined;
+  }
+  let slotTags: (string | null | undefined)[] = [];
+  try {
+    const media = JSON.parse(
+      await readFile(path.join(root, "docs", "site", "data", "media.json"), "utf8"),
+    ) as { slots?: ReleaseTagSlot[] };
+    slotTags = (media.slots ?? []).map((slot) => slot?.releaseTag);
+  } catch {
+    // Unreadable media.json leaves no expected tag; inconsistency is reported below.
+  }
+  return releaseLinkBlockerFor(pageHtmls, slotTags);
+}
+
 export async function validateGitHubPagesSite(
   { root }: { root?: string } = {},
 ): Promise<ValidationResult> {
@@ -249,6 +342,7 @@ export async function validateGitHubPagesSite(
     indexHtml.includes("<title>OpenClinXR</title>") ? undefined : "pages_index_title_missing",
     indexHtml.includes('href="styles.css"') ? undefined : "pages_index_stylesheet_link_missing",
     await heroImageBlocker(indexHtml, base),
+    await releaseLinkBlocker(base),
     indexHtml.includes("https://github.com/simnova/OpenClinXR") ? undefined : "pages_index_repo_link_missing",
     engineeringHtml.includes("Evidence Docs") ? undefined : "pages_index_evidence_docs_link_missing",
     engineeringHtml.includes('id="factory-stations"') ? undefined : "pages_index_factory_stations_section_missing",

@@ -7,7 +7,7 @@
     "agent-methodology": 118,
     "current-reference": 202,
     "archive-candidate": 157,
-    "evidence": 228,
+    "evidence": 229,
     "temporary": 54,
     "protected-policy": 10,
     "agent-memory": 34,
@@ -5800,6 +5800,13 @@
     },
     {
       "path": "tools/openclinxr/evidence/settled-posture-diagnosis/settled-correction-execution-report.md",
+      "authority": "evidence",
+      "agentInstructionWeight": "low",
+      "action": "treat-as-evidence",
+      "rationale": "Evidence or gate artifact; use only when it verifies touched behavior or unlocks a named implementation decision."
+    },
+    {
+      "path": "tools/openclinxr/evidence/site/release/README.md",
       "authority": "evidence",
       "agentInstructionWeight": "low",
       "action": "treat-as-evidence",
