@@ -137,7 +137,9 @@ describe("post-stage neckline primitives follow the runtime viseme drive", () =>
         // A driver that skipped the new primitive leaves its influences at 0:
         // that divergence is the A3 RED.
         expect(mesh.morphTargetInfluences).toEqual(bodySkin.morphTargetInfluences);
-        expect(mesh.morphTargetInfluences.some((v) => v !== 0)).toBe(true);
+        const influences = mesh.morphTargetInfluences;
+        if (influences === undefined) throw new Error("moved prim missing morphTargetInfluences");
+        expect(influences.some((v) => v !== 0)).toBe(true);
         // Same morph topology, so equal influences displace shared vertices
         // identically on the GPU.
         expect(Object.keys(mesh.geometry.morphAttributes)).toEqual(
@@ -152,9 +154,13 @@ describe("post-stage neckline primitives follow the runtime viseme drive", () =>
         // hidden prim's POSITION accessor, so GLTFLoader decodes the identical
         // array — no vertex duplication. The donor must match in length AND in
         // first/last element (h6 has several same-material donors).
-        const a = mesh.geometry.attributes.position.array as Float32Array;
+        const posAttr = mesh.geometry.attributes["position"];
+        if (posAttr === undefined) throw new Error("moved prim missing position attribute");
+        const a = posAttr.array as Float32Array;
         const donor = hiddenMeshesOf(scene).find((h) => {
-          const d = h.geometry.attributes.position.array as Float32Array;
+          const dAttr = h.geometry.attributes["position"];
+          if (dAttr === undefined) return false;
+          const d = dAttr.array as Float32Array;
           return d.length === a.length && d[0] === a[0] && d[d.length - 1] === a[a.length - 1];
         });
         expect(donor).toBeDefined();
