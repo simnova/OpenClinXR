@@ -76,6 +76,13 @@ export interface ReceiptFileRef {
   postSha256?: string;
   /** Same vocabulary as the P2d runner's --role <flag>=<role>[:in|:out|:inout]. */
   mode?: "in" | "out" | "inout";
+  /**
+   * How the runner bound this file: exactly one of flag (a "--flag" argv
+   * entry) or argvIndex (a positional post-"--" argv element, 0 = first
+   * token after "--") is set per files entry by the P2d2 stage runner.
+   */
+  flag?: string;
+  argvIndex?: number;
 }
 
 export interface StageReceipt {
@@ -164,9 +171,18 @@ export function parseFullBakeReceiptLog(raw: unknown): FullBakeReceiptLog {
             typeof file["sha256"] !== "string" ||
             (file["role"] !== undefined && typeof file["role"] !== "string") ||
             (file["postSha256"] !== undefined && typeof file["postSha256"] !== "string") ||
-            (file["mode"] !== undefined && typeof file["mode"] !== "string")) {
+            (file["mode"] !== undefined && typeof file["mode"] !== "string") ||
+            (file["flag"] !== undefined && typeof file["flag"] !== "string") ||
+            (file["argvIndex"] !== undefined && typeof file["argvIndex"] !== "number")) {
           throw new Error(
             `full-bake receipt log: stage ${receipt.stage} files need path/sha256 strings`,
+          );
+        }
+        if (typeof file["argvIndex"] === "number" &&
+            (!Number.isInteger(file["argvIndex"]) || file["argvIndex"] < 0)) {
+          throw new Error(
+            `full-bake receipt log: stage ${receipt.stage} file ${file["path"]} ` +
+              `argvIndex must be a non-negative integer`,
           );
         }
         if (file["mode"] !== undefined &&
@@ -185,6 +201,8 @@ export function parseFullBakeReceiptLog(raw: unknown): FullBakeReceiptLog {
         const ref: ReceiptFileRef = { path: file["path"], sha256: file["sha256"] };
         if (typeof file["role"] === "string") ref.role = file["role"];
         if (typeof file["postSha256"] === "string") ref.postSha256 = file["postSha256"];
+        if (typeof file["flag"] === "string") ref.flag = file["flag"];
+        if (typeof file["argvIndex"] === "number") ref.argvIndex = file["argvIndex"];
         if (file["mode"] === "in" || file["mode"] === "out" || file["mode"] === "inout") {
           ref.mode = file["mode"];
         }

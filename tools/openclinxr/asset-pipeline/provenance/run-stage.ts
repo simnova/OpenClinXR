@@ -10,11 +10,18 @@
  *
  * CLI:
  *   run-stage.ts --stage-log <json> --stage <id>
- *     [--role <flag>=<role>[:in|:out|:inout]]... [--tool <path>]
- *     -- <argv...>
+ *     [--role <flag>=<role>[:in|:out|:inout]]... [--role '#<argvIndex>=<role>[:in|:out|:inout]']...
+ *     [--tool <path>] -- <argv...>
  *
- * Role mapping: each --role names one argv flag carrying a stage file and
- * the role that file plays, with the access mode suffix (default in):
+ * Role mapping: each --role names either one argv flag carrying a stage file
+ * (--flag=<role>[:mode]) or one positional post-"--" argv element
+ * (#<argvIndex>=<role>[:mode]), where 0 is the first token after "--" (so
+ * #0 is usually the tool itself and #1 its first argument). The positional
+ * form exists for shipped nurse S9 tools that take the GLB positionally
+ * (teeth-rest-clearance.ts "$2" --delta; tongue-forward-place.ts "$2";
+ * couple-fitted-teeth-to-lip-viseme.ts <glb>; decimate_teeth.mts <glb>
+ * --in-place) and therefore carry no flag the flag form could map.
+ * Both forms share the access mode suffix (default in) and semantics:
  *   in    hashed BEFORE exec; the on-disk pre bytes are the evidence.
  *   out   hashed AFTER exec; the produced bytes are the evidence.
  *   inout the input is FIRST copied to a fresh stage path under the run
@@ -78,7 +85,8 @@ import { parseFullBakeReceiptLog } from "./compose-full-bake-sidecar.js";
 type RoleMode = "in" | "out" | "inout";
 
 interface RoleBinding {
-  flag: string;
+  flag?: string;
+  argvIndex?: number;
   role: string;
   mode: RoleMode;
 }
@@ -136,11 +144,8 @@ function isInsideRepo(abs: string, root: string): boolean {
 function parseRole(spec: string, stage: string): RoleBinding {
   const eq = spec.indexOf("=");
   if (eq < 0) fail(`stage ${stage}: role "${spec}" needs <flag>=<role>[:mode]`);
-  const flag = spec.slice(0, eq);
+  const head = spec.slice(0, eq);
   const rest = spec.slice(eq + 1);
-  if (!flag.startsWith("--") || flag.length <= 2 || rest.length === 0) {
-    fail(`stage ${stage}: role "${spec}" needs <flag>=<role>[:mode]`);
-  }
   const colon = rest.lastIndexOf(":");
   let role = rest;
   let mode: RoleMode = "in";
@@ -153,7 +158,17 @@ function parseRole(spec: string, stage: string): RoleBinding {
     mode = rawMode;
     if (role.length === 0) fail(`stage ${stage}: role "${spec}" names no role`);
   }
-  return { flag, role, mode };
+  if (head.startsWith("#")) {
+    const digits = head.slice(1);
+    if (!/^\d+$/.test(digits) || role.length === 0) {
+      fail(`stage ${stage}: role "${spec}" needs #<argvIndex>=<role>[:mode] with 0 = first token after "--"`);
+    }
+    return { argvIndex: Number(digits), role, mode };
+  }
+  if (!head.startsWith("--") || head.length <= 2 || role.length === 0) {
+    fail(`stage ${stage}: role "${spec}" needs <flag>=<role>[:mode]`);
+  }
+  return { flag: head, role, mode };
 }
 
 /** Locate a role flag value in argv; supports "--flag value" form. */
@@ -213,12 +228,43 @@ function main(rawArgs: string[]): void {
     fail("usage: run-stage.ts --stage-log <json> --stage <id> [--role ...] [--tool <path>] -- <argv...>");
   }
   if (toolArgv.length === 0) fail(`stage ${stage}: no argv to execute`);
-  const seen = new Set<string>();
+  const seenFlags = new Set<string>();
+  const seenIndices = new Set<number>();
   for (const binding of roles) {
-    if (seen.has(binding.flag)) fail(`stage ${stage}: duplicate role for ${binding.flag}`);
-    seen.add(binding.flag);
-    if (toolArgv.indexOf(binding.flag) < 0) {
-      fail(`stage ${stage}: argv carries no ${binding.flag}`);
+    if (binding.flag !== undefined) {
+      if (seenFlags.has(binding.flag)) fail(`stage ${stage}: duplicate role for ${binding.flag}`);
+      seenFlags.add(binding.flag);
+      if (toolArgv.indexOf(binding.flag) < 0) {
+        fail(`stage ${stage}: argv carries no ${binding.flag}`);
+      }
+    } else {
+      const index = binding.argvIndex as number;
+      if (seenIndices.has(index)) fail(`stage ${stage}: duplicate role for #${index}`);
+      seenIndices.add(index);
+      if (index >= toolArgv.length) {
+        fail(`stage ${stage}: positional #${index} out of range: argv holds ${toolArgv.length} tokens`);
+      }
+      const token = toolArgv[index] as string;
+      if (token.startsWith("-")) {
+        fail(`stage ${stage}: positional #${index} points at flag token "${token}"; refusing`);
+      }
+    }
+  }
+  // One file bound both positionally and by flag (same resolved path) is
+  // refused: the two entries would double-count one evidence file.
+  if (seenFlags.size > 0 && seenIndices.size > 0) {
+    const flagPaths = new Set<string>();
+    for (const binding of roles) {
+      if (binding.flag === undefined) continue;
+      const found = flagValue(toolArgv, binding.flag, stage);
+      flagPaths.add(path.resolve(found.value));
+    }
+    for (const binding of roles) {
+      if (binding.argvIndex === undefined) continue;
+      const token = toolArgv[binding.argvIndex] as string;
+      if (flagPaths.has(path.resolve(token))) {
+        fail(`stage ${stage}: file "${token}" bound both by flag and positionally at #${binding.argvIndex}; refusing`);
+      }
     }
   }
 
@@ -254,22 +300,32 @@ function main(rawArgs: string[]): void {
   }> = [];
 
   for (const binding of roles) {
-    const found = flagValue(executed, binding.flag, stage);
-    if (binding.mode === "in") {
-      const abs = path.resolve(found.value);
-      if (!isFile(abs)) fail(`stage ${stage}: input file absent: ${found.value}`);
-      inFiles.push({ binding, given: found.value, sha: sha256File(abs) });
-    } else if (binding.mode === "out") {
-      outFiles.push({ binding, given: found.value });
+    let given: string;
+    let substituteAt: number;
+    if (binding.flag !== undefined) {
+      const found = flagValue(executed, binding.flag, stage);
+      given = found.value;
+      substituteAt = found.index + 1;
     } else {
-      const preAbs = path.resolve(found.value);
-      if (!isFile(preAbs)) fail(`stage ${stage}: input file absent: ${found.value}`);
+      const index = binding.argvIndex as number;
+      given = executed[index] as string;
+      substituteAt = index;
+    }
+    if (binding.mode === "in") {
+      const abs = path.resolve(given);
+      if (!isFile(abs)) fail(`stage ${stage}: input file absent: ${given}`);
+      inFiles.push({ binding, given, sha: sha256File(abs) });
+    } else if (binding.mode === "out") {
+      outFiles.push({ binding, given });
+    } else {
+      const preAbs = path.resolve(given);
+      if (!isFile(preAbs)) fail(`stage ${stage}: input file absent: ${given}`);
       const preSha = sha256File(preAbs);
-      const copyAbs = freshStagePath(runDir, stage, found.value);
+      const copyAbs = freshStagePath(runDir, stage, given);
       copyFileSync(preAbs, copyAbs);
       const copyGiven = path.relative(process.cwd(), copyAbs);
-      executed[found.index + 1] = copyGiven;
-      inoutFiles.push({ binding, preGiven: found.value, preSha, copyGiven, copyAbs });
+      executed[substituteAt] = copyGiven;
+      inoutFiles.push({ binding, preGiven: given, preSha, copyGiven, copyAbs });
     }
   }
 
@@ -291,8 +347,11 @@ function main(rawArgs: string[]): void {
   const statusField = exitCode === 0 ? "ok" : "failed";
 
   const files: ReceiptFileRef[] = [];
+  /** Exactly one binding tag per files entry: {flag} or {argvIndex}. */
+  const bindingTag = (binding: RoleBinding): { flag: string } | { argvIndex: number } =>
+    binding.flag !== undefined ? { flag: binding.flag } : { argvIndex: binding.argvIndex as number };
   for (const entry of inFiles) {
-    files.push({ path: entry.given, sha256: entry.sha, role: entry.binding.role, mode: "in" });
+    files.push({ path: entry.given, sha256: entry.sha, role: entry.binding.role, mode: "in", ...bindingTag(entry.binding) });
   }
   const recordedOuts: Array<{ binding: RoleBinding; given: string }> = [];
   for (const entry of outFiles) {
@@ -302,10 +361,10 @@ function main(rawArgs: string[]): void {
       fail(`stage ${stage}: output file absent after exec: ${entry.given}`, 4);
     }
     recordedOuts.push(entry);
-    files.push({ path: entry.given, sha256: sha256File(abs), role: entry.binding.role, mode: "out" });
+    files.push({ path: entry.given, sha256: sha256File(abs), role: entry.binding.role, mode: "out", ...bindingTag(entry.binding) });
   }
   for (const entry of inoutFiles) {
-    files.push({ path: entry.preGiven, sha256: entry.preSha, role: entry.binding.role, mode: "in" });
+    files.push({ path: entry.preGiven, sha256: entry.preSha, role: entry.binding.role, mode: "in", ...bindingTag(entry.binding) });
     if (!isFile(entry.copyAbs)) {
       if (exitCode !== 0) continue;
       fail(`stage ${stage}: stage copy absent after exec: ${entry.copyGiven}`, 4);
@@ -316,6 +375,7 @@ function main(rawArgs: string[]): void {
       postSha256: sha256File(entry.copyAbs),
       role: entry.binding.role,
       mode: "inout",
+      ...bindingTag(entry.binding),
     });
   }
 
@@ -334,10 +394,18 @@ function main(rawArgs: string[]): void {
     outputSha256 = inputSha256;
   }
 
-  const roleFlags = new Set(roles.map((binding) => binding.flag));
+  const roleFlags = new Set(
+    roles.map((binding) => binding.flag).filter((flag): flag is string => flag !== undefined),
+  );
+  // A role-bound positional index is evidence, never a flag's value: a flag
+  // directly before one records as boolean "true".
+  const boundIndices = new Set(
+    roles.map((binding) => binding.argvIndex).filter((index): index is number => index !== undefined),
+  );
   const params: Record<string, string> = {};
   for (let i = 1; i < executed.length; i += 1) {
     const token = executed[i];
+    if (boundIndices.has(i)) continue;
     if (token === undefined || !token.startsWith("--") || token.length <= 2) continue;
     const eq = token.indexOf("=");
     let rawName: string;
@@ -348,7 +416,7 @@ function main(rawArgs: string[]): void {
     } else {
       rawName = token.slice(2);
       const next = executed[i + 1];
-      value = next !== undefined && !next.startsWith("--") ? next : "true";
+      value = next !== undefined && !next.startsWith("--") && !boundIndices.has(i + 1) ? next : "true";
     }
     if (rawName.length === 0 || roleFlags.has(`--${rawName}`)) continue;
     const key = toParamKey(rawName);
