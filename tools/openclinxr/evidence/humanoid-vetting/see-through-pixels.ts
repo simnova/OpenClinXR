@@ -28,6 +28,8 @@ import {
   computeBaseMeshBounds,
   frameCameraForBounds,
 } from "../../../../apps/arena/model-vetting-studio/src/candidate-capture-geometry.js";
+// mirrors FixedCameraView in apps/arena/model-vetting-studio/src/candidate-capture-views.ts (local copy keeps the archunit freeze at 449)
+type FixedCameraView = "front" | "side" | "three_quarter";
 import { type DecodedPng, decodePng } from "../decode-png.js";
 
 export const BG_LUMA = 0.299 * 24 + 0.587 * 33 + 0.114 * 29;
@@ -99,7 +101,14 @@ function multiply(a: number[], b: number[]): number[] {
   return out;
 }
 
-export async function loadScene(glbPath: string): Promise<{ camera: PerspectiveCamera; model: Group }> {
+/**
+ * H4 three_quarter option (phys-neck-h4 H5): the three_quarter camera is the
+ * same imported frameCameraForBounds with view "three_quarter" (source:
+ * apps/arena/model-vetting-studio/src/candidate-capture-geometry.ts, the
+ * capture producer's own framing for the glb-grade three_quarter captures).
+ * Default "front": existing callers are unchanged.
+ */
+export async function loadScene(glbPath: string, view: FixedCameraView = "front"): Promise<{ camera: PerspectiveCamera; model: Group }> {
   const doc = await new NodeIO().read(glbPath);
   const root = doc.getRoot();
   const nodes = root.listNodes() as unknown as GltfNode[];
@@ -182,7 +191,7 @@ export async function loadScene(glbPath: string): Promise<{ camera: PerspectiveC
   captureModel.updateMatrixWorld(true);
   const framed = computeBaseMeshBounds(captureModel);
   const camera = new PerspectiveCamera(35, 1, 0.01, 100);
-  frameCameraForBounds(camera, framed, "front");
+  frameCameraForBounds(camera, framed, view);
   camera.updateMatrixWorld(true);
   camera.updateProjectionMatrix();
   return { camera, model: captureModel };
@@ -279,8 +288,12 @@ export async function countFirstHitsInBox(opts: {
   structPath: string;
   box: readonly [number, number, number, number];
   classifyHit: (name: string, matName: string, alphaMode: string) => string;
+  /** Raycast stride in px (source: phys-neck-h2 handback G3; default 1, behaviour unchanged at 1). */
+  stride?: number;
+  /** Capture view framing (source: phys-neck-h4 H5; default front, behaviour unchanged). */
+  view?: FixedCameraView;
 }): Promise<{ subject: number; counts: Record<string, number>; skinRowCount: number }> {
-  const scene = await loadScene(opts.glbPath);
+  const scene = await loadScene(opts.glbPath, opts.view ?? "front");
   const lit = decodePng(new Uint8Array(readFileSync(opts.litPath)));
   const struct = decodePng(new Uint8Array(readFileSync(opts.structPath)));
   if (lit === null || struct === null) throw new Error("PNG decode failed");
@@ -292,8 +305,9 @@ export async function countFirstHitsInBox(opts: {
   raycaster.near = 0.01;
   const ndc = new Vector2();
   const box = opts.box;
-  for (let y = box[1]; y < box[3]; y++) {
-    for (let x = box[0]; x < box[2]; x++) {
+  const stride = opts.stride ?? 1;
+  for (let y = box[1]; y < box[3]; y += stride) {
+    for (let x = box[0]; x < box[2]; x += stride) {
       const i = y * lit.w + x;
       const structLum = struct.lum[i];
       if (structLum === undefined) throw new Error(`see-through-pixels: struct.lum missing pixel ${i}`);

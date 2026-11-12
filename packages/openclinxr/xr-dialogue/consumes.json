@@ -150,6 +150,17 @@
   },
   {
     "provider": "@openclinxr/xr-dialogue",
+    "entrypoint": "./viseme-runtime",
+    "names": [
+      {
+        "name": "applyDialogueVisemeTimelineToRoot",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-dialogue",
     "entrypoint": "./viseme-timeline",
     "names": [
       {

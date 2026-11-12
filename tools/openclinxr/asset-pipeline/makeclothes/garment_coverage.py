@@ -900,6 +900,244 @@ def body_hide_mask(
     }
 
 
+# phys-neck-h5 C2 second/third disjuncts need reference directions.
+# NECKLINE_TQ_AXIS: unit vector from the model toward the three_quarter
+# capture camera (h5/tq-axis-probe.ts through the instrument's loadScene:
+# camPos (3.7224, 1.3640, 3.7224), axis (0.707008, 0.016714, 0.707008) —
+# IDENTICAL for physician and nurse, so one constant serves both bodies).
+# Provenance: producer frameCameraForBounds(view="three_quarter") in
+# apps/arena/model-vetting-studio/src/candidate-capture-geometry.ts
+# (camera at center + (0.72d, eyeHeight, 0.72d)); direction is invariant
+# under loadScene's uniform scale + translation, hence usable in GLB space.
+NECKLINE_TQ_AXIS = (0.707008, 0.016714, 0.707008)
+# phys-neck Route B (h4) — un-hide the scrub-shirt V opening on the SHIPPED bytes.
+# Origin offset: below the measured median garment fit distance (~0.7 mm,
+# module docstring / CLOTH_STANDOFF_M comment) so a covered region still
+# registers its garment hit, and above the _ray_tri_hits self-hit guard
+# (t > 1e-6) so the source face's own plane never counts.
+NECKLINE_ORIGIN_EPS_M = 0.0001
+# Front-centre strip: |x| < k * shirt half-width. k = 0.25 (the central half
+# of the shirt half-width): the recorded physician hidden set spans the
+# central V (h2 1-component bbox) while the shirt hem corners are excluded
+# from the floor measurement.
+NECKLINE_CENTRE_FRACTION = 0.25
+# Occluder search: the scene is one body plus its garments; a 10 m band is
+# effectively unbounded (whole-figure rays) while staying finite for the
+# vectorized intersector.
+NECKLINE_RAY_MAX_M = 10.0
+
+
+# Neck column the V opens onto: skin verts up to this far below the shirt top
+# (the collar/neck column on both bodies spans shoulder line to jaw; the 10 cm
+# band stays below the jaw on the measured bodies — physician shirt top
+# 1.4883 m, nurse 1.5251 m, jaw/teeth band above 1.51/1.55 m).
+NECKLINE_NECK_BAND_M = 0.10
+# H6 C1: per-tri sample spread off the shared edges (super-ceo-cap17 h6
+# ruling). The single centroid ray can graze an overhang (chin/collar fold)
+# while the camera sees other points of the same tri (h5 residual: all
+# hidden_upper prim #1 top-of-V strip). 5% inset clears the shared edge so a
+# neighbour's edge does not self-occlude; NOT tuned to a residual.
+NECKLINE_SAMPLE_INSET = 0.05
+
+
+def uncovered_neckline_hidden_triangles(
+    hidden_verts,
+    hidden_faces,
+    hidden_normals,
+    shirt_verts,
+    shirt_faces,
+    visible_body_verts_faces,
+    lab_coat_verts=None,
+    lab_coat_faces=None,
+    *,
+    eyelash_zc: float,
+    teeth_zc: float,
+    neck_band_m: float = NECKLINE_NECK_BAND_M,
+    centre_fraction: float = NECKLINE_CENTRE_FRACTION,
+    origin_eps_m: float = NECKLINE_ORIGIN_EPS_M,
+    ray_max_m: float = NECKLINE_RAY_MAX_M,
+) -> dict:
+    """phys-neck Route B — which openclinxr_hidden_* triangles are uncovered skin.
+
+    Scope (phys-neck-h5 C1): EVERY openclinxr_hidden_* primitive (upper,
+    orphan, any variant) — the caller passes each hidden prim; the V band
+    expression admits only neckline triangles, so lower/foot exclusion follows
+    from height, never from a prefix list.
+
+    A hidden triangle is UNCOVERED when (a) its centroid sits above the
+    scrub shirt's lowest front-centre vertex (the V band) and (b) ANY of the
+    per-tri 7-point sample set passes one of: (1) a ray from the sample along
+    the triangle's OWN outward normal hits none of the occluders (scrub
+    shirt, lab coat when present, visible body); (2) [h5 C2] the normal
+    points frontward (normal . front > 0) AND the front-axis ray from the
+    sample is clear; (3) [h5 C2 tq fallback] the normal points toward the
+    three_quarter camera (normal . tq > 0) AND the tq-axis ray
+    (NECKLINE_TQ_AXIS, measured through the instrument) from the sample is
+    clear. The 7 samples [h6 C1] are the 3 vertices each inset 5% toward the
+    centroid (p = v + 0.05*(c - v), NECKLINE_SAMPLE_INSET, off the shared
+    edges so a neighbour's edge does not self-occlude), the 3 edge midpoints,
+    and the centroid; the band test stays on the CENTROID (expression
+    UNCHANGED). Disjuncts (2)-(3) cover V triangles whose own-normal ray
+    grazes a neighbour (chin, collar fold) while a flatter view is clear;
+    the sample set covers tris where only the centroid ray grazes.
+
+    Direction (not global +Z): the normal is the area-weighted vertex-normal
+    mean (the NORMAL attribute is authored outward, so no winding trust is
+    needed). A global +Z ray from the nape would pass through the V and
+    wrongly un-hide the back of the neck (h4 ruling V1).
+
+    Front (+z vs -z) is measured from the body, not assumed: the eyelash and
+    fitted-teeth meshes sit on the face, so front = the side of the neck-skin
+    depth centroid they fall on. The two witnesses must agree.
+
+    Pure numpy, deterministic (no randomness; input-order stable).
+    """
+    hv = _as_np(hidden_verts)
+    hf = np.asarray(hidden_faces, dtype=np.int64).reshape(-1, 3)
+    hn = _as_np(hidden_normals)
+    sv = _as_np(shirt_verts)
+    sf = np.asarray(shirt_faces, dtype=np.int64).reshape(-1, 3)
+
+    if len(hf) == 0:
+        raise ValueError("uncovered_neckline_hidden_triangles: no hidden faces")
+    if len(sf) == 0:
+        raise ValueError("uncovered_neckline_hidden_triangles: no shirt faces")
+
+    # Front direction, measured from the body: the neck column just below the
+    # shirt top (median z: robust to the jaw front entering the band top).
+    skin_all = np.concatenate(
+        [_as_np(body_verts) for body_verts, _body_faces in visible_body_verts_faces]
+    )
+    shirt_top = float(sv[:, 1].max())
+    neck_sel = (skin_all[:, 1] >= shirt_top - neck_band_m) & (skin_all[:, 1] <= shirt_top)
+    if not bool(neck_sel.any()):
+        raise ValueError("uncovered_neckline_hidden_triangles: empty neck column")
+    neck_zc = float(np.median(skin_all[neck_sel, 2]))
+    neck_n = int(neck_sel.sum())
+    witness = {"eyelash": float(eyelash_zc), "teeth": float(teeth_zc), "neckSkin": neck_zc}
+    signs = {
+        "eyelash": 1 if witness["eyelash"] > neck_zc else (-1 if witness["eyelash"] < neck_zc else 0),
+        "teeth": 1 if witness["teeth"] > neck_zc else (-1 if witness["teeth"] < neck_zc else 0),
+    }
+    if signs["eyelash"] == 0 or signs["teeth"] == 0 or signs["eyelash"] != signs["teeth"]:
+        raise ValueError(f"uncovered_neckline_hidden_triangles: facial witnesses disagree {witness}")
+    front_sign = signs["eyelash"]
+
+    # V band floor: lowest front-centre shirt vertex. Front-centre is an
+    # expression over the shirt's own verts: |x| < k * shirt half-width and
+    # in front of the shirt depth centroid. glTF is Y-up; front uses the
+    # measured sign above.
+    half_width = float(np.abs(sv[:, 0]).max())
+    depth_centroid = float(sv[:, 2].mean())
+    if front_sign > 0:
+        frontward = sv[:, 2] > depth_centroid
+    else:
+        frontward = sv[:, 2] < depth_centroid
+    strip = (np.abs(sv[:, 0]) < centre_fraction * half_width) & frontward
+    if not bool(strip.any()):
+        raise ValueError("uncovered_neckline_hidden_triangles: empty front-centre strip")
+    floor_y = float(sv[strip, 1].min())
+
+    # Per-triangle outward normals from the authored vertex normals.
+    tri = hv[hf]  # (T,3,3)
+    centroids = tri.mean(axis=1)
+    corner_normals = hn[hf]  # (T,3,3)
+    face_normals = corner_normals.sum(axis=1)
+    lengths = np.linalg.norm(face_normals, axis=1)
+    degenerate = lengths < 1e-12
+    face_normals = face_normals / np.where(degenerate[:, None], 1.0, lengths[:, None])
+
+    in_band = centroids[:, 1] > floor_y
+
+    # H6 C1: per-tri 7-point sample set — 3 inset vertices, 3 edge
+    # midpoints, centroid. Band test stays on the centroid above.
+    v0, v1, v2 = tri[:, 0], tri[:, 1], tri[:, 2]
+    inset = float(NECKLINE_SAMPLE_INSET)
+    s0 = v0 + inset * (centroids - v0)
+    s1 = v1 + inset * (centroids - v1)
+    s2 = v2 + inset * (centroids - v2)
+    m01 = (v0 + v1) * 0.5
+    m12 = (v1 + v2) * 0.5
+    m20 = (v2 + v0) * 0.5
+    samples = np.stack([s0, s1, s2, m01, m12, m20, centroids], axis=1)  # (T,7,3)
+    flat = samples.reshape(-1, 3)
+    nflat = np.repeat(face_normals, 7, axis=0)
+
+    # Occluders: shirt + lab coat (when present) + every visible body prim.
+    occluder_blocks = [sv[sf]]
+    if lab_coat_verts is not None and lab_coat_faces is not None:
+        occluder_blocks.append(
+            _as_np(lab_coat_verts)[np.asarray(lab_coat_faces, dtype=np.int64).reshape(-1, 3)]
+        )
+    for body_verts, body_faces in visible_body_verts_faces:
+        occluder_blocks.append(
+            _as_np(body_verts)[np.asarray(body_faces, dtype=np.int64).reshape(-1, 3)]
+        )
+    occluders = np.concatenate(occluder_blocks, axis=0) if len(occluder_blocks) > 1 else occluder_blocks[0]
+
+    origins = flat + nflat * origin_eps_m
+    hits = _ray_tri_hits(origins, nflat, occluders, ray_max_m)
+    own_clear = (~np.isfinite(hits)).reshape(-1, 7).any(axis=1)
+
+    # H5 C2 second disjunct: the V opening faces front, so a frontward-facing
+    # triangle whose own-normal ray grazes a neighbour is still uncovered
+    # skin when the straight-front ray from ANY sample is clear. Front is
+    # the measured sign (not global +Z): front axis = (0, 0, front_sign).
+    front_axis = np.array([0.0, 0.0, float(front_sign)])
+    front_facing = face_normals[:, 2] * float(front_sign) > 0.0
+    front_origins = flat + front_axis[None, :] * origin_eps_m
+    front_dirs = np.broadcast_to(front_axis[None, :], flat.shape).copy()
+    front_hits = _ray_tri_hits(front_origins, front_dirs, occluders, ray_max_m)
+    front_clear_any = (~np.isfinite(front_hits)).reshape(-1, 7).any(axis=1)
+
+    # H5 C2 tq fallback: same test along the three_quarter view axis
+    # (constant measured through the instrument; body-independent).
+    tq_axis = np.array([float(c) for c in NECKLINE_TQ_AXIS])
+    tq_axis = tq_axis / (np.linalg.norm(tq_axis) + 1e-12)
+    tq_facing = face_normals @ tq_axis > 0.0
+    tq_origins = flat + tq_axis[None, :] * origin_eps_m
+    tq_dirs = np.broadcast_to(tq_axis[None, :], flat.shape).copy()
+    tq_hits = _ray_tri_hits(tq_origins, tq_dirs, occluders, ray_max_m)
+    tq_clear_any = (~np.isfinite(tq_hits)).reshape(-1, 7).any(axis=1)
+
+    uncovered = (
+        in_band
+        & (own_clear | (front_facing & front_clear_any) | (tq_facing & tq_clear_any))
+        & ~degenerate
+    )
+    return {
+        "uncovered": uncovered,
+        "uncoveredCount": int(uncovered.sum()),
+        "triangleCount": int(len(hf)),
+        "inBandCount": int(in_band.sum()),
+        "ownClearCount": int((in_band & own_clear).sum()),
+        "frontFacingCount": int((in_band & front_facing).sum()),
+        "frontClearCount": int((in_band & front_facing & front_clear_any).sum()),
+        "tqFacingCount": int((in_band & tq_facing).sum()),
+        "tqClearCount": int((in_band & tq_facing & tq_clear_any).sum()),
+        "tqOnlyCount": int((in_band & ~own_clear & ~(front_facing & front_clear_any) & (tq_facing & tq_clear_any)).sum()),
+        "degenerateCount": int(degenerate.sum()),
+        "samplePointsPerTri": 7,
+        "sampleInset": float(NECKLINE_SAMPLE_INSET),
+        "info": {
+            "frontSign": int(front_sign),
+            "eyelashZc": witness["eyelash"],
+            "teethZc": witness["teeth"],
+            "neckSkinZc": witness["neckSkin"],
+            "neckSkinN": neck_n,
+            "neckBandM": float(neck_band_m),
+            "shirtTopM": shirt_top,
+            "shirtHalfWidthM": half_width,
+            "shirtDepthCentroidM": depth_centroid,
+            "shirtFrontCentreFloorM": floor_y,
+            "centreFraction": float(centre_fraction),
+            "originEpsM": float(origin_eps_m),
+            "rayMaxM": float(ray_max_m),
+            "occluderTriangles": int(len(occluders)),
+        },
+    }
+
+
 def _poking_face_count(
     body_verts,
     body_faces,

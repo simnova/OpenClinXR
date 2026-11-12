@@ -88,6 +88,7 @@
     "src/live-stt-rate-independence.test.ts",
     "src/pp-seal.test.ts",
     "src/rhubarb-shapes-reach-baked-visemes.test.ts",
+    "src/the-unhidden-neckline-follows-the-viseme-drive.test.ts",
     "src/viseme-cue-track.test.ts",
     "src/viseme-morph-apply.test.ts",
     "src/viseme-runtime-wire.test.ts",

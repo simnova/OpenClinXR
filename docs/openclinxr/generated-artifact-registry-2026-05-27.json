@@ -25084,6 +25084,20 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-physician-adult-front_lit.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
+      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-physician-adult-front_structure.png",
+      "authority": "keep-evidence",
+      "tracked": false,
+      "action": "keep",
+      "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
+    },
+    {
       "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-family-partner-adult-capture-manifest.json",
       "authority": "keep-evidence",
       "tracked": true,

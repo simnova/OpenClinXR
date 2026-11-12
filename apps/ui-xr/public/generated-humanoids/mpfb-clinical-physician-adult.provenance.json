@@ -70,8 +70,8 @@
  "claimScope": "physician_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_plus_cc0_lab_coat_over_scrubs",
  "promotionGates": false,
  "generatedAt": "2026-08-14T17:56:00Z",
- "outputSha256": "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
- "outputBytes": 12596836,
+ "outputSha256": "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
+ "outputBytes": 12618432,
  "motionClips": [
   {
    "clipName": "openclinxr_retarget_walk_source",
@@ -120,46 +120,29 @@
  "albedoBakeNote": "HB-02 CRC fix: node:zlib crc32 replaces the hand-rolled table; all ten bodies re-baked from origin/main pre-bake bytes. Geometry, rig and animations unchanged. outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-11-11T05:02:44.619Z",
+  "correctedAt": "2026-11-12T05:29:43.178Z",
   "recordedBefore": {
-   "outputSha256": "f73229fe6ed22d7db0e35ce726901d1d6d750680d7bde5e8a0cb6c965b73998d",
-   "outputBytes": 9497600,
-   "byteLineage": {
-    "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-    "correctedAt": "2026-09-28T04:06:04.694Z",
-    "recordedBefore": {
-     "outputSha256": "ab6ba3138a62ff03d079979241b95dbadf65e9173d232de486976b20d7789e8f",
-     "outputBytes": 9618436
-    },
-    "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-    "preImageSha256": "ab6ba3138a62ff03d079979241b95dbadf65e9173d232de486976b20d7789e8f",
-    "preImageBytes": 9618436,
-    "derivationArgv": [
-     "sh",
-     "-c",
-     "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0063",
-     "x",
-     "{pre}",
-     "{out}"
-    ],
-    "reproduction": "byte-identical to the shipped file",
-    "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
-   }
+   "outputSha256": "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
+   "outputBytes": 12596836
   },
-  "preImageRevision": "2285e0bee:apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-  "preImageSha256": "f73229fe6ed22d7db0e35ce726901d1d6d750680d7bde5e8a0cb6c965b73998d",
-  "preImageBytes": 9497600,
+  "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+  "preImageSha256": "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
+  "preImageBytes": 12596836,
   "derivationArgv": [
-   "sh",
-   "-c",
-   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-clinical-physician-adult.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0061' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts' \"$2\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'",
-   "x",
+   "mise",
+   "exec",
+   "--",
+   "python3",
+   "tools/openclinxr/asset-pipeline/makeclothes/unhide-neckline-opening.py",
+   "--in",
    "{pre}",
+   "--out",
    "{out}",
+   "--report",
    "{report}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts, couple-fitted-teeth-to-lip-viseme.ts, decimate_teeth.mts."
+  "why": "neck card tsk_d2791236a570a434: unhide neckline opening (h6), cap21 grade PASS"
  },
  "currentRepair": {
   "scope": "physician_adult walk: clip names/identities/order and all OTHER channels unchanged; exactly 2 breast translation channels (openclinxr_retarget_walk_source/breast.L + breast.R, 2 keyframes each, 4 X floats / 16 bytes) restored to own rest X; rest TRS/geometry/materials/clips otherwise unchanged",
