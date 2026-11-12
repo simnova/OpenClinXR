@@ -523,10 +523,6 @@
         "kind": "type"
       },
       {
-        "name": "loadGeneratedEnvironmentIntoSceneSlot",
-        "kind": "runtime"
-      },
-      {
         "name": "loadGeneratedEquipmentIntoSceneSlot",
         "kind": "runtime"
       },

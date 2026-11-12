@@ -88,6 +88,7 @@
     "src/eye-shader/the-iris-parallax-matches-a-refraction-render.test.ts",
     "src/infinigen-station-environment.test.ts",
     "src/interior-preview-camera-finish-decoration.test.ts",
+    "src/interior-preview-camera-latch.test.ts",
     "src/interior-preview-camera-occlusion.test.ts",
     "src/learner-exam-form-boot.test.ts",
     "src/learner-exam-scenario-source.test.ts",

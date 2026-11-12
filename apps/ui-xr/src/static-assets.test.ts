@@ -10,6 +10,7 @@ import { resolveScenarioActorCast } from "../../../packages/openclinxr/asset-reg
  * functions, so their source guards now read the module that owns them.
  */
 const speechHudFormattingSource = readFileSync(new URL("../../../packages/openclinxr/xr-dialogue/src/speech-hud-formatting.ts", import.meta.url), "utf8");
+const stationRoomIndexModSource = readFileSync(new URL("../../../packages/openclinxr/xr-station-room/src/index-mod.ts", import.meta.url), "utf8");
 
 /**
  * The shipped XR learner runtime as one string: main.ts plus every @openclinxr/xr-* package
@@ -787,10 +788,12 @@ describe("static browser assets", () => {
     expect(mainSource).toContain("generated-equipment-slot.${item.equipmentId}");
     // The loader moved to @openclinxr/xr-asset-loading and its slot parameter was renamed
     // there; the fence asserts the loader takes a scene slot, not what the parameter is called.
-    expect(mainSource).toMatch(/loadGeneratedEquipmentIntoSceneSlot\(\s*\w*[Ss]lot/u);
+    // W0-CAM-P deleted the dead _ wrapper; the fence now reads the live call.
+    expect(mainSource).toMatch(/loadPackageGeneratedEquipmentIntoSceneSlot\(\s*assetLoadingContext\(\),\s*\w*[Ss]lot/u);
     expect(mainSource).toContain("ecg-cart-12-lead.glb");
     expect(mainSource).toContain("iv-pole-with-pump.glb");
-    expect(mainSource).toMatch(/loadGeneratedEnvironmentIntoSceneSlot\(\s*\w*[Ss]hell|loadGeneratedEnvironmentIntoSceneSlot\(\s*\w*[Ss]lot/u);
+    // W0-CAM-P deleted the dead ui-xr wrapper; ui-xr reaches the env load via xr-station-room (index-mod.ts:325), so the fence reads that call.
+    expect(stationRoomIndexModSource).toMatch(/loadPackageGeneratedEnvironmentIntoSceneSlot\(\s*assetLoadingContext\(\),\s*\w*(?:[Ss]hell|[Ss]lot)/u);
     expect(mainSource).toContain("__openClinXrSceneAssetEvidence");
     expect(mainSource).toMatch(/sceneAssetEvidence:\s*\(\)\s*=>\s*window\.__openClinXrSceneAssetEvidence|sceneAssetEvidence: window\.__openClinXrSceneAssetEvidence/u);
     expect(mainSource).toContain("cameraFramingCue");

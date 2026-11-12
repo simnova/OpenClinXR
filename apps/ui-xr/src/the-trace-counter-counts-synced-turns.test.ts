@@ -10,7 +10,7 @@ import { describe, expect, it } from "vitest";
 // by source, the label math by the real module, the live path by the real sync client.
 const SRC = fileURLToPath(new URL(".", import.meta.url));
 const MAIN = readFileSync(`${SRC}main.ts`, "utf8");
-const MAIN_LINES_AT_BASE = 4724;
+const MAIN_LINES_AT_BASE = 4719;
 const SYNC = "?encounterSync=ws://127.0.0.1:9";
 const flush = async (): Promise<void> => { for (let i = 0; i < 12; i += 1) await Promise.resolve(); };
 
@@ -89,7 +89,7 @@ describe("the trace counter counts synced turns (B')", () => {
     expect(own).toHaveLength(1);
   });
 
-  it("main.ts is 4724 lines (4723 + the onTopicMenu dep on its own line, C49)", () => {
+  it("main.ts is 4719 lines (4724 base, W0-CAM-P: latch +9, staged-actor hold +7, 21 dead lines deleted, fences moved to live calls)", () => {
     expect(MAIN.split("\n").length - (MAIN.endsWith("\n") ? 1 : 0)).toBe(MAIN_LINES_AT_BASE);
   });
 });

@@ -36,7 +36,6 @@ import {
   comparatorCaptureSubjectActorId as comparatorPackageCaptureSubjectActorId,
   gazeProbeAnimationClipNamesFromGltf as gazePackageProbeAnimationClipNamesFromGltf,
   hasAuthoredClinicalIdlePoseClip as hasPackageAuthoredClinicalIdlePoseClip,
-  loadGeneratedEnvironmentIntoSceneSlot as loadPackageGeneratedEnvironmentIntoSceneSlot,
   loadGeneratedEquipmentIntoSceneSlot as loadPackageGeneratedEquipmentIntoSceneSlot,
   neutralizeGeneratedHumanoidMorphTargets as neutralizePackageGeneratedHumanoidMorphTargets,
   type AssetLoadingContext as PackageAssetLoadingContext,
@@ -245,7 +244,6 @@ import {
   addGeneratedHumanoidRoleContinuityWardrobeCue,
   applyCleanEncounterVisualReviewActorFraming as applyEncounterActorFraming,applyRealGarmentEvidenceSurfaces,
   bootLearnerExamFormFromApi,createVirtualDeviceActorAffordance as buildVirtualDeviceActorAffordance,
-  collectActorWorldBoxes,
   deriveInteriorPreviewCamera,installStationLayoutView, 
   resolveHumanoidVariantOrCastPath,
   resolveLocalHumanoidRuntimeAssetUrl, sleeveDeformCueForAssetPath
@@ -3252,9 +3250,17 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     if (renderer.xr.isPresenting) return;
     const roomRoot = scene.getObjectByName("openclinxr.station-environment.infinigen-room");
     if (!roomRoot) return;
-    const actorWorldBoxes = collectActorWorldBoxes(scene);
-    if (actorWorldBoxes.length === 0) return;
-    const derived = deriveInteriorPreviewCamera({ roomRoot, actorWorldBoxes });
+    const stagedActorIds = resolveRuntimeSlotAssignment().stagedActorIds.filter((actorId) => actorId.length > 0);
+    const derived = deriveInteriorPreviewCamera({
+      roomRoot,
+      scene,
+      stagedActorIds,
+      latchEvidence: {
+        sceneEvidence: window.__openClinXrSceneAssetEvidence ?? null,
+        modelAssetIdForActor: (actorId) => findRuntimeActorAsset(encounterRuntimeAssetBundle, actorId)?.model.assetId,
+        mixerTimeForActor: (actorId) => generatedHumanoidAnimationSlotsByActorId.get(actorId)?.mixer?.time ?? null,
+      },
+    });
     if (!derived) return;
 
     // `eye` is a WORLD point; `camera.position` is LOCAL to the locomotion rig it is parented
@@ -3274,6 +3280,8 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       wallThicknessMeters: derived.wallThicknessMeters,
       nearestActorMeters: derived.nearestActorMeters,
       authoredWorldZ: 5.35,
+      partialCast: derived.partialCast,
+      mixerTimeAtLatch: derived.mixerTimeAtLatch,
       policy:
         "authored_wide_pullback_is_outside_a_closed_generated_shell_so_the_preview_eye_is_derived_from_measured_room_and_cast_bounds",
     };
@@ -3296,6 +3304,12 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     lastAnimateAtMs = frameNowMs;
     resize();
     applyInteriorPreviewCameraOnce();
+    // F1': staged actors get no update until the preview latch completes; modes where it never runs update from frame 1.
+    const roomState = (stationEnvironment.userData["openClinXrInfinigenEnvironmentStatus"] as { state?: string } | undefined)?.state;
+    const previewLatchHold = !interiorPreviewCameraApplied
+      && !renderer.xr.isPresenting
+      && usesAuthoredWideDefaultFraming
+      && (roomState === "pending" || roomState === "loaded");
     const roomScalePose = samplePackageRoomScalePose({
       camera,
       renderer,
@@ -3397,6 +3411,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
       && frozenScenePlanAdmission.reproduced !== null;
     // One fixed-clock substep; params reuse the legacy frame names the call-site tests pin.
     const stepActorSimulation = (deltaSeconds: number, now: number): void => {
+      if (previewLatchHold) return;
       const approachFrame = frozenScenePlanReproduced ? updateStationBedsideApproach(
       caseOwnedBedsideApproach,
         { scene, physicianActorId: runtimeWalkingActorId(), patientActorId: runtimePatientActorId(),
@@ -3441,7 +3456,7 @@ async function createStationScene(): Promise<StationSceneRuntime> {
     // Standing-idle sway, composed onto each actor's persistent heading. The supine exclusion (a
     // recumbent root's orientation is owned by the plant hold) and the compose-not-assign rule moved
     // with it to @openclinxr/xr-runtime-state, unchanged.
-    applyStationIdleSway({ patient, nurse, nowMs: frameNowMs });
+    if (!previewLatchHold) applyStationIdleSway({ patient, nurse, nowMs: frameNowMs });
     renderer.render(scene, window.__openClinXrDebugHoldCamera ?? camera);
   }
 
@@ -4358,26 +4373,6 @@ function runtimeGeneratedSceneObjectName(asset: EncounterRuntimeAsset): string {
   return packageRuntimeGeneratedSceneObjectName(asset);
 }
 
-function _loadGeneratedEquipmentIntoSceneSlot(
-  sceneSlot: Group,
-  options: {
-    assetPath: string;
-    assetId: string;
-    objectName: string;
-  },
-): void {
-  loadPackageGeneratedEquipmentIntoSceneSlot(assetLoadingContext(), sceneSlot, options);
-}
-function _loadGeneratedEnvironmentIntoSceneSlot(
-  sceneSlot: Group,
-  options: {
-    assetPath: string;
-    assetId: string;
-    objectName: string;
-  },
-): void {
-  loadPackageGeneratedEnvironmentIntoSceneSlot(assetLoadingContext(), sceneSlot, options);
-}
 
 const traceFrameAccumulator = createPackageTraceFrameAccumulator();
 

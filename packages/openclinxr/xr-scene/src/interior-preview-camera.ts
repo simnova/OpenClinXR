@@ -16,6 +16,15 @@ export type InteriorPreviewCamera = {
   interiorMax: Vector3;
   wallThicknessMeters: number;
   nearestActorMeters: number;
+  /**
+   * w0-cam-p-latch-on-full-cast: ids from `actorCasts` that failed to load and were
+   * excluded from the cast box. Empty when the full cast loaded (and on the legacy
+   * input, which carries no per-actor readiness), so readers can tell "full cast"
+   * from "no information" without inferring it from a number.
+   */
+  partialCast: string[];
+  /** Mixer time observed for every staged actor when the full-cast latch completed. */
+  mixerTimeAtLatch: Record<string, number | null>;
 };
 
 /** Fixture node names that are a door leaf / fixture-slot door — not hull geometry. */
@@ -133,15 +142,66 @@ function lookRayHitsDoorLeaf(
  */
 export function deriveInteriorPreviewCamera(input: {
   roomRoot: Object3D;
-  actorWorldBoxes: readonly WorldBoxTuple[];
+  /**
+   * Legacy cast boxes. Still needed by the existing tests, which pass boxes
+   * directly (finish-decoration, occlusion, infinigen-station-environment);
+   * ignored whenever `stagedActorIds` is present.
+   */
+  actorWorldBoxes?: readonly WorldBoxTuple[];
+  /**
+   * w0-cam-p-b1: the scene holding the staged actor slots, and the blueprint
+   * actor ids. The derivation finds each actor's root itself via the runtime's
+   * userData.openClinXrActorId stamp and waits until every id is loaded
+   * (>= 1 SkinnedMesh descendant under its own root) or failed; the cast box is
+   * built from the loaded actors' roots only. Absent means the legacy path:
+   * latch on whatever `actorWorldBoxes` holds, with an empty `partialCast`.
+   */
+  scene?: Object3D | null;
+  stagedActorIds?: readonly string[];
+  /** Ids from `stagedActorIds` whose load failed; the latch proceeds without them. */
+  failedActorIds?: readonly string[];
+  /** Runtime-only failure and mixer evidence folded into this existing public function. */
+  latchEvidence?: {
+    sceneEvidence: { assets: readonly { assetId: string; status: string }[] } | null | undefined;
+    modelAssetIdForActor: (actorId: string) => string | undefined;
+    mixerTimeForActor: (actorId: string) => number | null;
+  };
 }): InteriorPreviewCamera | null {
   const { interior, hull } = roomInteriorAndHull(input.roomRoot);
   if (interior === null) return null;
   const room: Box3 = interior;
 
-  const actors = input.actorWorldBoxes.filter(
+  let actors = (input.actorWorldBoxes ?? []).filter(
     (b) => Number.isFinite(b.min[0]) && Number.isFinite(b.max[0]),
   );
+  let partialCast: string[] = [];
+  const mixerTimeAtLatch: Record<string, number | null> = {};
+  if (input.stagedActorIds !== undefined) {
+    const failedAssetIds = new Set(
+      (input.latchEvidence?.sceneEvidence?.assets ?? [])
+        .filter((asset) => asset.status === "failed")
+        .map((asset) => asset.assetId),
+    );
+    const failed = new Set(
+      input.failedActorIds ?? input.stagedActorIds.filter((actorId) =>
+        failedAssetIds.has(input.latchEvidence?.modelAssetIdForActor(actorId) ?? ""),
+      ),
+    );
+    partialCast = input.stagedActorIds.filter((actorId) => failed.has(actorId));
+    for (const actorId of input.stagedActorIds) {
+      mixerTimeAtLatch[actorId] = input.latchEvidence?.mixerTimeForActor(actorId) ?? null;
+    }
+    const loadedBoxes: WorldBoxTuple[] = [];
+    for (const actorId of input.stagedActorIds) {
+      if (failed.has(actorId)) continue;
+      const root = findStampedActorRoot(input.scene ?? null, actorId);
+      const boxes = root === null ? [] : collectSkinnedMeshBoxesUnderRoot(root, { refreshSkinnedBoxes: true });
+      if (boxes.length === 0) return null;
+      loadedBoxes.push(...boxes);
+    }
+    if (loadedBoxes.length === 0) return null;
+    actors = loadedBoxes;
+  }
   if (actors.length === 0) return null;
 
   const castBox = new Box3();
@@ -250,15 +310,24 @@ export function deriveInteriorPreviewCamera(input: {
     interiorMax: room.max.clone(),
     wallThicknessMeters,
     nearestActorMeters: chosen.score,
+    partialCast,
+    mixerTimeAtLatch,
   };
 }
 
-export function collectActorWorldBoxes(scene: Object3D): WorldBoxTuple[] {
+/** World AABBs of the SkinnedMesh descendants of one actor root (not the scene). */
+function collectSkinnedMeshBoxesUnderRoot(
+  root: Object3D,
+  options?: { refreshSkinnedBoxes?: boolean },
+): WorldBoxTuple[] {
   const boxes: WorldBoxTuple[] = [];
-  scene.updateMatrixWorld(true);
-  scene.traverse((obj: Object3D) => {
-    const maybeSkinned = obj as Object3D & { isSkinnedMesh?: boolean };
+  root.updateMatrixWorld(true);
+  root.traverse((obj: Object3D) => {
+    const maybeSkinned = obj as Object3D & { isSkinnedMesh?: boolean; boundingBox?: Box3 | null };
     if (maybeSkinned.isSkinnedMesh !== true) return;
+    // F1' D2: clear any box cached by an earlier reader so setFromObject below
+    // recomputes from the current pose instead of reusing a stale bound.
+    if (options?.refreshSkinnedBoxes === true) maybeSkinned.boundingBox = null;
     const box = new Box3().setFromObject(obj);
     if (box.isEmpty() || !Number.isFinite(box.min.x)) return;
     boxes.push({
@@ -267,4 +336,30 @@ export function collectActorWorldBoxes(scene: Object3D): WorldBoxTuple[] {
     });
   });
   return boxes;
+}
+
+export function collectActorWorldBoxes(scene: Object3D): WorldBoxTuple[] {
+  return collectSkinnedMeshBoxesUnderRoot(scene);
+}
+
+/**
+ * w0-cam-p-b1: outermost scene object stamped with an actor id. The runtime
+ * stamps every staged slot root with userData.openClinXrActorId
+ * (xr-station-room actor-staging.ts), and a loaded humanoid stamps itself the
+ * same id (xr-asset-loading generated-loaders.ts) as a DESCENDANT of its slot —
+ * so the first pre-order match is the slot root, the root that exists before
+ * any GLB lands. Null scene (or no match) means not staged, never loaded.
+ */
+function findStampedActorRoot(scene: Object3D | null, actorId: string): Object3D | null {
+  if (scene === null) return null;
+  let found: Object3D | null = null;
+  scene.updateMatrixWorld(true);
+  scene.traverse((obj: Object3D) => {
+    if (found !== null) return;
+    const stamped = (obj as Object3D & { userData?: Record<string, unknown> }).userData?.[
+      "openClinXrActorId"
+    ];
+    if (stamped === actorId) found = obj;
+  });
+  return found;
 }
