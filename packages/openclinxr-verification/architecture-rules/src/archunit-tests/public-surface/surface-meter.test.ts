@@ -371,7 +371,7 @@ describe("compiler-resolved surface meter", () => {
     // 2026-11-05 st-vitskin: xr-scene adds one reviewed ./skin-shade-loader subpath
     // (skin-shade-loader-v1 admission) for createSkinShadeGLTFLoader and
     // SKIN_SHADE_EXTENSION_NAME, so the root "." count stays at 1267 (194 -> 195).
-    // 2026-11-11 factory-station-core ./catalog subpath (super-ceo-cap21 ruling, pending operator ratification):
+    // 2026-11-11 factory-station-core ./catalog subpath (super-ceo-cap21 ruling, ratified by operator 2026-11-12 (super-ceo-cap23)):
     // browser-safe catalog split off ./runner so ui-admin never evaluates node:async_hooks
     // (tsk_b5608cbe1719b11f) (195 -> 196).
     expect(report.totals.entrypoints).toBe(196);
@@ -386,7 +386,7 @@ describe("compiler-resolved surface meter", () => {
     expect(byDir.get("packages/openclinxr/rest")?.rootSymbols).toBe(94);
     // 277 before PSR-06; 12 after it (approval psr-01d ui-route-admin subset), re-derived with
     // ts.TypeChecker.getExportsOfModule on ui-route-admin/src/index.ts, which still returns 94 for rest.
-    // 2026-11-12 faculty-review-route-v1 admission (super-ceo-cap21 ruling, pending operator ratification):
+    // 2026-11-12 faculty-review-route-v1 admission (super-ceo-cap21 ruling, ratified by operator 2026-11-12 (super-ceo-cap23)):
     // FacultyReviewRoute + WorkbenchOverview, both consumed by apps/ui-admin app.tsx (tsk_d5504a82031e71b7) (12 -> 14).
     expect(byDir.get("packages/openclinxr/ui-route-admin")?.rootSymbols).toBe(14);
   });
