@@ -22,9 +22,14 @@ import { createEncounterServer, type EncounterServer } from "./index.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const WORKSPACE_ROOT = join(HERE, "..", "..", "..", "..");
-const TSX_BIN = join(WORKSPACE_ROOT, "node_modules", ".bin", "tsx");
 const SERVER_SRC = join(HERE, "index.ts");
 const CLIENT_SRC = join(WORKSPACE_ROOT, "packages", "openclinxr", "xr-sync-client", "src", "index.ts");
+// Single-process spawn (tsk_c14ed0dae359deca): node runs the child directly
+// with the tsx ESM loader (resolved specifier; tsx 4.21.0 maps "./esm" to
+// ./dist/esm/index.mjs), so the failure-path SIGKILL below lands on the
+// process that holds the listener instead of a wrapper whose node grandchild
+// would survive with ppid 1.
+const TSX_ESM_LOADER = import.meta.resolve("tsx/esm");
 
 // Child budget: tsx startup plus colyseus boot is a few seconds. This is a
 // fail-fast ceiling, not a lengthened timeout: a released listener lets the
@@ -141,10 +146,10 @@ async function main(): Promise<void> {
 }
 void main();
 `;
-  const childFile = join(mkdtempSync(join(tmpdir(), "xr-sync-close-child-")), "close-child.ts");
+  const childFile = join(mkdtempSync(join(tmpdir(), "xr-sync-close-child-")), "close-child.mts");
   writeFileSync(childFile, childSource);
   return new Promise((resolve, reject) => {
-    const child = spawn(TSX_BIN, [childFile, branch, withClient ? "with-client" : "no-client", branch === "replay" ? replayDir : "-"], { stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawn(process.execPath, ["--import", TSX_ESM_LOADER, childFile, branch, withClient ? "with-client" : "no-client", branch === "replay" ? replayDir : "-"], { stdio: ["ignore", "pipe", "pipe"] });
     let output = "";
     child.stdout?.on("data", (chunk: Buffer) => { output += chunk.toString(); });
     child.stderr?.on("data", (chunk: Buffer) => { output += chunk.toString(); });

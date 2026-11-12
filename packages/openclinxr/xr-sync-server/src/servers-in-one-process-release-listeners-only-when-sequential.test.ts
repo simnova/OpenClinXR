@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { mkdtempSync, writeFileSync } from "node:fs";
 import { connect as netConnect } from "node:net";
 import { tmpdir } from "node:os";
@@ -68,8 +68,13 @@ describe("sequential servers in one process release each listener", () => {
 });
 
 const HERE = dirname(fileURLToPath(import.meta.url));
-const TSX_BIN = join(HERE, "..", "..", "..", "..", "node_modules", ".bin", "tsx");
 const SERVER_SRC = join(HERE, "index.ts");
+// Single-process spawn: node runs the child directly with the tsx ESM loader
+// (resolved specifier; tsx 4.21.0 maps "./esm" to ./dist/esm/index.mjs), so
+// the SIGKILL cleanup below lands on the process that holds the listener.
+// (node_modules/.bin/tsx is a wrapper whose node grandchild survives a kill
+// of the wrapper with ppid 1 and keeps LISTENing: tsk_c14ed0dae359deca.)
+const TSX_ESM_LOADER = import.meta.resolve("tsx/esm");
 // Same fail-fast child ceiling as close-releases-the-listener.test.ts.
 const CHILD_TIMEOUT_MS = 15000;
 
@@ -77,7 +82,7 @@ const CHILD_TIMEOUT_MS = 15000;
 // line. On the current library it stays alive on B's leaked listener, so the
 // parent kills it once the verdict is read: that kill is cleanup of the
 // documented leak, not a pass condition.
-function concurrentCloseVerdict(): Promise<string> {
+function concurrentCloseVerdict(): Promise<{ verdict: string; childFile: string }> {
   const childSource = `import { connect } from "node:net";
 import { createEncounterServer } from ${JSON.stringify(SERVER_SRC)};
 const a = await createEncounterServer({});
@@ -91,12 +96,12 @@ socket.once("error", (error) => { console.log(error.code === "ECONNREFUSED" ? "V
   const childFile = join(mkdtempSync(join(tmpdir(), "xr-sync-concurrent-child-")), "concurrent-child.mts");
   writeFileSync(childFile, childSource);
   return new Promise((resolve, reject) => {
-    const child = spawn(TSX_BIN, [childFile], { stdio: ["ignore", "pipe", "pipe"] });
+    const child = spawn(process.execPath, ["--import", TSX_ESM_LOADER, childFile], { stdio: ["ignore", "pipe", "pipe"] });
     let output = "";
     const finish = (verdict: string): void => {
       clearTimeout(timer);
       if (child.exitCode === null) child.kill("SIGKILL");
-      resolve(verdict);
+      resolve({ verdict, childFile });
     };
     child.stdout?.on("data", (chunk: Buffer) => {
       output += chunk.toString();
@@ -114,10 +119,37 @@ socket.once("error", (error) => { console.log(error.code === "ECONNREFUSED" ? "V
 
 describe("@colyseus/core 0.18.10 limitation: concurrent servers in one process", () => {
   it("A and B open at once, both closed: B's port still accepts TCP (current library behaviour)", async () => {
-    const verdict = await concurrentCloseVerdict();
+    const { verdict, childFile } = await concurrentCloseVerdict();
     expect(
       verdict,
       "library fixed the concurrent shutdown: delete this guard and consider the throw (tsk_66a51553fc1d28b8 O1/O4; c18-cast-trace-replay and c34-dev-speech hold servers open concurrently)",
     ).toBe("b-accepts");
+    await expectChildFileGone(childFile);
   }, 30000);
 });
+
+// RED (tsk_c14ed0dae359deca): after the cleanup kill above, no process whose
+// argv contains this run's unique childFile path may still be alive. The match
+// is on the full mkdtemp path, never a process name. The 5000 ms ceiling is a
+// binary liveness poll, not a measured bound; failure names surviving pids.
+async function expectChildFileGone(childFile: string): Promise<void> {
+  const deadline = Date.now() + 5000;
+  for (;;) {
+    const ps = execFileSync("ps", ["-Ao", "pid=,args="], { encoding: "utf8" });
+    const survivors: string[] = [];
+    for (const line of ps.split("\n")) {
+      if (!line.includes(childFile)) continue;
+      const match = /^\s*(\d+)\s/.exec(line);
+      if (match?.[1] !== undefined) survivors.push(match[1]);
+    }
+    if (survivors.length === 0) return;
+    if (Date.now() >= deadline) {
+      expect(
+        survivors,
+        `leaked child still alive for ${childFile}; surviving pids: ${survivors.join(",")}`,
+      ).toEqual([]);
+      return;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+}
