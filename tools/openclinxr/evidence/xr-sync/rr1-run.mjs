@@ -24,6 +24,26 @@ import {
   takePhaseAgreementLog,
   takeVisibleDomTextLog,
 } from "./harness-lib.mjs";
+import { recordEnvironmentGlb, snapshotLearnerPose } from "./rr1-learner-framing.mjs";
+
+/** Read-only learner camera pose: world position/direction plus lens numbers. */
+export async function readLearnerCameraPose(page) {
+  return page.evaluate(() => {
+    const cam = globalThis.__openClinXrGazeCamera;
+    if (cam == null) return null;
+    const Vec = cam.position.constructor;
+    const pos = cam.getWorldPosition(new Vec());
+    const dir = cam.getWorldDirection(new Vec());
+    return {
+      position: { x: pos.x, y: pos.y, z: pos.z },
+      direction: { x: dir.x, y: dir.y, z: dir.z },
+      fov: cam.fov,
+      aspect: cam.aspect,
+      near: cam.near,
+      far: cam.far,
+    };
+  });
+}
 
 const HERE = fileURLToPath(new URL(".", import.meta.url));
 const ROOT = resolve(HERE, "..", "..", "..", "..");
@@ -1006,6 +1026,10 @@ async function runCapture(storeRoot) {
   let learnerSyncLagMs = null;
   let learnerSceneReadyWallMs = null;
   let learnerSceneLagMs = null;
+  const environmentGlbResponses = [];
+  let learnerPoseAtSceneReady = null;
+  let learnerPoseAtCh1 = null;
+  let ch1CaptureWallMs = null;
   const captureStartedAtMs = Date.now();
   const pageErrors = [];
   const consoleErrors = [];
@@ -1167,6 +1191,14 @@ async function runCapture(storeRoot) {
     });
     page.on("pageerror", (error) => pageErrors.push(String(error).slice(0, 300)));
     page.on("console", (message) => { if (message.type() === "error") consoleErrors.push(message.text().slice(0, 300)); });
+    page.on("response", (response) => {
+      const url = response.url();
+      if (!url.includes("/xr-assets/environment/") || !url.endsWith(".glb")) return;
+      const receivedWallMs = Date.now();
+      void response.body().then((body) => {
+        environmentGlbResponses.push({ url, body, wallMs: receivedWallMs });
+      }).catch(() => undefined);
+    });
     const learnerUrl = `http://127.0.0.1:${learnerStatic.port}/?${new URLSearchParams({ encounterSync: liveServer.url })}`;
     await Promise.all([page, evidencePage].map(async (targetPage) => {
       await targetPage.goto(learnerUrl, { timeout: 60000, waitUntil: "load" });
@@ -1202,6 +1234,20 @@ async function runCapture(storeRoot) {
     const state = () => JSON.parse(liveServer.getStateJSON());
     await waitFor(state, (s) => s.stationIndex === 0 && s.phase === "doorway", 60000, "station 0 doorway");
     await mark("ch1", 0, "doorway");
+    const ch1LearnerArtifact = artifactCaptures.find((entry) => entry.artifact === "frames/ch1.png");
+    ch1CaptureWallMs = ch1LearnerArtifact?.captureEndedWallMs ?? Date.now();
+    let ch1PoseRaw = null;
+    try {
+      ch1PoseRaw = await readLearnerCameraPose(page);
+    } catch {
+      ch1PoseRaw = null;
+    }
+    const ch1PoseWallMs = Date.now();
+    learnerPoseAtCh1 = deferredAssertions.capture(
+      "learner-trim-inputs",
+      () => snapshotLearnerPose(requireCaptureValue(ch1PoseRaw, "learner gaze camera missing at ch1"), ch1PoseWallMs),
+      null,
+    );
     await waitFor(state, (s) => s.stationIndex === 0 && s.phase === "encounter", 60000, "station 0 encounter");
     const openingTurn = await sendLearnerQuestion(page, liveServer, learnerQuestion, "opening-reply");
     turnEvidence.push(openingTurn);
@@ -1256,6 +1302,18 @@ async function runCapture(storeRoot) {
     );
     learnerSceneLagMs = learnerSceneReadyWallMs - learnerSyncStartWallMs;
     console.log(`SCENE_LAG ${learnerSceneLagMs}`);
+    let sceneReadyPoseRaw = null;
+    try {
+      sceneReadyPoseRaw = await readLearnerCameraPose(page);
+    } catch {
+      sceneReadyPoseRaw = null;
+    }
+    const sceneReadyPoseWallMs = Date.now();
+    learnerPoseAtSceneReady = deferredAssertions.capture(
+      "scene-ready",
+      () => snapshotLearnerPose(requireCaptureValue(sceneReadyPoseRaw, "learner gaze camera missing at sceneReady"), sceneReadyPoseWallMs),
+      null,
+    );
     learnerDomLog = await takeVisibleDomTextLog(page);
     learnerHeaderLog = await page.evaluate(() => JSON.parse(JSON.stringify(globalThis.__openClinXrLearnerHeaderLog ?? [])));
     evidenceHeaderLog = await evidencePage.evaluate(() => JSON.parse(JSON.stringify(globalThis.__openClinXrLearnerHeaderLog ?? [])));
@@ -1713,6 +1771,26 @@ async function runCapture(storeRoot) {
     const visibleG4Strings = G4_STRINGS.filter((text) => domTextLog.some((entry) => entry.innerText.includes(text)));
     if (visibleG4Strings.length > 0) deferredAssertions.reject("g4-dom", `G4 string visible in DOM log: ${visibleG4Strings.join(", ")}`);
     const traceFiles = readdirSync(traceDir).filter((name) => name.endsWith(".conversation-trace.json")).sort();
+    const ch1WallMsForGlbs = ch1CaptureWallMs ?? learnerSceneReadyWallMs ?? learnerSyncStartWallMs ?? captureStartedAtMs;
+    const sceneReadyMsForGlbs = learnerSceneReadyWallMs ?? learnerSyncStartWallMs ?? captureStartedAtMs;
+    const environmentGlbs = environmentGlbResponses.map((entry) => recordEnvironmentGlb({
+      url: entry.url,
+      body: entry.body,
+      wallMs: entry.wallMs,
+      sceneReadyWallMs: sceneReadyMsForGlbs,
+      ch1WallMs: ch1WallMsForGlbs,
+    }));
+    const distIndexHtml = join(APP_DIST, "index.html");
+    const distIndexSha256 = sha256(distIndexHtml);
+    let distMainChunk = "unknown";
+    try {
+      const distHtml = readFileSync(distIndexHtml, "utf8");
+      const distMatch = /assets\/[^"']+\.js/u.exec(distHtml)?.[0] ?? null;
+      if (distMatch !== null) distMainChunk = distMatch;
+    } catch {
+      distMainChunk = "unknown";
+    }
+    const distBuild = { indexSha256: distIndexSha256, mainChunk: distMainChunk };
     // RR1_CAPTURE_THROW_SCAN_END: the collector below is the only permitted capture-path throw.
     writeEvidenceBeforeDeferredErrors(() => {
     writeFileSync(join(runDir, "server-clock.json"), `${JSON.stringify(sortedClock, null, 2)}\n`);
@@ -1741,7 +1819,9 @@ async function runCapture(storeRoot) {
       turnEvidence,
       phaseAgreement: { file: "phase-agreement-log.json", ...phaseAgreement },
       panelLumaGate,
-      camera: { preset: "shared-learner-viewport", source: "__openClinXrGazeCamera", chapters: ["CH1", "CH2", "ROT-doorway", "ROT-encounter"], blockoutGrade: "blockout-a2 ch1-doorway GRADED PASS" },
+      camera: { preset: "shared-learner-viewport", source: "__openClinXrGazeCamera", chapters: ["CH1", "CH2", "ROT-doorway", "ROT-encounter"], blockoutGrade: "blockout-a2 ch1-doorway GRADED PASS", learnerPose: { sceneReady: learnerPoseAtSceneReady, ch1: learnerPoseAtCh1 } },
+      environmentGlbs,
+      distBuild,
       facultyCamera: { preset: "c14-signoff-protocol-probe", route: c14Url, chapters: ["CH5"] },
       facultyConsoleLayout,
       facultyOverlayFit,

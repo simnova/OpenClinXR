@@ -68,4 +68,64 @@ describe("RR1 framing census", () => {
     const result = verdictFramingCensus([base, twin]);
     expect(result.verdict).toBe("other");
   });
+
+  it("identical except ch1 fov -> inputs_differ naming camera.learnerPose.ch1.fov", () => {
+    const base = loadFixture("pose-a.json");
+    const altered: RunFramingEvidence = {
+      ...base,
+      run: "pose-fov",
+      cameraLearnerPose: {
+        ...base.cameraLearnerPose!,
+        ch1: { ...base.cameraLearnerPose!.ch1, fov: base.cameraLearnerPose!.ch1.fov + 0.5 },
+      },
+    };
+    const result = verdictFramingCensus([base, altered]);
+    expect(result.verdict).toBe("inputs_differ");
+    expect(result.differingFields).toContain("camera.learnerPose.ch1.fov");
+  });
+
+  it("identical except GLB sha256 -> inputs_differ naming the sha field", () => {
+    const base = loadFixture("pose-a.json");
+    const altered: RunFramingEvidence = {
+      ...base,
+      run: "pose-sha",
+      environmentGlbs: base.environmentGlbs!.map((entry, index) => (
+        index === 0 ? { ...entry, sha256: "3333333333333333333333333333333333333333333333333333333333333333" } : entry
+      )),
+    };
+    const result = verdictFramingCensus([base, altered]);
+    expect(result.verdict).toBe("inputs_differ");
+    expect(result.differingFields).toContain("environmentGlbs[0].sha256");
+  });
+
+  it("identical except loadedBeforeCh1 true vs false -> inputs_differ naming it", () => {
+    const base = loadFixture("pose-a.json");
+    const altered: RunFramingEvidence = {
+      ...base,
+      run: "pose-flag",
+      environmentGlbs: base.environmentGlbs!.map((entry, index) => (
+        index === 0 ? { ...entry, loadedBeforeCh1: !entry.loadedBeforeCh1 } : entry
+      )),
+    };
+    const result = verdictFramingCensus([base, altered]);
+    expect(result.verdict).toBe("inputs_differ");
+    expect(result.differingFields).toContain("environmentGlbs[0].loadedBeforeCh1");
+  });
+
+  it("identical except every absolute wall ms shifted, orderings unchanged -> NOT inputs_differ", () => {
+    const runs = [loadFixture("pose-a.json"), loadFixture("pose-b.json")];
+    expect(differingInputFields(runs)).toEqual([]);
+    const result = verdictFramingCensus(runs);
+    expect(result.verdict).not.toBe("inputs_differ");
+    expect(result.verdict).toBe("other");
+  });
+
+  it("a run without the new keys (narrow.json unchanged) reads as unrecorded, never identical", () => {
+    const recorded = loadFixture("pose-a.json");
+    const narrow = loadFixture("narrow.json");
+    const matched: RunFramingEvidence = { ...recorded, ch1RightStripMeanLuma: narrow.ch1RightStripMeanLuma };
+    const result = verdictFramingCensus([narrow, matched]);
+    expect(result.verdict).toBe("unrecorded");
+    expect(result.verdict).not.toBe("other");
+  });
 });

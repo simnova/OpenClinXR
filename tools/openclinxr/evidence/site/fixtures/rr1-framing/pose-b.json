@@ -1,0 +1,54 @@
+{
+  "run": "pose-b",
+  "provenance": {
+    "sourceRunDir": "synthetic",
+    "note": "pose-a with every absolute wall ms shifted +5000 and orderings unchanged; logical inputs identical so the census must NOT report inputs_differ.",
+    "measuredWith": "synthetic"
+  },
+  "cameraPosition": { "status": "recorded", "value": "0,1.48,5.35", "source": "synthetic" },
+  "cameraTarget": { "status": "recorded", "value": "0,1.04,-0.18", "source": "synthetic" },
+  "cameraFov": { "status": "recorded", "value": "55", "source": "synthetic" },
+  "roomAssetPath": { "status": "recorded", "value": "/xr-assets/environment/infinigen-ed-exam-bay.glb", "source": "synthetic" },
+  "roomAssetSha256": { "status": "recorded", "value": "9f2c4a1e8b3d4f5a6c7d8e9f0a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8091", "source": "synthetic" },
+  "seed": { "status": "recorded", "value": "rr1-min-ed-chest-pain", "source": "capture.json:seed" },
+  "blueprint": { "status": "recorded", "value": "rr1-min-ed-chest-pain", "source": "capture.json:blueprintId" },
+  "viewport": { "status": "recorded", "value": "960x600", "source": "capture.json:viewport + renderer.json:viewport" },
+  "buildSha": { "status": "recorded", "value": "45ab4007b9d2e214f9c58da56b3abd10c7ebae6b", "source": "capture.json:buildSha" },
+  "cameraPreset": { "status": "recorded", "value": "shared-learner-viewport", "source": "capture.json:camera.preset" },
+  "cameraLearnerPose": {
+    "sceneReady": {
+      "position": { "x": 0, "y": 1.48, "z": 5.35 },
+      "direction": { "x": 0, "y": -0.0793, "z": -0.9969 },
+      "fov": 55,
+      "aspect": 1.6,
+      "near": 0.1,
+      "far": 100,
+      "wallMs": 1005000
+    },
+    "ch1": {
+      "position": { "x": 0, "y": 1.48, "z": 5.35 },
+      "direction": { "x": 0, "y": -0.0793, "z": -0.9969 },
+      "fov": 55,
+      "aspect": 1.6,
+      "near": 0.1,
+      "far": 100,
+      "wallMs": 1010000
+    }
+  },
+  "environmentGlbs": [
+    {
+      "url": "/xr-assets/environment/infinigen-ed-exam-bay.glb",
+      "bytes": 1234567,
+      "sha256": "1111111111111111111111111111111111111111111111111111111111111111",
+      "wallMs": 1004000,
+      "loadedBeforeSceneReady": true,
+      "loadedBeforeCh1": true
+    }
+  ],
+  "distBuild": {
+    "indexSha256": "2222222222222222222222222222222222222222222222222222222222222222",
+    "mainChunk": "assets/index-AbCdEfGh.js"
+  },
+  "ch1OffsetSeconds": 0,
+  "ch1RightStripMeanLuma": 205.0
+}
