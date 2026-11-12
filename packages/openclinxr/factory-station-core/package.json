@@ -11,6 +11,10 @@
     "./runner": {
       "types": "./dist/runner.d.ts",
       "default": "./dist/runner.js"
+    },
+    "./catalog": {
+      "types": "./dist/catalog.d.ts",
+      "default": "./dist/catalog.js"
     }
   },
   "scripts": {

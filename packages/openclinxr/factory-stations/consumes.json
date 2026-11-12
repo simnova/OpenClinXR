@@ -43,6 +43,24 @@
   },
   {
     "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./catalog",
+    "names": [
+      {
+        "name": "factoryStationSchemas",
+        "kind": "runtime"
+      },
+      {
+        "name": "ProductionStationId",
+        "kind": "type"
+      },
+      {
+        "name": "productionStationIds",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
     "entrypoint": "./runner",
     "names": [
       {

@@ -371,7 +371,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-11-05 st-vitskin: xr-scene adds one reviewed ./skin-shade-loader subpath
     // (skin-shade-loader-v1 admission) for createSkinShadeGLTFLoader and
     // SKIN_SHADE_EXTENSION_NAME, so the root "." count stays at 1267 (194 -> 195).
-    expect(report.totals.entrypoints).toBe(195);
+    // 2026-11-11 factory-station-core ./catalog subpath (super-ceo-cap21 ruling, pending operator ratification):
+    // browser-safe catalog split off ./runner so ui-admin never evaluates node:async_hooks
+    // (tsk_b5608cbe1719b11f) (195 -> 196).
+    expect(report.totals.entrypoints).toBe(196);
   });
 
   it("(2) rest and ui-route-admin match compiler exports", () => {

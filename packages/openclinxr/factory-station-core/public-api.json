@@ -19,6 +19,11 @@
       "productionStationIds",
       "repoRoot",
       "spawnBlenderProcess"
+    ],
+    "./catalog": [
+      "ProductionStationId",
+      "factoryStationSchemas",
+      "productionStationIds"
     ]
   }
 }
