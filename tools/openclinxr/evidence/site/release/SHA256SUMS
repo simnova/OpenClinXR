@@ -3,4 +3,5 @@ d535eadd689ab8527cbc1bdbe7cd1a4488c170b2602868a46b741aa9a212bee6  docs/site/data
 79a35b4f1cf06232db10c20a462d852a6e76bcb75763433c57ea34cbddbe23cd  docs/site/data/rr1-trace/SsdBgH288.conversation-trace.json
 0e720c53eec95c47a55eca4440d599f724b76bcb89c041ac6f7b8e38bbf9dd3d  docs/site/data/rr1-trace/exam-session.review-index.json
 5a39ad20398b27c539080726aa676c6c5895deed8999efc264b681e6fa17fa26  docs/site/data/mn1.json
-d1e9e3f591be9cc6062d0b273eced0d035554679a759a7a6aa6d808b899e0f53  tools/openclinxr/evidence/site/release/README.md
+7fbe916ceecda026ebc9dda3b1cc9b0bf97784c5080458bd7171843ecf71756f  docs/site/data/trace-schema.json
+e79ad33369301c21868ed431491030539305c9a293a3d205fedd0154cbbfb6ae  tools/openclinxr/evidence/site/release/README.md

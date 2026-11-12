@@ -3,6 +3,7 @@ import { existsSync, readdirSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, it } from "vitest";
 import { releaseLinkBlockerFor } from "../check-github-pages-site.js";
+import { checkLayout, isV2Page } from "./layout.js";
 
 const ROOT = process.cwd();
 const RELEASE_DIR = path.join(ROOT, "tools", "openclinxr", "evidence", "site", "release");
@@ -14,6 +15,7 @@ const BUNDLE_FILES = [
   "docs/site/data/rr1-trace/SsdBgH288.conversation-trace.json",
   "docs/site/data/rr1-trace/exam-session.review-index.json",
   "docs/site/data/mn1.json",
+  "docs/site/data/trace-schema.json",
   "tools/openclinxr/evidence/site/release/README.md",
 ];
 
@@ -180,8 +182,34 @@ it("readme carries the non-claims text verbatim, the voice label, and the unpubl
   expect(readme).toContain("release not yet published");
 });
 
-it("wv1c: the real tree carries no Release link yet, so the rule is green in Stage A", () => {
-  expect(releaseLinkBlockerFor(readRealPages(), readMediaSlotTags())).toBeUndefined();
+it("wv1c: the real tree carries one Release link per v2 page plus the partial, all valid", () => {
+  const entries = readRealPages();
+  const footer = entries.find((entry) => entry.name === "docs/site/partials/footer.html");
+  if (footer === undefined) {
+    throw new Error("footer partial missing from the real-page read");
+  }
+  const v2Pages = entries.filter(
+    (entry) => entry.name !== footer.name && isV2Page(entry.html),
+  );
+  const anchors = [footer.html, ...v2Pages.map((page) => page.html)].flatMap(
+    (text) => text.match(/<a\b[^>]*\bdata-release\s*=/gi) ?? [],
+  );
+  expect(anchors.length).toBe(1 + v2Pages.length);
+  expect(releaseLinkBlockerFor([footer, ...v2Pages], readMediaSlotTags())).toBeUndefined();
+});
+
+// The card that publishes the Release flips this assertion: once the tag
+// resolves to a live Release, the footer anchor text drops "(not yet published)".
+it("release anchor text admits the Release is not yet published", () => {
+  const footer = readFileSync(
+    path.join(ROOT, "docs", "site", "partials", "footer.html"),
+    "utf8",
+  );
+  const match = /<a\b[^>]*\bdata-release\s*=\s*"([^"]+)"[^>]*>([\s\S]*?)<\/a>/i.exec(footer);
+  if (match?.[2] === undefined) {
+    throw new Error("footer.html carries no data-release anchor");
+  }
+  expect(match[2]).toContain("not yet published");
 });
 
 it("wv1c: a fixture page with a good tag passes", () => {
@@ -224,4 +252,9 @@ it("wv1c: a fixture tag unequal to media.json fails", () => {
 it("wv1c: a fixture page with no link passes", () => {
   const html = "<footer><p>No release link yet.</p></footer>";
   expect(releaseLinkBlockerFor([{ name: "fixture", html }], readMediaSlotTags())).toBeUndefined();
+});
+
+it("layout counterweight: a fixture v2 page whose footer copy lacks the Release anchor fails the footer check", async () => {
+  const blockers = await checkLayout(path.join(FIXTURES_DIR, "layout-missing-release"));
+  expect(blockers).toContain("layout_footer_missing:index.html");
 });

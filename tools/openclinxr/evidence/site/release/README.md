@@ -30,9 +30,10 @@ All paths are repo-relative:
 - `docs/site/data/rr1-trace/SsdBgH288.conversation-trace.json`
 - `docs/site/data/rr1-trace/exam-session.review-index.json`
 - `docs/site/data/mn1.json`
+- `docs/site/data/trace-schema.json`
 - `tools/openclinxr/evidence/site/release/README.md` (this file)
 
-`SHA256SUMS` in this directory pins exactly these 6 files, and its 4 trace paths equal
+`SHA256SUMS` in this directory pins exactly these 7 files, and its 4 trace paths equal
 the `docs/site/data/mn1.json` `sources[].path` set. The bundle references files by sha;
 it carries no copies of trace or media files.
 

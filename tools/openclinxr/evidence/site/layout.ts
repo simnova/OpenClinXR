@@ -8,7 +8,7 @@ function collapseWhitespace(text: string): string {
   return text.replace(/\s+/g, " ").trim();
 }
 
-function isV2Page(html: string): boolean {
+export function isV2Page(html: string): boolean {
   return /<body\b[^>]*\bdata-site\s*=\s*("v2"|'v2'|v2)[\s>]/i.test(html);
 }
 
