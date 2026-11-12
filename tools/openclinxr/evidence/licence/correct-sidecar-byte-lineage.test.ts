@@ -4,7 +4,7 @@ import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSy
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { correctSidecarByteLineage } from "./correct-sidecar-byte-lineage.js";
+import { correctSidecarByteLineage, readPreImageBytes } from "./correct-sidecar-byte-lineage.js";
 
 const sha256 = (b: Buffer) => createHash("sha256").update(b).digest("hex");
 const CLI = path.resolve("tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts");
@@ -80,7 +80,8 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
     const r = correctSidecarByteLineage({
       assetPath: shipped,
       provenancePath: sidecar,
-      preImageRevision: preRev,
+      preImage: { kind: "revision", revision: preRev },
+      expectedPreImageSha256: sha256(fixture),
       derivationArgv: ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"],
       why: "isolation test",
       workingDirectory: callDir,
@@ -98,7 +99,8 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
     const r2 = correctSidecarByteLineage({
       assetPath: shipped,
       provenancePath: sidecar,
-      preImageRevision: preRev,
+      preImage: { kind: "revision", revision: preRev },
+      expectedPreImageSha256: sha256(fixture),
       derivationArgv: ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"],
       why: "isolation test",
       workingDirectory: callDir,
@@ -117,7 +119,8 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
       correctSidecarByteLineage({
         assetPath: shipped,
         provenancePath: sidecar,
-        preImageRevision: preRev,
+        preImage: { kind: "revision", revision: preRev },
+        expectedPreImageSha256: sha256(fixture),
         derivationArgv: ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"],
         why: "isolation test",
         workingDirectory: other,
@@ -136,7 +139,8 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
         correctSidecarByteLineage({
           assetPath: shipped,
           provenancePath: path.join(job, "p.json"),
-          preImageRevision: "HEAD:package.json",
+          preImage: { kind: "revision", revision: "HEAD:package.json" },
+          expectedPreImageSha256: sha256(gitShow("HEAD:package.json")),
           derivationArgv: ["node", "--version"],
           why: "t",
           workingDirectory: bad,
@@ -164,6 +168,73 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
     }
     expect(code).toBe(3);
     expect(existsSync(outsideReport)).toBe(false);
+  });
+
+  it("H4a file source records preImageFile + preImageSha256 and no preImageRevision key", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-file-")));
+    process.env.OWN_JOB_TMP = job;
+    const fixture = gitShow("HEAD:package.json");
+    const shipped = path.join(job, "shipped.glb");
+    writeFileSync(shipped, fixture);
+    const sidecar = path.join(job, "own.provenance.json");
+    writeFileSync(sidecar, JSON.stringify({ outputSha256: "old", outputBytes: 1 }));
+    const preFile = path.join(job, "pre.glb");
+    writeFileSync(preFile, fixture);
+    const child = makeChildScript(job);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const r = correctSidecarByteLineage({
+      assetPath: shipped,
+      provenancePath: sidecar,
+      preImage: { kind: "file", path: preFile },
+      expectedPreImageSha256: sha256(fixture),
+      derivationArgv: ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"],
+      why: "file-source lineage test",
+      workingDirectory: callDir,
+    });
+    expect(r.reproduced).toBe(true);
+    const lineage = (JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>)["byteLineage"] as Record<string, unknown>;
+    expect(lineage["preImageFile"]).toBe(preFile);
+    expect(lineage["preImageSha256"]).toBe(sha256(fixture));
+    expect("preImageRevision" in lineage).toBe(false);
+    expect(readPreImageBytes({ kind: "file", path: preFile }).equals(fixture)).toBe(true);
+  });
+
+  it("H5 refuses before any write when the file changes after the gate read, naming both shas", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-h5-")));
+    const before = gitShow("HEAD:package.json");
+    const preFile = path.join(job, "pre.glb");
+    writeFileSync(preFile, before);
+    const gateSha = sha256(readPreImageBytes({ kind: "file", path: preFile }));
+    // The gate checked gateSha; the file changes before the corrector reads.
+    writeFileSync(preFile, Buffer.from("changed-after-gate"));
+    const afterSha = sha256(readFileSync(preFile));
+    const shipped = path.join(job, "shipped.glb");
+    writeFileSync(shipped, before);
+    const sidecar = path.join(job, "own.provenance.json");
+    writeFileSync(sidecar, JSON.stringify({ outputSha256: "old", outputBytes: 1 }));
+    const sidecarBefore = readFileSync(sidecar, "utf8");
+    const sidecarBeforeSha = sha256(Buffer.from(sidecarBefore));
+    const child = makeChildScript(job);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    let message = "";
+    try {
+      correctSidecarByteLineage({
+        assetPath: shipped,
+        provenancePath: sidecar,
+        preImage: { kind: "file", path: preFile },
+        expectedPreImageSha256: gateSha,
+        derivationArgv: ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"],
+        why: "h5 test",
+        workingDirectory: callDir,
+      });
+    } catch (e) {
+      message = String(e);
+    }
+    expect(message).toContain(gateSha);
+    expect(message).toContain(afterSha);
+    expect(message).toContain("--pre-image-file");
+    expect(readFileSync(sidecar, "utf8")).toBe(sidecarBefore);
+    console.log(`h5 sidecar sha256 before=${sidecarBeforeSha} after=${sha256(Buffer.from(readFileSync(sidecar, "utf8")))}`);
   });
 
   it("real CLI help/invalid cases leave cwd and canonical reports unchanged", () => {

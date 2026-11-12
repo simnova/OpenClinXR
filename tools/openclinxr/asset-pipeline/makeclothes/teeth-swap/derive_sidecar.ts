@@ -3,7 +3,11 @@ import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { pathToFileURL } from "node:url";
-import { correctSidecarByteLineage } from "../../../evidence/licence/correct-sidecar-byte-lineage.js";
+import {
+  correctSidecarByteLineage,
+  type PreImageSource,
+  readPreImageBytes,
+} from "../../../evidence/licence/correct-sidecar-byte-lineage.js";
 
 type SwapReport = {
   schema: "openclinxr-teeth-swap-report.v1";
@@ -105,14 +109,43 @@ export function serializeWithTeethSwapBlock(
 }
 
 /**
- * Mouth tris of the swap's pre-image, read from --pre-image-revision (git show). The installed --input
- * already carries the swap and its post-steps, so its bytes can never equal report input.sha256 on a
- * re-derive; the revision blob is the pre-image the report hashed.
+ * Mouth tris of the swap's pre-image. The installed --input already carries the
+ * swap and its post-steps, so its bytes can never equal report input.sha256 on a
+ * re-derive; the pre-image (a Git blob or a --pre-image-file) is what the report hashed.
+ * All reads go through the corrector's readPreImageBytes (H1a); every refusal
+ * names the flag actually used (H3).
  */
-export function preImageMouthTris(preImageRevision: string, expectedSha256: string): { teeth: number; tongue: number } {
-  const bytes = execFileSync("git", ["show", preImageRevision], { maxBuffer: 1024 * 1024 * 256 });
-  if (sha256(bytes) !== expectedSha256) throw new Error("derive_sidecar: --pre-image-revision bytes do not match report input.sha256");
+export function preImageSourceFromArgv(argv: string[]): PreImageSource {
+  const hasRevision = argv.includes("--pre-image-revision");
+  const hasFile = argv.includes("--pre-image-file");
+  if (hasRevision === hasFile) {
+    throw new Error("derive_sidecar: exactly one of --pre-image-revision and --pre-image-file is required");
+  }
+  if (hasFile) return { kind: "file", path: value(argv, "--pre-image-file") };
+  return { kind: "revision", revision: value(argv, "--pre-image-revision") };
+}
+
+function preImageFlagName(source: PreImageSource): string {
+  return source.kind === "revision" ? "--pre-image-revision" : "--pre-image-file";
+}
+
+export function preImageMouthTrisForSource(
+  source: PreImageSource,
+  expectedSha256: string,
+): { teeth: number; tongue: number } {
+  const bytes = readPreImageBytes(source);
+  if (sha256(bytes) !== expectedSha256) {
+    throw new Error(`derive_sidecar: ${preImageFlagName(source)} bytes do not match report input.sha256`);
+  }
   return mouthTris(bytes);
+}
+
+export function preImageMouthTris(preImageRevision: string, expectedSha256: string): { teeth: number; tongue: number } {
+  return preImageMouthTrisForSource({ kind: "revision", revision: preImageRevision }, expectedSha256);
+}
+
+export function resolvePreImageMouthTris(argv: string[], expectedSha256: string): { teeth: number; tongue: number } {
+  return preImageMouthTrisForSource(preImageSourceFromArgv(argv), expectedSha256);
 }
 
 export function deriveTeethSwapSidecar(argv = process.argv.slice(2)): void {
@@ -121,7 +154,7 @@ export function deriveTeethSwapSidecar(argv = process.argv.slice(2)): void {
   const output = value(argv, "--output");
   const sidecar = value(argv, "--sidecar");
   const reportPath = value(argv, "--report");
-  const preImageRevision = value(argv, "--pre-image-revision");
+  const source = preImageSourceFromArgv(argv);
   const workingDirectory = value(argv, "--working-directory");
   const repoRoot = process.cwd();
   const tool = "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py";
@@ -129,41 +162,53 @@ export function deriveTeethSwapSidecar(argv = process.argv.slice(2)): void {
   const steps = postSteps(argv);
   const swapOutput = steps.length > 0 ? value(argv, "--swap-output") : undefined;
 
-  // correctSidecarByteLineage keeps only the superseded sha/bytes; the prior byteLineage (for the ED gown,
-  // the blender bake argv recorded-garment-provenance.ts authenticates) is kept verbatim below
-  // (super-ceo-cap14 R7, 2026-11-10).
-  const priorByteLineage = (JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>)["byteLineage"];
-  correctSidecarByteLineage({
-    assetPath: output,
-    provenancePath: sidecar,
-    preImageRevision,
-    workingDirectory,
-    derivationArgv: steps.length > 0 ? chainedDerivationArgv(tool, absoluteScratch, steps) : [
-      "mise",
-      "exec",
-      "--",
-      "python3",
-      tool,
-      "--input",
-      "{pre}",
-      "--scratch",
-      absoluteScratch,
-      "--output",
-      "{out}",
-      "--report",
-      "{report}",
-    ],
-    why:
-      "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the "
-      + "same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved."
-      + (steps.length > 0 ? ` Post-swap steps in the chain: ${steps.map((s) => path.basename(s.tool)).join(", ")}.` : ""),
-  });
-
+  // H2: the report-sha gate runs BEFORE any write (before the corrector call).
+  // The gate reads via the corrector's readPreImageBytes (H1a) and names the
+  // flag actually used on refusal (H3).
   const reportBytes = readFileSync(reportPath);
   const report = JSON.parse(reportBytes.toString("utf8")) as SwapReport;
   if (report.schema !== "openclinxr-teeth-swap-report.v1") {
     throw new Error(`derive_sidecar: unsupported report schema ${String(report.schema)}`);
   }
+  const preImageTris = preImageMouthTrisForSource(source, report.input.sha256);
+
+  // correctSidecarByteLineage keeps only the superseded sha/bytes; the prior byteLineage (for the ED gown,
+  // the blender bake argv recorded-garment-provenance.ts authenticates) is kept verbatim below
+  // (super-ceo-cap14 R7, 2026-11-10).
+  const priorByteLineage = (JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>)["byteLineage"];
+  const derivationArgv = steps.length > 0 ? chainedDerivationArgv(tool, absoluteScratch, steps) : [
+    "mise",
+    "exec",
+    "--",
+    "python3",
+    tool,
+    "--input",
+    "{pre}",
+    "--scratch",
+    absoluteScratch,
+    "--output",
+    "{out}",
+    "--report",
+    "{report}",
+  ];
+  const lineageWhy =
+    "The fitted CC0 teeth/tongue post-step was re-run from the "
+    + (source.kind === "revision" ? "named Git pre-image" : "named pre-image file")
+    + " with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved."
+    + (steps.length > 0 ? ` Post-swap steps in the chain: ${steps.map((s) => path.basename(s.tool)).join(", ")}.` : "");
+  // H5: the corrector re-reads via readPreImageBytes and refuses before any
+  // write if its own read differs from the sha the gate just checked.
+  correctSidecarByteLineage({
+    assetPath: output,
+    provenancePath: sidecar,
+    preImage: source,
+    expectedPreImageSha256: report.input.sha256,
+    workingDirectory,
+    derivationArgv,
+    why: lineageWhy,
+  });
+
+
   const outputBytes = readFileSync(output);
   const swapBytes = swapOutput ? readFileSync(swapOutput) : outputBytes;
   if (report.output.sha256 !== sha256(swapBytes) || report.output.bytes !== swapBytes.byteLength) {
@@ -219,7 +264,7 @@ export function deriveTeethSwapSidecar(argv = process.argv.slice(2)): void {
     reportPath,
     reportSha256: sha256(reportBytes),
     input: report.input,
-    preImageMouthTris: preImageMouthTris(preImageRevision, report.input.sha256),
+    preImageMouthTris: preImageTris,
     scratch: report.scratch,
     output: steps.length > 0 ? { path: output, sha256: sha256(outputBytes), bytes: outputBytes.byteLength } : report.output,
     ...(steps.length > 0

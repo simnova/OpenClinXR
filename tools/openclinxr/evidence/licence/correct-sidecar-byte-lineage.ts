@@ -27,11 +27,41 @@ import path from "node:path";
  * that child, so repeat calls for the same actor never clobber each other.
  */
 
+export type PreImageSource =
+  | { kind: "revision"; revision: string }
+  | { kind: "file"; path: string };
+
+/**
+ * ONE reader for both pre-image kinds (H1). Revision blobs come from `git show`
+ * (immutable); file pre-images come from disk (mutable — hence the H5
+ * expected-sha re-check inside the corrector, which re-reads via this same
+ * function and refuses before any write on a mismatch).
+ */
+export function readPreImageBytes(source: PreImageSource): Buffer {
+  if (source.kind === "revision") {
+    return execFileSync("git", ["show", source.revision], { maxBuffer: 1024 * 1024 * 512 });
+  }
+  return readFileSync(source.path);
+}
+
+function preImageFlag(source: PreImageSource): string {
+  return source.kind === "revision" ? "--pre-image-revision" : "--pre-image-file";
+}
+
+function preImageLabel(source: PreImageSource): string {
+  return source.kind === "revision" ? source.revision : source.path;
+}
+
 export type ByteLineageCorrection = {
   assetPath: string;
   provenancePath: string;
-  /** Git revision expression for the bytes the derivation consumed, e.g. `3d019031^:path`. */
-  preImageRevision: string;
+  /** Discriminated pre-image source, replacing the old preImageRevision string (H1). */
+  preImage: PreImageSource;
+  /**
+   * The sha the gate checked (H5). The corrector re-reads via readPreImageBytes
+   * and refuses BEFORE any write if its own read differs, naming both shas.
+   */
+  expectedPreImageSha256: string;
   /** argv of the derivation, with {pre} and {out} placeholders. */
   derivationArgv: string[];
   why: string;
@@ -52,6 +82,15 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
   if (rawBase === undefined || rawBase.trim() === "" || rawBase.trim().startsWith("-")) {
     throw new Error("correct-sidecar-byte-lineage: --working-directory <dir> is required before any derivation IO.");
   }
+  // H5 TOCTOU guard: re-read the pre-image and compare against the sha the gate
+  // checked, BEFORE any write (no mkdir/mkdtemp/writeFileSync has run yet).
+  const preImage = readPreImageBytes(input.preImage);
+  const preImageDigest = sha256(preImage);
+  if (preImageDigest !== input.expectedPreImageSha256) {
+    throw new Error(
+      `correctSidecarByteLineage: refused — ${preImageFlag(input.preImage)} bytes changed between gate and correction: expected ${input.expectedPreImageSha256} but read ${preImageDigest} from ${preImageLabel(input.preImage)}. Refusing before any write.`,
+    );
+  }
   const base = path.resolve(rawBase);
   mkdirSync(base, { recursive: true });
   const callDir = mkdtempSync(path.join(base, `${path.basename(input.assetPath, ".glb")}-`));
@@ -59,7 +98,6 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
   const rederivedPath = path.join(callDir, `${path.basename(input.assetPath, ".glb")}-rederived.glb`);
   const ownedReportPath = path.join(callDir, `${path.basename(input.assetPath, ".glb")}-report.json`);
 
-  const preImage = execFileSync("git", ["show", input.preImageRevision], { maxBuffer: 1024 * 1024 * 512 });
   writeFileSync(preImagePath, preImage);
 
   const argv = input.derivationArgv.map((token) =>
@@ -77,7 +115,7 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
   const shippedDigest = sha256(shipped);
   if (rederivedDigest !== shippedDigest) {
     throw new Error(
-      `correctSidecarByteLineage: refused — re-running the derivation on ${input.preImageRevision} produced ${rederivedDigest} (${rederived.byteLength} B) but ${input.assetPath} holds ${shippedDigest} (${shipped.byteLength} B). The shipped bytes are NOT explained by this derivation, so the recorded hash must not be rewritten to match them.`,
+      `correctSidecarByteLineage: refused — re-running the derivation on ${preImageLabel(input.preImage)} (${preImageFlag(input.preImage)}) produced ${rederivedDigest} (${rederived.byteLength} B) but ${input.assetPath} holds ${shippedDigest} (${shipped.byteLength} B). The shipped bytes are NOT explained by this derivation, so the recorded hash must not be rewritten to match them.`,
     );
   }
 
@@ -89,8 +127,10 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
     correctedBy: "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
     correctedAt: new Date().toISOString(),
     recordedBefore: previous,
-    preImageRevision: input.preImageRevision,
-    preImageSha256: sha256(preImage),
+    ...(input.preImage.kind === "revision"
+      ? { preImageRevision: input.preImage.revision }
+      : { preImageFile: input.preImage.path }),
+    preImageSha256: preImageDigest,
     preImageBytes: preImage.byteLength,
     derivationArgv: input.derivationArgv,
     reproduction: "byte-identical to the shipped file",
@@ -115,11 +155,11 @@ const TIGHTJEANS_FP_RUNG_WHY =
   + "Re-running that rung on the pre-image reproduces the shipped file byte for byte; the digest "
   + "below is therefore a derivation, not a reading taken off disk.";
 
-const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory">[] = [
+const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory" | "expectedPreImageSha256">[] = [
   {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
-    preImageRevision: "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    preImage: { kind: "revision", revision: "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb" },
     derivationArgv: [
       "pnpm",
       "exec",
@@ -137,7 +177,7 @@ const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory">[] = 
   {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
-    preImageRevision: "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
+    preImage: { kind: "revision", revision: "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb" },
     derivationArgv: [
       "pnpm",
       "exec",
@@ -155,7 +195,7 @@ const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory">[] = 
   {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.provenance.json",
-    preImageRevision: "3d019031^:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+    preImage: { kind: "revision", revision: "3d019031^:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb" },
     derivationArgv: [
       "node",
       "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
@@ -173,7 +213,7 @@ const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory">[] = 
   {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.provenance.json",
-    preImageRevision: "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+    preImage: { kind: "revision", revision: "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb" },
     derivationArgv: [
       "node",
       "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
@@ -191,7 +231,7 @@ const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory">[] = 
   {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
-    preImageRevision: "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+    preImage: { kind: "revision", revision: "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb" },
     derivationArgv: [
       "node",
       "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
@@ -223,7 +263,10 @@ function main(): void {
   }
   const base = path.resolve(value);
   for (const correction of CORRECTIONS) {
-    const result = correctSidecarByteLineage({ ...correction, workingDirectory: base });
+    // Revision blobs are immutable, so the gate-time read and the corrector's
+    // own re-read agree; the expected sha is pinned here and re-checked inside.
+    const expectedPreImageSha256 = sha256(readPreImageBytes(correction.preImage));
+    const result = correctSidecarByteLineage({ ...correction, expectedPreImageSha256, workingDirectory: base });
     process.stdout.write(
       `${correction.assetPath}: reproduced ${result.sha256} (${result.bytes} B), superseding ${String(result.previous.outputSha256)} (${String(result.previous.outputBytes)} B)\n`,
     );
