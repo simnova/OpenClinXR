@@ -16,12 +16,26 @@
  * Operator 2026-10-30: "Yes, add the cap" after load ran 50-126 on 10 cores.
  */
 import { spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import { availableParallelism, constants } from "node:os";
 import { pathToFileURL } from "node:url";
 import { readComputeSlotsStatus, withComputeSlot } from "@openclinxr/compute-slots/slots";
 
 export const HEAVY_POOL = "heavy";
 export const HELD_ENV = "OPENCLINXR_HEAVY_SLOT_HELD";
+
+/**
+ * Push-lock gate: the push scripts (push-queue.sh, push-main*.sh) hold a machine-wide
+ * lock dir for the whole pre-push, so a heavy job started mid-push waits. The holder's
+ * own hook runs pass through on OPENCLINXR_PUSH_LOCK_HELD (.githooks/pre-push). A waiter prints one
+ * WAIT_PUSH_LOCK line and polls the directory only — it never reads files
+ * inside the lock dir (operator rule) and waits BEFORE taking a compute slot.
+ */
+export const PUSH_LOCK_DIR_ENV = "OPENCLINXR_PUSH_LOCK_DIR";
+export const PUSH_LOCK_HELD_ENV = "OPENCLINXR_PUSH_LOCK_HELD";
+export const PUSH_LOCK_POLL_MS = 250;
+
+const DEFAULT_PUSH_LOCK_DIR = "/private/tmp/openclinxr-push.lock";
 
 export type JobWidth = { turboConcurrency: number; vitestMaxWorkers: number };
 
@@ -35,12 +49,16 @@ export function jobWidth(cores: number, poolSize: number): JobWidth {
 
 /** Env for the child: caller-set values win; the held marker always lands. */
 export function childEnv(base: NodeJS.ProcessEnv, width: JobWidth): NodeJS.ProcessEnv {
-  return {
+  const env: NodeJS.ProcessEnv = {
     ...base,
     [HELD_ENV]: "1",
     TURBO_CONCURRENCY: base["TURBO_CONCURRENCY"] ?? String(width.turboConcurrency),
     CELLIX_VITEST_MAX_WORKERS: base["CELLIX_VITEST_MAX_WORKERS"] ?? String(width.vitestMaxWorkers),
   };
+  // Pass the push-lock exemption through only when the parent held it, so a
+  // nested call under a pre-push hook never waits on the hook's own lock.
+  if (base[PUSH_LOCK_HELD_ENV] === "1") env[PUSH_LOCK_HELD_ENV] = "1";
+  return env;
 }
 
 export function parseArgs(argv: string[]): { label: string; command: string[] } {
@@ -59,10 +77,30 @@ function run(command: string[], env: NodeJS.ProcessEnv): number {
   return result.status ?? 1;
 }
 
+/** The restamp push script names its lock OPENCLINXR_PUSH_LOCK (push-main-restamp.sh:7); honour it as a fallback so both watch one path. */
+export const PUSH_LOCK_LEGACY_ENV = "OPENCLINXR_PUSH_LOCK";
+
+export function pushLockDir(env: NodeJS.ProcessEnv = process.env): string {
+  return env[PUSH_LOCK_DIR_ENV] ?? env[PUSH_LOCK_LEGACY_ENV] ?? DEFAULT_PUSH_LOCK_DIR;
+}
+
+/** Block until the pre-push lock dir is gone; called before any slot is taken. */
+async function waitForPushLock(label: string): Promise<void> {
+  const dir = pushLockDir();
+  if (!existsSync(dir)) return;
+  console.log(`[heavy-slot] WAIT_PUSH_LOCK ${label} ${dir}`);
+  while (existsSync(dir)) {
+    await new Promise((resolve) => setTimeout(resolve, PUSH_LOCK_POLL_MS));
+  }
+}
+
 async function main(): Promise<void> {
   const { label, command } = parseArgs(process.argv.slice(2));
   if (process.env[HELD_ENV] === "1") {
     process.exit(run(command, process.env));
+  }
+  if (process.env[PUSH_LOCK_HELD_ENV] !== "1") {
+    await waitForPushLock(label);
   }
   // The pool's size is owned by compute-slots (DEFAULT_SIZES / OPENCLINXR_SLOTS_HEAVY).
   const poolSize = readComputeSlotsStatus().pools.find((pool) => pool.pool === HEAVY_POOL)?.size ?? 1;

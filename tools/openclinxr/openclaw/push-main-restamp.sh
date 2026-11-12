@@ -13,6 +13,9 @@ trap 'if [ ! -f "$LOCK/owner" ] || grep -qx "pid=$$" "$LOCK/owner"; then rm -f "
 { if [ "$OPENCLINXR_PUSH_LOCK_OWNER_FAIL" = "partial" ]; then : > "$LOCK/owner"; false; elif [ -n "$OPENCLINXR_PUSH_LOCK_OWNER_FAIL" ]; then false; else printf 'pid=%s\nworktree=%s\nstartedAt=%s\nlog=%s\n' $$ "$wt" "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$log" > "$LOCK/owner"; fi; } 2>/dev/null || { rm -f "$LOCK/owner"; echo "lock owner write failed"; exit 7; }
 cd $wt || exit 2
 export MISE_TRUSTED_CONFIG_PATHS=$HOME/.codex/worktrees:/Volumes/files/src/openclinxr-wt TURBO_CACHE_DIR=$HOME/.cache/openclinxr/turbo
+# This script holds the push lock from here on; its own sweep commit (pre-commit hook) and push
+# must not wait on it in heavy-slot (tsk_ae4e2d3aec191124).
+export OPENCLINXR_PUSH_LOCK_HELD=1
 SWEEP_CMD=${OPENCLINXR_SWEEP_CMD:-"pnpm exec tsx tools/openclinxr/evidence/station-luminance-sweep.ts"}
 sync_and_stamp() {
 git fetch -q origin || exit 4

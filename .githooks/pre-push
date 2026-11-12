@@ -14,4 +14,5 @@ if [ -s "$NVM_DIR/nvm.sh" ]; then
 fi
 
 echo "Running OpenClaw pre-push guardrails..."
+export OPENCLINXR_PUSH_LOCK_HELD=1
 pnpm hooks:pre-push
