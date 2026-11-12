@@ -294,6 +294,11 @@ type TeethSwapBlock = {
   output?: { sha256?: string };
   protectedAccessorHashes?: Array<{ meshIndex: number; slot: string; accessorIndex: number; sha256: string }>;
 };
+type NeckChainSidecar = {
+  outputSha256?: string;
+  byteLineage?: { recordedBefore?: { outputSha256?: string } };
+  teethSwapB1?: TeethSwapBlock;
+};
 
 function sidecarFor(actor: string): Record<string, unknown> {
   return JSON.parse(readFileSync(join(DIR, actor.replace(/\.glb$/, ".provenance.json")), "utf8")) as Record<
@@ -303,15 +308,26 @@ function sidecarFor(actor: string): Record<string, unknown> {
 }
 
 function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>): void {
-  const block = sidecar["teethSwapB1"] as TeethSwapBlock | undefined;
+  const block = (sidecar as NeckChainSidecar)["teethSwapB1"];
   if (!block) {
     if (actor !== BAKE_NATIVE_KNOWN_GOOD) {
       throw new Error("T3 neither teethSwapB1 lineage nor the bake-native fitted pair is present");
     }
     return;
   }
-  if (block.output?.sha256 !== sha256(glb.raw)) {
-    throw new Error("T3 teethSwapB1 output sha does not pin this GLB");
+  const live = sha256(glb.raw);
+  if (block.output?.sha256 !== live) {
+    // R2 neck-stage chain (physician only; owning gate: the collar test): the swap
+    // output pins the pre-neck bytes in byteLineage.recordedBefore, and the sidecar
+    // top level pins the live GLB. teethSwapB1.output itself is never rewritten.
+    const chain = sidecar as NeckChainSidecar;
+    if (
+      actor !== LATE_SWAP ||
+      block.output?.sha256 !== chain.byteLineage?.recordedBefore?.outputSha256 ||
+      chain.outputSha256 !== live
+    ) {
+      throw new Error("T3 teethSwapB1 output sha does not pin this GLB");
+    }
   }
   for (const row of block.protectedAccessorHashes ?? []) {
     const actual = accessorHash(glb, row.accessorIndex);

@@ -216,7 +216,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // tsk_2a74bbdb3f03cb3e re-pinned 2026-11-11: physician teeth swap (fitted CC0 teeth/tongue,
   // teeth-rest-clearance --delta 0.0061, couple-fitted-teeth-to-lip-viseme, decimate 7120 -> 4627 tris):
   // 12596836 B live (was 9497600 B pre-swap).
-  "mpfb-clinical-physician-adult": "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
+  // tsk_d2791236a570a434 re-pinned 2026-11-12: unhidden neckline opening
+  // (unhide-neckline-opening.py, body index-only re-map, no position/skin/morph change):
+  // 12618432 B live (was 12596836 B pre-neck).
+  "mpfb-clinical-physician-adult": "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
 }
 
 type Prov = {

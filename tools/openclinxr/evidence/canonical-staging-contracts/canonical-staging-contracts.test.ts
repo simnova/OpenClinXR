@@ -178,15 +178,17 @@ describe("canonical staging contracts (fake/static units, no browser)", () => {
     // tsk_2a74bbdb3f03cb3e re-pinned 2026-11-11: physician teeth swap (fitted CC0 teeth/tongue,
     // retreat 6.1 mm, viseme coupling, decimation 7120 -> 4627 tris);
     // 9497600 -> 12596836 B (old pin was the pre-swap GLB).
+    // tsk_d2791236a570a434 re-pinned 2026-11-12: unhidden neckline opening
+    // (index-only re-map, no position/skin/morph change): 12596836 -> 12618432 B.
     expect(physician?.assetSha256).toBe(
-      "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
+      "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
     );
-    expect(physician?.byteCount).toBe(12596836);
+    expect(physician?.byteCount).toBe(12618432);
     expect(expected.expectedClipRevision).toBe("openclinxr_retarget_walk_source");
     expect(expected.expectedAssetSha256).toBe(
-      "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
+      "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
     );
-    expect(expected.expectedBytes).toBe(12596836);
+    expect(expected.expectedBytes).toBe(12618432);
     // Independent provenance lineage agrees; retired formal_cc0 preserved.
     const provenance = JSON.parse(
       readFileSync(

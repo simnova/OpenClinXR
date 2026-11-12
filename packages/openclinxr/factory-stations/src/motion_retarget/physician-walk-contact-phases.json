@@ -3,7 +3,7 @@
   "provenance": {
     "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
     "clip": "openclinxr_retarget_walk_source",
-    "sha256": "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
+    "sha256": "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
     "frames": 41,
     "clipSpanS": 1.666666705161333
   },

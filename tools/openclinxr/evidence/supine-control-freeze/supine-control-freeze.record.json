@@ -8,7 +8,7 @@
     "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "107d7ec951744032298b5e4fafd1d14b33f4860538fe1480968db02678014864",
     "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "1fd58873ddba9519d442396635bd2d91a08c8b4b63606b186ecc56a9c0f5cb8b",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
-    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
+    "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
     "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444"
   },
   "staged": {
@@ -17,9 +17,9 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "phys-repin worker (tsk_2a74bbdb3f03cb3e)",
-    "observedAtIso": "2026-11-11T05:21:21.272Z",
-    "reason": "Physician GLB re-derived: fitted CC0 teeth/tongue swap (teeth-rest-clearance --delta 0.0061, couple-fitted-teeth-to-lip-viseme, decimate_teeth 0.65/0.005: teeth 7120 -> 4627 tris); refresh the live control byte pin for the physician row only.",
+    "observedBy": "phys-neck-land worker (tsk_d2791236a570a434)",
+    "observedAtIso": "2026-11-12T07:16:21.000Z",
+    "reason": "Physician GLB re-derived: unhidden neckline opening (unhide-neckline-opening.py, index-only re-map, 8 body bufferViews appended, no position/skin/morph change); refresh the live control byte pin for the physician row only.",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,
@@ -27,7 +27,7 @@
       "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 10316520,
       "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 13327592,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 12353924,
-      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 12596836,
+      "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 12618432,
       "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 20026072
     }
   }

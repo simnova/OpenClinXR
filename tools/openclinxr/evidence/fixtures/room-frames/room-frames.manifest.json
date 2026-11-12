@@ -260,11 +260,11 @@
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
-      "sha256": "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0"
+      "sha256": "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.provenance.json",
-      "sha256": "dfad88fae98210f0d71c679eaae63f86281a548be0242ce12789f613a7296712"
+      "sha256": "4fcd19f26fb76fc4df2be4f1185a8914f0b5234d987d48ea12d0c70b18b2062e"
     },
     {
       "path": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.skin-baked.png",

@@ -1,6 +1,10 @@
 import { createHash } from "node:crypto";
 import type { Accessor, Document, Mesh, NodeIO, Primitive } from "@gltf-transform/core";
 import {
+  NECK_STAGE_INDICES_SHA256,
+  NECK_STAGE_PHYSICIAN,
+} from "./shipped-lash-follow-neck-stage.js";
+import {
   CLOSURE,
   MOVE_EPS_M,
   WELD_TOLERANCE_M,
@@ -146,6 +150,59 @@ export function targetHash(p: Primitive, names: string[]): string {
   }
   return h.digest("hex");
 }
+function indicesSha256(p: Primitive): string {
+  return createHash("sha256").update(accessorBytes(p.getIndices())).digest("hex");
+}
+function primAttrSig(p: Primitive): string {
+  const h = createHash("sha256");
+  for (const semantic of p.listSemantics().sort()) {
+    const a = p.getAttribute(semantic)!;
+    h.update(JSON.stringify([semantic, a.getType(), a.getComponentType(), a.getCount()]));
+    h.update(accessorBytes(a));
+  }
+  return h.digest("hex");
+}
+function sortedIndexArray(p: Primitive): number[] {
+  return Array.from(p.getIndices()!.getArray() as ArrayLike<number>).map(Number).sort((a, b) => a - b);
+}
+// R1: physician neck-stage split allowance (owning gate: the collar test; pin moves
+// only on a new neck stage). Pairs current body prims to baseline prims by shared
+// attribute + morph bytes; an unmatched pair is allowed only as one moved + one new
+// skin prim whose INDICES bytes hash to NECK_STAGE_INDICES_SHA256 and whose sorted
+// index union equals the baseline prim (no triangle lost or added).
+function neckSplitBodyEqual(cp: Primitive[], bp: Primitive[], cn: string[], actor: string): boolean {
+  if (actor !== NECK_STAGE_PHYSICIAN || cp.length !== bp.length + 4) return false;
+  const allowed = new Set(NECK_STAGE_INDICES_SHA256);
+  const used = new Set<string>();
+  const key = (p: Primitive) => `${primAttrSig(p)}|${targetHash(p, cn)}`;
+  const byKey = new Map<string, Primitive[]>();
+  for (const p of cp) {
+    const k = key(p);
+    byKey.set(k, [...(byKey.get(k) ?? []), p]);
+  }
+  for (const b of bp) {
+    const k = key(b);
+    const mates = byKey.get(k) ?? [];
+    if (mates.length === 1) {
+      if (indicesSha256(mates[0]!) !== indicesSha256(b)) return false;
+    } else if (mates.length === 2) {
+      const [m1, m2] = mates as [Primitive, Primitive];
+      const s1 = indicesSha256(m1), s2 = indicesSha256(m2);
+      if (!allowed.has(s1) || !allowed.has(s2)) return false;
+      const mats = [m1.getMaterial()?.getName(), m2.getMaterial()?.getName()].sort();
+      if (!mats[0]!.startsWith("mpfb_skin_") || mats[1] !== b.getMaterial()?.getName()) return false;
+      const merged = [...sortedIndexArray(m1), ...sortedIndexArray(m2)].sort((a, c) => a - c);
+      const want = sortedIndexArray(b);
+      if (merged.length !== want.length || merged.some((v, i) => v !== want[i])) return false;
+      used.add(s1);
+      used.add(s2);
+    } else {
+      return false;
+    }
+    byKey.delete(k);
+  }
+  return byKey.size === 0 && used.size === allowed.size;
+}
 export function counterweights(current: Document, baseline: Document, actor: string) {
   const c = matched(current, actor), b = matched(baseline, actor);
   const currentBody = c.body.getMesh(), baselineBody = b.body.getMesh();
@@ -154,9 +211,12 @@ export function counterweights(current: Document, baseline: Document, actor: str
   const bn = (baselineBody.getExtras() as { targetNames?: string[] }).targetNames ?? [];
   let bodyMorphsByteEqual = JSON.stringify(cn) === JSON.stringify(bn);
   const cp = currentBody.listPrimitives(), bp = baselineBody.listPrimitives();
-  bodyMorphsByteEqual &&= cp.length === bp.length;
-  for (let i = 0; bodyMorphsByteEqual && i < cp.length; i++) {
-    bodyMorphsByteEqual &&= targetHash(cp[i]!, cn) === targetHash(bp[i]!, bn);
+  if (cp.length === bp.length) {
+    for (let i = 0; bodyMorphsByteEqual && i < cp.length; i++) {
+      bodyMorphsByteEqual &&= targetHash(cp[i]!, cn) === targetHash(bp[i]!, bn);
+    }
+  } else {
+    bodyMorphsByteEqual &&= neckSplitBodyEqual(cp, bp, cn, actor);
   }
   // Teeth/tongue are excluded: tsk_27e0cec12cab410d swapped hm08 for fitted CC0 teeth after BASELINE_REF.
   // Their bytes are gated by humanoid-bake-evidence the-shipped-teeth-carry-their-texture.test.ts
@@ -166,7 +226,22 @@ export function counterweights(current: Document, baseline: Document, actor: str
     n.getMesh()?.listPrimitives().map(primitiveHash),
   ]));
   const ch = meshHashes(current), bh = meshHashes(baseline);
-  const nonLashMeshesHashEqual = ch.size === bh.size && [...ch].every(([k, hashes]) => JSON.stringify(hashes) === JSON.stringify(bh.get(k)));
+  // R1: the physician body mesh goes through the neck-split allowance (indices gated
+  // by NECK_STAGE_INDICES_SHA256, attributes/morphs paired); every other non-lash
+  // mesh still hash-matches BASELINE_REF exactly.
+  const bodyKey = `${c.body.getName()}|${currentBody.getName()}`;
+  const nonLashBodyOk =
+    actor !== NECK_STAGE_PHYSICIAN || ch.size !== bh.size
+      ? null
+      : neckSplitBodyEqual(currentBody.listPrimitives(), baselineBody.listPrimitives(), cn, actor);
+  const nonLashMeshesHashEqual =
+    ch.size === bh.size &&
+    (nonLashBodyOk === null
+      ? [...ch].every(([k, hashes]) => JSON.stringify(hashes) === JSON.stringify(bh.get(k)))
+      : [...ch].every(
+          ([k, hashes]) =>
+            (k === bodyKey ? nonLashBodyOk : JSON.stringify(hashes) === JSON.stringify(bh.get(k))),
+        ));
   return { bodyMorphsByteEqual, nonLashMeshesHashEqual };
 }
 

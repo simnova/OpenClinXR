@@ -3068,7 +3068,7 @@
     },
     {
       "actor": "mpfb-clinical-physician-adult",
-      "inputSha256": "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0",
+      "inputSha256": "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ward_delirium_senior_resident_adult_mesh",
       "bodyMesh": "mpfb_ward_delirium_senior_resident_adult_body",
       "sides": {
