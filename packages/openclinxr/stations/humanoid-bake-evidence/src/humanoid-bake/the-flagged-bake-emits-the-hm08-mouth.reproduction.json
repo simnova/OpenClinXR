@@ -1,0 +1,180 @@
+{
+ "flaggedS1": {
+  "path": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-flag1/mpfb-clinical-nurse-adult.glb",
+  "sha256": "4ea3554843161edb7860cef6fd8c2d96246c6a722baa84deef3980e0df53dfe7"
+ },
+ "chainOutput": {
+  "path": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-decim/mpfb-clinical-nurse-adult.glb",
+  "sha256": "bffa14e8757f8949a052f864371a059828be623feccef9ba95bf13467f4fb8a0"
+ },
+ "chainOutputTeethAccessors": {
+  "POSITION": "945b3e4fb9f217682dff3b4ad0a01ae4b0f698c6298b9e0241f5ef1e176c0960",
+  "viseme_aa": "91972f3ce162aa0814792580ad038594de3c6b7b1a58e46a629433739ee6d45c",
+  "viseme_E": "2ddc43c6f207499a0bbb490c7bc8cc99593567ef71d42336b24abdec12714e0c",
+  "viseme_I": "dbcc3fd4f5fd5d1b9230ba846ab57a97def0afa13fbed9ca9e5970bec9f4cb3f",
+  "viseme_O": "b84426c6b2fd9753c145ff777f1c7321bba03a391af49295a1483d56038c4bd6",
+  "viseme_U": "b856bb8fc16ff5b3e8d3114f3f0c8a322eec58dc19a2b45e1478f910ba031660",
+  "viseme_FF": "d60b6304c6b15f5c587a9957d3fc2493e0d2c9d887228f8351a2098892f29729",
+  "viseme_PP": "d60b6304c6b15f5c587a9957d3fc2493e0d2c9d887228f8351a2098892f29729"
+ },
+ "unflagged": {
+  "k0a": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0a/mpfb-clinical-nurse-adult.glb",
+  "k0b": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0b/mpfb-clinical-nurse-adult.glb",
+  "k0c": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0c/mpfb-clinical-nurse-adult.glb"
+ },
+ "cw0": {
+  "mode": "byte-equal",
+  "shas": {
+   "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0a/mpfb-clinical-nurse-adult.glb": "ee6115793283170f214eb3e7095f4a7ea4eaf41f1ac259dbce580325d8d5cdca",
+   "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0b/mpfb-clinical-nurse-adult.glb": "ee6115793283170f214eb3e7095f4a7ea4eaf41f1ac259dbce580325d8d5cdca",
+   "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0c/mpfb-clinical-nurse-adult.glb": "ee6115793283170f214eb3e7095f4a7ea4eaf41f1ac259dbce580325d8d5cdca"
+  }
+ },
+ "steps": [
+  {
+   "name": "s1-unflagged-k0a",
+   "argv": [
+    "blender",
+    "--background",
+    "--python",
+    "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "--",
+    "--output",
+    "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0a/mpfb-clinical-nurse-adult.glb",
+    "--reference",
+    "ed_chest_pain_nurse_adult",
+    "--actor-role",
+    "nurse"
+   ],
+   "exit": 0,
+   "outputSha256": "ee6115793283170f214eb3e7095f4a7ea4eaf41f1ac259dbce580325d8d5cdca",
+   "output": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0a/mpfb-clinical-nurse-adult.glb"
+  },
+  {
+   "name": "s1-unflagged-k0b",
+   "argv": [
+    "blender",
+    "--background",
+    "--python",
+    "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "--",
+    "--output",
+    "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0b/mpfb-clinical-nurse-adult.glb",
+    "--reference",
+    "ed_chest_pain_nurse_adult",
+    "--actor-role",
+    "nurse"
+   ],
+   "exit": 0,
+   "outputSha256": "ee6115793283170f214eb3e7095f4a7ea4eaf41f1ac259dbce580325d8d5cdca",
+   "output": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0b/mpfb-clinical-nurse-adult.glb"
+  },
+  {
+   "name": "s1-unflagged-k0c",
+   "argv": [
+    "blender",
+    "--background",
+    "--python",
+    "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "--",
+    "--output",
+    "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0c/mpfb-clinical-nurse-adult.glb",
+    "--reference",
+    "ed_chest_pain_nurse_adult",
+    "--actor-role",
+    "nurse"
+   ],
+   "exit": 0,
+   "outputSha256": "ee6115793283170f214eb3e7095f4a7ea4eaf41f1ac259dbce580325d8d5cdca",
+   "output": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-k0c/mpfb-clinical-nurse-adult.glb"
+  },
+  {
+   "name": "s1-flagged",
+   "argv": [
+    "blender",
+    "--background",
+    "--python",
+    "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "--",
+    "--output",
+    "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-flag1/mpfb-clinical-nurse-adult.glb",
+    "--reference",
+    "ed_chest_pain_nurse_adult",
+    "--actor-role",
+    "nurse",
+    "--emit-hm08-mouth"
+   ],
+   "exit": 0,
+   "outputSha256": "4ea3554843161edb7860cef6fd8c2d96246c6a722baa84deef3980e0df53dfe7",
+   "output": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-flag1/mpfb-clinical-nurse-adult.glb"
+  },
+  {
+   "name": "swap_teeth",
+   "argv": [
+    "mise",
+    "exec",
+    "--",
+    "python3",
+    "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py",
+    "--input",
+    "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-flag1/mpfb-clinical-nurse-adult.glb",
+    "--scratch",
+    "/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-clinical-nurse-adult.glb",
+    "--output",
+    "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-swap/mpfb-clinical-nurse-adult.glb",
+    "--report",
+    "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-swap/report.json"
+   ],
+   "exit": 0,
+   "outputSha256": "aff47be2931f52d03d3545dee51b86a1cc0b29d891f763bd8e5f86e9fb0306e5",
+   "output": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-swap/mpfb-clinical-nurse-adult.glb"
+  },
+  {
+   "name": "teeth-rest-clearance",
+   "argv": [
+    "pnpm",
+    "exec",
+    "tsx",
+    "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts",
+    "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-clear/mpfb-clinical-nurse-adult.glb",
+    "--delta",
+    "0.0057",
+    "--in-place-bytes"
+   ],
+   "exit": 0,
+   "outputSha256": "a2267d0c400e14d432ed2268f31405bc0ed5ed1ea9a488be0c5764e2040bc562",
+   "output": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-clear/mpfb-clinical-nurse-adult.glb"
+  },
+  {
+   "name": "couple-fitted-teeth-to-lip-viseme",
+   "argv": [
+    "pnpm",
+    "exec",
+    "tsx",
+    "tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts",
+    "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-couple/mpfb-clinical-nurse-adult.glb"
+   ],
+   "exit": 0,
+   "outputSha256": "300b221c2226f5fb0be4203aee6aefaac101679619cca8b7f4bc1e29f1d3eb69",
+   "output": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-couple/mpfb-clinical-nurse-adult.glb"
+  },
+  {
+   "name": "decimate_teeth",
+   "argv": [
+    "pnpm",
+    "exec",
+    "tsx",
+    "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts",
+    "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-decim/mpfb-clinical-nurse-adult.glb",
+    "--in-place",
+    "--ratio",
+    "0.65",
+    "--error",
+    "0.005"
+   ],
+   "exit": 0,
+   "outputSha256": "bffa14e8757f8949a052f864371a059828be623feccef9ba95bf13467f4fb8a0",
+   "output": "/Volumes/files/openclinxr-assets/store/st-teeth/p2a/p2a-decim/mpfb-clinical-nurse-adult.glb"
+  }
+ ]
+}

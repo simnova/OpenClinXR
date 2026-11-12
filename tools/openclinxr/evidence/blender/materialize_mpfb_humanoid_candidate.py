@@ -2580,6 +2580,21 @@ def parse_args():
         ),
     )
     parser.add_argument(
+        "--emit-hm08-mouth",
+        action="store_true",
+        help=(
+            "P2a opt-in: name the S1 CC0 fitted teeth/tongue meshes "
+            "openclinxr_hm08_teeth_<prefix>_mesh / openclinxr_hm08_tongue_<prefix>_mesh "
+            "instead of openclinxr_fitted_teeth/tongue, so the unmodified shipped "
+            "mouth chain (swap_teeth -> teeth-rest-clearance -> "
+            "couple-fitted-teeth-to-lip-viseme -> decimate_teeth) transplants the "
+            "donor mouth. Geometry, material contents, fit and every other mesh "
+            "are identical; only the teeth/tongue mesh, object and material "
+            "names differ. Default off keeps every "
+            "other bake byte-stable."
+        ),
+    )
+    parser.add_argument(
         "--eye-colour-reference",
         default=None,
         help=(
@@ -2733,7 +2748,7 @@ def parse_args():
         choices=("low-poly", "high-poly"),
         help=(
             "Eyetex: which CC0 MakeHuman eye asset to fit (low-poly default, "
-            "48 verts/eye, exact sphere; high-poly 532 verts/eye with a +12% "
+            "48 verts/eye, exact sphere; high-poly 532 verts/eye with a +12%% "
             "cornea bulge at the front pole, same brown.mhmat texture). "
             "Default low-poly keeps every other bake byte-stable."
         ),
@@ -8113,8 +8128,18 @@ def main():
         if args.reference
         else mesh_prefix_for_subject(subject_id, args.eye_colour_reference)
     )
-    _teeth_asset.data.name = f"openclinxr_fitted_teeth_{_mesh_prefix}_mesh"
-    _tongue_asset.data.name = f"openclinxr_fitted_tongue_{_mesh_prefix}_mesh"
+    # P2a opt-in: under --emit-hm08-mouth the mouth meshes carry the hm08
+    # donor names swap_teeth transplants from, so the unmodified shipped chain
+    # (swap -> clearance -> couple -> decimate) runs on a fresh bake. Default
+    # path is untouched: only the two names differ, geometry/fit/materials are
+    # identical (CW2 pins the POSITION equality). Object names follow the data
+    # names under the flag only; the default path sets neither object name.
+    _mouth_token = "hm08" if args.emit_hm08_mouth else "fitted"
+    _teeth_asset.data.name = f"openclinxr_{_mouth_token}_teeth_{_mesh_prefix}_mesh"
+    _tongue_asset.data.name = f"openclinxr_{_mouth_token}_tongue_{_mesh_prefix}_mesh"
+    if args.emit_hm08_mouth:
+        _teeth_asset.name = _teeth_asset.data.name
+        _tongue_asset.name = _tongue_asset.data.name
     for _poly in _teeth_asset.data.polygons:
         _poly.use_smooth = True
     for _poly in _tongue_asset.data.polygons:
@@ -8123,11 +8148,11 @@ def main():
     _tongue_tris = sum(max(len(p.vertices) - 2, 0) for p in _tongue_asset.data.polygons)
     _teeth_mat = make_material_from_mhmat(
         _teeth_mhclo.parent / "teeth.mhmat",
-        f"mat_openclinxr_fitted_teeth_mpfb_{subject_id}_mesh",
+        f"mat_openclinxr_{_mouth_token}_teeth_mpfb_{subject_id}_mesh",
     )
     _tongue_mat = make_material_from_mhmat(
         _tongue_mhclo.parent / "tongue01.mhmat",
-        f"mat_openclinxr_fitted_tongue_mpfb_{subject_id}_mesh",
+        f"mat_openclinxr_{_mouth_token}_tongue_mpfb_{subject_id}_mesh",
     )
     _teeth_asset.data.materials.clear()
     _teeth_asset.data.materials.append(_teeth_mat)
