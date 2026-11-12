@@ -25,6 +25,9 @@
           }
         ],
         "properties": {
+          "asOf": {
+            "type": "string"
+          },
           "exitCriteria": {
             "type": "string"
           },

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta
+      name="description"
+      content="OpenClinXR: timed XR clinical skills encounters from case blueprint to WebXR runtime—with evidence gates, not exam-equivalence claims."
+    >
+    <meta property="og:title" content="OpenClinXR">
+    <meta
+      property="og:description"
+      content="Build, review, and run timed clinical skills stations in WebXR. Blueprint-driven factory. Honest proof boundaries."
+    >
+    <meta property="og:type" content="website">
+    <title>Evidence — OpenClinXR</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body data-site="v2">
+<nav class="site-nav" aria-label="Site">
+  <a href="index.html">Home</a>
+  <a href="reference-run.html">Reference run</a>
+  <a href="evidence.html">Evidence</a>
+  <a href="progress.html">Progress</a>
+</nav>
+    <main>
+      <header class="band"><h1>Evidence</h1>
+        <p class="status-copy claim-copy" data-claim="CL6 CL7 CL20">What OpenClinXR can show today: stations that replay from recorded traces, faculty-entered marks locked by a sign-off packet, and an honest plan for what would make those marks mean more.</p>
+      </header>
+      <section id="measurement" class="band">
+        <div class="section-heading"><h2>Measurement</h2></div>
+        <h3>What a mark is</h3>
+        <p class="status-copy claim-copy" data-claim="CL7 CL22">A mark is a faculty-entered tick against one rubric label on a replayable station trace, locked by the sign-off packet. For assessment staff, including Objective Structured Clinical Examination (OSCE) directors: this page states what a mark is, what evidence exists now, and what is planned.</p>
+        <p class="status-copy claim-copy" data-claim="CL22">Rubric items are labels without definitions or anchors. Standardized patient (SP) case material — the opening line, history answers and authored affect — comes from the case document.</p>
+        <h3>Validity evidence plan</h3>
+        <p class="status-copy claim-copy" data-claim="CL7">The table below lists each inference, what exists now, what is planned, and the main threat. The site makes no claim that faculty marks are valid for any use; each row names the work that would be needed.</p>
+        <div class="measure-table-wrap">
+        <table class="measure-table">
+          <caption>Validity evidence plan</caption>
+          <thead>
+            <tr>
+              <th scope="col">inference</th>
+              <th scope="col">claim</th>
+              <th scope="col">evidence now</th>
+              <th scope="col">planned evidence</th>
+              <th scope="col">threat</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">Marks</th>
+              <td>Faculty-entered marks capture the observed encounter</td>
+              <td>partial: rubric recorded and replayable (instrument exists; no reliability data)</td>
+              <td>Two or more faculty mark the same replays with a pre-registered N and intraclass correlation coefficient target</td>
+              <td>Single rater so far; no reliability data</td>
+            </tr>
+            <tr>
+              <th scope="row">Generalization</th>
+              <td>Marks generalize across stations, cases and raters</td>
+              <td>planned</td>
+              <td>Marks from the emergency department (ED) chest pain station repeated across bank cases</td>
+              <td>Authored topic answers exist for ED chest pain only; 14 of 15 fixtures at draft status</td>
+            </tr>
+            <tr>
+              <th scope="row">Extrapolation</th>
+              <td>Marks extrapolate to supervised practice</td>
+              <td>planned</td>
+              <td>Independent performance ratings compared with station marks</td>
+              <td>No validation study</td>
+            </tr>
+            <tr>
+              <th scope="row">Implications</th>
+              <td>Decisions informed by marks are fair across groups</td>
+              <td>planned</td>
+              <td>Speech-to-text error and mark rates reported per speaker group</td>
+              <td>Single speaker, single run so far</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <p class="status-copy">Note on the Marks row: Kane's scoring inference; the site avoids the word score for faculty marks.</p>
+        <p class="status-copy">Note on the Marks evidence-now cell: partial describes the instrument, not validity evidence.</p>
+        <h3>Downloads, schema and trace table</h3>
+        <p class="status-copy claim-copy" data-claim="CL20 CL6">Each turn is recorded with modality and confidence; replay captions are recomputed from the trace. Stations replay from their recorded traces over the protocol (protocol today; faculty review UI pending).</p>
+        <p class="status-copy claim-copy" data-claim="CL20">The trace, the sign-off packet and the schema ride the Release; the static trace table below is text only until the release bundle lands.</p>
+        <figure class="capture-pending" data-slot="TT"><figcaption>capture pending</figcaption></figure>
+        <h3>Counts with N</h3>
+        <p class="status-copy claim-copy" data-claim="CL8 CL20">Turn counts are reported as counts with N: turns matched, turns unmatched and please-repeat turns from the reference run and the graded traces. The counts come from a single speaker, a single run and scripted utterances, not a rate.</p>
+        <p class="status-copy claim-copy" data-claim="CL24">Actor speech is synthesized in the browser with text-to-speech (TTS). Learner voice: synthetic (injected).</p>
+        <h3>Threats</h3>
+        <p class="status-copy claim-copy" data-claim="CL14 CL17">No validation study. Fifteen scenario fixtures exist and fourteen are at draft status, with authored topic answers for ED chest pain only. Avatar realism is below commercial art. There is no worn-headset run and no support organisation. Rubric items are labels without definitions or anchors.</p>
+        <h3>Known limit</h3>
+        <p class="status-copy">Known limit: claim states are re-derived only at each landing; between landings the site reads as of the sha in the footer.</p>
+      </section>
+      <section id="roadmap" class="band">
+        <div class="section-heading"><h2>Roadmap</h2></div>
+        <p class="status-copy claim-copy" data-claim="CL17">Several learners at once, more than three stations in a recorded run, Learning Tools Interoperability (LTI) with grade return, single sign-on, Experience API (xAPI), a validation study and accreditation are ROADMAP. The rows below come from site/data/roadmap.json, grouped by status; every row names its source.</p>
+        <h3>Done</h3>
+        <ul>
+          <li>RM1 synced circuit, host browser: RR1 graded PASS — DONE. Source: RR1 run-7 graded PASS 5/5 native (super-ceo-cap19), shipped a0bd592f4.</li>
+        </ul>
+        <h3>Now</h3>
+        <ul>
+          <li>RM0 foundation: 15/15 bank scenarios with a room frame — PARTIAL 14/15 at f46b6bca7. Source: room-frame stills counted per bank scenarioId (14 HAVE, MISS clinic_knee_pain_return_to_play_v1).</li>
+          <li>RM4 content: topic answers 15/15 with subject-matter expert review of rubric definitions — PARTIAL 1/15 at f46b6bca7; threshold not yet set (owner xr-sync-ceo). Source: scenarioBank approved 1/15 (ed_chest_pain_priority_v1); only approved scenarios cast with topic answers; rubric labels without definitions or anchors.</li>
+        </ul>
+        <h3>Next</h3>
+        <ul>
+          <li>RM1b scale: recorded run, 5 or more stations, 2 or more learners at once — NOT STARTED. Source: no second-learner support on main at f46b6bca7 (grep over xr-sync-server/src and xr-sync-client/src: 0 hits); no 5-station recorded run.</li>
+          <li>RM2 headset: K14 worn run graded PASS with p95 device frame time at or under the set threshold — NOT STARTED (harness only); threshold not yet set (owner xr-sync-ceo). Source: media.json has no K14 slot at f46b6bca7; harness only.</li>
+          <li>RM3 actor performance: graded PASS on main (teeth, spoken-turn video, hair verdict, movement-acceptance walk and turn) — NOT STARTED on main. Source: grades.json entries 0 at f46b6bca7; media.json has no K8/K10 slots.</li>
+          <li>RM5 institutional: LTI 1.3 with grade return, WCAG 2.2 AA faculty console, trace export schema, retention and consent policy — NOT STARTED. Source: no LTI, xAPI or WCAG files on main at f46b6bca7 (0 hits); no retention policy for host trace files.</li>
+          <li>RM7 release: 14 consecutive green days pre-push with Pages, tagged v1.0, support channel — NOT STARTED. Source: no v1.0 tag at f46b6bca7 (0 hits); no support channel doc on main.</li>
+        </ul>
+        <h3>Later</h3>
+        <ul>
+          <li>RM6 measurement: 2 or more faculty mark the same N replays with pre-registered N and intraclass correlation coefficient target, plus speech-to-text error per speaker group — PLANNED; threshold not yet set (owner xr-sync-ceo). Source: no pre-registration file on main at f46b6bca7 (0 hits).</li>
+        </ul>
+      </section>
+      <section id="deployment" class="band">
+        <div class="section-heading"><h2>Deployment</h2></div>
+        <p class="status-copy claim-copy" data-claim="CL19 CL24 CL25">Local-first means the synced circuit runs from one machine on the local network: the sync server, the speech-to-text (STT) sidecar and the trace, note and mark files live on that host; actor speech is synthesized in the browser; and the synced server and client carry no language-model dependency.</p>
+        <p class="status-copy claim-copy" data-claim="CL24 CL25">The data flow runs from the browser (learner interface and synthesized speech) to the LAN host (sync server, STT sidecar, trace, note and mark files). The diagram below is capture pending.</p>
+        <figure class="capture-pending" data-slot="K12"><figcaption>capture pending</figcaption></figure>
+        <p class="status-copy claim-copy" data-claim="CL8">The browser needs HTTPS for microphone access (<a href="https://www.w3.org/TR/secure-contexts/">W3C secure-context requirement</a>).</p>
+        <p class="status-copy claim-copy" data-claim="CL25">Traces, notes and marks are files on the host; there is no retention policy yet.</p>
+        <p class="status-copy claim-copy" data-claim="CL17">Integration status is ROADMAP: no LTI grade return, no single sign-on, no xAPI export, no validation study and no accreditation crosswalk yet.</p>
+        <p class="status-copy claim-copy" data-claim="CL16 CL26 CL27">Code is MIT; generated and third-party assets keep their own licences, listed in <a href="attribution.html">attribution.html</a> and the licence ledger. Where an asset pack's index lists an open licence and the file carries none, the project follows the permissive listing by operator rule.</p>
+      </section>
+      <section class="band">
+        <p class="status-copy">The full run, its trace and its sign-off packet ride the <a href="https://github.com/simnova/OpenClinXR/releases">GitHub Release</a>.</p>
+        <p class="status-copy"><a href="https://github.com/simnova/OpenClinXR/issues/new?template=pilot-evaluation-interest.yml">Open a pilot or evaluation interest issue</a>.</p>
+      </section>
+    </main>
+<footer class="site-footer">
+  <p class="non-claims">Not exam-equivalent. No clinical validity. No validity is claimed for faculty marks or learner readiness. No Quest readiness claim. History-taking and communication only; no physical examination or touch is assessed. Formative practice and case authoring.</p>
+  <p class="claims-as-of">claims as of <span data-claims-as-of></span></p>
+  <a href="engineering.html">Engineering</a>
+  <a href="attribution.html">Attribution</a>
+</footer>
+  </body>
+</html>
