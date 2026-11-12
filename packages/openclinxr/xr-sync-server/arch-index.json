@@ -34,6 +34,7 @@
     "src/a-blueprint-break-pauses-the-synced-rotation.test.ts",
     "src/a-matched-answer-traces-every-menu-tag-it-covers.test.ts",
     "src/a-topic-answer-carries-its-own-cue.test.ts",
+    "src/close-releases-the-listener.test.ts",
     "src/the-server-shares-the-last-station-break-rule.test.ts",
     "src/topic-menu-asked.test.ts",
     "src/topic-menu-labels.test.ts",
