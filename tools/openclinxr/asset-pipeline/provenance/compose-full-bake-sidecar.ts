@@ -78,11 +78,14 @@ export interface ReceiptFileRef {
   mode?: "in" | "out" | "inout";
   /**
    * How the runner bound this file: exactly one of flag (a "--flag" argv
-   * entry) or argvIndex (a positional post-"--" argv element, 0 = first
-   * token after "--") is set per files entry by the P2d2 stage runner.
+   * entry), argvIndex (a positional post-"--" argv element, 0 = first
+   * token after "--"), or observed (a P2d3 --observe <path> file the argv
+   * does not name) is set per files entry. Always the value true when
+   * present.
    */
   flag?: string;
   argvIndex?: number;
+  observed?: true;
 }
 
 export interface StageReceipt {
@@ -198,11 +201,26 @@ export function parseFullBakeReceiptLog(raw: unknown): FullBakeReceiptLog {
               `carries postSha256 without mode "inout"; refusing`,
           );
         }
+        if (file["observed"] !== undefined && file["observed"] !== true) {
+          throw new Error(
+            `full-bake receipt log: stage ${receipt.stage} file ${file["path"]} ` +
+              `carries observed without the value true; refusing`,
+          );
+        }
+        if ((typeof file["flag"] === "string" ? 1 : 0) +
+            (typeof file["argvIndex"] === "number" ? 1 : 0) +
+            (file["observed"] === true ? 1 : 0) > 1) {
+          throw new Error(
+            `full-bake receipt log: stage ${receipt.stage} file ${file["path"]} ` +
+              `carries more than one of flag/argvIndex/observed; refusing`,
+          );
+        }
         const ref: ReceiptFileRef = { path: file["path"], sha256: file["sha256"] };
         if (typeof file["role"] === "string") ref.role = file["role"];
         if (typeof file["postSha256"] === "string") ref.postSha256 = file["postSha256"];
         if (typeof file["flag"] === "string") ref.flag = file["flag"];
         if (typeof file["argvIndex"] === "number") ref.argvIndex = file["argvIndex"];
+        if (file["observed"] === true) ref.observed = true;
         if (file["mode"] === "in" || file["mode"] === "out" || file["mode"] === "inout") {
           ref.mode = file["mode"];
         }

@@ -11,6 +11,7 @@
  * CLI:
  *   run-stage.ts --stage-log <json> --stage <id>
  *     [--role <flag>=<role>[:in|:out|:inout]]... [--role '#<argvIndex>=<role>[:in|:out|:inout]']...
+ *     [--observe <path>=<role>[:in|:out|:inout]]...
  *     [--tool <path>] -- <argv...>
  *
  * Role mapping: each --role names either one argv flag carrying a stage file
@@ -43,6 +44,28 @@
  * match the receipt convention the composer enforces (skin-sub becomes
  * skinSub, pre-image-revision becomes preImageRevision); boolean flags
  * record "true".
+ *
+ * Observed files: --observe <path>=<role>[:mode] (default in) binds a file
+ * the executed argv does NOT name -- the shipped nurse S1 materialize
+ * output GLB (not in argv; argparse forbids extra tokens), the S4
+ * bake-humanoid-albedo outdir file (no file flag), the S6 licence notice
+ * scan (hardcoded HUMANOIDS dir, ignores argv). The executed argv is
+ * exactly the post-"--" argv: --observe never adds, removes or substitutes
+ * an argv token (no copy for inout: the tool writes the path in place).
+ *   in    hashed BEFORE exec; the path must exist pre-run.
+ *   out   hashed AFTER exec; a pre-existing file with identical bytes
+ *         post-run is refused ("observed output unchanged"); absence after
+ *         a 0 exit is refused.
+ *   inout hashed BEFORE and AFTER, recorded as sha256 + postSha256; equal
+ *         pre/post bytes are recorded, not refused.
+ * An observed path resolving (path.resolve) to a file bound by --flag or
+ * #argvIndex in the same stage is refused, as is an absent :in/:inout path
+ * or one observed path named twice. Receipt entries carry
+ * {path, sha256, role, mode, observed: true} (+ postSha256 for inout) with
+ * exactly one binding tag (flag, argvIndex, or observed). Argv-bound
+ * bindings keep precedence for inputSha256/outputSha256; observed files
+ * fill them only when no argv-bound file of that kind exists (outputs:
+ * observed :out first, then observed :inout postSha256).
  *
  * Identity and chain fields:
  *   inputSha256  sha256 of the first in/inout pre file, BEFORE exec.
@@ -87,6 +110,14 @@ type RoleMode = "in" | "out" | "inout";
 interface RoleBinding {
   flag?: string;
   argvIndex?: number;
+  role: string;
+  mode: RoleMode;
+}
+
+/** A file the executed argv does not name, bound by --observe <path>=.... */
+interface ObservedBinding {
+  observed: true;
+  path: string;
   role: string;
   mode: RoleMode;
 }
@@ -141,23 +172,23 @@ function isInsideRepo(abs: string, root: string): boolean {
   return rel !== "" && !rel.startsWith("..") && !path.isAbsolute(rel);
 }
 
+function splitRoleTail(rest: string, spec: string, stage: string): { role: string; mode: RoleMode } {
+  const colon = rest.lastIndexOf(":");
+  if (colon < 0) return { role: rest, mode: "in" };
+  const role = rest.slice(0, colon);
+  const rawMode = rest.slice(colon + 1);
+  if (rawMode !== "in" && rawMode !== "out" && rawMode !== "inout") {
+    fail(`stage ${stage}: role "${spec}" mode must be one of in, out, inout`);
+  }
+  if (role.length === 0) fail(`stage ${stage}: role "${spec}" names no role`);
+  return { role, mode: rawMode };
+}
+
 function parseRole(spec: string, stage: string): RoleBinding {
   const eq = spec.indexOf("=");
   if (eq < 0) fail(`stage ${stage}: role "${spec}" needs <flag>=<role>[:mode]`);
   const head = spec.slice(0, eq);
-  const rest = spec.slice(eq + 1);
-  const colon = rest.lastIndexOf(":");
-  let role = rest;
-  let mode: RoleMode = "in";
-  if (colon >= 0) {
-    role = rest.slice(0, colon);
-    const rawMode = rest.slice(colon + 1);
-    if (rawMode !== "in" && rawMode !== "out" && rawMode !== "inout") {
-      fail(`stage ${stage}: role "${spec}" mode must be one of in, out, inout`);
-    }
-    mode = rawMode;
-    if (role.length === 0) fail(`stage ${stage}: role "${spec}" names no role`);
-  }
+  const { role, mode } = splitRoleTail(spec.slice(eq + 1), spec, stage);
   if (head.startsWith("#")) {
     const digits = head.slice(1);
     if (!/^\d+$/.test(digits) || role.length === 0) {
@@ -169,6 +200,16 @@ function parseRole(spec: string, stage: string): RoleBinding {
     fail(`stage ${stage}: role "${spec}" needs <flag>=<role>[:mode]`);
   }
   return { flag: head, role, mode };
+}
+
+function parseObserve(spec: string, stage: string): ObservedBinding {
+  const eq = spec.indexOf("=");
+  if (eq < 0) fail(`stage ${stage}: observe "${spec}" needs <path>=<role>[:mode]`);
+  const given = spec.slice(0, eq);
+  if (given.length === 0) fail(`stage ${stage}: observe "${spec}" needs <path>=<role>[:mode]`);
+  const { role, mode } = splitRoleTail(spec.slice(eq + 1), spec, stage);
+  if (role.length === 0) fail(`stage ${stage}: observe "${spec}" needs <path>=<role>[:mode]`);
+  return { observed: true, path: given, role, mode };
 }
 
 /** Locate a role flag value in argv; supports "--flag value" form. */
@@ -205,6 +246,7 @@ function main(rawArgs: string[]): void {
   let stage: string | undefined;
   let toolOverride: string | undefined;
   const roles: RoleBinding[] = [];
+  const observes: ObservedBinding[] = [];
   let toolArgv: string[] | undefined;
   for (let i = 0; i < rawArgs.length; i += 1) {
     const token = rawArgs[i];
@@ -212,12 +254,13 @@ function main(rawArgs: string[]): void {
       toolArgv = rawArgs.slice(i + 1);
       break;
     }
-    if (token === "--stage-log" || token === "--stage" || token === "--role" || token === "--tool") {
+    if (token === "--stage-log" || token === "--stage" || token === "--role" || token === "--tool" || token === "--observe") {
       const value = rawArgs[i + 1];
       if (value === undefined) fail(`option ${token} names no value`);
       if (token === "--stage-log") logPath = value;
       else if (token === "--stage") stage = value;
       else if (token === "--tool") toolOverride = value;
+      else if (token === "--observe") observes.push(parseObserve(value, stage ?? "<unknown>"));
       else roles.push(parseRole(value, stage ?? "<unknown>"));
       i += 1;
       continue;
@@ -225,7 +268,7 @@ function main(rawArgs: string[]): void {
     fail(`unexpected argument "${token ?? ""}"; usage ends with -- <argv...>`);
   }
   if (logPath === undefined || stage === undefined || toolArgv === undefined) {
-    fail("usage: run-stage.ts --stage-log <json> --stage <id> [--role ...] [--tool <path>] -- <argv...>");
+    fail("usage: run-stage.ts --stage-log <json> --stage <id> [--role ...] [--observe ...] [--tool <path>] -- <argv...>");
   }
   if (toolArgv.length === 0) fail(`stage ${stage}: no argv to execute`);
   const seenFlags = new Set<string>();
@@ -252,6 +295,30 @@ function main(rawArgs: string[]): void {
   }
   // One file bound both positionally and by flag (same resolved path) is
   // refused: the two entries would double-count one evidence file.
+  // An observed path resolving to an argv-bound file is refused for the
+  // same reason: the file already has a flag/argvIndex tag.
+  const boundAbs = new Set<string>();
+  for (const binding of roles) {
+    if (binding.flag !== undefined) {
+      boundAbs.add(path.resolve(flagValue(toolArgv, binding.flag, stage).value));
+    } else {
+      boundAbs.add(path.resolve(toolArgv[binding.argvIndex as number] as string));
+    }
+  }
+  const observedSeen = new Set<string>();
+  for (const observed of observes) {
+    const abs = path.resolve(observed.path);
+    if (observedSeen.has(abs)) {
+      fail(`stage ${stage}: duplicate observe for "${observed.path}"; refusing`);
+    }
+    observedSeen.add(abs);
+    if (boundAbs.has(abs)) {
+      fail(`stage ${stage}: observed path "${observed.path}" is already bound by --flag or #argvIndex in the same stage; refusing`);
+    }
+    if ((observed.mode === "in" || observed.mode === "inout") && !isFile(abs)) {
+      fail(`stage ${stage}: observed input file absent: ${observed.path}`);
+    }
+  }
   if (seenFlags.size > 0 && seenIndices.size > 0) {
     const flagPaths = new Set<string>();
     for (const binding of roles) {
@@ -298,6 +365,19 @@ function main(rawArgs: string[]): void {
     copyGiven: string;
     copyAbs: string;
   }> = [];
+  // Observed pre bytes: :in and :inout hash before exec (both must exist
+  // pre-run); :out records its pre sha (or null when absent) for the
+  // unchanged-output refusal after exec.
+  const observedPre = new Map<ObservedBinding, string>();
+  const observedOutPre = new Map<ObservedBinding, string | null>();
+  for (const observed of observes) {
+    if (observed.mode === "out") {
+      const abs = path.resolve(observed.path);
+      observedOutPre.set(observed, isFile(abs) ? sha256File(abs) : null);
+    } else {
+      observedPre.set(observed, sha256File(path.resolve(observed.path)));
+    }
+  }
 
   for (const binding of roles) {
     let given: string;
@@ -329,9 +409,15 @@ function main(rawArgs: string[]): void {
     }
   }
 
-  const primaryIn = inFiles[0] ?? inoutFiles[0];
+  const primaryIn = inFiles[0] ?? inoutFiles[0] ?? observes
+    .filter((observed) => observed.mode === "in" || observed.mode === "inout")
+    .map((observed) => ({
+      binding: observed,
+      given: observed.path,
+      sha: observedPre.get(observed) as string,
+    }))[0];
   if (primaryIn === undefined) {
-    fail(`stage ${stage}: no in or inout role file; inputSha256 is undefined; refusing`);
+    fail(`stage ${stage}: no in or inout role or observed file; inputSha256 is undefined; refusing`);
   }
   const inputPath = primaryIn && "given" in primaryIn ? primaryIn.given : (primaryIn as { preGiven: string }).preGiven;
   const inputSha256 = primaryIn && "sha" in primaryIn ? primaryIn.sha : (primaryIn as { preSha: string }).preSha;
@@ -347,9 +433,14 @@ function main(rawArgs: string[]): void {
   const statusField = exitCode === 0 ? "ok" : "failed";
 
   const files: ReceiptFileRef[] = [];
-  /** Exactly one binding tag per files entry: {flag} or {argvIndex}. */
-  const bindingTag = (binding: RoleBinding): { flag: string } | { argvIndex: number } =>
-    binding.flag !== undefined ? { flag: binding.flag } : { argvIndex: binding.argvIndex as number };
+  /** Exactly one binding tag per files entry: {flag}, {argvIndex}, or {observed: true}. */
+  const bindingTag = (
+    binding: RoleBinding | ObservedBinding,
+  ): { flag: string } | { argvIndex: number } | { observed: true } => {
+    if ("observed" in binding) return { observed: true };
+    if (binding.flag !== undefined) return { flag: binding.flag };
+    return { argvIndex: binding.argvIndex as number };
+  };
   for (const entry of inFiles) {
     files.push({ path: entry.given, sha256: entry.sha, role: entry.binding.role, mode: "in", ...bindingTag(entry.binding) });
   }
@@ -378,17 +469,70 @@ function main(rawArgs: string[]): void {
       ...bindingTag(entry.binding),
     });
   }
+  // Observed files: no copy, no argv substitution -- the tool writes the
+  // path in place. :in records pre bytes; :out records post bytes (refusing
+  // an unchanged pre-existing output or an absent output on a 0 exit);
+  // :inout records pre + post (equal bytes are recorded, not refused).
+  const recordedObserved: Array<{ binding: ObservedBinding; sha: string; post?: string }> = [];
+  for (const observed of observes) {
+    const abs = path.resolve(observed.path);
+    if (observed.mode === "in") {
+      recordedObserved.push({ binding: observed, sha: observedPre.get(observed) as string });
+    } else if (observed.mode === "out") {
+      if (!isFile(abs)) {
+        if (exitCode !== 0) continue;
+        fail(`stage ${stage}: observed output file absent after exec: ${observed.path}`, 4);
+      }
+      const post = sha256File(abs);
+      if (exitCode === 0 && observedOutPre.get(observed) === post) {
+        fail(`stage ${stage}: observed output unchanged: ${observed.path}; refusing`, 4);
+      }
+      recordedObserved.push({ binding: observed, sha: post });
+    } else {
+      if (!isFile(abs)) {
+        if (exitCode !== 0) continue;
+        fail(`stage ${stage}: observed file absent after exec: ${observed.path}`, 4);
+      }
+      recordedObserved.push({
+        binding: observed,
+        sha: observedPre.get(observed) as string,
+        post: sha256File(abs),
+      });
+    }
+  }
+  for (const entry of recordedObserved) {
+    const ref: ReceiptFileRef = {
+      path: entry.binding.path,
+      sha256: entry.sha,
+      role: entry.binding.role,
+      mode: entry.binding.mode,
+      ...bindingTag(entry.binding),
+    };
+    if (entry.post !== undefined) ref.postSha256 = entry.post;
+    files.push(ref);
+  }
 
   let outputPath: string;
   let outputSha256: string;
   const primaryOut = recordedOuts[0];
   const primaryCopy = inoutFiles.find((entry) => isFile(entry.copyAbs));
+  // Argv-bound bindings keep precedence; observed files fill the output
+  // only when no argv-bound out or inout copy exists: :out first, then
+  // :inout post bytes.
+  const primaryObservedOut = recordedObserved.find((entry) => entry.binding.mode === "out");
+  const primaryObservedInout = recordedObserved.find((entry) => entry.binding.mode === "inout");
   if (primaryOut !== undefined) {
     outputPath = primaryOut.given;
     outputSha256 = sha256File(path.resolve(primaryOut.given));
   } else if (primaryCopy !== undefined && isFile(primaryCopy.copyAbs)) {
     outputPath = primaryCopy.copyGiven;
     outputSha256 = sha256File(primaryCopy.copyAbs);
+  } else if (primaryObservedOut !== undefined) {
+    outputPath = primaryObservedOut.binding.path;
+    outputSha256 = primaryObservedOut.sha;
+  } else if (primaryObservedInout !== undefined && primaryObservedInout.post !== undefined) {
+    outputPath = primaryObservedInout.binding.path;
+    outputSha256 = primaryObservedInout.post;
   } else {
     outputPath = inputPath;
     outputSha256 = inputSha256;
