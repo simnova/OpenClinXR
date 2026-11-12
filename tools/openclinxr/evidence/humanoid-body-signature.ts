@@ -23,13 +23,16 @@
  * identity-derived field (sha, height, class key) silently described a shoe. SIZE IS NOT
  * IDENTITY. The field records the resolved body; the largest-mesh fallback survives only for
  * morph-less assets.
+ *
+ * 2026-11-12 (tsk_d2791236a570a434): vertices were summed per primitive, so primitives sharing a
+ * POSITION accessor double-counted it (physician 8466 read as 10045); now distinct accessors only.
  */
 
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
+import { type Accessor, type Mesh, NodeIO } from "@gltf-transform/core";
 import { resolveHumanoidBodyMesh } from "../../../packages/openclinxr/asset-registry/src/humanoid-body-mesh.js";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
@@ -108,6 +111,24 @@ export type RailDiagnosisArtifact = {
   notEvidenceFor: string[];
 };
 
+/**
+ * Vertices of a mesh = the summed count of its DISTINCT POSITION accessors. Primitives that
+ * share one accessor (the neck unhide splits skin triangles into new primitives over the same
+ * vertex buffer, tsk_d2791236a570a434) must not count it twice.
+ */
+export function countMeshVertices(mesh: Mesh): number {
+  const seen = new Set<Accessor>();
+  let v = 0;
+  for (const prim of mesh.listPrimitives()) {
+    const pos = prim.getAttribute("POSITION");
+    if (pos && !seen.has(pos)) {
+      seen.add(pos);
+      v += pos.getCount();
+    }
+  }
+  return v;
+}
+
 function canonSig(positions: ArrayLike<number>): string {
   const pts: string[] = [];
   for (let i = 0; i + 2 < positions.length; i += 3) {
@@ -130,14 +151,12 @@ function bodyMeshOf(doc: Awaited<ReturnType<NodeIO["read"]>>): {
   const meshes = doc.getRoot().listMeshes();
   const candidates = meshes.map((mesh) => {
     const name = mesh.getName() || "(unnamed)";
-    let v = 0;
+    const v = countMeshVertices(mesh);
     let t = 0;
     let morphs = 0;
     let skinned = false;
     for (const prim of mesh.listPrimitives()) {
-      const pos = prim.getAttribute("POSITION");
       const idx = prim.getIndices();
-      if (pos) v += pos.getCount();
       if (idx) t += idx.getCount() / 3;
       morphs = Math.max(morphs, prim.listTargets().length);
       if (prim.getAttribute("JOINTS_0")) skinned = true;

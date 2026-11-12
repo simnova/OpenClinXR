@@ -1,3 +1,4 @@
+import { Document } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -74,6 +75,7 @@ import { describe, expect, it } from "vitest";
  */
 
 import {
+  countMeshVertices,
   DIAGNOSIS_CASES,
   readPreFixArtifact,
   readRailDiagnosisArtifact,
@@ -184,4 +186,25 @@ describe("humanoid body signature (#276)", () => {
     expect(diag!.counterweight?.toLowerCase().includes("scale") ?? false, "counterweight must forbid uniform scaling").toBe(true);
     expect(diag!.notRun?.includes("anny_forward_pass") ?? false, "notRun must record anny_forward_pass").toBe(true);
   }, 30_000);
+});
+
+describe("body vertex count (tsk_d2791236a570a434)", () => {
+  function meshWith(accessorSizes: number[], primitiveAccessor: number[]) {
+    const doc = new Document();
+    const buf = doc.createBuffer();
+    const accessors = accessorSizes.map((n) =>
+      doc.createAccessor().setType("VEC3").setArray(new Float32Array(n * 3)).setBuffer(buf),
+    );
+    const mesh = doc.createMesh();
+    for (const a of primitiveAccessor) mesh.addPrimitive(doc.createPrimitive().setAttribute("POSITION", accessors[a]!));
+    return mesh;
+  }
+
+  it("counts a POSITION accessor shared by two primitives once", () => {
+    expect(countMeshVertices(meshWith([5], [0, 0]))).toBe(5);
+  });
+
+  it("sums distinct POSITION accessors, one primitive each (COUNTERWEIGHT, true on the old counter too)", () => {
+    expect(countMeshVertices(meshWith([5, 7], [0, 1]))).toBe(12);
+  });
 });
