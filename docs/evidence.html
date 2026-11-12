@@ -148,8 +148,18 @@
       <section id="deployment" class="band">
         <div class="section-heading"><h2>Deployment</h2></div>
         <p class="status-copy claim-copy" data-claim="CL19 CL24 CL25">Local-first means the synced circuit runs from one machine on the local network: the sync server, the speech-to-text (STT) sidecar and the trace, note and mark files live on that host; actor speech is synthesized in the browser; and the synced server and client carry no language-model dependency.</p>
-        <p class="status-copy claim-copy" data-claim="CL24 CL25">The data flow runs from the browser (learner interface and synthesized speech) to the LAN host (sync server, STT sidecar, trace, note and mark files). The diagram below is capture pending.</p>
-        <figure class="capture-pending" data-slot="K12"><figcaption>capture pending</figcaption></figure>
+        <p class="status-copy claim-copy" data-claim="CL24 CL25">The data flow runs from the browser (learner interface and synthesized speech) to the LAN host (sync server, STT sidecar, trace, note and mark files).</p>
+        <figure data-slot="K12">
+          <picture>
+            <source media="(max-width: 600px)" srcset="site/media/k12-data-flow-narrow.svg">
+            <img src="site/media/k12-data-flow.svg" alt="Local-first data flow: the browser holds the learner interface and synthesized speech; the LAN host holds the sync server, the STT sidecar, and the trace, note and mark files.">
+          </picture>
+          <picture>
+            <source media="(max-width: 600px)" srcset="site/media/k12-review-workflow-narrow.svg">
+            <img src="site/media/k12-review-workflow.svg" alt="Reviewed-revision bundle promotion: generated to reviewed, approved for local runtime, then promoted into the authoring-side store.">
+          </picture>
+          <figcaption>Local-first data flow and reviewed-revision bundle promotion (K12 diagrams, ungraded).</figcaption>
+        </figure>
         <p class="status-copy claim-copy" data-claim="CL8">The browser needs HTTPS for microphone access (<a href="https://www.w3.org/TR/secure-contexts/">W3C secure-context requirement</a>).</p>
         <p class="status-copy claim-copy" data-claim="CL25">Traces, notes and marks are files on the host; there is no retention policy yet.</p>
         <p class="status-copy claim-copy" data-claim="CL17">Integration status is ROADMAP: no LTI grade return, no single sign-on, no xAPI export, no validation study and no accreditation crosswalk yet.</p>

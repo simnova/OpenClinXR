@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- K12 reviewed-revision bundle promotion (ungraded diagram, hand-written static SVG).
+  States and function verbatim from
+  packages/openclinxr/asset-registry/src/encounter-bundle-promotion.ts;
+  plain-language primaries with the cited identifier under each as class="ident".
+  Edges are machine-readable: data-edge="from>to" (idents) plus data-direction.
+  Palette copied by value from docs/styles.css: paper #f8f7f2 (:4),
+  panel #ffffff (:5), line #d9ded6 (:6), ink #17201b (:2),
+  muted #59645e (:3), green #1f6f56 (:7), blue #245f8f (:9). -->
+<svg xmlns="http://www.w3.org/2000/svg" width="720" height="432" viewBox="0 0 720 432" role="img">
+  <title>Reviewed-revision bundle promotion</title>
+  <desc>Factory members move from generated to reviewed, gain an approved for local runtime review status, are promoted by promoteReviewedFactoryOutputsToImmutableEncounterBundle, and persist in the authoring-side store. Blocked members refuse promotion.</desc>
+  <defs>
+    <marker id="k12b" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="#245f8f"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="720" height="432" fill="#f8f7f2"/>
+  <rect x="230" y="24" width="260" height="64" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="360" y="50" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">New factory output</text>
+  <text class="ident" x="360" y="71" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#59645e">generated</text>
+  <rect x="230" y="104" width="260" height="64" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="360" y="130" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">Passed review</text>
+  <text class="ident" x="360" y="151" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#59645e">reviewed</text>
+  <rect x="40" y="184" width="300" height="64" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="190" y="210" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">Approved for local runtime</text>
+  <text class="ident" x="190" y="231" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#59645e">approved_for_local_runtime</text>
+  <rect x="380" y="184" width="300" height="64" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="530" y="210" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">Fixture approved for local runtime</text>
+  <text class="ident" x="530" y="231" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#59645e">fixture_approved_for_local_runtime</text>
+  <rect x="530" y="104" width="150" height="64" rx="8" fill="#ffffff" stroke="#59645e" stroke-width="2" stroke-dasharray="6 4"/>
+  <text x="605" y="130" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">Refused at review</text>
+  <text class="ident" x="605" y="151" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#59645e">blocked</text>
+  <rect x="80" y="264" width="560" height="64" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="360" y="290" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">Promote to immutable bundle</text>
+  <text class="ident" x="360" y="311" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#59645e">promoteReviewedFactoryOutputsToImmutableEncounterBundle</text>
+  <rect x="230" y="344" width="260" height="64" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="360" y="370" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">Authoring-side store</text>
+  <text class="ident" x="360" y="391" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" fill="#59645e">promoted_encounter_bundles</text>
+  <line x1="360" y1="88" x2="360" y2="102" stroke="#245f8f" stroke-width="2" marker-end="url(#k12b)" data-edge="generated>reviewed" data-direction="one-way"/>
+  <line x1="300" y1="168" x2="212" y2="182" stroke="#245f8f" stroke-width="2" marker-end="url(#k12b)" data-edge="reviewed>approved_for_local_runtime" data-direction="one-way"/>
+  <line x1="420" y1="168" x2="508" y2="182" stroke="#245f8f" stroke-width="2" marker-end="url(#k12b)" data-edge="reviewed>fixture_approved_for_local_runtime" data-direction="one-way"/>
+  <line x1="490" y1="136" x2="528" y2="136" stroke="#245f8f" stroke-width="2" marker-end="url(#k12b)" data-edge="reviewed>blocked" data-direction="one-way"/>
+  <line x1="195" y1="248" x2="292" y2="262" stroke="#245f8f" stroke-width="2" marker-end="url(#k12b)" data-edge="approved_for_local_runtime>promoteReviewedFactoryOutputsToImmutableEncounterBundle" data-direction="one-way"/>
+  <line x1="525" y1="248" x2="428" y2="262" stroke="#245f8f" stroke-width="2" marker-end="url(#k12b)" data-edge="fixture_approved_for_local_runtime>promoteReviewedFactoryOutputsToImmutableEncounterBundle" data-direction="one-way"/>
+  <line x1="360" y1="328" x2="360" y2="342" stroke="#245f8f" stroke-width="2" marker-end="url(#k12b)" data-edge="promoteReviewedFactoryOutputsToImmutableEncounterBundle>promoted_encounter_bundles" data-direction="one-way"/>
+</svg>

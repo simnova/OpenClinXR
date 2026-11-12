@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- K12 local-first data flow (ungraded diagram, hand-written static SVG).
+  Palette copied by value from docs/styles.css: paper #f8f7f2 (:4),
+  panel #ffffff (:5), line #d9ded6 (:6), ink #17201b (:2),
+  muted #59645e (:3), green #1f6f56 (:7), blue #245f8f (:9).
+  Edges are machine-readable: data-edge="from>to" plus data-direction.
+  Group titles "browser" / "LAN host" name the paragraph at docs/evidence.html:150-151. -->
+<svg xmlns="http://www.w3.org/2000/svg" width="660" height="420" viewBox="0 0 660 420" role="img">
+  <title>Local-first deployment data flow</title>
+  <desc>Browser on the left holds the learner interface and synthesized speech. LAN host on the right holds the sync server, the STT sidecar, and the trace, note and mark files. Speech feeds the interface; interface and server sync both ways; learner audio reaches the sidecar through the server and the transcript returns; the server writes each file.</desc>
+  <defs>
+    <marker id="k12a" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <polygon points="0,0 10,5 0,10" fill="#245f8f"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="660" height="420" fill="#f8f7f2"/>
+  <rect x="24" y="20" width="280" height="376" rx="10" fill="#ffffff" stroke="#d9ded6" stroke-width="2"/>
+  <text x="164" y="48" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#17201b">browser</text>
+  <rect x="356" y="20" width="280" height="376" rx="10" fill="#ffffff" stroke="#d9ded6" stroke-width="2"/>
+  <text x="496" y="48" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="16" font-weight="700" fill="#17201b">LAN host</text>
+  <rect x="48" y="150" width="232" height="56" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="164" y="183" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">learner interface</text>
+  <rect x="48" y="262" width="232" height="56" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="164" y="295" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">synthesized speech</text>
+  <rect x="380" y="64" width="232" height="44" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="496" y="91" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">sync server</text>
+  <rect x="380" y="128" width="232" height="44" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="496" y="155" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">STT sidecar</text>
+  <rect x="380" y="198" width="232" height="40" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="496" y="223" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">trace files</text>
+  <rect x="380" y="254" width="232" height="40" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="496" y="279" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">note files</text>
+  <rect x="380" y="310" width="232" height="40" rx="8" fill="#ffffff" stroke="#1f6f56" stroke-width="2"/>
+  <text x="496" y="335" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="15" fill="#17201b">mark files</text>
+  <line x1="164" y1="262" x2="164" y2="212" stroke="#245f8f" stroke-width="2" marker-end="url(#k12a)" data-edge="synthesized speech>learner interface" data-direction="one-way"/>
+  <path d="M 280 178 C 330 178 330 86 372 86" fill="none" stroke="#245f8f" stroke-width="2" marker-start="url(#k12a)" marker-end="url(#k12a)" data-edge="learner interface>sync server" data-direction="two-way"/>
+  <line x1="508" y1="108" x2="508" y2="122" stroke="#245f8f" stroke-width="2" marker-end="url(#k12a)" data-edge="sync server>STT sidecar" data-direction="one-way"/>
+  <line x1="488" y1="128" x2="488" y2="112" stroke="#245f8f" stroke-width="2" marker-end="url(#k12a)" data-edge="STT sidecar>sync server" data-direction="one-way"/>
+  <path d="M 612 86 L 624 86 L 624 330" fill="none" stroke="#245f8f" stroke-width="2"/>
+  <line x1="624" y1="218" x2="616" y2="218" stroke="#245f8f" stroke-width="2" marker-end="url(#k12a)" data-edge="sync server>trace files" data-direction="one-way"/>
+  <line x1="624" y1="274" x2="616" y2="274" stroke="#245f8f" stroke-width="2" marker-end="url(#k12a)" data-edge="sync server>note files" data-direction="one-way"/>
+  <line x1="624" y1="330" x2="616" y2="330" stroke="#245f8f" stroke-width="2" marker-end="url(#k12a)" data-edge="sync server>mark files" data-direction="one-way"/>
+</svg>

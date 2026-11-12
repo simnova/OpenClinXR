@@ -1,1 +1,52 @@
-{"entries": []}
+{
+  "entries": [
+    {
+      "path": "site/media/k12-data-flow.svg",
+      "sha256": "7d25db9fa1a29a0867ea0361e0afd7825757fcc473d9a18a4c0ea89354f20ad7",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap23 [2aff3e]",
+      "gradeMessageId": "super-ceo-cap23/w7-r2-grade",
+      "demonstrates": "Deployment data flow at 1280 px: browser and LAN host groups titled; learner interface and sync server linked both ways; STT sidecar linked both ways to the sync server; trace, note and mark files written by the host.",
+      "slot": "K12",
+      "verdict": "pass",
+      "date": "2026-11-12",
+      "sampleRule": "native 1:1 render, store site-reimagine/w7-grade/r2 svg0-1280-light.png (r3 byte-identical)"
+    },
+    {
+      "path": "site/media/k12-data-flow-narrow.svg",
+      "sha256": "768ef00a4c16459e7a3d6d63fb1e953de38fa851cfc72ecaf33ece58679ab9cd",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap23 [2aff3e]",
+      "gradeMessageId": "super-ceo-cap23/w7-r2-grade",
+      "demonstrates": "Deployment data flow at 390 px: groups stacked with titles, every edge visible with its arrowhead, labels legible.",
+      "slot": "K12",
+      "verdict": "pass",
+      "date": "2026-11-12",
+      "sampleRule": "native 1:1 render, store site-reimagine/w7-grade/r2 svg0-390-light.png (r3 byte-identical)"
+    },
+    {
+      "path": "site/media/k12-review-workflow.svg",
+      "sha256": "3b9466a59ee6f23d8dd9c0f98dddefe302769ef04626e177f98bba56f4f179bb",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap23 [2aff3e]",
+      "gradeMessageId": "super-ceo-cap23/w7-r3-grade",
+      "demonstrates": "Review workflow at 1280 px: plain labels with code identifiers beneath; refusal as a side branch; two approval kinds merging into immutable bundle promotion, then the authoring-side store.",
+      "slot": "K12",
+      "verdict": "pass",
+      "date": "2026-11-12",
+      "sampleRule": "native 1:1 render, store site-reimagine/w7-grade/r3 svg1-1280-light.png"
+    },
+    {
+      "path": "site/media/k12-review-workflow-narrow.svg",
+      "sha256": "6a1c3a53ed8ca7fbd662e865cb076b85a6b629b3728199b4c1a9e46f3a4274fc",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap23 [2aff3e]",
+      "gradeMessageId": "super-ceo-cap23/w7-r3-grade",
+      "demonstrates": "Review workflow at 390 px: branch topology kept (refusal offset right, approvals side by side), every edge has a visible arrow, identifiers wrap without compression.",
+      "slot": "K12",
+      "verdict": "pass",
+      "date": "2026-11-12",
+      "sampleRule": "native 1:1 render, store site-reimagine/w7-grade/r3 svg1-390-light.png"
+    }
+  ]
+}
