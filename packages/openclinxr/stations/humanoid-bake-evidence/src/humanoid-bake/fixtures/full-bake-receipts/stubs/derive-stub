@@ -1,0 +1,58 @@
+#!/usr/bin/env node
+// Fixture stub for derive_sidecar.ts (p2b3 tiny bake).
+// Accepts exactly the derive value()-declared shape (--input/--scratch/
+// --output/--sidecar/--report/--working-directory plus exactly one pre-image
+// flag) and, like the real derive, edits --sidecar IN PLACE: it reads the
+// scratch prov copy, appends a teethSwapB1 block, and writes it back.
+// --prov-in/--prov-out do not exist on derive_sidecar.ts and are refused.
+// Records argv to $COMPOSE_STUB_ARGV_LOG. Never touches git or Blender.
+import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
+
+const ALLOWED = new Set([
+  "--input",
+  "--scratch",
+  "--output",
+  "--sidecar",
+  "--report",
+  "--pre-image-revision",
+  "--pre-image-file",
+  "--working-directory",
+]);
+const REQUIRED = [
+  "--input",
+  "--scratch",
+  "--output",
+  "--sidecar",
+  "--report",
+  "--working-directory",
+];
+
+function flag(argv, name) {
+  const i = argv.indexOf(name);
+  if (i < 0 || i + 1 >= argv.length) throw new Error(`derive-stub: missing ${name}`);
+  return argv[i + 1];
+}
+
+const argv = process.argv.slice(2);
+for (const token of argv.filter((t) => t.startsWith("--"))) {
+  if (token === "--prov-in" || token === "--prov-out") {
+    throw new Error(`derive-stub: refusing ${token}: derive_sidecar.ts declares no such flag`);
+  }
+  if (!ALLOWED.has(token)) throw new Error(`derive-stub: refusing undeclared flag ${token}`);
+}
+for (const name of REQUIRED) flag(argv, name);
+const hasFile = argv.includes("--pre-image-file");
+const hasRevision = argv.includes("--pre-image-revision");
+if (hasFile === hasRevision) {
+  throw new Error("derive-stub: exactly one of --pre-image-file/--pre-image-revision is required");
+}
+const sidecar = flag(argv, "--sidecar");
+const doc = JSON.parse(readFileSync(sidecar, "utf8"));
+doc["teethSwapB1"] = {
+  tool: "derive_sidecar.ts",
+  preImage: hasFile ? flag(argv, "--pre-image-file") : null,
+  preImageRevision: hasRevision ? flag(argv, "--pre-image-revision") : null,
+};
+writeFileSync(sidecar, `${JSON.stringify(doc, null, 1)}\n`);
+const log = process.env["COMPOSE_STUB_ARGV_LOG"];
+if (log) appendFileSync(log, `${JSON.stringify({ producer: "derive", argv })}\n`);

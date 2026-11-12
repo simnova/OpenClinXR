@@ -1,0 +1,106 @@
+{
+  "format": "full-bake-receipts/v2",
+  "provSeed": {
+    "path": "prov-seed.json",
+    "sha256": "e504b0069489a8f3753f16155a08478fb94a3b643d1691e2c6bb86b55cb0771d"
+  },
+  "stages": [
+    {
+      "stage": "S7",
+      "tool": "tools/openclinxr/asset-pipeline/skin/coherent-normal/rebind_baked_skin_normal.py",
+      "toolSha256": "d695844a2838f880271bfd753fe622b212ccf950c927be82407ae0e1d37980fe",
+      "cmd": "python3 tools/openclinxr/asset-pipeline/skin/coherent-normal/rebind_baked_skin_normal.py --src p7-src.bin --new-normal p7-new-normal.bin --out shared-b.bin --expect-src-sha cfa51ced... --expect-png-sha ce244f50... --skin-sub mpfb_skin_fixture --old-anchor p7-old-anchor.bin --prov-in prov-seed.json --prov-out prov-S7.json --recipe dermal-F1-6tex-seed5.19 --bake-report p7-bake-report.json (illustrative)",
+      "exit": 0,
+      "inputSha256": "cfa51ced3ec11fee3c4ea9d40bed4f9ad4658480d610629da82aac9226ab202e",
+      "inputPath": "p7-src.bin",
+      "outputSha256": "7ae1d74c09846a5d6db486b6b1de324557239e4418223548a69b9c585b60ee55",
+      "outputPath": "shared-b.bin",
+      "files": [
+        {
+          "path": "p7-src.bin",
+          "sha256": "cfa51ced3ec11fee3c4ea9d40bed4f9ad4658480d610629da82aac9226ab202e",
+          "role": "src"
+        },
+        {
+          "path": "p7-new-normal.bin",
+          "sha256": "ce244f50cfbc5735c0611cf874c6bb7a87f1a2f5d91dc49380f8b071ef4334b9",
+          "role": "new-normal"
+        },
+        {
+          "path": "p7-old-anchor.bin",
+          "sha256": "e8a1fff573740f6f361b16ec7eedfd57e754d515278d6968843664cf02db688a",
+          "role": "old-anchor"
+        },
+        {
+          "path": "p7-bake-report.json",
+          "sha256": "a1695321f02af4678e99c2c0ecf6c8565a87a82e764f02012bf8b7f4cd758b08",
+          "role": "bake-report"
+        }
+      ],
+      "params": {
+        "skinSub": "mpfb_skin_fixture",
+        "recipe": "dermal-F1-6tex-seed5.19"
+      },
+      "writePaths": ["shared-b.bin", "prov-S7.json"]
+    },
+    {
+      "stage": "S8",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+      "toolSha256": "008487d0a3ef1f68a65073c7d4c980f8bdd325d1258bfb4a5a5585b4dc046a1b",
+      "cmd": "(not run: skipped)",
+      "status": "skipped",
+      "reason": "CW3 refusal; subsumed by S1 EYELASH_RESEAT_FOLLOW",
+      "inputSha256": "7ae1d74c09846a5d6db486b6b1de324557239e4418223548a69b9c585b60ee55",
+      "inputPath": "shared-b.bin",
+      "outputSha256": "7ae1d74c09846a5d6db486b6b1de324557239e4418223548a69b9c585b60ee55",
+      "outputPath": "shared-b.bin",
+      "writePaths": ["shared-b.bin (in place)"]
+    },
+    {
+      "stage": "S9",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/derive_sidecar.ts",
+      "toolSha256": "587a9efa19a6443027e22cae66394a1754e2dc0da64fa00e3da292a90f0eb174",
+      "cmd": "tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/derive_sidecar.ts --input shared-b.bin --scratch scratch-derive-9 --output shared-b.bin --sidecar <scratch prov-S9.json, copy of chained prov> --report p9-report.json --pre-image-revision <illustrative> --working-directory <run-dir> (illustrative)",
+      "exit": 0,
+      "inputSha256": "7ae1d74c09846a5d6db486b6b1de324557239e4418223548a69b9c585b60ee55",
+      "inputPath": "shared-b.bin",
+      "outputSha256": "cdf7ddb3d16b3fbf829503168a45869b3cadda9499c326cdc081f9fc1c4110c4",
+      "outputPath": "shared-b.bin",
+      "files": [
+        {
+          "path": "shared-b.bin",
+          "sha256": "7ae1d74c09846a5d6db486b6b1de324557239e4418223548a69b9c585b60ee55",
+          "postSha256": "cdf7ddb3d16b3fbf829503168a45869b3cadda9499c326cdc081f9fc1c4110c4",
+          "role": "input",
+          "mode": "inout"
+        },
+        {
+          "path": "p9-report.json",
+          "sha256": "da5a8bb0f0fbcd36c51a99c8739b09d3ff6e052b24da300546725a8a00bf8d83",
+          "role": "report"
+        }
+      ],
+      "params": {
+        "actor": "fixture-actor",
+        "preImageRevision": "0000000000000000000000000000000000000000 (illustrative; stubs never touch git)"
+      },
+      "argv": [
+        "--input",
+        "shared-b.bin",
+        "--scratch",
+        "scratch-derive-9",
+        "--output",
+        "shared-b.bin",
+        "--sidecar",
+        "prov-S9.json",
+        "--report",
+        "p9-report.json",
+        "--pre-image-revision",
+        "0000000000000000000000000000000000000000",
+        "--working-directory",
+        "."
+      ],
+      "writePaths": ["shared-b.bin (in place)", "prov-S9.json"]
+    }
+  ]
+}

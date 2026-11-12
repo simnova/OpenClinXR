@@ -1,0 +1,26 @@
+#!/usr/bin/env node
+// Fixture stub for repack_lash_follow.py (p2b3 tiny bake).
+// The writer never invokes this: the S8 repack stage is skipped (recorded as
+// a fact), and a non-skipped repack stage is refused with
+// STOP_producer_not_callable before any producer runs. If this stub ever
+// runs, the lashFollowR8 key in the output proves the writer failed to skip.
+// Never touches git or Blender.
+import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
+
+function flag(argv, name) {
+  const i = argv.indexOf(name);
+  if (i < 0 || i + 1 >= argv.length) throw new Error(`repack-stub: missing ${name}`);
+  return argv[i + 1];
+}
+
+const argv = process.argv.slice(2);
+const provIn = flag(argv, "--prov-in");
+const provOut = flag(argv, "--prov-out");
+const doc = JSON.parse(readFileSync(provIn, "utf8"));
+doc["lashFollowR8"] = {
+  tool: "repack_lash_follow.py",
+  actor: argv.includes("--actor") ? flag(argv, "--actor") : null,
+};
+writeFileSync(provOut, `${JSON.stringify(doc, null, 1)}\n`);
+const log = process.env["COMPOSE_STUB_ARGV_LOG"];
+if (log) appendFileSync(log, `${JSON.stringify({ producer: "repack", argv })}\n`);

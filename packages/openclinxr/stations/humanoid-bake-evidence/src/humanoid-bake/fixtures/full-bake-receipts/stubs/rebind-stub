@@ -1,0 +1,49 @@
+#!/usr/bin/env node
+// Fixture stub for rebind_baked_skin_normal.py (p2b3 tiny bake).
+// Accepts exactly the rebind argparse shape (src, new-normal, out,
+// expect-src-sha, expect-png-sha, skin-sub, old-anchor, prov-in, prov-out,
+// recipe, bake-report, plus optional code-sha) and refuses any other flag,
+// records argv to $COMPOSE_STUB_ARGV_LOG, and appends a rebindSkinB7 block
+// to the prov JSON. Never touches git or Blender.
+import { appendFileSync, readFileSync, writeFileSync } from "node:fs";
+
+const ALLOWED = new Set([
+  "--src",
+  "--new-normal",
+  "--out",
+  "--expect-src-sha",
+  "--expect-png-sha",
+  "--skin-sub",
+  "--old-anchor",
+  "--prov-in",
+  "--prov-out",
+  "--recipe",
+  "--bake-report",
+  "--code-sha",
+]);
+const REQUIRED = [...ALLOWED].filter((flag) => flag !== "--code-sha");
+
+function flag(argv, name) {
+  const i = argv.indexOf(name);
+  if (i < 0 || i + 1 >= argv.length) throw new Error(`rebind-stub: missing ${name}`);
+  return argv[i + 1];
+}
+
+const argv = process.argv.slice(2);
+const seen = argv.filter((token) => token.startsWith("--"));
+for (const token of seen) {
+  if (!ALLOWED.has(token)) {
+    throw new Error(`rebind-stub: refusing undeclared flag ${token}`);
+  }
+}
+for (const name of REQUIRED) flag(argv, name);
+const provIn = flag(argv, "--prov-in");
+const provOut = flag(argv, "--prov-out");
+const doc = JSON.parse(readFileSync(provIn, "utf8"));
+doc["rebindSkinB7"] = {
+  tool: "rebind_baked_skin_normal.py",
+  srcSha: argv.includes("--expect-src-sha") ? flag(argv, "--expect-src-sha") : null,
+};
+writeFileSync(provOut, `${JSON.stringify(doc, null, 1)}\n`);
+const log = process.env["COMPOSE_STUB_ARGV_LOG"];
+if (log) appendFileSync(log, `${JSON.stringify({ producer: "rebind", argv })}\n`);
