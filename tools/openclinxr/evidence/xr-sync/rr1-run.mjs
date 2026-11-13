@@ -68,7 +68,7 @@ export const RR1_CAPTURE_ASSERTION_SITES = Object.freeze([
   "faculty-layout", "topic-turn", "audio-alignment",
   "panel-luma", "audio-stream", "mux-frame-pts", "faculty-status-selection", "chapter-observed-time", "chapter-recording-origin",
   "chapter-content-transition", "chapter-window-end", "chapter-end-margin",
-  "phase-agreement", "g4-dom",
+  "phase-agreement", "g4-dom", "ch1-window-margin",
 ]);
 export const RR1_SETUP_THROW_ALLOWLIST = Object.freeze([
   { site: "required-build-inputs", reason: "capture cannot start without the built learner, server, faculty, IWER, and CSS inputs" },
@@ -561,6 +561,36 @@ export function assertLearnerSyncLag(syncStartWallMs, learnerJoinWallMs, maximum
     throw new Error(`learner sync start ${syncStartWallMs} ms exceeds join ${learnerJoinWallMs} ms by ${syncLagMs} ms; limit ${maximumLagMs} ms`);
   }
   return { syncStartWallMs, syncLagMs };
+}
+
+/** Pure RR1 station-start and ch1 doorway-margin decision shared by the runner and regression fixtures. */
+export function rr1DoorwayStartPlan({
+  learnerLatchWallMs,
+  evidenceLatchWallMs,
+  ch2MarkWallMs,
+  frameCaptureEndedWallMs,
+  panelCaptureEndedWallMs,
+  minimumMarginMs = 250,
+}) {
+  if (!Number.isFinite(learnerLatchWallMs) || !Number.isFinite(evidenceLatchWallMs)) {
+    throw new Error("RR1 station start requires finite learner and evidence interior latch wall clocks");
+  }
+  const artifactTimes = [ch2MarkWallMs, frameCaptureEndedWallMs, panelCaptureEndedWallMs];
+  const hasArtifactTimes = artifactTimes.some(Number.isFinite);
+  if (hasArtifactTimes && !artifactTimes.every(Number.isFinite)) {
+    throw new Error("RR1 ch1 window margin requires finite ch2, frame-end, and panel-end wall clocks");
+  }
+  const ch1WindowMargin = hasArtifactTimes
+    ? { frameMs: ch2MarkWallMs - frameCaptureEndedWallMs, panelMs: ch2MarkWallMs - panelCaptureEndedWallMs }
+    : { frameMs: null, panelMs: null };
+  const accepted = !hasArtifactTimes
+    || (ch1WindowMargin.frameMs >= minimumMarginMs && ch1WindowMargin.panelMs >= minimumMarginMs);
+  return {
+    startAfterWallMs: Math.max(learnerLatchWallMs, evidenceLatchWallMs),
+    ch1WindowMargin,
+    minimumMarginMs,
+    accepted,
+  };
 }
 
 export function phaseAgreementAfterSyncStart(log, syncStartWallMs, endedAtMs) {
@@ -1090,6 +1120,9 @@ async function runCapture(storeRoot) {
   const artifactCaptures = [];
   let learnerLatchWallMs = null;
   let evidenceLatchWallMs = null;
+  let doorwayStartPlan = null;
+  let ch1WindowMargin = { frameMs: null, panelMs: null };
+  let releaseStationStart = null;
   const ensureInteriorPreviewLatch = async (targetPage, kind) => {
     if (kind === "learner" && Number.isFinite(learnerLatchWallMs)) return learnerLatchWallMs;
     if (kind === "evidence" && Number.isFinite(evidenceLatchWallMs)) return evidenceLatchWallMs;
@@ -1273,6 +1306,17 @@ async function runCapture(storeRoot) {
     await context.addInitScript({ content: `${readFileSync(IWER_BUNDLE, "utf8")};const sceneHumanoidAssetsReady=${sceneHumanoidAssetsReady.toString()};(${iwerGlue.toString()})();(${learnerHeaderObserverInit.toString()})();(${learnerPageCaptureInit.toString()})(${JSON.stringify({ presentationCss, dialogue: true, phaseAgreement: true, visibleDomText: true, sceneReady: true })});` });
     evidenceContext = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1 });
     await evidenceContext.addInitScript({ content: `${readFileSync(IWER_BUNDLE, "utf8")};const sceneHumanoidAssetsReady=${sceneHumanoidAssetsReady.toString()};(${iwerGlue.toString()})();(${learnerHeaderObserverInit.toString()})();(${learnerPageCaptureInit.toString()})(${JSON.stringify({ presentationCss, dialogue: false, phaseAgreement: false, visibleDomText: false, sceneReady: false })});` });
+    const stationStartGate = new Promise((resolveStart) => { releaseStationStart = resolveStart; });
+    let gatedHeadsetRequestCount = 0;
+    const gateHeadsetStart = async (route) => {
+      gatedHeadsetRequestCount += 1;
+      if (await stationStartGate) await route.continue();
+      else await route.abort();
+    };
+    await Promise.all([
+      context.route(/\/assets\/headset-[^/?]+\.js(?:\?.*)?$/u, gateHeadsetStart),
+      evidenceContext.route(/\/assets\/headset-[^/?]+\.js(?:\?.*)?$/u, gateHeadsetStart),
+    ]);
     // RR1_CAPTURE_THROW_SCAN_START: the first recorded page starts here.
     page = await context.newPage();
     pageVideo = page.video();
@@ -1295,8 +1339,17 @@ async function runCapture(storeRoot) {
       }).catch(() => undefined);
     });
     const learnerUrl = `http://127.0.0.1:${learnerStatic.port}/?${new URLSearchParams({ encounterSync: liveServer.url })}`;
+    const pageNavigations = Promise.all([page, evidencePage].map((targetPage) => targetPage.goto(learnerUrl, { timeout: 60000, waitUntil: "load" })));
+    void pageNavigations.catch(() => undefined);
+    [learnerLatchWallMs, evidenceLatchWallMs] = await Promise.all([
+      ensureInteriorPreviewLatch(page, "learner"),
+      ensureInteriorPreviewLatch(evidencePage, "evidence"),
+    ]);
+    doorwayStartPlan = rr1DoorwayStartPlan({ learnerLatchWallMs, evidenceLatchWallMs });
+    assertCaptureCondition(gatedHeadsetRequestCount === 2, `RR1 station start expected two gated headset clients; observed ${gatedHeadsetRequestCount}`);
+    releaseStationStart(true);
+    await pageNavigations;
     await Promise.all([page, evidencePage].map(async (targetPage) => {
-      await targetPage.goto(learnerUrl, { timeout: 60000, waitUntil: "load" });
       await targetPage.waitForFunction(() => globalThis.__openClinXrEncounterSync?.state === "joined", undefined, { timeout: 240000 });
       await targetPage.waitForFunction(() => typeof globalThis.__openClinXrJoinWallMs === "number", undefined, { timeout: 15000 });
     }));
@@ -1428,6 +1481,24 @@ async function runCapture(storeRoot) {
           deferredAssertions.reject("learner-artifact-window", String(windowError instanceof Error ? windowError.message : windowError));
         }
       }
+    }
+    const ch1FrameArtifact = artifactCaptures.find((entry) => entry.artifact === "frames/ch1.png");
+    const ch1PanelArtifact = artifactCaptures.find((entry) => entry.artifact === "panels/ch1-runtime-panel.png");
+    const ch2MarkWallMs = Math.max(
+      ch1FrameArtifact?.markedWindow?.endWallMs ?? Number.NaN,
+      ch1PanelArtifact?.markedWindow?.endWallMs ?? Number.NaN,
+    );
+    const ch1MarginPlan = deferredAssertions.capture("ch1-window-margin", () => rr1DoorwayStartPlan({
+      learnerLatchWallMs,
+      evidenceLatchWallMs,
+      ch2MarkWallMs,
+      frameCaptureEndedWallMs: ch1FrameArtifact?.captureEndedWallMs,
+      panelCaptureEndedWallMs: ch1PanelArtifact?.captureEndedWallMs,
+    }), { ch1WindowMargin: { frameMs: null, panelMs: null }, minimumMarginMs: 250, accepted: false });
+    ch1WindowMargin = ch1MarginPlan.ch1WindowMargin;
+    doorwayStartPlan = { ...doorwayStartPlan, ch2MarkWallMs };
+    if (!ch1MarginPlan.accepted) {
+      deferredAssertions.reject("ch1-window-margin", `ch1 artifact margins ${JSON.stringify(ch1WindowMargin)} are below ${ch1MarginPlan.minimumMarginMs} ms`);
     }
     phaseAgreementLog = await takePhaseAgreementLog(page);
     const reviewIndexPath = join(traceDir, "exam-session.review-index.json");
@@ -1930,6 +2001,8 @@ async function runCapture(storeRoot) {
       facultyTrim: { ...facultyTrim, timelineHoldSeconds, strategy: "actual script=c14 host route; measured first-paint trim; final learner frame holds the trimmed pre-paint interval" },
       turnEvidence,
       phaseAgreement: { file: "phase-agreement-log.json", ...phaseAgreement },
+      doorwayStart: doorwayStartPlan,
+      ch1WindowMargin,
       panelLumaGate,
       camera: { preset: "shared-learner-viewport", source: "__openClinXrGazeCamera", chapters: ["CH1", "CH2", "ROT-doorway", "ROT-encounter"], blockoutGrade: "blockout-a2 ch1-doorway GRADED PASS", learnerPose: { sceneReady: learnerPoseAtSceneReady, ch1: learnerPoseAtCh1 } },
       environmentGlbs,
@@ -1975,6 +2048,7 @@ async function runCapture(storeRoot) {
     }, deferredAssertions.errors);
     console.log(`RR1-min full run wrote ${runDir}`);
   } finally {
+    releaseStationStart?.(false);
     await closeRr1Handles({
       context,
       evidenceContext,
