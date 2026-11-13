@@ -27,6 +27,37 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-11-13T0700">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 124 &middot; 2026-11-13 07:00 UTC</p>
+          <h2>The doorway clock now starts when the room is visible.</h2>
+        </div>
+        <p>
+          Before this change the station's doorway clock started when the learner's page joined the session at
+          boot, before the scene had loaded; in three reference runs scene loading used 2.6 to 2.9 s of a 4 s
+          doorway. The server now starts the doorway when the learner's client reports that its interior view is
+          ready, and the doorway timer holds the full time until then.
+        </p>
+        <p>
+          Doorway clock now starts when the room is visible: held 2.1 s during load in this run. If a client
+          never reports ready, the clock starts after 7 s (twice the slowest measured load) and the session
+          records that it did.
+        </p>
+        <div style="display:grid; gap:12px; margin-top:16px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/doorway-clock-after-ready-2026-11-13.png" alt="Learner interior view just after ready: the room is visible and the doorway clock reads 00:03 of 4 s." width="960" height="600" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Just after ready: the room is visible and the doorway clock reads 00:03 of 4 s.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/doorway-clock-encounter-2026-11-13.png" alt="Station in the encounter phase four seconds later, with 00:10 left in the short test blueprint." width="960" height="600" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Four seconds later the station moves to the encounter phase (00:10 left in this short test blueprint).</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/doorway-clock-pre-scene-2026-11-13.png" alt="Pre-scene placeholder view before the scene loads: not the room, with the doorway clock holding at 00:04." width="960" height="600" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Before the scene loads (pre-scene view, not the room): the doorway clock holds at 00:04 instead of counting.</figcaption>
+          </figure>
+        </div>
+      </section>
       <section class="band" id="entry-2026-10-16T1315">
         <div class="section-heading">
           <p class="eyebrow">Entry 123 &middot; 2026-10-16 13:15 UTC</p>
