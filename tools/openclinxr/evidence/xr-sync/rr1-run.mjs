@@ -310,22 +310,31 @@ export function learnerSceneReadyPaintTrim(
   frames,
   syncStartOffsetSeconds,
   sceneReadyOffsetSeconds,
+  latchOffsetSeconds,
   firstChapterUntrimmedOffsetSeconds,
   framePeriodSeconds,
   threshold = 5,
 ) {
+  if (!Number.isFinite(latchOffsetSeconds)) {
+    throw new Error(`learner trim needs a finite latch offset; latchOffsetSeconds=${String(latchOffsetSeconds)}`);
+  }
   const painted = firstPaintTrim(frames, threshold);
   const firstSyncedIndex = frames.findIndex((frame) => frame.ptsTime >= syncStartOffsetSeconds);
   const firstSceneReadyIndex = frames.findIndex((frame) => frame.ptsTime >= sceneReadyOffsetSeconds);
+  const firstLatchIndex = frames.findIndex((frame) => frame.ptsTime >= latchOffsetSeconds);
   if (firstSyncedIndex === -1) throw new Error(`learner video has no frame at or after sync-start offset ${syncStartOffsetSeconds} s`);
   if (firstSceneReadyIndex === -1) throw new Error(`learner video has no frame at or after scene-ready offset ${sceneReadyOffsetSeconds} s`);
+  if (firstLatchIndex === -1) throw new Error(`learner video has no frame at or after latch offset ${latchOffsetSeconds} s`);
   const syncedInpointSeconds = firstSyncedIndex === 0 ? 0 : frames[firstSyncedIndex].ptsTime;
   const sceneReadyInpointSeconds = firstSceneReadyIndex === 0 ? 0 : frames[firstSceneReadyIndex].ptsTime;
+  const latchInpointSeconds = firstLatchIndex === 0 ? 0 : frames[firstLatchIndex].ptsTime;
   const baseInpointSeconds = Math.max(painted.inpointSeconds, syncedInpointSeconds);
-  const inpointSeconds = Math.max(baseInpointSeconds, sceneReadyInpointSeconds);
-  const trimReason = sceneReadyInpointSeconds >= baseInpointSeconds
-    ? "sceneReady"
-    : syncedInpointSeconds > painted.inpointSeconds ? "syncStart" : "painted";
+  const inpointSeconds = Math.max(baseInpointSeconds, sceneReadyInpointSeconds, latchInpointSeconds);
+  const trimReason = latchOffsetSeconds > sceneReadyOffsetSeconds && latchInpointSeconds >= baseInpointSeconds
+    ? "latch"
+    : sceneReadyInpointSeconds >= baseInpointSeconds
+      ? "sceneReady"
+      : syncedInpointSeconds > painted.inpointSeconds ? "syncStart" : "painted";
   learnerChapterOffsetSeconds("ch1", firstChapterUntrimmedOffsetSeconds, inpointSeconds, framePeriodSeconds, true, trimReason);
   return {
     ...painted,
@@ -334,10 +343,17 @@ export function learnerSceneReadyPaintTrim(
     paintedInpointSeconds: painted.inpointSeconds,
     syncedInpointSeconds,
     sceneReadyInpointSeconds,
+    latchInpointSeconds,
     syncStartOffsetSeconds,
     sceneReadyOffsetSeconds,
+    latchOffsetSeconds,
     trimmedFrames: frames.findIndex((frame) => frame.ptsTime >= inpointSeconds),
   };
+}
+
+/** The ch1 transition/end-margin window check applies to scene-anchored trims, including the latched inpoint. */
+export function requiresSceneReadyCh1TrimCheck(trimReason) {
+  return trimReason === "sceneReady" || trimReason === "latch";
 }
 
 export function assertSceneReadyCh1Trim({ headerLog, ch1ObservedWallMs, trimWallMs, phase, station, artifacts, minimumEndMarginMs = 100 }) {
@@ -740,6 +756,16 @@ function learnerHeaderObserverInit() {
 
 function learnerPageCaptureInit(config) {
   globalThis.__openClinXrSceneReadyWallMs = null;
+  globalThis.__openClinXrInteriorLatchWallMs = null;
+  const checkInteriorPreviewLatch = () => {
+    if (globalThis.__openClinXrInteriorLatchWallMs !== null) return;
+    if ((globalThis.__openClinXrGazeCamera?.userData?.openClinXrInteriorPreviewCamera ?? null) != null) {
+      globalThis.__openClinXrInteriorLatchWallMs = Date.now();
+      return;
+    }
+    requestAnimationFrame(() => { setTimeout(checkInteriorPreviewLatch, 0); });
+  };
+  requestAnimationFrame(() => { setTimeout(checkInteriorPreviewLatch, 0); });
   if (config.sceneReady) {
     let sceneAssetEvidence;
     let sceneReadyFrameScheduled = false;
@@ -1060,10 +1086,18 @@ async function runCapture(storeRoot) {
       undefined,
       { timeout: 30000 },
     );
-    const wallMs = await targetPage.evaluate(() => Date.now());
-    if (kind === "learner") learnerLatchWallMs = wallMs;
-    else evidenceLatchWallMs = wallMs;
-    return wallMs;
+    const inPageLatchWallMs = await targetPage.evaluate(() => new Promise((resolve) => {
+      const read = () => globalThis.__openClinXrInteriorLatchWallMs ?? null;
+      if (Number.isFinite(read())) {
+        resolve(read());
+        return;
+      }
+      requestAnimationFrame(() => resolve(read()));
+    }));
+    if (!Number.isFinite(inPageLatchWallMs)) return undefined;
+    if (kind === "learner") learnerLatchWallMs = inPageLatchWallMs;
+    else evidenceLatchWallMs = inPageLatchWallMs;
+    return inPageLatchWallMs;
   };
   const markTimings = [];
   const turnEvidence = [];
@@ -1336,12 +1370,14 @@ async function runCapture(storeRoot) {
     } catch {
       const sceneReadySnapshot = await page.evaluate(() => ({
         sceneReadyWallMs: globalThis.__openClinXrSceneReadyWallMs,
+        latchWallMs: globalThis.__openClinXrInteriorLatchWallMs ?? null,
         evidence: globalThis.__openClinXrSceneAssetEvidence,
       }));
       deferredAssertions.capture("scene-ready", () => assertSceneReadyObserved(sceneReadySnapshot.sceneReadyWallMs, sceneReadySnapshot.evidence));
     }
     const sceneReadySnapshot = await page.evaluate(() => ({
       sceneReadyWallMs: globalThis.__openClinXrSceneReadyWallMs,
+      latchWallMs: globalThis.__openClinXrInteriorLatchWallMs ?? null,
       evidence: globalThis.__openClinXrSceneAssetEvidence,
     }));
     learnerSceneReadyWallMs = deferredAssertions.capture(
@@ -1349,6 +1385,7 @@ async function runCapture(storeRoot) {
       () => assertSceneReadyObserved(sceneReadySnapshot.sceneReadyWallMs, sceneReadySnapshot.evidence),
       learnerSyncStartWallMs,
     );
+    if (Number.isFinite(sceneReadySnapshot.latchWallMs)) learnerLatchWallMs = sceneReadySnapshot.latchWallMs;
     learnerSceneLagMs = learnerSceneReadyWallMs - learnerSyncStartWallMs;
     console.log(`SCENE_LAG ${learnerSceneLagMs}`);
     let sceneReadyPoseRaw = null;
@@ -1422,17 +1459,20 @@ async function runCapture(storeRoot) {
     const learnerSyncStartOffsetSeconds = (learnerSyncStartWallMs - learnerRecordingOriginWallMs) / 1000;
     learnerSceneReadyWallMs = deferredAssertions.capture("learner-trim-inputs", () => requireCaptureValue(learnerSceneReadyWallMs, "learner trim needs sceneReadyWallMs"), learnerSyncStartWallMs);
     const learnerSceneReadyOffsetSeconds = (learnerSceneReadyWallMs - learnerRecordingOriginWallMs) / 1000;
+    const learnerLatchOffsetSeconds = Number.isFinite(learnerLatchWallMs)
+      ? (learnerLatchWallMs - learnerRecordingOriginWallMs) / 1000
+      : Number.NaN;
     const learnerRawProbe = JSON.parse(execFileSync("ffprobe", ["-v", "error", "-select_streams", "v:0", "-show_streams", "-of", "json", learnerRawVideo], { encoding: "utf8" }));
     const learnerFramePeriodSource = learnerRawProbe.streams?.[0]?.r_frame_rate;
     const safeLearnerFramePeriodSource = deferredAssertions.capture("learner-trim-inputs", () => requireCaptureValue(learnerFramePeriodSource, "learner video has no r_frame_rate"), "25/1");
     const learnerFramePeriodSeconds = deferredAssertions.capture("learner-trim", () => parseFramePeriodSeconds(safeLearnerFramePeriodSource), 0.04);
     const learnerTrim = deferredAssertions.capture("learner-trim", () => learnerSceneReadyPaintTrim(
-      signalFrames(learnerRawVideo), learnerSyncStartOffsetSeconds, learnerSceneReadyOffsetSeconds,
+      signalFrames(learnerRawVideo), learnerSyncStartOffsetSeconds, learnerSceneReadyOffsetSeconds, learnerLatchOffsetSeconds,
       firstChapterUntrimmedOffsetSeconds, learnerFramePeriodSeconds,
-    ), { blankFrames: 0, firstPaintedInpointSeconds: 0, syncStartInpointSeconds: learnerSyncStartOffsetSeconds, sceneReadyInpointSeconds: learnerSceneReadyOffsetSeconds, inpointSeconds: 0, trimReason: "painted", frameCount: 0, threshold: 5 });
+    ), { blankFrames: 0, firstPaintedInpointSeconds: 0, syncStartInpointSeconds: learnerSyncStartOffsetSeconds, sceneReadyInpointSeconds: learnerSceneReadyOffsetSeconds, latchOffsetSeconds: learnerLatchOffsetSeconds, latchInpointSeconds: 0, inpointSeconds: 0, trimReason: "painted", frameCount: 0, threshold: 5 });
     const learnerTrimWallMs = learnerRecordingOriginWallMs + learnerTrim.inpointSeconds * 1000;
     let ch1SceneReadyValidation = null;
-    if (learnerTrim.trimReason === "sceneReady") {
+    if (requiresSceneReadyCh1TrimCheck(learnerTrim.trimReason)) {
       try {
         ch1SceneReadyValidation = assertSceneReadyCh1Trim({
           headerLog: learnerHeaderLog,
@@ -1791,6 +1831,7 @@ async function runCapture(storeRoot) {
           syncLagMs: learnerSyncLagMs,
           sceneReadyWallMs: learnerSceneReadyWallMs,
           sceneLagMs: learnerSceneLagMs,
+          latchWallMs: learnerLatchWallMs,
           framePeriodSeconds: learnerFramePeriodSeconds,
           framePeriodSource: learnerFramePeriodSource,
         },

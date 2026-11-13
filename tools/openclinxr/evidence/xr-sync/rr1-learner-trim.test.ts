@@ -8,6 +8,7 @@ import {
   learnerSceneReadyPaintTrim,
   learnerSyncedPaintTrim,
   parseFramePeriodSeconds,
+  requiresSceneReadyCh1TrimCheck,
   sceneHumanoidAssetsReady,
 } from "./rr1-run.mjs";
 
@@ -21,6 +22,18 @@ const leadingFlatFrames = [
   { ptsTime: 0.24, yMin: 36, yMax: 36 },
 ];
 const paintedFrame = { ptsTime: 0.28, yMin: 36, yMax: 180 };
+
+// Store run-9 (987238b05) RED fixture: sceneReady inpoint 3.36 s from
+// sceneReadyOffsetSeconds 3.353 s, but the latch observed 61 ms later, so the
+// learner video must start at the first frame at or after latch 3.414 s.
+const run9SceneReadyOffsetSeconds = 3.353;
+const run9LatchOffsetSeconds = run9SceneReadyOffsetSeconds + 0.061;
+const run9Frames = Array.from({ length: 91 }, (_, index) => ({
+  ptsTime: Number((index * 0.04).toFixed(2)),
+  yMin: 36,
+  yMax: 180,
+}));
+const run9Ch1UntrimmedOffsetSeconds = 3.42;
 
 describe("RR1 learner leading-flat trim", () => {
   it("trims seven leading flat panel frames to the first painted frame", () => {
@@ -85,14 +98,14 @@ describe("RR1 learner leading-flat trim", () => {
 
   it("selects the first frame at or after scene readiness without weakening the published ch1 clamp", () => {
     const frames = [...leadingFlatFrames, paintedFrame, { ptsTime: 0.4, yMin: 36, yMax: 180 }, { ptsTime: 0.8, yMin: 36, yMax: 180 }];
-    const trim = learnerSceneReadyPaintTrim(frames, 0.3, 0.7, 0.505, 0.04);
+    const trim = learnerSceneReadyPaintTrim(frames, 0.3, 0.7, 0.3, 0.505, 0.04);
     expect(trim).toMatchObject({ inpointSeconds: 0.8, trimReason: "sceneReady", sceneReadyInpointSeconds: 0.8 });
     expect(learnerChapterOffsetSeconds("ch1", 0.505, trim.inpointSeconds, 0.04, true, trim.trimReason)).toBe(0);
   });
 
   it("derives syncStart from the winning candidate and retains the one-frame ch1 rule", () => {
     const frames = [...leadingFlatFrames, paintedFrame, { ptsTime: 0.4, yMin: 36, yMax: 180 }, { ptsTime: 0.8, yMin: 36, yMax: 180 }];
-    const trim = learnerSceneReadyPaintTrim(frames, 0.7, 0.3, 1, 0.04);
+    const trim = learnerSceneReadyPaintTrim(frames, 0.7, 0.3, 0.3, 1, 0.04);
 
     expect(trim).toMatchObject({
       inpointSeconds: 0.8,
@@ -154,5 +167,84 @@ describe("RR1 learner leading-flat trim", () => {
       failedCount: 0,
       fallbackActiveCount: 1,
     })).toThrow("sceneReady was never observed; last evidence loadedCount=2 expectedAssetCount=3 failedCount=0 fallbackActiveCount=1");
+  });
+
+  it("starts the learner video at the first frame at or after the interior-camera latch, not at sceneReady", () => {
+    const trim = learnerSceneReadyPaintTrim(
+      run9Frames, 0.3, run9SceneReadyOffsetSeconds, run9LatchOffsetSeconds, run9Ch1UntrimmedOffsetSeconds, 0.04,
+    );
+    expect(trim).toMatchObject({
+      inpointSeconds: 3.44,
+      trimReason: "latch",
+      latchOffsetSeconds: run9LatchOffsetSeconds,
+      latchInpointSeconds: 3.44,
+    });
+  });
+
+  it("throws on a missing or non-finite latch offset instead of falling back to sceneReady", () => {
+    const frames = [...leadingFlatFrames, paintedFrame, { ptsTime: 0.4, yMin: 36, yMax: 180 }, { ptsTime: 0.8, yMin: 36, yMax: 180 }];
+    for (const latchOffsetSeconds of [undefined, Number.NaN, Number.POSITIVE_INFINITY, Number.NEGATIVE_INFINITY]) {
+      expect(() => learnerSceneReadyPaintTrim(frames, 0.3, 0.7, latchOffsetSeconds, 0.505, 0.04)).toThrow(/latch/iu);
+    }
+  });
+
+  it("never trims past the latch frame: the chosen inpoint is within one frame period of the latch offset", () => {
+    const trim = learnerSceneReadyPaintTrim(
+      run9Frames, 0.3, run9SceneReadyOffsetSeconds, run9LatchOffsetSeconds, run9Ch1UntrimmedOffsetSeconds, 0.04,
+    );
+    expect(trim.inpointSeconds).toBe(run9Frames.find((frame) => frame.ptsTime >= run9LatchOffsetSeconds).ptsTime);
+    expect(trim.inpointSeconds - run9LatchOffsetSeconds).toBeLessThan(0.04);
+  });
+
+  it("moves later learner chapters by exactly the inpoint delta and leaves the faculty ch5 offset unchanged", () => {
+    const sceneReadyTrim = learnerSceneReadyPaintTrim(
+      run9Frames, 0.3, run9SceneReadyOffsetSeconds, run9SceneReadyOffsetSeconds, run9Ch1UntrimmedOffsetSeconds, 0.04,
+    );
+    const latchTrim = learnerSceneReadyPaintTrim(
+      run9Frames, 0.3, run9SceneReadyOffsetSeconds, run9LatchOffsetSeconds, run9Ch1UntrimmedOffsetSeconds, 0.04,
+    );
+    expect(sceneReadyTrim).toMatchObject({ inpointSeconds: 3.36, trimReason: "sceneReady" });
+    expect(latchTrim).toMatchObject({ inpointSeconds: 3.44, trimReason: "latch" });
+    const delta = latchTrim.inpointSeconds - sceneReadyTrim.inpointSeconds;
+    for (const [chapterId, untrimmedOffsetSeconds] of [["ch2", 4.0], ["rot-doorway", 6.0], ["rot-encounter", 8.0]]) {
+      const before = learnerChapterOffsetSeconds(chapterId, untrimmedOffsetSeconds, sceneReadyTrim.inpointSeconds, 0.04, false);
+      const after = learnerChapterOffsetSeconds(chapterId, untrimmedOffsetSeconds, latchTrim.inpointSeconds, 0.04, false);
+      expect(before - after).toBeCloseTo(delta, 9);
+    }
+    // No ch5 assertion here: the faculty-path offset function observedOffsetSeconds
+    // takes no learner inpoint at all, so any assertion of it would compare a value
+    // with itself. ch5 independence rests on rr1-run.mjs:1559 (ch5 marked
+    // recording "faculty") and rr1-run.mjs:1727-1732 (faculty branch bypasses the
+    // learner trim path).
+  });
+
+  it("keeps today's sceneReady result when the latch is at or before scene readiness", () => {
+    const frames = [...leadingFlatFrames, paintedFrame, { ptsTime: 0.4, yMin: 36, yMax: 180 }, { ptsTime: 0.8, yMin: 36, yMax: 180 }];
+    for (const latchOffsetSeconds of [0.1, 0.7]) {
+      expect(learnerSceneReadyPaintTrim(frames, 0.3, 0.7, latchOffsetSeconds, 0.505, 0.04)).toMatchObject({
+        inpointSeconds: 0.8,
+        trimReason: "sceneReady",
+        sceneReadyInpointSeconds: 0.8,
+      });
+    }
+  });
+
+  it("runs the ch1 transition and end-margin check for a latch-trimmed inpoint too", () => {
+    expect(requiresSceneReadyCh1TrimCheck("latch")).toBe(true);
+    expect(requiresSceneReadyCh1TrimCheck("sceneReady")).toBe(true);
+    expect(requiresSceneReadyCh1TrimCheck("syncStart")).toBe(false);
+    expect(requiresSceneReadyCh1TrimCheck("painted")).toBe(false);
+  });
+
+  it("names the latch even when it lands inside the same frame as scene readiness", () => {
+    const trim = learnerSceneReadyPaintTrim(
+      run9Frames, 0.3, run9SceneReadyOffsetSeconds, run9SceneReadyOffsetSeconds + 0.005, run9Ch1UntrimmedOffsetSeconds, 0.04,
+    );
+    expect(trim).toMatchObject({
+      inpointSeconds: 3.36,
+      trimReason: "latch",
+      latchInpointSeconds: 3.36,
+      sceneReadyInpointSeconds: 3.36,
+    });
   });
 });
