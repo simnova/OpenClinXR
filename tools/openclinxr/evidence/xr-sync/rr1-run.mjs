@@ -622,6 +622,17 @@ function assertCaptureWithinWindow({ artifact, captureStartedWallMs, captureEnde
   return window;
 }
 
+/** Refuse any chapter artifact whose screenshot started before the interior preview camera latched. */
+export function assertCaptureAfterLatch({ artifact, captureStartedWallMs, latchWallMs }) {
+  if (!Number.isFinite(latchWallMs)) {
+    throw new Error(`${artifact} capture has no interior preview latch wall clock; latchWallMs=${String(latchWallMs)}`);
+  }
+  if (captureStartedWallMs < latchWallMs) {
+    throw new Error(`${artifact} capture started ${captureStartedWallMs} before interior preview latch ${latchWallMs}`);
+  }
+  return true;
+}
+
 export function artifactCaptureMargins({ captureStartedWallMs, captureEndedWallMs, window }) {
   const startMarginMs = captureStartedWallMs - window.startWallMs;
   const endMarginMs = window.endWallMs === null ? null : window.endWallMs - captureEndedWallMs;
@@ -1039,6 +1050,21 @@ async function runCapture(storeRoot) {
   const panelEvidence = [];
   const viewportFrames = [];
   const artifactCaptures = [];
+  let learnerLatchWallMs = null;
+  let evidenceLatchWallMs = null;
+  const ensureInteriorPreviewLatch = async (targetPage, kind) => {
+    if (kind === "learner" && Number.isFinite(learnerLatchWallMs)) return learnerLatchWallMs;
+    if (kind === "evidence" && Number.isFinite(evidenceLatchWallMs)) return evidenceLatchWallMs;
+    await targetPage.waitForFunction(
+      () => (globalThis.__openClinXrGazeCamera?.userData?.openClinXrInteriorPreviewCamera ?? null) != null,
+      undefined,
+      { timeout: 30000 },
+    );
+    const wallMs = await targetPage.evaluate(() => Date.now());
+    if (kind === "learner") learnerLatchWallMs = wallMs;
+    else evidenceLatchWallMs = wallMs;
+    return wallMs;
+  };
   const markTimings = [];
   const turnEvidence = [];
   let learnerDomLog = [];
@@ -1100,8 +1126,18 @@ async function runCapture(storeRoot) {
       (async () => {
         const recordedHeaderLog = await waitForPageHeader(page);
         const observedWallMs = deferredAssertions.capture("learner-header-selection", () => selectObservedWallMs(recordedHeaderLog, phase, stationLabel, clock.serverMs), clock.serverMs);
+        let latchWallMs = learnerLatchWallMs;
+        if (!Number.isFinite(latchWallMs)) {
+          try {
+            latchWallMs = await ensureInteriorPreviewLatch(page, "learner");
+          } catch (error) {
+            deferredAssertions.reject("learner-artifact-window", `interior preview latch never observed on the learner page before frames/${id}.png: ${String(error instanceof Error ? error.message : error)}`);
+            latchWallMs = undefined;
+          }
+        }
         const observationResolvedWallMs = Date.now();
         const captureStartedWallMs = Date.now();
+        deferredAssertions.capture("learner-artifact-window", () => assertCaptureAfterLatch({ artifact: `frames/${id}.png`, captureStartedWallMs, latchWallMs }));
         await page.screenshot({ path: framePath, timeout: 30000 });
         const captureEndedWallMs = Date.now();
         return {
@@ -1115,14 +1151,25 @@ async function runCapture(storeRoot) {
             phaseServerMs: clock.serverMs,
             captureStartedWallMs,
             captureEndedWallMs,
+            latchWallMs,
           },
         };
       })(),
       (async () => {
         const evidenceHeaderLog = await waitForPageHeader(evidencePage);
         deferredAssertions.capture("learner-header-selection", () => selectObservedWallMs(evidenceHeaderLog, phase, stationLabel, clock.serverMs), clock.serverMs);
+        let latchWallMs = evidenceLatchWallMs;
+        if (!Number.isFinite(latchWallMs)) {
+          try {
+            latchWallMs = await ensureInteriorPreviewLatch(evidencePage, "evidence");
+          } catch (error) {
+            deferredAssertions.reject("learner-artifact-window", `interior preview latch never observed on the evidence page before panels/${id}-runtime-panel.png: ${String(error instanceof Error ? error.message : error)}`);
+            latchWallMs = undefined;
+          }
+        }
         const observationResolvedWallMs = Date.now();
         const panel = await shootRuntimePanelContentHeight(evidencePage, panelPath);
+        deferredAssertions.capture("learner-artifact-window", () => assertCaptureAfterLatch({ artifact: `panels/${id}-runtime-panel.png`, captureStartedWallMs: panel.captureStartedWallMs, latchWallMs }));
         const eyebrow = await evidencePage.locator("#doorway-eyebrow").innerText();
         return {
           panel,
@@ -1136,6 +1183,7 @@ async function runCapture(storeRoot) {
             phaseServerMs: clock.serverMs,
             captureStartedWallMs: panel.captureStartedWallMs,
             captureEndedWallMs: panel.captureEndedWallMs,
+            latchWallMs,
           },
         };
       })(),
@@ -1166,6 +1214,7 @@ async function runCapture(storeRoot) {
       file: `frames/${id}.png`,
       captureStartedWallMs: recordedCapture.artifact.captureStartedWallMs,
       captureEndedWallMs: recordedCapture.artifact.captureEndedWallMs,
+      latchWallMs: recordedCapture.artifact.latchWallMs,
       ...deferredAssertions.capture("artifact-png", () => pngSize(framePath), { width: 0, height: 0, bytes: 0 }),
     });
     panelEvidence.push({ id, file: `panels/${id}-runtime-panel.png`, ...panel, eyebrow, path: undefined });
@@ -1700,16 +1749,22 @@ async function runCapture(storeRoot) {
     const ch5StillSource = ch5Published?.stillSource;
     deferredAssertions.capture("faculty-still-source", () => assertCh5StillSource(ch5StillSource));
     const ch5Frame = join(frameDir, "ch5.png");
+    const ch5CaptureStartedWallMs = Date.now();
     const ch5FrameEvidence = deferredAssertions.capture("artifact-png", () => {
       const ch5OffsetSeconds = requireCaptureValue(ch5Published?.offsetSeconds, "published ch5 offset is missing");
       writeVideoFramePng(videoPath, ch5OffsetSeconds, ch5Frame);
       return pngSize(ch5Frame);
     }, { width: 0, height: 0, bytes: 0 });
+    const ch5CaptureEndedWallMs = Date.now();
     viewportFrames.push({
       id: "ch5",
       file: "frames/ch5.png",
       source: "rr1-min.webm",
       sourceVideoPtsSeconds: ch5Published?.offsetSeconds ?? null,
+      captureStartedWallMs: ch5CaptureStartedWallMs,
+      captureEndedWallMs: ch5CaptureEndedWallMs,
+      latchWallMs: null,
+      latchExempt: "faculty-dist video frame: no learner camera; window checked by assertCh5RecordedStop",
       ...ch5FrameEvidence,
     });
     const recordedCh5Measurement = facultyLayoutLog.occlusionMeasurements?.find((entry) => entry.kind === "recorded:ch5-offset");

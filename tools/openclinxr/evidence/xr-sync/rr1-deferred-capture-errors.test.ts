@@ -4,6 +4,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import {
+  assertCaptureAfterLatch,
   createDeferredErrorCollector,
   RR1_CAPTURE_ASSERTION_SITES,
   RR1_SETUP_THROW_ALLOWLIST,
@@ -76,5 +77,39 @@ describe("RR1 capture-path deferred failure order", () => {
     expect(child.signal).toBeNull();
     expect(child.status).toBe(1);
     expect(child.stderr).toContain("planted: collector rejection");
+  });
+
+  describe("interior preview latch gate (rr1latch RED)", () => {
+    it("refuses a chapter capture with no latch wall clock", () => {
+      expect(() => assertCaptureAfterLatch({
+        artifact: "frames/ch1.png",
+        captureStartedWallMs: 1794523137389,
+        latchWallMs: undefined,
+      })).toThrow(/latch/);
+    });
+
+    it("refuses a chapter capture started before the latch", () => {
+      expect(() => assertCaptureAfterLatch({
+        artifact: "frames/ch1.png",
+        captureStartedWallMs: 1794523137389,
+        latchWallMs: 1794523139409,
+      })).toThrow(/latch/);
+    });
+
+    it("accepts a chapter capture started after the latch", () => {
+      expect(() => assertCaptureAfterLatch({
+        artifact: "frames/ch1.png",
+        captureStartedWallMs: 1794523139500,
+        latchWallMs: 1794523139409,
+      })).not.toThrow();
+    });
+
+    it("accepts a chapter capture started exactly at the latch", () => {
+      expect(() => assertCaptureAfterLatch({
+        artifact: "frames/ch1.png",
+        captureStartedWallMs: 1794523139409,
+        latchWallMs: 1794523139409,
+      })).not.toThrow();
+    });
   });
 });
