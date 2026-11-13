@@ -141,6 +141,14 @@
       "owner": "xr-sync card tsk_d5504a82031e71b7 (two @openclinxr/ui-route-admin root exports, FacultyReviewRoute and WorkbenchOverview; none authored by the reviewer)",
       "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review (not an author): session 01a1ce7a-69d4-78c3-8c2b-8d062823133f recomputed via measureSurface(process.cwd()).totals.rootSymbols rootExports 1281 = previous exact 1279 + exactly FacultyReviewRoute and WorkbenchOverview (ui-route-admin 12 -> 14), 2026-11-12",
       "reason": "Residual 1281 = the independently reviewed exact 1279 (last-station-break-rule-v1 entry above) + exactly two @openclinxr/ui-route-admin root exports admitted by faculty-review-route-v1: FacultyReviewRoute and WorkbenchOverview. Declared in public-api.json and consumed by apps/ui-admin app.tsx."
+    },
+    {
+      "target": "rootExportsAtMost",
+      "measured": 1283,
+      "threshold": 1000,
+      "owner": "xr-sync-ceo slice 121a4717c (two @openclinxr/xr-sync-server root exports, stationPhaseOrder and DEFAULT_READY_TIMEOUT_SECONDS; none authored by the reviewer)",
+      "reviewedBy": "Codex independent C6 recompute (not an author): session 01a1d6f3-a1aa-7263-ab2e-eeed9d07c251 measured e1c334567 rootExports 1283 = previous exact 1281 + exactly stationPhaseOrder and DEFAULT_READY_TIMEOUT_SECONDS on the @openclinxr/xr-sync-server root; median 16, p90 38, maxRoot 116, duplicateNames 59 unchanged; threshold remains 1000; 2026-11-13",
+      "reason": "Residual 1283 = the independently reviewed exact 1281 (faculty-review-route-v1 entry above) + exactly two @openclinxr/xr-sync-server root exports admitted by xr-sync-rr1-phase-wait-v1: stationPhaseOrder and DEFAULT_READY_TIMEOUT_SECONDS."
     }
   ],
   "sourceManifest": {

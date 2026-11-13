@@ -377,7 +377,7 @@ describe("compiler-resolved surface meter", () => {
     expect(report.totals.entrypoints).toBe(196);
   });
 
-  it("(2) rest and ui-route-admin match compiler exports", () => {
+  it("(2) rest, ui-route-admin, and xr-sync-server match compiler exports", () => {
     const report = measureSurface();
     const byDir = new Map(report.packages.map((pkg) => [pkg.packageDir, pkg]));
     // 193 before PSR-04; 94 after it applied approval psr-01d (93 keep + FACTORY_RUN_ROLLUP_REL kept at land).
@@ -389,6 +389,9 @@ describe("compiler-resolved surface meter", () => {
     // 2026-11-12 faculty-review-route-v1 admission (super-ceo-cap21 ruling, ratified by operator 2026-11-12 (super-ceo-cap23)):
     // FacultyReviewRoute + WorkbenchOverview, both consumed by apps/ui-admin app.tsx (tsk_d5504a82031e71b7) (12 -> 14).
     expect(byDir.get("packages/openclinxr/ui-route-admin")?.rootSymbols).toBe(14);
+    // 2026-11-13 xr-sync-rr1-phase-wait-v1 admission (super-ceo-cap26/cap27 ruling):
+    // stationPhaseOrder + DEFAULT_READY_TIMEOUT_SECONDS are consumed from the server dist by the RR1 runner and through ./index.js by own-package tests (9 -> 11).
+    expect(byDir.get("packages/openclinxr/xr-sync-server")?.rootSymbols).toBe(11);
   });
 
   it("(3) all four arena packages are reported", () => {

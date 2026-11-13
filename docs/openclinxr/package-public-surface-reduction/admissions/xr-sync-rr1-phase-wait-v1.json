@@ -1,0 +1,32 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "xr-sync-rr1-phase-wait-v1",
+  "reviewedBy": "Codex independent C6 recompute, session 01a1d6f3-a1aa-7263-ab2e-eeed9d07c251 (read-only, not an author), 2026-11-13",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "f87755d7a43b6f2abe34b250c55f3972d5f4ba866a99aac7776646fc9abcd8ae",
+  "packages": [
+    "packages/openclinxr/xr-sync-server"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-sync-server",
+      "entrypoint": ".",
+      "symbol": "stationPhaseOrder",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "xr-sync-ceo slice 121a4717c",
+      "rationale": "The RR1 evidence runner imports stationPhaseOrder from packages/openclinxr/xr-sync-server/dist/index.js to fail phase waits fast after the server has passed a target; packages/openclinxr/xr-sync-server/src/a-runner-wait-on-a-passed-phase-fails-fast.test.ts binds the same behavior through ./index.js.",
+      "reviewedBy": "Codex independent C6 recompute, session 01a1d6f3-a1aa-7263-ab2e-eeed9d07c251 (read-only, not an author), 2026-11-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-sync-server",
+      "entrypoint": ".",
+      "symbol": "DEFAULT_READY_TIMEOUT_SECONDS",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "xr-sync-ceo slice 121a4717c",
+      "rationale": "The RR1 evidence runner reads DEFAULT_READY_TIMEOUT_SECONDS from packages/openclinxr/xr-sync-server/dist/index.js to derive its production doorway-clock bound; packages/openclinxr/xr-sync-server/src/xr-sync-c15-exam-blueprint.test.ts binds the default through ./index.js.",
+      "reviewedBy": "Codex independent C6 recompute, session 01a1d6f3-a1aa-7263-ab2e-eeed9d07c251 (read-only, not an author), 2026-11-13"
+    }
+  ]
+}

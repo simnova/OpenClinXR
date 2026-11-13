@@ -452,7 +452,8 @@ describe("admission overlays do not launder closed removes", () => {
     // independently reviewed activation is exact, not an arbitrary admission id.
     // 2026-11-10 coordinator-approved pin move (super-ceo-cap10 [bdc0de]): admits 1 new add, no closed remove.
     // 2026-11-12 super-ceo-cap21 ruling, ratified by operator 2026-11-12 (super-ceo-cap23): admits 2 new adds (faculty-review-route-v1), no closed remove.
-    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1"\]/u);
+    // 2026-11-13 super-ceo-cap26/cap27 ruling: admits 2 new adds (xr-sync-rr1-phase-wait-v1), no closed remove.
+    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1", "xr-sync-rr1-phase-wait-v1"\]/u);
     const resolveStart = applyMap.indexOf("export function resolveApplyId");
     const resolveBody = applyMap.slice(resolveStart);
     expect(resolveBody).not.toMatch(/ADMISSION_GROUPS/u);
@@ -469,7 +470,8 @@ describe("the independently reviewed seven-row production activation", () => {
   it("binds the exact allowlist and reviewed admission row hash", () => {
     // 2026-11-10 coordinator-approved pin move (super-ceo-cap10 [bdc0de]): admits 1 new add, no closed remove.
     // 2026-11-12 super-ceo-cap21 ruling, ratified by operator 2026-11-12 (super-ceo-cap23): admits 2 new adds (faculty-review-route-v1), no closed remove.
-    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1"]);
+    // 2026-11-13 super-ceo-cap26/cap27 ruling: admits 2 new adds (xr-sync-rr1-phase-wait-v1), no closed remove.
+    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1", "xr-sync-rr1-phase-wait-v1"]);
     const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8"));
     expect(admission.rows).toHaveLength(7);
     expect(admission.admissionHash).toBe("6a4df1fedee5ad0fae42e026eaf6e77c2f1a4155c117a1e3e0c9679f74f90d11");
@@ -668,6 +670,16 @@ describe("the independently reviewed seven-row production activation", () => {
     expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
   });
 
+  // 2026-11-13 super-ceo-cap26/cap27 ruling: slice 121a4717c.
+  it("binds the independently reviewed RR1 phase-wait admission", () => {
+    const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "xr-sync-rr1-phase-wait-v1.json"), "utf8"));
+    expect(admission.reviewedBy).toBe("Codex independent C6 recompute, session 01a1d6f3-a1aa-7263-ab2e-eeed9d07c251 (read-only, not an author), 2026-11-13");
+    expect(admission.rows.map((row: OverlayRow) => [row.entrypoint, row.symbol])).toEqual([[".", "stationPhaseOrder"], [".", "DEFAULT_READY_TIMEOUT_SECONDS"]]);
+    expect(admission.admissionHash).toBe("f87755d7a43b6f2abe34b250c55f3972d5f4ba866a99aac7776646fc9abcd8ae");
+    expect(overlayAdmissionHash(admission.reviewedBy, admission.rows)).toBe(admission.admissionHash);
+    expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
+  });
+
   function withActualEvidence(run: (root: string, admission: { reviewedBy: string; admissionHash: string; rows: OverlayRow[] }) => void): void {
     const admissionBody = readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8");
     const files: Record<string, string> = {
@@ -696,6 +708,7 @@ describe("the independently reviewed seven-row production activation", () => {
       [`${ADMISSIONS_DIR}/patient-staging-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "patient-staging-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/last-station-break-rule-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "last-station-break-rule-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/faculty-review-route-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "faculty-review-route-v1.json"), "utf8"),
+      [`${ADMISSIONS_DIR}/xr-sync-rr1-phase-wait-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "xr-sync-rr1-phase-wait-v1.json"), "utf8"),
     };
     for (const group of REVIEW_GROUPS) files[`${APPROVALS_DIR}/${group}.json`] = readFileSync(join(ROOT, APPROVALS_DIR, `${group}.json`), "utf8");
     withTree(files, (root) => run(root, JSON.parse(admissionBody)));

@@ -58,7 +58,7 @@
     }
   ],
   "counts": {
-    "keep-evidence": 1973,
+    "keep-evidence": 1974,
     "ignore-local-cache": 2787,
     "keep-current": 266,
     "keep-template": 17,
@@ -26790,6 +26790,13 @@
       "tracked": true,
       "action": "keep",
       "rationale": "Last-station break rule admission: independently reviewed shared-schemas root export effectiveBreakAfterStationOrders, the one rule behind the exam plan and the synced server break phase."
+    },
+    {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/xr-sync-rr1-phase-wait-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "RR1 phase-wait admission: independently recomputed xr-sync-server root exports stationPhaseOrder and DEFAULT_READY_TIMEOUT_SECONDS, bound by the RR1 runner phase-entry and doorway clock waits (C6 1281 -> 1283)."
     },
     {
       "path": "docs/openclinxr/package-public-surface-reduction/admissions/faculty-review-route-v1.json",
