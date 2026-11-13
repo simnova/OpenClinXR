@@ -27,6 +27,34 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-11-13T1530">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 125 &middot; 2026-11-13 15:30 UTC</p>
+          <h2>The reference run now shows the full doorway clock.</h2>
+        </div>
+        <p>
+          The reference run shown on the site is now run 15. In the previous reference run (run 7)
+          scene loading used part of the 4 s doorway, so its first chapter opens with the clock at
+          00:02. Run 15 was captured after the doorway clock moved to start when the room is visible
+          (Entry 124): its first chapter opens on the loaded room with the full doorway time, and
+          each rotation waits for the next station's own doorway clock before capturing.
+        </p>
+        <p>
+          Known encode issue: at a header change the video can show faint residue of the previous
+          header text for a fraction of a second, because keyframes fall every 5.12 s. A fix that
+          starts every chapter on a keyframe is tracked as tsk_3662dc11d42eeaa2.
+        </p>
+        <div style="display:grid; gap:12px; margin-top:16px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/rr1-run15-ch1-doorway-2026-11-13.png" alt="Chapter 1, station 1 doorway: the room is loaded and the doorway clock reads 00:03 of 4 s." width="960" height="600" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Chapter 1, station 1 doorway: the room is loaded and the doorway clock reads 00:03 of 4 s.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/rr1-run15-station2-doorway-2026-11-13.png" alt="Station 2 doorway after the rotation: loaded room, clock at 00:04." width="960" height="600" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Station 2 doorway after the rotation: loaded room, clock at 00:04.</figcaption>
+          </figure>
+        </div>
+      </section>
       <section class="band" id="entry-2026-11-13T0700">
         <div class="section-heading">
           <p class="eyebrow">Entry 124 &middot; 2026-11-13 07:00 UTC</p>

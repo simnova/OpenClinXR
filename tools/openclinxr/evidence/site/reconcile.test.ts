@@ -55,7 +55,8 @@ function reconcileBlockers({ fallback, indexHtml, media, referenceHtml }: Reconc
     return blockers;
   }
 
-  if (media.referenceRun !== "run-7") blockers.push(`reference_run_mismatch:${String(media.referenceRun)}`);
+  // run-15 source: docs/site/data/media.json referenceRun ("run-15", the published reference run)
+  if (media.referenceRun !== "run-15") blockers.push(`reference_run_mismatch:${String(media.referenceRun)}`);
   if (!referenceHtml.includes("media.referenceRun")) blockers.push("reference_run_not_rendered_from_media");
   if (/\brun-\d+\b/iu.test(referenceHtml)) blockers.push("reference_run_literal_in_html");
 
@@ -96,7 +97,8 @@ function pendingFigures(media: MediaManifest): string {
   return media.slots.filter((slot) => slot.state === "TEXT_ONLY").map((slot) => pendingFigure(slot.id)).join("\n");
 }
 
-it("known-good: shipped copy matches media referenceRun and run-7 chapters without fallback", () => {
+// run-15 source: docs/site/data/media.json referenceRun (the shipped chapters are the run-15 chapters)
+it("known-good: shipped copy matches media referenceRun and run-15 chapters without fallback", () => {
   const input = {
     fallback: false,
     indexHtml: read("docs/index.html"),

@@ -10,9 +10,12 @@ const RELEASE_DIR = path.join(ROOT, "tools", "openclinxr", "evidence", "site", "
 const FIXTURES_DIR = path.join(ROOT, "tools", "openclinxr", "evidence", "site", "fixtures", "release");
 
 const BUNDLE_FILES = [
-  "docs/site/data/rr1-trace/72yIxt5aR.conversation-trace.json",
-  "docs/site/data/rr1-trace/D_b8Lwrpa.conversation-trace.json",
-  "docs/site/data/rr1-trace/SsdBgH288.conversation-trace.json",
+  // run-15 source: docs/site/data/rr1-trace/CBB5_UB-J.conversation-trace.json (committed copy of store site-reimagine/rr1/run-15/trace/CBB5_UB-J.conversation-trace.json)
+  "docs/site/data/rr1-trace/CBB5_UB-J.conversation-trace.json",
+  // run-15 source: docs/site/data/rr1-trace/O4z72Ca-8.conversation-trace.json (committed copy of store site-reimagine/rr1/run-15/trace/O4z72Ca-8.conversation-trace.json)
+  "docs/site/data/rr1-trace/O4z72Ca-8.conversation-trace.json",
+  // run-15 source: docs/site/data/rr1-trace/5JNYwgcSl.conversation-trace.json (committed copy of store site-reimagine/rr1/run-15/trace/5JNYwgcSl.conversation-trace.json)
+  "docs/site/data/rr1-trace/5JNYwgcSl.conversation-trace.json",
   "docs/site/data/rr1-trace/exam-session.review-index.json",
   "docs/site/data/mn1.json",
   "docs/site/data/trace-schema.json",
@@ -130,6 +133,7 @@ it("known-good: the 4 SUMS trace paths equal the mn1.json sources[].path set", (
 });
 
 it("negative: a fixture SHA256SUMS with one hash flipped fails", () => {
+  // run-15 source: SHA256SUMS.flipped.fixture is rebuilt from release/SHA256SUMS (run-15 bytes) with line-1 first nibble flipped; parseSums rejects comment lines so the source is named here
   const entries = parseSums(
     readFileSync(path.join(FIXTURES_DIR, "SHA256SUMS.flipped.fixture"), "utf8"),
   );
@@ -140,6 +144,7 @@ it("negative: a fixture SHA256SUMS with one hash flipped fails", () => {
 });
 
 it("negative: a fixture SHA256SUMS missing one line fails", () => {
+  // run-15 source: SHA256SUMS.missing-line.fixture is rebuilt from release/SHA256SUMS (run-15 bytes) with the mn1.json line omitted; parseSums rejects comment lines so the source is named here
   const entries = parseSums(
     readFileSync(path.join(FIXTURES_DIR, "SHA256SUMS.missing-line.fixture"), "utf8"),
   );

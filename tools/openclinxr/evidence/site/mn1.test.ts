@@ -54,19 +54,22 @@ function readLabels(): Record<string, unknown> {
 
 it("known-good: counts recomputed from docs/site/data/rr1-trace/* equal mn1.json", () => {
   const { counts, perFile } = recomputeMn1FromTraceDir(TRACE_DIR);
-  expect(perFile["72yIxt5aR.conversation-trace.json"]).toEqual({
+  // run-15 source: store site-reimagine/rr1/run-15/trace/CBB5_UB-J.conversation-trace.json (station-1 trace, 2 utterance-end exact/history_opqrst)
+  expect(perFile["CBB5_UB-J.conversation-trace.json"]).toEqual({
     matched: 2,
     unmatched: 0,
     "please-repeat": 0,
     N: 2,
   });
-  expect(perFile["D_b8Lwrpa.conversation-trace.json"]).toEqual({
+  // run-15 source: store site-reimagine/rr1/run-15/trace/O4z72Ca-8.conversation-trace.json (station-2 trace, 0 utterance-end)
+  expect(perFile["O4z72Ca-8.conversation-trace.json"]).toEqual({
     matched: 0,
     unmatched: 0,
     "please-repeat": 0,
     N: 0,
   });
-  expect(perFile["SsdBgH288.conversation-trace.json"]).toEqual({
+  // run-15 source: store site-reimagine/rr1/run-15/trace/5JNYwgcSl.conversation-trace.json (station-3 trace, 0 utterance-end)
+  expect(perFile["5JNYwgcSl.conversation-trace.json"]).toEqual({
     matched: 0,
     unmatched: 0,
     "please-repeat": 0,
@@ -98,7 +101,8 @@ it("counterweight: mn1.json carries single speaker, single run, scripted, voice 
 
 it("negative: a fixture copy with one actor turn removed reports a count mismatch", () => {
   const trace = JSON.parse(
-    readFileSync(path.join(TRACE_DIR, "72yIxt5aR.conversation-trace.json"), "utf8"),
+  // run-15 source: store site-reimagine/rr1/run-15/trace/CBB5_UB-J.conversation-trace.json (station-1 trace, chosen because it holds the utterance-end events)
+    readFileSync(path.join(TRACE_DIR, "CBB5_UB-J.conversation-trace.json"), "utf8"),
   ) as { events?: unknown };
   const events = Array.isArray(trace.events) ? [...trace.events] : [];
   const endIndex = events.findIndex(
@@ -125,7 +129,8 @@ it("sources integrity: each sources[] sha256 equals the committed file bytes", (
     if (typeof rel !== "string" || typeof sha !== "string" || typeof origin !== "string") {
       throw new Error(`malformed sources entry: ${JSON.stringify(entry)}`);
     }
-    if (!origin.startsWith("site-reimagine/rr1/run-7/trace/")) {
+    // run-15 source: docs/site/data/mn1.json sources[].storeOrigin prefix site-reimagine/rr1/run-15/trace/ (4 committed run-15 trace files)
+    if (!origin.startsWith("site-reimagine/rr1/run-15/trace/")) {
       throw new Error(`sources entry missing storeOrigin: ${JSON.stringify(entry)}`);
     }
     const actual = sha256OfFile(path.join(process.cwd(), rel));

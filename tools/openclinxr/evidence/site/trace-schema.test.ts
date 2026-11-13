@@ -5,13 +5,14 @@ import { expect, it } from "vitest";
 import { classifyMn1Event } from "./fixtures/mn1/recompute.js";
 
 const SCHEMA_PATH = path.join(process.cwd(), "docs", "site", "data", "trace-schema.json");
+// run-15 source: docs/site/data/rr1-trace/CBB5_UB-J.conversation-trace.json (committed copy of store site-reimagine/rr1/run-15/trace/CBB5_UB-J.conversation-trace.json)
 const TRACE_PATH = path.join(
   process.cwd(),
   "docs",
   "site",
   "data",
   "rr1-trace",
-  "72yIxt5aR.conversation-trace.json",
+  "CBB5_UB-J.conversation-trace.json",
 );
 const MN1_PATH = path.join(process.cwd(), "docs", "site", "data", "mn1.json");
 const PAGE_PATH = path.join(process.cwd(), "docs", "evidence.html");
@@ -298,7 +299,8 @@ it("negative: a fixture copy of the TT table with one cell changed fails the sam
   }
 });
 
-const TRACE_FILE_NAME = "72yIxt5aR.conversation-trace.json";
+// run-15 source: docs/site/data/rr1-trace/CBB5_UB-J.conversation-trace.json (station-1 trace, caption key for the shipped TT table in docs/evidence.html)
+const TRACE_FILE_NAME = "CBB5_UB-J.conversation-trace.json";
 const TT_HEADERS = ["turn", "addressed actor", "tag", "match", "modality"];
 
 function ttTableByCaption(html: string): { headers: string[]; rows: string[][] } {

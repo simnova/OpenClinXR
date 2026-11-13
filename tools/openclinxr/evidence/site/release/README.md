@@ -1,6 +1,6 @@
 # Release bundle: rr1-2026-11-12 (planned)
 
-Purpose: name the exact committed bytes that the site reference run (run-7) publishes
+Purpose: name the exact committed bytes that the site reference run (run-15) publishes
 through the planned GitHub Release `rr1-2026-11-12`, so the site footer Release link,
 `docs/site/data/media.json` `releaseTag`, and the validator rule WV1c all point at one
 tag. Creating the GitHub Release itself is on the lander checklist; this bundle only
@@ -25,9 +25,9 @@ Learner voice: synthetic (injected)
 
 All paths are repo-relative:
 
-- `docs/site/data/rr1-trace/72yIxt5aR.conversation-trace.json`
-- `docs/site/data/rr1-trace/D_b8Lwrpa.conversation-trace.json`
-- `docs/site/data/rr1-trace/SsdBgH288.conversation-trace.json`
+- `docs/site/data/rr1-trace/CBB5_UB-J.conversation-trace.json`
+- `docs/site/data/rr1-trace/O4z72Ca-8.conversation-trace.json`
+- `docs/site/data/rr1-trace/5JNYwgcSl.conversation-trace.json`
 - `docs/site/data/rr1-trace/exam-session.review-index.json`
 - `docs/site/data/mn1.json`
 - `docs/site/data/trace-schema.json`
@@ -48,27 +48,27 @@ sha256sum -c tools/openclinxr/evidence/site/release/SHA256SUMS
 Every line must report `OK`. The file uses `sha256sum` format: `<hex>` followed by two
 spaces followed by the repo-relative path.
 
-## Large run-7 media (NOT committed)
+## Large run-15 media (NOT committed)
 
-The large run-7 capture media live in `/Volumes/files/openclinxr-assets/store/site-reimagine/rr1/run-7`
+The large run-15 capture media live in `/Volumes/files/openclinxr-assets/store/site-reimagine/rr1/run-15`
 and are not committed. Named here by store path and sha256 only:
 
 - `audio/actor-reply.aiff` `54749a213d0e48b6d025163671e1e567786607bc409f74b8b02a267fc52e17e4`
 - `audio/actor-reply.wav` `ea8a6d8512b1aa75b8745f8a696f70b0b0b081734eb27debe19675afb6db84ba`
-- `faculty-painted.webm` `2f9ecbd056aa9d0ce0a95e08e46059b4d868cab7feb9eb62d9d121abe9c99cb4`
-- `faculty-video-raw/page@2a22ff29737c867d3d4f92e1970bd90e.webm` `f907502ba8a1de782213a062a58e01c1cd8993a15ce849451ab8765e66da7186`
-- `frames/ch1.png` `d901a3c0a1d835582cc35a62f5b96440840665b2a4f3b7f9d92e82688682aa8e`
-- `frames/ch2.png` `68b801518aff2f208a1e2aa2b2bff09447ffe75a894c975a08b14c7de0e4b821`
-- `frames/ch5.png` `766e74e246b193674ea4d43fda53ea13d7db8c63938f9510c19ac4c5ee8160f1`
-- `frames/rot-doorway.png` `6276eb34db55834f24cbdc7ab41e0a90504364309a95f89c5d57fb7c3e89e480`
-- `frames/rot-encounter.png` `670698b1dcfd559b32bf2cf2f27a11d84c3ca670edb59baf03f954d4086fb767`
-- `learner-hold.png` `4e6ce42ce5d2bdd15e054905622969f4a67f51a724085b7bdc38b4be7195dddf`
-- `learner-hold.webm` `d1281167317324613a53f8cec7a91b3ef516ed95f729416d3c4ae816526020f8`
-- `learner-painted.webm` `b1bd7f4a189681949b41a7b2dafce42e862671b6310c9edf234c4b15f9c04945`
+- `faculty-painted.webm` `7d797fe19fbe0f9562966d3c494f5ecf01ab7ec848836c3a9832441366f19f89`
+- `faculty-video-raw/page@78480cbdb4e3df0480d9e3046c16ce40.webm` `1b97a2d0b42c35cf85b4e75d1f243c15937cea3c622a299a92aa1e2dac81f524`
+- `frames/ch1.png` `c3f7b2ede28078f25f4d598519eb9548f03d672bf2a87b298108fdff09775b81`
+- `frames/ch2.png` `93d6eebfc152d1b14068e55ea3c46058a3a0d5ee34af37753c6b0a3774321e43`
+- `frames/ch5.png` `9b1626fb46e4e0d37b580d846dcdba53751a343eb6531256e73c78a28f27c552`
+- `frames/rot-doorway.png` `f0c2d12484c3001b6cf656809c3c29390803ca74bdfe8c9c0a600a78f2ddb520`
+- `frames/rot-encounter.png` `12ff6a6ffbc77d6aa0404701229ff592e4422695273feada8c0419f0863688d2`
+- `learner-hold.png` `43578f482761cfdeb45d96ab698e2e40c6216613cb4f2ad23560840f86e5eae2`
+- `learner-hold.webm` `9492eba312c2b0fcdf94d57061c31079b4343d60e8049069d43c499730b692d6`
+- `learner-painted.webm` `563d415b192ba5b0069dfa597f4950c1f0d66d9637c75df561a6da593b8a3502`
 - `panels/ch1-runtime-panel.png` `d7d94e2fdbc0287b71b37827ede464f9e3a44a312da9646d8c687404eac7598b`
 - `panels/ch2-runtime-panel.png` `020dbadcac3f81692157689aac0016aefa47c148d02f272c8bd1e30c75bc9390`
-- `panels/rot-doorway-runtime-panel.png` `6aca9bc2d2c6205ba32869e16e9ccb1b5e8a368c3fa4e793e414f60dc49be61a`
-- `panels/rot-encounter-runtime-panel.png` `1d2419b53ed59bbbb3734a5f2d7bbf812d9f7f80f5bad3dd771aabd97d3b7c76`
-- `rr1-min-video-only.webm` `bf692e688919f6c4599ff2bde19853f288b4dc31d3500ba8304827df74fb82a4`
-- `rr1-min.webm` `2fda783a9f7076442fa3a401d6b5b6ecbafd9d2fe531608b1333667d9af8d014`
-- `video-raw/page@3dc70bbffcdd2bf4efc77ce780838071.webm` `8ef4182c4d3499d933131d605e179e35c444b69c3df5496c9dff185223976022`
+- `panels/rot-doorway-runtime-panel.png` `a6b3f7f31a7bf174d68ccae81728358d51f66ffb5ad10fd2b0a9adcf72e82596`
+- `panels/rot-encounter-runtime-panel.png` `e35be44f07cd044c45f210e4f8da752ce2229041c36796ebc6eaa0350e22347c`
+- `rr1-min-video-only.webm` `2d18b37153ee286812c42465ca6c3f4d7b30c198793da35ddd3fd5136054ba0a`
+- `rr1-min.webm` `65d5446b31e9ae8827afff5b00ffd85ddd420e6e26fcadaebd09c555837e1260`
+- `video-raw/page@f3401b4c7d99b25f1f4467e19f11a99b.webm` `4f44606cafed74c5d6e2558554f9fb32435fd0764d67575111708c3b72d2485f`
