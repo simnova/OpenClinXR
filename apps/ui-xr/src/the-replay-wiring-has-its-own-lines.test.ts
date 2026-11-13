@@ -22,9 +22,9 @@ describe("the replay wiring has its own lines in main.ts (C49)", () => {
     expect(LINES.filter((line) => /^\s*replayAnchor: .*\.ehr-panel.*,?\s*$/.test(line))).toHaveLength(1);
   });
 
-  it("the tick writer is still guarded and the clock has exactly three writers (replay, break, tick)", () => {
-    expect(MAIN).toContain("if (!replayClock && !breakClock) clock.textContent = formatStationClock(state.elapsedSecond);");
-    expect(MAIN.match(/\bclock\.textContent =/g)).toHaveLength(3);
+  it("the tick writer is still guarded and the clock has exactly four writers (replay, break, phase, tick)", () => {
+    expect(MAIN).toContain("if (!replayClock && !breakClock && !syncedServerPhase) clock.textContent = formatStationClock(state.elapsedSecond);");
+    expect(MAIN.match(/\bclock\.textContent =/g)).toHaveLength(4);
   });
 
   it("main.ts is no longer than it was at C48", () => {

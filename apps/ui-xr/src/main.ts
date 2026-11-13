@@ -4587,7 +4587,7 @@ function tick(): void {
   // so DOM timer text is run-identical (PNG byte-identical, not just 3D-identical).
   const tickNow = isDeterministicCaptureClock() ? start : performance.now();
   state = { ...state, elapsedSecond: Math.floor((tickNow - start) / 1000) };
-  if (!replayClock && !breakClock) clock.textContent = formatStationClock(state.elapsedSecond);
+  if (!replayClock && !breakClock && !syncedServerPhase) clock.textContent = formatStationClock(state.elapsedSecond);
   if (examFormRunState) {
     const ticked = advancePackageFormRunClock(examFormRunState, formElapsedSecondForCurrentStation());
     if (ticked) {
@@ -4655,6 +4655,7 @@ if (isEncounterSyncSearch(window.location.search)) void import("@openclinxr/xr-s
     const name = writeSyncedDoorwayEyebrow(requireElement("#doorway-eyebrow"), phase);
     stationClockLabel.textContent = name;
     examFlowTimer.textContent = `${name} ${formatStationClock(remaining)} left`;
+    if (!breakClock) clock.textContent = formatStationClock(remaining);
     examFlowAdvance.textContent = "server rotation";
   },
   voice: { assetBase: "/mesm-tts/", slotFor: (id) => generatedHumanoidAnimationSlotsByActorId.get(id) as never, voiceFor: ((voices) => (id: string) => voices.get(id))(new Map([edChestPainScenario, ...scenarioBank].flatMap((scenario) => scenario.actors).reverse().map((actor) => [actor.actorId, actor.ttsVoice] as const))) },

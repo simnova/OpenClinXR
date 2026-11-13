@@ -1,47 +1,52 @@
-import { MapSchema } from "@colyseus/schema";
-import { Room } from "@colyseus/core";
 import type { Client } from "@colyseus/core";
+import { Room } from "@colyseus/core";
+import { MapSchema } from "@colyseus/schema";
 import type { ConversationTrace } from "./conversation-trace.js";
 import { ConversationTracer } from "./conversation-tracer.js";
+
 // C3 reply table + picker live in conversation-trace.js (single source shared
 // with the trace reducer); re-exported here so existing room.js importers
 // (C4 RED, evidence harness dist imports) keep working.
-export { C3_REPLY_TABLE, pickC3Reply, type C3ScriptedReply } from "./conversation-trace.js";
-import {
-  EncounterState,
-  LearnerState,
-  type ActorStateInstance,
-  type EncounterStateInstance,
-  type LearnerStateInstance,
-} from "./schema.js";
+export { C3_REPLY_TABLE, type C3ScriptedReply, pickC3Reply } from "./conversation-trace.js";
+
 import { OBSERVER_READ_ONLY_REASON, parseEncounterRole, rejectNotJoined } from "./observer.js";
-import * as PhaseClock from "./phase-clock.js";
 import type { StationTiming } from "./phase-clock.js";
+import * as PhaseClock from "./phase-clock.js";
+import { type AckMessage, INTENT_KINDS, type IntentMessage, type RejectMessage } from "./protocol.js";
 import type { EncounterRoomOptions, ProbeSelection, RoomProbeStats, TurnRecord } from "./room-types.js";
 import { populateActorRoster } from "./roster.js";
-import { castForStation, populateCastRoster, stationEmotionPolicy, type CastVoiceActor } from "./scenario-cast.js";
-import { INTENT_KINDS, type AckMessage, type IntentMessage, type RejectMessage } from "./protocol.js";
+import { type CastVoiceActor, castForStation, populateCastRoster, stationEmotionPolicy } from "./scenario-cast.js";
+import {
+  type ActorStateInstance,
+  EncounterState,
+  type EncounterStateInstance,
+  LearnerState,
+  type LearnerStateInstance,
+} from "./schema.js";
+
 // Wire protocol types live in protocol.js; re-exported here so the package
 // "." surface and existing room.js importers keep working unchanged.
 export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./protocol.js";
-import { applyPoseIntent, applySelectActorIntent } from "./learner-intents.js";
-import { handleSpeechAudioIntent, type SpeechRecognizer } from "./speech-audio.js";
-import { createScheduleDriver } from "./scenario-schedule.js";
-import { DEFAULT_NOTE_MAX_CHARS } from "./patient-note.js";
-import { NoteStation } from "./note-draft.js";
+
 import { applyUtteranceIntent } from "./actor-turns.js";
-import { setTopicMenuState, topicMenuForCast, topicMenuTags, trackAskedTopics } from "./topic-menu.js";
-import type { TopicAnswer } from "./topic-answers.js";
+import { applyPoseIntent, applySelectActorIntent } from "./learner-intents.js";
+import { NoteStation } from "./note-draft.js";
+import { DEFAULT_NOTE_MAX_CHARS } from "./patient-note.js";
+import { createScheduleDriver } from "./scenario-schedule.js";
+import { handleStationClosed } from "./session-review-index.js";
+import { handleSpeechAudioIntent, type SpeechRecognizer } from "./speech-audio.js";
+import { createStationReadyController, type StationReadyController } from "./station-ready.js";
 import {
   assertStationJoinAllowed,
   clearStationNoncesOnDispose,
   configureStationRoom,
   consumeRotateTokenForJoin,
   recordStationPose,
-  stationNonceCounts,
   type StationBinding,
+  stationNonceCounts,
 } from "./station-rotation.js";
-import { handleStationClosed } from "./session-review-index.js";
+import type { TopicAnswer } from "./topic-answers.js";
+import { setTopicMenuState, topicMenuForCast, topicMenuTags, trackAskedTopics } from "./topic-menu.js";
 
 /** Matchmaking name clients join to reach the authoritative encounter room. */
 export const ENCOUNTER_ROOM_NAME = "encounter";
@@ -99,8 +104,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   protected stationNoteMaxChars: number | null = null;
   /** C11 held patient note + C45 latest draft (server-side only: never synced, never traced). */
   private notes = new NoteStation();
-  /** C6 station phase clock (null when no timing: C1..C5 brief behaviour). Driven by this.clock. */
-  private phaseClock: { stop(): void } | null = null;
+  /** C6 station ready + phase lifecycle (null when no timing: C1..C5 brief behaviour). */
+  private stationReady: StationReadyController | null = null;
   /** C6 host-clock ms per entered phase (Date.now at phase enter). Probe only, never in the trace. */
   private phaseChangedAtMs = new Map<string, number>();
   /** C7 per-server station binding (stations + single-use nonces), shared by reference. */
@@ -164,6 +169,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.state.turnOwner = "none";
     this.state.observerCount = 0; this.state.noteStatus = "none"; this.state.noteChars = 0; this.state.noteSource = "";
     this.state.phaseRemainingS = 0;
+    this.state.stationStarted = false;
     // C7 station assignment: server binding + creation nonce only (never client roomOptions).
     const station = configureStationRoom(this.stationBinding, options, this.state, this.tracer);
     // C15: the blueprint id + current slot label ride the synced state (""
@@ -208,25 +214,23 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     // C6 station clock from the server binding; client roomOptions.timing /
     // roomOptions.phase are ignored (see phase-clock.ts). C7 rotation fires
     // on the station's "closed" phase-changed, on the room clock.
-    const breakSeconds = blueprint !== null && blueprint.breakAfterStationIndexes.has(station.stationIndex) ? blueprint.breakSeconds : 0;
-    this.phaseClock = PhaseClock.attachStationPhaseClock(
-      {
-        clock: this.clock,
-        state: this.state,
-        tracer: this.tracer,
-        turnLog: this.turnLog,
-        getOpenTurn: () => this.openTurn,
-        clearPhaseTurn: () => {
-          this.openTurn = null;
-        },
-        phaseChangedAtMs: this.phaseChangedAtMs,
-        schedule: this.scheduleDriver,
-        onStationClosed: () => { this.notes.promote(this.state, this.tracer); },
-        onClosed: () => { if (breakSeconds > 0) { this.phaseChangedAtMs.set("rotation-start", Date.now()); } void this.rotateStation(); },
-      },
-      this.stationTiming,
+    const breakSeconds = blueprint?.breakAfterStationIndexes.has(station.stationIndex) ? blueprint.breakSeconds : 0;
+    this.stationReady = createStationReadyController({
+      clock: this.clock,
+      state: this.state,
+      tracer: this.tracer,
+      turnLog: this.turnLog,
+      getOpenTurn: () => this.openTurn,
+      clearPhaseTurn: () => { this.openTurn = null; },
+      phaseChangedAtMs: this.phaseChangedAtMs,
+      schedule: this.scheduleDriver,
+      onStationClosed: () => { this.notes.promote(this.state, this.tracer); },
+      onClosed: () => { if (breakSeconds > 0) this.phaseChangedAtMs.set("rotation-start", Date.now()); void this.rotateStation(); },
+      timing: this.stationTiming,
       breakSeconds,
-    );
+      // C1b: one registration serves every client; membership is checked at receipt.
+      onReady: (handler) => this.onMessage("ready", handler),
+    });
     // C7 isolation: non-first stations are server-created rooms for rotated learners only.
     if (station.stationIndex > 0) {
       void this.setPrivate(true);
@@ -236,7 +240,6 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     this.onMessage("intent", (client, message: IntentMessage) => {
       this.handleIntent(client, message);
     });
-
     // DESTRUCTIVE_PROBE_ANCHOR (T6 probe): the probe patch inserts a
     // this.broadcast("snapshot", ...) call in handleIntent. It must stay
     // absent: the only named server-to-client messages are ack/reject.
@@ -246,7 +249,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
     // Explicit catch-all: unknown client message types are dropped on the
     // floor. "intent" is already handled above, so it is skipped here.
     this.onMessage("*", (_client, type) => {
-      if (type === "intent") {
+      if (type === "intent" || type === "ready") {
         return;
       }
     });
@@ -328,8 +331,8 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
   override onDispose(): void {
     this.scheduleDriver?.clear();
     this.scheduleDriver = null;
-    this.phaseClock?.stop();
-    this.phaseClock = null;
+    this.stationReady?.dispose();
+    this.stationReady = null;
     this.flushConversationTrace();
     clearStationNoncesOnDispose(this.stationBinding);
   }
@@ -407,7 +410,7 @@ export class EncounterRoom extends Room<{ state: EncounterStateInstance }> {
       return;
     }
     // C6 phase gate (brief mode has none: C1..C5 behaviour).
-    const gated = PhaseClock.phaseGateReason(this.phaseClock !== null, this.state.phase, kind as string);
+    const gated = PhaseClock.phaseGateReason(this.stationReady !== null, this.state.phase, kind as string);
     if (gated !== null) {
       this.reject(client, intentSeq, gated);
       return;

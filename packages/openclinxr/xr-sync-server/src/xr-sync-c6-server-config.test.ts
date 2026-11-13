@@ -4,7 +4,7 @@ import { join } from "node:path";
 import { Client, type Room } from "@colyseus/sdk";
 import { connect, type SyncConnection } from "@openclinxr/xr-sync-client";
 import { afterEach, describe, expect, it } from "vitest";
-import { ENCOUNTER_ROOM_NAME, createEncounterServer, type EncounterServer } from "./index.js";
+import { createEncounterServer, ENCOUNTER_ROOM_NAME, type EncounterServer } from "./index.js";
 
 // C6 server-config follow-up (2026-10-30): station timing and the trace
 // directory are PER-SERVER config, never client roomOptions. The room reads
@@ -78,11 +78,13 @@ describe("xr-sync-server C6 per-server config", () => {
     servers.push(server);
     const first = new Client(server.url);
     const room1 = await first.joinOrCreate(ENCOUNTER_ROOM_NAME, { actors: ["a1", "a2"] });
+    room1.send("ready");
     leavers.push(() => room1.leave());
     const seen1 = trackRoom(room1);
     // A second room on the SAME server (create always makes a new room).
     const second = new Client(server.url);
     const room2 = await second.create(ENCOUNTER_ROOM_NAME, { actors: ["a1", "a2"] });
+    room2.send("ready");
     leavers.push(() => room2.leave());
     const seen2 = trackRoom(room2);
 
@@ -108,6 +110,7 @@ describe("xr-sync-server C6 per-server config", () => {
     servers.push(slow);
     const slowClient = new Client(slow.url);
     const slowRoom = await slowClient.joinOrCreate(ENCOUNTER_ROOM_NAME, { actors: ["a1", "a2"] });
+    slowRoom.send("ready");
     leavers.push(() => slowRoom.leave());
     const seenSlow = trackRoom(slowRoom);
     await waitFor(() => seenSlow.get().phase === "encounter", 5000, "slow room encounter");
@@ -124,6 +127,7 @@ describe("xr-sync-server C6 per-server config", () => {
     servers.push(fast);
     const fastClient = new Client(fast.url);
     const fastRoom = await fastClient.joinOrCreate(ENCOUNTER_ROOM_NAME, { actors: ["a1", "a2"] });
+    fastRoom.send("ready");
     leavers.push(() => fastRoom.leave());
     const seenFast = trackRoom(fastRoom);
     await waitFor(() => seenFast.get().phase === "encounter", 5000, "fast room encounter");

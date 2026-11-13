@@ -12,18 +12,21 @@ const SRC = fileURLToPath(new URL(".", import.meta.url));
 const MAIN = readFileSync(SRC + "main.ts", "utf8");
 const flush = async (): Promise<void> => { for (let i = 0; i < 12; i += 1) await Promise.resolve(); };
 const ONBREAK = /onBreak: \(remaining\) => \{\n([\s\S]*?)\n  \},\n/u;
+const ONPHASE = /onPhase: \(phase, remaining\) => \{\n([\s\S]*?)\n  \},\n/u;
 
 interface Calls { breaks: Array<number | null>; clock: string[]; doorway: string[]; breakClock: boolean[] }
 
 /** Drive the real client with snapshots and run the shell's onBreak body, taken verbatim from main.ts, against stand-in elements. */
-async function drive(search: string, snapshots: Array<Record<string, unknown>>): Promise<Calls> {
+async function drive(search: string, snapshots: Array<Record<string, unknown>>, composePhase = false): Promise<Calls> {
   const calls: Calls = { breaks: [], clock: [], doorway: [], breakClock: [] };
   const clock = { set textContent(value: string) { calls.clock.push(value); } };
   const doorwayStation = { set textContent(value: string) { calls.doorway.push(value); } };
   const formatStationClock = (seconds: number): string => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
-  const body = ONBREAK.exec(MAIN)?.[1];
-  const make = new Function("clock", "doorwayStation", "formatStationClock", "record", `let breakClock = false;\nreturn (remaining) => {\n(() => {${body ?? ""}\n})();\nrecord(breakClock);\n};`);
-  const run = make(clock, doorwayStation, formatStationClock, (value: boolean) => calls.breakClock.push(value)) as (remaining: number | null) => void;
+  const breakBody = ONBREAK.exec(MAIN)?.[1];
+  const phaseBody = ONPHASE.exec(MAIN)?.[1];
+  const make = new Function("clock", "doorwayStation", "formatStationClock", "record", "examFlowTimer", "examFlowAdvance", "stationClockLabel", `let breakClock = false;\nlet syncedServerPhase = "";\nconst updateExamFlowEvidence = () => undefined;\nconst requireElement = () => ({ textContent: "" });\nconst writeSyncedDoorwayEyebrow = (_element, phase) => phase[0].toUpperCase() + phase.slice(1);\nconst onBreak = (remaining) => {\n(() => {${breakBody ?? ""}\n})();\nrecord(breakClock);\n};\nconst onPhase = (phase, remaining) => {${phaseBody ?? ""}\n};\nreturn { onBreak, onPhase };`);
+  const sink = { textContent: "" };
+  const run = make(clock, doorwayStation, formatStationClock, (value: boolean) => calls.breakClock.push(value), sink, sink, sink) as { onBreak(remaining: number | null): void; onPhase(phase: string, remaining: number): void };
   let listener: ((s: unknown) => void) | undefined;
   await startEncounterSyncFromUrl({
     search,
@@ -35,8 +38,9 @@ async function drive(search: string, snapshots: Array<Record<string, unknown>>):
     onStation: () => undefined,
     onBreak: (remaining: number | null) => {
       calls.breaks.push(remaining);
-      if (body !== undefined) run(remaining);
+      if (breakBody !== undefined) run.onBreak(remaining);
     },
+    ...(composePhase && phaseBody !== undefined ? { onPhase: (phase: string, remaining: number) => run.onPhase(phase, remaining) } : {}),
     connectFn: async () => ({ sessionId: "s", sendIntent: async () => ({ status: "ack" }), onState: (fn: (s: unknown) => void) => { listener = fn; return () => undefined; }, leave: async () => undefined }) as never,
   } as never);
   for (const snapshot of snapshots) { listener?.({ serverTick: 1, turnId: 0, turnOwner: "none", actors: {}, learners: {}, stationCount: 3, ...snapshot }); await flush(); }
@@ -63,6 +67,11 @@ describe("the synced break is shown in the doorway header (C53)", () => {
     expect(calls.doorway).toEqual(["Break", "Break"]);
   });
 
+  it("the live break-then-phase callback order preserves Break text and resumes the phase countdown after break", async () => {
+    const calls = await drive(SYNC, [at("break", 5), at("break", 4), at("doorway", 12, 1), at("doorway", 11, 1)], true);
+    expect(calls.clock).toEqual(["Break 00:05", "Break 00:04", "00:12", "00:11"]);
+  });
+
   it("a room that never breaks never calls onBreak", async () => {
     const calls = await drive(SYNC, [at("doorway", 12), at("encounter", 300), at("note", 60), at("closed", 0), at("doorway", 12, 1)]);
     expect(calls.breaks).toEqual([]);
@@ -77,7 +86,7 @@ describe("the synced break is shown in the doorway header (C53)", () => {
 
   it("main.ts hands the client an onBreak dep, and the tick leaves the clock to it during a break", () => {
     expect(ONBREAK.test(MAIN)).toBe(true);
-    expect(MAIN).toContain("if (!replayClock && !breakClock) clock.textContent = formatStationClock(state.elapsedSecond);");
+    expect(MAIN).toContain("if (!replayClock && !breakClock && !syncedServerPhase) clock.textContent = formatStationClock(state.elapsedSecond);");
   });
 
   it("the word Break is written to #doorway-station in exactly one place, inside onBreak", () => {

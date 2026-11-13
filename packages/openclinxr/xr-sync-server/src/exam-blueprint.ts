@@ -20,6 +20,7 @@
 
 import { effectiveBreakAfterStationOrders } from "@openclinxr/shared-schemas";
 import type { StationTiming } from "./phase-clock.js";
+import { DEFAULT_READY_TIMEOUT_SECONDS } from "./phase-clock.js";
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
@@ -100,6 +101,11 @@ export function parseExamBlueprint(value: unknown): ParsedExamBlueprint {
   if (!positive(doorwaySeconds) || !positive(encounterSeconds) || !positive(noteSeconds)) {
     throw new Error("bad-examBlueprint: examBlueprint.timing doorwaySeconds, encounterSeconds, noteSeconds must be positive integers");
   }
+  const rawReadyTimeout = timing["readyTimeoutSeconds"];
+  const readyTimeoutSeconds = rawReadyTimeout === undefined ? DEFAULT_READY_TIMEOUT_SECONDS : rawReadyTimeout;
+  if (typeof readyTimeoutSeconds !== "number" || !Number.isFinite(readyTimeoutSeconds) || readyTimeoutSeconds <= 0) {
+    throw new Error("bad-examBlueprint: examBlueprint.timing.readyTimeoutSeconds must be a positive finite number");
+  }
   const labels = new Map<string, string>();
   for (const slot of parsed) {
     labels.set(slot.slotId, slot.label);
@@ -137,7 +143,7 @@ export function parseExamBlueprint(value: unknown): ParsedExamBlueprint {
   return {
     blueprintId,
     stations: parsed.map((slot) => slot.slotId),
-    timing: { doorwaySeconds, encounterSeconds, noteSeconds },
+    timing: { doorwaySeconds, encounterSeconds, noteSeconds, readyTimeoutSeconds },
     labels,
     breakSeconds,
     breakAfterStationIndexes,

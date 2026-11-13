@@ -28,6 +28,7 @@ import {
   type FacultyScoreBinding,
   handleReplayReviewIntent,
 } from "./faculty-score.js";
+import type { ReplayCaptionBank } from "./replay-captions.js";
 import { replayScoreChecked } from "./replay-rubric-coverage.js";
 import {
   isReviewLobbyRequest,
@@ -43,11 +44,10 @@ import {
 } from "./review-packet.js";
 import { ENCOUNTER_ROOM_NAME, EncounterRoom } from "./room.js";
 import { ActorState, type ActorStateInstance, EncounterState, LearnerState, type LearnerStateInstance } from "./schema.js";
-import { setReplayRubricCoverageState, setReplayRubricState } from "./station-replay-rubric-state.js";
-import { markReplayTopics, setTopicMenuState } from "./topic-menu.js";
 import type { LoadedReplayStation, LoadedStationReplay } from "./station-replay-loading.js";
 import { applyScheduledReplayEvent } from "./station-replay-loading.js";
-import type { ReplayCaptionBank } from "./replay-captions.js";
+import { setReplayRubricCoverageState, setReplayRubricState } from "./station-replay-rubric-state.js";
+import { markReplayTopics, setTopicMenuState } from "./topic-menu.js";
 
 /** Reject reason every replay-room intent receives (C13 review intents excepted). */
 export { REPLAY_READ_ONLY_REASON } from "./faculty-score.js";
@@ -389,6 +389,12 @@ export function createStationReplayRoomClass(binding: StationReplayBinding): typ
 
     private applyReplayEvent(event: ConversationTraceEvent): void {
       switch (event.kind) {
+        case "station-ready":
+        case "ready-timeout": {
+          this.state.stationStarted = true;
+          this.state.phase = "doorway";
+          break;
+        }
         case "phase-changed": {
           const phase = event.phase ?? "";
           // a break is between stations, not part of the replayed station, so a replay never enters it.

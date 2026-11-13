@@ -1,5 +1,5 @@
-import type { EncounterSnapshot } from "./index.js";
 import type { UtteranceBoxDeps, UtteranceBoxElement } from "./encounter-turns.js";
+import type { EncounterSnapshot } from "./index.js";
 
 export interface RoomPanel {
   render(snapshot: EncounterSnapshot): void;
@@ -30,6 +30,7 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
   let settledDraft: string | null = "";
   let draftEpoch = 0;
   let lastStation: string | undefined;
+  let heldDoorwaySeconds = 0;
   let draftInFlight = false;
   let submitSeq = 0;
   let settledSeq = 0;
@@ -94,6 +95,7 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
     phase = snapshot.phase;
     if (snapshot.stationId !== lastStation) {
       lastStation = snapshot.stationId;
+      heldDoorwaySeconds = 0;
       settledDraft = "";
       draftEpoch += 1;
     } else if (snapshot.phase !== "note" && settledDraft !== "") {
@@ -101,6 +103,10 @@ export function mountRoomPanel(box: UtteranceBoxDeps, onTopic: (tag: string) => 
       draftEpoch += 1;
     }
     remaining = snapshot.phaseRemainingS ?? 0;
+    if (phase === "doorway" && snapshot.stationStarted === false) {
+      heldDoorwaySeconds = Math.max(heldDoorwaySeconds, remaining);
+      remaining = heldDoorwaySeconds;
+    }
     const entries = Object.values(snapshot.actors ?? {}).filter(
       (actor) => actor.displayName !== "" && actor.displayName !== undefined,
     );

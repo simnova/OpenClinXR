@@ -7,16 +7,17 @@
  * shell's existing actor-turn consumer reads. The shell supplies the player.
  * Lives in the package because apps/ui-xr is under a shrink-only line budget.
  */
-import { type EncounterSnapshot, type IntentKind, type SyncConnection, connect } from "./index.js";
-import { type GazeView, gazedActorId, pickAddressedActor } from "./addressed-actor.js";
-import { createActorVoice, type ActorVoice, type SpokenTurnRecord, type VoiceEngine, type VoiceSink, type VoiceSlot } from "./actor-voice.js";
+import { type ActorVoice, createActorVoice, type SpokenTurnRecord, type VoiceEngine, type VoiceSink, type VoiceSlot } from "./actor-voice.js";
 import { createBrowserVoiceParts } from "./actor-voice-browser.js";
-import type { ConnectOptions } from "./options.js";
+import { type GazeView, gazedActorId, pickAddressedActor } from "./addressed-actor.js";
 import { createLobbyPicker, type LobbyEvidence } from "./encounter-lobby.js";
 import { mountRoomPanel, type RoomPanel } from "./encounter-room-panel.js";
+import { createBreakAnnouncer, createPhaseAnnouncer, createStationAnnouncer, createTopicMenuAnnouncer, encounterSyncUrl } from "./encounter-sync-flags.js";
+import { connect, type EncounterSnapshot, type IntentKind, type SyncConnection } from "./index.js";
+import type { ConnectOptions } from "./options.js";
+import { armInteriorLatchReady } from "./scene-ready-latch.js";
 import { mountSpeechCapture, type SpeechEvidence, type SpeechRecorder, type XrSessionLike } from "./speech-capture.js";
 import { createBrowserSpeechRecorder } from "./speech-recorder-browser.js";
-import { createBreakAnnouncer, createPhaseAnnouncer, createStationAnnouncer, createTopicMenuAnnouncer, encounterSyncUrl } from "./encounter-sync-flags.js";
 
 export { encounterSyncUrl };
 const SPEECH_LOW_CONFIDENCE = "speech_low_confidence";
@@ -31,7 +32,6 @@ export interface SyncedActorTurn {
   intake: string;
   retries: number;
 }
-
 const DIALOGUE_EMOTIONS: ReadonlySet<string> = new Set(["anxious", "concerned", "reassured", "neutral"]);
 
 /** Stateful detector: one turn per (actor, turnId) when the actor is speaking; turnId restarts per station room. */
@@ -183,6 +183,7 @@ export interface EncounterSyncHandle {
   /** Every turn forwarded to onTurn, in order. */
   readonly turns: readonly SyncedActorTurn[];
   sendIntent: SyncConnection["sendIntent"];
+  sendReady(): void;
   leave(): Promise<void>;
 }
 
@@ -203,7 +204,9 @@ export async function joinEncounterRoom(options: JoinEncounterRoomOptions): Prom
   const roomOptions = options.reviewLobby === true
     ? { reviewLobby: true }
     : { actors: [...options.actorIds], ...(options.replayStation === undefined ? {} : { replayStationId: options.replayStation }) };
-  const connection = await connectFn(options.url, { roomOptions });
+  const connection = options.connectFn === undefined
+    ? await connect(options.url, { roomOptions }, true)
+    : await connectFn(options.url, { roomOptions });
   const detect = createActorTurnDetector();
   const turns: SyncedActorTurn[] = [];
   connection.onState((snapshot) => {
@@ -234,6 +237,7 @@ export async function joinEncounterRoom(options: JoinEncounterRoomOptions): Prom
     sendSpeech: (actorId, text, confidence) => (queue = queue.then(() => sendSpeechIntents((kind, payload) => sendObserved(kind, payload), speechUtterances, actorId, text, confidence))),
     turns,
     sendIntent: (kind: IntentKind, payload) => sendObserved(kind, payload),
+    sendReady: () => connection.sendReady(),
     leave: () => connection.leave(),
   };
 }
@@ -423,6 +427,7 @@ export async function startEncounterSyncFromUrl(deps: StartEncounterSyncDeps): P
     evidence.speechUtterances = handle.speechUtterances;
     evidence.sendSpeech = (actorId, text, confidence) => handle.sendSpeech(actorId, text, confidence);
     evidence.gazedActorId = gazedNow;
+    if (!isReplayRoom && !isLobby) armInteriorLatchReady(handle);
     sendSelect = (stationId) => handle.sendIntent("select-station", { stationId });
     sendReturn = () => handle.sendIntent("return-to-lobby", {});
     if (deps.utteranceBox !== undefined && isReplayRoom) { roomPanel = mountRoomPanel(deps.utteranceBox, () => undefined, undefined, true); if (lastSnapshot !== undefined) roomPanel.render(lastSnapshot); }

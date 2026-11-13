@@ -20,11 +20,11 @@ const at = (phase: string, phaseRemainingS: number, stationIndex = 0, stationCou
 
 type SyncPredicate = (search: string) => boolean;
 
-interface Panel { label: string[]; timer: string[]; advance: string[]; phases: Array<[string, number]>; synced: boolean[]; eyebrowPhases: string[]; eyebrowLabels: string[]; selectors: string[] }
+interface Panel { label: string[]; timer: string[]; clock: string[]; advance: string[]; phases: Array<[string, number]>; synced: boolean[]; eyebrowPhases: string[]; eyebrowLabels: string[]; selectors: string[] }
 
 /** Drive the real client with snapshots and run the shell's onPhase body, taken verbatim from main.ts, against stand-in elements. */
 async function drive(search: string, snapshots: Array<Record<string, unknown>>): Promise<Panel> {
-  const panel: Panel = { label: [], timer: [], advance: [], phases: [], synced: [], eyebrowPhases: [], eyebrowLabels: [], selectors: [] };
+  const panel: Panel = { label: [], timer: [], clock: [], advance: [], phases: [], synced: [], eyebrowPhases: [], eyebrowLabels: [], selectors: [] };
   const sink = (into: string[]) => ({ set textContent(value: string) { into.push(value); } });
   const formatStationClock = (seconds: number): string => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
   const eyebrowSink = { textContent: "Doorway" };
@@ -36,8 +36,8 @@ async function drive(search: string, snapshots: Array<Record<string, unknown>>):
     return name;
   };
   const body = ONPHASE.exec(MAIN)?.[1];
-  const make = new Function("examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "record", "updateExamFlowEvidence", "writeSyncedDoorwayEyebrow", "requireElement", `let syncedServerPhase = "";\nreturn (phase, remaining) => {\n(() => {${body ?? ""}\n})();\nrecord(syncedServerPhase !== "");\n};`);
-  const run = make(sink(panel.timer), sink(panel.advance), sink(panel.label), formatStationClock, (value: boolean) => panel.synced.push(value), () => undefined, writeSyncedDoorwayEyebrow, requireElement) as (phase: string, remaining: number) => void;
+  const make = new Function("examFlowTimer", "clock", "examFlowAdvance", "stationClockLabel", "formatStationClock", "record", "updateExamFlowEvidence", "writeSyncedDoorwayEyebrow", "requireElement", `let syncedServerPhase = "";\nlet breakClock = false;\nreturn (phase, remaining) => {\n(() => {${body ?? ""}\n})();\nrecord(syncedServerPhase !== "");\n};`);
+  const run = make(sink(panel.timer), sink(panel.clock), sink(panel.advance), sink(panel.label), formatStationClock, (value: boolean) => panel.synced.push(value), () => undefined, writeSyncedDoorwayEyebrow, requireElement) as (phase: string, remaining: number) => void;
   let listener: ((s: unknown) => void) | undefined;
   await startEncounterSyncFromUrl({
     search,

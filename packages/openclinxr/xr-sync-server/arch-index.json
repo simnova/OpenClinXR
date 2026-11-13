@@ -85,7 +85,10 @@
     "src/xr-sync-c8-rotation-hardening.test.ts",
     "src/xr-sync-c9-session-review-index.test.ts",
     "src/xr-sync-loopback-bind.test.ts",
-    "src/xr-sync-server.test.ts"
+    "src/xr-sync-server.test.ts",
+    "src/xs-ready-phase-clock.test.ts",
+    "src/xs-ready-room.test.ts",
+    "src/xs-ready-station-replay.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/xr-sync-server test",

@@ -1,8 +1,7 @@
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
-import { startEncounterSyncFromUrl } from "@openclinxr/xr-sync-client/headset";
+import { startEncounterSyncFromUrl, writeSyncedDoorwayEyebrow as writeEyebrowThrough } from "@openclinxr/xr-sync-client/headset";
 import { describe, expect, it } from "vitest";
-import { writeSyncedDoorwayEyebrow as writeEyebrowThrough } from "@openclinxr/xr-sync-client/headset";
 
 // C55' RED B: while the shell is joined to a synced rotation the Encounter Flow panel follows the server phase. The client dep
 // onPhase(phase, remainingS) fires on the first snapshot and whenever (phase, remainingS) changes, never for replay or review-lobby
@@ -18,11 +17,11 @@ const ONPHASE = /onPhase: \(phase, remaining\) => \{\n([\s\S]*?)\n  \},\n/u;
 const SYNC = "?encounterSync=ws://127.0.0.1:9";
 const at = (phase: string, phaseRemainingS: number, stationIndex = 0, stationCount = 3): Record<string, unknown> => ({ phase, phaseRemainingS, stationIndex, stationCount });
 
-interface Panel { label: string[]; timer: string[]; advance: string[]; phases: Array<[string, number]>; synced: boolean[]; eyebrowPhases: string[]; selectors: string[] }
+interface Panel { label: string[]; timer: string[]; clock: string[]; advance: string[]; phases: Array<[string, number]>; synced: boolean[]; eyebrowPhases: string[]; selectors: string[] }
 
 /** Drive the real client with snapshots and run the shell's onPhase body, taken verbatim from main.ts, against stand-in elements. */
 async function drive(search: string, snapshots: Array<Record<string, unknown>>): Promise<Panel> {
-  const panel: Panel = { label: [], timer: [], advance: [], phases: [], synced: [], eyebrowPhases: [], selectors: [] };
+  const panel: Panel = { label: [], timer: [], clock: [], advance: [], phases: [], synced: [], eyebrowPhases: [], selectors: [] };
   const sink = (into: string[]) => ({ set textContent(value: string) { into.push(value); } });
   const formatStationClock = (seconds: number): string => `${String(Math.floor(seconds / 60)).padStart(2, "0")}:${String(seconds % 60).padStart(2, "0")}`;
   const eyebrowSink = { textContent: "Doorway" };
@@ -32,8 +31,8 @@ async function drive(search: string, snapshots: Array<Record<string, unknown>>):
     return writeEyebrowThrough(el, phase);
   };
   const body = ONPHASE.exec(MAIN)?.[1];
-  const make = new Function("examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "record", "updateExamFlowEvidence", "writeSyncedDoorwayEyebrow", "requireElement", `let syncedServerPhase = "";\nreturn (phase, remaining) => {\n(() => {${body ?? ""}\n})();\nrecord(syncedServerPhase !== "");\n};`);
-  const run = make(sink(panel.timer), sink(panel.advance), sink(panel.label), formatStationClock, (value: boolean) => panel.synced.push(value), () => undefined, writeSyncedDoorwayEyebrow, requireElement) as (phase: string, remaining: number) => void;
+  const make = new Function("examFlowTimer", "clock", "examFlowAdvance", "stationClockLabel", "formatStationClock", "record", "updateExamFlowEvidence", "writeSyncedDoorwayEyebrow", "requireElement", `let syncedServerPhase = "";\nlet breakClock = false;\nreturn (phase, remaining) => {\n(() => {${body ?? ""}\n})();\nrecord(syncedServerPhase !== "");\n};`);
+  const run = make(sink(panel.timer), sink(panel.clock), sink(panel.advance), sink(panel.label), formatStationClock, (value: boolean) => panel.synced.push(value), () => undefined, writeSyncedDoorwayEyebrow, requireElement) as (phase: string, remaining: number) => void;
   let listener: ((s: unknown) => void) | undefined;
   await startEncounterSyncFromUrl({
     search,
@@ -72,6 +71,7 @@ describe("the synced flow panel follows the server phase (C55')", () => {
   it("the timer counts down with the server second by second", async () => {
     const panel = await drive(SYNC, [at("encounter", 3), at("encounter", 2), at("encounter", 2), at("encounter", 1)]);
     expect(panel.timer).toEqual(["Encounter 00:03 left", "Encounter 00:02 left", "Encounter 00:01 left"]);
+    expect(panel.clock).toEqual(["00:03", "00:02", "00:01"]);
   });
 
   it("a server remaining of 7 shows 7 whatever the local elapsed clock reads (the body reads no local clock)", async () => {
@@ -108,6 +108,8 @@ describe("the synced flow panel follows the server phase (C55')", () => {
     expect(MAIN).toMatch(/if \(!syncedServerPhase\) \{\n\s*examFlowTimer\.textContent = evidence\.phase === "note"/u);
     expect(MAIN).toMatch(/examFlowAdvance\.textContent = evidence\.canAdvanceToNextEncounter[\s\S]*?\n\s*\}\n\s*endEncounterButton\.disabled/u);
     expect(ONPHASE.exec(MAIN)?.[1] ?? "").toContain("syncedServerPhase = phase;");
+    expect(ONPHASE.exec(MAIN)?.[1] ?? "").toContain("clock.textContent = formatStationClock(remaining);");
+    expect(MAIN).toContain("if (!replayClock && !breakClock && !syncedServerPhase) clock.textContent = formatStationClock(state.elapsedSecond);");
   });
 
   it("the non-synced shell keeps the base label, timer and advance text byte for byte", () => {

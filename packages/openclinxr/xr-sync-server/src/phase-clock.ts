@@ -19,7 +19,12 @@ export interface StationTiming {
   doorwaySeconds: number;
   encounterSeconds: number;
   noteSeconds: number;
+  readyTimeoutSeconds?: number;
 }
+
+// Measured at /Volumes/files/openclinxr-assets/store/xr-sync-ready/s0/scene-load.json:
+// ceil(2 * 3422.5 ms / 1000) = 7 seconds.
+export const DEFAULT_READY_TIMEOUT_SECONDS = 7;
 
 /** Phase names in encounter order. "brief" is the no-timing mode (not a clock phase). */
 export type StationPhase = "doorway" | "encounter" | "note" | "closed" | "break";
@@ -70,6 +75,7 @@ export interface StationPhaseBindings {
   state: {
     phase: string;
     phaseRemainingS: number;
+    stationStarted: boolean;
     turnOwner: string;
     learners: { values(): Iterable<{ speaking: boolean }> };
     actors: { get(id: string): { speaking: boolean; caption: string } | undefined };
@@ -101,6 +107,7 @@ export function attachStationPhaseClock(
   if (timing === null) {
     bindings.state.phase = "brief";
     bindings.state.phaseRemainingS = 0;
+    bindings.state.stationStarted = true;
     return null;
   }
   const clock = new StationPhaseClock(bindings.clock, timing, {
@@ -164,7 +171,9 @@ export function attachStationPhaseClock(
       bindings.onStationClosed?.();
     },
   }, breakSeconds);
-  clock.start();
+  bindings.state.phase = "doorway";
+  bindings.state.phaseRemainingS = timing.doorwaySeconds;
+  bindings.state.stationStarted = false;
   return clock;
 }
 
@@ -210,6 +219,7 @@ export interface PhaseClockHooks {
  */
 export class StationPhaseClock {
   private stopped = false;
+  private started = false;
   private countdown: { clear(): void } | null = null;
   private boundary: { clear(): void } | null = null;
   private generation = 0;
@@ -221,8 +231,11 @@ export class StationPhaseClock {
     private readonly breakSeconds = 0,
   ) {}
 
-  start(): void {
+  start(): boolean {
+    if (this.started || this.stopped) return false;
+    this.started = true;
     this.enter("doorway");
+    return true;
   }
 
   stop(): void {

@@ -14,7 +14,7 @@ import { describe, expect, it } from "vitest";
 // source and run against stand-in elements, driven by the real xr-sync-client.
 const SRC = fileURLToPath(new URL(".", import.meta.url));
 const MAIN = readFileSync(SRC + "main.ts", "utf8");
-const MAIN_LINES_AT_BASE = 4719; // origin/main 0152d3bd4: card tsk_bf84681b185c6766 imports the eyebrow writer on the existing xr-sync-client/headset line (+0); 4724 after B'' tsk_0d56fb3d8be0c6d7 onTopicMenu own line (C49); 4719 after W0-CAM-P (latch +9, staged-actor hold +7, R-c deleted 21 dead lines, fences moved to live calls)
+const MAIN_LINES_AT_BASE = 4720; // origin/main 0152d3bd4: card tsk_bf84681b185c6766 imports the eyebrow writer on the existing xr-sync-client/headset line (+0); 4724 after B'' tsk_0d56fb3d8be0c6d7 onTopicMenu own line (C49); 4719 after W0-CAM-P (latch +9, staged-actor hold +7, R-c deleted 21 dead lines, fences moved to live calls); 4720 after XS-READY F2 server clock writer (tsk_4ff44b72ce024060)
 const flush = async (): Promise<void> => { for (let i = 0; i < 12; i += 1) await Promise.resolve(); };
 const ONPHASE = /onPhase: \(phase, remaining\) => \{\n([\s\S]*?)\n  \},\n/u;
 const END_LINES = MAIN.split("\n").filter((line) => /\bendEncounterButton\.disabled =/u.test(line));
@@ -53,14 +53,14 @@ async function boot(search: string): Promise<Shell> {
   const writeSyncedDoorwayEyebrow = (el: { textContent: string | null }, phase: string | undefined): string =>
     writeEyebrowThrough(el, phase);
   const make = new Function(
-    "examFlowTimer", "examFlowAdvance", "stationClockLabel", "formatStationClock", "applyExamFlowIntent", "endEncounterButton", "submitNoteButton", "writeSyncedDoorwayEyebrow", "requireElement",
-    `let syncedServerPhase = "";\nlet updateExamFlowEvidence = () => undefined;\n` +
+    "examFlowTimer", "clock", "examFlowAdvance", "stationClockLabel", "formatStationClock", "applyExamFlowIntent", "endEncounterButton", "submitNoteButton", "writeSyncedDoorwayEyebrow", "requireElement",
+    `let syncedServerPhase = "";\nlet breakClock = false;\nlet updateExamFlowEvidence = () => undefined;\n` +
       `const onPhase = (phase, remaining) => {\n${ONPHASE.exec(MAIN)?.[1] ?? ""}\n};\n` +
       `const flags = (evidence) => {\n${END_LINES[0] ?? ""}\n${SUBMIT_LINES[0] ?? ""}\n};\n` +
       `const clickEnd = () => {\n${END_HANDLER}\n};\nconst clickSubmit = () => {\n${SUBMIT_HANDLER}\n};\n` +
       `return { onPhase, flags, clickEnd, clickSubmit, setUpdate: (fn) => { updateExamFlowEvidence = fn; } };`,
   );
-  const shell = make(sink(), sink(), sink(), formatStationClock, applyExamFlowIntent, buttons.end, buttons.submit, writeSyncedDoorwayEyebrow, requireElement) as {
+  const shell = make(sink(), sink(), sink(), sink(), formatStationClock, applyExamFlowIntent, buttons.end, buttons.submit, writeSyncedDoorwayEyebrow, requireElement) as {
     onPhase(phase: string, remaining: number): void; flags(evidence: { phase: string }): void; clickEnd(): void; clickSubmit(): void; setUpdate(fn: () => void): void;
   };
   shell.setUpdate(() => shell.flags({ phase: local.phase }));

@@ -18,9 +18,9 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import type { EmotionTransition } from "@openclinxr/conversation-policy";
-import { validateCoveredTags } from "./covered-tags.js";
 import { CONVERSATION_TRACE_SCHEMA, type ConversationTraceEvent } from "./conversation-trace.js";
 import { readCastContext } from "./conversation-trace-cast.js";
+import { validateCoveredTags } from "./covered-tags.js";
 import type { SessionReviewStationEntry } from "./session-review-index.js";
 import {
   SESSION_REVIEW_INDEX_FILE,
@@ -154,7 +154,10 @@ function isReplayTraceEventKind(kind: unknown): boolean {
     kind === "phase-changed" ||
     kind === "rotation-failed" ||
     kind === "note-submitted" ||
-    kind === "scheduled-event"
+    kind === "scheduled-event" ||
+    kind === "station-ready" ||
+    kind === "ready-timeout" ||
+    kind === "ready-ignored"
   );
 }
 

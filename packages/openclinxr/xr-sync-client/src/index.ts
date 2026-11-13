@@ -73,6 +73,8 @@ export interface EncounterSnapshot {
   phase: string;
   /** C6 integer seconds left in the current phase (0 when closed; absent on old servers / brief mode). */
   phaseRemainingS?: number;
+  /** XS-READY false while the server is holding the full doorway duration for the scene latch. */
+  stationStarted?: boolean;
   /** C3 actor-turn counter (0 before any actor turn). */
   turnId: number;
   /** C3 turn owner: "none" | "learner" | "actor". */
@@ -136,6 +138,8 @@ export interface SyncConnection {
   /** C8: last rotation-failed notice from the server (null when none). */
   readonly rotationFailed: { stationId: string } | null;
   sendIntent(kind: IntentKind, payload?: IntentPayload): Promise<IntentResult>;
+  /** Signal that the learner scene is ready; idempotent for this room and carried across rotations. */
+  sendReady(): void;
   onState(callback: (snapshot: EncounterSnapshot) => void): () => void;
   /** C8: typed callback for the server rotation-failed notice (no station choice). */
   onRotationFailed(callback: (info: { stationId: string }) => void): () => void;
@@ -187,13 +191,13 @@ function toSnapshot(state: unknown): EncounterSnapshot | undefined {
 }
 
 /** Join the encounter room at url and wire intent, snapshot, and reconnect handling. */
-export async function connect(url: string, options: ConnectOptions = {}): Promise<SyncConnection> {
+export async function connect(url: string, options: ConnectOptions = {}, deferReady = false): Promise<SyncConnection> {
   const client = new Client(url);
   const initialRoom = await client.joinOrCreate<Room>(ROOM_NAME, options.roomOptions ?? {});
-  return createConnection(client, initialRoom);
+  return createConnection(client, initialRoom, !deferReady);
 }
 
-function createConnection(client: Client, initialRoom: Room): SyncConnection {
+function createConnection(client: Client, initialRoom: Room, autoReady: boolean): SyncConnection {
   let room: Room = initialRoom;
   let seq = 0;
   const pending = new Map<number, PendingIntent>();
@@ -202,6 +206,7 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
   let lastRotationFailed: { stationId: string } | null = null;
   let rotating = false;
   const rotationQueue: QueuedIntent[] = [];
+  let readyEnabled = autoReady;
 
   const pushCurrent = (): void => {
     const snapshot = toSnapshot(room.state);
@@ -347,6 +352,7 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
       failRoomPending(bound, new Error("room left with in-flight intents"));
     });
     pushCurrent();
+    if (readyEnabled) room.send("ready");
   };
 
   wireRoom(initialRoom);
@@ -383,6 +389,11 @@ function createConnection(client: Client, initialRoom: Room): SyncConnection {
         pending.set(current, { room, resolve, reject, startedAt, timer });
         sendOn(room, current, kind, payload);
       });
+    },
+    sendReady(): void {
+      if (readyEnabled) return;
+      readyEnabled = true;
+      room.send("ready");
     },
     onState(callback: (snapshot: EncounterSnapshot) => void): () => void {
       stateListeners.add(callback);

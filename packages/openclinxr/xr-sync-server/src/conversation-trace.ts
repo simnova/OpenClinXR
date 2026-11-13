@@ -14,25 +14,26 @@
  * replay ignores it; this trace carries no tick at all).
  */
 import {
-  EmotionEngine,
   type CaseEmotionPolicy,
+  EmotionEngine,
   type EmotionEventKind,
   type EmotionTransition,
 } from "@openclinxr/conversation-policy";
 import {
   applyAuthoredAffect,
   CAST_TRACE_OPENING_CUE_ID,
+  type ConversationCastContext,
   castOpeningReplyId,
   isCastOpening,
   readCastContext,
   transitionWithCastHold,
-  type ConversationCastContext,
 } from "./conversation-trace-cast.js";
 import { validateCoveredTags } from "./covered-tags.js";
 import { pickTopicAnswer, SPEECH_LOW_CONFIDENCE_TAG, UNMATCHED_TOPIC_TAG } from "./topic-answers.js";
 import { resolveTurnCueId } from "./turn-cue.js";
 
 export type { ConversationCastContext } from "./conversation-trace-cast.js";
+
 /** Learner speech completed: the acknowledgement that opens an actor reply. */
 const LEARNER_ACKNOWLEDGEMENT: EmotionEventKind = "learner_acknowledgement";
 /** Learner speech started over an open actor turn. */
@@ -123,7 +124,7 @@ export const PROBE_CASE_EMOTION_POLICY: CaseEmotionPolicy = {
 export type ConversationTraceEventKind =
   | "select-actor" | "utterance-start" | "utterance-end" | "turn-completed"
   | "observer-joined" | "observer-left" | "phase-changed" | "rotation-failed"
-  | "note-submitted" | "scheduled-event";
+  | "note-submitted" | "scheduled-event" | "station-ready" | "ready-timeout" | "ready-ignored";
 
 /** C45 origin of an accepted patient note ("explicit" via note-submit, "draft" via promotion). */
 export type NoteSource = "explicit" | "draft";
@@ -375,7 +376,8 @@ function isTraceEventKind(kind: string): kind is ConversationTraceEventKind {
     kind === "select-actor" || kind === "utterance-start" || kind === "utterance-end" ||
     kind === "turn-completed" || kind === "observer-joined" || kind === "observer-left" ||
     kind === "rotation-failed" || kind === "phase-changed" || kind === "note-submitted" ||
-    kind === "scheduled-event"
+    kind === "scheduled-event" || kind === "station-ready" || kind === "ready-timeout" ||
+    kind === "ready-ignored"
   );
 }
 

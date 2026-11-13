@@ -55,8 +55,8 @@ async function start(options: Record<string, unknown>): Promise<EncounterServer>
   return server;
 }
 
-async function joinLearner(server: EncounterServer): Promise<SyncConnection> {
-  const connection = await connect(server.url, { roomOptions: { actors: ["a1", "a2"] } });
+async function joinLearner(server: EncounterServer, deferReady = false): Promise<SyncConnection> {
+  const connection = await connect(server.url, { roomOptions: { actors: ["a1", "a2"] } }, deferReady);
   leavers.push(() => connection.leave());
   return connection;
 }
@@ -73,6 +73,25 @@ type LiveState = { stationId: string; stationIndex: number; stationCount: number
 const state = (server: EncounterServer): LiveState => JSON.parse(server.getStateJSON()) as LiveState;
 
 describe("xr-sync-server C15 exam blueprint boot", () => {
+  it("XS-READY: absent readyTimeoutSeconds defaults to the measured seven seconds", async () => {
+    const server = await start({ examBlueprint: blueprint() });
+    const joinedAt = Date.now();
+    await joinLearner(server, true);
+    await waitFor(() => server.getConversationTrace().events.some((event) => event.kind === "ready-timeout"), 8500, "default ready timeout");
+    const doorwayAt = server.getProbeStats().phaseChangedAtMs["doorway"] ?? 0;
+    expect(doorwayAt - joinedAt).toBeGreaterThanOrEqual(6800);
+    expect(doorwayAt - joinedAt).toBeLessThanOrEqual(7600);
+  }, 10000);
+
+  it("XS-READY: readyTimeoutSeconds accepts a positive finite blueprint override", async () => {
+    const server = await start({ examBlueprint: blueprint({ timing: { ...TIMING, readyTimeoutSeconds: 12 } }) });
+    expect(server.port).toBeGreaterThan(0);
+  });
+
+  it.each([0, -1, "7"])("XS-READY: readyTimeoutSeconds refuses %j in the bad-examBlueprint family", async (readyTimeoutSeconds) => {
+    await expect(start({ examBlueprint: blueprint({ timing: { ...TIMING, readyTimeoutSeconds } }) })).rejects.toThrow(/bad-examBlueprint/);
+  });
+
   it("known-good: inline stations + timing still boot the first station", async () => {
     const server = await start({ stations: ["station-1", "station-2"], timing: TIMING });
     await joinLearner(server);

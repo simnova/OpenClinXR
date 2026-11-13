@@ -85,6 +85,15 @@ describe("room panel (C36)", () => {
     expect(text(parent, "room-cast")).toBe("");
   });
 
+  it("RED4: holds the full doorway time before station start, then counts down from ready", async () => {
+    const { parent, snapshot } = await joined(new Set());
+    snapshot({ ...SNAP, stationStarted: false, phaseRemainingS: 4 });
+    snapshot({ ...SNAP, stationStarted: false, phaseRemainingS: 2 });
+    expect(text(parent, "room-countdown")).toBe("Encounter opens in 4 s");
+    snapshot({ ...SNAP, stationStarted: true, phaseRemainingS: 3 });
+    expect(text(parent, "room-countdown")).toBe("Encounter opens in 3 s");
+  });
+
   it("a refusal before any snapshot names the reason; doorway, other-phase and other reasons read as specified; the encounter phase clears it", async () => {
     const { parent, handle, snapshot } = await joined(new Set(["select-actor"]));
     await handle?.sendUtterance("p", "hello");
