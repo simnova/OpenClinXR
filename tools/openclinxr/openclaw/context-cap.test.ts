@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, realpathSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
@@ -9,6 +9,7 @@ import {
   buildCapMessage,
   contextTokensFromClaudeTranscript,
   contextTokensFromGrokUpdates,
+  countCompactionsInFile,
   decideClaude,
   decideGrok,
   overCapReport,
@@ -175,5 +176,179 @@ describe("context-cap", () => {
 
   it("cap message names the handoff command", () => {
     expect(buildCapMessage(1, 2)).toContain("pnpm exec tsx tools/openclinxr/openclaw/handoff.ts write <lane>");
+  });
+});
+
+describe("context-cap compaction counting", () => {
+  const node = process.execPath;
+  const tsxCli = createRequire(import.meta.url).resolve("tsx/cli");
+  const script = fileURLToPath(new URL("./context-cap.ts", import.meta.url));
+
+  const boundary = (preTokens: number) =>
+    JSON.stringify({
+      type: "system",
+      subtype: "compact_boundary",
+      content: "Conversation compacted",
+      timestamp: "2026-11-10T08:08:37.754Z",
+      compactMetadata: { trigger: "auto", preTokens, durationMs: 39397 },
+    });
+  const assistant = (total: number) =>
+    JSON.stringify({
+      type: "assistant",
+      message: { usage: { input_tokens: 2, cache_creation_input_tokens: 1000, cache_read_input_tokens: total - 1002 } },
+    });
+
+  // Runs the real hook over a transcript; returns stdout (empty string = silent).
+  // padBytes > 0 inserts filler after the first line so that line falls outside the 4 MiB tail.
+  function runHook(lines: string[], env: Record<string, string> = {}, padBytes = 0): string {
+    const root = mkdtempSync(join(tmpdir(), "ocxr-cap-compact-"));
+    try {
+      const transcript = join(root, "t.jsonl");
+      const filler = `${JSON.stringify({ type: "user", message: { content: "x".repeat(900) } })}\n`;
+      const [first, ...rest] = lines;
+      const text =
+        padBytes > 0
+          ? `${first}\n${filler.repeat(Math.ceil(padBytes / filler.length))}${rest.join("\n")}\n`
+          : `${lines.join("\n")}\n`;
+      writeFileSync(transcript, text);
+      const base: Record<string, string | undefined> = { ...gitEnvWithoutInheritedRepoVars() };
+      delete base.OPENCLINXR_CONTEXT_CAP;
+      delete base.OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF;
+      delete base.OPENCLINXR_ROLE;
+      return execFileSync(node, [tsxCli, script], {
+        cwd: root,
+        input: JSON.stringify({ hook_event_name: "UserPromptSubmit", transcript_path: transcript }),
+        encoding: "utf8",
+        env: { ...base, ...env } as NodeJS.ProcessEnv,
+      }).trim();
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  }
+
+  it("C1: no compaction and context above the 600000 backstop prints the cap message", () => {
+    const out = runHook([assistant(650000)]);
+    expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("650000");
+  });
+
+  it("C2: one compaction and 350000 tokens stays silent", () => {
+    expect(runHook([boundary(315186), assistant(350000)])).toBe("");
+  });
+
+  it("C3: two compactions print a cap message naming the count", () => {
+    const out = runHook([boundary(315186), assistant(120000), boundary(320000), assistant(110000)]);
+    const msg = JSON.parse(out).hookSpecificOutput.additionalContext as string;
+    expect(msg).toContain("2 compactions");
+    expect(msg).toContain("handoff.ts write <lane>");
+  });
+
+  it("C3: OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF=3 keeps two compactions silent", () => {
+    expect(
+      runHook([boundary(1), assistant(120000), boundary(2), assistant(110000)], { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: "3" }),
+    ).toBe("");
+  });
+
+  it("C4/F5: COMPACTIONS_BEFORE_HANDOFF=0 restores the 300000 cap with the old message and no counting", () => {
+    const env = { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: "0" };
+    expect(runHook([boundary(1), boundary(2), boundary(3), assistant(250000)], env)).toBe("");
+    const over = runHook([boundary(1), boundary(2), boundary(3), assistant(350000)], env);
+    expect(JSON.parse(over).hookSpecificOutput.additionalContext).toBe(buildCapMessage(350000, 300000));
+    expect(JSON.parse(over).hookSpecificOutput.additionalContext).not.toContain("compactions");
+    expect(runHook([assistant(350000)], { ...env, OPENCLINXR_CONTEXT_CAP: "400000" })).toBe("");
+  });
+
+  it("C4: OPENCLINXR_CONTEXT_CAP still overrides the token cap with counting on", () => {
+    const out = runHook([assistant(250000)], { OPENCLINXR_CONTEXT_CAP: "200000" });
+    expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("250000");
+  });
+
+  it("C5: compact_boundary text inside tool_result and user content is not counted", () => {
+    const tool = JSON.stringify({
+      type: "user",
+      message: { content: [{ type: "tool_result", content: '{"type":"system","subtype":"compact_boundary"}' }] },
+    });
+    const user = JSON.stringify({ type: "user", message: { content: 'grep "subtype":"compact_boundary"' } });
+    expect(runHook([tool, user, tool, user, assistant(350000)])).toBe("");
+  });
+
+  it("C5: a malformed last line does not silence the cap", () => {
+    const out = runHook([
+      boundary(1),
+      assistant(120000),
+      boundary(2),
+      assistant(110000),
+      '{"type":"assistant","message":{"usage":{"input_tok',
+    ]);
+    expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("2 compactions");
+  });
+
+  it("C5: a boundary outside the 4 MiB tail is still counted", () => {
+    const out = runHook([boundary(1), boundary(2), assistant(120000)], {}, 5 * 1024 * 1024);
+    expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("2 compactions");
+    expect(runHook([boundary(1), assistant(120000)], {}, 5 * 1024 * 1024)).toBe("");
+  });
+
+  it("F1: grok keeps the 300000 cap with no counting", () => {
+    const root = realpathSync(mkdtempSync(join(tmpdir(), "ocxr-cap-grok-")));
+    try {
+      const dir = join(root, ".grok", "sessions", encodeURIComponent(root), "s1");
+      mkdirSync(dir, { recursive: true });
+      writeFileSync(join(dir, "updates.jsonl"), `${grokUpdates(350001)}\n`);
+      const base: Record<string, string | undefined> = { ...gitEnvWithoutInheritedRepoVars(), HOME: root };
+      delete base.OPENCLINXR_CONTEXT_CAP;
+      delete base.OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF;
+      const out = execFileSync(node, [tsxCli, script, "--grok"], {
+        cwd: root,
+        input: JSON.stringify({ sessionId: "s1" }),
+        encoding: "utf8",
+        env: base as NodeJS.ProcessEnv,
+      }).trim();
+      expect(out).toBe(buildCapMessage(350001, 300000));
+    } finally {
+      rmSync(root, { recursive: true, force: true });
+    }
+  });
+
+  it("F2: two boundaries with no assistant usage line still fire", () => {
+    const out = runHook([boundary(1), boundary(2)]);
+    expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("2 compactions");
+  });
+
+  it.each(["abc", "-1", ""])("F6: invalid OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF %j falls back to 2", (value) => {
+    const lines = [boundary(1), assistant(120000), boundary(2), assistant(110000)];
+    const out = runHook(lines, { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: value });
+    expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("2 compactions");
+    expect(runHook(lines.slice(0, 2), { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: value })).toBe("");
+  });
+
+  describe("F4: countCompactionsInFile", () => {
+    const count = (text: string): number | null => {
+      const root = mkdtempSync(join(tmpdir(), "ocxr-count-"));
+      try {
+        const file = join(root, "t.jsonl");
+        writeFileSync(file, text);
+        return countCompactionsInFile(file);
+      } finally {
+        rmSync(root, { recursive: true, force: true });
+      }
+    };
+
+    it("a 50 MiB single user line followed by a boundary counts 1", () => {
+      const huge = JSON.stringify({ type: "user", message: { content: "y".repeat(50 * 1024 * 1024) } });
+      const started = Date.now();
+      expect(count(`${huge}\n${boundary(1)}\n`)).toBe(1);
+      expect(Date.now() - started).toBeLessThan(5000);
+    });
+
+    it("a boundary line split exactly at the 1 MiB chunk edge counts", () => {
+      const chunk = 1024 * 1024;
+      const b = boundary(1);
+      const prefixLen = chunk - 10;
+      const filler = `${JSON.stringify({ type: "user", message: { content: "z".repeat(prefixLen - 60) } })}`;
+      const pad = " ".repeat(prefixLen - filler.length - 1);
+      const text = `${filler}${pad}\n${b}\n${b}\n`;
+      expect(Buffer.byteLength(text.slice(0, text.indexOf(b)))).toBe(prefixLen);
+      expect(count(text)).toBe(2);
+    });
   });
 });

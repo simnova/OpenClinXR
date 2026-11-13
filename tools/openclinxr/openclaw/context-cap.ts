@@ -12,6 +12,13 @@
  * The session id comes from the hook stdin JSON when present, else the newest
  * updates.jsonl under the cwd's session directory.
  *
+ * Compaction counting (default on): sessions ride Claude Code's auto-compaction. The hook counts
+ * top-level {type:"system",subtype:"compact_boundary"} lines over the WHOLE transcript
+ * (streamed, so boundaries outside the tail count) and asks for a handoff once the count
+ * reaches OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF (default 2), or when context passes the
+ * backstop (default 600000, or OPENCLINXR_CONTEXT_CAP). OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF=0
+ * restores the plain token cap (DEFAULT_CAP) with no counting.
+ *
  * Reads hook JSON on stdin. Below or equal to cap, or transcript
  * missing/unreadable: prints nothing, exit 0. Never writes any file.
  */
@@ -19,16 +26,27 @@ import { closeSync, existsSync, openSync, readdirSync, readFileSync, readSync, s
 import { homedir } from "node:os";
 import { join } from "node:path";
 
-// A fresh agent starts at ~163-186k tokens of project instructions alone (eyes lane managers,
-// 2026-10-18), so 180k fired before any work. 300k leaves ~115k for one card of work.
+// Plain token cap, used when compaction counting is off (OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF=0).
+// Measured 2026-11-12: a fresh session's first-turn context is 61,525 tokens (session 08aaccb2);
+// across 152 compactions in 97 local transcripts, auto-compaction fires at a median preTokens of
+// 316,883 (q25 263,231, q75 327,238) and the first post-compaction context is a median 102,167.
+// 300k sits just under the typical auto-compaction point.
 export const DEFAULT_CAP = 300000;
+/** Handoff after this many compactions; 0 disables counting. */
+export const DEFAULT_COMPACTIONS_BEFORE_HANDOFF = 2;
+/** Token backstop when counting is on: a session that never compacts still hands off here. */
+export const DEFAULT_BACKSTOP = 600000;
 export const HANDOFF_RECENCY_MS = 10 * 60 * 1000;
 /** Tail window for transcript reads: newest usage lines live at the end. */
 export const TAIL_BYTES = 4 * 1024 * 1024;
 
-export function buildCapMessage(tokens: number, cap: number): string {
+export function buildCapMessage(tokens: number | null, cap: number, compactions?: number): string {
+  const why =
+    compactions === undefined
+      ? `context ${tokens} tokens is over the cap ${cap}`
+      : `this session has had ${compactions} compactions (context ${tokens ?? "unknown"} tokens, backstop ${cap})`;
   return (
-    `context ${tokens} tokens is over the cap ${cap}; write your handoff now with ` +
+    `${why}; write your handoff now with ` +
     "`pnpm exec tsx tools/openclinxr/openclaw/handoff.ts write <lane>`, fill its slots, and start no new work."
   );
 }
@@ -83,6 +101,93 @@ export function contextTokensFromGrokUpdates(text: string): number | null {
   return newest;
 }
 
+/** True when a line is a parsed top-level system/compact_boundary entry. */
+export function isCompactBoundaryLine(line: string): boolean {
+  if (!line.includes("compact_boundary")) return false;
+  try {
+    const entry = JSON.parse(line) as { type?: unknown; subtype?: unknown };
+    return entry?.type === "system" && entry?.subtype === "compact_boundary";
+  } catch {
+    return false;
+  }
+}
+
+export function countCompactionsInText(text: string): number {
+  let count = 0;
+  for (const line of String(text ?? "").split("\n")) if (isCompactBoundaryLine(line.trim())) count += 1;
+  return count;
+}
+
+/** A line longer than this cannot be a boundary line (real ones are a few KB); it is skipped. */
+const MAX_BOUNDARY_LINE_BYTES = 8 * 1024 * 1024;
+
+/**
+ * Streams the whole file in 1 MiB chunks, so boundaries outside the tail window count.
+ * Linear: newlines are found per chunk and a partial line is kept as a chunk list,
+ * dropped once it passes MAX_BOUNDARY_LINE_BYTES.
+ */
+export function countCompactionsInFile(path: string): number | null {
+  let fd = -1;
+  try {
+    fd = openSync(path, "r");
+    const buf = Buffer.alloc(1024 * 1024);
+    let pending: Buffer[] = [];
+    let pendingBytes = 0;
+    let skipping = false;
+    let count = 0;
+    const finishLine = (tail: Buffer): void => {
+      if (!skipping) {
+        const line = pending.length === 0 ? tail : Buffer.concat([...pending, tail]);
+        if (line.length <= MAX_BOUNDARY_LINE_BYTES && isCompactBoundaryLine(line.toString("utf8").trim())) count += 1;
+      }
+      pending = [];
+      pendingBytes = 0;
+      skipping = false;
+    };
+    for (;;) {
+      const n = readSync(fd, buf, 0, buf.length, null);
+      if (n <= 0) break;
+      let start = 0;
+      for (;;) {
+        const nl = buf.indexOf(10, start);
+        if (nl === -1 || nl >= n) break;
+        finishLine(buf.subarray(start, nl));
+        start = nl + 1;
+      }
+      if (start < n && !skipping) {
+        pending.push(Buffer.from(buf.subarray(start, n)));
+        pendingBytes += n - start;
+        if (pendingBytes > MAX_BOUNDARY_LINE_BYTES) {
+          skipping = true;
+          pending = [];
+          pendingBytes = 0;
+        }
+      }
+    }
+    finishLine(Buffer.alloc(0));
+    return count;
+  } catch {
+    return null;
+  } finally {
+    if (fd !== -1) {
+      try {
+        closeSync(fd);
+      } catch {
+        /* ignore */
+      }
+    }
+  }
+}
+
+/** Compactions before handoff: env override, default 2; 0 disables counting. */
+export function resolveCompactionsBeforeHandoff(env: NodeJS.ProcessEnv = process.env): number {
+  const envKey: string = "OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF";
+  const raw = env[envKey];
+  if (raw === undefined || raw.trim() === "") return DEFAULT_COMPACTIONS_BEFORE_HANDOFF;
+  const n = Number(raw);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : DEFAULT_COMPACTIONS_BEFORE_HANDOFF;
+}
+
 function readJsonFile(path: string): unknown {
   try {
     return JSON.parse(readFileSync(path, "utf8"));
@@ -91,7 +196,12 @@ function readJsonFile(path: string): unknown {
   }
 }
 
-export function resolveCap(repoRoot: string, env: NodeJS.ProcessEnv = process.env): number {
+// Role caps (.openclinxr/context-cap.json) stay token caps: with counting on they set the backstop.
+export function resolveCap(
+  repoRoot: string,
+  env: NodeJS.ProcessEnv = process.env,
+  harness: "claude" | "grok" = "claude",
+): number {
   const fromEnv = Number(env.OPENCLINXR_CONTEXT_CAP);
   if (Number.isFinite(fromEnv) && fromEnv > 0) return fromEnv;
   const role = env.OPENCLINXR_ROLE;
@@ -102,7 +212,8 @@ export function resolveCap(repoRoot: string, env: NodeJS.ProcessEnv = process.en
       if (typeof perRole === "number" && Number.isFinite(perRole) && perRole > 0) return perRole;
     }
   }
-  return DEFAULT_CAP;
+  // Grok has no compaction counting, so it keeps the plain cap.
+  return harness === "claude" && resolveCompactionsBeforeHandoff(env) > 0 ? DEFAULT_BACKSTOP : DEFAULT_CAP;
 }
 
 function newestFileMtimeMs(dir: string): number | null {
@@ -136,13 +247,31 @@ export type ClaudeDecision = {
   hookEvent: string;
   stopHookActive: boolean;
   handoffRecent: boolean;
+  /** Compactions seen in the transcript; with compactionsBeforeHandoff > 0, `cap` is the backstop. */
+  compactions?: number | null;
+  compactionsBeforeHandoff?: number;
 };
+
+/** Cap message when a handoff is due, else null. Counting applies only when compactionsBeforeHandoff > 0. */
+export function handoffDue(
+  tokens: number | null,
+  cap: number,
+  compactions: number | null | undefined,
+  compactionsBeforeHandoff: number | undefined,
+): string | null {
+  const limit = compactionsBeforeHandoff ?? 0;
+  if (limit > 0 && compactions != null && compactions >= limit) {
+    return buildCapMessage(tokens, cap, compactions);
+  }
+  if (tokens === null) return null;
+  return tokens > cap ? buildCapMessage(tokens, cap) : null;
+}
 
 /** Returns the stdout payload, or null for silence. */
 export function decideClaude(opts: ClaudeDecision): string | null {
   const { tokens, cap, hookEvent, stopHookActive, handoffRecent } = opts;
-  if (tokens === null || tokens <= cap) return null;
-  const msg = buildCapMessage(tokens, cap);
+  const msg = handoffDue(tokens, cap, opts.compactions, opts.compactionsBeforeHandoff);
+  if (msg === null) return null;
   if (hookEvent === "Stop") {
     if (stopHookActive || handoffRecent) return null;
     return JSON.stringify({ decision: "block", reason: msg });
@@ -166,9 +295,14 @@ export type GrokDecision =
  * exactly when it had to hand off instead. Returns the stdout payload, or null
  * when at/under cap or when the token count is unknown.
  */
-export function overCapReport(tokens: number | null, cap: number): string | null {
-  if (tokens === null || tokens <= cap) return null;
-  return JSON.stringify({ overCap: true, tokens, cap });
+export function overCapReport(
+  tokens: number | null,
+  cap: number,
+  compactions?: number | null,
+  compactionsBeforeHandoff?: number,
+): string | null {
+  if (handoffDue(tokens, cap, compactions, compactionsBeforeHandoff) === null) return null;
+  return JSON.stringify({ overCap: true, tokens, cap, ...(compactions != null ? { compactions } : {}) });
 }
 
 export function decideGrok(opts: {
@@ -303,7 +437,7 @@ function main(): void {
       process.exit(0);
     }
   }
-  const cap = resolveCap(repoRoot);
+  const cap = resolveCap(repoRoot, process.env, grok ? "grok" : "claude");
   const str = (key: string): string | null =>
     typeof input[key] === "string" ? (input[key] as string) : null;
 
@@ -348,8 +482,11 @@ function main(): void {
   const tokens = transcriptPath
     ? tokensFromTranscriptFile(transcriptPath, contextTokensFromClaudeTranscript)
     : null;
+  const compactionsBeforeHandoff = resolveCompactionsBeforeHandoff();
+  const compactions =
+    compactionsBeforeHandoff > 0 && transcriptPath ? countCompactionsInFile(transcriptPath) : null;
   if (argv.includes("--probe-over-cap")) {
-    const probe = overCapReport(tokens, cap);
+    const probe = overCapReport(tokens, cap, compactions, compactionsBeforeHandoff);
     if (probe !== null) process.stdout.write(`${probe}\n`);
     process.exit(0);
   }
@@ -362,6 +499,8 @@ function main(): void {
     hookEvent,
     stopHookActive,
     handoffRecent: hasRecentHandoff(repoRoot),
+    compactions,
+    compactionsBeforeHandoff,
   });
   if (out !== null) process.stdout.write(`${out}\n`);
   process.exit(0);
