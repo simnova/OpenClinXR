@@ -11,7 +11,7 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { copyFileSync, existsSync, mkdirSync, readFileSync, readdirSync, statSync, writeFileSync } from "node:fs";
-import { join, resolve } from "node:path";
+import { join, posix, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { GPU_ARGS, VIEWPORT } from "../site/capture/capture-instrument.mjs";
 import { createRr1FrameClassifier, imageCrop, rightmostTextColumn, signoffFrameSeries } from "../site/rr1-video-classifier.mjs";
@@ -60,6 +60,7 @@ const CH5_OPEN_CROP = join(RR1_CLASSIFIER_FIXTURES, "run-18-ch5-open-65.84.png")
 const G4_STRINGS = ["Trace 0/10", "WebXR unavailable", "local-only fallback"];
 export const FACULTY_CAPTURE_SURFACE = Object.freeze({ viewport: VIEWPORT, deviceScaleFactor: 1 });
 export const CH5_RECORDED_TAIL_HOLD_MS = 1000;
+export const RR1_LEARNER_ROUTE_PATTERNS = Object.freeze([]);
 export const RR1_CAPTURE_ASSERTION_SITES = Object.freeze([
   "server-clock", "learner-header-selection", "join-clocks", "sync-render", "sync-lag", "scene-ready", "learner-artifact-window", "artifact-png",
   "replay-score", "learner-trim-inputs", "learner-trim", "scene-ready-trim", "faculty-probe",
@@ -94,6 +95,98 @@ export function createDeferredErrorCollector() {
       errors.push(`${site}: ${message}`);
     },
   };
+}
+
+function normalizedAssetName(specifier, importerName = "index.html") {
+  const path = specifier.split(/[?#]/u, 1)[0];
+  if (path.startsWith("/")) return posix.normalize(path.slice(1));
+  if (!path.startsWith(".")) return null;
+  return posix.normalize(posix.join(posix.dirname(importerName), path));
+}
+
+function viteMapDependencySpecifiers(source) {
+  const specifiers = [];
+  for (const marker of source.matchAll(/\b__vite__mapDeps\b/gu)) {
+    const declarationEnd = source.indexOf(";", marker.index);
+    const declaration = source.slice(marker.index, declarationEnd === -1 ? source.length : declarationEnd);
+    const dependencyArray = declaration.match(/\.f\s*=\s*(\[[^\]]*\])/u)?.[1];
+    if (dependencyArray === undefined) continue;
+    for (const dependency of dependencyArray.matchAll(/["']([^"']+)["']/gu)) {
+      specifiers.push(dependency[1]);
+    }
+  }
+  return specifiers;
+}
+
+/** Return JS chunks reachable from index.html through static imports or Vite boot preload maps. */
+export function parseStaticChunkGraph(indexHtml, assetsByName) {
+  const normalizedAssets = new Map(Object.entries(assetsByName).map(([name, source]) => [
+    posix.normalize(name.replace(/^\/+/, "")),
+    source,
+  ]));
+  const roots = [];
+  for (const match of indexHtml.matchAll(/<script\b([^>]*)>/giu)) {
+    const attributes = match[1];
+    if (!/\btype\s*=\s*["']module["']/iu.test(attributes)) continue;
+    const source = attributes.match(/\bsrc\s*=\s*["']([^"']+)["']/iu)?.[1];
+    const normalized = source === undefined ? null : normalizedAssetName(source);
+    if (normalized !== null) roots.push(normalized);
+  }
+
+  const reachable = new Set();
+  const pending = [...roots];
+  while (pending.length > 0) {
+    const assetName = pending.pop();
+    if (reachable.has(assetName)) continue;
+    reachable.add(assetName);
+    const source = normalizedAssets.get(assetName);
+    if (typeof source !== "string") continue;
+    const staticSpecifiers = [
+      ...source.matchAll(/\bfrom\s*["']([^"']+\.js(?:[?#][^"']*)?)["']/gu),
+      ...source.matchAll(/\bimport\s*["']([^"']+\.js(?:[?#][^"']*)?)["']/gu),
+    ].map((match) => match[1]);
+    for (const specifier of staticSpecifiers) {
+      const importedName = normalizedAssetName(specifier, assetName);
+      if (importedName !== null && !reachable.has(importedName)) pending.push(importedName);
+    }
+    for (const specifier of viteMapDependencySpecifiers(source)) {
+      const importedName = normalizedAssetName(specifier, assetName)
+        ?? posix.normalize(specifier.split(/[?#]/u, 1)[0].replace(/^\/+/, ""));
+      if (!reachable.has(importedName)) pending.push(importedName);
+    }
+  }
+  return [...reachable].sort();
+}
+
+/** Refuse route holds that can deadlock a statically reachable learner chunk. */
+export function assertNoRouteHoldsStaticChunk({ routePatterns, indexHtml, assetsByName }) {
+  const reachableStaticChunks = parseStaticChunkGraph(indexHtml, assetsByName);
+  for (const routePattern of routePatterns) {
+    if (!(routePattern instanceof RegExp)) {
+      throw new TypeError(`RR1 static chunk route guard requires RegExp patterns; received ${String(routePattern)}`);
+    }
+    for (const assetName of reachableStaticChunks) {
+      if (new RegExp(routePattern.source, routePattern.flags).test(`/${assetName}`)) {
+        throw new Error(`REFUSED route hold ${String(routePattern)} matches statically reachable JS asset ${assetName}`);
+      }
+    }
+  }
+  return { reachableStaticChunks };
+}
+
+export function readStaticChunkInputs(distDir) {
+  const assetsByName = {};
+  const visit = (directory) => {
+    for (const entry of readdirSync(directory, { withFileTypes: true })) {
+      const path = join(directory, entry.name);
+      if (entry.isDirectory()) visit(path);
+      else if (entry.isFile() && entry.name.endsWith(".js")) {
+        assetsByName[relative(distDir, path).split("\\").join("/")] = readFileSync(path, "utf8");
+      }
+    }
+  };
+  visit(distDir);
+  return { indexHtml: readFileSync(join(distDir, "index.html"), "utf8"), assetsByName };
 }
 
 export async function closeRr1Handles(handles) {
@@ -1063,6 +1156,10 @@ async function runCapture(storeRoot) {
   for (const path of [join(APP_DIST, "index.html"), SERVER_DIST, FIXTURES_DIST, CLIENT_DIST, join(FACULTY_DIST, "sync-probe.html"), IWER_BUNDLE, CSS_PATH]) {
     if (!existsSync(path)) throw new Error(`required build/input missing: ${path}`);
   }
+  assertNoRouteHoldsStaticChunk({
+    routePatterns: RR1_LEARNER_ROUTE_PATTERNS,
+    ...readStaticChunkInputs(APP_DIST),
+  });
 
   const timing = { doorwaySeconds: 4, encounterSeconds: 10, noteSeconds: 2, breakAfterStationOrders: [] };
   const blueprint = {
@@ -1122,7 +1219,6 @@ async function runCapture(storeRoot) {
   let evidenceLatchWallMs = null;
   let doorwayStartPlan = null;
   let ch1WindowMargin = { frameMs: null, panelMs: null };
-  let releaseStationStart = null;
   const ensureInteriorPreviewLatch = async (targetPage, kind) => {
     if (kind === "learner" && Number.isFinite(learnerLatchWallMs)) return learnerLatchWallMs;
     if (kind === "evidence" && Number.isFinite(evidenceLatchWallMs)) return evidenceLatchWallMs;
@@ -1306,17 +1402,6 @@ async function runCapture(storeRoot) {
     await context.addInitScript({ content: `${readFileSync(IWER_BUNDLE, "utf8")};const sceneHumanoidAssetsReady=${sceneHumanoidAssetsReady.toString()};(${iwerGlue.toString()})();(${learnerHeaderObserverInit.toString()})();(${learnerPageCaptureInit.toString()})(${JSON.stringify({ presentationCss, dialogue: true, phaseAgreement: true, visibleDomText: true, sceneReady: true })});` });
     evidenceContext = await browser.newContext({ viewport: VIEWPORT, deviceScaleFactor: 1 });
     await evidenceContext.addInitScript({ content: `${readFileSync(IWER_BUNDLE, "utf8")};const sceneHumanoidAssetsReady=${sceneHumanoidAssetsReady.toString()};(${iwerGlue.toString()})();(${learnerHeaderObserverInit.toString()})();(${learnerPageCaptureInit.toString()})(${JSON.stringify({ presentationCss, dialogue: false, phaseAgreement: false, visibleDomText: false, sceneReady: false })});` });
-    const stationStartGate = new Promise((resolveStart) => { releaseStationStart = resolveStart; });
-    let gatedHeadsetRequestCount = 0;
-    const gateHeadsetStart = async (route) => {
-      gatedHeadsetRequestCount += 1;
-      if (await stationStartGate) await route.continue();
-      else await route.abort();
-    };
-    await Promise.all([
-      context.route(/\/assets\/headset-[^/?]+\.js(?:\?.*)?$/u, gateHeadsetStart),
-      evidenceContext.route(/\/assets\/headset-[^/?]+\.js(?:\?.*)?$/u, gateHeadsetStart),
-    ]);
     // RR1_CAPTURE_THROW_SCAN_START: the first recorded page starts here.
     page = await context.newPage();
     pageVideo = page.video();
@@ -1346,8 +1431,6 @@ async function runCapture(storeRoot) {
       ensureInteriorPreviewLatch(evidencePage, "evidence"),
     ]);
     doorwayStartPlan = rr1DoorwayStartPlan({ learnerLatchWallMs, evidenceLatchWallMs });
-    assertCaptureCondition(gatedHeadsetRequestCount === 2, `RR1 station start expected two gated headset clients; observed ${gatedHeadsetRequestCount}`);
-    releaseStationStart(true);
     await pageNavigations;
     await Promise.all([page, evidencePage].map(async (targetPage) => {
       await targetPage.waitForFunction(() => globalThis.__openClinXrEncounterSync?.state === "joined", undefined, { timeout: 240000 });
@@ -2048,7 +2131,6 @@ async function runCapture(storeRoot) {
     }, deferredAssertions.errors);
     console.log(`RR1-min full run wrote ${runDir}`);
   } finally {
-    releaseStationStart?.(false);
     await closeRr1Handles({
       context,
       evidenceContext,

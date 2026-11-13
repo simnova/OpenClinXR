@@ -1,15 +1,52 @@
 import { describe, expect, it } from "vitest";
 import {
   assertLearnerSyncLag,
+  assertNoRouteHoldsStaticChunk,
   assertPhaseAgreementAfterSyncStart,
+  RR1_LEARNER_ROUTE_PATTERNS,
   rr1DoorwayStartPlan,
   selectLearnerSyncStartWallMs,
 } from "./rr1-run.mjs";
 
 const disagree = { eyebrow: "Doorway", phaseRow: "Encounter" };
 const agree = { eyebrow: "Doorway", phaseRow: "Doorway" };
+const staticChunkFixture = {
+  indexHtml: '<script type="module" src="/assets/index-fixture.js"></script>',
+  assetsByName: {
+    "assets/index-fixture.js": 'const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/main-fixture.js","assets/headset-fixture.js"])))=>i.map(i=>d[i]); preload(()=>import("./main-fixture.js"),__vite__mapDeps([0,1])); import("./dynamic-fixture.js");',
+    "assets/main-fixture.js": 'import { headset } from "./headset-fixture.js"; headset();',
+    "assets/headset-fixture.js": "export const headset = () => undefined;",
+    "assets/dynamic-fixture.js": "export const dynamic = true;",
+  },
+};
 
 describe("RR1 post-sync-render phase agreement", () => {
+  it("refuses a route hold matching a statically reachable headset chunk", () => {
+    expect(() => assertNoRouteHoldsStaticChunk({
+      routePatterns: [/\/assets\/headset-[^/?]+\.js(?:\?.*)?$/u],
+      ...staticChunkFixture,
+    })).toThrow(/REFUSED.*assets\/headset-fixture\.js/u);
+  });
+
+  it("accepts a route pattern matching only a dynamically imported chunk", () => {
+    expect(assertNoRouteHoldsStaticChunk({
+      routePatterns: [/\/assets\/dynamic-[^/?]+\.js(?:\?.*)?$/u],
+      ...staticChunkFixture,
+    })).toMatchObject({ reachableStaticChunks: expect.not.arrayContaining(["assets/dynamic-fixture.js"]) });
+  });
+
+  it("accepts an empty route-pattern set", () => {
+    expect(assertNoRouteHoldsStaticChunk({ routePatterns: [], ...staticChunkFixture }))
+      .toMatchObject({ reachableStaticChunks: expect.arrayContaining(["assets/headset-fixture.js"]) });
+  });
+
+  it("installs no headset route under super-ceo-cap25 after the run-12 latch deadlock", () => {
+    expect(
+      RR1_LEARNER_ROUTE_PATTERNS,
+      "super-ceo-cap25 requires no headset route after the run-12 latch deadlock",
+    ).toEqual([]);
+  });
+
   it("refuses the run-11 ch1 panel ending 94 ms after the doorway window", () => {
     expect(rr1DoorwayStartPlan({
       learnerLatchWallMs: 1794552965302,
