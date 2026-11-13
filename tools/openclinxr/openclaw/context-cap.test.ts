@@ -227,16 +227,18 @@ describe("context-cap compaction counting", () => {
   }
 
   it("C1: no compaction and context above the 600000 backstop prints the cap message", () => {
-    const out = runHook([assistant(650000)]);
+    const out = runHook([assistant(650000)], { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: "2" });
     expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("650000");
   });
 
   it("C2: one compaction and 350000 tokens stays silent", () => {
-    expect(runHook([boundary(315186), assistant(350000)])).toBe("");
+    expect(runHook([boundary(315186), assistant(350000)], { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: "2" })).toBe("");
   });
 
   it("C3: two compactions print a cap message naming the count", () => {
-    const out = runHook([boundary(315186), assistant(120000), boundary(320000), assistant(110000)]);
+    const out = runHook([boundary(315186), assistant(120000), boundary(320000), assistant(110000)], {
+      OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: "2",
+    });
     const msg = JSON.parse(out).hookSpecificOutput.additionalContext as string;
     expect(msg).toContain("2 compactions");
     expect(msg).toContain("handoff.ts write <lane>");
@@ -258,7 +260,10 @@ describe("context-cap compaction counting", () => {
   });
 
   it("C4: OPENCLINXR_CONTEXT_CAP still overrides the token cap with counting on", () => {
-    const out = runHook([assistant(250000)], { OPENCLINXR_CONTEXT_CAP: "200000" });
+    const out = runHook([assistant(250000)], {
+      OPENCLINXR_CONTEXT_CAP: "200000",
+      OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: "2",
+    });
     expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("250000");
   });
 
@@ -268,24 +273,30 @@ describe("context-cap compaction counting", () => {
       message: { content: [{ type: "tool_result", content: '{"type":"system","subtype":"compact_boundary"}' }] },
     });
     const user = JSON.stringify({ type: "user", message: { content: 'grep "subtype":"compact_boundary"' } });
-    expect(runHook([tool, user, tool, user, assistant(350000)])).toBe("");
+    expect(
+      runHook([tool, user, tool, user, assistant(350000)], { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: "2" }),
+    ).toBe("");
   });
 
   it("C5: a malformed last line does not silence the cap", () => {
-    const out = runHook([
-      boundary(1),
-      assistant(120000),
-      boundary(2),
-      assistant(110000),
-      '{"type":"assistant","message":{"usage":{"input_tok',
-    ]);
+    const out = runHook(
+      [
+        boundary(1),
+        assistant(120000),
+        boundary(2),
+        assistant(110000),
+        '{"type":"assistant","message":{"usage":{"input_tok',
+      ],
+      { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: "2" },
+    );
     expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("2 compactions");
   });
 
   it("C5: a boundary outside the 4 MiB tail is still counted", () => {
-    const out = runHook([boundary(1), boundary(2), assistant(120000)], {}, 5 * 1024 * 1024);
+    const env = { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: "2" };
+    const out = runHook([boundary(1), boundary(2), assistant(120000)], env, 5 * 1024 * 1024);
     expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("2 compactions");
-    expect(runHook([boundary(1), assistant(120000)], {}, 5 * 1024 * 1024)).toBe("");
+    expect(runHook([boundary(1), assistant(120000)], env, 5 * 1024 * 1024)).toBe("");
   });
 
   it("F1: grok keeps the 300000 cap with no counting", () => {
@@ -310,15 +321,29 @@ describe("context-cap compaction counting", () => {
   });
 
   it("F2: two boundaries with no assistant usage line still fire", () => {
-    const out = runHook([boundary(1), boundary(2)]);
+    const out = runHook([boundary(1), boundary(2)], { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: "2" });
     expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("2 compactions");
   });
 
-  it.each(["abc", "-1", ""])("F6: invalid OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF %j falls back to 2", (value) => {
-    const lines = [boundary(1), assistant(120000), boundary(2), assistant(110000)];
-    const out = runHook(lines, { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: value });
-    expect(JSON.parse(out).hookSpecificOutput.additionalContext).toContain("2 compactions");
-    expect(runHook(lines.slice(0, 2), { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: value })).toBe("");
+  it("D0: default (env unset) 350000 tokens triggers the plain cap", () => {
+    const out = runHook([assistant(350000)]);
+    expect(out).not.toBe("");
+    const msg = JSON.parse(out).hookSpecificOutput.additionalContext as string;
+    expect(msg).toContain("350000");
+    expect(msg).not.toContain("compactions");
+  });
+
+  it("D0: default (env unset) two compactions under the cap stay silent", () => {
+    expect(runHook([boundary(1), boundary(2), assistant(250000)])).toBe("");
+  });
+
+  it.each(["abc", "-1", ""])("F6: invalid OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF %j falls back to 0", (value) => {
+    const env = { OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF: value };
+    const over = runHook([boundary(1), boundary(2), assistant(350000)], env);
+    const overMsg = JSON.parse(over).hookSpecificOutput.additionalContext as string;
+    expect(overMsg).toContain("350000");
+    expect(overMsg).not.toContain("compactions");
+    expect(runHook([boundary(1), boundary(2), assistant(250000)], env)).toBe("");
   });
 
   describe("F4: countCompactionsInFile", () => {

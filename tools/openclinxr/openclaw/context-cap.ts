@@ -12,12 +12,13 @@
  * The session id comes from the hook stdin JSON when present, else the newest
  * updates.jsonl under the cwd's session directory.
  *
- * Compaction counting (default on): sessions ride Claude Code's auto-compaction. The hook counts
+ * Compaction counting (default off, plain 300000 cap): sessions ride Claude Code's auto-compaction
+ * only when OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF=N>0 is set. The hook counts
  * top-level {type:"system",subtype:"compact_boundary"} lines over the WHOLE transcript
  * (streamed, so boundaries outside the tail count) and asks for a handoff once the count
- * reaches OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF (default 2), or when context passes the
+ * reaches OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF (N>0), or when context passes the
  * backstop (default 600000, or OPENCLINXR_CONTEXT_CAP). OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF=0
- * restores the plain token cap (DEFAULT_CAP) with no counting.
+ * (the default) is the plain token cap (DEFAULT_CAP) with no counting.
  *
  * Reads hook JSON on stdin. Below or equal to cap, or transcript
  * missing/unreadable: prints nothing, exit 0. Never writes any file.
@@ -33,7 +34,8 @@ import { join } from "node:path";
 // 300k sits just under the typical auto-compaction point.
 export const DEFAULT_CAP = 300000;
 /** Handoff after this many compactions; 0 disables counting. */
-export const DEFAULT_COMPACTIONS_BEFORE_HANDOFF = 2;
+// WHY1 2026-11-12 trial: Claude sessions did not auto-compact near 300k (603k and 341k sessions, 0 compactions), so default 2 let sessions run to the 600k backstop at ~2x per-turn cost.
+export const DEFAULT_COMPACTIONS_BEFORE_HANDOFF = 0;
 /** Token backstop when counting is on: a session that never compacts still hands off here. */
 export const DEFAULT_BACKSTOP = 600000;
 export const HANDOFF_RECENCY_MS = 10 * 60 * 1000;
@@ -179,7 +181,7 @@ export function countCompactionsInFile(path: string): number | null {
   }
 }
 
-/** Compactions before handoff: env override, default 2; 0 disables counting. */
+/** Compactions before handoff: env override, default 0 = plain cap; N>0 enables counting with the 600k backstop. */
 export function resolveCompactionsBeforeHandoff(env: NodeJS.ProcessEnv = process.env): number {
   const envKey: string = "OPENCLINXR_COMPACTIONS_BEFORE_HANDOFF";
   const raw = env[envKey];
