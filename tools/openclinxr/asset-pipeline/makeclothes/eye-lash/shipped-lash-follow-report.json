@@ -10,7 +10,7 @@
     "physicianExclusion": "mpfb-clinical-physician-adult L/R measured and reported but excluded from G1 tally (2 sides, 54 F4 cards) pending tsk_5427053465726368 because closure 1 folds the body lids into the socket",
     "f4": ">4.55 mm is report-only: card remains at original position with zero closure delta; unreviewed flags fail acceptance",
     "inside": "odd ray parity per connected eye shell; per-card origin/main at both weights is the baseline and patched counts must not increase",
-    "counterweights": "sha256 over semantic/type/component/count-framed accessor bytes per primitive; every named body target semantic is compared to origin/main"
+    "counterweights": "sha256 over semantic/type/component/count-framed accessor bytes per primitive; every named body target semantic is compared to the producer-emitted lash-stage input (sidecar lashFollowR8.inputSha256), verified by sha before comparison; the physician neck split and the nurse chest split are allowed only as pinned index-buffer sets with exact sorted-index union"
   },
   "redQuads": {
     "mpfb-clinical-nurse-adult.glb": {
@@ -107,7 +107,8 @@
   "actors": [
     {
       "actor": "mpfb-clinical-nurse-adult",
-      "inputSha256": "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
+      "inputSha256": "8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86",
+      "lashStageInputSha256": "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_nurse_adult_mesh",
       "bodyMesh": "mpfb_ed_chest_pain_nurse_adult_body",
       "sides": {
@@ -157,7 +158,7 @@
           "cardsOver1mmClosedOwnRegion": 0,
           "cardsOver1mmClosedGeneralBody": 0,
           "lidMarginVerts": 67,
-          "bodyPrimitiveCount": 8,
+          "bodyPrimitiveCount": 9,
           "boundaryLoopCount": 0,
           "eyeOpeningLoopVerts": 0,
           "eyeOpeningLoopStatus": "no-eye-opening-loop",
@@ -973,8 +974,8 @@
           "g1TallyExcluded": false,
           "g1Counterweight": {
             "cardId": 44,
-            "beforeTriId": 4627,
-            "afterTriId": 4632,
+            "beforeTriId": 4600,
+            "afterTriId": 4605,
             "beforeTravelPct": 99.234,
             "afterTravelPct": 3.584,
             "beforeUnder80": false,
@@ -1621,7 +1622,7 @@
           "cardsOver1mmClosedOwnRegion": 0,
           "cardsOver1mmClosedGeneralBody": 0,
           "lidMarginVerts": 65,
-          "bodyPrimitiveCount": 8,
+          "bodyPrimitiveCount": 9,
           "boundaryLoopCount": 0,
           "eyeOpeningLoopVerts": 0,
           "eyeOpeningLoopStatus": "no-eye-opening-loop",
@@ -3069,6 +3070,7 @@
     {
       "actor": "mpfb-clinical-physician-adult",
       "inputSha256": "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
+      "lashStageInputSha256": "c06b6c065830d0dbafcd076bf66597acec5d396cf2537b3f52982458b813aeba",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ward_delirium_senior_resident_adult_mesh",
       "bodyMesh": "mpfb_ward_delirium_senior_resident_adult_body",
       "sides": {
@@ -3180,7 +3182,7 @@
           "cardsOver1mmClosedOwnRegion": 30,
           "cardsOver1mmClosedGeneralBody": 30,
           "lidMarginVerts": 51,
-          "bodyPrimitiveCount": 8,
+          "bodyPrimitiveCount": 12,
           "boundaryLoopCount": 0,
           "eyeOpeningLoopVerts": 0,
           "eyeOpeningLoopStatus": "no-eye-opening-loop",
@@ -5241,7 +5243,7 @@
           "cardsOver1mmClosedOwnRegion": 24,
           "cardsOver1mmClosedGeneralBody": 24,
           "lidMarginVerts": 47,
-          "bodyPrimitiveCount": 8,
+          "bodyPrimitiveCount": 12,
           "boundaryLoopCount": 0,
           "eyeOpeningLoopVerts": 0,
           "eyeOpeningLoopStatus": "no-eye-opening-loop",
@@ -6823,6 +6825,7 @@
     {
       "actor": "mpfb-family-partner-adult",
       "inputSha256": "1fd58873ddba9519d442396635bd2d91a08c8b4b63606b186ecc56a9c0f5cb8b",
+      "lashStageInputSha256": "47134447a0a5e0fd9f6206e5f5ebe3e7e728b9db527646bd5d830cfbabe7f165",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_spouse_adult_mesh",
       "bodyMesh": "mpfb_ed_chest_pain_spouse_adult_body",
       "sides": {
@@ -23589,6 +23592,7 @@
     {
       "actor": "mpfb-gown-adult-patient",
       "inputSha256": "107d7ec951744032298b5e4fafd1d14b33f4860538fe1480968db02678014864",
+      "lashStageInputSha256": "f5c60292cca74033a120172a4473794be9e253a709b8a38c3a929cd7472bffc5",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh",
       "bodyMesh": "mpfb_robert_reference_body",
       "sides": {
@@ -26566,6 +26570,7 @@
     {
       "actor": "mpfb-gown-ed-robert-hayes",
       "inputSha256": "4707db8662d8de790370efaf3356b41780f5ee0b880470ef496d70b82f79a27e",
+      "lashStageInputSha256": "2c4e1c772587a5d5961b74054770795a83deef8cd9929459d941d9b95d9862cf",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_robert_reference_mesh",
       "bodyMesh": "mpfb_robert_reference_body",
       "sides": {
@@ -29543,6 +29548,7 @@
     {
       "actor": "mpfb-gown-inspect",
       "inputSha256": "ba8f7ad538510baa9fdd328f1afbbda9eb243ba224c72fca324dd7c771451d91",
+      "lashStageInputSha256": "645db112d4b4e298d71eec7a185ce955d8037bbccdc7170b34eea217a2bf2c32",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
       "bodyMesh": "mpfb_ob_patient_aisha_body",
       "sides": {
@@ -44381,6 +44387,7 @@
     {
       "actor": "mpfb-ob-patient-aisha",
       "inputSha256": "37e905ea9fa0d4f3664d95a1c34ab45219a77ed63a46b4976b0bb1a063443ce9",
+      "lashStageInputSha256": "75b9e5c70fbb5b629ab5b4514abdc2748ca21929a17e48f052a7a243c96394b1",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_v1_mesh",
       "bodyMesh": "mpfb_ob_patient_aisha_v1_body",
       "sides": {
@@ -59207,6 +59214,7 @@
     {
       "actor": "mpfb-peds-nurse-kevin",
       "inputSha256": "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444",
+      "lashStageInputSha256": "9cf92b1e9661060987802676c9c04ae433d783eae2182bc383a8232cea330897",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_nurse_kevin_mesh",
       "bodyMesh": "mpfb_peds_nurse_kevin_body",
       "sides": {
@@ -74526,6 +74534,7 @@
     {
       "actor": "mpfb-peds-parent-aisha",
       "inputSha256": "ad75548d246847384f44ab33c9fff62a3b8eb7ae179dc789a2bb1877133377bb",
+      "lashStageInputSha256": "a26b34773d90e7ae209a027e09911de0f0ab0deb04b95f52e356717e72c5091f",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_anxious_parent_mesh",
       "bodyMesh": "mpfb_parent_tara_johnson_v1_body",
       "sides": {
@@ -89247,6 +89256,7 @@
     {
       "actor": "mpfb-peds-patient-child",
       "inputSha256": "1e90c396b7eeba779fa33be9ebfffef3a76f4b15c28b1f63b7e85656be4f980b",
+      "lashStageInputSha256": "257f821bac2db2f02eec3f16bdf69bdb559c11e9cd34bef639bf1f32ca9b907f",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_peds_patient_child_mesh",
       "bodyMesh": "mpfb_peds_patient_child_body",
       "sides": {
@@ -103826,6 +103836,7 @@
     {
       "actor": "mpfb-street-adult-male",
       "inputSha256": "5acd5f16fc90f0116d8878587511a45e858e35ff549be60fe8d6eb3983b6abb8",
+      "lashStageInputSha256": "5b194cb4c6198d22200078a471222a9d01bc29510788dec3796307ecaa964ab6",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_adult_male_street_casual_mesh",
       "bodyMesh": "mpfb_adult_male_street_casual_body",
       "sides": {
@@ -118430,6 +118441,7 @@
     {
       "actor": "mpfb-viseme-inspect",
       "inputSha256": "b517b416dca5f0921d4be8224560ed07bdab9e7cc2e4009d9b0b654e3007ece0",
+      "lashStageInputSha256": "e59c6f5b39a18873d88f5cc1ffc1d0cf57027b22749cbbde06954fcd90141d8b",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_mesh",
       "bodyMesh": "mpfb_ob_patient_aisha_body",
       "sides": {

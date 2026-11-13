@@ -2053,6 +2053,9 @@ importers:
 
   packages/openclinxr/stations/makeclothes-evidence:
     dependencies:
+      '@openclinxr/asset-registry':
+        specifier: workspace:*
+        version: link:../../asset-registry
       '@openclinxr/factory-station-core':
         specifier: workspace:*
         version: link:../../factory-station-core

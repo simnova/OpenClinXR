@@ -57,8 +57,8 @@ describe("the shipped MPFB lashes follow the lid", () => {
   it("F1-F5, G1-G3, R3 and CW1-CW3 hold actor-by-actor and side-by-side", () => {
     const failures: string[] = [];
     for (const actor of measured) {
-      if (!actor.counterweights.bodyMorphsByteEqual) failures.push(`${actor.actor}: CW1 body morph accessor bytes differ from the pre-follow baseline (BASELINE_REF)`);
-      if (!actor.counterweights.nonLashMeshesHashEqual) failures.push(`${actor.actor}: CW2 non-lash primitive accessor hash differs from the pre-follow baseline (BASELINE_REF)`);
+      if (!actor.counterweights.bodyMorphsByteEqual) failures.push(`${actor.actor}: CW1 body morph accessor bytes differ from the producer-emitted lash-stage input (sidecar lashFollowR8.inputSha256)`);
+      if (!actor.counterweights.nonLashMeshesHashEqual) failures.push(`${actor.actor}: CW2 non-lash primitive accessor hash differs from the producer-emitted lash-stage input (sidecar lashFollowR8.inputSha256)`);
       for (const side of ["left", "right"] as const) {
         const r = actor.sides[side];
         if (r.upperCards !== r.rawUpperCards || r.lowerCards !== r.rawLowerCards || r.classChangedCardIds.length) failures.push(`${actor.actor} ${side}: P1 raw class counts ${r.rawUpperCards}/${r.rawLowerCards} -> ${r.upperCards}/${r.lowerCards}, changed=${r.classChangedCardIds.join(",")}`);

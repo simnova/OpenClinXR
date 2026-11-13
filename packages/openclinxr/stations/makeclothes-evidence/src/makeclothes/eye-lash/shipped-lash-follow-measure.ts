@@ -68,6 +68,22 @@ export async function measureActor(file: string, mutation: Mutation = "none"): P
     mutationProof = mutated.proof;
   }
   const baseBytes = execFileSync("git", ["show", `${BASELINE_REF}:apps/ui-xr/public/generated-humanoids/${file}`], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
+  // R3(a): the counterweight reference is the lash stage's OWN INPUT as the producer
+  // emitted it (sidecar lashFollowR8.inputSha256, written by repack_lash_follow.py at
+  // bake time). The history bytes above are accepted only when they hash to exactly
+  // that emission; a locator that resolves anywhere else fails closed. No hand-picked
+  // reference sha lives here.
+  const sidecar = JSON.parse(readFileSync(join(GLB_DIR, file.replace(/\.glb$/, ".provenance.json")), "utf8")) as {
+    lashFollowR8?: { inputSha256?: unknown };
+  };
+  const emitted = sidecar.lashFollowR8?.inputSha256;
+  if (typeof emitted !== "string" || !/^[0-9a-f]{64}$/.test(emitted)) {
+    throw new Error(`${file}: CW1 lash-stage input sha missing from the sidecar (lashFollowR8.inputSha256); refusing to compare against an unattributed baseline`);
+  }
+  const resolved = createHash("sha256").update(baseBytes).digest("hex");
+  if (resolved !== emitted) {
+    throw new Error(`${file}: CW1 history locator no longer resolves to the producer-emitted lash input (want ${emitted}, got ${resolved}); refusing a stale baseline`);
+  }
   const base = await io.readBinary(new Uint8Array(baseBytes));
   const { body, lash } = matched(doc, file);
   const { lash: baseLash } = matched(base, file);
@@ -448,7 +464,7 @@ export async function measureActor(file: string, mutation: Mutation = "none"): P
         && r3NoNewPenetration,
     };
   }
-  return { actor: basename(file, ".glb"), inputSha256: createHash("sha256").update(effectiveBytes).digest("hex"), lashMesh: lashMesh.getName(), bodyMesh: bodyMesh.getName(), sides, counterweights: counterweights(doc, base, file), ...(mutationProof ? { mutationProof } : {}) };
+  return { actor: basename(file, ".glb"), inputSha256: createHash("sha256").update(effectiveBytes).digest("hex"), lashStageInputSha256: emitted, lashMesh: lashMesh.getName(), bodyMesh: bodyMesh.getName(), sides, counterweights: counterweights(doc, base, file), ...(mutationProof ? { mutationProof } : {}) };
 }
 
 export async function measureAllAndWrite(): Promise<ActorMeasurement[]> {
@@ -466,7 +482,7 @@ export async function measureAllAndWrite(): Promise<ActorMeasurement[]> {
       physicianExclusion: "mpfb-clinical-physician-adult L/R measured and reported but excluded from G1 tally (2 sides, 54 F4 cards) pending tsk_5427053465726368 because closure 1 folds the body lids into the socket",
       f4: ">4.55 mm is report-only: card remains at original position with zero closure delta; unreviewed flags fail acceptance",
       inside: "odd ray parity per connected eye shell; per-card origin/main at both weights is the baseline and patched counts must not increase",
-      counterweights: "sha256 over semantic/type/component/count-framed accessor bytes per primitive; every named body target semantic is compared to origin/main",
+      counterweights: "sha256 over semantic/type/component/count-framed accessor bytes per primitive; every named body target semantic is compared to the producer-emitted lash-stage input (sidecar lashFollowR8.inputSha256), verified by sha before comparison; the physician neck split and the nurse chest split are allowed only as pinned index-buffer sets with exact sorted-index union",
     },
     redQuads: RED_QUADS,
     g1Tally: { sidesCounted: 22, sidesTotal: 24, excludedActor: "mpfb-clinical-physician-adult", excludedF4CardCount: 54 },

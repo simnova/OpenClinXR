@@ -12,6 +12,11 @@ import { createHash } from "node:crypto";
 import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import {
+  isNurseChestStageSplit,
+  NURSE_CHEST_STAGE_INDICES_SHA256,
+  NURSE_CHEST_STAGE_KEPT_INDICES_SHA256,
+} from "@openclinxr/asset-registry/nurse-chest-stage";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 
@@ -79,16 +84,19 @@ function sha256(bytes: Buffer | string): string {
 }
 
 function parseGlb(path: string): Glb {
-  const raw = readFileSync(path);
+  return parseGlbBytes(readFileSync(path), path);
+}
+
+function parseGlbBytes(raw: Buffer, label = "<bytes>"): Glb {
   if (raw.toString("ascii", 0, 4) !== "glTF" || raw.readUInt32LE(4) !== 2) {
-    throw new Error(`${path}: expected GLB v2`);
+    throw new Error(`expected GLB v2`);
   }
   const jsonLength = raw.readUInt32LE(12);
-  if (raw.readUInt32LE(16) !== 0x4e4f534a) throw new Error(`${path}: JSON chunk missing`);
+  if (raw.readUInt32LE(16) !== 0x4e4f534a) throw new Error(`${label}: JSON chunk missing`);
   const document = JSON.parse(raw.subarray(20, 20 + jsonLength).toString("utf8")) as Document;
   const binHeader = 20 + jsonLength;
   const binLength = raw.readUInt32LE(binHeader);
-  if (raw.readUInt32LE(binHeader + 4) !== 0x004e4942) throw new Error(`${path}: BIN chunk missing`);
+  if (raw.readUInt32LE(binHeader + 4) !== 0x004e4942) throw new Error(`${label}: BIN chunk missing`);
   return { document, binary: raw.subarray(binHeader + 8, binHeader + 8 + binLength), raw };
 }
 
@@ -294,11 +302,245 @@ type TeethSwapBlock = {
   output?: { sha256?: string };
   protectedAccessorHashes?: Array<{ meshIndex: number; slot: string; accessorIndex: number; sha256: string }>;
 };
+type ByteLineageLevel = {
+  preImageRevision?: string;
+  preImageSha256?: string;
+  derivationArgv?: string[];
+  why?: string;
+  inputSha256?: string;
+  recordedBefore?: { outputSha256?: string; outputBytes?: number; byteLineage?: ByteLineageLevel };
+};
 type NeckChainSidecar = {
   outputSha256?: string;
-  byteLineage?: { recordedBefore?: { outputSha256?: string } };
+  byteLineage?: ByteLineageLevel;
   teethSwapB1?: TeethSwapBlock;
 };
+
+/** Walk sidecar.byteLineage -> recordedBefore.byteLineage -> ... oldest-first. */
+function lineageLevels(sidecar: Record<string, unknown>): ByteLineageLevel[] {
+  const levels: ByteLineageLevel[] = [];
+  let cur = (sidecar as NeckChainSidecar).byteLineage;
+  while (cur !== null && typeof cur === "object" && !Array.isArray(cur)) {
+    levels.push(cur);
+    cur = cur.recordedBefore?.byteLineage;
+  }
+  return levels;
+}
+
+const NURSE_ACTOR = "mpfb-clinical-nurse-adult.glb";
+const NURSE_BODY_MESH = 4;
+const NURSE_BODY_PRIM0_SLOT = "primitive[0].indices";
+
+/** Pre-E9 nurse bytes (recorded pre-image descriptor): the rehide split's union baseline. */
+const nurseBaselineCache = new Map<string, Glb>();
+function nurseBaselineGlb(sidecar: Record<string, unknown>): Glb {
+  const rev = ((sidecar as NeckChainSidecar).byteLineage as ByteLineageLevel | undefined)
+    ?.preImageRevision;
+  if (typeof rev !== "string" || rev.length === 0) {
+    throw new Error("T3 E9 chest: sidecar byteLineage carries no preImageRevision descriptor");
+  }
+  if (!/^[0-9a-f]{40}:/.test(rev)) {
+    throw new Error(
+      `T3 E9 chest: baseline locator must be a pinned commit descriptor, got ${rev}`,
+    );
+  }
+  const cached = nurseBaselineCache.get(rev);
+  if (cached) return cached;
+  const raw = execFileSync("git", ["show", rev], {
+    cwd: repoRoot(),
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  const baseline = parseGlbBytes(raw, rev);
+  nurseBaselineCache.set(rev, baseline);
+  return baseline;
+}
+
+/**
+ * E9 chest-stage row exception (e9-r2b T2; coordinator precedent R3 accepted). The nurse
+ * body prim0.indices row passes iff the live prim0 indices bytes sha is the exact-sha
+ * E9 kept-skin-prim pin AND the one shared predicate (isNurseChestStageSplit, imported
+ * from the E9 pin file, never hand-typed) accepts the kept/hidden pair: both indices
+ * shas in the pin, sorted index union equals the pre-E9 prim, both prims share the
+ * baseline prim's attribute/morph accessors with the kept prim keeping the baseline
+ * material and the hidden prim carrying the hide material, and the sidecar
+ * byteLineage chain carries an E9 rehide level newer than the teeth-swap level.
+ * Every other protected row is strict.
+ */
+function rawPrimAttrSig(owner: Glb, prim: Primitive): string {
+  const entries = Object.entries(prim.attributes ?? {}).sort(([a], [b]) => a.localeCompare(b));
+  return sha256(
+    JSON.stringify(entries.map(([semantic, accessorIndex]) => [semantic, accessorHash(owner, accessorIndex)])),
+  );
+}
+function rawPrimTargetHash(owner: Glb, prim: Primitive): string {
+  const targets = prim.targets ?? [];
+  return sha256(
+    JSON.stringify(
+      targets.map((target) =>
+        Object.entries(target)
+          .sort(([a], [b]) => a.localeCompare(b))
+          .map(([semantic, accessorIndex]) => [semantic, accessorHash(owner, accessorIndex)]),
+      ),
+    ),
+  );
+}
+function rawPrimMaterial(owner: Glb, prim: Primitive): string {
+  if (prim.material === undefined) return "";
+  const material = owner.document.materials?.[prim.material] as { name?: string } | undefined;
+  return material?.name ?? `mat:${prim.material}`;
+}
+function nurseChestWitness(
+  glb: Glb,
+  baseline: Glb,
+  sidecar: Record<string, unknown>,
+  rowAccessorIndex: number,
+): {
+  keptIndicesSha256: string;
+  hiddenIndicesSha256: string;
+  keptSortedIndices: number[];
+  hiddenSortedIndices: number[];
+  baselineSortedIndices: number[];
+  keptAttrAccessors: Record<string, number>;
+  hiddenAttrAccessors: Record<string, number>;
+  baselineAttrAccessors: Record<string, number>;
+  keptTargetAccessors: Array<Record<string, number>>;
+  hiddenTargetAccessors: Array<Record<string, number>>;
+  baselineTargetAccessors: Array<Record<string, number>>;
+  keptMaterialIndex: number;
+  hiddenMaterialIndex: number;
+  baselineMaterialIndex: number;
+  keptMaterial: string;
+  hiddenMaterial: string;
+  baselineMaterial: string;
+  derivationArgvs: (string[] | undefined)[];
+} {
+  const mesh = glb.document.meshes[NURSE_BODY_MESH];
+  const prims = mesh?.primitives ?? [];
+  const basePrims = baseline.document.meshes[NURSE_BODY_MESH]?.primitives ?? [];
+  if (prims.length !== basePrims.length + 1) {
+    throw new Error(
+      `T3 E9 chest: live body prims ${prims.length} != baseline ${basePrims.length} + 1`,
+    );
+  }
+  const kept = prims[0]!;
+  const hidden = prims[prims.length - 1]!;
+  if (kept.indices !== rowAccessorIndex || hidden.indices === undefined || kept.indices === undefined) {
+    throw new Error(
+      `T3 E9 chest: live prim0 indices accessor ${kept.indices} != row accessor ${rowAccessorIndex}`,
+    );
+  }
+  const sortedOf = (owner: Glb, index: number): number[] =>
+    accessorValues(owner, index)
+      .map((values) => values[0]!)
+      .sort((a, b) => a - b);
+  const basePrim = basePrims[0]!;
+  if (basePrim.indices === undefined) throw new Error("T3 E9 chest: baseline prim0 has no indices");
+  const matName = (owner: Glb, index: number | undefined): string => {
+    if (index === undefined) return "";
+    const material = owner.document.materials?.[index] as Record<string, unknown> | undefined;
+    return typeof material?.["name"] === "string" ? (material["name"] as string) : `mat:${index}`;
+  };
+  return {
+    keptIndicesSha256: sha256(accessorBytes(glb, kept.indices)),
+    hiddenIndicesSha256: sha256(accessorBytes(glb, hidden.indices)),
+    keptSortedIndices: sortedOf(glb, kept.indices),
+    hiddenSortedIndices: sortedOf(glb, hidden.indices),
+    baselineSortedIndices: sortedOf(baseline, basePrim.indices),
+    keptAttrAccessors: { ...(kept.attributes ?? {}) },
+    hiddenAttrAccessors: { ...(hidden.attributes ?? {}) },
+    baselineAttrAccessors: { ...(basePrim.attributes ?? {}) },
+    keptTargetAccessors: (kept.targets ?? []).map((target) => ({ ...target })),
+    hiddenTargetAccessors: (hidden.targets ?? []).map((target) => ({ ...target })),
+    baselineTargetAccessors: (basePrim.targets ?? []).map((target) => ({ ...target })),
+    keptMaterialIndex: kept.material ?? -1,
+    hiddenMaterialIndex: hidden.material ?? -1,
+    baselineMaterialIndex: basePrim.material ?? -1,
+    keptMaterial: matName(glb, kept.material),
+    hiddenMaterial: matName(glb, hidden.material),
+    baselineMaterial: matName(baseline, basePrim.material),
+    derivationArgvs: lineageLevels(sidecar).map((level) => level.derivationArgv),
+  };
+}
+
+function nurseChestRowOrThrow(
+  actor: string,
+  glb: Glb,
+  baseline: Glb,
+  sidecar: Record<string, unknown>,
+  rowAccessorIndex: number,
+): void {
+  // M1: the ONE shared predicate owns the kept-role pin — no caller-local copy.
+  const witness = nurseChestWitness(glb, baseline, sidecar, rowAccessorIndex);
+  if (!isNurseChestStageSplit(witness)) {
+    const chain = lineageLevels(sidecar)
+      .map((level) => (level.derivationArgv ?? []).join(" "))
+      .join(" <- ");
+    throw new Error(
+      `T3 E9 chest ${actor}: shared E9 split rejected ` +
+        `(kept ${witness.keptIndicesSha256.slice(0, 12)} ` +
+        `hidden ${witness.hiddenIndicesSha256.slice(0, 12)} chain ${chain.slice(0, 160)})`,
+    );
+  }
+}
+
+/**
+ * R2 lineage-chain allowance (e9-r2lineage). When teethSwapB1.output no longer pins the live
+ * GLB because a later byte-identical correction moved the top pin, the swap output must still
+ * pin the junction: the pin the swap level established, read as the sidecar top pin when the
+ * swap level is newest, else as the next-newer level's recordedBefore.outputSha256. Continuity:
+ * for every level L, L.preImageSha256 === L.recordedBefore.outputSha256 (each derivation re-ran
+ * on exactly the bytes the pin it supersedes named). The walked chain must contain the
+ * teeth-swap derivation record (swap_teeth.py in argv) with the nested #741 record older still.
+ */
+function validateT3LineageChain(
+  actor: string,
+  live: string,
+  sidecar: Record<string, unknown>,
+  block: TeethSwapBlock,
+): void {
+  const chain = sidecar as NeckChainSidecar;
+  if (chain.outputSha256 !== live) {
+    throw new Error(`T3 chain ${actor}: sidecar top ${chain.outputSha256} does not pin this GLB ${live}`);
+  }
+  const levels = lineageLevels(sidecar);
+  if (levels.length === 0) {
+    throw new Error(`T3 chain ${actor}: teethSwapB1 output does not pin this GLB and no byteLineage chain exists`);
+  }
+  for (const [index, level] of levels.entries()) {
+    if (level.recordedBefore === undefined || level.preImageSha256 !== level.recordedBefore.outputSha256) {
+      throw new Error(
+        `T3 chain ${actor} L${index}: preImageSha256 ${level.preImageSha256} != recordedBefore.outputSha256 ${level.recordedBefore?.outputSha256}`,
+      );
+    }
+  }
+  const argvText = (level: ByteLineageLevel): string => (level.derivationArgv ?? []).join(" ");
+  const swapIndex = levels.findIndex((level) => argvText(level).includes("swap_teeth.py"));
+  if (swapIndex < 0) {
+    throw new Error(`T3 chain ${actor}: no teeth-swap derivation record (swap_teeth.py) in the byteLineage chain`);
+  }
+  const fix741Index = levels.findIndex(
+    (level) => (level.why ?? "").includes("fix(#741)") || argvText(level).includes("tongue-forward-place.ts"),
+  );
+  if (fix741Index < 0) {
+    throw new Error(`T3 chain ${actor}: no nested #741 record in the byteLineage chain`);
+  }
+  if (!(fix741Index > swapIndex)) {
+    throw new Error(`T3 chain ${actor}: the #741 record must nest older than the teeth-swap record`);
+  }
+  const established = swapIndex === 0 ? chain.outputSha256 : levels[swapIndex - 1]!.recordedBefore?.outputSha256;
+  if (block.output?.sha256 !== established) {
+    throw new Error(
+      `T3 chain ${actor}: teethSwapB1 output ${block.output?.sha256} pins neither the top pin nor the swap junction ${established}`,
+    );
+  }
+  // The level newer than the swap re-ran on exactly the swap output bytes: its pre-image
+  // is the next-older level's output at this junction.
+  if (swapIndex > 0 && levels[swapIndex - 1]!.preImageSha256 !== block.output?.sha256) {
+    throw new Error(
+      `T3 chain ${actor}: post-swap level preImageSha256 ${levels[swapIndex - 1]!.preImageSha256} != teethSwapB1 output ${block.output?.sha256}`,
+    );
+  }
+}
 
 function sidecarFor(actor: string): Record<string, unknown> {
   return JSON.parse(readFileSync(join(DIR, actor.replace(/\.glb$/, ".provenance.json")), "utf8")) as Record<
@@ -321,19 +563,65 @@ function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>): 
     // output pins the pre-neck bytes in byteLineage.recordedBefore, and the sidecar
     // top level pins the live GLB. teethSwapB1.output itself is never rewritten.
     const chain = sidecar as NeckChainSidecar;
-    if (
-      actor !== LATE_SWAP ||
-      block.output?.sha256 !== chain.byteLineage?.recordedBefore?.outputSha256 ||
-      chain.outputSha256 !== live
-    ) {
-      throw new Error("T3 teethSwapB1 output sha does not pin this GLB");
+    const legacyNeck =
+      actor === LATE_SWAP &&
+      block.output?.sha256 === chain.byteLineage?.recordedBefore?.outputSha256 &&
+      chain.outputSha256 === live;
+    // R2 lineage chain (nurse e9-r1 rehide): the swap output pins the junction in the
+    // walked byteLineage chain (teeth-swap record, nested #741 record, per-level continuity).
+    if (!legacyNeck) {
+      validateT3LineageChain(actor, live, sidecar, block);
     }
+  } else if (lineageLevels(sidecar).length > 0) {
+    // M3: no skip when the swap output is rewritten to live — any sidecar
+    // carrying a chain still validates (top pin, junction, continuity). The
+    // only bypasses are the two proven legacy shapes below (robert-hayes
+    // blender-bake genesis; peds-nurse-kevin combined single-level
+    // derivation); the neck-stage allowance above already covers the physician
+    // non-live path. Both bypasses are actor- plus shape-pinned and self-retire
+    // if their sidecars ever gain a validatable chain shape.
+    const levels = lineageLevels(sidecar);
+    const oldest = levels[levels.length - 1]!;
+    const newestArgv = (levels[0]?.derivationArgv ?? []).join(" ");
+    const isRobertHayesGenesis =
+      actor === "mpfb-gown-ed-robert-hayes.glb" &&
+      levels.length === 2 &&
+      (oldest.derivationArgv ?? []).join(" ").includes("bake_mpfb_gown_inspect.py") &&
+      oldest.recordedBefore === undefined &&
+      // sidecar apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json
+      // JSON path byteLineage.recordedBefore.byteLineage.inputSha256 (genesis level has no recordedBefore)
+      oldest.inputSha256 ===
+        "27cbf4e5ed5a007ad497a3bafe2763ac72746583374ad1718d51573ba649aa66";
+    // Proven combined single-level derivation (e9-r2e F2): peds-nurse-kevin
+    // records swap_teeth.py plus the post-swap stations (teeth-rest-clearance,
+    // tongue-forward-place, couple, decimate) in ONE newest byteLineage level,
+    // so the cross-level "741 nests older than swap" invariant cannot model it
+    // (first-match swap and 741 coincide at L0) even though a genuine older
+    // fix(#741) record exists at L1 and continuity holds. Shape-pinned and
+    // self-retiring: if the sidecar ever splits the levels, this stops matching.
+    const isCombinedSwapPostLevel =
+      actor === "mpfb-peds-nurse-kevin.glb" &&
+      levels.length === 2 &&
+      newestArgv.includes("swap_teeth.py") &&
+      newestArgv.includes("tongue-forward-place.ts") &&
+      // sidecar apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json
+      // JSON path byteLineage.recordedBefore.outputSha256 (newest combined level's recorded output)
+      levels[0]?.recordedBefore?.outputSha256 ===
+        "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa";
+    if (!isRobertHayesGenesis && !isCombinedSwapPostLevel) validateT3LineageChain(actor, live, sidecar, block);
   }
   for (const row of block.protectedAccessorHashes ?? []) {
     const actual = accessorHash(glb, row.accessorIndex);
-    if (actual !== row.sha256) {
-      throw new Error(`T3 protected ${row.meshIndex}:${row.slot} ${actual} != ${row.sha256}`);
+    if (actual === row.sha256) continue;
+    if (
+      actor === NURSE_ACTOR &&
+      row.meshIndex === NURSE_BODY_MESH &&
+      row.slot === NURSE_BODY_PRIM0_SLOT
+    ) {
+      nurseChestRowOrThrow(actor, glb, nurseBaselineGlb(sidecar), sidecar, row.accessorIndex);
+      continue;
     }
+    throw new Error(`T3 protected ${row.meshIndex}:${row.slot} ${actual} != ${row.sha256}`);
   }
   if ((block.protectedAccessorHashes?.length ?? 0) === 0) {
     throw new Error("T3 protected accessor list is empty");
@@ -385,6 +673,681 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     const splits = validateT1T2(glb);
     expect(sidecar["teethSwapB1"]).toBeUndefined();
     console.info(`KNOWN_GOOD ${BAKE_NATIVE_KNOWN_GOOD} split=${JSON.stringify(splits)}`);
+  });
+
+  /**
+   * T3 chain-walk (e9-r2lineage). The nurse sidecar top pin moved past teethSwapB1.output via
+   * the e9 rehide, a byte-identical chained correction: the chain must nest the teeth-swap
+   * record with the #741 record older still, every level continuous
+   * (preImageSha256 === recordedBefore.outputSha256), and the post-swap level's pre-image
+   * must equal teethSwapB1.output at the junction. RED shapes are built in memory
+   * from the tracked nurse sidecar (no gitignored fixture read): a collapsed chain
+   * without the nested byteLineage, a broken preImageSha256 continuity, a wrong swap
+   * junction, and #741 moved newer than the swap.
+   */
+  it("T3 chain-walk: the nurse byteLineage nests the teeth-swap record and #741 with junction continuity", () => {
+    const actor = "mpfb-clinical-nurse-adult.glb";
+    const live = sha256(parseGlb(join(DIR, actor)).raw);
+    const nurse = sidecarFor(actor);
+    const block = (nurse as NeckChainSidecar)["teethSwapB1"]!;
+    expect(block?.output?.sha256).toBeDefined();
+    validateT3LineageChain(actor, live, nurse, block);
+    const levels = lineageLevels(nurse);
+    console.info(`T3 chain-walk ${actor}: depth=${levels.length} swap=1 fix741=2 live=${live.slice(0, 12)}`);
+    // Collapsed shape: the e9-install top level without its nested byteLineage
+    // (recordedBefore kept, byteLineage dropped) — built in memory so a clean
+    // checkout exercises the negative without a gitignored fixture.
+    const collapsed = JSON.parse(JSON.stringify(nurse)) as Record<string, unknown>;
+    const collapsedTop = (collapsed as NeckChainSidecar).byteLineage!;
+    expect(collapsedTop, "setup: tracked sidecar carries a chained byteLineage").toBeDefined();
+    if (collapsedTop.recordedBefore !== undefined) {
+      delete (collapsedTop.recordedBefore as Record<string, unknown>)["byteLineage"];
+    }
+    expect(collapsed["outputSha256"]).toBe(live);
+    const collapsedBlock = (collapsed as NeckChainSidecar)["teethSwapB1"]!;
+    expect(() => validateT3LineageChain(actor, live, collapsed, collapsedBlock)).toThrow(
+      /no teeth-swap derivation record/,
+    );
+    // Plant 1: broken preImageSha256 continuity at the newest level.
+    const brokenContinuity = JSON.parse(JSON.stringify(nurse)) as Record<string, unknown>;
+    (brokenContinuity as NeckChainSidecar).byteLineage!.preImageSha256 = "0".repeat(64);
+    expect(() =>
+      validateT3LineageChain(
+        actor,
+        live,
+        brokenContinuity,
+        (brokenContinuity as NeckChainSidecar)["teethSwapB1"]!,
+      ),
+    ).toThrow(/preImageSha256 .* != recordedBefore\.outputSha256/);
+    // Plant 2: wrong swap junction — the swap output no longer pins the junction.
+    const wrongJunction = JSON.parse(JSON.stringify(nurse)) as Record<string, unknown>;
+    (wrongJunction as NeckChainSidecar)["teethSwapB1"] = {
+      ...(((wrongJunction as NeckChainSidecar)["teethSwapB1"] ?? {}) as object),
+      output: { sha256: "f".repeat(64) },
+    };
+    expect(() =>
+      validateT3LineageChain(
+        actor,
+        live,
+        wrongJunction,
+        (wrongJunction as NeckChainSidecar)["teethSwapB1"]!,
+      ),
+    ).toThrow(/pins neither the top pin nor the swap junction/);
+    // Plant 3: #741 moved newer than the swap — swap the two older levels' argv
+    // so the fix(#741) record reads newer than the swap_teeth.py record.
+    const reordered = JSON.parse(JSON.stringify(nurse)) as Record<string, unknown>;
+    const reorderedTop = (reordered as NeckChainSidecar).byteLineage!;
+    const reorderedNext = reorderedTop.recordedBefore?.byteLineage;
+    const reorderedOldest = reorderedNext?.recordedBefore?.byteLineage;
+    if (!reorderedNext || !reorderedOldest) throw new Error("setup: expected depth 3 for reorder plant");
+    const swapArgv = reorderedNext.derivationArgv;
+    if (swapArgv === undefined || reorderedOldest.derivationArgv === undefined) {
+      throw new Error("setup: swap levels carry argv for the reorder plant");
+    }
+    reorderedNext.derivationArgv = reorderedOldest.derivationArgv;
+    reorderedOldest.derivationArgv = swapArgv;
+    const swapWhy = (reorderedNext as Record<string, unknown>)["why"];
+    (reorderedNext as Record<string, unknown>)["why"] = (reorderedOldest as Record<string, unknown>)["why"];
+    (reorderedOldest as Record<string, unknown>)["why"] = swapWhy;
+    expect(() =>
+      validateT3LineageChain(
+        actor,
+        live,
+        reordered,
+        (reordered as NeckChainSidecar)["teethSwapB1"]!,
+      ),
+    ).toThrow(/must nest older than the teeth-swap record/);
+  });
+
+  /**
+   * B1 post-commit baseline: the T3 baseline comes from the recorded
+   * descriptor, never symbolic HEAD. The descriptor is a pinned 40-hex
+   * commit, it stays distinct from live after landing (live is baseline+1),
+   * and a HEAD-shaped descriptor is refused.
+   */
+  it("B1: T3 loads the union baseline from the recorded commit descriptor, not HEAD", () => {
+    const actor = "mpfb-clinical-nurse-adult.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const sidecar = sidecarFor(actor);
+    const live = sha256(glb.raw);
+    const rev = ((sidecar as NeckChainSidecar).byteLineage as ByteLineageLevel | undefined)
+      ?.preImageRevision;
+    expect(typeof rev, "setup: sidecar top carries a preImageRevision descriptor").toBe("string");
+    expect(rev as string, "baseline descriptor is a pinned commit, not symbolic HEAD").toMatch(
+      /^[0-9a-f]{40}:/,
+    );
+    expect(rev as string, "no symbolic HEAD in the E9 baseline descriptor").not.toContain("HEAD");
+    expect((sidecar as NeckChainSidecar).outputSha256, "top pins live").toBe(live);
+    const baseline = nurseBaselineGlb(sidecar);
+    const baselineSha = sha256(baseline.raw);
+    expect(baselineSha, "baseline (recorded pre-image) differs from live after landing").not.toBe(live);
+    expect(baselineSha, "recorded pre-image bytes hash to the pinned f6573124 pre-E9 blob").toBe(
+      "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
+    );
+    const row = ((sidecar as NeckChainSidecar)["teethSwapB1"] as TeethSwapBlock).protectedAccessorHashes!.find(
+      (candidate) =>
+        candidate.meshIndex === NURSE_BODY_MESH && candidate.slot === NURSE_BODY_PRIM0_SLOT,
+    )!;
+    const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
+    expect(
+      baseline.document.meshes[NURSE_BODY_MESH]?.primitives?.length,
+      "recorded pre-image body is the 8-prim pre-split mesh",
+    ).toBe(8);
+    expect(
+      glb.document.meshes[NURSE_BODY_MESH]?.primitives?.length,
+      "live body is the pre-image +1 split prim",
+    ).toBe(9);
+    expect(isNurseChestStageSplit(witness), "recorded-descriptor baseline witnesses the live split").toBe(
+      true,
+    );
+    // A HEAD-shaped descriptor is refused instead of read: post-commit,
+    // HEAD:<nurse.glb> would be the 9-prim shipped GLB, not the pre-image.
+    const headShaped = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown>;
+    ((headShaped as NeckChainSidecar).byteLineage as ByteLineageLevel).preImageRevision =
+      `HEAD:apps/ui-xr/public/generated-humanoids/${actor}`;
+    expect(() => nurseBaselineGlb(headShaped)).toThrow(/pinned commit descriptor/);
+  });
+
+  /**
+   * M3 validateT3 integration: the chain plants run through validateT3 (not
+   * the helper), and rewriting the swap output to live no longer skips the
+   * chain — validateT3 throws on every plant.
+   */
+  it("M3: chain plants and a live-rewritten swap output throw through validateT3", () => {
+    const actor = "mpfb-clinical-nurse-adult.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const sidecar = sidecarFor(actor);
+    const live = sha256(glb.raw);
+    validateT3(actor, glb, sidecar);
+    const plant = (mutate: (copy: Record<string, unknown>) => void): Record<string, unknown> => {
+      const copy = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown>;
+      mutate(copy);
+      return copy;
+    };
+    const blockOf = (copy: Record<string, unknown>): string =>
+      `swap=${JSON.stringify(((copy as NeckChainSidecar)["teethSwapB1"] as TeethSwapBlock)?.output?.sha256)}`;
+    // Broken continuity through the real path.
+    expect(
+      () =>
+        validateT3(
+          actor,
+          glb,
+          plant((copy) => {
+            ((copy as NeckChainSidecar).byteLineage as ByteLineageLevel).preImageSha256 = "0".repeat(64);
+          }),
+        ),
+      `broken continuity plant ${blockOf(sidecar)}`,
+    ).toThrow(/preImageSha256 .* != recordedBefore\.outputSha256/);
+    // Wrong junction through the real path.
+    expect(
+      () =>
+        validateT3(
+          actor,
+          glb,
+          plant((copy) => {
+            ((copy as NeckChainSidecar)["teethSwapB1"] as TeethSwapBlock).output = {
+              sha256: "f".repeat(64),
+            };
+          }),
+        ),
+      "wrong junction plant",
+    ).toThrow(/pins neither the top pin nor the swap junction/);
+    // Block output rewritten to live through the real path (the old skip).
+    expect(
+      () =>
+        validateT3(
+          actor,
+          glb,
+          plant((copy) => {
+            ((copy as NeckChainSidecar)["teethSwapB1"] as TeethSwapBlock).output = { sha256: live };
+          }),
+        ),
+      "block-output-equals-live plant",
+    ).toThrow(/pins neither the top pin nor the swap junction/);
+    // Reordered #741 (newer than the swap) through the real path.
+    expect(
+      () =>
+        validateT3(
+          actor,
+          glb,
+          plant((copy) => {
+            const top = (copy as NeckChainSidecar).byteLineage!;
+            const next = top.recordedBefore?.byteLineage;
+            const oldest = next?.recordedBefore?.byteLineage;
+            if (!next || !oldest) throw new Error("setup: expected depth 3 for reorder plant");
+            const swapArgv = next.derivationArgv;
+            if (swapArgv === undefined || oldest.derivationArgv === undefined) {
+              throw new Error("setup: expected derivationArgv on both levels for reorder plant");
+            }
+            next.derivationArgv = oldest.derivationArgv;
+            oldest.derivationArgv = swapArgv;
+            const swapWhy = (next as Record<string, unknown>)["why"];
+            (next as Record<string, unknown>)["why"] = (oldest as Record<string, unknown>)["why"];
+            (oldest as Record<string, unknown>)["why"] = swapWhy;
+          }),
+        ),
+      "reordered #741 plant",
+    ).toThrow(/must nest older than the teeth-swap record/);
+  });
+
+  it("M3 non-nurse equal-live malformed chain throws through validateT3", () => {
+    const actor = "mpfb-family-partner-adult.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const sidecar = sidecarFor(actor);
+    const live = sha256(glb.raw);
+    expect(lineageLevels(sidecar).length, "setup: non-nurse sidecar carries a chain").toBeGreaterThan(0);
+    validateT3(actor, glb, sidecar);
+    const broken = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown>;
+    ((broken as NeckChainSidecar)["teethSwapB1"] as TeethSwapBlock).output = { sha256: live };
+    ((broken as NeckChainSidecar).byteLineage as ByteLineageLevel).preImageSha256 = "0".repeat(64);
+    expect(() => validateT3(actor, glb, broken)).toThrow(
+      /preImageSha256 .* != recordedBefore\.outputSha256/,
+    );
+  });
+
+  /**
+   * e9-r2f G2: both legacy bypasses are pinned to actor + depth 2 + the
+   * bypassed level's recorded output sha. In-memory plants (never a sidecar
+   * file write): flipping the pinned sha by one hex digit, or changing the
+   * depth by +1/-1, must fail closed through validateT3.
+   */
+  it("M3 legacy bypass pins fail closed on sha or depth change", () => {
+    const flipLastHex = (sha: string): string =>
+      sha.slice(0, -1) + (sha.endsWith("0") ? "1" : "0");
+    // Robert-hayes blender-bake genesis bypass (depth 2, genesis input sha).
+    const rhActor = "mpfb-gown-ed-robert-hayes.glb";
+    const rhGlb = parseGlb(join(DIR, rhActor));
+    const rhSidecar = sidecarFor(rhActor);
+    expect(lineageLevels(rhSidecar).length, "setup: robert-hayes chain depth").toBe(2);
+    validateT3(rhActor, rhGlb, rhSidecar);
+    const rhShaPlant = JSON.parse(JSON.stringify(rhSidecar)) as Record<string, unknown>;
+    const rhOldest = lineageLevels(rhShaPlant)[1]!;
+    expect(rhOldest.inputSha256, "setup: genesis input sha pinned").toBe(
+      "27cbf4e5ed5a007ad497a3bafe2763ac72746583374ad1718d51573ba649aa66",
+    );
+    rhOldest.inputSha256 = flipLastHex(rhOldest.inputSha256!);
+    expect(() => validateT3(rhActor, rhGlb, rhShaPlant)).toThrow(
+      /preImageSha256 .* != recordedBefore\.outputSha256/,
+    );
+    const rhPlus = JSON.parse(JSON.stringify(rhSidecar)) as Record<string, unknown>;
+    lineageLevels(rhPlus)[1]!.recordedBefore = {
+      outputSha256: "a".repeat(64),
+      outputBytes: 1,
+      byteLineage: { derivationArgv: ["extra"], preImageSha256: "b".repeat(64) },
+    };
+    expect(lineageLevels(rhPlus).length, "setup: robert-hayes depth +1").toBe(3);
+    expect(() => validateT3(rhActor, rhGlb, rhPlus)).toThrow(
+      /preImageSha256 .* != recordedBefore\.outputSha256/,
+    );
+    const rhMinus = JSON.parse(JSON.stringify(rhSidecar)) as Record<string, unknown>;
+    delete (((rhMinus as NeckChainSidecar).byteLineage as ByteLineageLevel).recordedBefore as Record<
+      string,
+      unknown
+    >)["byteLineage"];
+    expect(lineageLevels(rhMinus).length, "setup: robert-hayes depth -1").toBe(1);
+    expect(() => validateT3(rhActor, rhGlb, rhMinus)).toThrow(/no nested #741 record/);
+    // Peds-nurse-kevin combined single-level bypass (depth 2, newest recorded output sha).
+    const keActor = "mpfb-peds-nurse-kevin.glb";
+    const keGlb = parseGlb(join(DIR, keActor));
+    const keSidecar = sidecarFor(keActor);
+    expect(lineageLevels(keSidecar).length, "setup: kevin chain depth").toBe(2);
+    validateT3(keActor, keGlb, keSidecar);
+    const keShaPlant = JSON.parse(JSON.stringify(keSidecar)) as Record<string, unknown>;
+    const keNewest = lineageLevels(keShaPlant)[0]!;
+    expect(keNewest.recordedBefore?.outputSha256, "setup: combined level output sha pinned").toBe(
+      "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa",
+    );
+    keNewest.recordedBefore!.outputSha256 = flipLastHex(keNewest.recordedBefore!.outputSha256!);
+    expect(() => validateT3(keActor, keGlb, keShaPlant)).toThrow(
+      /preImageSha256 .* != recordedBefore\.outputSha256/,
+    );
+    const kePlus = JSON.parse(JSON.stringify(keSidecar)) as Record<string, unknown>;
+    lineageLevels(kePlus)[1]!.recordedBefore!.byteLineage = {
+      derivationArgv: ["extra"],
+      preImageSha256: "b".repeat(64),
+    };
+    expect(lineageLevels(kePlus).length, "setup: kevin depth +1").toBe(3);
+    expect(() => validateT3(keActor, keGlb, kePlus)).toThrow(
+      /preImageSha256 .* != recordedBefore\.outputSha256/,
+    );
+    const keMinus = JSON.parse(JSON.stringify(keSidecar)) as Record<string, unknown>;
+    delete (((keMinus as NeckChainSidecar).byteLineage as ByteLineageLevel).recordedBefore as Record<
+      string,
+      unknown
+    >)["byteLineage"];
+    expect(lineageLevels(keMinus).length, "setup: kevin depth -1").toBe(1);
+    expect(() => validateT3(keActor, keGlb, keMinus)).toThrow(
+      /must nest older than the teeth-swap record/,
+    );
+  });
+
+  it("M1: swapped kept/hidden roles refuse even though both shas are in the pin set", () => {
+    const actor = NURSE_ACTOR;
+    const glb = parseGlb(join(DIR, actor));
+    const sidecar = sidecarFor(actor);
+    const baseline = nurseBaselineGlb(sidecar);
+    const block = (sidecar as NeckChainSidecar)["teethSwapB1"]!;
+    const row = block.protectedAccessorHashes!.find(
+      (candidate) =>
+        candidate.meshIndex === NURSE_BODY_MESH && candidate.slot === NURSE_BODY_PRIM0_SLOT,
+    )!;
+    expect(row, "nurse body prim0.indices row recorded").toBeDefined();
+    const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
+    expect(isNurseChestStageSplit(witness), "live nurse split passes the shared predicate").toBe(true);
+    // Swap every role-bound field: shas, sorted index arrays, accessor maps,
+    // and material index+name pairs. Both shas stay inside the pin set, but
+    // the kept slot no longer carries the KEPT pin, so the predicate refuses.
+    const swapped = {
+      ...witness,
+      keptIndicesSha256: witness.hiddenIndicesSha256,
+      hiddenIndicesSha256: witness.keptIndicesSha256,
+      keptSortedIndices: witness.hiddenSortedIndices,
+      hiddenSortedIndices: witness.keptSortedIndices,
+      keptAttrAccessors: witness.hiddenAttrAccessors,
+      hiddenAttrAccessors: witness.keptAttrAccessors,
+      keptTargetAccessors: witness.hiddenTargetAccessors,
+      hiddenTargetAccessors: witness.keptTargetAccessors,
+      keptMaterialIndex: witness.hiddenMaterialIndex,
+      hiddenMaterialIndex: witness.keptMaterialIndex,
+      keptMaterial: witness.hiddenMaterial,
+      hiddenMaterial: witness.keptMaterial,
+    };
+    expect(
+      isNurseChestStageSplit(swapped),
+      "swapped kept/hidden roles must refuse the split",
+    ).toBe(false);
+    // Sha-only swap: every binding field stays live, only the two shas trade
+    // slots. Both shas stay inside the pin set, but the kept slot no longer
+    // carries the KEPT pin — the role-bound predicate refuses. (D5 probe:
+    // relaxing the predicate to set membership admits this plant.)
+    const shaOnlySwapped = {
+      ...witness,
+      keptIndicesSha256: witness.hiddenIndicesSha256,
+      hiddenIndicesSha256: witness.keptIndicesSha256,
+    };
+    expect(
+      isNurseChestStageSplit(shaOnlySwapped),
+      "sha-only swapped roles must refuse the split",
+    ).toBe(false);
+  });
+
+  it("M1 hidden-only triangle-rotated buffer refuses through the direct predicate", () => {
+    const actor = NURSE_ACTOR;
+    const glb = parseGlb(join(DIR, actor));
+    const sidecar = sidecarFor(actor);
+    const baseline = nurseBaselineGlb(sidecar);
+    const block = (sidecar as NeckChainSidecar)["teethSwapB1"]!;
+    const row = block.protectedAccessorHashes!.find(
+      (candidate) =>
+        candidate.meshIndex === NURSE_BODY_MESH && candidate.slot === NURSE_BODY_PRIM0_SLOT,
+    )!;
+    const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
+    expect(isNurseChestStageSplit(witness), "live nurse split passes the shared predicate").toBe(true);
+    const prims = glb.document.meshes[NURSE_BODY_MESH]?.primitives ?? [];
+    const hidden = prims[prims.length - 1]!;
+    const hiddenIdx = hidden.indices!;
+    const acc = glb.document.accessors[hiddenIdx]!;
+    const view = glb.document.bufferViews[acc.bufferView!]!;
+    const itemBytes = acc.componentType === 5125 || acc.componentType === 5126 ? 4 : 2;
+    expect(view.byteStride ?? itemBytes, "setup: hidden indices are densely packed").toBe(itemBytes);
+    const flat = accessorValues(glb, hiddenIdx).map((r) => r[0]!);
+    expect(flat.length % 3, "setup: hidden indices form whole triangles").toBe(0);
+    const rotated = [...flat];
+    for (let i = 0; i < rotated.length; i += 3) {
+      const a = rotated[i]!;
+      rotated[i] = rotated[i + 1]!;
+      rotated[i + 1] = rotated[i + 2]!;
+      rotated[i + 2] = a;
+    }
+    expect([...rotated].sort((a, b) => a - b)).toEqual(witness.hiddenSortedIndices);
+    const buf = Buffer.alloc(rotated.length * itemBytes);
+    rotated.forEach((v, k) => {
+      if (acc.componentType === 5125) buf.writeUInt32LE(v, k * 4);
+      else if (acc.componentType === 5123) buf.writeUInt16LE(v, k * 2);
+      else if (acc.componentType === 5122) buf.writeInt16LE(v, k * 2);
+      else throw new Error(`setup: unexpected hidden indices component ${acc.componentType}`);
+    });
+    const rotatedSha = sha256(buf);
+    expect(rotatedSha, "setup: triangle rotation changes the hidden raw sha").not.toBe(
+      witness.hiddenIndicesSha256,
+    );
+    const planted = { ...witness, hiddenIndicesSha256: rotatedSha };
+    expect(
+      isNurseChestStageSplit(planted),
+      "triangle-rotated hidden buffer must refuse (hidden pin)",
+    ).toBe(false);
+  });
+
+  it("M1 hidden-only triangle-rotated buffer refuses through the T3 chest row caller", () => {
+    const actor = NURSE_ACTOR;
+    const glb = parseGlb(join(DIR, actor));
+    const sidecar = sidecarFor(actor);
+    const baseline = nurseBaselineGlb(sidecar);
+    const block = (sidecar as NeckChainSidecar)["teethSwapB1"]!;
+    const row = block.protectedAccessorHashes!.find(
+      (candidate) =>
+        candidate.meshIndex === NURSE_BODY_MESH && candidate.slot === NURSE_BODY_PRIM0_SLOT,
+    )!;
+    const prims = glb.document.meshes[NURSE_BODY_MESH]?.primitives ?? [];
+    const hidden = prims[prims.length - 1]!;
+    const hiddenIdx = hidden.indices!;
+    const acc = glb.document.accessors[hiddenIdx]!;
+    const view = glb.document.bufferViews[acc.bufferView!]!;
+    const itemBytes = acc.componentType === 5125 || acc.componentType === 5126 ? 4 : 2;
+    expect(view.byteStride ?? itemBytes, "setup: hidden indices are densely packed").toBe(itemBytes);
+    const start = (view.byteOffset ?? 0) + (acc.byteOffset ?? 0);
+    const count = acc.count;
+    expect(count % 3, "setup: hidden indices form whole triangles").toBe(0);
+    const readEl = (k: number): number =>
+      acc.componentType === 5125
+        ? glb.binary.readUInt32LE(start + k * 4)
+        : glb.binary.readUInt16LE(start + k * 2);
+    const writeEl = (k: number, v: number): void => {
+      if (acc.componentType === 5125) glb.binary.writeUInt32LE(v, start + k * 4);
+      else glb.binary.writeUInt16LE(v, start + k * 2);
+    };
+    for (let i = 0; i < count; i += 3) {
+      const a = readEl(i);
+      const b = readEl(i + 1);
+      const c = readEl(i + 2);
+      writeEl(i, b);
+      writeEl(i + 1, c);
+      writeEl(i + 2, a);
+    }
+    const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
+    expect(
+      isNurseChestStageSplit(witness),
+      "triangle-rotated hidden GLB must refuse through the caller-built witness",
+    ).toBe(false);
+    expect(() =>
+      nurseChestRowOrThrow(actor, glb, baseline, sidecar, row.accessorIndex),
+    ).toThrow(/shared E9 split rejected/);
+  });
+
+  it("M2: prim8 repointed at a byte-identical duplicate accessor refuses (index identity, not bytes)", () => {
+    const actor = NURSE_ACTOR;
+    const glb = parseGlb(join(DIR, actor));
+    const sidecar = sidecarFor(actor);
+    const baseline = nurseBaselineGlb(sidecar);
+    const block = (sidecar as NeckChainSidecar)["teethSwapB1"]!;
+    const row = block.protectedAccessorHashes!.find(
+      (candidate) =>
+        candidate.meshIndex === NURSE_BODY_MESH && candidate.slot === NURSE_BODY_PRIM0_SLOT,
+    )!;
+    expect(row, "nurse body prim0.indices row recorded").toBeDefined();
+    const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
+    expect(isNurseChestStageSplit(witness), "live nurse split passes the shared predicate").toBe(true);
+    // Body prim0 morph targets 16/17 share byte-identical payloads: t16
+    // POSITION 2055 == t17 POSITION 2057 (and NORMAL 2056 == 2058). A
+    // byte-signature check cannot tell them apart; accessor-index identity can.
+    expect(
+      sha256(accessorPayload(glb, 2055)),
+      "setup: twin POSITION accessors share bytes",
+    ).toBe(sha256(accessorPayload(glb, 2057)));
+    const repointed = witness.hiddenTargetAccessors.map((target) => ({ ...target }));
+    expect(repointed[17]?.["POSITION"], "setup: hidden t17 POSITION is 2057").toBe(2057);
+    repointed[17]!["POSITION"] = 2055;
+    expect(
+      isNurseChestStageSplit({ ...witness, hiddenTargetAccessors: repointed }),
+      "prim8 morph target repointed to a byte-identical duplicate accessor must refuse",
+    ).toBe(false);
+    // Attribute repoint to any other index refuses as well (2018 is unique,
+    // so this one differs in bytes too — the twin-target plant above is the
+    // byte-identical case).
+    expect(
+      isNurseChestStageSplit({
+        ...witness,
+        hiddenAttrAccessors: { ...witness.hiddenAttrAccessors, ["POSITION"]: 2775 },
+      }),
+      "prim8 POSITION repointed away from the baseline accessor index must refuse",
+    ).toBe(false);
+  });
+
+  it("M2: prim8 material swapped to another openclinxr_hidden_* refuses (exact hide material)", () => {
+    const actor = NURSE_ACTOR;
+    const glb = parseGlb(join(DIR, actor));
+    const sidecar = sidecarFor(actor);
+    const baseline = nurseBaselineGlb(sidecar);
+    const block = (sidecar as NeckChainSidecar)["teethSwapB1"]!;
+    const row = block.protectedAccessorHashes!.find(
+      (candidate) =>
+        candidate.meshIndex === NURSE_BODY_MESH && candidate.slot === NURSE_BODY_PRIM0_SLOT,
+    )!;
+    expect(row, "nurse body prim0.indices row recorded").toBeDefined();
+    const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
+    expect(isNurseChestStageSplit(witness), "live nurse split passes the shared predicate").toBe(true);
+    // Live body prim2 carries the lower hide material (index 6,
+    // openclinxr_hidden_lower_...): still an openclinxr_hidden_* material,
+    // but not the exact E9 hide material (index 5, ..._upper_...).
+    expect(witness.hiddenMaterialIndex, "setup: E9 hide material index is 5").toBe(5);
+    expect(
+      isNurseChestStageSplit({
+        ...witness,
+        hiddenMaterialIndex: 6,
+        hiddenMaterial: "openclinxr_hidden_lower_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+      }),
+      "prim8 material swapped to another openclinxr_hidden_* must refuse",
+    ).toBe(false);
+    // Donor: a non-hidden prim GLB-wide with a different attribute set (body
+    // prims 1-7 are all hidden, so a body-local donor cannot supply one).
+    const basePrim0 = baseline.document.meshes[NURSE_BODY_MESH]?.primitives?.[0];
+    if (basePrim0 === undefined) throw new Error("setup: baseline body prim0 missing");
+    const baseAttr = rawPrimAttrSig(baseline, basePrim0);
+    let donor: { material: string; materialIndex: number } | undefined;
+    for (const mesh of glb.document.meshes) {
+      for (const prim of mesh?.primitives ?? []) {
+        const material = rawPrimMaterial(glb, prim);
+        if (material.startsWith("openclinxr_hidden_")) continue;
+        if (prim.material === undefined) continue;
+        const attr = rawPrimAttrSig(glb, prim);
+        if (attr === baseAttr) {
+          continue;
+        }
+        donor = { material, materialIndex: prim.material };
+        break;
+      }
+      if (donor) break;
+    }
+    expect(donor, "setup: GLB carries a non-hidden prim with a different attribute set").toBeDefined();
+    expect(
+      isNurseChestStageSplit({
+        ...witness,
+        hiddenMaterialIndex: donor!.materialIndex,
+        hiddenMaterial: donor!.material,
+      }),
+      "prim8 material swapped to a non-hidden material must refuse",
+    ).toBe(false);
+    expect(
+      isNurseChestStageSplit({ ...witness, keptMaterial: donor!.material }),
+      "kept prim material swapped away from the baseline must refuse",
+    ).toBe(false);
+  });
+
+  /**
+   * T3 E9 row guard (b): a temp sidecar copy with the E9 rehide level removed refuses
+   * the row. Never edits the real sidecar: deep copy, drop the newest level, round-trip
+   * through a temp file, then the row path must throw.
+   */
+  it("T3 E9 row guard: temp sidecar copy without the E9 rehide level refuses the row", () => {
+    const actor = NURSE_ACTOR;
+    const glb = parseGlb(join(DIR, actor));
+    const sidecar = sidecarFor(actor);
+    const baseline = nurseBaselineGlb(sidecar);
+    const block = (sidecar as NeckChainSidecar)["teethSwapB1"]!;
+    const row = block.protectedAccessorHashes!.find(
+      (candidate) =>
+        candidate.meshIndex === NURSE_BODY_MESH && candidate.slot === NURSE_BODY_PRIM0_SLOT,
+    )!;
+    expect(row, "nurse body prim0.indices row recorded").toBeDefined();
+    // Sanity: the live nurse passes through the row path (guard (a) direction).
+    nurseChestRowOrThrow(actor, glb, baseline, sidecar, row.accessorIndex);
+    const copy = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown>;
+    const top = (copy as NeckChainSidecar).byteLineage!;
+    const next = top.recordedBefore?.byteLineage;
+    if (!next) throw new Error("guard setup: expected a chained recordedBefore.byteLineage");
+    expect((top.derivationArgv ?? []).join(" "), "setup removes the E9 rehide level").toContain(
+      "rehide-poking-skin.py",
+    );
+    (copy as NeckChainSidecar).byteLineage = next;
+    const dir = mkdtempSync(join(tmpdir(), "e9r2b-guard-b-"));
+    try {
+      const file = join(dir, "sidecar.json");
+      writeFileSync(file, JSON.stringify(copy));
+      const stripped = JSON.parse(readFileSync(file, "utf8")) as Record<string, unknown>;
+      const witness = nurseChestWitness(glb, baseline, stripped, row.accessorIndex);
+      expect(witness.keptIndicesSha256, "bytes untouched: kept sha still pinned").toBe(
+        NURSE_CHEST_STAGE_KEPT_INDICES_SHA256,
+      );
+      expect(isNurseChestStageSplit(witness), "E9 level removed must refuse the split").toBe(false);
+      expect(() => nurseChestRowOrThrow(actor, glb, baseline, stripped, row.accessorIndex)).toThrow(
+        /T3 E9 chest .* shared E9 split rejected/,
+      );
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  /**
+   * T3 E9 row guard (c): a temp GLB copy whose prim0 indices bytes leave the E9 pin
+   * refuses the row. The plant rotates the kept index buffer by one triangle: the index
+   * multiset (and therefore the sorted union) is unchanged, but the raw bytes sha is no
+   * longer in the pin. Both the row path and the shared predicate must refuse.
+   */
+  it("T3 E9 row guard: temp GLB copy with a non-pin body indices sha refuses the row", () => {
+    const actor = NURSE_ACTOR;
+    const glb = parseGlb(join(DIR, actor));
+    const sidecar = sidecarFor(actor);
+    const baseline = nurseBaselineGlb(sidecar);
+    const keptAccessor = 1985;
+    const accessor = glb.document.accessors[keptAccessor]!;
+    if (accessor.bufferView === undefined || accessor.sparse) {
+      throw new Error("guard setup: kept indices accessor must be dense");
+    }
+    const view = glb.document.bufferViews[accessor.bufferView]!;
+    const itemBytes = 2;
+    const start = (view.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
+    const jsonLength = glb.raw.readUInt32LE(12);
+    const binStart = 20 + jsonLength + 8;
+    const planted = Buffer.from(glb.raw);
+    const region = planted.subarray(binStart + start, binStart + start + accessor.count * itemBytes);
+    const rotated = Buffer.concat([region.subarray(3 * itemBytes), region.subarray(0, 3 * itemBytes)]);
+    rotated.copy(region);
+    const dir = mkdtempSync(join(tmpdir(), "e9r2b-guard-c-"));
+    try {
+      const file = join(dir, "planted.glb");
+      writeFileSync(file, planted);
+      const plantedGlb = parseGlb(file);
+      const plantedSha = sha256(accessorBytes(plantedGlb, keptAccessor));
+      expect(plantedSha, "plant changed the kept bytes").not.toBe(
+        NURSE_CHEST_STAGE_KEPT_INDICES_SHA256,
+      );
+      expect(NURSE_CHEST_STAGE_INDICES_SHA256, "planted sha is in no pin").not.toContain(plantedSha);
+      const witness = nurseChestWitness(plantedGlb, baseline, sidecar, keptAccessor);
+      expect(
+        [...witness.keptSortedIndices, ...witness.hiddenSortedIndices].sort((a, b) => a - b),
+        "rotation keeps the sorted union intact",
+      ).toEqual(witness.baselineSortedIndices);
+      expect(isNurseChestStageSplit(witness), "non-pin sha must refuse the split").toBe(false);
+      expect(() =>
+      nurseChestRowOrThrow(actor, plantedGlb, baseline, sidecar, keptAccessor),
+      ).toThrow(/T3 E9 chest .* shared E9 split rejected/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  /**
+   * A1 shared-fn guard: a union-off-by-one plant straight through the shared
+   * predicate is refused. Pinned kept/hidden shas and the intact sidecar chain,
+   * but the baseline union is off by exactly one index: isNurseChestStageSplit
+   * must be false. Mutation-sensitive by construction: deleting the index-union
+   * check (M1) turns this RED (pins + chain still pass); deleting the pinned-sha
+   * check (M2) leaves it green (guard (c) covers M2).
+   */
+  it("shared predicate refuses a union off by one with pinned shas and intact chain", () => {
+    const actor = NURSE_ACTOR;
+    const glb = parseGlb(join(DIR, actor));
+    const sidecar = sidecarFor(actor);
+    const baseline = nurseBaselineGlb(sidecar);
+    const block = (sidecar as NeckChainSidecar)["teethSwapB1"]!;
+    const row = block.protectedAccessorHashes!.find(
+      (candidate) =>
+        candidate.meshIndex === NURSE_BODY_MESH && candidate.slot === NURSE_BODY_PRIM0_SLOT,
+    )!;
+    expect(row, "nurse body prim0.indices row recorded").toBeDefined();
+    const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
+    expect(isNurseChestStageSplit(witness), "live nurse split passes the shared predicate").toBe(
+      true,
+    );
+    const offByOne = [...witness.baselineSortedIndices];
+    offByOne[0]! += 1;
+    expect(offByOne[0], "plant moved the smallest baseline index").not.toBe(
+      witness.baselineSortedIndices[0],
+    );
+    expect(
+      isNurseChestStageSplit({ ...witness, baselineSortedIndices: offByOne }),
+      "union off by one must refuse the split",
+    ).toBe(false);
   });
 
   /**

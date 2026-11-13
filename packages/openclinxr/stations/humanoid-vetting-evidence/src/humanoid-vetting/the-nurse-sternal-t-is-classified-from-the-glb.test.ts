@@ -194,7 +194,7 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // (non-mouth meshes value-equal, st-teeth counterweight); values from stat/shasum of the shipped GLB; was 9254712 B, sha fef34e2ad855….
       // teeth F3 re-pinned 2026-11-10 (tsk_27e0cec12cab410d): aa upper-shell lateral mean -> 0; skin prim untouched;
       // values from stat/shasum of the shipped GLB; was 12353944 B, sha 058d25134da2….
-      [ADULT_GLB, "adult", 12353924, "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c"],
+      [ADULT_GLB, "adult", 12355972, "8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86"],
     ] as const) {
       const glb = readGlb(path);
       expect(glb.bytes.length, `${key}: GLB length pinned`).toBe(bytes);

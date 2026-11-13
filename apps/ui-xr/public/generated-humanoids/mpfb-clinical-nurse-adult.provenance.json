@@ -70,50 +70,72 @@
  "claimScope": "nurse_adult_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_toigo_blunt_bob_kept",
  "promotionGates": false,
  "generatedAt": "2026-09-12T09:29:57.027Z",
- "outputSha256": "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
- "outputBytes": 12353924,
+ "outputSha256": "8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86",
+ "outputBytes": 12355972,
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-11-11T02:15:42.540Z",
+  "correctedAt": "2026-11-13T18:22:20.355Z",
   "recordedBefore": {
-   "outputSha256": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68",
-   "outputBytes": 9254712,
+   "outputSha256": "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
+   "outputBytes": 12353924,
    "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-    "correctedAt": "2026-09-28T04:05:58.471Z",
+    "correctedAt": "2026-11-11T02:15:42.540Z",
     "recordedBefore": {
-     "outputSha256": "c4bc395875048103172e755af5ada72d36d028ab7f598d57ef9726e37891e4ec",
-     "outputBytes": 8775848
+     "outputSha256": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68",
+     "outputBytes": 9254712,
+     "byteLineage": {
+      "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+      "correctedAt": "2026-09-28T04:05:58.471Z",
+      "recordedBefore": {
+       "outputSha256": "c4bc395875048103172e755af5ada72d36d028ab7f598d57ef9726e37891e4ec",
+       "outputBytes": 8775848
+      },
+      "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+      "preImageSha256": "c4bc395875048103172e755af5ada72d36d028ab7f598d57ef9726e37891e4ec",
+      "preImageBytes": 8775848,
+      "derivationArgv": [
+       "sh",
+       "-c",
+       "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0085 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+       "x",
+       "{pre}",
+       "{out}"
+      ],
+      "reproduction": "byte-identical to the shipped file",
+      "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+     }
     },
-    "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-    "preImageSha256": "c4bc395875048103172e755af5ada72d36d028ab7f598d57ef9726e37891e4ec",
-    "preImageBytes": 8775848,
+    "preImageRevision": "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+    "preImageSha256": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68",
+    "preImageBytes": 9254712,
     "derivationArgv": [
      "sh",
      "-c",
-     "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0085 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+     "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-clinical-nurse-adult.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0057' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts' \"$2\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'",
      "x",
      "{pre}",
-     "{out}"
+     "{out}",
+     "{report}"
     ],
     "reproduction": "byte-identical to the shipped file",
-    "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+    "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts, couple-fitted-teeth-to-lip-viseme.ts, decimate_teeth.mts."
    }
   },
-  "preImageRevision": "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-  "preImageSha256": "fef34e2ad85542da8c6ee3f369d47cf73560f15fc2268f11668a93b593081e68",
-  "preImageBytes": 9254712,
+  "preImageRevision": "0ad5234d0d4883ca38346356ae3c16670e8eea1b:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+  "preImageSha256": "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
+  "preImageBytes": 12353924,
   "derivationArgv": [
    "sh",
    "-c",
-   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-clinical-nurse-adult.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0057' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts' \"$2\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'",
+   "set -e; POSES=\"$(dirname \"$2\")/poses\"; pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/sample-grade-poses.ts --in \"$1\" --out-dir \"$POSES\" && mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/rehide-poking-skin.py --in \"$1\" --out \"$2\" --report \"$3\" --rays-dir \"$POSES\" --poses-meta \"$POSES/meta.json\" --poses-dir \"$POSES\" --patch-prim-in-place",
    "x",
    "{pre}",
    "{out}",
    "{report}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts, couple-fitted-teeth-to-lip-viseme.ts, decimate_teeth.mts."
+  "why": "e9-r1 chest fix: rehide-poking-skin.py moves the 92 posed-converged (SAFE'') body-skin tris poking through the scrub shirt back under the hide mask (patch-prim-in-place). Posed-gate inputs (rays_full_*_s2.bin, t2_rays.json, meta.json + 24 frame bins) are regenerated in-derivation from the pre-image GLB by the committed sampler tsx tools/openclinxr/asset-pipeline/makeclothes/sample-grade-poses.ts --in <pre> --out-dir <poses> (contract: input GLB clips x 8 frames = 24; no store or E-dir bytes). Re-running this chain on 0ad5234d0d4883ca38346356ae3c16670e8eea1b:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb reproduces the shipped bytes."
  },
  "licenceNoticeWrittenAt": "2026-09-12T09:29:57.027Z",
  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",

@@ -19,9 +19,14 @@ export const ACTORS = [
 
 export const ROOT = repoRoot();
 export const GLB_DIR = join(ROOT, "apps/ui-xr/public/generated-humanoids");
-// The pre-follow lash every gate compares against: main just before the follow bake landed (59980e7f6).
-// It is pinned because origin/main now carries the followed lashes, so an origin/main baseline compares
-// the shipped lash with itself and G1/F1 fail on every fresh checkout. Repin only on a new lash bake.
+// History locator for the lash-stage input bytes. This is NOT the reference: the
+// reference is the producer-emitted sha (sidecar lashFollowR8.inputSha256), and the
+// bytes fetched through this locator are accepted only when their sha256 matches
+// that emission (fail closed). It still points at the tree the r8 lash bake read
+// (main just before the follow bake landed, 59980e7f6); origin/main now carries the
+// followed lashes, so a locator that no longer resolves to the emitted bytes fails
+// the gate instead of comparing the shipped lash with itself. Repin only on a new
+// lash bake (and only together with the sidecar emissions it produces).
 export const BASELINE_REF = "a1944f7c219c124ad851d18c77195d50e4c528d0";
 export const TRACKED_REPORT_PATH = join(
   ROOT,
@@ -155,6 +160,7 @@ export type Mutation = "none" | "strip" | "double-left" | "double-right" | "brow
 export type ActorMeasurement = {
   actor: string;
   inputSha256: string;
+  lashStageInputSha256: string;
   lashMesh: string;
   bodyMesh: string;
   sides: Record<Side, SideMeasurement>;

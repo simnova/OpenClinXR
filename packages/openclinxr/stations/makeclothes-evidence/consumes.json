@@ -10,6 +10,28 @@
     ]
   },
   {
+    "provider": "@openclinxr/asset-registry",
+    "entrypoint": "./nurse-chest-stage",
+    "names": [
+      {
+        "name": "isNurseChestStageSplit",
+        "kind": "runtime"
+      },
+      {
+        "name": "NURSE_CHEST_STAGE_ACTOR",
+        "kind": "runtime"
+      },
+      {
+        "name": "NURSE_CHEST_STAGE_INDICES_SHA256",
+        "kind": "runtime"
+      },
+      {
+        "name": "NURSE_CHEST_STAGE_KEPT_INDICES_SHA256",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/factory-station-core",
     "entrypoint": "./runner",
     "names": [

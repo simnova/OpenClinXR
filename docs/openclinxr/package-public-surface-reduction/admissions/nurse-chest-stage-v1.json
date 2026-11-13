@@ -1,0 +1,52 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "nurse-chest-stage-v1",
+  "reviewedBy": "Codex gpt-5.6-sol independent read-only review (not an author) of the E9 nurse-chest diff, round 3: session 01a1d665-a731-7311-84ae-530243fb268b ADMISSION_VERDICT accept (all four symbols named by makeclothes-evidence and humanoid-bake-evidence consumes.json; rationales true), 2026-11-13",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "647c4fb16b4019dd99a433465955a6423cfc0ca914e802fb7c83aa8812d8dab8",
+  "packages": [
+    "packages/openclinxr/asset-registry"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./nurse-chest-stage",
+      "symbol": "NURSE_CHEST_STAGE_ACTOR",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "e9-r2b nurse chest-stage split",
+      "rationale": "Actor dir pin for the nurse split (mpfb-clinical-nurse-adult); gates the R3 lash allowance to the nurse body mesh. Consumer: makeclothes-evidence shipped-lash-follow-geometry.ts / shipped-lash-follow-nurse-chest-split.ts.",
+      "reviewedBy": "Codex gpt-5.6-sol independent read-only review (not an author) of the E9 nurse-chest diff, round 3: session 01a1d665-a731-7311-84ae-530243fb268b ADMISSION_VERDICT accept (all four symbols named by makeclothes-evidence and humanoid-bake-evidence consumes.json; rationales true), 2026-11-13"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./nurse-chest-stage",
+      "symbol": "NURSE_CHEST_STAGE_INDICES_SHA256",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "e9-r2b nurse chest-stage split",
+      "rationale": "Exact-sha E9 pin set (kept + hidden indices shas); the allowance admits only this pair. Consumer: humanoid-bake-evidence the-shipped-teeth-carry-their-texture.test.ts T3 guard (c).",
+      "reviewedBy": "Codex gpt-5.6-sol independent read-only review (not an author) of the E9 nurse-chest diff, round 3: session 01a1d665-a731-7311-84ae-530243fb268b ADMISSION_VERDICT accept (all four symbols named by makeclothes-evidence and humanoid-bake-evidence consumes.json; rationales true), 2026-11-13"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./nurse-chest-stage",
+      "symbol": "NURSE_CHEST_STAGE_KEPT_INDICES_SHA256",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "e9-r2b nurse chest-stage split",
+      "rationale": "Exact sha of the E9 kept-skin-prim indices bytes (prim0, 24690 indices). Consumers: humanoid-bake-evidence T3 row exception + makeclothes-evidence split pin-order guard.",
+      "reviewedBy": "Codex gpt-5.6-sol independent read-only review (not an author) of the E9 nurse-chest diff, round 3: session 01a1d665-a731-7311-84ae-530243fb268b ADMISSION_VERDICT accept (all four symbols named by makeclothes-evidence and humanoid-bake-evidence consumes.json; rationales true), 2026-11-13"
+    },
+    {
+      "package": "packages/openclinxr/asset-registry",
+      "entrypoint": "./nurse-chest-stage",
+      "symbol": "isNurseChestStageSplit",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "e9-r2b nurse chest-stage split",
+      "rationale": "THE single shared E9 split predicate: role-bound pins (kept prim carries the KEPT pin, hidden prim the hidden pin; swapped refused) + sorted-index-union-equals-baseline + kept/hidden attribute AND morph-target accessor-index identity with the baseline prim (byte-identical duplicate accessors refused) + kept material == baseline material (index+name) and hidden material == the exact E9 hide material (index 5, openclinxr_hidden_upper_...; any other openclinxr_hidden_* refused) + (where a chain is given) rehide-newer-than-swap. Consumers: humanoid-bake-evidence T3 row exception + makeclothes-evidence lash allowance.",
+      "reviewedBy": "Codex gpt-5.6-sol independent read-only review (not an author) of the E9 nurse-chest diff, round 3: session 01a1d665-a731-7311-84ae-530243fb268b ADMISSION_VERDICT accept (all four symbols named by makeclothes-evidence and humanoid-bake-evidence consumes.json; rationales true), 2026-11-13"
+    }
+  ]
+}

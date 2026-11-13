@@ -453,7 +453,8 @@ describe("admission overlays do not launder closed removes", () => {
     // 2026-11-10 coordinator-approved pin move (super-ceo-cap10 [bdc0de]): admits 1 new add, no closed remove.
     // 2026-11-12 super-ceo-cap21 ruling, ratified by operator 2026-11-12 (super-ceo-cap23): admits 2 new adds (faculty-review-route-v1), no closed remove.
     // 2026-11-13 super-ceo-cap26/cap27 ruling: admits 2 new adds (xr-sync-rr1-phase-wait-v1), no closed remove.
-    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1", "xr-sync-rr1-phase-wait-v1"\]/u);
+    // 2026-11-13 ceo/e9-r2b coordinator binding brief A1, pending operator ratification: admits 4 new keeps (nurse-chest-stage-v1), no closed remove.
+    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1", "xr-sync-rr1-phase-wait-v1", "nurse-chest-stage-v1"\]/u);
     const resolveStart = applyMap.indexOf("export function resolveApplyId");
     const resolveBody = applyMap.slice(resolveStart);
     expect(resolveBody).not.toMatch(/ADMISSION_GROUPS/u);
@@ -471,7 +472,8 @@ describe("the independently reviewed seven-row production activation", () => {
     // 2026-11-10 coordinator-approved pin move (super-ceo-cap10 [bdc0de]): admits 1 new add, no closed remove.
     // 2026-11-12 super-ceo-cap21 ruling, ratified by operator 2026-11-12 (super-ceo-cap23): admits 2 new adds (faculty-review-route-v1), no closed remove.
     // 2026-11-13 super-ceo-cap26/cap27 ruling: admits 2 new adds (xr-sync-rr1-phase-wait-v1), no closed remove.
-    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1", "xr-sync-rr1-phase-wait-v1"]);
+    // 2026-11-13 ceo/e9-r2b coordinator binding brief A1, pending operator ratification: admits 4 new keeps (nurse-chest-stage-v1), no closed remove.
+    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1", "xr-sync-rr1-phase-wait-v1", "nurse-chest-stage-v1"]);
     const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8"));
     expect(admission.rows).toHaveLength(7);
     expect(admission.admissionHash).toBe("6a4df1fedee5ad0fae42e026eaf6e77c2f1a4155c117a1e3e0c9679f74f90d11");
@@ -680,6 +682,25 @@ describe("the independently reviewed seven-row production activation", () => {
     expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
   });
 
+  // 2026-11-13 ceo/e9-r2c (Codex review of the E9 diff: 1 blocker + 9 majors, F10):
+  // surface reduced to the four symbols real consumers name
+  // (NURSE_CHEST_STAGE_ACTOR + NURSE_CHEST_STAGE_INDICES_SHA256 +
+  // NURSE_CHEST_STAGE_KEPT_INDICES_SHA256 + isNurseChestStageSplit); reviewedBy
+  // is the Codex round-3 independent review (session 01a1d665).
+  it("binds the nurse chest stage admission", () => {
+    const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "nurse-chest-stage-v1.json"), "utf8"));
+    expect(admission.reviewedBy).toBe("Codex gpt-5.6-sol independent read-only review (not an author) of the E9 nurse-chest diff, round 3: session 01a1d665-a731-7311-84ae-530243fb268b ADMISSION_VERDICT accept (all four symbols named by makeclothes-evidence and humanoid-bake-evidence consumes.json; rationales true), 2026-11-13");
+    expect(admission.rows.map((row: OverlayRow) => [row.entrypoint, row.symbol])).toEqual([
+      ["./nurse-chest-stage", "NURSE_CHEST_STAGE_ACTOR"],
+      ["./nurse-chest-stage", "NURSE_CHEST_STAGE_INDICES_SHA256"],
+      ["./nurse-chest-stage", "NURSE_CHEST_STAGE_KEPT_INDICES_SHA256"],
+      ["./nurse-chest-stage", "isNurseChestStageSplit"],
+    ]);
+    expect(admission.admissionHash).toBe("647c4fb16b4019dd99a433465955a6423cfc0ca914e802fb7c83aa8812d8dab8");
+    expect(overlayAdmissionHash(admission.reviewedBy, admission.rows)).toBe(admission.admissionHash);
+    expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
+  });
+
   function withActualEvidence(run: (root: string, admission: { reviewedBy: string; admissionHash: string; rows: OverlayRow[] }) => void): void {
     const admissionBody = readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8");
     const files: Record<string, string> = {
@@ -709,6 +730,7 @@ describe("the independently reviewed seven-row production activation", () => {
       [`${ADMISSIONS_DIR}/last-station-break-rule-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "last-station-break-rule-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/faculty-review-route-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "faculty-review-route-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/xr-sync-rr1-phase-wait-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "xr-sync-rr1-phase-wait-v1.json"), "utf8"),
+      [`${ADMISSIONS_DIR}/nurse-chest-stage-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "nurse-chest-stage-v1.json"), "utf8"),
     };
     for (const group of REVIEW_GROUPS) files[`${APPROVALS_DIR}/${group}.json`] = readFileSync(join(ROOT, APPROVALS_DIR, `${group}.json`), "utf8");
     withTree(files, (root) => run(root, JSON.parse(admissionBody)));

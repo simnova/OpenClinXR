@@ -1,17 +1,17 @@
 {
   "schema": "openclinxr.teeth-seat-measure.v1",
   "card": "tsk_2a74bbdb3f03cb3e",
-  "measuredAt": "2026-11-11T05:03:20.197Z",
+  "measuredAt": "2026-11-13T13:50:58.548Z",
   "tool": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/teeth-seat-measure.ts",
   "rows": [
     {
       "actor": "mpfb-clinical-nurse-adult.glb",
-      "glbSha256": "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
+      "glbSha256": "8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86",
       "m1SignedSide": 3114,
       "m1f": 30,
       "teethVertexCount": 3114,
       "orphanCount": 1380,
-      "skinTriangleCount": 8322,
+      "skinTriangleCount": 8230,
       "m2ClearanceMm": 10.470584,
       "m2sMm": 8.51581,
       "m2SkinVertexId": 153,

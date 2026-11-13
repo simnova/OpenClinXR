@@ -26939,6 +26939,13 @@
       "rationale": "Consumer-driven split of xr-dialogue exports by consumer class (./package-actor-turn, ./package-viseme, ./evidence-viseme new; JAW_TEETH_GAIN added to ./viseme-runtime); reviewedBy PENDING-INDEPENDENT-REVIEW."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/nurse-chest-stage-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Nurse chest stage admission: admits isNurseChestStageSplit and the nurse-chest index-sha pins that the T3 teeth gate and the makeclothes lash gate import through ./nurse-chest-stage (Codex independent review accept)."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/approvals/psr-01b.json",
       "authority": "keep-evidence",
       "tracked": true,

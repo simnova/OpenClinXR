@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.humanoid-body-signature-pre-fix.v1",
   "issue": 276,
-  "measuredAt": "2026-11-04T04:46:58.487Z",
+  "measuredAt": "2026-11-13T23:28:07.606Z",
   "scanRoot": "apps/ui-xr/public/generated-humanoids",
   "assets": [
     {
@@ -46,7 +46,7 @@
       "triangles": 12833,
       "vertices": 8437,
       "heightMeters": 1.7599140958773205,
-      "bodySha256": "f6cfd1ac5c2231b22e73ab4bc24d6b1ba7cf0ba8f0a90e4a92f797c88c3033f9",
+      "bodySha256": "5e354cb64bb86dd4b75a7dfbfa51d41389c3533f1f69290fd635a207be0d6e9e",
       "bodyClassKey": "8437|12833|1.76"
     },
     {
@@ -341,7 +341,7 @@
       "vertices": 8437,
       "heightMeters": 1.7599140958773205,
       "distinctSha256": [
-        "f6cfd1ac5c2231b22e73ab4bc24d6b1ba7cf0ba8f0a90e4a92f797c88c3033f9"
+        "5e354cb64bb86dd4b75a7dfbfa51d41389c3533f1f69290fd635a207be0d6e9e"
       ],
       "assets": [
         "mpfb-clinical-nurse-adult.glb"

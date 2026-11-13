@@ -374,7 +374,10 @@ describe("compiler-resolved surface meter", () => {
     // 2026-11-11 factory-station-core ./catalog subpath (super-ceo-cap21 ruling, ratified by operator 2026-11-12 (super-ceo-cap23)):
     // browser-safe catalog split off ./runner so ui-admin never evaluates node:async_hooks
     // (tsk_b5608cbe1719b11f) (195 -> 196).
-    expect(report.totals.entrypoints).toBe(196);
+    // 2026-11-13 ceo/e9-r2b coordinator binding brief A1, pending operator ratification:
+    // asset-registry adds one reviewed ./nurse-chest-stage subpath (nurse-chest-stage-v1
+    // admission) for the single shared E9 chest-split predicate + its pin (196 -> 197).
+    expect(report.totals.entrypoints).toBe(197);
   });
 
   it("(2) rest, ui-route-admin, and xr-sync-server match compiler exports", () => {

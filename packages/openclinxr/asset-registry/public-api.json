@@ -137,6 +137,12 @@
     "./measured-station-geometry-freshness": [
       "freshMeasuredTriangleCounts"
     ],
+    "./nurse-chest-stage": [
+      "NURSE_CHEST_STAGE_ACTOR",
+      "NURSE_CHEST_STAGE_INDICES_SHA256",
+      "NURSE_CHEST_STAGE_KEPT_INDICES_SHA256",
+      "isNurseChestStageSplit"
+    ],
     "./runtime-asset-review": [
       "EncounterBundleFactoryMember",
       "EncounterBundleFactoryMemberKind",

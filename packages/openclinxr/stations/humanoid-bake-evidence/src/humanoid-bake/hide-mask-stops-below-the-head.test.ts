@@ -1,8 +1,9 @@
 import { readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
-import { NodeIO } from "@gltf-transform/core";
-import { describe, expect, it } from "vitest";
+import type { Accessor } from "@gltf-transform/core";
+import { Document, NodeIO } from "@gltf-transform/core";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { describe, expect, it } from "vitest";
 
 process.chdir(repoRoot());
 
@@ -137,6 +138,32 @@ type Row = { file: string; statureCm: number; headH: number; maskTopH: number };
 
 const io = new NodeIO();
 
+/**
+ * INDEX-AWARE per-primitive Y bounds (#e9-r1). A rehidden prim may share another prim's
+ * full-body POSITION accessor while indexing only its own verts (nurse prim8: 276 indices
+ * into prim0's 5,155-vert accessor); whole-accessor bounds then measure the body top.
+ * Non-indexed primitives keep whole-accessor bounds, unchanged.
+ */
+function primLoHi(pos: Accessor, indices: Accessor | null): { lo: number; hi: number } {
+  let lo = Infinity;
+  let hi = -Infinity;
+  const v = [0, 0, 0];
+  if (indices) {
+    for (let k = 0; k < indices.getCount(); k++) {
+      pos.getElement(indices.getScalar(k), v);
+      if (v[1]! < lo) lo = v[1]!;
+      if (v[1]! > hi) hi = v[1]!;
+    }
+  } else {
+    for (let i = 0; i < pos.getCount(); i++) {
+      pos.getElement(i, v);
+      if (v[1]! < lo) lo = v[1]!;
+      if (v[1]! > hi) hi = v[1]!;
+    }
+  }
+  return { lo, hi };
+}
+
 async function measure(rel: string): Promise<Row | null> {
   const doc = await io.read(join(REPO_ROOT, rel));
 
@@ -168,14 +195,7 @@ async function measure(rel: string): Promise<Row | null> {
       // PER-PRIMITIVE bounds. A first pass compared the mask material against the MESH-wide running
       // max, which already included the scalp primitive at 1.000 H, so every body looked like it had
       // a mask over its head. Accumulator scoped to the wrong loop — measure the primitive you named.
-      let pLo = Infinity;
-      let pHi = -Infinity;
-      for (let i = 0; i < pos.getCount(); i++) {
-        const v = [0, 0, 0];
-        pos.getElement(i, v);
-        if (v[1]! < pLo) pLo = v[1]!;
-        if (v[1]! > pHi) pHi = v[1]!;
-      }
+      const { lo: pLo, hi: pHi } = primLoHi(pos, prim.getIndices());
       if (pLo < lo) lo = pLo;
       if (pHi > hi) hi = pHi;
       if (HIDE_MASK.test(prim.getMaterial()?.getName() ?? "") && pHi > maskTop) maskTop = pHi;
@@ -248,5 +268,59 @@ describe("a hide mask stops below the head it must not eat", () => {
     expect(byStature[0]!.headH, `shortest body's head joint is lowest`).toBeLessThan(
       byStature[byStature.length - 1]!.headH,
     );
+  });
+
+  it("(4) RED COUNTERWEIGHT: an indexed mask that really reaches the crown is still caught", () => {
+    // The plant: a hide-mask primitive shaped like nurse prim8 (indexed into a taller
+    // accessor) but whose INDEXED verts reach 0.970 H — above the 0.914 H head joint.
+    // The accessor also carries an UNINDEXED decoy at 1.000 H, so a whole-accessor
+    // regression measures 1.000 and an index-blind pass measures the body too: only the
+    // indexed 0.970 proves the plant matched AND the clause still bites.
+    const doc = new Document();
+    const buffer = doc.createBuffer();
+    const ys = [0.0, 0.2, 0.4, 0.6, 0.8, 0.914, 0.93, 0.95, 0.96, 0.97, 1.0, 0.1];
+    const xyz = new Float32Array(ys.length * 3);
+    ys.forEach((y, i) => {
+      xyz[i * 3] = 0;
+      xyz[i * 3 + 1] = y;
+      xyz[i * 3 + 2] = 0;
+    });
+    const pos = doc
+      .createAccessor("plant-pos")
+      .setType("VEC3")
+      .setArray(xyz)
+      .setBuffer(buffer);
+    const idx = doc
+      .createAccessor("plant-idx")
+      .setType("SCALAR")
+      .setArray(new Uint16Array([8, 9]))
+      .setBuffer(buffer);
+    const prim = doc
+      .createPrimitive()
+      .setAttribute("POSITION", pos)
+      .setIndices(idx)
+      .setMaterial(doc.createMaterial("openclinxr_hidden_plant_crown"));
+    const { hi: maskTopH } = primLoHi(
+      prim.getAttribute("POSITION")!,
+      prim.getIndices(),
+    );
+    const headH = 0.914;
+    // The plant matched: indexed crown 0.970, decoy 1.000 ignored.
+    expect(maskTopH, "plant fixture measured top H (indexed crown, decoy ignored)").toBeCloseTo(
+      0.97,
+      3,
+    );
+    // And clause (1)'s shape FAILS on it — the fix did not neuter the bound.
+    const offender = `plant-crown.glb: mask ${maskTopH.toFixed(3)}H vs head joint ${headH.toFixed(3)}H`;
+    expect(
+      [offender].filter(() => maskTopH > headH),
+      "masks above the head joint",
+    ).not.toEqual([]);
+    expect(() =>
+      expect(
+        [offender].filter(() => maskTopH > headH),
+        "masks above the head joint",
+      ).toEqual([]),
+    ).toThrow(/masks above the head joint/);
   });
 });

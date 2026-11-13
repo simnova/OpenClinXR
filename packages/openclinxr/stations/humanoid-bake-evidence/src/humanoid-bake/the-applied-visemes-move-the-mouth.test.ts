@@ -193,8 +193,8 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // byte-preserving post-swap retreat/couple; body and every non-mouth mesh value-equal; 12353944 B live;
   // was fef34e2ad855….
   // teeth F3 re-pinned 2026-11-10 (tsk_27e0cec12cab410d): aa upper-shell lateral mean -5.79 mm -> 0
-  // (HEAD_MEAN x); 9256 B inside one accessor; 12353924 B live; was 058d25134da2….
-  "mpfb-clinical-nurse-adult": "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
+  // (HEAD_MEAN x); 9256 B inside one accessor; 12355972 B live (E9 chest rehide); was f6573124437c….
+  "mpfb-clinical-nurse-adult": "8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86",
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).

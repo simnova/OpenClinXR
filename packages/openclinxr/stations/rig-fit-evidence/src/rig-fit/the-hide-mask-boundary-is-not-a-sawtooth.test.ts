@@ -1,6 +1,6 @@
-import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 import { isUpperGarmentName } from "../../../../../../tools/openclinxr/evidence/garment-slot.ts";
 
@@ -113,7 +113,6 @@ import { isUpperGarmentName } from "../../../../../../tools/openclinxr/evidence/
  *     ring carrying it) but NOT measured with this instrument, and not claimed.
  */
 
-const HERE = join(repoRoot(), "tools/openclinxr/evidence");
 const REPO_ROOT = repoRoot();
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
@@ -154,6 +153,32 @@ const MIN_MASK_Y_EXTENT: Record<string, number> = {
 };
 
 type Ring = { verts: number; medianAdjY: number; p95AdjY: number; yExtent: number };
+
+/**
+ * F2: one point per referenced vertex index (deduplicated). Ordinary triangle
+ * indices repeat boundary vertices by valence; feeding one point per index
+ * occurrence injects duplicate adjacent points/zero deltas so a sparse or jagged
+ * ring can satisfy the density floor and appear smoother. Both the production
+ * loop (measureActor) and the plant below go through this helper, so removing
+ * the dedupe turns the plant RED.
+ */
+function dedupedIndexedPoints(
+  pos: { getCount(): number; getElement(index: number, target: number[]): unknown },
+  indexCount: number,
+  getScalar: (index: number) => number,
+): { x: number; y: number; z: number }[] {
+  const seen = new Set<number>();
+  const pts: { x: number; y: number; z: number }[] = [];
+  const v = [0, 0, 0];
+  for (let k = 0; k < indexCount; k += 1) {
+    const vertex = getScalar(k);
+    if (seen.has(vertex)) continue;
+    seen.add(vertex);
+    pos.getElement(vertex, v);
+    pts.push({ x: v[0]!, y: v[1]!, z: v[2]! });
+  }
+  return pts;
+}
 
 /**
  * The rim ring of a primitive, ordered by angle about the body axis, then adjacent-Y deltas.
@@ -212,9 +237,19 @@ async function measureActor(actor: string): Promise<{ hem: Ring | null; mask: Ri
       if (!pos) continue;
       const v = [0, 0, 0];
       const pts: { x: number; y: number; z: number }[] = [];
-      for (let i = 0; i < pos.getCount(); i += 1) {
-        pos.getElement(i, v);
-        pts.push({ x: v[0]!, y: v[1]!, z: v[2]! });
+      // INDEX-AWARE points (#e9-r1, deduped e9-r2c F2). A prim may share
+      // another prim's POSITION accessor while indexing only its own verts; the
+      // ring is the indexed verts, not the accessor. See dedupedIndexedPoints:
+      // multiplicity must not change the ring. Non-indexed primitives keep the
+      // whole accessor, unchanged.
+      const indices = prim.getIndices();
+      if (indices) {
+        pts.push(...dedupedIndexedPoints(pos, indices.getCount(), (k) => indices.getScalar(k)));
+      } else {
+        for (let i = 0; i < pos.getCount(); i += 1) {
+          pos.getElement(i, v);
+          pts.push({ x: v[0]!, y: v[1]!, z: v[2]! });
+        }
       }
       const s = ringStats(pts);
       if (isHem && !hem) hem = s;
@@ -300,5 +335,38 @@ describe("the hide-mask boundary is not a sawtooth", () => {
     ).toBeGreaterThanOrEqual(0.538);
     expect(MIN_MASK_RING_VERTS["mpfb-ob-patient-aisha"], "aisha's floor, re-recorded on the postopt decimated bytes (2803b7746)").toBeGreaterThanOrEqual(37);
     expect(MIN_MASK_RING_VERTS["mpfb-peds-patient-child"], "the child's floor, unchanged").toBeGreaterThanOrEqual(44);
+  });
+
+  it("(5) PLANT: repeated indices do not change the ring result (valence deduped)", () => {
+    const positions: { x: number; y: number; z: number }[] = [];
+    for (let i = 0; i < 36; i += 1) {
+      const th = (i / 36) * Math.PI * 2;
+      positions.push({
+        x: Math.cos(th),
+        y: 0.9 + 0.02 * Math.sin(th * 3) + (i % 2 === 0 ? 0.004 : -0.004),
+        z: Math.sin(th),
+      });
+    }
+    const unique = positions.map((_unused, i) => i);
+    const repeated = unique.flatMap((i) => [i, i, i]);
+    // The plant goes through the same production helper: removing the dedupe
+    // from dedupedIndexedPoints changes fromRepeated (duplicates inflate the
+    // ring) while fromUnique stays, so this assert turns RED.
+    const fakePos = {
+      getCount: () => positions.length,
+      getElement: (index: number, target: number[]) => {
+        target[0] = positions[index]!.x;
+        target[1] = positions[index]!.y;
+        target[2] = positions[index]!.z;
+        return target;
+      },
+    };
+    const ptsFor = (indices: number[]): { x: number; y: number; z: number }[] =>
+      dedupedIndexedPoints(fakePos, indices.length, (k) => indices[k]!);
+    const fromUnique = ringStats(ptsFor(unique));
+    const fromRepeated = ringStats(ptsFor(repeated));
+    expect(fromUnique, "setup: synthetic ring is measurable").not.toBeNull();
+    expect(fromRepeated, "setup: repeated ring is measurable").not.toBeNull();
+    expect(fromRepeated, "repeated indices must not change ring stats").toEqual(fromUnique);
   });
 });

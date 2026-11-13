@@ -260,3 +260,140 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
     expect(canonSnapshot()).toEqual(beforeCanon);
   });
 });
+
+describe("correct-sidecar-byte-lineage nesting + idempotence (e9-r2lineage)", () => {
+  function chainDepth(sidecar: string): number {
+    let depth = 0;
+    let cur = (JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>)["byteLineage"] as unknown;
+    while (cur !== null && typeof cur === "object" && !Array.isArray(cur)) {
+      depth += 1;
+      const recordedBefore = (cur as Record<string, unknown>)["recordedBefore"] as unknown;
+      const next =
+        recordedBefore !== null && typeof recordedBefore === "object" && !Array.isArray(recordedBefore)
+          ? (recordedBefore as Record<string, unknown>)["byteLineage"]
+          : undefined;
+      cur = next;
+    }
+    return depth;
+  }
+
+  function runOnce(job: string, sidecar: string, callDir: string, fixture: Buffer, argv: string[]) {
+    return correctSidecarByteLineage({
+      assetPath: path.join(job, "shipped.glb"),
+      provenancePath: sidecar,
+      preImage: { kind: "revision", revision: "HEAD:package.json" },
+      expectedPreImageSha256: sha256(fixture),
+      derivationArgv: argv,
+      why: "e9-r2lineage nesting test",
+      workingDirectory: callDir,
+    });
+  }
+
+  it("nesting: a prior byteLineage is preserved under recordedBefore.byteLineage", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-nest-")));
+    process.env.OWN_JOB_TMP = job;
+    const fixture = gitShow("HEAD:package.json");
+    writeFileSync(path.join(job, "shipped.glb"), fixture);
+    const prior = {
+      correctedBy: "prior-test",
+      correctedAt: "2026-01-01T00:00:00.000Z",
+      recordedBefore: { outputSha256: "older", outputBytes: 1 },
+      preImageSha256: "aaa",
+      derivationArgv: ["x"],
+      reproduction: "prior",
+      why: "prior",
+    };
+    const sidecar = path.join(job, "own.provenance.json");
+    writeFileSync(sidecar, JSON.stringify({ outputSha256: "prev-sha", outputBytes: 7, byteLineage: prior }));
+    const child = makeChildScript(job);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const argv = ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"];
+    const r = runOnce(job, sidecar, callDir, fixture, argv);
+    expect(r.reproduced).toBe(true);
+    const after = JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>;
+    const lineage = after["byteLineage"] as Record<string, unknown>;
+    expect(lineage["recordedBefore"]).toMatchObject({ outputSha256: "prev-sha", outputBytes: 7 });
+    expect((lineage["recordedBefore"] as Record<string, unknown>)["byteLineage"]).toEqual(prior);
+    expect(chainDepth(sidecar)).toBe(2);
+    console.log(`nest depth after one correction on a lined sidecar: ${chainDepth(sidecar)}`);
+  });
+
+  it("idempotence: re-running the identical correction adds no level", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-idem-")));
+    process.env.OWN_JOB_TMP = job;
+    const fixture = gitShow("HEAD:package.json");
+    writeFileSync(path.join(job, "shipped.glb"), fixture);
+    const sidecar = path.join(job, "own.provenance.json");
+    writeFileSync(sidecar, JSON.stringify({ outputSha256: "old", outputBytes: 1 }));
+    const child = makeChildScript(job);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const argv = ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"];
+    runOnce(job, sidecar, callDir, fixture, argv);
+    const file1 = readFileSync(sidecar, "utf8");
+    const sha1 = sha256(Buffer.from(file1));
+    const depth1 = chainDepth(sidecar);
+    const r2 = runOnce(job, sidecar, callDir, fixture, argv);
+    expect(r2.reproduced).toBe(true);
+    const file2 = readFileSync(sidecar, "utf8");
+    const sha2 = sha256(Buffer.from(file2));
+    const depth2 = chainDepth(sidecar);
+    console.log(`idem depth run1=${depth1} run2=${depth2} sha1=${sha1.slice(0, 12)} sha2=${sha2.slice(0, 12)}`);
+    expect(depth2).toBe(depth1);
+    // Identical correction leaves the file byte-identical (no timestamp bump, no new level).
+    expect(sha2).toBe(sha1);
+    expect(file2).toBe(file1);
+  });
+
+  it("negative: same bytes+argv but a different pre-image descriptor or why NESTS", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-idem-neg-")));
+    process.env.OWN_JOB_TMP = job;
+    const fixture = gitShow("HEAD:package.json");
+    writeFileSync(path.join(job, "shipped.glb"), fixture);
+    const sidecar = path.join(job, "own.provenance.json");
+    writeFileSync(sidecar, JSON.stringify({ outputSha256: "old", outputBytes: 1 }));
+    const child = makeChildScript(job);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const argv = ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"];
+    runOnce(job, sidecar, callDir, fixture, argv);
+    const depth1 = chainDepth(sidecar);
+    expect(depth1).toBe(1);
+    // Same bytes+argv but a different rationale is a different correction: must nest.
+    const rWhy = correctSidecarByteLineage({
+      assetPath: path.join(job, "shipped.glb"),
+      provenancePath: sidecar,
+      preImage: { kind: "revision", revision: "HEAD:package.json" },
+      expectedPreImageSha256: sha256(fixture),
+      derivationArgv: argv,
+      why: "a different audit rationale with identical bytes+argv",
+      workingDirectory: callDir,
+    });
+    expect(rWhy.reproduced).toBe(true);
+    const depthWhy = chainDepth(sidecar);
+    console.log(`idem-neg different why depth ${depth1} -> ${depthWhy}`);
+    expect(depthWhy).toBe(depth1 + 1);
+    // Same bytes+argv+why but a different pre-image descriptor (file vs revision)
+    // is a different correction: must nest even though the digest matches.
+    // The why is kept EXACTLY equal to the current top level, so the
+    // descriptor alone distinguishes this correction: removing the descriptor
+    // from the production identity would leave this plant green.
+    const preFile = path.join(job, "pre-copy.glb");
+    writeFileSync(preFile, fixture);
+    const rFile = correctSidecarByteLineage({
+      assetPath: path.join(job, "shipped.glb"),
+      provenancePath: sidecar,
+      preImage: { kind: "file", path: preFile },
+      expectedPreImageSha256: sha256(fixture),
+      derivationArgv: argv,
+      why: "a different audit rationale with identical bytes+argv",
+      workingDirectory: callDir,
+    });
+    expect(rFile.reproduced).toBe(true);
+    const depthFile = chainDepth(sidecar);
+    console.log(`idem-neg different descriptor depth ${depthWhy} -> ${depthFile}`);
+    expect(depthFile).toBe(depthWhy + 1);
+    const lineage = (JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>)[
+      "byteLineage"
+    ] as Record<string, unknown>;
+    expect(lineage["preImageFile"]).toBe(preFile);
+  });
+});

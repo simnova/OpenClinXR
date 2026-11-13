@@ -9,6 +9,7 @@
     "test": "vitest run --root ."
   },
   "dependencies": {
+    "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/factory-station-core": "workspace:*",
     "@openclinxr/station-mouth-registry": "workspace:*",
     "@openclinxr/xr-dialogue": "workspace:*"

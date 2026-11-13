@@ -103,6 +103,10 @@
     "./case-frozen-scene-plans": {
       "types": "./dist/case-frozen-scene-plans.d.ts",
       "default": "./dist/case-frozen-scene-plans.js"
+    },
+    "./nurse-chest-stage": {
+      "types": "./dist/nurse-chest-stage.d.ts",
+      "default": "./dist/nurse-chest-stage.js"
     }
   },
   "scripts": {

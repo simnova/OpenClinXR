@@ -20,7 +20,9 @@ import path from "node:path";
  * unexplained bytes, and the difference is exactly what decides whether a hash may be corrected.
  *
  * IT RECORDS THE OLD VALUE. `byteLineage.recordedBefore` keeps the superseded hash, so a reader can
- * see what changed and a reviewer can repeat the reproduction.
+ * see what changed and a reviewer can repeat the reproduction. A prior `byteLineage` nests under
+ * `recordedBefore.byteLineage`, so re-correcting never drops the earlier derivation; re-running
+ * the identical correction replaces the level in place instead of nesting a duplicate.
  *
  * Each invocation allocates a unique child directory inside the given working directory
  * (`{asset}-<random>/`), and `{pre}`, `{out}`, and `{report}` placeholders all resolve inside
@@ -76,7 +78,7 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
   reproduced: true;
   sha256: string;
   bytes: number;
-  previous: { outputSha256: unknown; outputBytes: unknown };
+  previous: { outputSha256: unknown; outputBytes: unknown; byteLineage?: unknown };
 } {
   const rawBase = input.workingDirectory;
   if (rawBase === undefined || rawBase.trim() === "" || rawBase.trim().startsWith("-")) {
@@ -120,7 +122,55 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
   }
 
   const record = JSON.parse(readFileSync(input.provenancePath, "utf8")) as Record<string, unknown>;
-  const previous = { outputSha256: record["outputSha256"], outputBytes: record["outputBytes"] };
+  const priorLineage = record["byteLineage"];
+  const priorIsLineage =
+    priorLineage !== null && typeof priorLineage === "object" && !Array.isArray(priorLineage);
+  const priorRecord = (priorIsLineage ? (priorLineage as Record<string, unknown>) : {}) as Record<
+    string,
+    unknown
+  >;
+  const priorDescriptor =
+    typeof priorRecord["preImageRevision"] === "string"
+      ? `revision:${priorRecord["preImageRevision"] as string}`
+      : typeof priorRecord["preImageFile"] === "string"
+        ? `file:${priorRecord["preImageFile"] as string}`
+        : undefined;
+  const currentDescriptor =
+    input.preImage.kind === "revision"
+      ? `revision:${input.preImage.revision}`
+      : `file:${input.preImage.path}`;
+  const priorRecordedBefore = priorRecord["recordedBefore"];
+  const priorRecordedBeforeValid =
+    priorRecordedBefore !== null &&
+    typeof priorRecordedBefore === "object" &&
+    !Array.isArray(priorRecordedBefore) &&
+    typeof (priorRecordedBefore as Record<string, unknown>)["outputSha256"] === "string" &&
+    typeof (priorRecordedBefore as Record<string, unknown>)["outputBytes"] === "number";
+  // Idempotence: the sidecar already records this exact correction (same pre-image
+  // descriptor + digest, same derivation, same rationale, same established output,
+  // with a valid recordedBefore), so leave the file untouched instead of nesting
+  // a duplicate level or bumping the timestamp. A different source/file or a
+  // different why with identical bytes+argv is a different correction and nests.
+  const sameCorrection =
+    priorIsLineage &&
+    priorRecord["preImageSha256"] === preImageDigest &&
+    priorDescriptor === currentDescriptor &&
+    JSON.stringify(priorRecord["derivationArgv"]) === JSON.stringify(input.derivationArgv) &&
+    priorRecord["why"] === input.why &&
+    record["outputSha256"] === shippedDigest &&
+    priorRecordedBeforeValid;
+  if (sameCorrection) {
+    const previous = priorRecord["recordedBefore"] as {
+      outputSha256: unknown;
+      outputBytes: unknown;
+    };
+    return { reproduced: true, sha256: shippedDigest, bytes: shipped.byteLength, previous };
+  }
+  const previous = {
+    outputSha256: record["outputSha256"],
+    outputBytes: record["outputBytes"],
+    ...(priorIsLineage ? { byteLineage: priorLineage } : {}),
+  };
   record["outputSha256"] = shippedDigest;
   record["outputBytes"] = shipped.byteLength;
   record["byteLineage"] = {

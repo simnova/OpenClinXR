@@ -1,20 +1,30 @@
 import { createHash } from "node:crypto";
 import type { Accessor, Document, Mesh, NodeIO, Primitive } from "@gltf-transform/core";
+import { NURSE_CHEST_STAGE_ACTOR } from "@openclinxr/asset-registry/nurse-chest-stage";
 import {
   NECK_STAGE_INDICES_SHA256,
   NECK_STAGE_PHYSICIAN,
 } from "./shipped-lash-follow-neck-stage.js";
 import {
-  CLOSURE,
-  MOVE_EPS_M,
-  WELD_TOLERANCE_M,
+  accessorBytes,
+  chestSplitBodyEqual,
+  indicesSha256,
+  nurseChestBodyOk,
+  primAttrSig,
+  sortedIndexArray,
+  targetHash,
+} from "./shipped-lash-follow-nurse-chest-split.js";
+import {
   type ActorMeasurement,
   type Card,
+  CLOSURE,
   type HullVertex,
+  MOVE_EPS_M,
   type Mutation,
   type Side,
   type Tri,
   type V3,
+  WELD_TOLERANCE_M,
 } from "./shipped-lash-follow-types.js";
 
 export function vecs(a: Accessor): V3[] {
@@ -115,11 +125,6 @@ export function matched(doc: Document, actor: string) {
   if (lashes.length !== 1) throw new Error(`${actor}: CW3 lash match count ${lashes.length}`);
   return { body: bodies[0]!, lash: lashes[0]! };
 }
-export function accessorBytes(a: Accessor | null): Buffer {
-  if (!a?.getArray()) return Buffer.alloc(0);
-  const array = a.getArray()!;
-  return Buffer.from(array.buffer, array.byteOffset, array.byteLength);
-}
 export function primitiveHash(p: Primitive): string {
   const h = createHash("sha256");
   const framed = (label: string, a: Accessor | null) => {
@@ -132,38 +137,6 @@ export function primitiveHash(p: Primitive): string {
     framed(`${i}:${semantic}`, t.getAttribute(semantic));
   }
   return h.digest("hex");
-}
-export function targetHash(p: Primitive, names: string[]): string {
-  const h = createHash("sha256");
-  for (const [index, targetEntry] of p.listTargets().entries()) {
-    h.update(JSON.stringify([index, names[index] ?? null]));
-    for (const semantic of targetEntry.listSemantics().sort()) {
-      const accessor = targetEntry.getAttribute(semantic);
-      h.update(JSON.stringify([
-        semantic,
-        accessor?.getType() ?? null,
-        accessor?.getComponentType() ?? null,
-        accessor?.getCount() ?? 0,
-      ]));
-      h.update(accessorBytes(accessor));
-    }
-  }
-  return h.digest("hex");
-}
-function indicesSha256(p: Primitive): string {
-  return createHash("sha256").update(accessorBytes(p.getIndices())).digest("hex");
-}
-function primAttrSig(p: Primitive): string {
-  const h = createHash("sha256");
-  for (const semantic of p.listSemantics().sort()) {
-    const a = p.getAttribute(semantic)!;
-    h.update(JSON.stringify([semantic, a.getType(), a.getComponentType(), a.getCount()]));
-    h.update(accessorBytes(a));
-  }
-  return h.digest("hex");
-}
-function sortedIndexArray(p: Primitive): number[] {
-  return Array.from(p.getIndices()!.getArray() as ArrayLike<number>).map(Number).sort((a, b) => a - b);
 }
 // R1: physician neck-stage split allowance (owning gate: the collar test; pin moves
 // only on a new neck stage). Pairs current body prims to baseline prims by shared
@@ -215,6 +188,8 @@ export function counterweights(current: Document, baseline: Document, actor: str
     for (let i = 0; bodyMorphsByteEqual && i < cp.length; i++) {
       bodyMorphsByteEqual &&= targetHash(cp[i]!, cn) === targetHash(bp[i]!, bn);
     }
+  } else if (actor === `${NURSE_CHEST_STAGE_ACTOR}.glb`) {
+    bodyMorphsByteEqual &&= chestSplitBodyEqual(cp, bp, cn, actor, current, baseline);
   } else {
     bodyMorphsByteEqual &&= neckSplitBodyEqual(cp, bp, cn, actor);
   }
@@ -227,13 +202,18 @@ export function counterweights(current: Document, baseline: Document, actor: str
   ]));
   const ch = meshHashes(current), bh = meshHashes(baseline);
   // R1: the physician body mesh goes through the neck-split allowance (indices gated
-  // by NECK_STAGE_INDICES_SHA256, attributes/morphs paired); every other non-lash
-  // mesh still hash-matches BASELINE_REF exactly.
+  // by NECK_STAGE_INDICES_SHA256, attributes/morphs paired); R1c: the nurse body mesh
+  // goes through the chest-split allowance (indices gated by
+  // NURSE_CHEST_STAGE_INDICES_SHA256, attributes/morphs paired); every other non-lash
+  // mesh still hash-matches the lash-stage input exactly.
   const bodyKey = `${c.body.getName()}|${currentBody.getName()}`;
-  const nonLashBodyOk =
-    actor !== NECK_STAGE_PHYSICIAN || ch.size !== bh.size
-      ? null
-      : neckSplitBodyEqual(currentBody.listPrimitives(), baselineBody.listPrimitives(), cn, actor);
+  let nonLashBodyOk: boolean | null = null;
+  if (ch.size === bh.size) {
+    if (actor === NECK_STAGE_PHYSICIAN) nonLashBodyOk = neckSplitBodyEqual(currentBody.listPrimitives(), baselineBody.listPrimitives(), cn, actor);
+    // The chest allowance only overrides when the split is present (prim count +1,
+    // checked inside nurseChestBodyOk); otherwise null keeps the strict hash compare.
+    else if (actor === `${NURSE_CHEST_STAGE_ACTOR}.glb`) nonLashBodyOk = nurseChestBodyOk(currentBody, baselineBody, cn, actor, current, baseline);
+  }
   const nonLashMeshesHashEqual =
     ch.size === bh.size &&
     (nonLashBodyOk === null
