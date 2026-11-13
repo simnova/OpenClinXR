@@ -24,12 +24,32 @@ export interface StationTiming {
 
 // Measured at /Volumes/files/openclinxr-assets/store/xr-sync-ready/s0/scene-load.json:
 // ceil(2 * 3422.5 ms / 1000) = 7 seconds.
+/** Seconds a station waits for its learner's "ready" before starting the doorway clock anyway. */
 export const DEFAULT_READY_TIMEOUT_SECONDS = 7;
 
 /** Phase names in encounter order. "brief" is the no-timing mode (not a clock phase). */
 export type StationPhase = "doorway" | "encounter" | "note" | "closed" | "break";
 
 export const STATION_PHASES: readonly StationPhase[] = ["doorway", "encounter", "note", "closed", "break"];
+
+/**
+ * Runner-wait order for the station phase clock: "match" when the observed
+ * state is exactly the target, "passed" when the observed state is already
+ * past it (higher stationIndex, or the same station with a later phase index
+ * in STATION_PHASES), else "wait". Both phase names are validated first: an
+ * unknown phase on either side is never "passed", it is "wait".
+ */
+export function stationPhaseOrder(
+  observed: { stationIndex: number; phase: string },
+  target: { stationIndex: number; phase: string },
+): "match" | "wait" | "passed" {
+  const observedPhaseIndex = (STATION_PHASES as readonly string[]).indexOf(observed.phase);
+  const targetPhaseIndex = (STATION_PHASES as readonly string[]).indexOf(target.phase);
+  if (observedPhaseIndex === -1 || targetPhaseIndex === -1) return "wait";
+  if (observed.stationIndex === target.stationIndex && observed.phase === target.phase) return "match";
+  if (observed.stationIndex !== target.stationIndex) return observed.stationIndex > target.stationIndex ? "passed" : "wait";
+  return observedPhaseIndex > targetPhaseIndex ? "passed" : "wait";
+}
 
 /** Reject reason when conversation intents arrive outside "encounter". Pose is exempt. */
 export const OUTSIDE_ENCOUNTER_PHASE_REASON = "outside-encounter-phase";

@@ -5,6 +5,7 @@
   "purpose": "Server-authoritative encounter sync over Colyseus: validated intents in, ack or reject out, state via schema patches.",
   "exports": [
     "AckMessage",
+    "DEFAULT_READY_TIMEOUT_SECONDS",
     "ENCOUNTER_ROOM_NAME",
     "EncounterServer",
     "EncounterServerOptions",
@@ -12,10 +13,12 @@
     "IntentMessage",
     "RejectMessage",
     "TopicAffect",
-    "createEncounterServer"
+    "createEncounterServer",
+    "stationPhaseOrder"
   ],
   "exportSummaries": {
     "AckMessage": "Server reply for an applied intent, carrying the round-trip terminus.",
+    "DEFAULT_READY_TIMEOUT_SECONDS": "Seconds a station waits for its learner's \"ready\" before starting the doorway clock anyway.",
     "ENCOUNTER_ROOM_NAME": "Matchmaking name clients join to reach the authoritative encounter room.",
     "EncounterServer": "Handle to a running encounter server with its bound address.",
     "EncounterServerOptions": "Options for booting an in-process encounter server.",
@@ -23,7 +26,8 @@
     "IntentMessage": "Wire envelope for one client intent.",
     "RejectMessage": "Server reply for a rejected intent.",
     "TopicAffect": "Authored dialogue affect carried by one topic-answer seed (mirrors DialogueFixtureSeed[\"affect\"]).",
-    "createEncounterServer": "Boot one encounter room on an HTTP and WebSocket transport, then listen."
+    "createEncounterServer": "Boot one encounter room on an HTTP and WebSocket transport, then listen.",
+    "stationPhaseOrder": "Runner-wait order for the station phase clock: \"match\" when the observed state is exactly the target, \"passed\" when the observed state is already past it (higher stationIndex, or the same station with a later phase index in STATION_PHASES), else \"wait\"."
   },
   "workspaceDependencies": [
     "@openclinxr/conversation-policy",
@@ -33,6 +37,7 @@
   "tests": [
     "src/a-blueprint-break-pauses-the-synced-rotation.test.ts",
     "src/a-matched-answer-traces-every-menu-tag-it-covers.test.ts",
+    "src/a-runner-wait-on-a-passed-phase-fails-fast.test.ts",
     "src/a-topic-answer-carries-its-own-cue.test.ts",
     "src/close-releases-the-listener.test.ts",
     "src/servers-in-one-process-release-listeners-only-when-sequential.test.ts",

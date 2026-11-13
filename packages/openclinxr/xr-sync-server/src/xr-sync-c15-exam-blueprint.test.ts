@@ -3,7 +3,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { connect, type SyncConnection } from "@openclinxr/xr-sync-client";
 import { afterEach, describe, expect, it } from "vitest";
-import { createEncounterServer, type EncounterServer } from "./index.js";
+import { createEncounterServer, DEFAULT_READY_TIMEOUT_SECONDS, type EncounterServer } from "./index.js";
 
 // C15 RED (planted by root, 2026-10-30): the live exam session boots from the factory's exam blueprint.
 // Contract (names are the spec):
@@ -81,6 +81,7 @@ describe("xr-sync-server C15 exam blueprint boot", () => {
     const doorwayAt = server.getProbeStats().phaseChangedAtMs["doorway"] ?? 0;
     expect(doorwayAt - joinedAt).toBeGreaterThanOrEqual(6800);
     expect(doorwayAt - joinedAt).toBeLessThanOrEqual(7600);
+    expect(Math.round((doorwayAt - joinedAt) / 1000)).toBe(DEFAULT_READY_TIMEOUT_SECONDS);
   }, 10000);
 
   it("XS-READY: readyTimeoutSeconds accepts a positive finite blueprint override", async () => {

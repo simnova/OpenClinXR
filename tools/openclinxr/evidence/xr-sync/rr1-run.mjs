@@ -719,14 +719,55 @@ export function observedOffsetSeconds({ observedWallMs, recordingOriginWallMs, t
   return timelineStartSeconds + (observedWallMs - recordingOriginWallMs) / 1000 - trimInpointSeconds;
 }
 
+/**
+ * Shared phase-entry rule for window selection and the header wait predicate:
+ * (A) the entry with the GREATEST wallMs at or before serverMs wins; ties on
+ * wallMs go to the LATER array index (the later observation supersedes). If it
+ * matches -> that index, with startWallMs = serverMs (never the entry's own
+ * wallMs, or the window would include pre-clock frames). (B) Else, among
+ * matching entries with wallMs STRICTLY after serverMs, the one with the LEAST
+ * wallMs wins (ties -> earlier array index) -> its index and its own wallMs.
+ * (C) Else null. Selection is by wallMs, never by array position alone.
+ */
+export function rr1PhaseEntryIndex(log, matches, serverMs) {
+  let beforeIndex = -1;
+  let beforeWallMs = -Infinity;
+  for (let index = 0; index < log.length; index += 1) {
+    const wallMs = log[index].wallMs;
+    if (wallMs <= serverMs && (wallMs > beforeWallMs || (wallMs === beforeWallMs && index > beforeIndex))) {
+      beforeIndex = index;
+      beforeWallMs = wallMs;
+    }
+  }
+  if (beforeIndex !== -1 && matches(log[beforeIndex])) {
+    return { index: beforeIndex, startWallMs: serverMs };
+  }
+  let afterIndex = -1;
+  let afterWallMs = Infinity;
+  for (let index = 0; index < log.length; index += 1) {
+    const entry = log[index];
+    if (entry.wallMs > serverMs && matches(entry)
+      && (afterIndex === -1 || entry.wallMs < afterWallMs || (entry.wallMs === afterWallMs && index < afterIndex))) {
+      afterIndex = index;
+      afterWallMs = entry.wallMs;
+    }
+  }
+  if (afterIndex !== -1) return { index: afterIndex, startWallMs: log[afterIndex].wallMs };
+  return null;
+}
+
 function transitionWindow(log, matches, serverMs, label) {
-  const startIndex = log.findIndex((entry) => entry.wallMs >= serverMs && matches(entry));
-  if (startIndex === -1) {
+  const found = rr1PhaseEntryIndex(log, matches, serverMs);
+  if (found === null) {
     throw new Error(`no transition matching ${label} at or after ${serverMs}; last 3 entries: ${JSON.stringify(log.slice(-3))}`);
   }
-  const startWallMs = log[startIndex].wallMs;
-  const next = log.slice(startIndex + 1).find((entry) => !matches(entry));
-  return { startWallMs, endWallMs: next?.wallMs ?? null };
+  let endWallMs = null;
+  for (const entry of log) {
+    if (!matches(entry) && entry.wallMs > found.startWallMs && (endWallMs === null || entry.wallMs < endWallMs)) {
+      endWallMs = entry.wallMs;
+    }
+  }
+  return { startWallMs: found.startWallMs, endWallMs };
 }
 
 export function learnerHeaderWindow(log, phase, station, phaseServerMs) {
@@ -756,6 +797,85 @@ export function facultyStatusWindow(log, statusNeedle, statusServerMs) {
 
 export function selectFacultyStatusObservedWallMs(log, statusNeedle, statusServerMs) {
   return facultyStatusWindow(log, statusNeedle, statusServerMs).startWallMs;
+}
+
+/**
+ * Header-phase predicate for the mark() waits: TRUE when the page already
+ * showed the phase before the server clock started (the LAST entry at or
+ * before phaseServerMs matches eyebrow+station, case-insensitive), or when
+ * any entry at or after phaseServerMs matches (the pre-fix rule, unchanged).
+ * Only the last entry at-or-before counts, never an earlier one.
+ */
+export function rr1HeaderShowsPhase(log, { phaseName, station, phaseServerMs }) {
+  const needlePhase = String(phaseName).toLowerCase();
+  const needleStation = String(station).toLowerCase();
+  return rr1PhaseEntryIndex(
+    log,
+    (entry) => String(entry.eyebrow ?? "").toLowerCase() === needlePhase
+      && String(entry.station ?? "").toLowerCase() === needleStation,
+    phaseServerMs,
+  ) !== null;
+}
+
+/** Production bound for the doorway clock-start wait: ready timeout plus one 25 ms poll. */
+export function rr1DoorwayClockBoundMs(readyTimeoutSeconds) {
+  return readyTimeoutSeconds * 1000 + 25;
+}
+
+/** Bound derivation for runCapture: reads the constant off the SERVER_DIST module it is handed. */
+export function rr1DoorwayClockBoundFromServer(serverModule) {
+  const readyTimeoutSeconds = serverModule?.DEFAULT_READY_TIMEOUT_SECONDS;
+  if (typeof readyTimeoutSeconds !== "number" || !Number.isFinite(readyTimeoutSeconds)) {
+    throw new Error(`SERVER_DIST module is missing a finite DEFAULT_READY_TIMEOUT_SECONDS: ${String(readyTimeoutSeconds)}`);
+  }
+  return rr1DoorwayClockBoundMs(readyTimeoutSeconds);
+}
+
+/**
+ * Clock-start key check for a doorway wait, attributing probe keys to stations
+ * exactly as phaseSnapshot does: every key belongs to the room's own station
+ * except "prev-station-closed", which belongs to the previous station's close.
+ */
+export function rr1DoorwayClockStarted(stats, stationIndex) {
+  const changedAtMs = stats?.phaseChangedAtMs;
+  if (changedAtMs === null || typeof changedAtMs !== "object") return false;
+  for (const [phase, serverMs] of Object.entries(changedAtMs)) {
+    const actualStation = phase === "prev-station-closed" ? stationIndex - 1 : stationIndex;
+    const actualPhase = phase === "prev-station-closed" ? "closed" : phase;
+    if (actualStation === stationIndex && actualPhase === "doorway" && typeof serverMs === "number") return true;
+  }
+  return false;
+}
+
+/**
+ * Phase-aware wait: "match" resolves ("passed" throws the named error on the
+ * first poll, "wait" keeps the timeout), except a doorway "match" additionally
+ * waits for the room's doorway clock-start key (rr1DoorwayClockStarted on the
+ * latest probe stats) within doorwayClock.boundMs of the first match, else it
+ * throws the named doorway error. Non-doorway targets never read stats.
+ */
+export async function waitForRr1Phase(read, target, order, timeoutMs, label, doorwayClock = {}) {
+  const deadline = Date.now() + timeoutMs;
+  let firstMatchAtMs = null;
+  while (Date.now() < deadline) {
+    const value = read();
+    const status = order(value, target);
+    if (status === "match" && target.phase !== "doorway") return value;
+    if (status === "match") {
+      if (rr1DoorwayClockStarted(doorwayClock.getStats(), target.stationIndex)) return value;
+      if (firstMatchAtMs === null) firstMatchAtMs = Date.now();
+      if (Date.now() - firstMatchAtMs >= doorwayClock.boundMs) {
+        throw new Error(`doorway clock not started: waiting for ${label}, station ${target.stationIndex}`);
+      }
+      await sleep(25);
+      continue;
+    }
+    if (status === "passed") {
+      throw new Error(`phase passed: waiting for ${label}, observed station ${value.stationIndex} ${value.phase}`);
+    }
+    await sleep(25);
+  }
+  throw new Error(`timed out waiting for ${label}`);
 }
 
 function assertCaptureWithinWindow({ artifact, captureStartedWallMs, captureEndedWallMs, window }) {
@@ -1178,7 +1298,8 @@ async function runCapture(storeRoot) {
     .find((entry) => entry.scenarioId === scenario.scenarioId)?.seeds
     .find((seed) => seed.actorId === patient.actorId && seed.seedId === "patient_onset_history");
   const learnerQuestion = onsetSeed?.utterancePhrases?.[0] ?? "When did the pain start?";
-  const { createEncounterServer } = await import(SERVER_DIST);
+  const serverModule = await import(SERVER_DIST);
+  const { createEncounterServer, stationPhaseOrder } = serverModule;
   const { chromium } = await import("playwright");
   let liveServer = null;
   const learnerStatic = await startStaticServer(APP_DIST);
@@ -1281,14 +1402,19 @@ async function runCapture(storeRoot) {
     const panelPath = join(panelDir, `${id}-runtime-panel.png`);
     const stationLabel = `Station ${stationIndex + 1} of 3`;
     const waitForPageHeader = async (targetPage) => {
+      // waitForFunction serialises its closure, so the in-page predicate calls
+      // THIS function via its own source (no second copy of the logic); the
+      // shared entry rule travels alongside, also by source, self-contained.
+      const predicateSource = rr1HeaderShowsPhase.toString();
+      const entrySource = rr1PhaseEntryIndex.toString();
       try {
         await targetPage.waitForFunction(
-          ({ phaseName, station, phaseServerMs }) => (globalThis.__openClinXrLearnerHeaderLog ?? []).some(
-            (entry) => entry.wallMs >= phaseServerMs
-              && entry.eyebrow.toLowerCase() === phaseName.toLowerCase()
-              && entry.station.toLowerCase() === station.toLowerCase(),
-          ),
-          { phaseName: phase, station: stationLabel, phaseServerMs: clock.serverMs },
+          ({ phaseName, station, phaseServerMs, predicateSource, entrySource }) => {
+            const entryIndex = new Function(`return (${entrySource});`)();
+            const showsPhase = new Function("rr1PhaseEntryIndex", `return (${predicateSource});`)(entryIndex);
+            return showsPhase(globalThis.__openClinXrLearnerHeaderLog ?? [], { phaseName, station, phaseServerMs });
+          },
+          { phaseName: phase, station: stationLabel, phaseServerMs: clock.serverMs, predicateSource, entrySource },
           { timeout: 15000 },
         );
       } catch {
@@ -1463,8 +1589,31 @@ async function runCapture(storeRoot) {
     console.log(`SYNC_LAG ${learnerSyncLagMs}`);
     deferredAssertions.capture("sync-lag", () => assertLearnerSyncLag(learnerSyncStartWallMs, learnerJoinWallMs));
     const state = () => JSON.parse(liveServer.getStateJSON());
-    await waitFor(state, (s) => s.stationIndex === 0 && s.phase === "doorway", 60000, "station 0 doorway");
+    // Production doorway clock-start bound: server ready timeout plus one poll.
+    const doorwayClockBoundMs = rr1DoorwayClockBoundFromServer(serverModule);
+    const doorwayClock = { getStats: () => liveServer.getProbeStats(), boundMs: doorwayClockBoundMs };
+    await waitForRr1Phase(state, { stationIndex: 0, phase: "doorway" }, stationPhaseOrder, 60000, "station 0 doorway", doorwayClock);
     await mark("ch1", 0, "doorway");
+    try {
+      const diagDir = join(runDir, "diag");
+      mkdirSync(diagDir, { recursive: true });
+      const ch1LearnerHeaderLog = await page.evaluate(() => JSON.parse(JSON.stringify(globalThis.__openClinXrLearnerHeaderLog ?? [])));
+      const ch1EvidenceHeaderLog = await evidencePage.evaluate(() => JSON.parse(JSON.stringify(globalThis.__openClinXrLearnerHeaderLog ?? [])));
+      const ch1Clock = serverClock.find((entry) => entry.stationIndex === 0 && entry.phase === "doorway") ?? null;
+      const ch1PhaseServerMs = ch1Clock?.serverMs;
+      writeFileSync(join(diagDir, "ch1-header-replay.json"), `${JSON.stringify({
+        ch1: { phase: "doorway", station: "Station 1 of 3", phaseServerMs: ch1PhaseServerMs ?? null },
+        serverClock: ch1Clock,
+        learnerHeaderLog: ch1LearnerHeaderLog,
+        evidenceHeaderLog: ch1EvidenceHeaderLog,
+        rr1HeaderShowsPhase: typeof ch1PhaseServerMs === "number" ? {
+          learner: rr1HeaderShowsPhase(ch1LearnerHeaderLog, { phaseName: "doorway", station: "Station 1 of 3", phaseServerMs: ch1PhaseServerMs }),
+          evidence: rr1HeaderShowsPhase(ch1EvidenceHeaderLog, { phaseName: "doorway", station: "Station 1 of 3", phaseServerMs: ch1PhaseServerMs }),
+        } : null,
+      }, null, 2)}\n`);
+    } catch (error) {
+      console.error(`CH1_HEADER_REPLAY_DUMP_FAILED ${String(error instanceof Error ? error.message : error)}`);
+    }
     const ch1LearnerArtifact = artifactCaptures.find((entry) => entry.artifact === "frames/ch1.png");
     ch1CaptureWallMs = ch1LearnerArtifact?.captureEndedWallMs ?? Date.now();
     let ch1PoseRaw = null;
@@ -1479,7 +1628,7 @@ async function runCapture(storeRoot) {
       () => snapshotLearnerPose(requireCaptureValue(ch1PoseRaw, "learner gaze camera missing at ch1"), ch1PoseWallMs),
       null,
     );
-    await waitFor(state, (s) => s.stationIndex === 0 && s.phase === "encounter", 60000, "station 0 encounter");
+    await waitForRr1Phase(state, { stationIndex: 0, phase: "encounter" }, stationPhaseOrder, 60000, "station 0 encounter", doorwayClock);
     const openingTurn = await sendLearnerQuestion(page, liveServer, learnerQuestion, "opening-reply");
     turnEvidence.push(openingTurn);
     await waitFor(
@@ -1497,21 +1646,21 @@ async function runCapture(storeRoot) {
       { timeout: 30000 },
     );
     await mark("ch2", 0, "encounter");
-    await waitFor(state, (s) => s.stationIndex === 0 && s.phase === "note", 60000, "station 0 note");
+    await waitForRr1Phase(state, { stationIndex: 0, phase: "note" }, stationPhaseOrder, 60000, "station 0 note", doorwayClock);
     phaseSnapshot(0);
-    await waitFor(state, (s) => s.stationIndex === 1 && s.phase === "doorway", 60000, "station 1 doorway");
+    await waitForRr1Phase(state, { stationIndex: 1, phase: "doorway" }, stationPhaseOrder, 60000, "station 1 doorway", doorwayClock);
     await mark("rot-doorway", 1, "doorway");
-    await waitFor(state, (s) => s.stationIndex === 1 && s.phase === "encounter", 60000, "station 1 encounter");
+    await waitForRr1Phase(state, { stationIndex: 1, phase: "encounter" }, stationPhaseOrder, 60000, "station 1 encounter", doorwayClock);
     await mark("rot-encounter", 1, "encounter");
-    await waitFor(state, (s) => s.stationIndex === 1 && s.phase === "note", 60000, "station 1 note");
+    await waitForRr1Phase(state, { stationIndex: 1, phase: "note" }, stationPhaseOrder, 60000, "station 1 note", doorwayClock);
     phaseSnapshot(1);
-    await waitFor(state, (s) => s.stationIndex === 2 && s.phase === "doorway", 60000, "station 2 doorway");
+    await waitForRr1Phase(state, { stationIndex: 2, phase: "doorway" }, stationPhaseOrder, 60000, "station 2 doorway", doorwayClock);
     phaseSnapshot(2);
-    await waitFor(state, (s) => s.stationIndex === 2 && s.phase === "encounter", 60000, "station 2 encounter");
+    await waitForRr1Phase(state, { stationIndex: 2, phase: "encounter" }, stationPhaseOrder, 60000, "station 2 encounter", doorwayClock);
     phaseSnapshot(2);
-    await waitFor(state, (s) => s.stationIndex === 2 && s.phase === "note", 60000, "station 2 note");
+    await waitForRr1Phase(state, { stationIndex: 2, phase: "note" }, stationPhaseOrder, 60000, "station 2 note", doorwayClock);
     phaseSnapshot(2);
-    await waitFor(state, (s) => s.stationIndex === 2 && s.phase === "closed", 60000, "station 2 closed");
+    await waitForRr1Phase(state, { stationIndex: 2, phase: "closed" }, stationPhaseOrder, 60000, "station 2 closed", doorwayClock);
     phaseSnapshot(2);
     try {
       await page.waitForFunction(() => typeof globalThis.__openClinXrSceneReadyWallMs === "number", undefined, { timeout: 180000 });

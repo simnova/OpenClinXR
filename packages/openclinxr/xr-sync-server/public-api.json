@@ -2,6 +2,7 @@
   "entrypoints": {
     ".": [
       "AckMessage",
+      "DEFAULT_READY_TIMEOUT_SECONDS",
       "ENCOUNTER_ROOM_NAME",
       "EncounterServer",
       "EncounterServerOptions",
@@ -9,7 +10,8 @@
       "IntentMessage",
       "RejectMessage",
       "TopicAffect",
-      "createEncounterServer"
+      "createEncounterServer",
+      "stationPhaseOrder"
     ]
   }
 }

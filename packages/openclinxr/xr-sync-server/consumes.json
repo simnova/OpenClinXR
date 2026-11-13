@@ -136,6 +136,11 @@
         "via": "own-test"
       },
       {
+        "name": "DEFAULT_READY_TIMEOUT_SECONDS",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "ENCOUNTER_ROOM_NAME",
         "kind": "runtime",
         "via": "own-test"
@@ -163,6 +168,11 @@
       {
         "name": "RejectMessage",
         "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "stationPhaseOrder",
+        "kind": "runtime",
         "via": "own-test"
       },
       {

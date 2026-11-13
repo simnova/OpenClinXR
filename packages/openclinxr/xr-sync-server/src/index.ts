@@ -5,6 +5,8 @@
  * it to authoritative schema state, and replies with a named ack or reject.
  * State reaches clients exclusively through Colyseus schema patches.
  */
+export { DEFAULT_READY_TIMEOUT_SECONDS } from "./phase-clock.js";
+export { stationPhaseOrder } from "./phase-clock.js";
 export { ENCOUNTER_ROOM_NAME } from "./room.js";
 export type { AckMessage, IntentKind, IntentMessage, RejectMessage } from "./room.js";
 export type { EncounterServer, EncounterServerOptions } from "./server.js";
