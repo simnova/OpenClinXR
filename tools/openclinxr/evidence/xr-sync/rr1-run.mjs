@@ -201,7 +201,7 @@ export function parseFramePeriodSeconds(rFrameRate) {
 
 export function learnerChapterOffsetSeconds(chapterId, untrimmedOffsetSeconds, trimInpointSeconds, framePeriodSeconds, isFirstChapter, trimReason = "syncStart") {
   if (isFirstChapter) {
-    if (trimReason !== "sceneReady" && trimInpointSeconds - untrimmedOffsetSeconds >= framePeriodSeconds) {
+    if (!requiresSceneReadyCh1TrimCheck(trimReason) && trimInpointSeconds - untrimmedOffsetSeconds >= framePeriodSeconds) {
       throw new Error(`learner trim ${trimInpointSeconds} s exceeds ch1 untrimmed offset ${untrimmedOffsetSeconds} s by at least frame period ${framePeriodSeconds} s`);
     }
     return Math.max(0, untrimmedOffsetSeconds - trimInpointSeconds);
@@ -354,6 +354,18 @@ export function learnerSceneReadyPaintTrim(
 /** The ch1 transition/end-margin window check applies to scene-anchored trims, including the latched inpoint. */
 export function requiresSceneReadyCh1TrimCheck(trimReason) {
   return trimReason === "sceneReady" || trimReason === "latch";
+}
+
+/**
+ * Fail-fast learner trim resolution. When the interior latch is present the
+ * trim is scene-anchored and must hold: the throw propagates instead of
+ * degrading to a fallback "painted" trim that would cut every artifact from
+ * untrimmed video (run-10). With no latch the legacy deferred path stays
+ * (assertCaptureAfterLatch already refuses).
+ */
+export function resolveLearnerTrim({ latchWallMs, computeTrim, captureTrim }) {
+  if (Number.isFinite(latchWallMs)) return computeTrim();
+  return captureTrim(computeTrim);
 }
 
 export function assertSceneReadyCh1Trim({ headerLog, ch1ObservedWallMs, trimWallMs, phase, station, artifacts, minimumEndMarginMs = 100 }) {
@@ -1466,10 +1478,14 @@ async function runCapture(storeRoot) {
     const learnerFramePeriodSource = learnerRawProbe.streams?.[0]?.r_frame_rate;
     const safeLearnerFramePeriodSource = deferredAssertions.capture("learner-trim-inputs", () => requireCaptureValue(learnerFramePeriodSource, "learner video has no r_frame_rate"), "25/1");
     const learnerFramePeriodSeconds = deferredAssertions.capture("learner-trim", () => parseFramePeriodSeconds(safeLearnerFramePeriodSource), 0.04);
-    const learnerTrim = deferredAssertions.capture("learner-trim", () => learnerSceneReadyPaintTrim(
-      signalFrames(learnerRawVideo), learnerSyncStartOffsetSeconds, learnerSceneReadyOffsetSeconds, learnerLatchOffsetSeconds,
-      firstChapterUntrimmedOffsetSeconds, learnerFramePeriodSeconds,
-    ), { blankFrames: 0, firstPaintedInpointSeconds: 0, syncStartInpointSeconds: learnerSyncStartOffsetSeconds, sceneReadyInpointSeconds: learnerSceneReadyOffsetSeconds, latchOffsetSeconds: learnerLatchOffsetSeconds, latchInpointSeconds: 0, inpointSeconds: 0, trimReason: "painted", frameCount: 0, threshold: 5 });
+    const learnerTrim = resolveLearnerTrim({
+      latchWallMs: learnerLatchWallMs,
+      computeTrim: () => learnerSceneReadyPaintTrim(
+        signalFrames(learnerRawVideo), learnerSyncStartOffsetSeconds, learnerSceneReadyOffsetSeconds, learnerLatchOffsetSeconds,
+        firstChapterUntrimmedOffsetSeconds, learnerFramePeriodSeconds,
+      ),
+      captureTrim: (compute) => deferredAssertions.capture("learner-trim", compute, { blankFrames: 0, firstPaintedInpointSeconds: 0, syncStartInpointSeconds: learnerSyncStartOffsetSeconds, sceneReadyInpointSeconds: learnerSceneReadyOffsetSeconds, latchOffsetSeconds: learnerLatchOffsetSeconds, latchInpointSeconds: 0, inpointSeconds: 0, trimReason: "painted", frameCount: 0, threshold: 5 }),
+    });
     const learnerTrimWallMs = learnerRecordingOriginWallMs + learnerTrim.inpointSeconds * 1000;
     let ch1SceneReadyValidation = null;
     if (requiresSceneReadyCh1TrimCheck(learnerTrim.trimReason)) {

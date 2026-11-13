@@ -9,6 +9,7 @@ import {
   learnerSyncedPaintTrim,
   parseFramePeriodSeconds,
   requiresSceneReadyCh1TrimCheck,
+  resolveLearnerTrim,
   sceneHumanoidAssetsReady,
 } from "./rr1-run.mjs";
 
@@ -246,5 +247,60 @@ describe("RR1 learner leading-flat trim", () => {
       latchInpointSeconds: 3.36,
       sceneReadyInpointSeconds: 3.36,
     });
+  });
+
+  it("does not throw the ch1 overrun guard for a latch-trimmed inpoint (run-10)", () => {
+    const frames = Array.from({ length: 105 }, (_, index) => ({
+      ptsTime: Number((index * 0.04).toFixed(2)),
+      yMin: 36,
+      yMax: 180,
+    }));
+    const trim = learnerSceneReadyPaintTrim(frames, 0.3, 3.195, 3.246, 0.462, 0.04);
+    expect(trim).toMatchObject({ inpointSeconds: 3.28, trimReason: "latch" });
+  });
+
+  it("keeps the ch1 overrun guard for non-scene trim reasons", () => {
+    for (const trimReason of ["painted", "syncStart"]) {
+      expect(() => learnerChapterOffsetSeconds("ch1", 0.462, 3.28, 0.04, true, trimReason))
+        .toThrow("learner trim 3.28 s exceeds ch1 untrimmed offset 0.462 s by at least frame period 0.04 s");
+    }
+  });
+
+  it("fails fast at the trim when the latch is present instead of returning the fallback painted trim", () => {
+    const run10OriginWallMs = 1794550938921;
+    const run10SceneReadyOffsetSeconds = (1794550942116 - run10OriginWallMs) / 1000;
+    const run10LatchWallMs = 1794550942167;
+    const run10LatchOffsetSeconds = (run10LatchWallMs - run10OriginWallMs) / 1000;
+    expect(run10LatchOffsetSeconds).toBe(3.246);
+    // Frames end at 3.20: sceneReady 3.195 resolves but the latch offset 3.246 has
+    // no frame, so the trim throws with the run-10 shape (ch1 0.462 < 3.28).
+    const frames = Array.from({ length: 81 }, (_, index) => ({
+      ptsTime: Number((index * 0.04).toFixed(2)),
+      yMin: 36,
+      yMax: 180,
+    }));
+    expect(frames.at(-1).ptsTime).toBe(3.2);
+    expect(() => resolveLearnerTrim({
+      latchWallMs: run10LatchWallMs,
+      computeTrim: () => learnerSceneReadyPaintTrim(frames, 0.3, run10SceneReadyOffsetSeconds, run10LatchOffsetSeconds, 0.462, 0.04),
+      captureTrim: () => { throw new Error("fallback path must not run when the latch is present"); },
+    })).toThrow("learner video has no frame at or after latch offset 3.246 s");
+  });
+
+  it("keeps the deferred fallback path when the latch is absent", () => {
+    const fallback = { inpointSeconds: 0, trimReason: "painted" };
+    for (const latchWallMs of [null, undefined]) {
+      expect(resolveLearnerTrim({
+        latchWallMs,
+        computeTrim: () => { throw new Error("learner video has no latch offset"); },
+        captureTrim: (compute) => {
+          try {
+            return compute();
+          } catch {
+            return fallback;
+          }
+        },
+      })).toBe(fallback);
+    }
   });
 });
