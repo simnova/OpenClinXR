@@ -27,6 +27,31 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-11-14T0630">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 127 &middot; 2026-11-14 06:30 UTC</p>
+          <h2>One blueprint line moves the spouse, and the Blueprints page shows both encounter views.</h2>
+        </div>
+        <p>
+          The change is the spouse placement value x -1.6 to x -2.1 in the ED chest-pain blueprint (0.5 m along the room's -x axis); the producer regenerates the runtime bundle (8 changed lines across 4 files); nothing else changed.
+        </p>
+        <p>
+          The pinned-camera pair shows 4732 changed pixels inside the spouse region, 8.56 times the A-to-A noise floor of 553, with 0 changed pixels outside every actor against a floor of 0. The comment-only control changed at least 213 pixels and did not pass. Spouse/nurse overlap reads 3885 square px before the change and 0 after it. The spouse's centre moved 25.1 px, so the card's 40 px centre-shift check failed, because the 0.5 m move runs mostly along the camera's line of sight.
+        </p>
+        <p>
+          The auto-framed learner view (cropped, unpinned) shows the same move; the preview camera re-aims at the cast, so the room shifts about 12 px. The pinned comparison is on the <a href="blueprints.html#kd">Blueprints</a> page.
+        </p>
+        <div style="display:grid; gap:12px; margin-top:16px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="site/media/kd-attribution-a1.png" alt="Pinned-camera encounter still before the placement change: the spouse stands beside the stretcher near the nurse, facing the patient." width="540" height="600" style="width:100%; max-width:540px; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">Before: the spouse at the authored placement.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="site/media/kd-attribution-b.png" alt="The same pinned view after the placement change: the spouse stands farther left in this view, clear of the nurse." width="540" height="600" style="width:100%; max-width:540px; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">After: the spouse 0.5 m to the left in this view, clear of the nurse.</figcaption>
+          </figure>
+        </div>
+      </section>
       <section class="band" id="entry-2026-11-14T0150">
         <div class="section-heading">
           <p class="eyebrow">Entry 126 &middot; 2026-11-14 01:50 UTC</p>
