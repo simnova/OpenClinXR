@@ -107,6 +107,42 @@
       "verdict": "pass",
       "date": "2026-11-13",
       "sampleRule": "native 1:1 crop, store site-reimagine/kd/run-3/B/still.png box x230-430 y150-430"
+    },
+    {
+      "path": "site/media/e2-station-label-before.png",
+      "sha256": "4fb76e4fe0ad5df62d1de3f5ba7f7cecc72d0daccfb594df379580dc0966660d",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap28 [cc10fc]",
+      "gradeMessageId": "super-ceo-cap28/gb0-2026-11-14",
+      "demonstrates": "Station label before sync: STATION line reads the internal scenario id 1/5: ed_chest_pain_priority_v1.",
+      "slot": "E2",
+      "verdict": "pass",
+      "date": "2026-11-14",
+      "sampleRule": "native 1:1 still, XS/c51/before-nonsync/station-1-label.png"
+    },
+    {
+      "path": "site/media/e2-station-label-after.png",
+      "sha256": "24ee73c92ee098cc727381cb58734a33f0ad7f36e68b199eb70d7a1e23a75da3",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap28 [cc10fc]",
+      "gradeMessageId": "super-ceo-cap28/gb0-2026-11-14",
+      "demonstrates": "Station label after sync: STATION line reads Station 1 of 3 from the sync server.",
+      "slot": "E2",
+      "verdict": "pass",
+      "date": "2026-11-14",
+      "sampleRule": "native 1:1 still, XS/c51/after-j1/station-1-label.png"
+    },
+    {
+      "path": "site/media/e2-rr1-station1.webm",
+      "sha256": "c9c447a324effeeedecc0445dc82a346f672e17eea29ed0b1d64b06f2769d181",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap28 [cc10fc]",
+      "gradeMessageId": "super-ceo-cap28/e2-clip-2026-11-14",
+      "demonstrates": "RR1 run-15 chapters 1 and 2 clip holding Station 1 of 3 through doorway and encounter.",
+      "slot": "E2",
+      "verdict": "pass",
+      "date": "2026-11-14",
+      "sampleRule": "native 1:1 frames t=0.5,3,6,12,15.76 s (clip-1/contact-1to1.png)"
     }
   ]
 }
