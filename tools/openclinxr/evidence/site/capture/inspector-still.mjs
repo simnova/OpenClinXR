@@ -45,7 +45,7 @@ import {
   readPngSize,
 } from "./w0-still.mjs";
 import { projectActorBbox } from "../../xr-sync/harness-lib.mjs";
-import { blueprintActorLines, ratiosOf, validateRegions } from "./inspector-regions.mjs";
+import { blueprintActorBlocks, blueprintActorLines, blueprintBlockers, redactHiddenFacts, ratiosOf, validateRegions } from "./inspector-regions.mjs";
 import { maskExtent } from "./inspector-mask.mjs";
 
 const BLUEPRINT_REPO_PATH = "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts";
@@ -292,6 +292,7 @@ export async function captureInspectorRun({ out } = {}) {
   const sourceSha = execFileSync("git", ["-C", TREE_TOP, "rev-parse", "HEAD"], { encoding: "utf8" }).trim();
   const blueprint = blueprintAtHead();
   const actorLines = blueprintActorLines(blueprint.text);
+  const actorBlocks = redactHiddenFacts(blueprintActorBlocks(blueprint.text, BLUEPRINT_REPO_PATH));
   const actorIds = [...actorLines.keys()];
 
   const regions = [];
@@ -314,7 +315,7 @@ export async function captureInspectorRun({ out } = {}) {
     for (const actorId of actorIds) {
       const row = await regionFor(page, actorId);
       if ("bbox" in row) {
-        regions.push({ actorId: row.actorId, lines: actorLines.get(actorId) ?? [], bbox: row.bbox });
+        regions.push({ actorId: row.actorId, lines: actorLines.get(actorId) ?? [], blocks: actorBlocks.get(actorId) ?? [], bbox: row.bbox });
       } else {
         missing.push({ actorId: row.actorId, why: row.why });
       }
@@ -389,6 +390,7 @@ export async function captureInspectorRun({ out } = {}) {
     const viewport = { width: VIEWPORT.width, height: VIEWPORT.height };
     const blockers = validateRegions({ canvasRect, viewport, regions }, actorIds);
     blockers.push(...castModeBlockers(castWait.ok));
+    blockers.push(...blueprintBlockers(blueprint.text));
     const regionsJson = {
       schema: SCHEMA,
       run: runTag,

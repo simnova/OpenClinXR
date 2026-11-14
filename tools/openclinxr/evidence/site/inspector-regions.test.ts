@@ -1,14 +1,15 @@
 // Inspector regions test (card W4a-0). Fixture coordinates under
 // fixtures/inspector/** are illustrative: they exercise the validateRegions
 // blocker ids, not real capture output.
+import { execFileSync as execInspectorShow } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { expect, it, vi } from "vitest";
 import { extentOf, histogramOf, isEffectivelyVisible, planMaskRestore, planMaskSetupInner, RESTORE_SOURCE, SETUP_SOURCE } from "./capture/inspector-mask.mjs";
-import { blueprintActorLines, ratiosOf, validateRegions } from "./capture/inspector-regions.mjs";
+import { blockSliceBlockers, blueprintActorBlocks, blueprintActorLines, blueprintBlockers, maskLiterals, ratiosOf, redactHiddenFacts, validateRegions } from "./capture/inspector-regions.mjs";
 import {
-  CAST_TIMEOUT_BLOCKER,
   CAST_MODE_TOLERANCE_M,
+  CAST_TIMEOUT_BLOCKER,
   castCompletePredicate,
   castModeBlockers,
   classifyCastMode,
@@ -599,4 +600,268 @@ it("G2a MASK_THRESHOLD stays a named constant citing the w0/run-6 pixel match", 
   );
   expect(maskSource).toMatch(/export const MASK_THRESHOLD = 32/);
   expect(maskSource).toContain("w0/run-6");
+});
+
+const INSPECTOR_SOURCE_SHA = "c1da76fb45ea04b3875e4a748211b679b447355c";
+const INSPECTOR_FIXTURE_PATH = "packages/openclinxr/scenario-fixtures/src/ed-chest-pain-mod.ts";
+
+function inspectorSourceText(): string {
+  return execInspectorShow("git", ["show", `${INSPECTOR_SOURCE_SHA}:${INSPECTOR_FIXTURE_PATH}`], {
+    encoding: "utf8",
+  });
+}
+
+it("KNOWN-GOOD (producer) blueprintActorBlocks ranges equal patient 44-170, 382-404, 449-457; spouse 171-223, 428-448; nurse 224-251, 266-271, 405-427", () => {
+  const blocks = blueprintActorBlocks(inspectorSourceText(), INSPECTOR_FIXTURE_PATH);
+  const ranges = (actorId: string) =>
+    (blocks.get(actorId) ?? []).map((block) => [block.startLine, block.endLine]);
+  expect(ranges("patient_robert_hayes_v1")).toEqual([
+    [44, 170],
+    [382, 404],
+    [449, 457],
+  ]);
+  expect(ranges("spouse_anna_hayes_v1")).toEqual([
+    [171, 223],
+    [428, 448],
+  ]);
+  expect(ranges("nurse_maria_alvarez_v1")).toEqual([
+    [224, 251],
+    [266, 271],
+    [405, 427],
+  ]);
+});
+
+it("KNOWN-GOOD (producer) each block text equals the fixture slice startLine..endLine", () => {
+  const sourceText = inspectorSourceText();
+  const blocks = blueprintActorBlocks(sourceText, INSPECTOR_FIXTURE_PATH);
+  for (const [actorId, list] of blocks) {
+    for (const block of list) {
+      expect(block.fixturePath).toEqual(INSPECTOR_FIXTURE_PATH);
+      expect(block.text).toEqual(
+        sourceText.split("\n").slice(block.startLine - 1, block.endLine).join("\n"),
+      );
+      expect(block.text).toContain(actorId);
+    }
+  }
+  expect(blockSliceBlockers(blocks, sourceText)).toEqual([]);
+});
+
+it("COUNTERWEIGHT (producer) a first-brace scan would end the patient actor block early; brace depth gives endLine 170", () => {
+  const sourceLines = inspectorSourceText().split("\n");
+  let naiveEnd = -1;
+  for (let i = 44; i < sourceLines.length; i += 1) {
+    if ((sourceLines[i] ?? "").trim() === "}," || (sourceLines[i] ?? "").trim() === "}") {
+      naiveEnd = i + 1;
+      break;
+    }
+  }
+  if (naiveEnd === 170) {
+    throw new Error("naive first-close scan reached 170; the nested-object fixture changed");
+  }
+  const blocks = blueprintActorBlocks(sourceLines.join("\n"), INSPECTOR_FIXTURE_PATH);
+  const patient = blocks.get("patient_robert_hayes_v1") ?? [];
+  expect(patient[0]?.endLine).toEqual(170);
+});
+
+it("COUNTERWEIGHT (producer) a doc with one block shifted by 1 line fails the slice check, the unshifted doc passes", () => {
+  const sourceText = inspectorSourceText();
+  const blocks = blueprintActorBlocks(sourceText, INSPECTOR_FIXTURE_PATH);
+  const flat = [...blocks.values()].flat();
+  expect(blockSliceBlockers(flat, sourceText)).toEqual([]);
+  const shifted = flat.map((block, index) =>
+    index === 0
+      ? {
+          ...block,
+          startLine: block.startLine + 1,
+          endLine: block.endLine + 1,
+          text: sourceText.split("\n").slice(block.startLine, block.endLine + 1).join("\n"),
+        }
+      : block,
+  );
+  const red = blockSliceBlockers(shifted, sourceText);
+  if (red.length === 0) {
+    throw new Error("shifted block passed the slice check; RED expected");
+  }
+  expect(red).toEqual(["block_slice_mismatch:45-171"]);
+});
+
+it("inspector-still emits blocks[] from blueprintActorBlocks on the blueprint text it already reads", () => {
+  const stillSource = readFileSync(
+    path.join(process.cwd(), "tools", "openclinxr", "evidence", "site", "capture", "inspector-still.mjs"),
+    "utf8",
+  );
+  expect(stillSource).toContain("blueprintActorBlocks");
+  expect(stillSource).toContain("blocks: actorBlocks.get(actorId) ?? []");
+});
+
+it("COUNTERWEIGHT (producer, synthetic fixture only) literal and comment braces do not move the scan; the naive counter gets the synthetic range WRONG (naive counting succeeds on c1da76fb4)", () => {
+  const fixture = [
+    'import { x } from "mod";',
+    "",
+    "export const edTest = {",
+    "  actors: [",
+    "    {",
+    '      actorId: "patient_test_v1",',
+    '      role: "patient",',
+    '      open: "{",',
+    '      close: "}",',
+    '      mixed: "a } b",',
+    '      escaped: "say \\"hi } there",',
+    "      tpl: `wrap } end`,",
+    "      // a comment with } inside",
+    "      nested: {",
+    "        deep: true,",
+    "      },",
+    "    },",
+    "    {",
+    '      actorId: "spouse_test_v1",',
+    "    },",
+    "  ],",
+    "};",
+  ].join("\n");
+  expect(maskLiterals(fixture).split("\n")).toHaveLength(22);
+  const blocks = blueprintActorBlocks(fixture, "test-fixture.ts");
+  const patient = blocks.get("patient_test_v1") ?? [];
+  expect(patient).toHaveLength(1);
+  expect([patient[0]?.startLine, patient[0]?.endLine]).toEqual([5, 17]);
+  const spouse = blocks.get("spouse_test_v1") ?? [];
+  expect(spouse).toHaveLength(1);
+  expect([spouse[0]?.startLine, spouse[0]?.endLine]).toEqual([18, 20]);
+  // Test-local naive counter on the SYNTHETIC fixture above only: counts every
+  // brace and ends at the first depth-0 line with no literal/comment masking.
+  // Naive counting happens to succeed on the real c1da76fb4 fixture, which
+  // carries no braces inside strings, templates or comments; only this
+  // synthetic fixture defeats it.
+  const lines = fixture.split("\n");
+  let depth = 0;
+  let naiveEnd = -1;
+  for (let i = 4; i < lines.length; i += 1) {
+    for (const ch of lines[i] ?? "") {
+      if (ch === "{") {
+        depth += 1;
+      } else if (ch === "}") {
+        depth -= 1;
+      }
+    }
+    if (depth === 0) {
+      naiveEnd = i + 1;
+      break;
+    }
+  }
+  expect(naiveEnd).toEqual(10);
+  expect(naiveEnd).not.toEqual(17);
+});
+
+it("RED (producer) maskLiterals preserves newline count and length across escaped newlines in strings and templates", () => {
+  for (const quote of ['"', "'", "`"]) {
+    const input = `x = ${quote}a\\\nb${quote};\n{`;
+    const masked = maskLiterals(input);
+    expect(masked.split("\n")).toHaveLength(input.split("\n").length);
+    expect(masked).toHaveLength(input.length);
+  }
+});
+
+it("RED (producer) a regex literal in an actor block yields a named blocker instead of a dropped block", () => {
+  const fixture = [
+    "export const edTest = {",
+    "  actors: [",
+    "    {",
+    '      actorId: "patient_test_v1",',
+    "      matcher: /{/," ,
+    "    },",
+    "  ],",
+    "};",
+  ].join("\n");
+  expect(blueprintBlockers(fixture)).toEqual(["regex literal in blueprint source at line 5"]);
+});
+
+it("COUNTERWEIGHT (producer) division slashes are not regex starts", () => {
+  const fixture = [
+    "export const edTest = {",
+    "  actors: [",
+    "    {",
+    '      actorId: "patient_test_v1",',
+    "      ratio: a / b,",
+    "      half: x = 4 / 2,",
+    "    },",
+    "  ],",
+    "};",
+  ].join("\n");
+  expect(blueprintBlockers(fixture)).toEqual([]);
+});
+
+it("KNOWN-GOOD (producer) the real c1da76fb4 fixture carries no regex literal", () => {
+  expect(blueprintBlockers(inspectorSourceText())).toEqual([]);
+});
+
+const HIDDEN_FACT_LITERALS = [
+  "Pain started while walking upstairs",
+  "Father died of myocardial infarction at 54",
+  "Knows patient skipped blood pressure medication this week",
+  "Repeat blood pressure is falling and patient looks worse at minute seven",
+  "Repeat blood pressure is falling",
+  "Skipped blood pressure medication this week",
+];
+
+it("RED (producer) the real c1da76fb4 blocks carry no hidden-fact literal once redacted, with redactions on 63, 188, 241, 387, 410, 433, 454", () => {
+  const sourceText = inspectorSourceText();
+  const redacted = redactHiddenFacts(blueprintActorBlocks(sourceText, INSPECTOR_FIXTURE_PATH));
+  const texts = [...redacted.values()].flat().map((block) => block.text);
+  for (const literal of HIDDEN_FACT_LITERALS) {
+    for (const text of texts) {
+      expect(text.includes(literal)).toEqual(false);
+    }
+  }
+  const lines = [...redacted.values()]
+    .flat()
+    .flatMap((block) => block.redactions)
+    .map((entry) => entry.line)
+    .sort((a, b) => a - b);
+  expect(lines).toEqual([63, 63, 188, 241, 387, 410, 433, 454]);
+});
+
+it("RED (producer) PLANT: a 3-line hiddenFacts array with an escaped quote and a template literal comes out fully redacted", () => {
+  const fixture = [
+    "export const edTest = {",
+    "  actors: [",
+    "    {",
+    '      actorId: "patient_test_v1",',
+    "      hiddenFacts: [",
+    '        "plain fact here",',
+    '        "escaped \\"quote\\" fact",',
+    "        `template } fact`,",
+    "      ],",
+    "    },",
+    "  ],",
+    "};",
+  ].join("\n");
+  const blocks = redactHiddenFacts(blueprintActorBlocks(fixture, "test-fixture.ts"));
+  const patient = blocks.get("patient_test_v1") ?? [];
+  expect(patient).toHaveLength(1);
+  const text = patient[0]?.text ?? "";
+  for (const original of ["plain fact here", 'escaped \\"quote\\" fact', "template } fact"]) {
+    expect(text.includes(original)).toEqual(false);
+  }
+  expect(text).toContain("hidden fact, elicited in the encounter");
+  expect(text.split("\n")).toHaveLength((patient[0]?.endLine ?? 0) - (patient[0]?.startLine ?? 0) + 1);
+  const redactedLines = (patient[0]?.redactions ?? []).map((entry) => entry.line).sort((a, b) => a - b);
+  expect(redactedLines).toEqual([6, 7, 8]);
+});
+
+it("COUNTERWEIGHT (producer) a non-hidden string on the same block is unchanged by redaction", () => {
+  const fixture = [
+    "export const edTest = {",
+    "  actors: [",
+    "    {",
+    '      actorId: "patient_test_v1",',
+    '      hiddenFacts: ["buried fact here"],',
+    "    },",
+    "  ],",
+    "};",
+  ].join("\n");
+  const blocks = redactHiddenFacts(blueprintActorBlocks(fixture, "test-fixture.ts"));
+  const text = (blocks.get("patient_test_v1") ?? [])[0]?.text ?? "";
+  expect(text).toContain('actorId: "patient_test_v1"');
+  expect(text.includes("buried fact here")).toEqual(false);
+  expect(text).toContain("hidden fact, elicited in the encounter");
 });

@@ -47,6 +47,18 @@
       "verdict": "pass",
       "date": "2026-11-12",
       "sampleRule": "native 1:1 render, store site-reimagine/w7-grade/r3 svg1-390-light.png"
+    },
+    {
+      "path": "site/media/inspector-still-2026-11-13.png",
+      "sha256": "86ec1928758cf190c8a6c6b9449a163c96c6944461dfac6a97bfab5d402785db",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap27 [17a5c0]",
+      "gradeMessageId": "super-ceo-cap27/w0rb3-inspector-run20-grade",
+      "demonstrates": "ED chest pain encounter still, 960x600 native: patient, spouse and nurse in the exam bay, the source of the blueprint inspector highlights.",
+      "slot": "K5",
+      "verdict": "pass",
+      "date": "2026-11-13",
+      "sampleRule": "native 1:1 still, store site-reimagine/inspector/run-20/still.png (sha above)"
     }
   ]
 }

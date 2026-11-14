@@ -22,7 +22,7 @@ import { describe, expect, it } from "vitest";
 const REPO = path.resolve(import.meta.dirname, "../../../..");
 const FIXTURE_DIR = path.join(REPO, "packages/openclinxr/scenario-fixtures/src");
 const SCANNED_ROOTS = ["docs", "apps/ui-xr/public"] as const;
-const SCANNED_EXTENSIONS = new Set([".json", ".md", ".txt"]);
+const SCANNED_EXTENSIONS = new Set([".json", ".md", ".txt", ".html", ".js"]);
 
 /** Every hidden fact long enough to be a distinctive string rather than a common word. */
 function declaredHiddenFacts(): string[] {
