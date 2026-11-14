@@ -480,6 +480,7 @@
     "@openclinxr/xr-scene": "workspace:*",
     "@openclinxr/xr-scene-cues": "workspace:*",
     "@openclinxr/xr-station": "workspace:*",
+    "@openclinxr/xr-sync-server": "workspace:*",
     "@playwright/test": "1.59.1",
     "@types/node": "catalog:",
     "ajv": "catalog:",

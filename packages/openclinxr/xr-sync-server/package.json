@@ -7,6 +7,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./conversation-replay": {
+      "types": "./dist/conversation-replay.d.ts",
+      "default": "./dist/conversation-replay.js"
     }
   },
   "scripts": {

@@ -1,0 +1,27 @@
+{
+  "sourcePath": "/Volumes/files/openclinxr-assets/store/site-reimagine/rr1/run-15/dom-text-log.json",
+  "sourceSha256": "7694b09cfd4537897573342d2dab1d4b2a068b163d6a1b508e12ad0f59473b98",
+  "derivationCommand": "tools/openclinxr/evidence/site/capture/mn2-extract.mjs --dom /Volumes/files/openclinxr-assets/store/site-reimagine/rr1/run-15/dom-text-log.json --out tools/openclinxr/evidence/site/fixtures/mn2/mn2-dom-captions.json",
+  "speakers": [
+    "Robert Hayes",
+    "Anna Hayes",
+    "Maria Alvarez"
+  ],
+  "sampleCount": 227,
+  "captions": [
+    {
+      "speaker": "Robert Hayes",
+      "text": "It feels heavy, like someone is sitting on my chest.",
+      "firstSample": 0,
+      "firstAtMs": 1794578657927,
+      "attributable": false
+    },
+    {
+      "speaker": "Robert Hayes",
+      "text": "It started on the stairs, a heavy pressure right in the middle of my chest.",
+      "firstSample": 32,
+      "firstAtMs": 1794578667402,
+      "attributable": true
+    }
+  ]
+}

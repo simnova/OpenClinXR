@@ -1,4 +1,4 @@
-import { mkdtempSync, mkdirSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -9,7 +9,9 @@ import {
   isSerialArea,
   pathAreaOf,
   serialPoolOf,
+  syncTurboInputs,
   TOOLS_TEST_AREAS,
+  type ToolsTestArea,
   usesSharedSlot,
 } from "./tools-test-areas";
 
@@ -190,5 +192,39 @@ describe("area vitest args", () => {
     expect(() => assertSameFiles("evidence", ["a.test.ts"], ["a.test.ts"])).not.toThrow();
     expect(() => assertSameFiles("evidence", ["a.test.ts"], ["a.test.ts", "b.test.ts"])).toThrow(/extra 1/);
     expect(() => assertSameFiles("evidence", ["a.test.ts", "b.test.ts"], ["a.test.ts"])).toThrow(/missing 1/);
+  });
+});
+
+describe("area turbo dependsOn", () => {
+  const repoRoot = path.resolve(import.meta.dirname, "../../..");
+
+  function tempTurboRoot(): string {
+    const dir = mkdtempSync(path.join(tmpdir(), "turbo-depends-"));
+    writeFileSync(path.join(dir, "turbo.json"), readFileSync(path.join(repoRoot, "turbo.json"), "utf8"));
+    return dir;
+  }
+
+  function readTask(dir: string, task: string): Record<string, unknown> {
+    const turbo = JSON.parse(readFileSync(path.join(dir, "turbo.json"), "utf8")) as {
+      tasks: Record<string, Record<string, unknown>>;
+    };
+    return turbo.tasks[task] ?? {};
+  }
+
+  it("syncTurboInputs keeps the evidence task's package build edge", () => {
+    // WN2 F1: the evidence area resolves a package subpath at runtime, so a
+    // clean checkout must build @openclinxr/xr-sync-server first. The edge
+    // lives in turbo.json today; the generator must not drop it.
+    const dir = tempTurboRoot();
+    const areas = new Map<string, ToolsTestArea>([["tools/openclinxr/evidence/site/mn2.test.ts", "evidence"]]);
+    syncTurboInputs(dir, areas);
+    expect(readTask(dir, "//#test:tools:evidence").dependsOn).toEqual(["@openclinxr/xr-sync-server#build"]);
+  });
+
+  it("counterweight: an area without declared deps gets no dependsOn key", () => {
+    const dir = tempTurboRoot();
+    const areas = new Map<string, ToolsTestArea>([["tools/agent-factory/x.test.ts", "agent-factory"]]);
+    syncTurboInputs(dir, areas);
+    expect(readTask(dir, "//#test:tools:agent-factory")).not.toHaveProperty("dependsOn");
   });
 });

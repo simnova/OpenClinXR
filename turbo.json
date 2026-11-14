@@ -192,6 +192,9 @@
     },
     "//#test:tools:evidence": {
       "cache": true,
+      "dependsOn": [
+        "@openclinxr/xr-sync-server#build"
+      ],
       "inputs": [
         "apps/api/src/api-bootstrap.ts",
         "apps/api/src/api-fetch-transport.ts",
@@ -199,6 +202,7 @@
         "apps/api/src/index.ts",
         "apps/api/src/scenario-promotion-bridge.ts",
         "apps/arena/mock-realtime-voice-server/src/**",
+        "docs/site/scripts/inspector.js",
         "packages/cellix/config-vitest/src/**",
         "packages/openclinxr/agent-loop/src/**",
         "packages/openclinxr/asset-registry/src/**",
@@ -241,9 +245,10 @@
     "//#test:tools:asset-pipeline": {
       "cache": true,
       "inputs": [
+        "apps/arena/model-vetting-studio/src/**",
         "packages/cellix/config-vitest/src/**",
         "tools/openclinxr/asset-pipeline/**",
-        "tools/openclinxr/evidence/browser-boot-inventory.ts",
+        "tools/openclinxr/evidence/**",
         "tools/openclinxr/evidence/browser-boot-inventory/**",
         "tools/openclinxr/openclaw/project-test-scope.ts",
         "tools/openclinxr/openclaw/run-tools-tests.ts",
@@ -281,6 +286,7 @@
         "tools/agent-factory/check-source-ledger.test.ts",
         "tools/agent-factory/check-source-ledger.ts",
         "tools/agent-factory/cited-evidence-baseline.json",
+        "tools/agent-factory/doc-authority-append-keeps-existing-rows.test.ts",
         "tools/agent-factory/find-evidence-debt.test.ts",
         "tools/agent-factory/find-evidence-debt.ts",
         "tools/agent-factory/lib.ts",

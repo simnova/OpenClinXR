@@ -6,6 +6,13 @@ import { afterEach, describe, expect, it } from "vitest";
 import { createEncounterServer, type EncounterServer } from "./index.js";
 import { C3_REPLY_TABLE } from "./room.js";
 import { CONVERSATION_TRACE_SCHEMA, replayConversationTrace } from "./conversation-trace.js";
+// Relative own-test binding (precedent: own-package tests bind through ./,
+// never the specifier): the website MN2 recompute is the sole specifier
+// consumer of the published ./conversation-replay subpath, so the entrypoint
+// stays single-class (evidence) and out of the mixed-class ceiling.
+import { replayConversationTrace as replayViaPublishedSubpath } from "./conversation-replay.js";
+import { createReplayCaptionBank as createBankViaPublishedSubpath } from "./conversation-replay.js";
+import { edChestPainScenario, scenarioDialogueSeedBank } from "@openclinxr/scenario-fixtures";
 
 // C4 RED (planted by root, 2026-10-30): each actor turn carries renderable
 // conversation content (cueId for audio/viseme playback, an emotion
@@ -237,6 +244,46 @@ describe("xr-sync-server C4 turn content and conversation trace", () => {
     expect(a1?.emotion).toBe("reassured");
     expect(JSON.stringify(trace(server))).not.toContain("page-forged");
     expect(JSON.stringify(trace(server))).not.toContain("learner_dismissive");
+  });
+});
+
+describe("conversation-replay subpath (WN2 MN2 route)", () => {
+  // The website MN2 recompute imports replayConversationTrace through the
+  // published ./conversation-replay subpath. This block binds the subpath's
+  // module from inside the package: the same production replay recomputes
+  // turns and emotions from events alone, ignoring stored copies.
+  const oneTurn = () => ({
+    schema: CONVERSATION_TRACE_SCHEMA,
+    stationId: "",
+    events: [
+      { seq: 1, kind: "select-actor", actorId: "a", turnId: null },
+      { seq: 2, kind: "utterance-start", actorId: "", turnId: null },
+      { seq: 3, kind: "utterance-end", actorId: "a", turnId: 1, tag: "history_opqrst", match: "exact", modality: "typed" },
+    ],
+  });
+
+  it("replays one off-cast turn through the published subpath, ignoring stored copies", () => {
+    const stored = {
+      ...oneTurn(),
+      turns: [{ turnId: 1, actorId: "a", replyId: "tampered", cueId: "tampered", startSeq: 3, end: "completed", endSeq: null }],
+      emotions: [{ from: "neutral", to: "anxious", trigger: "learner_acknowledgement", changed: true, turnIndex: 1 }],
+    };
+    const replayed = replayViaPublishedSubpath(stored as never) as ConversationTraceShape;
+    expect(replayed.turns).toEqual([
+      { turnId: 1, actorId: "a", replyId: "c3-ack-open", cueId: "cue-greeting-01", startSeq: 3, end: "open", endSeq: null },
+    ]);
+    expect(replayed.emotions).toEqual([
+      { from: "neutral", to: "reassured", trigger: "learner_acknowledgement", changed: true, turnIndex: 1 },
+    ]);
+  });
+
+  it("resolves a cast opening caption through the published caption bank", () => {
+    const bank = createBankViaPublishedSubpath([edChestPainScenario], scenarioDialogueSeedBank);
+    const scenarioId = edChestPainScenario.scenarioId;
+    const patient = edChestPainScenario.actors.find((actor) => actor.role === "patient") ?? edChestPainScenario.actors[0]!;
+    const caption = bank.resolve(scenarioId, patient.actorId, `${patient.actorId}:opening`, undefined);
+    expect(caption).toBe(`${patient.displayName}: ${patient.openingUtterance}`);
+    expect(bank.resolve("unknown-scenario", patient.actorId, `${patient.actorId}:opening`, undefined)).toBeNull();
   });
 });
 

@@ -21,7 +21,7 @@ import { describe, expect, it } from "vitest";
 
 const REPO = path.resolve(import.meta.dirname, "../../../..");
 const FIXTURE_DIR = path.join(REPO, "packages/openclinxr/scenario-fixtures/src");
-const SCANNED_ROOTS = ["docs", "apps/ui-xr/public"] as const;
+const SCANNED_ROOTS = ["docs", "apps/ui-xr/public", "tools/openclinxr/evidence/site/fixtures/mn2"] as const;
 const SCANNED_EXTENSIONS = new Set([".json", ".md", ".txt", ".html", ".js"]);
 
 /** Every hidden fact long enough to be a distinctive string rather than a common word. */
@@ -83,5 +83,13 @@ describe("no hidden case fact reaches a tracked artifact", () => {
     const planted = `some prose that quotes ${facts[0]} inline`;
     expect(facts[0]).toBeDefined();
     expect(planted.includes(facts[0]!)).toBe(true);
+  });
+
+  it("(4) the MN2 caption fixture dir is a scanned root", () => {
+    // WN2 round 3 moved mn2.json + mn2-dom-captions.json out of docs/site/
+    // into tools/openclinxr/evidence/site/fixtures/mn2/ so the site no
+    // longer publishes them. The leak gate must follow them there:
+    // a hidden fact quoted in a fixture file must fail clause (2).
+    expect(SCANNED_ROOTS).toContain("tools/openclinxr/evidence/site/fixtures/mn2");
   });
 });

@@ -181,5 +181,21 @@
         "via": "own-test"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/xr-sync-server",
+    "entrypoint": "./conversation-replay",
+    "names": [
+      {
+        "name": "createReplayCaptionBank",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "replayConversationTrace",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

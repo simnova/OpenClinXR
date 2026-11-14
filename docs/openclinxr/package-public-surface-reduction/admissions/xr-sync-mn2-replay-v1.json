@@ -1,0 +1,32 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "xr-sync-mn2-replay-v1",
+  "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review, session 01a1d833-f4e3-7311-ac0d-503d35b7764a (read-only, not an author), 2026-11-13",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "2cf9f560dc63cc638f1f212fc515136d9fb1d0af411f5c8a48dbb0edd4fc00fb",
+  "packages": [
+    "packages/openclinxr/xr-sync-server"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-sync-server",
+      "entrypoint": "./conversation-replay",
+      "symbol": "createReplayCaptionBank",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "website-wn2 card WN2",
+      "rationale": "The website MN2 recompute resolves each replayed turn replyId to its displayed caption through the production caption bank (the lookup the replay client uses), alongside replayConversationTrace; packages/openclinxr/xr-sync-server/src/xr-sync-c4-conversation-trace.test.ts binds both subpath exports from inside the package.",
+      "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review, session 01a1d833-f4e3-7311-ac0d-503d35b7764a (read-only, not an author), 2026-11-13"
+    },
+    {
+      "package": "packages/openclinxr/xr-sync-server",
+      "entrypoint": "./conversation-replay",
+      "symbol": "replayConversationTrace",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "website-wn2 card WN2",
+      "rationale": "The website MN2 recompute (tools/openclinxr/evidence/site/fixtures/mn2/recompute.ts) replays each committed trace through the production trace replay and compares the resolved captions with the learner-visible DOM captions, never a reimplementation; packages/openclinxr/xr-sync-server/src/xr-sync-c4-conversation-trace.test.ts binds both subpath exports from inside the package (relative own-test binding).",
+      "reviewedBy": "Codex gpt-5.6-sol independent API/C6 review, session 01a1d833-f4e3-7311-ac0d-503d35b7764a (read-only, not an author), 2026-11-13"
+    }
+  ]
+}

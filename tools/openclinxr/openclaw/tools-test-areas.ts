@@ -53,6 +53,24 @@ export const SERIAL_AREAS: ReadonlySet<ToolsTestArea> = new Set<ToolsTestArea>([
   "serial-spawn",
 ]);
 
+/**
+ * Turbo build edges per area, the source of truth for non-input task fields.
+ * The evidence area resolves a package subpath at runtime
+ * (@openclinxr/xr-sync-server/conversation-replay via dist), so a clean
+ * checkout must build the server before the evidence task runs (WN2 F1).
+ * syncTurboInputs emits these; checkTurboInputs enforces them.
+ */
+export const AREA_TURBO_DEPENDS_ON: Readonly<Record<ToolsTestArea, readonly string[]>> = {
+  "serial-browser": [],
+  "serial-spawn": [],
+  "serial-blender": [],
+  "evidence": ["@openclinxr/xr-sync-server#build"],
+  "asset-pipeline": [],
+  "agent-factory": [],
+  "openclaw": [],
+  "misc": [],
+};
+
 /** True for the one-at-a-time areas. */
 export function isSerialArea(area: ToolsTestArea): boolean {
   return SERIAL_AREAS.has(area);
@@ -377,6 +395,12 @@ export function checkTurboInputs(
     const have = new Set(turbo.tasks[task]?.inputs ?? []);
     if (turbo.tasks[task] === undefined) stale.push(`${task}: task missing`);
     for (const g of expected.get(area) ?? []) if (!have.has(g)) stale.push(`${task}: ${g}`);
+    const expectedDeps = [...(AREA_TURBO_DEPENDS_ON[area] ?? [])];
+    const actualDeps = turbo.tasks[task]?.["dependsOn"];
+    const actualList = Array.isArray(actualDeps) ? actualDeps : [];
+    if (JSON.stringify(actualList) !== JSON.stringify(expectedDeps)) {
+      stale.push(`${task}: dependsOn [${actualList.join(", ")}] != [${expectedDeps.join(", ")}]`);
+    }
   }
   return stale;
 }
@@ -393,7 +417,13 @@ export function syncTurboInputs(root: string, areas: Map<string, ToolsTestArea>)
     tasks[name] = task;
     if (name === "dev") {
       for (const area of TOOLS_TEST_AREAS) {
-        tasks[turboTaskName(area)] = { cache: true, inputs: expected.get(area) ?? [], outputs: [] };
+        const dependsOn = [...(AREA_TURBO_DEPENDS_ON[area] ?? [])];
+        tasks[turboTaskName(area)] = {
+          cache: true,
+          ...(dependsOn.length > 0 ? { dependsOn } : {}),
+          inputs: expected.get(area) ?? [],
+          outputs: [],
+        };
       }
     }
   }

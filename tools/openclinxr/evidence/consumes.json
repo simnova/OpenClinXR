@@ -614,6 +614,10 @@
         "name": "scenarioBank",
         "kind": "runtime",
         "via": "path-reach"
+      },
+      {
+        "name": "scenarioDialogueSeedBank",
+        "kind": "runtime"
       }
     ]
   },
@@ -1601,6 +1605,20 @@
       {
         "name": "StationInteriorLightingVariantId",
         "kind": "type"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/xr-sync-server",
+    "entrypoint": "./conversation-replay",
+    "names": [
+      {
+        "name": "createReplayCaptionBank",
+        "kind": "runtime"
+      },
+      {
+        "name": "replayConversationTrace",
+        "kind": "runtime"
       }
     ]
   }

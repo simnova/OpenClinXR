@@ -12,6 +12,10 @@
       "TopicAffect",
       "createEncounterServer",
       "stationPhaseOrder"
+    ],
+    "./conversation-replay": [
+      "createReplayCaptionBank",
+      "replayConversationTrace"
     ]
   }
 }

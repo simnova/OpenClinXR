@@ -377,7 +377,11 @@ describe("compiler-resolved surface meter", () => {
     // 2026-11-13 ceo/e9-r2b coordinator binding brief A1, pending operator ratification:
     // asset-registry adds one reviewed ./nurse-chest-stage subpath (nurse-chest-stage-v1
     // admission) for the single shared E9 chest-split predicate + its pin (196 -> 197).
-    expect(report.totals.entrypoints).toBe(197);
+    // 2026-11-14 website-wn2 WN2 (worker self-admission, operator ratification pending):
+    // xr-sync-server adds one reviewed ./conversation-replay subpath
+    // (xr-sync-mn2-replay-v1 admission) for the MN2 replay recompute, root
+    // export delta 0 (197 -> 198).
+    expect(report.totals.entrypoints).toBe(198);
   });
 
   it("(2) rest, ui-route-admin, and xr-sync-server match compiler exports", () => {
