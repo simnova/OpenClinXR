@@ -27,6 +27,28 @@
       </section>
 
       <!-- ENTRIES: newest first. Each entry is one <section class="band"> with an id of entry-YYYY-MM-DDTHHMM. -->
+      <section class="band" id="entry-2026-11-14T0150">
+        <div class="section-heading">
+          <p class="eyebrow">Entry 126 &middot; 2026-11-14 01:50 UTC</p>
+          <h2>A Blueprints page shows the case text that builds the encounter.</h2>
+        </div>
+        <p>
+          The new Blueprints page shows the ED chest-pain blueprint below the encounter still it produced. Each actor card lists the blueprint objects that actor appears in, with source line numbers from the scenario fixture; activating a card outlines that actor in the still. The excerpts are cut from the fixture by the same capture tool that renders the still, and a test checks the page text against them line for line.
+        </p>
+        <p>
+          Hidden case facts, the details the learner has to draw out of the actors during the encounter, are replaced with "hidden fact, elicited in the encounter". The four guardrail-canary lines are marked: the actor must not volunteer them. The repository's hidden-fact check now scans the site's HTML and JavaScript as well as its data files.
+        </p>
+        <div style="display:grid; gap:12px; margin-top:16px;">
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/blueprints-inspector-nurse-2026-11-13.png" alt="Encounter still with the nurse's card active: a rectangle outlines the nurse beside the patient's bed, with the simulated EHR panel on the right." width="960" height="600" style="width:100%; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">The nurse's card is active, so the still outlines the nurse.</figcaption>
+          </figure>
+          <figure style="margin:0; border:1px solid var(--line); border-radius:6px; overflow:hidden; background:#1a2620;">
+            <img src="assets/blueprints-redacted-canary-390-2026-11-13.png" alt="Phone-width view of the patient's blueprint excerpt: the hiddenFactCanaries lines show the placeholder text, each with a guardrail canary note under it." width="390" height="900" style="width:100%; max-width:390px; height:auto; display:block;">
+            <figcaption style="padding:8px 10px; font-size:0.78rem; color:var(--muted); border-top:1px solid var(--line);">At phone width, the hidden-fact lines show the placeholder and a guardrail-canary note.</figcaption>
+          </figure>
+        </div>
+      </section>
       <section class="band" id="entry-2026-11-13T1530">
         <div class="section-heading">
           <p class="eyebrow">Entry 125 &middot; 2026-11-13 15:30 UTC</p>
