@@ -59,6 +59,54 @@
       "verdict": "pass",
       "date": "2026-11-13",
       "sampleRule": "native 1:1 still, store site-reimagine/inspector/run-20/still.png (sha above)"
+    },
+    {
+      "path": "site/media/kd-attribution-a1.png",
+      "sha256": "d5f41689ae1c664f4c03d054119ec7567035266aac108dc4261dda05e15cf43d",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap28 [cc10fc]",
+      "gradeMessageId": "super-ceo-cap28/wkd-crop-grade-2026-11-13",
+      "demonstrates": "Attribution before: run-4 A1 still cropped x0-540 y0-600 at native 1:1; spouse at the authored placement.",
+      "slot": "KD",
+      "verdict": "pass",
+      "date": "2026-11-13",
+      "sampleRule": "native 1:1 crop, store site-reimagine/kd/run-4/A1/still.png box x0-540 y0-600"
+    },
+    {
+      "path": "site/media/kd-attribution-b.png",
+      "sha256": "959ae3bd834dde5ffda68f26c540d9533ef580a13fb635a712d5f134321008f4",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap28 [cc10fc]",
+      "gradeMessageId": "super-ceo-cap28/wkd-crop-grade-2026-11-13",
+      "demonstrates": "Attribution after: run-4 B still cropped x0-540 y0-600 at native 1:1; spouse moved 0.5 m west, clear of the nurse.",
+      "slot": "KD",
+      "verdict": "pass",
+      "date": "2026-11-13",
+      "sampleRule": "native 1:1 crop, store site-reimagine/kd/run-4/B/still.png box x0-540 y0-600"
+    },
+    {
+      "path": "site/media/kd-learner-view-a1.png",
+      "sha256": "0e041068ea1ad0842e63b9e9e130e73b7dda6fac6c3949edf7a4a2eb46ae0a5a",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap28 [cc10fc]",
+      "gradeMessageId": "super-ceo-cap28/wkd-crop-grade-2026-11-13",
+      "demonstrates": "Learner view before: run-3 A1 still cropped x230-430 y150-430 at native 1:1; auto-framed cast view.",
+      "slot": "KD",
+      "verdict": "pass",
+      "date": "2026-11-13",
+      "sampleRule": "native 1:1 crop, store site-reimagine/kd/run-3/A1/still.png box x230-430 y150-430"
+    },
+    {
+      "path": "site/media/kd-learner-view-b.png",
+      "sha256": "9aaae3171f1cdf9d7ce05ed1d3c7fd8c8d2a4b5d271bdd024781561020e0682d",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap28 [cc10fc]",
+      "gradeMessageId": "super-ceo-cap28/wkd-crop-grade-2026-11-13",
+      "demonstrates": "Learner view after: run-3 B still cropped x230-430 y150-430 at native 1:1; auto-framed cast view shifted with the cast.",
+      "slot": "KD",
+      "verdict": "pass",
+      "date": "2026-11-13",
+      "sampleRule": "native 1:1 crop, store site-reimagine/kd/run-3/B/still.png box x230-430 y150-430"
     }
   ]
 }

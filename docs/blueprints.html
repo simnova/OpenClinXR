@@ -93,6 +93,29 @@
         border-left: 3px solid var(--gold);
         padding-left: 0.5em;
       }
+      .kd-pairs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr));
+        gap: 1.5rem;
+        align-items: start;
+        min-width: 0;
+      }
+      .kd-pairs figure { margin: 0; min-width: 0; }
+      .kd-pairs img { width: auto; max-width: 100%; height: auto; display: block; }
+      .kd-pairs figcaption { color: var(--muted); margin-top: 0.5rem; }
+      /* Matches the page's 1.5rem vertical rhythm (.inspector-still margin,
+         .inspector-excerpts gap): pair labels never sit flush under the
+         paragraph above. */
+      #kd h3 { margin-top: 1.5rem; }
+      .kd-diff {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+        font-size: 0.875em;
+        padding: 0.75em;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
     </style>
   </head>
   <body data-site="v2">
@@ -467,6 +490,39 @@
           <p class="status-copy" data-inspector-notice hidden></p>
         </div>
       </section>
+      <!-- KD-SECTION-START -->
+      <section id="kd" class="band" data-slot="KD" data-claim="CL10 CL18">
+        <div class="section-heading"><h2>One blueprint line, two encounters</h2></div>
+        <p class="status-copy">The only change is the spouse placement value in the case blueprint, from x -1.6 to x -2.1 (0.5 m along the room's -x axis), plus its regenerated runtime bundle. The two pairs below show the same edit: a pinned-camera pair for attribution, and the auto-framed learner view the headset wearer sees.</p>
+        <h3>Attribution (pinned camera)</h3>
+        <div class="kd-pairs">
+          <figure>
+            <img src="site/media/kd-attribution-a1.png" alt="Pinned-camera encounter still before the placement change: the spouse stands beside the stretcher near the nurse, facing the patient." width="540" height="600">
+            <figcaption>Before: the spouse at the authored placement.</figcaption>
+          </figure>
+          <figure>
+            <img src="site/media/kd-attribution-b.png" alt="The same pinned view after the placement change: the spouse stands farther left in this view, clear of the nurse." width="540" height="600">
+            <figcaption>After: the spouse 0.5 m to the left in this view, clear of the nurse.</figcaption>
+          </figure>
+        </div>
+        <p class="status-copy">Pixels changed inside the spouse region: 4732, at 8.56 times the A-to-A noise floor of 553. Outside every actor (padded masks excluded): 0 changed pixels against a floor of 0. The comment-only control changed at least 213 pixels in each of the three comparisons (417, 215 and 213) and did not pass. Spouse/nurse overlap: 3885 square px before, 0 after. The spouse's centre moved 25.1 px, so the card's 40 px centre-shift check failed, because the 0.5 m move runs mostly along the camera's line of sight. Mask pad 4 px, computed from the three A-to-A control pairs only (4, 3 and 4 px).</p>
+        <pre class="kd-diff">-        plantOffsetMeters: { x: -1.6, y: 0, z: -1.4 },
++        plantOffsetMeters: { x: -2.1, y: 0, z: -1.4 },</pre>
+        <p class="status-copy">The regenerated bundle contributes 8 changed lines across 4 files.</p>
+        <h3>Learner view (auto-framed, unpinned, cropped)</h3>
+        <div class="kd-pairs">
+          <figure>
+            <img src="site/media/kd-learner-view-a1.png" alt="Auto-framed cast view before the placement change, cropped to the cast." width="200" height="280">
+            <figcaption>Before: the auto-framed cast view.</figcaption>
+          </figure>
+          <figure>
+            <img src="site/media/kd-learner-view-b.png" alt="Auto-framed cast view after the placement change, cropped to the cast: the room reads shifted as the preview camera re-aims." width="200" height="280">
+            <figcaption>After: the room shifts as the camera re-aims.</figcaption>
+          </figure>
+        </div>
+        <p class="status-copy">The excerpts above are cropped, and the pair is unpinned. The preview camera re-aims at the cast, so the whole room shifts about 12 px. World space: the spouse placement delta is exactly (-0.5, 0, 0) m in both scenario versions, with no wall or furniture violation.</p>
+      </section>
+      <!-- KD-SECTION-END -->
     </main>
 <footer class="site-footer">
   <p class="non-claims">Not exam-equivalent. No clinical validity. No validity is claimed for faculty marks or learner readiness. No Quest readiness claim. History-taking and communication only; no physical examination or touch is assessed. Formative practice and case authoring.</p>

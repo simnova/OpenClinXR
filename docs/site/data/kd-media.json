@@ -1,0 +1,149 @@
+{
+  "schema": "openclinxr.site.kd-media.v1",
+  "attribution": {
+    "run": "run-4",
+    "verdictFile": "verdict-r3.json",
+    "ratio": 8.556962025316455,
+    "minIn": 4732,
+    "floor_in": 553,
+    "maxOut": 0,
+    "floor_out": 0,
+    "cMinIn": 213,
+    "cFloorIn": 553,
+    "cInPairs": [
+      417,
+      215,
+      213
+    ],
+    "pad": 4,
+    "padPerPairMax": {
+      "A1A2": 4,
+      "A1A3": 3,
+      "A2A3": 4
+    },
+    "shiftPx": 25.079872407968903,
+    "shiftDx": -23,
+    "shiftDy": -10,
+    "shiftBarPx": 40,
+    "overlapA1Px": 3885,
+    "overlapBPx": 0
+  },
+  "learnerView": {
+    "run": "run-3",
+    "verdictFile": "verdict.json",
+    "claim": "learner-view",
+    "shiftPx": 11.40175425099138,
+    "overlapA1Px": 3885,
+    "overlapBPx": 0
+  },
+  "placement": {
+    "source": "jobs/wkd/placement-check-runtime.json",
+    "scenarios": {
+      "ed_chest_pain_priority_v1": {
+        "delta": {
+          "x": -0.5,
+          "y": 0,
+          "z": 0
+        },
+        "clearanceViolations": [],
+        "wallClearanceMeters": {
+          "east": 5.28595,
+          "west": 1.08595,
+          "back": 0.7859500000000001,
+          "front": 2.1159499999999998
+        }
+      },
+      "ed_chest_pain_priority_v2": {
+        "delta": {
+          "x": -0.5,
+          "y": 0,
+          "z": 0
+        },
+        "clearanceViolations": [],
+        "wallClearanceMeters": {
+          "east": 5.28595,
+          "west": 1.08595,
+          "back": 0.7859500000000001,
+          "front": 2.1159499999999998
+        }
+      }
+    }
+  },
+  "blueprintDiff": {
+    "fixtureMinus": "-        plantOffsetMeters: { x: -1.6, y: 0, z: -1.4 },",
+    "fixturePlus": "+        plantOffsetMeters: { x: -2.1, y: 0, z: -1.4 },",
+    "bundleChangedLines": 8,
+    "bundleFiles": 4
+  },
+  "learnerRoomShiftPxApprox": 12,
+  "crops": [
+    {
+      "file": "site/media/kd-attribution-a1.png",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 540,
+        "height": 600
+      },
+      "sourceRun": "run-4",
+      "sourceLabel": "A1",
+      "sourceFile": "run-4/A1/still.png",
+      "sourceSha256": "d8193f665b7f92eb6cb98a29505b721da56fbc80afd14289f13bfff6f150cad8",
+      "outputSha256": "d5f41689ae1c664f4c03d054119ec7567035266aac108dc4261dda05e15cf43d",
+      "bytes": 234300,
+      "width": 540,
+      "height": 600
+    },
+    {
+      "file": "site/media/kd-attribution-b.png",
+      "box": {
+        "x": 0,
+        "y": 0,
+        "width": 540,
+        "height": 600
+      },
+      "sourceRun": "run-4",
+      "sourceLabel": "B",
+      "sourceFile": "run-4/B/still.png",
+      "sourceSha256": "dc70a8b4dade0c3fb18037e9db0cab79739be618576d397fa06fb1fb3f422426",
+      "outputSha256": "959ae3bd834dde5ffda68f26c540d9533ef580a13fb635a712d5f134321008f4",
+      "bytes": 236559,
+      "width": 540,
+      "height": 600
+    },
+    {
+      "file": "site/media/kd-learner-view-a1.png",
+      "box": {
+        "x": 230,
+        "y": 150,
+        "width": 200,
+        "height": 280
+      },
+      "sourceRun": "run-3",
+      "sourceLabel": "A1",
+      "sourceFile": "run-3/A1/still.png",
+      "sourceSha256": "a7e8548e01b4db7cbe7945f7ef96910d2c2cbdcbe52a59f7e1e1777f6e6cfc4c",
+      "outputSha256": "0e041068ea1ad0842e63b9e9e130e73b7dda6fac6c3949edf7a4a2eb46ae0a5a",
+      "bytes": 48658,
+      "width": 200,
+      "height": 280
+    },
+    {
+      "file": "site/media/kd-learner-view-b.png",
+      "box": {
+        "x": 230,
+        "y": 150,
+        "width": 200,
+        "height": 280
+      },
+      "sourceRun": "run-3",
+      "sourceLabel": "B",
+      "sourceFile": "run-3/B/still.png",
+      "sourceSha256": "85725274198e12955a3493ed5c69dc47b87bbe1a6fc95dd7ea3f98b9ba84a083",
+      "outputSha256": "9aaae3171f1cdf9d7ce05ed1d3c7fd8c8d2a4b5d271bdd024781561020e0682d",
+      "bytes": 51025,
+      "width": 200,
+      "height": 280
+    }
+  ]
+}

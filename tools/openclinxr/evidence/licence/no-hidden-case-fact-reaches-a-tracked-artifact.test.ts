@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { declaredHiddenFacts, LICENCE_REPO_ROOT } from "./declared-hidden-facts.js";
 
 /**
  * Brief §3: "Keep hidden case information under existing visibility rules."
@@ -19,31 +20,11 @@ import { describe, expect, it } from "vitest";
  * scanning it would make the gate fail on a developer's machine for a file nobody ships.
  */
 
-const REPO = path.resolve(import.meta.dirname, "../../../..");
-const FIXTURE_DIR = path.join(REPO, "packages/openclinxr/scenario-fixtures/src");
 const SCANNED_ROOTS = ["docs", "apps/ui-xr/public", "tools/openclinxr/evidence/site/fixtures/mn2"] as const;
 const SCANNED_EXTENSIONS = new Set([".json", ".md", ".txt", ".html", ".js"]);
 
-/** Every hidden fact long enough to be a distinctive string rather than a common word. */
-function declaredHiddenFacts(): string[] {
-  const facts: string[] = [];
-  const files = execFileSync("git", ["ls-files", path.relative(REPO, FIXTURE_DIR)], {
-    cwd: REPO,
-    encoding: "utf8",
-  })
-    .split("\n")
-    .filter((line) => line.endsWith(".ts"));
-  for (const file of files) {
-    const source = readFileSync(path.join(REPO, file), "utf8");
-    for (const block of source.matchAll(/hiddenFacts:\s*\[([^\]]*)\]/gsu)) {
-      for (const quoted of block[1]!.matchAll(/"([^"]{12,})"/gu)) facts.push(quoted[1]!);
-    }
-  }
-  return facts;
-}
-
 function trackedScannedFiles(): string[] {
-  return execFileSync("git", ["ls-files", ...SCANNED_ROOTS], { cwd: REPO, encoding: "utf8" })
+  return execFileSync("git", ["ls-files", ...SCANNED_ROOTS], { cwd: LICENCE_REPO_ROOT, encoding: "utf8" })
     .split("\n")
     .filter((file) => SCANNED_EXTENSIONS.has(path.extname(file).toLowerCase()));
 }
@@ -62,7 +43,7 @@ describe("no hidden case fact reaches a tracked artifact", () => {
     for (const file of trackedScannedFiles()) {
       let text: string;
       try {
-        text = readFileSync(path.join(REPO, file), "utf8");
+        text = readFileSync(path.join(LICENCE_REPO_ROOT, file), "utf8");
       } catch {
         continue;
       }

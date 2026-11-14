@@ -181,7 +181,7 @@
       "slots": [
         {
           "slot": "KD",
-          "demonstrates": "one blueprint field changed, actor phenotype differs, same seed"
+          "demonstrates": "one blueprint placement value changed (spouse plantOffsetMeters.x -1.6 to -2.1) plus its regenerated bundle, same seed; the spouse moves 0.5 m and clears the nurse"
         }
       ]
     },
@@ -302,7 +302,7 @@
       "slots": [
         {
           "slot": "KD",
-          "demonstrates": "one blueprint line changed, station output differs, same seed"
+          "demonstrates": "one blueprint placement value changed (spouse plantOffsetMeters.x -1.6 to -2.1) plus its regenerated bundle, same seed; the spouse moves 0.5 m and clears the nurse"
         }
       ]
     },
