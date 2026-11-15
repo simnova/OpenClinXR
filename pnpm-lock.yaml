@@ -348,6 +348,9 @@ importers:
       '@openclinxr/model-vetting':
         specifier: workspace:*
         version: link:../../../packages/openclinxr/arena/model-vetting
+      '@openclinxr/xr-scene':
+        specifier: workspace:*
+        version: link:../../../packages/openclinxr/xr-scene
       antd:
         specifier: 'catalog:'
         version: 6.3.7(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
