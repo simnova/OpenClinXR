@@ -1,8 +1,13 @@
 import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { declaredHiddenFacts, LICENCE_REPO_ROOT } from "./declared-hidden-facts.js";
+import {
+  declaredHiddenFacts,
+  LICENCE_REPO_ROOT,
+  SCANNED_EXTENSIONS,
+  SCANNED_ROOTS,
+  scanFileForHiddenFacts,
+} from "./hidden-case-facts.js";
 
 /**
  * Brief §3: "Keep hidden case information under existing visibility rules."
@@ -19,9 +24,6 @@ import { declaredHiddenFacts, LICENCE_REPO_ROOT } from "./declared-hidden-facts.
  * TRACKED FILES ONLY, deliberately. A local `.openclinxr/` scratch artifact is not distributed, and
  * scanning it would make the gate fail on a developer's machine for a file nobody ships.
  */
-
-const SCANNED_ROOTS = ["docs", "apps/ui-xr/public", "tools/openclinxr/evidence/site/fixtures/mn2"] as const;
-const SCANNED_EXTENSIONS = new Set([".json", ".md", ".txt", ".html", ".js"]);
 
 function trackedScannedFiles(): string[] {
   return execFileSync("git", ["ls-files", ...SCANNED_ROOTS], { cwd: LICENCE_REPO_ROOT, encoding: "utf8" })
@@ -41,14 +43,8 @@ describe("no hidden case fact reaches a tracked artifact", () => {
     const facts = declaredHiddenFacts();
     const leaks: string[] = [];
     for (const file of trackedScannedFiles()) {
-      let text: string;
-      try {
-        text = readFileSync(path.join(LICENCE_REPO_ROOT, file), "utf8");
-      } catch {
-        continue;
-      }
-      for (const fact of facts) {
-        if (text.includes(fact)) leaks.push(`${file}: "${fact.slice(0, 60)}"`);
+      for (const leak of scanFileForHiddenFacts(LICENCE_REPO_ROOT, file, facts)) {
+        leaks.push(`${file}: hidden fact index ${leak.factIndex}`);
       }
     }
     expect(

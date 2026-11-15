@@ -316,7 +316,7 @@
         "packages/openclinxr/asset-registry/src/**",
         "tools/agent-factory/build-doc-authority-registry.ts",
         "tools/agent-factory/registry-shrink-guard.ts",
-        "tools/openclinxr/evidence/browser-boot-inventory.ts",
+        "tools/openclinxr/evidence/**",
         "tools/openclinxr/evidence/browser-boot-inventory/**",
         "tools/openclinxr/openclaw/**",
         "tsconfig.tools-relaxed.json",
