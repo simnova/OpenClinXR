@@ -211,6 +211,7 @@
         "packages/openclinxr/factory-stations/src/**",
         "packages/openclinxr/graphql/src/**",
         "packages/openclinxr/model-gateway/src/**",
+        "packages/openclinxr/png-measure/dist/**",
         "packages/openclinxr/rest/src/**",
         "packages/openclinxr/scenario-fixtures/src/**",
         "packages/openclinxr/scenario-runtime/src/**",
