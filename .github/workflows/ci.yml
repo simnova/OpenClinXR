@@ -22,6 +22,7 @@ jobs:
     runs-on: ubuntu-24.04
     env:
       TURBO_CACHE_DIR: ${{ github.workspace }}/.turbo/cache
+      MISE_TRUSTED_CONFIG_PATHS: ${{ github.workspace }}/mise.toml
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -50,6 +51,20 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install vulture with mise
+        uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
+        with:
+          install_args: pipx:vulture
+          add_shims_to_path: false
+          env: false
+          export_path: false
+
+      - name: Confirm setup-node and pnpm remain authoritative
+        run: |
+          node --version
+          pnpm --version
+          command -v node pnpm
+
       - name: Install browser and media tools for tests
         run: |
           sudo apt-get update
@@ -71,7 +86,9 @@ jobs:
           pnpm exec tsx packages/openclinxr/stations/scene-closure-evidence/src/scene-closure-research/prepare-sc10-metadata-store.ts --output-dir "$SC10_DIR"
           echo "OPENCLINXR_SC_EVIDENCE_REGISTRY=$SC10_DIR/registry.json" >> "${GITHUB_ENV}"
 
+      # Source: CI run 43835973904, 09:06:31Z to slowest completed area at 09:23:44Z = 17.2 min; 2x = 34.4, rounded up.
       - name: Test
+        timeout-minutes: 35
         env:
           OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE: "1"
         run: pnpm test

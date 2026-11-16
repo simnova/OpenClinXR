@@ -10,9 +10,17 @@
  * level) and the T7 vacuity guard (recompute vs committed baseline).
  */
 import { execFileSync, spawnSync } from "node:child_process";
-import { mkdirSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
+import {
+  chmodSync,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  symlinkSync,
+  writeFileSync,
+} from "node:fs";
 import { tmpdir } from "node:os";
-import { dirname, join } from "node:path";
+import { delimiter, dirname, isAbsolute, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 
@@ -105,7 +113,19 @@ function baselineJson(dir: string, extra: { ts?: string[]; py?: string[] } = {})
 }
 
 function realGitPath(): string {
-  return execFileSync("command", ["-v", "git"], { encoding: "utf8" }).trim();
+  return execFileSync("sh", ["-c", "command -v git"], { encoding: "utf8" }).trim();
+}
+
+function expectHermeticGitLookup(pathEnv: string, gitPath: string): void {
+  const binDir = pathEnv.split(delimiter)[0];
+  expect(binDir).toBeDefined();
+  const hermeticGitEntry = join(binDir as string, "git");
+  const hermeticGitPath = execFileSync("sh", ["-c", "command -v git"], {
+    encoding: "utf8",
+    env: { ...process.env, PATH: pathEnv },
+  }).trim();
+  expect(hermeticGitPath).toBe(hermeticGitEntry);
+  expect(realpathSync(hermeticGitEntry)).toBe(realpathSync(gitPath));
 }
 
 /**
@@ -114,11 +134,11 @@ function realGitPath(): string {
  * which fails on the Xcode license). No vulture stub here: round 2 always
  * exercises the real mise-resolved vulture, and T8 asserts its absence.
  */
-function gitOnlyPathEnv(): string {
+function gitOnlyPathEnv(gitPath = realGitPath()): string {
   const dir = join(tmpdir(), `cruft-bin-${process.pid}-${Date.now()}-${Math.floor(Math.random() * 1e6)}`);
   mkdirSync(dir, { recursive: true });
-  symlinkSync(realGitPath(), join(dir, "git"));
-  return `${dir}:/usr/bin:/bin`;
+  symlinkSync(gitPath, join(dir, "git"));
+  return [dir, "/usr/bin", "/bin"].join(delimiter);
 }
 
 function runGate(dir: string, args: string[], extraEnv: NodeJS.ProcessEnv = {}): {
@@ -468,11 +488,28 @@ describe("tools-cruft-gate environment and config", () => {
     writeFiles(dir, { "tools/openclinxr/openclaw/tools-cruft-baseline.json": baselineJson(dir) });
     commitAll(dir, "baseline");
     const base = headSha(dir);
+    const gitPath = realGitPath();
+    expect(isAbsolute(gitPath)).toBe(true);
+    expect(existsSync(gitPath)).toBe(true);
+    const pathEnv = gitOnlyPathEnv(gitPath);
+    expectHermeticGitLookup(pathEnv, gitPath);
+
+    const nonExecutableBinDir = join(
+      tmpdir(),
+      `cruft-nonexec-bin-${process.pid}-${Date.now()}-${Math.floor(Math.random() * 1e6)}`,
+    );
+    mkdirSync(nonExecutableBinDir, { recursive: true });
+    const nonExecutableGit = join(nonExecutableBinDir, "git");
+    writeFileSync(nonExecutableGit, "non-executable git counterweight\n", "utf8");
+    chmodSync(nonExecutableGit, 0o644);
+    const nonExecutablePathEnv = [nonExecutableBinDir, pathEnv].join(delimiter);
+    expect(() => expectHermeticGitLookup(nonExecutablePathEnv, gitPath)).toThrow();
+
     const { rc, out } = runGate(dir, ["check"], {
-      PATH: gitOnlyPathEnv(),
+      PATH: pathEnv,
       OPENCLINXR_CRUFT_BASE: base,
     });
-    expect(rc).toBe(2);
+    expect(rc, out).toBe(2);
     expect(out).toContain("vulture not installed: run mise install");
   }, 60_000);
 

@@ -14,7 +14,7 @@
  * process without turbo; vitest passthrough args imply `--direct`.
  */
 import { execFileSync, spawn } from "node:child_process";
-import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { homedir } from "node:os";
 import { isAbsolute, normalize, relative, resolve, sep } from "node:path";
@@ -352,6 +352,10 @@ export function buildVitestRunArgs(
 /** Workers for the non-slot areas; half the cores leaves room for concurrent sessions. */
 export const PARALLEL_AREA_WORKERS = "50%";
 
+function passthroughSetsReporter(passthrough: readonly string[]): boolean {
+  return passthrough.some((a) => a === "--reporter" || a.startsWith("--reporter="));
+}
+
 export function buildAreaVitestArgs(
   mode: "run" | "list",
   areaFilesRel: readonly string[],
@@ -364,7 +368,10 @@ export function buildAreaVitestArgs(
   // vitest.config.ts stays serial so direct `vitest run` calls (hooks) behave as before;
   // the non-slot areas opt into parallel files here.
   args.push(...(serial ? ["--maxWorkers=1", "--no-file-parallelism"] : ["--file-parallelism", `--maxWorkers=${PARALLEL_AREA_WORKERS}`]));
-  if (mode === "run") args.push(...passthrough);
+  if (mode === "run") {
+    if (!passthroughSetsReporter(passthrough)) args.push("--reporter=verbose");
+    args.push(...passthrough);
+  }
   return args;
 }
 
@@ -431,6 +438,7 @@ function runNodeGroup(
     let code = 0;
     for (const f of nodeFilesRel) {
       const abs = isAbsolute(f) ? f : resolve(root, f);
+      console.log(`[node:start] ${f}`);
       const fileCode = await new Promise<number>((resolvePromise) => {
         const child = spawn(process.execPath, buildNodeTestArgs([abs]), { cwd: root, stdio: "inherit" });
         child.on("error", (err) => {
@@ -441,6 +449,7 @@ function runNodeGroup(
           resolvePromise(c ?? 1);
         });
       });
+      console.log(`[node:result] ${fileCode === 0 ? "passed" : "failed"} ${f}`);
       codes.set(f, fileCode);
       if (fileCode !== 0) code = fileCode;
     }
@@ -456,13 +465,38 @@ async function runVitestGroup(
   args: readonly string[],
   vitestFiles: number,
   jsonReportFile: string | null,
+  injectHumanReporters: boolean,
 ): Promise<GroupResult> {
   const started = Date.now();
   if (vitestFiles === 0) return { group: "vitest", files: 0, ms: 0, code: 0, skipped: true };
   const bin = resolveVitestBin(root);
-  // The JSON report attributes pass/fail per file for the result cache; the
-  // default reporter still prints the human-readable output.
-  const fullArgs = jsonReportFile === null ? [...args] : [...args, "--reporter=default", "--reporter=json", `--outputFile=${jsonReportFile}`];
+  const humanReporters: string[] = [];
+  if (injectHumanReporters) {
+    const reporterDir = resolve(root, "node_modules", ".cache", "openclinxr-tools-tests");
+    const startReporter = resolve(reporterDir, "vitest-start-reporter.mjs");
+    const startReporterTmp = `${startReporter}.${process.pid}.tmp`;
+    mkdirSync(reporterDir, { recursive: true });
+    writeFileSync(
+      startReporterTmp,
+      [
+        "export default class OpenClinXrStartReporter {",
+        "  onTestModuleQueued(testModule) {",
+        '    process.stdout.write("[vitest:start] " + testModule.moduleId + "\\n");',
+        "  }",
+        "}",
+        "",
+      ].join("\n"),
+      "utf8",
+    );
+    renameSync(startReporterTmp, startReporter);
+    // The queued hook names a file before module import can hang; verbose
+    // reports each completed test. JSON separately attributes the file cache.
+    humanReporters.push(`--reporter=${startReporter}`);
+  }
+  const fullArgs =
+    jsonReportFile === null
+      ? [...args, ...humanReporters]
+      : [...args, ...humanReporters, "--reporter=json", `--outputFile=${jsonReportFile}`];
   const code = await new Promise<number>((resolvePromise) => {
     const child = spawn(bin, fullArgs, { cwd: root, stdio: "inherit" });
     child.on("error", (err) => {
@@ -628,6 +662,7 @@ async function runArea(
     buildAreaVitestArgs("run", toRunVitest, allExcludes, serial, passthrough),
     toRunVitest.length,
     jsonReportFile,
+    !passthroughSetsReporter(passthrough),
   );
 
   if (record) {
@@ -663,7 +698,7 @@ function runTurbo(root: string): Promise<number> {
   const bin = existsSync(local) ? local : "turbo";
   // Loose env mode: the tests read machine env (BLENDER, OPENCLINXR_*) that strict mode would strip.
   // --continue: one red area must not cancel the others.
-  const args = ["run", ...TOOLS_TEST_AREAS.map(turboTaskName), "--env-mode=loose", "--continue"];
+  const args = ["run", ...TOOLS_TEST_AREAS.map(turboTaskName), "--env-mode=loose", "--continue", "--log-order=stream"];
   console.log(`[run-tools-tests] turbo ${args.join(" ")}`);
   return new Promise((resolvePromise) => {
     const child = spawn(bin, args, {
