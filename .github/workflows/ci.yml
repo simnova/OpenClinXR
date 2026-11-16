@@ -50,6 +50,12 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install browser and media tools for tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg zsh
+          pnpm exec playwright install --with-deps chromium
+
       - name: Bootstrap workspace builds (cold-safe exports)
         run: pnpm packages:build
 
