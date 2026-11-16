@@ -1,5 +1,5 @@
 {
-  "baseSha": "5c0b26b5dd5ebf699b1d68f217e24c3e8c12dd5e",
+  "baseSha": "39a20a295c4b345a186225ef9297925deed3b163",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -296,7 +296,6 @@
     "tools/openclinxr/evidence/xr-sync/portless-dev-run.mjs",
     "tools/openclinxr/evidence/xr-sync/xs-ready-scene-load.mjs",
     "tools/openclinxr/factory/actor-audio-approved-case-integration/verify-plant.mjs",
-    "tools/openclinxr/factory/actor-audio-integration/verify-factory.mjs",
     "tools/openclinxr/factory/actor-audio-integration/verify-inherited-source.mjs",
     "tools/openclinxr/factory/bind-walk-clip-all.ts",
     "tools/openclinxr/factory/kimodo-loop/dump_assay_route.ts",
