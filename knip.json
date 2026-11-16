@@ -519,6 +519,9 @@
     "apps/ui-xr": {
       "ignoreDependencies": ["@openclinxr/xr-capacity"]
     },
+    "packages/openclinxr/stations/makeclothes-evidence": {
+      "ignoreDependencies": ["@openclinxr/station-mouth-verifier"]
+    },
     "apps/arena/ui-xr-iwsdk-spike": {
       "entry": ["src/main.ts", "src/sync-probe/sync-probe.ts"]
     },

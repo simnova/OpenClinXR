@@ -19,6 +19,7 @@
     "@cellix/config-vitest": "workspace:*",
     "@gltf-transform/core": "^4.3.0",
     "@gltf-transform/extensions": "^4.3.0",
+    "@openclinxr/station-mouth-verifier": "workspace:*",
     "@types/node": "catalog:",
     "typescript": "catalog:",
     "vitest": "catalog:"

@@ -2081,6 +2081,9 @@ importers:
       '@gltf-transform/extensions':
         specifier: ^4.3.0
         version: 4.3.0
+      '@openclinxr/station-mouth-verifier':
+        specifier: workspace:*
+        version: link:../mouth-verifier
       '@types/node':
         specifier: 'catalog:'
         version: 25.6.0
