@@ -54,10 +54,15 @@ jobs:
       - name: Install vulture with mise
         uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
         with:
-          install_args: pipx:vulture
+          # mise binary pin: the local mise version that ran the cruft gate, measured 2026-11-16 (`mise --version`).
+          version: 2026.7.3
+          install_args: python@3.13 pipx:vulture
           add_shims_to_path: false
           env: false
           export_path: false
+
+      - name: Confirm mise resolves vulture
+        run: command -v mise && mise which vulture && vulture --version || mise exec pipx:vulture@2.14 -- vulture --version
 
       - name: Confirm setup-node and pnpm remain authoritative
         run: |
