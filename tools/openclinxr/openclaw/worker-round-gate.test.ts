@@ -20,12 +20,14 @@ import {
   runFollowupCheck,
   toolsStrictErrorCeiling,
 } from "./worker-round-gate.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-roots.js";
 
 const ROOT = path.resolve(import.meta.dirname, "../../..");
 const scratchDirs: string[] = [];
 
 function cleanGitEnv(): NodeJS.ProcessEnv {
-  return Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith("GIT_")));
+  // gitEnvWithoutInheritedRepoVars drops GIT_DIR/GIT_INDEX_FILE et al.; then drop every other GIT_* too.
+  return Object.fromEntries(Object.entries(gitEnvWithoutInheritedRepoVars()).filter(([key]) => !key.startsWith("GIT_")));
 }
 
 function git(tree: string, args: string[]): string {
@@ -79,6 +81,17 @@ afterEach(() => {
 });
 
 describe("worker round gate", () => {
+  it("R0 hook safety: fixture git gets no GIT_* var even when the parent carries GIT_DIR and GIT_INDEX_FILE", () => {
+    const saved = { GIT_DIR: process.env.GIT_DIR, GIT_INDEX_FILE: process.env.GIT_INDEX_FILE };
+    Object.assign(process.env, { GIT_DIR: "/nonexistent/.git", GIT_INDEX_FILE: "/nonexistent/.git/index" });
+    try { expect(Object.keys(cleanGitEnv()).filter((key) => key.startsWith("GIT_"))).toEqual([]); }
+    finally {
+      for (const [k, v] of Object.entries(saved)) {
+        if (v === undefined) delete process.env[k];
+        else process.env[k] = v;
+      }
+    }
+  });
   it("R1 RED biome: a touched file that adds one error fails G1 and names the file", async () => {
     const tree = fixture({ "apps/example/src/clean.ts": "export const clean = 1;\n" });
     put(tree, "apps/example/src/clean.ts", "debugger;\nexport const clean = 1;\n");
