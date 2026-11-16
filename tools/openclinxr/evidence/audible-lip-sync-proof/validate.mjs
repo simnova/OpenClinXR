@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 import { resolve } from "node:path";
 import fixture from "./fixture-manifest.mjs";
 import {inspectPlayedSamples} from "./waveform-identity.mjs";
+import {assertNotUnderHomeDocs} from "./lip-sync-fixture-paths.mjs";
 import {inspectAuthoredAlpha} from "./material-integrity.mjs";
 import {inspectNativeCaptureBindings} from "./capture-bindings.mjs";
 import {inspectExecutedModules} from "./executed-module-integrity.mjs";
@@ -36,7 +37,7 @@ export function inspectMetadata(r) {
  need(Array.isArray(r?.sourceBindings)&&r.sourceBindings.length>=3&&r.sourceBindings.every(b=>typeof b.path==="string"&&/^[a-f0-9]{64}$/.test(b.sha256??"")),"source-bindings-missing");
  need(r?.files?.inputWav&&r?.files?.cues&&r?.files?.video&&r?.files?.playedPcm,"artifact-bindings");return errors;
 }
-function digest(path){return createHash("sha256").update(readFileSync(path)).digest("hex");}
+function digest(path){assertNotUnderHomeDocs(path,"digest");return createHash("sha256").update(readFileSync(path)).digest("hex");}
 export function validateReport(r,root){
  const errors=[...inspectMetadata(r),...inspectNativeCaptureBindings(r)];const need=(ok,message)=>{if(!ok)errors.push(message);};
 
@@ -73,13 +74,17 @@ export function validateReport(r,root){
  if(existsSync(assetPath)) {const bytes=readFileSync(assetPath);const gltf=JSON.parse(bytes.subarray(20,20+bytes.readUInt32LE(12)).toString());errors.push(...inspectAuthoredAlpha(gltf,r.authoredMaterialRows));}
  const tap=r.files?.playedPcm&&resolve(root,r.files.playedPcm.path);
  const input=wav&&resolve(root,wav.path);
+ if(input)assertNotUnderHomeDocs(input,"played-input");
+ if(tap)assertNotUnderHomeDocs(tap,"played-tap");
  if(input&&tap&&existsSync(input)&&existsSync(tap)) {
   errors.push(...inspectPlayedSamples(readFileSync(input),readFileSync(tap),r.playedTap??{}));
   need(r.playedTap?.sourceGeneration===r.segments?.[0]?.generation,"tap-source-generation-mismatch");
   need(r.decodedSampleRate===fixture.sampleRate&&r.decodedSampleCount===fixture.sampleCount,"native-capture-domain-required");
  }
- if(cues&&existsSync(resolve(root,cues.path))) {
-  const doc=JSON.parse(readFileSync(resolve(root,cues.path),"utf8"));
+ const cuePath=cues&&resolve(root,cues.path);
+ if(cuePath)assertNotUnderHomeDocs(cuePath,"cues");
+ if(cues&&cuePath&&existsSync(cuePath)) {
+  const doc=JSON.parse(readFileSync(cuePath,"utf8"));
   const targets={A:"viseme_PP",B:"viseme_DD",C:"viseme_E",D:"viseme_aa",E:"viseme_O",F:"viseme_U",G:"viseme_FF",H:"viseme_nn",X:"viseme_sil"};
   for(const frame of r.frames??[]) {
    const cue=doc.mouthCues.find(c=>frame.sourcePositionSeconds>=c.start&&frame.sourcePositionSeconds<c.end)??doc.mouthCues.at(-1);
@@ -90,6 +95,7 @@ export function validateReport(r,root){
  try{execFileSync("git",["merge-base","--is-ancestor",r.captureHead,"HEAD"],{cwd:fileURLToPath(new URL("../../../../",import.meta.url)),stdio:"pipe"});}catch{errors.push("capture-head-not-ancestor");}
 
  const video=r.files?.video&&resolve(root,r.files.video.path);
+ if(video)assertNotUnderHomeDocs(video,"video");
  if(video&&existsSync(video))errors.push(...inspectRecordedMedia(video));
 
  return errors;
@@ -99,12 +105,14 @@ export function inspectArtifacts(r,root){
  for(const [label,ref] of Object.entries(r.files??{})){
   if(typeof ref?.path!=="string"||!/^[a-f0-9]{64}$/.test(ref?.sha256??"")){errors.push("invalid-artifact-binding:"+label);continue;}
   const path=resolve(root,ref.path);
+  assertNotUnderHomeDocs(path,"packet:"+label);
   if(!existsSync(path)){errors.push("artifact-missing:"+path);continue;}
   try{if(digest(path)!==ref.sha256)errors.push("artifact-hash-mismatch:"+path);}catch{errors.push("artifact-not-file:"+path);}
  }
  for(const a of r.attempts??[]) {
   if(typeof a?.manifestPath!=="string"||!/^[a-f0-9]{64}$/.test(a?.sha256??"")){errors.push("invalid-attempt-binding");continue;}
   const path=resolve(root,a.manifestPath);
+  assertNotUnderHomeDocs(path,"packet:attempt");
   if(!existsSync(path)){errors.push("retained-attempt-missing");continue;}
   try{if(digest(path)!==a.sha256)errors.push("retained-attempt-changed");}catch{errors.push("retained-attempt-not-file");}
  }
@@ -113,6 +121,7 @@ export function inspectArtifacts(r,root){
 
 export function inspectRecordedMedia(video){
  const errors=[];const need=(ok,message)=>{if(!ok)errors.push(message);};
+ assertNotUnderHomeDocs(video,"video");
 
   try{const probe=JSON.parse(execFileSync("ffprobe",["-v","error","-show_streams","-show_format","-of","json",video],{encoding:"utf8"}));need(probe.streams.some(s=>s.codec_type==="audio"),"video-audio-track-missing");need(probe.streams.some(s=>s.codec_type==="video"&&s.width>0&&s.height>0),"video-image-track-missing");need(Number(probe.format.duration)>=fixture.sampleCount/fixture.sampleRate,"video-does-not-cover-input");
    const pcm=execFileSync("ffmpeg",["-v","error","-i",video,"-vn","-ac","1","-f","f32le","pipe:1"],{maxBuffer:20*1024*1024});let sum=0;for(let i=0;i+4<=pcm.length;i+=4){const x=pcm.readFloatLE(i);sum+=x*x;}need(pcm.length>0&&sum>0,"silent-recorded-output");
@@ -121,4 +130,4 @@ export function inspectRecordedMedia(video){
  return errors;
 }
 
-if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){const path=resolve(process.argv[2]??new URL("report.json",import.meta.url).pathname);const r=JSON.parse(readFileSync(path,"utf8"));const errors=validateReport(r,resolve(path,".."));console.log(JSON.stringify({integrityErrors:errors,notPerceptualGrading:true}));if(errors.length)process.exitCode=1;}
+if(process.argv[1]&&resolve(process.argv[1])===fileURLToPath(import.meta.url)){const path=resolve(process.argv[2]??new URL("report.json",import.meta.url).pathname);assertNotUnderHomeDocs(path,"cli-report");const r=JSON.parse(readFileSync(path,"utf8"));const errors=validateReport(r,resolve(path,".."));console.log(JSON.stringify({integrityErrors:errors,notPerceptualGrading:true}));if(errors.length)process.exitCode=1;}

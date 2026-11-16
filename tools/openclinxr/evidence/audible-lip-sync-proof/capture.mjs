@@ -1,20 +1,22 @@
 import { execFileSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
-import { dirname, resolve } from "node:path";
+import { copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import fixture from "./fixture-manifest.mjs";
+import { requireLipSyncFixture } from "./lip-sync-fixture-paths.mjs";
 import { prepareViteOptimization } from "./reproduce-vite-modules.mjs";
 import { runBrowserCapture } from "./capture-page.mjs";
 import {convertRhubarb as convertHistoricalDiagnosticCues} from "./rhubarb-cues.mjs";
 
 const repoRoot = fileURLToPath(new URL("../../../../", import.meta.url));
-/** Pure output selection; default preserves the original historical fixture path. */
+/** Pure output selection; default is a fresh scratch directory under the OS temp root. */
 export function resolveCaptureOutputPaths(selectedDirectory) {
   if (selectedDirectory !== undefined && (typeof selectedDirectory !== "string" || selectedDirectory.trim() === "")) throw new Error("invalid-output-directory");
-  const packetRoot = selectedDirectory === undefined ? dirname(fixture.proofReportPath) : resolve(selectedDirectory);
-  return { packetRoot, latest: selectedDirectory === undefined ? fixture.proofReportPath : resolve(packetRoot, "latest-report.json") };
+  const packetRoot = selectedDirectory === undefined ? mkdtempSync(join(tmpdir(), "openclinxr-lipsync-capture-")) : resolve(selectedDirectory);
+  return { packetRoot, latest: resolve(packetRoot, "latest-report.json") };
 }
 const actorId = "patient_robert_hayes_v1";
 const scenarioId = "ed_chest_pain_priority_v1";
@@ -105,8 +107,8 @@ export async function captureAudibleLipSync(repo = repoRoot, {outputDirectory} =
   const runId = "run-" + Date.now().toString(16) + "-" + process.pid;
   const runDir = resolve(packetRoot, runId);
   mkdirSync(runDir, { recursive: true });
-  copyFileSync(fixture.retainedPrivatePath, resolve(runDir, "input.wav"));
-  copyFileSync(fixture.cuePath, resolve(runDir, "cues.json"));
+  copyFileSync(requireLipSyncFixture(fixture.retainedPrivatePath,"riddle"), resolve(runDir, "input.wav"));
+  copyFileSync(requireLipSyncFixture(fixture.cuePath,"cues"), resolve(runDir, "cues.json"));
   const wavBytes = readFileSync(resolve(runDir, "input.wav"));
   const cueBytes = readFileSync(resolve(runDir, "cues.json"));
   const attemptBytes = Buffer.from(JSON.stringify({

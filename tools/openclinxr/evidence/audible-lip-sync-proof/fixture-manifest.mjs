@@ -1,6 +1,7 @@
+export const storeRoot = process.env.OPENCLINXR_LIPSYNC_STORE_ROOT ?? "/Volumes/files/openclinxr-assets/store/lip-sync-packet-20260916";
 export default {
   "sourcePath": "/Users/patrick/.openclinxr-tools/rhubarb/extras/AdobeAfterEffects/demo/riddle.wav",
-  "retainedPrivatePath": "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/openclinxr-lip-sync-consultation-2026-09-16/execution-packet/existing-rhubarb-demo/riddle.wav",
+  "retainedPrivatePath": "/Users/patrick/.openclinxr-tools/rhubarb/extras/AdobeAfterEffects/demo/riddle.wav",
   "sha256": "dc9370f8f4d6fb104ee526f2eb5da0d4697e44b03309cba13ee8aba52c0ca87c",
   "bytes": 639198,
   "sampleRate": 22050,
@@ -16,10 +17,12 @@ export default {
     "live provider readiness"
   ],
   "cueSource": "Rhubarb1.14.0 freshly run against exact retained waveform; approximate nine-shape timing, not per-phone accuracy",
-  "cuePath": "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/openclinxr-lip-sync-consultation-2026-09-16/execution-packet/existing-rhubarb-demo/fresh-mouth-cues.json",
+  "cuePath": storeRoot + "/existing-rhubarb-demo/fresh-mouth-cues.json",
   "cueSha256": "bf5d6ec9179f9bf9c76176ded8c8b9a7a028ccf52c7f3448344d2b8a19403a8b",
   "cueCount": 72,
-  "proofReportPath": "/Users/patrick/Documents/Codex/2026-09-08/referenced-chatgpt-conversation-this-is-an/openclinxr-lip-sync-consultation-2026-09-16/execution-packet/proof-output/latest-report.json",
+  "proofReportPath": storeRoot + "/proof-output/latest-report.json",
+  "cdpProbeDir": storeRoot + "/browser-cdp-module-probe-1789613971918",
+  "factoryProofReportPath": storeRoot + "/factory-proof-output/latest-report.json",
   "requiredSourceRoles": {
     "playback": "tools/openclinxr/evidence/audible-lip-sync-proof/playback.mjs",
     "capturePage": "tools/openclinxr/evidence/audible-lip-sync-proof/capture-page.mjs",

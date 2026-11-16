@@ -1,6 +1,7 @@
 import {readFileSync,existsSync} from 'node:fs';
 import {resolve} from 'node:path';
 import {createHash} from 'node:crypto';
+import {assertNotUnderHomeDocs} from './lip-sync-fixture-paths.mjs';
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
 /** Served bytes plus Debugger.getScriptSource bytes plus independently rebuilt/current Vite bytes.
  * This establishes executed-module identity, never physical speaker/perceptual sync. */
@@ -14,6 +15,7 @@ export function inspectExecutedModules(rows,root,repoRoot,requiredPaths,reproduc
   const refs=[row.served,row.executed];
   if(refs.some(ref=>typeof ref?.path!=='string'||!/^[a-f0-9]{64}$/.test(ref?.sha256??''))){errors.push('executed-module-binding:'+sourcePath);continue;}
   const paths=refs.map(ref=>resolve(root,ref.path));
+  paths.forEach(path=>assertNotUnderHomeDocs(path,'executed-module:'+sourcePath));
   if(paths.some(path=>!existsSync(path))){errors.push('executed-module-missing:'+sourcePath);continue;}
   const bytes=paths.map(path=>readFileSync(path));
   if(bytes.some((data,index)=>hash(data)!==refs[index].sha256)||!bytes[0].equals(bytes[1]))errors.push('served-executed-module-mismatch:'+sourcePath);
