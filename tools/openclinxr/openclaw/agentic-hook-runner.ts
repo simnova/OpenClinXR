@@ -3,9 +3,9 @@ import { mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from "node:f
 import { join } from "node:path";
 import { performance } from "node:perf_hooks";
 import { pathToFileURL } from "node:url";
-import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 import { buildLargeFileGuardCommand } from "./large-file-guard.js";
 import { encodeCommitFileSet } from "./test-touched.js";
+import { gitEnvWithoutInheritedRepoVars } from "./worktree-base-freshness.js";
 
 export type HookProfile = "pre-commit" | "pre-push" | "strict" | "local-exam";
 
@@ -196,6 +196,16 @@ const E18E_MANIFEST_PATH =
 
 /** Staged paths that indicate a manifest/lockfile drift check is needed. */
 export const LOCKFILE_DRIFT_RELEVANT_PATH = /^(?:pnpm-lock\.yaml|package\.json|apps\/.+\/package\.json|packages\/.+\/package\.json)$/u;
+
+/** Tools-cruft ratchet step: runs the gate, never knip. Pre-push only. */
+export function buildToolsCruftStep(): HookStep {
+  return {
+    label: "Tools cruft ratchet",
+    command: pnpm("hygiene:tools-cruft"),
+    reason:
+      "tools/ reachability ratchet (ts + py) only shrinks: new unreferenced tools files fail closed; the vulture count is reported, never gated",
+  };
+}
 
 /** Knip is whole-repo; skip coordination-only commits the way biome skips non-source paths. */
 export function buildKnipStep(changedFiles: string[]): HookStep | null {
@@ -727,6 +737,7 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[], commi
   }
 
   if (profile === "pre-push") {
+    steps.push(buildToolsCruftStep());
     const e18eStep = buildE18eStep(changedFiles);
     if (e18eStep) {
       steps.push(e18eStep);

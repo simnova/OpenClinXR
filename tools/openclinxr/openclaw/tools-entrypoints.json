@@ -1,0 +1,87 @@
+[
+  {
+    "path": "tools/openclinxr/evidence/hair-crown2/repair_spread.py",
+    "reason": "invoked from tools/openclinxr/evidence/hair-crown2/build_cells.py via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/evidence/hair-crown2/build_cells.py"
+  },
+  {
+    "path": "tools/openclinxr/evidence/hair-crown3/repair_cells3.py",
+    "reason": "invoked from tools/openclinxr/evidence/hair-crown3/build_cells3.py via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/evidence/hair-crown3/build_cells3.py"
+  },
+  {
+    "path": "tools/openclinxr/evidence/hair-crown4/repair_cells4.py",
+    "reason": "invoked from tools/openclinxr/evidence/hair-crown4/build_cells4.py via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/evidence/hair-crown4/build_cells4.py"
+  },
+  {
+    "path": "tools/openclinxr/evidence/hair-flow/flow5.py",
+    "reason": "invoked from tools/openclinxr/evidence/hair-cap5/flow6.py via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/evidence/hair-cap5/flow6.py"
+  },
+  {
+    "path": "tools/openclinxr/evidence/hair-groom15/depthprobe15.py",
+    "reason": "invoked from tools/openclinxr/evidence/hair-groom16/depthprobe16.py via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/evidence/hair-groom16/depthprobe16.py"
+  },
+  {
+    "path": "tools/openclinxr/evidence/hair-part1/part1_metric.py",
+    "reason": "invoked from tools/openclinxr/evidence/hair-part1/calib.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/evidence/hair-part1/calib.sh"
+  },
+  {
+    "path": "tools/openclinxr/hair-groom-2/cards/atlas_bake.py",
+    "reason": "invoked from tools/openclinxr/hair-groom-2/cards/run_cards.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/hair-groom-2/cards/run_cards.sh"
+  },
+  {
+    "path": "tools/openclinxr/hair-groom-2/cards/atlas_from_members.py",
+    "reason": "invoked from tools/openclinxr/hair-groom-2/cards/run_cards.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/hair-groom-2/cards/run_cards.sh"
+  },
+  {
+    "path": "tools/openclinxr/hair-groom-2/cards/calib_search.py",
+    "reason": "invoked from tools/openclinxr/hair-groom-2/cards/run_cards.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/hair-groom-2/cards/run_cards.sh"
+  },
+  {
+    "path": "tools/openclinxr/hair-groom-2/cards/cards_from_strands.py",
+    "reason": "invoked from tools/openclinxr/hair-groom-2/cards/run_cards.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/hair-groom-2/cards/run_cards.sh"
+  },
+  {
+    "path": "tools/openclinxr/hair-groom-2/cards/env_to_three.py",
+    "reason": "invoked from tools/openclinxr/hair-groom-2/cards/build_target_scene_env.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/hair-groom-2/cards/build_target_scene_env.sh"
+  },
+  {
+    "path": "tools/openclinxr/hair-groom-2/cards/exr_to_npy.py",
+    "reason": "invoked from tools/openclinxr/hair-groom-2/cards/build_target_scene_env.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/hair-groom-2/cards/build_target_scene_env.sh"
+  },
+  {
+    "path": "tools/openclinxr/hair-groom-2/cards/hairline_edge_fade.py",
+    "reason": "invoked from tools/openclinxr/hair-groom-2/cards/p2_scalp.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/hair-groom-2/cards/p2_scalp.sh"
+  },
+  {
+    "path": "tools/openclinxr/hair-groom-2/cards/scalp_tint.py",
+    "reason": "invoked from tools/openclinxr/hair-groom-2/cards/p2_scalp.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/hair-groom-2/cards/p2_scalp.sh"
+  },
+  {
+    "path": "tools/openclinxr/hair-groom-2/cards/target_scene_env.py",
+    "reason": "invoked from tools/openclinxr/hair-groom-2/cards/build_target_scene_env.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/hair-groom-2/cards/build_target_scene_env.sh"
+  },
+  {
+    "path": "tools/openclinxr/hair-groom-2/groom/sheet.py",
+    "reason": "invoked from tools/openclinxr/hair-groom-2/groom/run_round.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/hair-groom-2/groom/run_round.sh"
+  },
+  {
+    "path": "tools/openclinxr/hair-groom-2/groom/standoff.py",
+    "reason": "invoked from tools/openclinxr/hair-groom-2/groom/run_round.sh via split-literal or unquoted reference; pinned so the ratchet does not flag it",
+    "referencedBy": "tools/openclinxr/hair-groom-2/groom/run_round.sh"
+  }
+]

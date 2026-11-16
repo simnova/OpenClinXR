@@ -12,6 +12,10 @@ pnpm = "11.18.0"
 bun = "1.3.13"
 # Asset / evidence / voice scripts (python3). Bugfix line (prefer over security-only 3.11).
 python = "3.13"
+# Tools-cruft gate (CRUFT-GATE S3): exact vulture pin so `mise install`
+# provisions it; the gate never downloads at run time (exit 2 when absent).
+# pipx backend: the `uv:` form is captured by a broken local vfox plugin.
+"pipx:vulture" = "2.14"
 
 [settings]
 experimental = true

@@ -116,9 +116,6 @@ importers:
       '@openclinxr/factory-stations':
         specifier: workspace:*
         version: link:packages/openclinxr/factory-stations
-      '@openclinxr/motion-compiler':
-        specifier: workspace:*
-        version: link:packages/openclinxr/motion-compiler
       '@openclinxr/png-measure':
         specifier: workspace:*
         version: link:packages/openclinxr/png-measure

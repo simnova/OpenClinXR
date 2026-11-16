@@ -1,6 +1,5 @@
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 
@@ -12,6 +11,7 @@ import {
   buildE18eStep,
   buildKnipStep,
   buildTestTouchedStep,
+  buildToolsCruftStep,
   changedFilesForProfile,
   classifyArchitectureInvocation,
   commitScopedGitEnv,
@@ -240,6 +240,29 @@ describe("agentic-hook-runner path-scoped architecture", () => {
       stepsForProfile("pre-commit", [
         "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/feature_hashes.py",
       ]).some((s) => s.label === label),
+    ).toBe(false);
+  });
+
+  it("runs the tools cruft ratchet on every pre-push, never on pre-commit", () => {
+    const label = "Tools cruft ratchet";
+    const step = buildToolsCruftStep();
+    expect(step.label).toBe(label);
+    expect(step.command).toEqual(["pnpm", "hygiene:tools-cruft"]);
+    expect(step.command.join(" ")).not.toContain("knip");
+
+    // Unconditional on pre-push: the referrer set spans the whole repo, so
+    // any push can add or remove the only reachability mention.
+    for (const changed of [
+      ["tools/openclinxr/openclaw/tools-cruft-gate.ts"],
+      ["knip.json"],
+      ["apps/api/src/server.ts"],
+      ["PROJECT_STATUS.md"],
+    ]) {
+      expect(stepsForProfile("pre-push", changed).some((s) => s.label === label)).toBe(true);
+    }
+    // Not on pre-commit: this is a pre-push-only cost, same tier as "Affected package tests".
+    expect(
+      stepsForProfile("pre-commit", ["tools/openclinxr/openclaw/tools-cruft-gate.ts"]).some((s) => s.label === label),
     ).toBe(false);
   });
 

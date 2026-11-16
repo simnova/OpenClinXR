@@ -58,24 +58,6 @@
     ]
   },
   {
-    "provider": "@openclinxr/motion-compiler",
-    "entrypoint": "./glb-bake",
-    "names": [
-      {
-        "name": "bakeMotionProgramToGlb",
-        "kind": "runtime"
-      },
-      {
-        "name": "MotionGlbBakeClip",
-        "kind": "type"
-      },
-      {
-        "name": "readMotionGlbClipId",
-        "kind": "runtime"
-      }
-    ]
-  },
-  {
     "provider": "@openclinxr/scenario-fixtures",
     "entrypoint": ".",
     "names": [
