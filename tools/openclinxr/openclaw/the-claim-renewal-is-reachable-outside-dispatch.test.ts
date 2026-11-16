@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import { once } from "node:events";
 import { existsSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -138,7 +139,10 @@ describe("the claim renewal is reachable outside dispatch", () => {
       );
       await vi.advanceTimersByTimeAsync(200);
       expect(calls, "no heartbeat while the worker pid is alive").toBeGreaterThan(0);
+      const exited = once(child, "exit");
       child.kill();
+      // kill() only signals; wait for the real exit so the fake-timer advance below cannot outrun it.
+      await exited;
       await vi.advanceTimersByTimeAsync(500);
       const atDeath = calls;
       expect(atDeath, "kill before any tick cannot prove silence").toBeGreaterThan(0);
