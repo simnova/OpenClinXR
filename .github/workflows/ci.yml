@@ -66,6 +66,8 @@ jobs:
           echo "OPENCLINXR_SC_EVIDENCE_REGISTRY=$SC10_DIR/registry.json" >> "${GITHUB_ENV}"
 
       - name: Test
+        env:
+          OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE: "1"
         run: pnpm test
 
       - name: Security audit policy

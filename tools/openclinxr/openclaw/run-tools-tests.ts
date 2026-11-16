@@ -64,6 +64,94 @@ import { PROJECT_ARCHIVE_EXCLUDES } from "./project-test-scope.js";
 
 export { PROJECT_ARCHIVE_EXCLUDES };
 
+/**
+ * CI-only ECG fixture-archive skip (option B).
+ *
+ * The ECG frozen-inputs archive is local-store by design (binaries >1MiB are
+ * never committed; ecg-input-bootstrap.py:44-52) and CI has no route to it,
+ * so without this skip both CI and a clean local checkout fail closed in
+ * runEcgInputPreflight before any test runs. When (and only when) the trigger
+ * env var is exactly "1", the runner skips the preflight AND excludes the
+ * test files that read archive-materialized paths, through the existing
+ * allExcludes path so discovery, turbo children, and area filters all agree.
+ * Local runs (trigger unset) are unchanged: preflight still fails closed.
+ */
+export const ECG_ARCHIVE_SKIP_ENV_VAR = "OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE";
+
+/**
+ * Tools test files that read archive-materialized ECG paths (the staging GLBs
+ * and pack-a PNGs restored by ecg-input-bootstrap.py from the local archive).
+ * Derived by owner grep (RC3 C5): the set of tools test files whose source
+ * references an ecg-frozen-inputs.manifest.json entry's parent dir, the
+ * manifest/archive names, or the two control manifests named in
+ * ecg-input-bootstrap.py:36-37, minus the independent allowlist below. Pinned:
+ * run-tools-tests.test.ts T3 re-derives the raw set with its own scanner and
+ * fails on drift (a new referencing file must join this list, not silently run
+ * in CI without the archive).
+ */
+export const ECG_ARCHIVE_DEPENDENT_TESTS: readonly string[] = [
+  "tools/openclinxr/evidence/ecg-cart-grades/the-ecg-cart-c1-density-falsifier-has-been-graded.test.ts",
+  "tools/openclinxr/evidence/ecg-cart-grades/the-ecg-cart-frozen-raw-viewcount-has-been-read.test.ts",
+  "tools/openclinxr/evidence/ecg-cart-grades/the-ecg-cart-g1-4view-bake-has-been-graded.test.ts",
+  "tools/openclinxr/evidence/ecg-cart-grades/the-ecg-cart-m1-direct-80k-has-been-graded.test.ts",
+];
+
+/**
+ * Referencing files that stay IN the run: ecg-input-bootstrap.test.ts builds
+ * its own tiny controls/archive per case and passes without the real archive.
+ */
+export const ECG_ARCHIVE_INDEPENDENT_ALLOWLIST: readonly string[] = [
+  "tools/openclinxr/evidence/fixtures/ecg-controls/ecg-input-bootstrap.test.ts",
+];
+
+export interface EcgArchivePlan {
+  preflight: boolean;
+  exclude: readonly string[];
+}
+
+/** Pure trigger planner. Exactly "1" skips; CI/GITHUB_ACTIONS/true/yes/0/unset do not. */
+export function planEcgArchive(env: Record<string, string | undefined> = process.env): EcgArchivePlan {
+  if (env[ECG_ARCHIVE_SKIP_ENV_VAR] === "1") {
+    return { preflight: false, exclude: ECG_ARCHIVE_DEPENDENT_TESTS };
+  }
+  return { preflight: true, exclude: [] };
+}
+
+/** S2 + S3 skip lines (S3 header followed by one repo-relative path per line). */
+export function ecgArchiveSkipLines(): string[] {
+  return [
+    `[run-tools-tests] ECG archive skip (${ECG_ARCHIVE_SKIP_ENV_VAR}=1): preflight skipped`,
+    `[run-tools-tests] ECG archive skip: ${ECG_ARCHIVE_DEPENDENT_TESTS.length} files:`,
+    ...ECG_ARCHIVE_DEPENDENT_TESTS,
+  ];
+}
+
+/** Print the S2/S3 skip lines when triggered; silent otherwise. Returns whether it printed. */
+export function maybeLogEcgArchiveSkip(env: Record<string, string | undefined> = process.env): boolean {
+  if (env[ECG_ARCHIVE_SKIP_ENV_VAR] !== "1") return false;
+  for (const line of ecgArchiveSkipLines()) console.log(line);
+  return true;
+}
+
+/**
+ * Env for turbo-spawned area children. Loose mode already passes machine env
+ * through, but the skip trigger is set explicitly (not just inherited) so it
+ * reaches children even if env mode ever changes — and turbo.json globalEnv
+ * makes it part of every area task's cache key, so a skip-mode result can
+ * never satisfy a non-skip run or the reverse.
+ */
+export function buildTurboChildEnv(env: NodeJS.ProcessEnv = process.env): NodeJS.ProcessEnv {
+  return {
+    ...env,
+    // Same cache dir as the packages:* scripts, so every worktree shares one cache.
+    TURBO_CACHE_DIR: env["TURBO_CACHE_DIR"] ?? resolve(homedir(), ".cache/openclinxr/turbo"),
+    TURBO_TELEMETRY_DISABLED: "1",
+    DO_NOT_TRACK: "1",
+    OPENCLINXR_TOOLS_TESTS_PREFLIGHT_DONE: "1",
+    ...(env[ECG_ARCHIVE_SKIP_ENV_VAR] === "1" ? { [ECG_ARCHIVE_SKIP_ENV_VAR]: "1" } : {}),
+  };
+}
+
 /** Known shared module. Its import must succeed — no stale embedded copy. */
 export const SHARED_EXCLUDES_MODULE = "packages/cellix/config-vitest/src/worktree-excludes.ts";
 
@@ -303,10 +391,24 @@ export function runEcgInputPreflight(root: string): void {
     "spec.loader.exec_module(m)\n" +
     "r = m.materialize(" + JSON.stringify(root) + ")\n" +
     "print('restored=' + str(len(r['restored'])) + ' reused=' + str(len(r['reused'])))\n";
+  // Pipe (not inherit) so the failure mode and archive path land in the
+  // thrown text — T2 asserts on them and the CLI FATAL line reprints them.
+  // Success still logs the restored/reused evidence line.
   try {
-    execFileSync(python, ["-c", script], { cwd: root, stdio: "inherit" });
+    const stdout = execFileSync(python, ["-c", script], {
+      cwd: root,
+      stdio: ["ignore", "pipe", "pipe"],
+      encoding: "utf8",
+    });
+    const line = stdout.trim();
+    if (line.length > 0) console.log(`[run-tools-tests] ECG preflight: ${line}`);
   } catch (err) {
-    throw new Error(`[run-tools-tests] ECG preflight failed: ${String(err)}`);
+    const stdio = err as { stdout?: unknown; stderr?: unknown };
+    const text = (v: unknown): string => (typeof v === "string" ? v : "");
+    const detail = `${text(stdio.stdout)}\n${text(stdio.stderr)}`.trim();
+    throw new Error(
+      `[run-tools-tests] ECG preflight failed: ${detail.length > 0 ? `${detail}\n` : ""}${String(err)}`,
+    );
   }
 }
 
@@ -567,14 +669,7 @@ function runTurbo(root: string): Promise<number> {
     const child = spawn(bin, args, {
       cwd: root,
       stdio: "inherit",
-      // Same cache dir as the packages:* scripts, so every worktree shares one cache.
-      env: {
-        ...process.env,
-        TURBO_CACHE_DIR: process.env["TURBO_CACHE_DIR"] ?? resolve(homedir(), ".cache/openclinxr/turbo"),
-        TURBO_TELEMETRY_DISABLED: "1",
-        DO_NOT_TRACK: "1",
-        OPENCLINXR_TOOLS_TESTS_PREFLIGHT_DONE: "1",
-      },
+      env: buildTurboChildEnv(process.env),
     });
     child.on("error", (err) => {
       console.error(`[run-tools-tests] turbo spawn error: ${String(err)}`);
@@ -593,7 +688,17 @@ export async function main(argv: string[], cwd: string): Promise<number> {
     throw new Error(`--root ${root} does not look like the repo root (need package.json + tools/)`);
   }
   const shared = await loadSharedExcludes(root);
-  const allExcludes = [...MANUAL_EXCLUDES, ...ROOT_CONFIG_EXCLUDES, ...shared, ...PROJECT_ARCHIVE_EXCLUDES];
+  // CI-only ECG archive skip: the trigger appends the dependent files to the
+  // existing excludes so discovery, turbo children, and area filters all skip
+  // the same set. Untriggered runs append nothing and are byte-identical.
+  const ecgPlan = planEcgArchive(process.env);
+  const allExcludes = [
+    ...MANUAL_EXCLUDES,
+    ...ROOT_CONFIG_EXCLUDES,
+    ...shared,
+    ...PROJECT_ARCHIVE_EXCLUDES,
+    ...ecgPlan.exclude,
+  ];
 
   const discovered = await discoverViaVitestList(root, allExcludes);
   const partition = partitionManifest(discovered, root);
@@ -643,7 +748,17 @@ export async function main(argv: string[], cwd: string): Promise<number> {
     );
   }
 
-  if (process.env["OPENCLINXR_TOOLS_TESTS_PREFLIGHT_DONE"] !== "1") runEcgInputPreflight(root);
+  if (!ecgPlan.preflight) {
+    // Triggered (CI Test step only): the archive is local-store by design and
+    // has no CI route, so skip its preflight; the dependent files were already
+    // excluded from discovery above. Cache separation: the trigger is in turbo
+    // globalEnv (cache-key-affecting) and in the per-file cache salt
+    // (tools-file-cache.ts K3 covers OPENCLINXR_*), so a skip-mode result can
+    // never satisfy a non-skip run or the reverse.
+    maybeLogEcgArchiveSkip();
+  } else if (process.env["OPENCLINXR_TOOLS_TESTS_PREFLIGHT_DONE"] !== "1") {
+    runEcgInputPreflight(root);
+  }
 
   if (opts.area === null && !opts.direct && opts.passthrough.length === 0) {
     return await runTurbo(root);

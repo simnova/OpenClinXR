@@ -47,7 +47,8 @@
   ],
   "globalEnv": [
     "CI",
-    "NODE_ENV"
+    "NODE_ENV",
+    "OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE"
   ],
   "globalPassThroughEnv": [
     "CELLIX_VITEST_MAX_WORKERS",
