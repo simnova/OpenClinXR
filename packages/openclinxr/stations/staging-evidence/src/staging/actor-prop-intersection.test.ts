@@ -67,7 +67,10 @@ type PropRow = {
   actorPosture: string;
 };
 
-type Inspect = () => Promise<{ stations: { scenarioId: string; collisions: PropRow[] }[] }>;
+type Inspect = () => Promise<{
+  stations: { scenarioId: string; collisions: PropRow[] }[];
+  sample: { seed: string; ids: string[] } | null;
+}>;
 
 const load = () =>
   import("../../../../../../tools/openclinxr/evidence/actor-prop-intersection.js") as Promise<Record<string, unknown>>;
@@ -79,10 +82,19 @@ describe("a standing actor does not occupy a prop (#183)", () => {
     expect(inspect).toBeTypeOf("function");
 
     const report = await inspect!();
-    expect(
-      report.stations.length,
-      "no stations inspected — enumerate dynamically from what ships, never a hardcoded list",
-    ).toBeGreaterThan(1);
+    // R6: the report's own station list against its own recorded sample — never
+    // by calling a selector. A sampled run asserts its subset is covered; a full
+    // run (including a sampled run that read a complete artifact) keeps today's floor.
+    if (report.sample === null) {
+      expect(
+        report.stations.length,
+        "no stations inspected — enumerate dynamically from what ships, never a hardcoded list",
+      ).toBeGreaterThan(1);
+    } else {
+      expect(report.stations.map((s) => s.scenarioId)).toEqual(
+        expect.arrayContaining(report.sample.ids),
+      );
+    }
 
     const embedded: string[] = [];
     for (const station of report.stations) {

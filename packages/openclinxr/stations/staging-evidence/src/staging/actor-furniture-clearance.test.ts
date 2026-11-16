@@ -169,6 +169,7 @@ type Inspect = () => Promise<{
   }[];
   /** A figure deliberately standing beside furniture — the known-good calibration row (§9h). */
   control: ActorClearance | null;
+  sample: { seed: string; ids: string[] } | null;
 }>;
 
 describe("no standing actor occupies its own furniture (#169)", () => {
@@ -187,8 +188,16 @@ describe("no standing actor occupies its own furniture (#169)", () => {
     expect(inspect).toBeTypeOf("function");
 
     const report = await inspect!();
-    expect(report.stations.length, "not every station was enumerated — sampling proves a pattern, not a count")
-      .toBeGreaterThan(10);
+    // R6: the report's own station list against its own recorded sample — never
+    // by calling a selector. A sampled run asserts its subset is covered; a full
+    // run (including a sampled run that read a complete artifact) keeps today's floor.
+    const coveredStations = report.stations.map((s) => s.scenarioId);
+    if (report.sample === null) {
+      expect(report.stations.length, "not every station was enumerated — sampling proves a pattern, not a count")
+        .toBeGreaterThan(10);
+    } else {
+      expect(coveredStations).toEqual(expect.arrayContaining(report.sample.ids));
+    }
 
     const inside: string[] = [];
     for (const st of report.stations) {
@@ -223,10 +232,18 @@ describe("no standing actor occupies its own furniture (#169)", () => {
     const sources = new Set(
       report.stations.flatMap((s) => s.actors.map((a) => a.nearestSupportSource).filter(Boolean)),
     );
-    expect(
-      sources.size,
-      `only these support sources were considered: ${[...sources].join(", ")} — equipment mounts must be included`,
-    ).toBeGreaterThan(1);
+    // R5: source variety is a full-bank property — under sampling it skips with
+    // one log line instead of going red. Unset keeps today's assertion unchanged.
+    if (report.sample !== null) {
+      process.stdout.write(
+        `sources-gt-1 skipped: full-bank not in sample ${report.stations.map((s) => s.scenarioId).join(",")}\n`,
+      );
+    } else {
+      expect(
+        sources.size,
+        `only these support sources were considered: ${[...sources].join(", ")} — equipment mounts must be included`,
+      ).toBeGreaterThan(1);
+    }
 
     // A known-good control must exist and must NOT be flagged, so the threshold is calibrated at
     // both ends rather than tuned until the reds disappear.
@@ -265,10 +282,19 @@ describe("no standing actor occupies its own furniture (#169)", () => {
       .toHaveLength(0);
 
     // The ED supine patient rests ON his deck. That is correct and must not be "resolved".
+    // R5: applies when a supine actor was measured (the supine patient's station
+    // is in the sample, decided from the report's own per-actor posture — no
+    // hard-coded station id); otherwise one skip line. Unset keeps both assertions.
     const edSupine = report.stations
       .flatMap((s) => s.actors)
       .find((a) => a.posture === "supine");
-    expect(edSupine, "the supine patient disappeared").toBeDefined();
-    expect(edSupine!.isInsideFurniture, "the supine patient was flagged and moved off his deck").toBe(false);
+    if (report.sample !== null && !edSupine) {
+      process.stdout.write(
+        `supine-patient skipped: supine-actor not in sample ${report.stations.map((s) => s.scenarioId).join(",")}\n`,
+      );
+    } else {
+      expect(edSupine, "the supine patient disappeared").toBeDefined();
+      expect(edSupine!.isInsideFurniture, "the supine patient was flagged and moved off his deck").toBe(false);
+    }
   }, 1_800_000);
 });

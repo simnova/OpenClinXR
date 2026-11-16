@@ -119,7 +119,11 @@ type ArmMeasurement = {
   /** Frames advanced before measuring — must be > 0 so the mixer has run. */
   framesAdvanced: number;
 };
-type Inspect = () => Promise<{ scenarios: string[]; arms: ArmMeasurement[] }>;
+type Inspect = () => Promise<{
+  scenarios: string[];
+  arms: ArmMeasurement[];
+  sample: { seed: string; ids: string[] } | null;
+}>;
 
 /** A hanging arm puts the wrist clearly below the shoulder. A plank puts it level. */
 const MIN_SHOULDER_TO_WRIST_DROP_METERS = 0.25;
@@ -144,6 +148,12 @@ describe("a standing figure's arms hang (#91)", () => {
 
     const report = await inspect!();
     expect(report.arms.length, "no arms were measured at all").toBeGreaterThan(0);
+    // R6: the report's own station list against its own recorded sample — never
+    // by calling a selector. A sampled run asserts its subset is covered; a full
+    // run (including a sampled run that read a complete artifact) keeps today's floor.
+    if (report.sample !== null) {
+      expect(report.scenarios).toEqual(expect.arrayContaining(report.sample.ids));
+    }
 
     const planks: string[] = [];
     for (const a of report.arms) {
@@ -182,14 +192,23 @@ describe("a standing figure's arms hang (#91)", () => {
     expect(inspect).toBeTypeOf("function");
 
     const report = await inspect!();
+    // V3: unset keeps the counterweight unconditional. Sampled runs apply it iff
+    // the report's OWN live measurement contains a seated actor (posture comes
+    // from the report's arms rows, never a station list); otherwise one skip line.
     const seated = report.arms.filter((a) => a.posture === "seated");
-    expect(seated.length, "no seated actor was measured — the counterweight proves nothing").toBeGreaterThan(0);
-    for (const a of seated) {
-      expect(a.framesAdvanced, `seated ${a.actorId} measured before the loop advanced`).toBeGreaterThan(0);
-      expect(
-        a.shoulderWorldY - a.wristWorldY,
-        `seated ${a.actorId} lost its arm posture`,
-      ).toBeGreaterThan(0);
+    if (report.sample !== null && seated.length === 0) {
+      process.stdout.write(
+        `seated-counterweight skipped: no seated actor in sample ${report.scenarios.join(",")}\n`,
+      );
+    } else {
+      expect(seated.length, "no seated actor was measured — the counterweight proves nothing").toBeGreaterThan(0);
+      for (const a of seated) {
+        expect(a.framesAdvanced, `seated ${a.actorId} measured before the loop advanced`).toBeGreaterThan(0);
+        expect(
+          a.shoulderWorldY - a.wristWorldY,
+          `seated ${a.actorId} lost its arm posture`,
+        ).toBeGreaterThan(0);
+      }
     }
   }, 1_800_000);
 });

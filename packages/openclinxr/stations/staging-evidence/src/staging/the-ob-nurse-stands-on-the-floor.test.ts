@@ -1,7 +1,8 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { describe, expect, it } from "vitest";
+import { assertFloorContactCoverage } from "../../../../../../tools/openclinxr/evidence/station-subset/floor-contact-sample.js";
 
 /**
  * # THE DEFECT, MEASURED 2026-08-19 on main efcdf5ec — do not re-derive these rows
@@ -128,25 +129,51 @@ type ActorRow = {
  * tree. Same self-measure pattern as the-seated-patient-reaches-the-floor.test.ts.
  */
 const floorModule = (await import("../../../../../../tools/openclinxr/evidence/actor-floor-contact-all-stations.js")) as {
-  measureActorFloorContact?: () => Promise<{ actors?: ActorRow[] }>;
+  measureActorFloorContact?: () => Promise<{
+    scenarios?: string[];
+    actors?: ActorRow[];
+    sample?: { seed: string; ids: string[] } | null;
+  }>;
 };
 const measured = await floorModule.measureActorFloorContact?.();
-const actors: ActorRow[] = measured?.actors
-  ?? (existsSync(ARTIFACT)
-    ? ((JSON.parse(readFileSync(ARTIFACT, "utf8")) as { report?: { actors?: ActorRow[] } }).report?.actors ?? [])
-    : []);
+const diskReport = !measured && existsSync(ARTIFACT)
+  ? (JSON.parse(readFileSync(ARTIFACT, "utf8")) as {
+    report?: { scenarios?: string[]; actors?: ActorRow[]; sample?: { seed: string; ids: string[] } | null };
+  }).report
+  : undefined;
+const actors: ActorRow[] = measured?.actors ?? diskReport?.actors ?? [];
+const scenarios: string[] = measured?.scenarios ?? diskReport?.scenarios ?? [];
+const sample: { seed: string; ids: string[] } | null = measured?.sample ?? diskReport?.sample ?? null;
 
 /**
  * SS7t: an empty or missing report must FAIL, never pass vacuously. The module above
  * re-measures live when the artifact is absent or stale, so this fires only when the
  * live walk itself produced no actors — which is a measurement defect, not an ordering one.
+ *
+ * S1: a sampled run asserts subset coverage from the report's own lists (helper);
+ * S4: unset keeps today's >30 floor verbatim (was :146-148, assertion at :148).
  */
 function requireActors(): ActorRow[] {
-  expect(
-    actors.length,
-    `no floor-contact report on disk — run actor-floor-contact-all-stations first (it re-measures when the tree stamp moves)`,
-  ).toBeGreaterThan(30);
+  if (sample === null) {
+    expect(
+      actors.length,
+      `no floor-contact report on disk — run actor-floor-contact-all-stations first (it re-measures when the tree stamp moves)`,
+    ).toBeGreaterThan(30);
+  } else {
+    // S1 (sampled): S4's original :146-148 floor is replaced here by subset
+    // coverage from the report's own lists; unset keeps :146-148 verbatim.
+    assertFloorContactCoverage({ scenarios, actors, sample });
+  }
   return actors;
+}
+
+/** S3: one skip line per subject assertion when the subject station is not sampled. */
+function skipSubject(name: string, subject: string): boolean {
+  if (sample !== null && !scenarios.includes(subject)) {
+    process.stdout.write(`${name} skipped: ${subject} not in sample ${scenarios.join(",")}\n`);
+    return true;
+  }
+  return false;
 }
 
 function nurseRow(): ActorRow {
@@ -157,6 +184,7 @@ function nurseRow(): ActorRow {
 
 describe("the OB nurse stands on the floor", () => {
   it("(1) RED: her lowest posed vertex is inside the existing band", () => {
+    if (skipSubject("nurse-vertex", OB_SCENARIO)) return;
     const row = nurseRow();
     expect(
       row.lowestVertexY,
@@ -165,6 +193,7 @@ describe("the OB nurse stands on the floor", () => {
   });
 
   it("(2) COUNTERWEIGHT: she is still resolved standing, not reclassified onto a support surface", () => {
+    if (skipSubject("nurse-posture", OB_SCENARIO)) return;
     // Refuses (b), the cheapest green in the repo: seated/supine are exempt from the float
     // check (#150), so one word in the bundle passes the existing contract with a nurse
     // hanging in mid-air.
@@ -177,6 +206,7 @@ describe("the OB nurse stands on the floor", () => {
   });
 
   it("(3) COUNTERWEIGHT: she is still measured, with frames advanced", () => {
+    if (skipSubject("nurse-measured", OB_SCENARIO)) return;
     // Refuses (c). A hidden or dropped actor has no lowest vertex, so absence reads as success.
     const row = nurseRow();
     expect(Number.isFinite(row.lowestVertexY), "no measurement — was she hidden or dropped?").toBe(true);
@@ -197,8 +227,14 @@ describe("the OB nurse stands on the floor", () => {
   it("(5) VACUITY GUARD: the report covers the bank and both OB co-actors are in it", () => {
     // Reads the population, not the nurse's value, so it passes today and keeps passing: if
     // someone trims the report to make (4) cheap, this goes red first.
+    // S3: co-actor membership is subject-station-specific — skipped with one line when the
+    // OB station is not sampled. The >=39 bank floor holds only on full runs (S4); under
+    // sampling the S1 coverage check in requireActors is the operative anti-trim guard.
     const all = requireActors();
-    expect(all.length, "the bank's actor slots").toBeGreaterThanOrEqual(39);
+    if (skipSubject("ob-known-good", OB_SCENARIO)) return;
+    if (sample === null) {
+      expect(all.length, "the bank's actor slots").toBeGreaterThanOrEqual(39);
+    }
     const ob = all.filter((a) => a.scenarioId === OB_SCENARIO).map((a) => a.actorId);
     expect(ob, "the OB co-actors are the in-station known-good column").toContain("partner_omar_khan_v1");
     expect(ob, "the OB co-actors are the in-station known-good column").toContain("patient_aisha_khan_v1");

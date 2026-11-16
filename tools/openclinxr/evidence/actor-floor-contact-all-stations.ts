@@ -27,6 +27,7 @@ import {
   registerStagingAllStationProducer,
   runSingleStagingAllStationProducer,
 } from "./staging-all-station-pass.js";
+import type { SampleRecord } from "./station-subset.js";
 import {
   readLivePostureGeometryFromPage,
   waitForStationShell,
@@ -47,6 +48,8 @@ export type ActorFloorContact = {
 export type ActorFloorContactReport = {
   scenarios: string[];
   actors: ActorFloorContact[];
+  /** R6: the selection this report measured (null when it measured everything). */
+  sample: SampleRecord | null;
 };
 
 type ArtifactPayload = {
@@ -99,14 +102,14 @@ async function tryReadArtifact(
   treeStamp?: MeasurementTreeStamp,
 ): Promise<ActorFloorContactReport | null> {
   // #141: refuse stale stamps (missing/mismatch → null → re-measure). Fresh stamps still serve.
+  // R2: shape check only — coverage (coveredIds ⊇ needed) is the READER's guard
+  // in the pass, which knows the run's needed ids. Length alone never accepts.
   return tryReadStampedArtifact(artifactPath(), (parsed) => {
     const report = parsed["report"] as ActorFloorContactReport | undefined;
     if (
       report?.scenarios
       && Array.isArray(report.scenarios)
-      && report.scenarios.length > 0
       && Array.isArray(report.actors)
-      && report.actors.length > 0
     ) {
       return report;
     }
@@ -172,7 +175,7 @@ export function buildActorFloorContactReport(
   scenarios: string[],
   actorRows: ActorFloorContact[][],
 ): ActorFloorContactReport {
-  return { scenarios: [...scenarios], actors: actorRows.flat() };
+  return { scenarios: [...scenarios], actors: actorRows.flat(), sample: null };
 }
 
 registerStagingAllStationProducer({
@@ -182,6 +185,14 @@ registerStagingAllStationProducer({
   buildReport: (scenarioIds, rows) =>
     buildActorFloorContactReport(scenarioIds, rows as ActorFloorContact[][]),
   readArtifact: tryReadArtifact,
+  coveredIds: (report) => {
+    // R2: the report already carries its measured list (scenarios); the
+    // selection record doubles as coverage when a sampled run wrote it.
+    const shaped = report as Partial<ActorFloorContactReport> | null | undefined;
+    if (!shaped || typeof shaped !== "object") return [];
+    if (Array.isArray(shaped.sample?.ids)) return [...shaped.sample.ids];
+    return Array.isArray(shaped.scenarios) ? [...shaped.scenarios] : [];
+  },
   writeArtifact: async (report, treeStamp) => {
     await writeFloorContactDump(report as ActorFloorContactReport, {
       label: "combined-measure",

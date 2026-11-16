@@ -40,6 +40,7 @@ import {
   registerStagingAllStationProducer,
   runSingleStagingAllStationProducer,
 } from "./staging-all-station-pass.js";
+import type { SampleRecord } from "./station-subset.js";
 import {
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
@@ -91,6 +92,8 @@ export type StationClearance = {
 
 export type ActorFurnitureClearanceReport = {
   stations: StationClearance[];
+  /** R6: the selection this report measured (null when it measured everything). */
+  sample: SampleRecord | null;
   control: ActorClearance | null;
   insideOverlapFractionThreshold: number;
 };
@@ -176,7 +179,9 @@ async function tryReadArtifact(
 ): Promise<ActorFurnitureClearanceReport | null> {
   return tryReadStampedArtifact(filePath, (parsed) => {
     const report = (parsed["report"] ?? parsed) as ActorFurnitureClearanceReport | undefined;
-    if (report?.stations && Array.isArray(report.stations) && report.stations.length > 0) {
+    // R2: shape check only — coverage (coveredIds ⊇ needed) is the READER's guard
+    // in the pass, which knows the run's needed ids. Length alone never accepts.
+    if (report?.stations && Array.isArray(report.stations)) {
       return report;
     }
     return null;
@@ -250,6 +255,7 @@ export function buildActorFurnitureClearanceReport(
 ): ActorFurnitureClearanceReport {
   return {
     stations,
+    sample: null,
     control: pickControl(stations),
     insideOverlapFractionThreshold: INSIDE_OVERLAP_FRACTION_THRESHOLD,
   };
@@ -262,6 +268,17 @@ registerStagingAllStationProducer({
   buildReport: (_scenarioIds, rows) =>
     buildActorFurnitureClearanceReport(rows as StationClearance[]),
   readArtifact: (treeStamp) => tryReadArtifact(preFixPath(), treeStamp),
+  coveredIds: (report) => {
+    // R2: the report already carries its measured list (stations[].scenarioId);
+    // the selection record doubles as coverage when a sampled run wrote it.
+    const shaped = report as Partial<ActorFurnitureClearanceReport> | null | undefined;
+    if (!shaped || typeof shaped !== "object") return [];
+    if (Array.isArray(shaped.sample?.ids)) return [...shaped.sample.ids];
+    if (!Array.isArray(shaped.stations)) return [];
+    return shaped.stations
+      .map((station) => (station as { scenarioId?: unknown } | null)?.scenarioId)
+      .filter((id): id is string => typeof id === "string");
+  },
   writeArtifact: async (report, treeStamp) => {
     await writeClearanceDump(report as ActorFurnitureClearanceReport, {
       outputPath: preFixPath(),

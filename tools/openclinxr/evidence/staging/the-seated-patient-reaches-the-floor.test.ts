@@ -2,6 +2,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
+import { assertFloorContactCoverage } from "../station-subset/floor-contact-sample.js";
 
 /**
  * # THE DEFECT, MEASURED 2026-08-19 on main 5f3a9a77 — do not re-derive these rows
@@ -156,24 +157,47 @@ type MeshRow = { name: string; worldMin: number[]; worldMax: number[] };
  * cached read in the common case and one Vite boot on a clean tree.
  */
 const floorModule = (await import("../actor-floor-contact-all-stations.js")) as {
-  measureActorFloorContact?: () => Promise<{ actors?: ActorRow[] }>;
+  measureActorFloorContact?: () => Promise<{
+    scenarios?: string[];
+    actors?: ActorRow[];
+    sample?: { seed: string; ids: string[] } | null;
+  }>;
 };
 const measured = await floorModule.measureActorFloorContact?.();
-const actors: ActorRow[] = measured?.actors
-  ?? (existsSync(FLOOR_ARTIFACT)
-    ? ((JSON.parse(readFileSync(FLOOR_ARTIFACT, "utf8")) as { report?: { actors?: ActorRow[] } }).report?.actors ?? [])
-    : []);
+const diskReport = !measured && existsSync(FLOOR_ARTIFACT)
+  ? (JSON.parse(readFileSync(FLOOR_ARTIFACT, "utf8")) as {
+    report?: { scenarios?: string[]; actors?: ActorRow[]; sample?: { seed: string; ids: string[] } | null };
+  }).report
+  : undefined;
+const actors: ActorRow[] = measured?.actors ?? diskReport?.actors ?? [];
+const scenarios: string[] = measured?.scenarios ?? diskReport?.scenarios ?? [];
+const sample: { seed: string; ids: string[] } | null = measured?.sample ?? diskReport?.sample ?? null;
 const meshes: MeshRow[] = existsSync(ROOM_INSPECT)
   ? ((JSON.parse(readFileSync(ROOM_INSPECT, "utf8")) as { meshes?: MeshRow[] }).meshes ?? [])
   : [];
 
 /** SS7t: an empty enumeration must FAIL, never pass vacuously. */
 function requireActors(): ActorRow[] {
-  expect(
-    actors.length,
-    `no floor-contact report — run actor-floor-contact-all-stations first (it re-measures when the tree stamp moves)`,
-  ).toBeGreaterThan(30);
+  if (sample === null) {
+    expect(
+      actors.length,
+      `no floor-contact report — run actor-floor-contact-all-stations first (it re-measures when the tree stamp moves)`,
+    ).toBeGreaterThan(30);
+  } else {
+    // S1 (sampled): S4's original :172-175 floor is replaced here by subset
+    // coverage from the report's own lists; unset keeps :172-175 verbatim.
+    assertFloorContactCoverage({ scenarios, actors, sample });
+  }
   return actors;
+}
+
+/** S3: one skip line per subject assertion when the subject station is not sampled. */
+function skipSubject(name: string, subject: string): boolean {
+  if (sample !== null && !scenarios.includes(subject)) {
+    process.stdout.write(`${name} skipped: ${subject} not in sample ${scenarios.join(",")}\n`);
+    return true;
+  }
+  return false;
 }
 
 function patientRow(): ActorRow {
@@ -184,6 +208,7 @@ function patientRow(): ActorRow {
 
 describe("the seated patient reaches the floor", () => {
   it("(1) RED: his lowest posed vertex is inside the floor band", () => {
+    if (skipSubject("patient-drop", SCENARIO)) return;
     const row = patientRow();
     expect(
       row.lowestVertexY,
@@ -195,12 +220,14 @@ describe("the seated patient reaches the floor", () => {
   it("(2) COUNTERWEIGHT: he is still a seated actor", () => {
     // Refuses (b) and half of (d). `seated` is exempt from the standing float check (#150),
     // so flipping him to standing satisfies the generic gate by standing him beside the chair.
+    if (skipSubject("patient-posture", SCENARIO)) return;
     const row = patientRow();
     expect(row.declaredPosture, `posture became "${row.declaredPosture}" — standing him up is not seating him`).toBe("seated");
   });
 
   it("(3) COUNTERWEIGHT: he is still measured, with frames advanced", () => {
     // Refuses the rest of (d). A hidden actor has no lowest vertex, so absence reads as success.
+    if (skipSubject("patient-measured", SCENARIO)) return;
     const row = patientRow();
     expect(Number.isFinite(row.lowestVertexY), "no measurement — was he hidden or dropped?").toBe(true);
     expect(row.framesAdvanced, "frames must advance or the seated pose is never applied").toBeGreaterThan(0);

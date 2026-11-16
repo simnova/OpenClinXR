@@ -116,7 +116,11 @@ type ActorFloorContact = {
   declaredPosture: string;
   framesAdvanced: number;
 };
-type Measure = () => Promise<{ scenarios: string[]; actors: ActorFloorContact[] }>;
+type Measure = () => Promise<{
+  scenarios: string[];
+  actors: ActorFloorContact[];
+  sample: { seed: string; ids: string[] } | null;
+}>;
 
 /** Generous: a correctly placed figure needs nothing like this, and psych shows far more. */
 const MAX_FLOAT_METERS = 0.15;
@@ -161,10 +165,25 @@ describe("actors stand on the floor in every station (#105)", () => {
     expect(measure).toBeTypeOf("function");
 
     const report = await measure!();
-    expect(report.scenarios.length, `only ${report.scenarios.length} stations measured`).toBeGreaterThan(8);
-    expect(report.scenarios, "psych was not among the measured stations").toContain(
-      "psych_suicidal_ideation_safety_v1",
-    );
+    // R6: the report's own station list against its own recorded sample — never
+    // by calling a selector. A sampled run asserts its subset is covered; a full
+    // run (including a sampled run that read a complete artifact) keeps today's floor.
+    if (report.sample === null) {
+      expect(report.scenarios.length, `only ${report.scenarios.length} stations measured`).toBeGreaterThan(8);
+    } else {
+      expect(report.scenarios).toEqual(expect.arrayContaining(report.sample.ids));
+    }
+    // R5: psych membership holds whenever psych was measured; under sampling a
+    // missing psych skips with one log line instead of going red.
+    if (report.sample !== null && !report.scenarios.includes("psych_suicidal_ideation_safety_v1")) {
+      process.stdout.write(
+        `psych-covered skipped: psych_suicidal_ideation_safety_v1 not in sample ${report.scenarios.join(",")}\n`,
+      );
+    } else {
+      expect(report.scenarios, "psych was not among the measured stations").toContain(
+        "psych_suicidal_ideation_safety_v1",
+      );
+    }
     for (const scenarioId of report.scenarios) {
       expect(
         report.actors.some((a) => a.scenarioId === scenarioId),

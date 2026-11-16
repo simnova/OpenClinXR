@@ -11,20 +11,22 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { listShippedCastScenarioIds } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 import {
+  type MeasurementTreeStamp,
   tryReadStampedArtifact,
   withTreeStamp,
-  type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
+import type { SampleRecord } from "./station-subset.js";
+import { selectStationSubset } from "./station-subset.js";
 import {
-  ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
+  ROOM_CAPTURE_MODE,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
-import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 
 export const IDLE_ARM_HANG_DIR = ".openclinxr/evidence/idle-arm-hang";
 export const PRE_FIX_NAME = "pre-fix.json";
@@ -73,6 +75,8 @@ export type ArmMeasurement = {
 export type IdleArmHangReport = {
   scenarios: string[];
   arms: ArmMeasurement[];
+  /** R6: the selection this report measured (null when it measured everything). */
+  sample: SampleRecord | null;
 };
 
 /** One row of the tracked #678 decomposition artifact. */
@@ -104,6 +108,39 @@ type ArtifactPayload = {
 /** In-process cache so three vitest cases share one measure pass. */
 let cachedReport: IdleArmHangReport | null = null;
 let measureInFlight: Promise<IdleArmHangReport> | null = null;
+/** S3 CACHE: whether the most recent inspect run measured a sample (writes nothing). */
+let lastArmHangRunSampled = false;
+
+/**
+ * Full bank for this instrument. Which stations seat someone is a measured
+ * property, not a hardcoded list: live posture, base run e328ef2a0, xr-sync-ceo
+ * lane v-base-tools.log 2026-11-16 — seated actors in psych (patient + partner),
+ * peds_fever (parent) and telehealth (patient); ward_delirium and oncology
+ * stage no seated actor. Contracts must not assume the seated set.
+ */
+const DEFAULT_ARM_SCENARIOS = [
+  "psych_suicidal_ideation_safety_v1",
+  "ward_delirium_med_rec_v1",
+  "oncology_bad_news_family_v1",
+  "peds_fever_v1",
+  "telehealth_diabetes_health_literacy_v1",
+];
+
+/** R8 test seam: stub the live measurement (no browser). Null = production path. */
+type MeasureLiveArmHangFn = typeof measureLiveArmHang;
+let measureLiveArmHangForTest: MeasureLiveArmHangFn | null = null;
+
+/** R8: replace the live measurement with a stub. Pass null to restore. */
+export function setIdleArmHangMeasureLiveForTest(fn: MeasureLiveArmHangFn | null): void {
+  measureLiveArmHangForTest = fn;
+}
+
+/** R8: restore production measurement and drop in-process caches. */
+export function resetIdleArmHangTestSeam(): void {
+  measureLiveArmHangForTest = null;
+  cachedReport = null;
+  measureInFlight = null;
+}
 
 function preFixPath(): string {
   return path.join(IDLE_ARM_HANG_DIR, PRE_FIX_NAME);
@@ -121,30 +158,72 @@ export async function inspectIdleArmHang(input?: {
   /** When true, write/overwrite pre-fix.json (must be done BEFORE product edits). */
   writePreFix?: boolean;
 }): Promise<IdleArmHangReport> {
-  if (!input?.force && !input?.writePreFix && cachedReport) return cachedReport;
+  // R2: the in-process fast path serves only the in-flight flight; cached reports
+  // are coverage-checked inside the closure below, never returned blindly.
   if (!input?.force && !input?.writePreFix && measureInFlight) return measureInFlight;
 
   measureInFlight = (async () => {
+    // C1/S3: the seeded subset applies whenever the caller did not name stations —
+    // including force:true re-measures, so each forced call re-measures the SAME
+    // sampled ids (same seed -> same ids) and clause (1) compares like with like.
+    const fullScenarios = intersectWithShipped(DEFAULT_ARM_SCENARIOS);
+    const subset = input?.scenarioIds?.length
+      ? { ids: input.scenarioIds, seed: null as string | null, full: true }
+      : selectStationSubset(fullScenarios);
+    const sampled = !subset.full;
+    lastArmHangRunSampled = sampled;
+    const needed = subset.ids;
+
+    // R2: the in-process cache serves only when it covers this run's needed ids,
+    // so a sampled report is never returned to a full caller.
+    if (!input?.force && !input?.writePreFix && !input?.scenarioIds && cachedReport) {
+      const cachedCovered = new Set(cachedReport.sample?.ids ?? cachedReport.scenarios);
+      if (needed.every((scenarioId) => cachedCovered.has(scenarioId))) {
+        return cachedReport;
+      }
+    }
+
     if (!input?.force && !input?.writePreFix && !input?.scenarioIds) {
       const fromDisk = await tryReadArtifact(preFixPath());
       // Prefer a live re-measure for contract assertions when product may have changed;
       // disk cache is only for pre-fix proof existence + offline inspection.
       if (fromDisk && process.env.OPENCLINXR_IDLE_ARM_HANG_USE_DISK === "1") {
-        cachedReport = fromDisk;
-        return fromDisk;
+        // R2 reader guard: accept only if the artifact covers this run's needed
+        // ids — the full bank for a full run, the subset for a sampled one. An
+        // artifact without the list is refused (shape check above already did).
+        const diskCovered = new Set(fromDisk.sample?.ids ?? fromDisk.scenarios);
+        if (!needed.every((scenarioId) => diskCovered.has(scenarioId))) {
+          process.stdout.write(
+            `idle-arm-hang: refusing disk artifact (covers ${diskCovered.size} of ${needed.length} needed)\n`,
+          );
+        } else {
+          cachedReport = fromDisk;
+          return fromDisk;
+        }
       }
     }
 
-    const report = await measureLiveArmHang({
+    const measured = await (measureLiveArmHangForTest ?? measureLiveArmHang)({
       baseUrl: input?.baseUrl,
-      scenarioIds: input?.scenarioIds,
+      scenarioIds: subset.ids,
     });
+    // R6: the measured report records its own selection (null on full runs).
+    const report: IdleArmHangReport = {
+      ...measured,
+      sample: sampled && subset.seed !== null ? { seed: subset.seed, ids: [...subset.ids] } : null,
+    };
 
     if (input?.writePreFix) {
-      await writeArmHangDump(report, {
-        outputPath: preFixPath(),
-        label: input?.label ?? "pre-fix",
-      });
+      // S3 CACHE: a sampled run writes nothing — a partial pre-fix.json on the
+      // current tree stamp would be read as complete by a later full run.
+      if (sampled) {
+        process.stdout.write("idle-arm-hang: sampled run, not writing pre-fix.json\n");
+      } else {
+        await writeArmHangDump(report, {
+          outputPath: preFixPath(),
+          label: input?.label ?? "pre-fix",
+        });
+      }
     }
 
     if (!input?.scenarioIds) {
@@ -311,22 +390,16 @@ export async function writeArmMetricDecomposition(input: {
  * then a page.evaluate that dumps arm-chain bones (names, local rot/quat, world pos).
  */
 async function measureLiveArmHang(input: {
-  baseUrl?: string;
-  scenarioIds?: string[];
+  baseUrl?: string | undefined;
+  scenarioIds?: string[] | undefined;
 }): Promise<IdleArmHangReport> {
   // Full bank is expensive; contracts need standing + at least one seated counterweight.
-  // Default set: four pixel-graded standing stations + telehealth (seated patient).
-  const defaultScenarios = [
-    "psych_suicidal_ideation_safety_v1",
-    "ward_delirium_med_rec_v1",
-    "oncology_bad_news_family_v1",
-    "peds_fever_v1",
-    "telehealth_diabetes_health_literacy_v1",
-  ];
+  // The default set lives in DEFAULT_ARM_SCENARIOS (module scope, shared with the
+  // S3 subset/read/write gates in inspectIdleArmHang above).
   const scenarios =
     input.scenarioIds && input.scenarioIds.length > 0
       ? input.scenarioIds
-      : intersectWithShipped(defaultScenarios);
+      : intersectWithShipped(DEFAULT_ARM_SCENARIOS);
 
   if (scenarios.length === 0) {
     throw new Error("measureLiveArmHang: no scenarios to measure");
@@ -382,7 +455,7 @@ async function measureLiveArmHang(input: {
             process.stdout.write(`  WARN: no arms measured for ${scenarioId}\n`);
           }
         }
-        return { scenarios: [...scenarios], arms };
+        return { scenarios: [...scenarios], arms, sample: null };
       } finally {
         await page.close().catch(() => undefined);
       }
@@ -406,6 +479,15 @@ function intersectWithShipped(preferred: string[]): string[] {
   if (hit.length > 0) return hit;
   // Fallback: first few shipped so contracts still have something to measure.
   return listShippedCastScenarioIds().slice(0, 5);
+}
+
+/**
+ * W1: the full pre-measure station bank for this instrument — exactly the list
+ * the S3 subset samples from. Exported so the contract test can reproduce the
+ * sampler's decision through the same env.
+ */
+export function listFullArmBankScenarioIds(): string[] {
+  return intersectWithShipped(DEFAULT_ARM_SCENARIOS);
 }
 
 async function waitForHumanoidsAndFrames(
@@ -674,10 +756,16 @@ async function main(): Promise<void> {
     scenarioIds: scenarioFilter,
   });
   // Always write latest; only write pre-fix when --pre-fix is explicit (do not clobber).
-  await writeArmHangDump(report, {
-    outputPath: path.join(IDLE_ARM_HANG_DIR, writePreFix ? PRE_FIX_NAME : "latest.json"),
-    label: writePreFix ? "pre-fix" : label,
-  });
+  // S3 CACHE: a sampled run writes no stamped artifact (latest.json carries a tree
+  // stamp), so a later full run on the same stamp cannot read it as complete.
+  if (lastArmHangRunSampled) {
+    process.stdout.write("idle-arm-hang: sampled run, skipped latest.json write\n");
+  } else {
+    await writeArmHangDump(report, {
+      outputPath: path.join(IDLE_ARM_HANG_DIR, writePreFix ? PRE_FIX_NAME : "latest.json"),
+      label: writePreFix ? "pre-fix" : label,
+    });
+  }
   process.stdout.write(
     `idle-arm-hang: ${report.arms.length} arm rows across ${report.scenarios.length} scenarios\n`,
   );
