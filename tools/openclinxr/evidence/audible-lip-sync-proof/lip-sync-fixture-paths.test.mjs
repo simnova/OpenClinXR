@@ -58,7 +58,7 @@ it("a path under the home Documents tree is refused before any existence check",
 });
 
 it("an existing regular scratch file passes through unchanged",()=>{
-  const base=mkdtempSync("/private/tmp/hl-good-");
+  const base=mkdtempSync(join(realpathSync(tmpdir()),"hl-good-"));
   const file=join(base,"f.txt");
   writeFileSync(file,"ok");
   expect(requireLipSyncFixture(file,"x")).toBe(file);
