@@ -1,4 +1,4 @@
-export const storeRoot = process.env.OPENCLINXR_LIPSYNC_STORE_ROOT ?? "/Volumes/files/openclinxr-assets/store/lip-sync-packet-20260916";
+export const storeRoot = process.env.OPENCLINXR_LIPSYNC_STORE_ROOT ?? "/Volumes/files/openclinxr-assets/store/lip-sync-packet-20260916/execution-packet";
 export default {
   "sourcePath": "/Users/patrick/.openclinxr-tools/rhubarb/extras/AdobeAfterEffects/demo/riddle.wav",
   "retainedPrivatePath": "/Users/patrick/.openclinxr-tools/rhubarb/extras/AdobeAfterEffects/demo/riddle.wav",
