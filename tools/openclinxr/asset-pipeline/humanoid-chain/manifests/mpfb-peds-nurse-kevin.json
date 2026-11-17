@@ -1,0 +1,271 @@
+{
+  "actorId": "mpfb-peds-nurse-kevin",
+  "stages": [
+    {
+      "id": "01",
+      "name": "chest-anchor-separation",
+      "tool": "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
+      "kind": "node",
+      "argv": [
+        "--input",
+        "{in}",
+        "--output",
+        "{out}",
+        "--report",
+        "{outdir}/01-chest-anchor-separation.json",
+        "--half-span-m",
+        "0.085"
+      ],
+      "note": "STAGES.md row 01 (sourceNotes[12])."
+    },
+    {
+      "id": "03a",
+      "name": "albedo-bake",
+      "tool": "tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts",
+      "kind": "node",
+      "argv": [
+        "--inputs",
+        "{in}",
+        "--outdir",
+        "{outdir}/.work-03a",
+        "--report",
+        "{outdir}/03a-albedo-bake.json"
+      ],
+      "collectFrom": "{outdir}/.work-03a/{inBase}.glb",
+      "note": "STAGES.md row 03a. Tool writes <outdir>/<basename(in)>; collectFrom moves it to the write-once output."
+    },
+    {
+      "id": "04",
+      "name": "face-preserving-selective-decimation",
+      "tool": "tools/openclinxr/asset-pipeline/trellis/iterate-optimize.ts",
+      "kind": "node",
+      "argv": [
+        "--input",
+        "{in}",
+        "--out",
+        "{outdir}/.work-04",
+        "--face-preserving",
+        "--face-preserving-ratio",
+        "0.3",
+        "--face-preserving-keep",
+        "library_scrub_pants"
+      ],
+      "collectFrom": "{outdir}/.work-04/{inBase}-fp-r0.3.glb",
+      "note": "trousers kept undecimated via --face-preserving-keep library_scrub_pants (K2 R2)"
+    },
+    {
+      "id": "05",
+      "name": "garment-provenance-stamp",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts",
+      "kind": "node",
+      "argv": [
+        "{out}"
+      ],
+      "note": "STAGES.md row 05 (sourceNotes[13]). In-place tool: the runner copies {in} to {out} first."
+    },
+    {
+      "id": "08a",
+      "name": "old-teeth-rest-clearance",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts",
+      "kind": "node",
+      "argv": [
+        "{out}",
+        "--delta",
+        "0.0082"
+      ],
+      "note": "STAGES.md row 08, first tool (nested byteLineage old teeth placement). In-place."
+    },
+    {
+      "id": "08b",
+      "name": "old-tongue-forward-place",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts",
+      "kind": "node",
+      "argv": [
+        "{out}",
+        "--delta",
+        "-0.004"
+      ],
+      "note": "STAGES.md row 08, second tool (nested byteLineage old tongue placement). In-place."
+    },
+    {
+      "id": "10a",
+      "name": "garment-restore-scrub-shirt",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts",
+      "kind": "node",
+      "argv": [
+        "{out}",
+        "--from",
+        "{outdir}/.inputs/pre-hb05-source.glb",
+        "--mesh",
+        "scrub_shirt"
+      ],
+      "inputs": [
+        {
+          "name": "pre-hb05-source.glb",
+          "gitRef": "f6b335392^:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+          "sha256": "f362ca449d825a0eaacdf1a2deb8ea21ef6b7b96f5c0c27849e92ee3d4f8514d"
+        }
+      ],
+      "note": "STAGES.md row 10, scrub shirt mesh. Restores the OLDER full-res primitive over today's body; refuses unless the bake body is within --body-tol-m (default 0.003). V-hole risk: flagged in RESULT."
+    },
+    {
+      "id": "10b",
+      "name": "garment-restore-scrub-pants",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts",
+      "kind": "node",
+      "argv": [
+        "{out}",
+        "--from",
+        "{outdir}/.inputs/pre-hb05-source.glb",
+        "--mesh",
+        "scrub_pants"
+      ],
+      "inputs": [
+        {
+          "name": "pre-hb05-source.glb",
+          "gitRef": "f6b335392^:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+          "sha256": "f362ca449d825a0eaacdf1a2deb8ea21ef6b7b96f5c0c27849e92ee3d4f8514d"
+        }
+      ],
+      "note": "STAGES.md row 10, scrub pants mesh. Same older-mesh warning as 10a."
+    },
+    {
+      "id": "10c",
+      "name": "garment-restore-boots",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts",
+      "kind": "node",
+      "argv": [
+        "{out}",
+        "--from",
+        "{outdir}/.inputs/pre-hb05-source.glb",
+        "--mesh",
+        "boots"
+      ],
+      "inputs": [
+        {
+          "name": "pre-hb05-source.glb",
+          "gitRef": "f6b335392^:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+          "sha256": "f362ca449d825a0eaacdf1a2deb8ea21ef6b7b96f5c0c27849e92ee3d4f8514d"
+        }
+      ],
+      "note": "STAGES.md row 10, boots mesh. Same older-mesh warning as 10a."
+    },
+    {
+      "id": "12",
+      "name": "garment-topology-weld",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py",
+      "kind": "python",
+      "argv": [
+        "--input",
+        "{out}",
+        "--angle",
+        "90",
+        "--report",
+        "{outdir}/12-garment-topology-weld.json"
+      ],
+      "note": "STAGES.md row 12 (sourceNotes[15]). In-place weld."
+    },
+    {
+      "id": "13",
+      "name": "garment-weave-fold",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts",
+      "kind": "node",
+      "argv": [
+        "--glb",
+        "{out}",
+        "--report",
+        "{outdir}/13-garment-weave-fold.json",
+        "--target",
+        "mat_makeclothes_library_scrub_shirt:0.05,0.48,0.52",
+        "--renormalize"
+      ],
+      "note": "--renormalize keeps the authored shirt albedo texels (K2 R3)"
+    },
+    {
+      "id": "17",
+      "name": "skin-shade-carrier",
+      "tool": "tools/openclinxr/asset-pipeline/skin/maps/repack_skin_shade.py",
+      "kind": "python",
+      "argv": [
+        "{out}",
+        "--reference",
+        "peds_nurse_kevin"
+      ],
+      "note": "STAGES.md row 17 (sourceNotes[0]). In-place; no --record-provenance, so no sidecar writes."
+    }
+  ],
+  "excluded": [
+    {
+      "id": "09",
+      "name": "chest-animation-repair",
+      "reason": "other",
+      "note": "repair-collapsed-animations only has work after the 06/07 walk graft, both excluded; runs as a refusal otherwise"
+    },
+    {
+      "id": "02",
+      "name": "licence-notice-skipped",
+      "reason": "metadata_only",
+      "note": "STAGES.md GAP 1: the tracked writer has no target CLI and would write apps/ui-xr/public/**; the stage changes only glTF asset.copyright. A chain run carries the predecessor bytes forward unchanged."
+    },
+    {
+      "id": "06",
+      "name": "walk-clip-graft",
+      "reason": "gap",
+      "note": "STAGES.md GAP 2: required source human-base-animations.glb#Walk is not in IN/WT/store; byte-changing animation graft, cannot be skipped silently."
+    },
+    {
+      "id": "07",
+      "name": "walk-rebind-heading",
+      "reason": "gap",
+      "note": "STAGES.md GAP 2 family: corrected heading/rebind of the stage-06 graft; blocked on the same missing clip source."
+    },
+    {
+      "id": "11",
+      "name": "garment-60deg-smooth",
+      "reason": "gap",
+      "note": "STAGES.md GAP 3: the sidecar names only the internal Blender function materialize_mpfb_humanoid_candidate.py#apply_garment_auto_smooth_normals (angle_deg=60.0); no tracked standalone CLI exists, so the runner has nothing to execute."
+    },
+    {
+      "id": "15",
+      "name": "skin-normal-f1",
+      "reason": "gap",
+      "note": "STAGES.md GAP 5: Blender bake (F1, cell 6, randomness 0.85, strength 0.8) whose baked PNG/report inputs are absent from WT/store; needs lane Blender regeneration, and editing the DG-owned materializer is forbidden."
+    },
+    {
+      "id": "16",
+      "name": "skin-normal-seeded",
+      "reason": "gap",
+      "note": "STAGES.md GAP 4+5: seeded re-bake (seed 27.623558213846657) with the same missing Blender inputs, and the sidecar compresses away the intermediate SHA."
+    },
+    {
+      "id": "18",
+      "name": "lash-follow",
+      "reason": "gap",
+      "note": "STAGES.md GAP 6: the lash tool requires a companion provenance sidecar and no minimal-sidecar derivation is recorded."
+    },
+    {
+      "id": "19",
+      "name": "teeth-swap",
+      "reason": "gap",
+      "note": "STAGES.md GAP 7: requires the scratch GLB f86aa766 (Blender fit) absent from IN/WT/store; the tracked tool cannot regenerate it."
+    },
+    {
+      "id": "20",
+      "name": "teeth-decimate",
+      "reason": "gap",
+      "note": "STAGES.md GAP 7 family: --in-place --ratio 0.65 --error 0.005 decimate downstream of the stage-19 swap output; blocked on the same missing scratch."
+    },
+    {
+      "id": "14",
+      "name": "vitruvian-eye-swap",
+      "reason": "superseded",
+      "note": "MEAS3: input 13-garment-weave-fold.glb already carries target eye PNG bytes sha12 4066911e4dfb (vitruvian-iris-brown, 718537 B); eye assertion passes at :167 so the rewrite is a no-op and the non-eye-moved assertion fails at :171. Superseded until the materializer input changes."
+    },
+    {
+      "id": "03b",
+      "name": "albedo-bake-crc",
+      "reason": "other",
+      "note": "historical 03b re-baked pre-bake bytes; on 03a output it is a byte no-op (in == out, sha256 bcc4d219…); no faithful input exists in this chain"
+    }
+  ]
+}

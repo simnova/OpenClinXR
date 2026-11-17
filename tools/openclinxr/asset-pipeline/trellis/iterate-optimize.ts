@@ -149,6 +149,7 @@ function parseArgs(argv: string[]) {
   let renderOut = "";
   let facePreserving = false;
   let facePreservingRatio = 0;
+  const facePreservingKeep: string[] = [];
   for (let i = 0; i < argv.length; i++) {
     if (argv[i] === "--input") input = argv[++i] ?? "";
     else if (argv[i] === "--out") out = argv[++i] ?? "";
@@ -159,6 +160,15 @@ function parseArgs(argv: string[]) {
     else if (argv[i] === "--render-out") renderOut = argv[++i] ?? "";
     else if (argv[i] === "--face-preserving") facePreserving = true;
     else if (argv[i] === "--face-preserving-ratio") facePreservingRatio = Number(argv[++i] ?? 0);
+    else if (argv[i] === "--face-preserving-keep") {
+      const nxt = argv[i + 1];
+      if (nxt === undefined || nxt.length === 0 || nxt.startsWith("--")) {
+        console.error("--face-preserving-keep requires a non-empty value that does not start with --");
+        process.exit(2);
+      }
+      facePreservingKeep.push(nxt);
+      i += 1;
+    }
   }
   if (!input || !out) {
     console.error("Usage: iterate-optimize.ts --input <raw.glb> --out <dir> [--bake] [--bake-res <n>] [--target <low.glb>] [--render] [--render-out <png>]");
@@ -177,11 +187,24 @@ function parseArgs(argv: string[]) {
     console.error("--face-preserving-ratio requires --face-preserving");
     process.exit(2);
   }
+  let facePreservingKeepRes: RegExp[] = [];
+  if (facePreservingKeep.length > 0) {
+    if (!facePreserving) {
+      console.error("--face-preserving-keep requires --face-preserving");
+      process.exit(2);
+    }
+    try {
+      facePreservingKeepRes = facePreservingKeep.map((s) => new RegExp(s));
+    } catch (e) {
+      console.error(`invalid --face-preserving-keep regex: ${String(e)}`);
+      process.exit(2);
+    }
+  }
   if (facePreserving && target) {
     console.error("--face-preserving cannot combine with --target (bake/render stage-only mode)");
     process.exit(2);
   }
-  return { input: resolveInput(input), out: resolveOut(out), bake, render, target: target ? resolveInput(target) : "", bakeRes, renderOut, facePreserving, facePreservingRatio };
+  return { input: resolveInput(input), out: resolveOut(out), bake, render, target: target ? resolveInput(target) : "", bakeRes, renderOut, facePreserving, facePreservingRatio, facePreservingKeep, facePreservingKeepRes };
 }
 
 async function countTris(glbPath: string): Promise<number> {
@@ -269,16 +292,20 @@ export async function countFaceTris(glbPath: string): Promise<{ tris: number; fa
   return { tris: Math.round(tris), face: Math.round(face) };
 }
 
-/** HB-05 face-preserving rung: weld then simplifyPrimitive on non-face primitives only. */
+/** HB-05 face-preserving rung: weld then simplifyPrimitive on non-face primitives only.
+ * Meshes whose name matches any of keepRes are skipped exactly like FACE_RE
+ * meshes (values live in the manifest argv, not in code). */
 export async function writeFacePreservingRung(
   input: string,
   output: string,
   ratio: number,
+  keepRes: RegExp[] = [],
 ): Promise<{ tris: number; face: number }> {
   const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
   const doc = await io.read(input);
   for (const mesh of doc.getRoot().listMeshes()) {
     if (FACE_RE.test(mesh.getName()) || mesh.getName() === GOWN_MARKER) continue;
+    if (keepRes.some((re) => re.test(mesh.getName()))) continue;
     for (const prim of mesh.listPrimitives()) {
       try {
         weldPrimitive(prim);
@@ -495,7 +522,7 @@ async function runBakeRenderStages(opts: {
 }
 
 async function main() {
-  const { input, out, bake, render, target, bakeRes, renderOut, facePreserving, facePreservingRatio } = parseArgs(process.argv.slice(2));
+  const { input, out, bake, render, target, bakeRes, renderOut, facePreserving, facePreservingRatio, facePreservingKeep, facePreservingKeepRes } = parseArgs(process.argv.slice(2));
   if (!existsSync(input)) {
     console.error("missing input", input);
     process.exit(2);
@@ -510,13 +537,15 @@ async function main() {
     const ratios = facePreservingRatio !== 0 ? [facePreservingRatio] : FACE_PRESERVING_RATIOS;
     const base = path.basename(input).replace(/\.glb$/i, "");
     const rungs = [];
+    const includeKeep = facePreservingKeep.length > 0;
     for (const ratio of ratios) {
       const dest = path.join(out, `${base}-fp-r${ratio}.glb`);
-      const counts = await writeFacePreservingRung(input, dest, ratio);
+      const counts = await writeFacePreservingRung(input, dest, ratio, facePreservingKeepRes);
       rungs.push({
         label: `fp-r${ratio}`,
         ratio,
         error: FACE_PRESERVING_ERROR,
+        ...(includeKeep ? { keep: facePreservingKeep } : {}),
         triangleCount: counts.tris,
         faceTriangles: counts.face,
         path: dest,
@@ -526,7 +555,7 @@ async function main() {
     }
     writeFileSync(
       path.join(out, "face-preserving-rungs.json"),
-      JSON.stringify({ input, mode: "face-preserving", error: FACE_PRESERVING_ERROR, rungs }, null, 2) + "\n",
+      JSON.stringify({ input, mode: "face-preserving", error: FACE_PRESERVING_ERROR, ...(includeKeep ? { keep: facePreservingKeep } : {}), rungs }, null, 2) + "\n",
     );
     return;
   }
