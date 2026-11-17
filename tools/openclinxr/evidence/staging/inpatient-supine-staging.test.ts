@@ -1,10 +1,12 @@
 import { describe, expect, it } from "vitest";
 import {
   DECLARED_NONSTANDING_SCENARIO_IDS,
-  SIX_CANONICAL_DECLARATIONS,
   evaluateStagingCounterweight,
   expectedPostureFromCaseIntent,
+  SIX_CANONICAL_DECLARATIONS,
 } from "../canonical-staging-contracts/expected-posture.js";
+import { DECLARED_INPATIENT_SCENARIO_IDS as TARGETS } from "../inpatient-supine-staging.js";
+import { assertSupineStagingSampleCoverage } from "../station-subset/room-supine-sample.js";
 
 /**
  * PLANTED CONTRACTS (#179). Three inpatient stations render a standing patient beside a bed.
@@ -156,15 +158,14 @@ type Report = {
   postureSource: string;
   claimScope: string;
   notEvidenceFor: string[];
+  /** R6: the selection this report measured (null when it measured everything). */
+  sample: { seed: string; ids: string[] } | null;
 };
 
 type Inspect = () => Promise<Report>;
 
-const TARGETS = [
-  "ward_delirium_med_rec_v1",
-  "stepdown_sepsis_nurse_escalation_v1",
-  "postop_fever_consult_pressure_v1",
-];
+// F5 (cap34, V5): ONE TARGET DECLARATION — TARGETS is the imported producer
+// constant DECLARED_INPATIENT_SCENARIO_IDS (see top import), not a local literal.
 const ED_CHEST_PAIN = "ed_chest_pain_priority_v1";
 const TELEHEALTH = "telehealth_diabetes_health_literacy_v1";
 /** #171's live gate. A body sunk 0.19 m through the seat must still fail. */
@@ -214,7 +215,17 @@ describe("inpatient stations stage their patient on a bed (#179)", () => {
     expect(inspect).toBeTypeOf("function");
 
     const report = await inspect!();
-    expect(report.rows.length, "fewer stations enumerated than the bank ships").toBeGreaterThanOrEqual(14);
+    if (report.sample === null) {
+      expect(report.rows.length, "fewer stations enumerated than the bank ships").toBeGreaterThanOrEqual(14);
+    } else {
+      // S4a sampled: the measured set equals sample.ids ∪ TARGETS (set equality),
+      // printed on one line beside the seed line.
+      assertSupineStagingSampleCoverage(report, [...TARGETS]);
+      const rowIds = [...new Set(report.rows.map((r) => r.scenarioId))].sort();
+      process.stdout.write(
+        `inpatient-supine-staging: sampled seed=${report.sample.seed} rows=${rowIds.join(",")}\n`,
+      );
+    }
 
     const doubled = report.rows
       .filter((r) => r.supportSurfaceCount > 1)
@@ -252,8 +263,24 @@ describe("inpatient stations stage their patient on a bed (#179)", () => {
     }
 
     // ED stays supine, telehealth stays seated — neither is this slice's business.
-    expect(report.rows.find((r) => r.scenarioId === ED_CHEST_PAIN)?.posture).toBe("supine");
-    expect(report.rows.find((r) => r.scenarioId === TELEHEALTH)?.posture).toBe("seated");
+    // Sampled runs measure only sample.ids ∪ TARGETS: skip with one line when the
+    // subject station is not in the sampled rows.
+    const edRow = report.rows.find((r) => r.scenarioId === ED_CHEST_PAIN);
+    if (report.sample !== null && edRow === undefined) {
+      process.stdout.write(
+        `ed-posture skipped: ${ED_CHEST_PAIN} not in sample ${report.rows.map((r) => r.scenarioId).sort().join(",")}\n`,
+      );
+    } else {
+      expect(edRow?.posture).toBe("supine");
+    }
+    const teleRow = report.rows.find((r) => r.scenarioId === TELEHEALTH);
+    if (report.sample !== null && teleRow === undefined) {
+      process.stdout.write(
+        `telehealth-posture skipped: ${TELEHEALTH} not in sample ${report.rows.map((r) => r.scenarioId).sort().join(",")}\n`,
+      );
+    } else {
+      expect(teleRow?.posture).toBe("seated");
+    }
 
     // Prove the six canonical case-intent declarations resolve independently
     // of observed rows before using them as expectations.

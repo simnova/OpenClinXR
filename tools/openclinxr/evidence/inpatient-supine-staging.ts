@@ -22,6 +22,13 @@ import {
   withTreeStamp,
   type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import type { SampleRecord } from "./station-subset.js";
+import { selectStationSubset } from "./station-subset.js";
+import {
+  explicitSelectionCacheKey,
+  isUsableSampledDiskReport,
+  selectionCacheKey,
+} from "./station-subset/room-supine-sample.js";
 import {
   ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
@@ -31,6 +38,9 @@ import {
 export const ISSUE_179_EVIDENCE_DIR = ".openclinxr/evidence/issue-179";
 export const PRE_FIX_NAME = "pre-fix.json";
 export const MEASURE_NAME = "inpatient-supine-staging.json";
+/** S2: fixed sampled siblings — a sampled run writes here, never the canonical path. */
+export const PRE_FIX_SAMPLED_NAME = "pre-fix.json.sampled.json";
+export const MEASURE_SAMPLED_NAME = "inpatient-supine-staging.json.sampled.json";
 
 /**
  * Stations this slice declares should stage a recumbent patient.
@@ -90,6 +100,8 @@ export type InpatientSupineStagingReport = {
   postureSource: string;
   claimScope: string;
   notEvidenceFor: string[];
+  /** R6: the selection this report measured (null when it measured everything). */
+  sample: SampleRecord | null;
 };
 
 type ArtifactPayload = {
@@ -115,7 +127,29 @@ type LiveStationReading = {
 };
 
 let cachedReport: InpatientSupineStagingReport | null = null;
+/** F2: what selection the cached report measured ("full" or `seed:sorted-ids`). */
+let cachedKey: string | null = null;
 let measureInFlight: Promise<InpatientSupineStagingReport> | null = null;
+/** F2: what selection the in-flight measure is for. */
+let measureInFlightKey: string | null = null;
+
+/** Test seam: replace the live browser measurement (no browser). Null = production path. */
+type MeasureLiveSupineFn = typeof measureLive;
+let measureLiveSupineForTest: MeasureLiveSupineFn | null = null;
+
+/** Test seam: stub the live measurement. Pass null to restore production measurement. */
+export function setSupineStagingMeasureLiveForTest(fn: MeasureLiveSupineFn | null): void {
+  measureLiveSupineForTest = fn;
+}
+
+/** Test seam: restore production measurement and drop in-process caches. */
+export function resetSupineStagingTestSeam(): void {
+  measureLiveSupineForTest = null;
+  cachedReport = null;
+  cachedKey = null;
+  measureInFlight = null;
+  measureInFlightKey = null;
+}
 
 function preFixPath(): string {
   return path.join(ISSUE_179_EVIDENCE_DIR, PRE_FIX_NAME);
@@ -123,6 +157,50 @@ function preFixPath(): string {
 
 function measurePath(): string {
   return path.join(ISSUE_179_EVIDENCE_DIR, MEASURE_NAME);
+}
+
+function sampledPreFixPath(): string {
+  return path.join(ISSUE_179_EVIDENCE_DIR, PRE_FIX_SAMPLED_NAME);
+}
+
+function sampledMeasurePath(): string {
+  return path.join(ISSUE_179_EVIDENCE_DIR, MEASURE_SAMPLED_NAME);
+}
+
+/** S2: a sampled measure write goes to the fixed sampled path, never canonical. */
+export function supineMeasurePathForReport(report: InpatientSupineStagingReport): string {
+  return report.sample ? sampledMeasurePath() : measurePath();
+}
+
+/** S2: a sampled pre-fix write goes to the fixed sampled path, never canonical. */
+export function supinePreFixPathForReport(report: InpatientSupineStagingReport): string {
+  return report.sample ? sampledPreFixPath() : preFixPath();
+}
+
+/**
+ * S4a: the sampled station list is sample.ids ∪ TARGETS — the three declared
+ * inpatient stations are always measured so their clauses keep full strength.
+ * CW1: pure selection, no browser. sample.ids stays the raw subset; rows cover the union.
+ */
+export type SupineStagingSampleSelection = {
+  ids: string[];
+  sample: SampleRecord | null;
+};
+
+/** CW1: full bank for this instrument (re-exported so unit tests stay in tools). */
+export function listFullSupineBankScenarioIds(): string[] {
+  return listShippedCastScenarioIds();
+}
+
+export function selectSupineStagingScenarioIds(
+  allIds: string[],
+  env: NodeJS.ProcessEnv = process.env,
+): SupineStagingSampleSelection {
+  const subset = selectStationSubset(allIds, env);
+  if (subset.full) return { ids: [...allIds], sample: null };
+  const targets = DECLARED_INPATIENT_SCENARIO_IDS.filter((id) => allIds.includes(id));
+  const ids = [...new Set([...subset.ids, ...targets])];
+  return { ids, sample: { seed: subset.seed as string, ids: [...subset.ids] } };
 }
 
 function environmentIdForScenario(scenarioId: string): string {
@@ -139,51 +217,131 @@ export async function inspectInpatientSupineStaging(input?: {
   label?: string;
   scenarioIds?: string[];
   writePreFix?: boolean;
+  /** Test-only: redirect artifact reads/writes under this root (default: repo CWD). */
+  evidenceRoot?: string;
 }): Promise<InpatientSupineStagingReport> {
-  if (!input?.force && !input?.writePreFix && cachedReport) return cachedReport;
-  if (!input?.force && !input?.writePreFix && measureInFlight) return measureInFlight;
+  // S1/S4a: the seeded subset applies whenever the caller did not name stations —
+  // including force:true re-measures, so each forced call re-measures the SAME
+  // sampled ids (same seed -> same ids). Explicit scenarioIds bypass sampling.
+  // One `station-subset: seed=` line is printed here on sampled runs.
+  const selection: SupineStagingSampleSelection = input?.scenarioIds?.length
+    ? { ids: [...input.scenarioIds], sample: null }
+    : selectSupineStagingScenarioIds(listShippedCastScenarioIds());
+  const sampled = selection.sample !== null;
+  const needed = selection.ids;
+  // F2: reuse only the exact selection identity — never a full report for a sampled
+  // call, never another seed's sample, never a concurrent different-key flight.
+  // R3-F1: an explicit scenarioIds call gets its own key, distinct from "full".
+  const key = input?.scenarioIds?.length
+    ? explicitSelectionCacheKey(input.scenarioIds)
+    : selectionCacheKey(selection.sample);
 
-  measureInFlight = (async () => {
+  if (!input?.force && !input?.writePreFix && cachedReport && cachedKey === key) {
+    return cachedReport;
+  }
+  if (!input?.force && !input?.writePreFix && measureInFlight && measureInFlightKey === key) {
+    return measureInFlight;
+  }
+
+  const task: Promise<InpatientSupineStagingReport> = (async () => {
+    const atRoot = (p: string): string =>
+      input?.evidenceRoot ? path.join(input.evidenceRoot, p) : p;
     if (!input?.force && !input?.writePreFix && !input?.scenarioIds) {
-      const fromDisk = await tryReadArtifact(measurePath());
-      if (fromDisk) {
-        cachedReport = fromDisk;
-        return fromDisk;
+      // Sampled runs read only the sampled artifact; full runs read only canonical.
+      const fromDisk = sampled
+        ? await tryReadArtifact(atRoot(sampledMeasurePath()))
+        : await tryReadArtifact(atRoot(measurePath()));
+      // F3: a sampled artifact is reusable only on exact seed + sample ids,
+      // with the measured rows covering every requested id.
+      if (fromDisk && sampled && selection.sample) {
+        if (
+          isUsableSampledDiskReport({
+            reportSample: fromDisk.sample,
+            measuredScenarioIds: fromDisk.rows.map((r) => r.scenarioId),
+            requestedSeed: selection.sample.seed,
+            requestedSampleIds: selection.sample.ids,
+            neededIds: needed,
+          })
+        ) {
+          cachedReport = fromDisk;
+          cachedKey = key;
+          return fromDisk;
+        }
+        process.stdout.write(
+          `inpatient-supine-staging: refusing sampled disk artifact for seed=${selection.sample.seed} sample=[${[...selection.sample.ids].sort().join(",")}]\n`,
+        );
+      } else if (fromDisk && !sampled) {
+        // R3-F3: a canonical artifact is served only when it carries no sample —
+        // coverage comes from measured rows, never from recorded sample ids.
+        if (fromDisk.sample !== null) {
+          process.stdout.write(
+            `inpatient-supine-staging: refusing canonical disk artifact carrying sample seed=${fromDisk.sample.seed} (canonical only by a full run)\n`,
+          );
+        } else {
+          const covered = new Set(fromDisk.rows.map((r) => r.scenarioId));
+          if (needed.every((id) => covered.has(id))) {
+            cachedReport = fromDisk;
+            cachedKey = key;
+            return fromDisk;
+          }
+          process.stdout.write(
+            `inpatient-supine-staging: refusing disk artifact (covers ${covered.size} of ${needed.length} needed)\n`,
+          );
+        }
       }
     }
 
-    const report = await measureLive({
+    const measured = await (measureLiveSupineForTest ?? measureLive)({
       baseUrl: input?.baseUrl,
-      scenarioIds: input?.scenarioIds,
+      scenarioIds: needed,
     });
+    // S2: the measured report records its own selection (null on full runs).
+    const report: InpatientSupineStagingReport = {
+      ...measured,
+      sample: selection.sample,
+    };
+    // S2: sampled runs write the sampled siblings, never the canonical artifacts.
     await writeDump(report, {
-      outputPath: measurePath(),
+      outputPath: atRoot(supineMeasurePathForReport(report)),
       label: input?.label ?? "measure",
     });
     if (input?.writePreFix) {
       await writeDump(report, {
-        outputPath: preFixPath(),
+        outputPath: atRoot(supinePreFixPathForReport(report)),
         label: "pre-fix",
       });
     }
-    if (!input?.scenarioIds) {
-      cachedReport = report;
-    }
+    // R3-F1: every completed call is cached under its own key, so a repeated
+    // explicit selection is served without re-measuring.
+    cachedReport = report;
+    cachedKey = key;
     return report;
   })();
+  measureInFlight = task;
+  measureInFlightKey = key;
 
   try {
-    return await measureInFlight;
+    return await task;
   } finally {
-    measureInFlight = null;
+    if (measureInFlight === task) {
+      measureInFlight = null;
+      measureInFlightKey = null;
+    }
   }
 }
 
 async function tryReadArtifact(filePath: string): Promise<InpatientSupineStagingReport | null> {
   return tryReadStampedArtifact(filePath, (parsed) => {
-    const report = parsed.report as InpatientSupineStagingReport | undefined;
+    const report = parsed.report as Partial<InpatientSupineStagingReport> | undefined;
     if (report?.rows && Array.isArray(report.rows) && report.rows.length > 0) {
-      return report;
+      return {
+        rows: report.rows,
+        declaredInpatientScenarioIds: report.declaredInpatientScenarioIds ?? [],
+        postureSource: report.postureSource ?? POSTURE_SOURCE,
+        claimScope: report.claimScope ?? "",
+        notEvidenceFor: report.notEvidenceFor ?? [],
+        sample: report.sample ?? null,
+      } as InpatientSupineStagingReport;
     }
     return null;
   });
@@ -191,9 +349,24 @@ async function tryReadArtifact(filePath: string): Promise<InpatientSupineStaging
 
 export async function writeDump(
   report: InpatientSupineStagingReport,
-  input?: { outputPath?: string; label?: string },
+  input?: { outputPath?: string; label?: string; evidenceRoot?: string },
 ): Promise<string> {
-  const outputPath = input?.outputPath ?? measurePath();
+  // F1: the default is the routed path — a sampled report never lands on canonical
+  // through this writer, even when the caller passes no outputPath. evidenceRoot
+  // (test-only) redirects the default under a temp root; explicit outputPath wins.
+  const outputPath = input?.outputPath
+    ?? path.join(input?.evidenceRoot ?? ".", supineMeasurePathForReport(report));
+  // R3-F3: canonical only by a full run, on every public path — a sampled report
+  // addressed at a canonical artifact throws instead of overwriting it.
+  if (report.sample !== null) {
+    for (const canonical of [measurePath(), preFixPath()]) {
+      if (path.resolve(outputPath) === path.resolve(canonical)) {
+        throw new Error(
+          `inpatient-supine-staging: refusing to write sampled report (seed=${report.sample.seed}) to canonical path ${outputPath} (canonical artifact ${canonical})`,
+        );
+      }
+    }
+  }
   await mkdir(path.dirname(outputPath), { recursive: true });
   const payload = withTreeStamp({
     schemaVersion: "openclinxr.inpatient-supine-staging.v1" as const,
@@ -221,7 +394,7 @@ export async function writeDump(
 async function measureLive(input: {
   baseUrl?: string;
   scenarioIds?: string[];
-}): Promise<InpatientSupineStagingReport> {
+}): Promise<Omit<InpatientSupineStagingReport, "sample">> {
   const all = listShippedCastScenarioIds();
   const scenarios =
     input.scenarioIds && input.scenarioIds.length > 0

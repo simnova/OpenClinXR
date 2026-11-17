@@ -26,6 +26,13 @@ import {
 import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
 import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
+  explicitSelectionCacheKey,
+  isUsableSampledDiskReport,
+  selectionCacheKey,
+} from "./station-subset/room-supine-sample.js";
+import type { SampleRecord } from "./station-subset.js";
+import { selectStationSubset } from "./station-subset.js";
+import {
   buildRoomCaptureUrl,
   ROOM_CAPTURE_MODE,
   waitForHumanoidAssetsLoaded,
@@ -34,6 +41,10 @@ import {
 
 export const STATION_ROOM_EVIDENCE_DIR = ".openclinxr/evidence/issue-133";
 export const PRE_FIX_NAME = "pre-fix.json";
+/** S2: fixed sampled siblings — a sampled run writes here, never the canonical path. */
+export const PRE_FIX_SAMPLED_NAME = "pre-fix.json.sampled.json";
+export const LATEST_NAME = "latest.json";
+export const LATEST_SAMPLED_NAME = "latest.json.sampled.json";
 
 /** Equipment ids that count as a patient lie/sit surface (ONE path with fixture support). */
 export const PATIENT_SUPPORT_EQUIPMENT_IDS = new Set([
@@ -80,6 +91,8 @@ export function selectHumanoidPresenceMismatches(rows: readonly HumanoidPresence
 
 export type StationRoomNotEmptyReport = {
   rooms: RoomFacts[];
+  /** R6: the selection this report measured (null when it measured everything). */
+  sample: SampleRecord | null;
 };
 
 type ArtifactPayload = {
@@ -97,10 +110,69 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../
 const generatedRoot = path.join(repoRoot, "apps/ui-xr/public/xr-assets/generated");
 
 let cachedReport: StationRoomNotEmptyReport | null = null;
+/** F2: what selection the cached report measured ("full" or `seed:sorted-ids`). */
+let cachedKey: string | null = null;
 let measureInFlight: Promise<StationRoomNotEmptyReport> | null = null;
+/** F2: what selection the in-flight measure is for. */
+let measureInFlightKey: string | null = null;
+
+/** Test seam: replace the live browser measurement (no browser). Null = production path. */
+type MeasureLiveRoomsFn = typeof measureLiveRooms;
+let measureLiveRoomsForTest: MeasureLiveRoomsFn | null = null;
+
+/** Test seam: stub the live measurement. Pass null to restore production measurement. */
+export function setStationRoomMeasureLiveForTest(fn: MeasureLiveRoomsFn | null): void {
+  measureLiveRoomsForTest = fn;
+}
+
+/** Test seam: restore production measurement and drop in-process caches. */
+export function resetStationRoomTestSeam(): void {
+  measureLiveRoomsForTest = null;
+  cachedReport = null;
+  cachedKey = null;
+  measureInFlight = null;
+  measureInFlightKey = null;
+}
 
 function preFixPath(): string {
   return path.join(STATION_ROOM_EVIDENCE_DIR, PRE_FIX_NAME);
+}
+
+function latestPath(): string {
+  return path.join(STATION_ROOM_EVIDENCE_DIR, LATEST_NAME);
+}
+
+function sampledPreFixPath(): string {
+  return path.join(STATION_ROOM_EVIDENCE_DIR, PRE_FIX_SAMPLED_NAME);
+}
+
+function sampledLatestPath(): string {
+  return path.join(STATION_ROOM_EVIDENCE_DIR, LATEST_SAMPLED_NAME);
+}
+
+/** S2: a sampled pre-fix write goes to the fixed sampled path, never canonical. */
+export function stationRoomPreFixPathForReport(report: StationRoomNotEmptyReport): string {
+  return report.sample ? sampledPreFixPath() : preFixPath();
+}
+
+/** S2: a sampled latest write goes to the fixed sampled path, never canonical. */
+export function stationRoomLatestPathForReport(report: StationRoomNotEmptyReport): string {
+  return report.sample ? sampledLatestPath() : latestPath();
+}
+
+/** CW1: pure selection — the sampled-or-full station list, no browser. */
+export type StationRoomSampleSelection = {
+  ids: string[];
+  sample: SampleRecord | null;
+};
+
+export function selectStationRoomScenarioIds(
+  allIds: string[],
+  env: NodeJS.ProcessEnv = process.env,
+): StationRoomSampleSelection {
+  const subset = selectStationSubset(allIds, env);
+  if (subset.full) return { ids: [...allIds], sample: null };
+  return { ids: [...subset.ids], sample: { seed: subset.seed as string, ids: [...subset.ids] } };
 }
 
 /** Stations = every shipped scene-manifest directory (never a hardcoded list). */
@@ -126,53 +198,124 @@ export async function inspectStationRoomNotEmpty(input?: {
   label?: string;
   scenarioIds?: string[];
   writePreFix?: boolean;
+  /** Test-only: redirect artifact reads/writes under this root (default: repo CWD). */
+  evidenceRoot?: string;
 }): Promise<StationRoomNotEmptyReport> {
-  if (!input?.force && !input?.writePreFix && cachedReport) return cachedReport;
-  if (!input?.force && !input?.writePreFix && measureInFlight) return measureInFlight;
+  // S1: the seeded subset applies whenever the caller did not name stations —
+  // including force:true re-measures, so each forced call re-measures the SAME
+  // sampled ids (same seed -> same ids). Explicit scenarioIds bypass sampling.
+  // One `station-subset: seed=` line is printed here on sampled runs.
+  const selection: StationRoomSampleSelection = input?.scenarioIds?.length
+    ? { ids: [...input.scenarioIds], sample: null }
+    : selectStationRoomScenarioIds(await listShippedScenarioManifestIds());
+  const sampled = selection.sample !== null;
+  const needed = selection.ids;
+  // F2: reuse only the exact selection identity — never a full report for a sampled
+  // call, never another seed's sample, never a concurrent different-key flight.
+  // R3-F1: an explicit scenarioIds call gets its own key, distinct from "full".
+  const key = input?.scenarioIds?.length
+    ? explicitSelectionCacheKey(input.scenarioIds)
+    : selectionCacheKey(selection.sample);
 
-  measureInFlight = (async () => {
+  if (!input?.force && !input?.writePreFix && cachedReport && cachedKey === key) {
+    return cachedReport;
+  }
+  if (!input?.force && !input?.writePreFix && measureInFlight && measureInFlightKey === key) {
+    return measureInFlight;
+  }
+
+  const task: Promise<StationRoomNotEmptyReport> = (async () => {
+    const atRoot = (p: string): string =>
+      input?.evidenceRoot ? path.join(input.evidenceRoot, p) : p;
     if (!input?.force && !input?.writePreFix && !input?.scenarioIds) {
       if (process.env["OPENCLINXR_STATION_ROOM_USE_DISK"] === "1") {
-        const fromDisk = await tryReadArtifact(preFixPath());
-        if (fromDisk) {
-          cachedReport = fromDisk;
-          return fromDisk;
+        // Sampled runs read only the sampled artifact; full runs read only canonical.
+        const fromDisk = sampled
+          ? await tryReadArtifact(atRoot(sampledPreFixPath()))
+          : await tryReadArtifact(atRoot(preFixPath()));
+        // F3: a sampled artifact is reusable only on exact seed + sample ids,
+        // with the measured rooms covering every requested id.
+        if (fromDisk && sampled && selection.sample) {
+          if (
+            isUsableSampledDiskReport({
+              reportSample: fromDisk.sample,
+              measuredScenarioIds: fromDisk.rooms.map((r) => r.scenarioId),
+              requestedSeed: selection.sample.seed,
+              requestedSampleIds: selection.sample.ids,
+              neededIds: needed,
+            })
+          ) {
+            cachedReport = fromDisk;
+            cachedKey = key;
+            return fromDisk;
+          }
+          process.stdout.write(
+            `station-room-not-empty: refusing sampled disk artifact for seed=${selection.sample.seed} sample=[${[...selection.sample.ids].sort().join(",")}]\n`,
+          );
+        } else if (fromDisk && !sampled) {
+          // R3-F3: a canonical artifact is served only when it carries no sample —
+          // coverage comes from measured rooms, never from recorded sample ids.
+          if (fromDisk.sample !== null) {
+            process.stdout.write(
+              `station-room-not-empty: refusing canonical disk artifact carrying sample seed=${fromDisk.sample.seed} (canonical only by a full run)\n`,
+            );
+          } else {
+            const covered = new Set(fromDisk.rooms.map((r) => r.scenarioId));
+            if (needed.every((id) => covered.has(id))) {
+              cachedReport = fromDisk;
+              cachedKey = key;
+              return fromDisk;
+            }
+            process.stdout.write(
+              `station-room-not-empty: refusing disk artifact (covers ${covered.size} of ${needed.length} needed)\n`,
+            );
+          }
         }
       }
     }
 
     const liveBaseUrl = input?.baseUrl;
-    const liveScenarioIds = input?.scenarioIds;
-    const report = await measureLiveRooms({
+    const measured = await (measureLiveRoomsForTest ?? measureLiveRooms)({
       ...(liveBaseUrl === undefined ? {} : { baseUrl: liveBaseUrl }),
-      ...(liveScenarioIds === undefined ? {} : { scenarioIds: liveScenarioIds }),
+      scenarioIds: needed,
     });
+    // S2: the measured report records its own selection (null on full runs).
+    const report: StationRoomNotEmptyReport = {
+      rooms: measured.rooms,
+      sample: selection.sample,
+    };
 
     if (input?.writePreFix) {
       await writeRoomDump(report, {
-        outputPath: preFixPath(),
+        outputPath: atRoot(stationRoomPreFixPathForReport(report)),
         label: input?.label ?? "pre-fix",
       });
     }
 
-    if (!input?.scenarioIds) {
-      cachedReport = report;
-    }
+    // R3-F1: every completed call is cached under its own key, so a repeated
+    // explicit selection is served without re-measuring.
+    cachedReport = report;
+    cachedKey = key;
     return report;
   })();
+  measureInFlight = task;
+  measureInFlightKey = key;
 
   try {
-    return await measureInFlight;
+    return await task;
   } finally {
-    measureInFlight = null;
+    if (measureInFlight === task) {
+      measureInFlight = null;
+      measureInFlightKey = null;
+    }
   }
 }
 
 async function tryReadArtifact(filePath: string): Promise<StationRoomNotEmptyReport | null> {
   return tryReadStampedArtifact(filePath, (parsed) => {
-    const report = (parsed["report"] ?? parsed) as StationRoomNotEmptyReport | undefined;
+    const report = (parsed["report"] ?? parsed) as Partial<StationRoomNotEmptyReport> | undefined;
     if (report?.rooms && Array.isArray(report.rooms) && report.rooms.length > 0) {
-      return { rooms: report.rooms };
+      return { rooms: report.rooms, sample: report.sample ?? null };
     }
     return null;
   });
@@ -180,9 +323,24 @@ async function tryReadArtifact(filePath: string): Promise<StationRoomNotEmptyRep
 
 export async function writeRoomDump(
   report: StationRoomNotEmptyReport,
-  input?: { outputPath?: string; label?: string },
+  input?: { outputPath?: string; label?: string; evidenceRoot?: string },
 ): Promise<string> {
-  const outputPath = input?.outputPath ?? preFixPath();
+  // F1: the default is the routed path — a sampled report never lands on canonical
+  // through this writer, even when the caller passes no outputPath. evidenceRoot
+  // (test-only) redirects the default under a temp root; explicit outputPath wins.
+  const outputPath = input?.outputPath
+    ?? path.join(input?.evidenceRoot ?? ".", stationRoomPreFixPathForReport(report));
+  // R3-F3: canonical only by a full run, on every public path — a sampled report
+  // addressed at a canonical artifact throws instead of overwriting it.
+  if (report.sample !== null) {
+    for (const canonical of [preFixPath(), latestPath()]) {
+      if (path.resolve(outputPath) === path.resolve(canonical)) {
+        throw new Error(
+          `station-room-not-empty: refusing to write sampled report (seed=${report.sample.seed}) to canonical path ${outputPath} (canonical artifact ${canonical})`,
+        );
+      }
+    }
+  }
   await mkdir(path.dirname(outputPath), { recursive: true });
   const payload = withTreeStamp({
     schemaVersion: "openclinxr.station-room-not-empty.v1" as const,
@@ -212,7 +370,7 @@ export async function writeRoomDump(
 async function measureLiveRooms(input: {
   baseUrl?: string;
   scenarioIds?: string[];
-}): Promise<StationRoomNotEmptyReport> {
+}): Promise<{ rooms: RoomFacts[] }> {
   const scenarios =
     input.scenarioIds && input.scenarioIds.length > 0
       ? input.scenarioIds
@@ -641,8 +799,9 @@ async function main(): Promise<void> {
   const force = args.includes("--force");
   const report = await inspectStationRoomNotEmpty({ writePreFix, force, label: writePreFix ? "pre-fix" : "measure" });
   if (!writePreFix) {
+    // S2: a sampled run writes the sampled sibling, never canonical latest.json.
     await writeRoomDump(report, {
-      outputPath: path.join(STATION_ROOM_EVIDENCE_DIR, "latest.json"),
+      outputPath: stationRoomLatestPathForReport(report),
       label: "latest",
     });
   }

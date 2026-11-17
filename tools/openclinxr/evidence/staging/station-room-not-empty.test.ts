@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { assertStationRoomSampleCoverage } from "../station-subset/room-supine-sample.js";
 
 /**
  * PLANTED CONTRACTS (#133/#143) — ten stations render no room props at all after #149, and my own
@@ -180,7 +181,10 @@ type RoomFacts = {
   actorsIntersectingFurniture: string[];
 };
 
-type Inspect = () => Promise<{ rooms: RoomFacts[] }>;
+type Inspect = () => Promise<{
+  rooms: RoomFacts[];
+  sample: { seed: string; ids: string[] } | null;
+}>;
 
 /** Spawn anchors are not furniture and must stay markers. */
 const LEGITIMATE_MARKERS = ["learner_start"];
@@ -205,7 +209,13 @@ describe("a station room is closed and its patient position is furniture (#133/#
     expect(inspect).toBeTypeOf("function");
 
     const report = await inspect!();
-    expect(report.rooms.length, "no station was evaluated").toBeGreaterThan(3);
+    if (report.sample === null) {
+      expect(report.rooms.length, "no station was evaluated").toBeGreaterThan(3);
+    } else {
+      // S3 sampled: the measured set equals the recorded sample, and is non-empty.
+      expect(report.rooms.length, "sampled run measured no rooms").toBeGreaterThan(0);
+      assertStationRoomSampleCoverage(report);
+    }
 
     const offenders: string[] = [];
     for (const r of report.rooms) {
@@ -265,8 +275,16 @@ describe("a station room is closed and its patient position is furniture (#133/#
     expect(embedded, `actors planted inside new geometry:\n${embedded.join("\n")}`).toHaveLength(0);
 
     // The ED bay's existing stretcher must survive untouched.
+    // Sampled runs measure only the recorded sample: skip with one line when the
+    // ED bay is not in the sample (same skip-subject shape as the floor-contact S3).
     const ed = report.rooms.find((r) => r.environmentId === "ed_exam_bay_v1");
-    expect(ed, "the ED bay was not evaluated").toBeDefined();
-    expect(ed!.builtSlotIds, "the ED bay lost its stretcher").toContain("stretcher");
+    if (report.sample !== null && ed === undefined) {
+      process.stdout.write(
+        `ed-stretcher skipped: ed_exam_bay_v1 not in sample ${report.sample.ids.join(",")}\n`,
+      );
+    } else {
+      expect(ed, "the ED bay was not evaluated").toBeDefined();
+      expect(ed!.builtSlotIds, "the ED bay lost its stretcher").toContain("stretcher");
+    }
   }, 1_800_000);
 });
