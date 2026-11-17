@@ -67,6 +67,14 @@ jobs:
       - name: Confirm mise resolves vulture
         run: command -v mise && mise which vulture && vulture --version || mise exec pipx:vulture@2.14 -- vulture --version
 
+      # uv the way the local machine has it: a pip package inside mise's python@3.13, whose bin
+      # `mise exec` puts on PATH (mise.toml declares python, not uv). Version = local `uv --version`.
+      - name: Install uv into mise python
+        run: mise exec -- python -m pip install --disable-pip-version-check uv==0.12.3
+
+      - name: Confirm mise resolves uv
+        run: command -v mise && mise exec -- uv --version
+
       - name: Confirm setup-node and pnpm remain authoritative
         run: |
           node --version
@@ -99,6 +107,7 @@ jobs:
         timeout-minutes: 35
         env:
           OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE: "1"
+          OPENCLINXR_REQUIRE_UV: "1"
           OPENCLINXR_STATION_SAMPLE: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && '2' || '' }}
           OPENCLINXR_STATION_SAMPLE_SEED: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && github.sha || '' }}
         run: pnpm test

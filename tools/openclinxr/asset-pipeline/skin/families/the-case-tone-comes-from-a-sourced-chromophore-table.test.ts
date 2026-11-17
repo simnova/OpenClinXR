@@ -1,9 +1,8 @@
 import { execFileSync, spawnSync } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
-import { describe, expect, it } from "vitest";
-
 import { edChestPainScenario } from "@openclinxr/scenario-fixtures";
+import { describe, expect, it } from "vitest";
 
 type Lab = [number, number, number];
 type KnownGood = {
@@ -107,6 +106,25 @@ function inRange(value: number, range: [number, number]): boolean {
 
 // The derivation needs colour-science (DATA2, BSD-3-Clause), which the mise python lacks;
 // uv supplies the pinned wheel. The script also fetches Prahl's Hb table (not vendorable).
+// Probe once, at module load, with the same resolution the derivation spawn uses
+// (`mise exec -- uv --version` exit 0). When uv is absent the uv-dependent tests
+// skip with UV_ABSENT_REASON; with OPENCLINXR_REQUIRE_UV=1 (CI) the file fails
+// closed instead, so a silently broken uv install can never turn CI green.
+const UV_ABSENT_REASON = "uv not on PATH";
+const UV_AVAILABLE: boolean = (() => {
+  try {
+    const probed = spawnSync("mise", ["exec", "--", "uv", "--version"], {
+      encoding: "utf8",
+      timeout: 30_000,
+    });
+    return probed.status === 0;
+  } catch {
+    return false;
+  }
+})();
+if (process.env["OPENCLINXR_REQUIRE_UV"] === "1" && !UV_AVAILABLE) {
+  throw new Error("uv required on CI but not resolvable");
+}
 function runDerivation(args: string[]): string {
   const result = spawnSync(
     "mise",
@@ -159,7 +177,8 @@ describe("case skin_tone comes from a sourced chromophore table", () => {
     );
   });
 
-  it("T2b re-derives every known-good Cm and Lab from the model, not from the report", () => {
+  it("T2b re-derives every known-good Cm and Lab from the model, not from the report", (context) => {
+    if (!UV_AVAILABLE) context.skip(UV_ABSENT_REASON);
     const report = requireReport();
     const fresh = JSON.parse(
       runDerivation(["--calibrate", path.join(HERE, "tone-report.json")]),
@@ -269,7 +288,8 @@ describe("case skin_tone comes from a sourced chromophore table", () => {
     );
   });
 
-  it("T8 passes the published in-vivo control RMS and both oxy-Hb Q-band minima", () => {
+  it("T8 passes the published in-vivo control RMS and both oxy-Hb Q-band minima", (context) => {
+    if (!UV_AVAILABLE) context.skip(UV_ABSENT_REASON);
     const report = requireReport();
     const fresh = JSON.parse(runDerivation(["--control"])) as {
       values: Array<{ wavelengthNm: number; reflectance: number }>;
@@ -305,7 +325,8 @@ describe("case skin_tone comes from a sourced chromophore table", () => {
     expect(dLab(fresh.controlLab, fresh.modelLab)).toBeCloseTo(report.control.Lab.dE76, 9);
   }, 180_000);
 
-  it("T9 refuses a blood-blind model using a threshold computed from tone-report.json", () => {
+  it("T9 refuses a blood-blind model using a threshold computed from tone-report.json", (context) => {
+    if (!UV_AVAILABLE) context.skip(UV_ABSENT_REASON);
     const report = requireReport();
     const measuredA = [...expectedKnownGood.values()].map((lab) => lab[1]);
     const threshold = Math.max(...measuredA) - Math.min(...measuredA);
