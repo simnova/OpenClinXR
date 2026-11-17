@@ -26,6 +26,10 @@ jobs:
     env:
       TURBO_CACHE_DIR: ${{ github.workspace }}/.turbo/cache
       MISE_TRUSTED_CONFIG_PATHS: ${{ github.workspace }}/mise.toml
+      # `mise exec` installs missing mise.toml tools through the GitHub API; unauthenticated it hit the
+      # rate limit: run 44133928084 attempts 1+2, "Failed to install aqua:pnpm/pnpm@11.18.0: HTTP status
+      # client error (403 Forbidden)" (mise 2026.7.3). Read-only token; permissions stay contents: read.
+      MISE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
