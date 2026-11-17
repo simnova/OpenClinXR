@@ -1,0 +1,185 @@
+{
+ "schemaVersion": "openclinxr.p2e-c-prod.6tri-faces-from.v1",
+ "description": "P2e-C 6-tri un-hide set: prim7 tris {2,3,4,5,6,53} at the scrub V apex. Position-keyed so the move survives re-bakes: the tool refuses any GLB whose prim7 tri positions differ from these keys. No selector, no depth guard, no other tri. Source keys measured on shipped 8957543d (E/d1_faces_from_ref.json, cap31 b4); geometry is unchanged by the P2e-A inpaint so the same keys hold on the 9d05524d pre-image.",
+ "sourceFacesFrom": "st-teeth/p2e-c-nc5 d1_faces_from_ref.json (mainSha256 8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86)",
+ "bodyMesh": "mpfb_ed_chest_pain_nurse_adult_body",
+ "primIndex": 7,
+ "wantedTris": [
+  2,
+  3,
+  4,
+  5,
+  6,
+  53
+ ],
+ "faces": [
+  {
+   "prim": 7,
+   "tri": 2,
+   "material": "openclinxr_hidden_orphan_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+   "positions": [
+    [
+     -0.015495345927774906,
+     1.4701443910598755,
+     0.07492899149656296
+    ],
+    [
+     -0.009028347209095955,
+     1.45816969871521,
+     0.08041365444660187
+    ],
+    [
+     0.0,
+     1.458042025566101,
+     0.07981359213590622
+    ]
+   ],
+   "key": "31e07dbcb12dbc3f5f74993da2eb13bc4ea5ba3feaafa43d000000001fa1ba3f4f75a33d",
+   "centroid": [
+    -0.008174564378956953,
+    1.4621187051137288,
+    0.07838541269302368
+   ]
+  },
+  {
+   "prim": 7,
+   "tri": 3,
+   "material": "openclinxr_hidden_orphan_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+   "positions": [
+    [
+     -0.015495345927774906,
+     1.4701443910598755,
+     0.07492899149656296
+    ],
+    [
+     0.0,
+     1.458042025566101,
+     0.07981359213590622
+    ],
+    [
+     0.015495345927774906,
+     1.4701443910598755,
+     0.07492899149656296
+    ]
+   ],
+   "key": "31e07dbcb12dbc3f5f74993d000000001fa1ba3f4f75a33d31e07d3cb12dbc3f5f74993d",
+   "centroid": [
+    0.0,
+    1.4661102692286174,
+    0.07655719170967738
+   ]
+  },
+  {
+   "prim": 7,
+   "tri": 4,
+   "material": "openclinxr_hidden_orphan_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+   "positions": [
+    [
+     -0.009028347209095955,
+     1.45816969871521,
+     0.08041365444660187
+    ],
+    [
+     -0.011224787682294846,
+     1.4465951919555664,
+     0.08909492939710617
+    ],
+    [
+     0.0,
+     1.4461638927459717,
+     0.08876459300518036
+    ]
+   ],
+   "key": "2ce837bc082ab93f6777b63da2eb13bc4ea5ba3feaafa43d00000000e61bb93f36cab53d",
+   "centroid": [
+    -0.006751044963796933,
+    1.4503095944722493,
+    0.08609105894962947
+   ]
+  },
+  {
+   "prim": 7,
+   "tri": 5,
+   "material": "openclinxr_hidden_orphan_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+   "positions": [
+    [
+     -0.009028347209095955,
+     1.45816969871521,
+     0.08041365444660187
+    ],
+    [
+     0.0,
+     1.4461638927459717,
+     0.08876459300518036
+    ],
+    [
+     0.0,
+     1.458042025566101,
+     0.07981359213590622
+    ]
+   ],
+   "key": "a2eb13bc4ea5ba3feaafa43d00000000e61bb93f36cab53d000000001fa1ba3f4f75a33d",
+   "centroid": [
+    -0.0030094490696986518,
+    1.454125205675761,
+    0.08299727986256282
+   ]
+  },
+  {
+   "prim": 7,
+   "tri": 6,
+   "material": "openclinxr_hidden_orphan_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+   "positions": [
+    [
+     -0.009028347209095955,
+     1.45816969871521,
+     0.08041365444660187
+    ],
+    [
+     -0.015495345927774906,
+     1.4701443910598755,
+     0.07492899149656296
+    ],
+    [
+     -0.01966053619980812,
+     1.458585500717163,
+     0.08086760342121124
+    ]
+   ],
+   "key": "220fa1bceeb2ba3fea9da53d31e07dbcb12dbc3f5f74993da2eb13bc4ea5ba3feaafa43d",
+   "centroid": [
+    -0.01472807644555966,
+    1.4622998634974163,
+    0.07873674978812535
+   ]
+  },
+  {
+   "prim": 7,
+   "tri": 53,
+   "material": "openclinxr_hidden_orphan_mpfb_ed_chest_pain_nurse_adult_body_mesh",
+   "positions": [
+    [
+     0.015495345927774906,
+     1.4701443910598755,
+     0.07492899149656296
+    ],
+    [
+     0.0,
+     1.458042025566101,
+     0.07981359213590622
+    ],
+    [
+     0.01966053619980812,
+     1.458585500717163,
+     0.08086760342121124
+    ]
+   ],
+   "key": "000000001fa1ba3f4f75a33d31e07d3cb12dbc3f5f74993d220fa13ceeb2ba3fea9da53d",
+   "centroid": [
+    0.01171862737586101,
+    1.4622573057810466,
+    0.07853672901789348
+   ]
+  }
+ ]
+}

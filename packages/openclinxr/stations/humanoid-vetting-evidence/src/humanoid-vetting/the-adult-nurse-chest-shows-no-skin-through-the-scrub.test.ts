@@ -66,6 +66,19 @@
  * E/out GLB before P4 installs it to the shipped path); default is shipped.
  *
  * NOT_TESTED: rendered pixels (the orchestrator renders and grades).
+ *
+ * P2e-C (cap31, 2026-11-16): one newer sidecar level sits on top of E9:
+ * the tracked factory chain (P2e-A skin-footprint inpaint, then the 6-tri
+ * V-neck un-hide prim7 {2,3,4,5,6,53} -> appended skin prim9, single run
+ * from the c1da76fb4 pre-image; the superseded interim levels that named a
+ * machine-local preImageFile are dropped per F1). C2 walks the
+ * recordedBefore chain to the E9 rehide level. C4 is inpaint-aware:
+ * name-keyed images, only *.skin-baked differs and only inside the P2e-A
+ * mask (outside pixels byte-equal). C5 gains an un-hide explained branch
+ * (live prim9 hit whose position key is one of the 6 fixture keys, enabled
+ * only when the newest level is the un-hide tool and the sidecar output
+ * sha matches the GLB). T1 pins the 6 prim7-origin tris in a skin prim
+ * (red on 8957543d, green after; red evidence in E/t1-red.txt).
  */
 
 import { execFileSync } from "node:child_process";
@@ -74,7 +87,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
-import { type Group, type PerspectiveCamera, Raycaster, Vector2 } from "three";
+import { type BufferAttribute, type Group, type Mesh, type PerspectiveCamera, Raycaster, Vector2 } from "three";
 import { describe, expect, it } from "vitest";
 import { loadScene } from "../../../../../../tools/openclinxr/evidence/humanoid-vetting/see-through-pixels.js";
 
@@ -121,6 +134,53 @@ const SAFE_IDS: number[] = [291,292,301,302,309,310,317,500,507,543,747,761,766,
 /** E4 evidence dir (git-ignored scratch): R1c SAFE'' + regen inputs. */
 const E4_DIR = join(REPO_ROOT, ".openclinxr/openclaw/ceo/e9-r1c");
 const E4_SAFE_IDS = join(E4_DIR, "safe-ids.json");
+
+/** Split argv elements into shell tokens (whitespace + shell punctuation). */
+function argvTokens(argv: readonly unknown[]): string[] {
+  const toks: string[] = [];
+  for (const el of argv) {
+    for (const t of String(el).split(/[\s;|&()"'`<>]+/)) {
+      if (t !== "") toks.push(t);
+    }
+  }
+  return toks;
+}
+
+const baseName = (t: string): string => t.split("/").pop() ?? t;
+
+/**
+ * Tool poskey (nurse-vneck-6tri-unhide.py): row-lexsort float32 vertex
+ * bytes, hex. Components are quantized to float32 first (matches the
+ * tool's <f4 conversion), then the three vertex ROWS are sorted
+ * lexicographically (x, then y, then z) and bytes are emitted row-major.
+ * (F2: the previous per-column sort collided on coordinate permutations
+ * across vertices.) JS Array.sort is stable; numpy lexsort agrees with it
+ * on all 6 fixture tris (verified p2e-c-prod-r2), and C5 only ever checks
+ * those 6 keys, so the port reproduces the fixture keys exactly.
+ * A mismatch fails loudly (no silent pass).
+ */
+function poskeyHex(verts: readonly (readonly [number, number, number])[]): string {
+  const q = verts.map((v) => [new Float32Array([v[0]])[0]!, new Float32Array([v[1]])[0]!, new Float32Array([v[2]])[0]!] as const);
+  const rows = [...q].sort((a, b) => (a[0] - b[0]) || (a[1] - b[1]) || (a[2] - b[2]));
+  const buf = new ArrayBuffer(36);
+  const dv = new DataView(buf);
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 3; col++) {
+      dv.setFloat32((row * 3 + col) * 4, rows[row]![col]!, true);
+    }
+  }
+  return Buffer.from(buf).toString("hex");
+}
+
+/** Sorted-vertex position key for one live hit tri (three.js geometry). */
+function liveTriKey(model: Group, hitName: string, faceIndex: number): string {
+  const child = model.children.find((c) => c.name === hitName) as Mesh | undefined;
+  expect(child, `live hit mesh ${hitName} present in scene`).toBeTruthy();
+  const posA = child!.geometry.getAttribute("position") as BufferAttribute;
+  const idxA = child!.geometry.getIndex()!;
+  const t = [idxA.getX(faceIndex * 3), idxA.getX(faceIndex * 3 + 1), idxA.getX(faceIndex * 3 + 2)];
+  return poskeyHex(t.map((vi) => [posA.getX(vi), posA.getY(vi), posA.getZ(vi)] as [number, number, number]));
+}
 
 const BODY0 = "mpfb_ed_chest_pain_nurse_adult_body#0";
 
@@ -250,6 +310,120 @@ describe("the adult nurse chest shows no skin through the scrub", () => {
     expect({ frontPrim0: front.prim0, tqPrim0: tq.prim0 }, "control mirror prim0 hits").toEqual({ frontPrim0: 0, tqPrim0: 0 });
   }, 120_000);
 
+  it("T1: scrub-V apex shows body skin from prim7-origin tris {2,3,4,5,6,53}", () => {
+    // P2e-C M5 T1 (RED on 8957543d, GREEN after): each of the 6 recorded
+    // position keys must resolve in the shipped GLB inside a prim whose
+    // material is the body skin material (not hidden). The fixture path is
+    // read from the sidecar's own un-hide derivationArgv --faces-from
+    // (never hand-typed). Red-on-main evidence is recorded in E/t1-red.txt
+    // by re-running the same check on the c1da76fb4 (8957543d) bytes.
+    expect(existsSync(GLB), `${GLB} exists`).toBe(true);
+    const provT1 = JSON.parse(readFileSync(PROVENANCE_JSON, "utf8")) as { byteLineage: unknown };
+    let facesFromT1 = "";
+    let nodeT1 = provT1.byteLineage as
+      | { derivationArgv?: string[]; recordedBefore?: { byteLineage?: unknown } }
+      | undefined;
+    while (nodeT1 !== undefined) {
+      const argv = nodeT1.derivationArgv as string[];
+      const k = argv.indexOf("--faces-from");
+      if (k >= 0) {
+        facesFromT1 = String(argv[k + 1]);
+        break;
+      }
+      const rb = nodeT1.recordedBefore as { byteLineage?: unknown } | undefined;
+      nodeT1 = rb?.byteLineage as typeof nodeT1;
+    }
+    expect(facesFromT1, "byteLineage un-hide level names --faces-from").toBe(
+      "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/nurse-vneck-6tri.json",
+    );
+    const fixT1 = JSON.parse(readFileSync(join(REPO_ROOT, facesFromT1), "utf8")) as {
+      faces: { prim: number; tri: number; key: string }[];
+    };
+    expect(fixT1.faces.map((f) => f.tri).sort((a, b) => a - b), "un-hide fixture wanted tris").toEqual([2, 3, 4, 5, 6, 53]);
+    const checkT1 = (glbPath: string): { tri: number; prim: number | null; mat: string | null; skin: boolean }[] =>
+      JSON.parse(
+        pyOut(`
+import json, struct
+from pathlib import Path
+import numpy as np
+def read_glb(path):
+    raw = Path(path).read_bytes()
+    assert struct.unpack("<I", raw[0:4])[0] == 0x46546C67
+    jl = struct.unpack("<I", raw[12:16])[0]
+    doc = json.loads(raw[20:20+jl].decode("utf8"))
+    bl = struct.unpack("<I", raw[20+jl:24+jl])[0]
+    return doc, raw[28+jl:28+jl+bl]
+def dec(doc, binary, ai):
+    a = doc["accessors"][ai]
+    v = doc["bufferViews"][a["bufferView"]]
+    base = v.get("byteOffset",0)+a.get("byteOffset",0)
+    n = a["count"]
+    ncomp = {"SCALAR":1,"VEC2":2,"VEC3":3}[a["type"]]
+    size = {5120:1,5121:1,5122:2,5123:2,5125:4,5126:4}[a["componentType"]]
+    dt = np.dtype("<f4") if a["componentType"]==5126 else (np.dtype("<u2") if a["componentType"]==5123 else np.dtype("<u4"))
+    stride = v.get("byteStride")
+    if stride is None or stride == ncomp*size:
+        return np.frombuffer(binary, dtype=dt, count=n*ncomp, offset=base).reshape(n,ncomp)
+    raw2 = np.frombuffer(binary, dtype=np.uint8, count=n*stride, offset=base).reshape(n,stride)
+    out = np.empty((n,ncomp), dtype=np.float64)
+    for c in range(ncomp):
+        out[:,c] = raw2[:,c*size:(c+1)*size].copy().view(dt).reshape(n)
+    return out
+def poskey(verts):
+    a = np.ascontiguousarray(np.asarray(verts, dtype="<f4"))
+    return a[np.lexsort((a[:, 2], a[:, 1], a[:, 0]))].tobytes().hex()
+_doc, _bin = read_glb(${JSON.stringify(glbPath)})
+_mats = [m.get("name","") for m in _doc.get("materials",[])]
+_body = next(m for m in _doc.get("meshes",[]) if str(m.get("name","")).endswith("_body"))
+_loc = {}
+for _pi, _p in enumerate(_body["primitives"]):
+    _pos = dec(_doc, _bin, _p["attributes"]["POSITION"]).astype(float)
+    _idx = np.asarray(dec(_doc, _bin, _p["indices"]).reshape(-1), dtype=np.int64).reshape(-1,3)
+    _mat = _mats[_p["material"]]
+    for _t in _idx.tolist():
+        _loc[poskey(_pos[np.asarray(_t)].tolist())] = [_pi, _mat]
+_fix = json.load(open(${JSON.stringify(join(REPO_ROOT, facesFromT1))}))["faces"]
+_res = []
+for _e in _fix:
+    _hit = _loc.get(_e["key"])
+    _res.append({"tri": _e["tri"], "prim": _hit[0] if _hit else None, "mat": _hit[1] if _hit else None,
+      "skin": bool(_hit) and ("mpfb_skin" in _hit[1]) and (not _hit[1].startswith("openclinxr_hidden_"))})
+print(json.dumps(_res))`),
+      ) as { tri: number; prim: number | null; mat: string | null; skin: boolean }[];
+    const live = checkT1(GLB);
+    const livePlaced = live.filter((r) => r.skin);
+    console.log(`T1 live: ${live.map((r) => `prim7:${r.tri}->prim${r.prim} skin=${r.skin}`).join(" ")}`);
+    expect(livePlaced.map((r) => r.tri).sort((a, b) => a - b), "T1 GREEN: all 6 prim7-origin tris in a skin prim").toEqual([2, 3, 4, 5, 6, 53]);
+    // RED on main: the same check on the c1da76fb4 (8957543d) bytes must
+    // place all 6 in a hidden prim (the E9 hide footprint).
+    const mainDir = join(tmpdir(), `adult-nurse-t1-main-${process.pid}`);
+    mkdirSync(mainDir, { recursive: true });
+    const mainGlb = join(mainDir, "mpfb-clinical-nurse-adult-main.glb");
+    writeFileSync(
+      mainGlb,
+      execFileSync("git", ["show", "c1da76fb4:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb"], {
+        cwd: REPO_ROOT,
+        maxBuffer: 256 * 1024 * 1024,
+      }),
+    );
+    expect(sha256File(mainGlb), "main bytes are the 8957543d pre-image").toBe(
+      "8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86",
+    );
+    const red = checkT1(mainGlb);
+    const redHidden = red.filter((r) => !r.skin);
+    const redLines = [
+      "T1 red-on-main evidence (p2e-c-prod): the same 6-key check run on",
+      "c1da76fb4 = 8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86",
+      ...red.map((r) => `prim7:${r.tri} -> prim${r.prim} mat=${r.mat} skin=${r.skin}`),
+      `unplaced (not skin): ${redHidden.length}/6`,
+    ];
+    const eDir = process.env["P2E_C_E_DIR"] ?? join(tmpdir(), `adult-nurse-t1-edir-${process.pid}`);
+    mkdirSync(eDir, { recursive: true });
+    writeFileSync(join(eDir, "t1-red.txt"), `${redLines.join("\n")}\n`);
+    console.log(`T1 red-on-main: ${redHidden.length}/6 hidden (${red.map((r) => `prim${r.prim}`).join(",")})`);
+    expect(redHidden.map((r) => r.tri).sort((a, b) => a - b), "T1 RED on 8957543d: all 6 still hidden").toEqual([2, 3, 4, 5, 6, 53]);
+  }, 120_000);
+
   it("C2: tool moved set equals the SAFE'' known-good ids + provenance names the derivation", () => {
     // The tool hides no pasted list: at build time it recomputes the rule set
     // and filters it through the shared backface-aware greedy simulator
@@ -297,36 +471,68 @@ print(json.dumps({"moved": moved, "safeFile": safe_file}))
       expect(out.safeFile, "E4/safe-ids.json == SAFE'' embedded fixture").toEqual(fixture);
       expect(out.moved, "live moved set == E4/safe-ids.json").toEqual(out.safeFile);
     }
-    // F2b provenance clause: the committed nurse sidecar's byteLineage (as
-    // written by correct-sidecar-byte-lineage.ts — the test reads the tool's
-    // shape, never the reverse) names rehide-poking-skin.py with all required
-    // input args plus the sample-grade-poses.ts regen command, and its
-    // recorded output sha == sha256(GLB under test). RED on the
-    // pre-image by design (recorded 8957543d != pre f6573124).
+    // F2b provenance clause: the committed nurse sidecar's byteLineage chain
+    // (as written by correct-sidecar-byte-lineage.ts — the test reads the
+    // tool's shape, never the reverse) contains the E9 level naming
+    // rehide-poking-skin.py with all required input args plus the
+    // sample-grade-poses.ts regen command. P2e-C adds two newer levels on
+    // top (inpaint, then the 6-tri un-hide), so the clause walks
+    // recordedBefore to the rehide level instead of reading the top.
+    // RED on the pre-image by design (recorded 8957543d != pre f6573124).
     const prov = JSON.parse(readFileSync(PROVENANCE_JSON, "utf8")) as {
       outputSha256: string;
       outputBytes: number;
       byteLineage: {
-        derivationArgv: string[];
-        preImageRevision: string;
-        preImageSha256: string;
-        outputSha256: string;
+        derivationArgv?: string[];
+        preImageRevision?: string;
+        preImageFile?: string;
+        preImageSha256?: string;
+        outputSha256?: string;
+        recordedBefore?: { byteLineage?: unknown };
       };
     };
-    const lineage = prov.byteLineage;
-    expect(lineage, "nurse sidecar carries a byteLineage record").toBeTruthy();
-    const argvJoined = (lineage.derivationArgv ?? []).join(" ");
+    type ChainNode = {
+      derivationArgv?: string[];
+      preImageRevision?: string;
+      preImageFile?: string;
+      preImageSha256?: string;
+      recordedBefore?: { byteLineage?: ChainNode; outputSha256?: string; outputBytes?: number };
+    };
+    // Each chain level is (inner node, that level's recorded output): the
+    // top node's output is prov.outputSha256; deeper levels carry theirs
+    // on the recordedBefore wrapper.
+    const levels: { argv: string[]; preRev?: string | undefined; preSha?: string | undefined; outSha?: string | undefined }[] = [];
+    let inner = prov.byteLineage as ChainNode | undefined;
+    let outSha: string | undefined = prov.outputSha256;
+    while (inner !== undefined && typeof inner === "object") {
+      levels.push({ argv: inner.derivationArgv ?? [], preRev: inner.preImageRevision, preSha: inner.preImageSha256, outSha });
+      const rb = inner.recordedBefore;
+      outSha = rb?.outputSha256;
+      inner = rb?.byteLineage;
+    }
+    expect(levels.length, "nurse sidecar carries a byteLineage chain").toBeGreaterThan(0);
+    const e9 = levels.find((l) => l.argv.join(" ").includes("rehide-poking-skin.py"));
+    expect(e9, "sidecar chain contains the E9 rehide level").toBeTruthy();
+    const argvJoined = (e9!.argv ?? []).join(" ");
     expect(argvJoined.includes("rehide-poking-skin.py"), "derivationArgv runs rehide-poking-skin.py").toBe(true);
     expect(argvJoined.includes("sample-grade-poses.ts"), "derivationArgv carries the poses regen command").toBe(true);
     for (const flag of ["--rays-dir", "--poses-meta", "--poses-dir"]) {
       expect(argvJoined.includes(flag), `derivationArgv names ${flag}`).toBe(true);
     }
-    expect(lineage.preImageRevision, "pre-image is the pinned pre-E9 commit descriptor").toBe(
+    expect(e9!.preRev, "pre-image is the pinned pre-E9 commit descriptor").toBe(
       "0ad5234d0d4883ca38346356ae3c16670e8eea1b:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
     );
-    expect(lineage.preImageSha256, "recorded pre-image sha == sha256(pre-image bytes)").toBe(sha256File(pre));
+    expect(e9!.preSha, "recorded pre-image sha == sha256(pre-image bytes)").toBe(sha256File(pre));
+    // F1 chain: the superseded P2e-C interim levels (machine-local
+    // preImageFile) are dropped, so the E9 level sits directly below the
+    // chain top and its associated recorded output is the chain correction's
+    // recordedBefore pin: the chain reproduced the shipped bytes identically
+    // (output-preserving correction), hence equal to the current pin.
+    expect(e9!.outSha, "E9 level recorded output == current pin (chain correction changed no bytes)").toBe(
+      prov.outputSha256,
+    );
     expect(prov.outputSha256, "sidecar recorded output sha == sha256(GLB under test)").toBe(sha256File(GLB));
-    expect(lineage.preImageSha256 === prov.outputSha256, "RED on the pre-image by design").toBe(false);
+    expect(e9!.preSha === e9!.outSha, "RED on the pre-image by design").toBe(false);
   }, 120_000);
 
   it("C3: moved set is the rule's poke set restricted to SAFE'' with the neck-V measurement pinned", async () => {
@@ -429,13 +635,16 @@ print(json.dumps({"moved": len(moved), "rule": len(rule_set),
     expect(out.above_dip, "moved tris above the dip == SAFE'' value (25)").toBe(ABOVE_DIP_SAFE);
   }, 180_000);
 
-  it("C4: non-index accessors and image payloads are byte-equal to the pre-image", () => {
-    // R1c patch-in-place output: the trimmed prim0 index range is overwritten
-    // in place and the dead tail excised (no orphaned index bytes, C3), so
-    // the live BIN is NOT a byte-prefix of the pre BIN by design. What C4
-    // pins: every non-index accessor decodes byte-equal at the same index,
-    // and every image payload (each image bufferView's bytes) is byte-equal
-    // with its mimeType. Index-accessor content is pinned by C2/C3.
+  it("C4: non-index accessors byte-equal; only the skin image changes, inside the P2e-A mask", () => {
+    // P2e-C: the live GLB carries the P2e-A inpaint (skin image rewritten
+    // inside the hide-footprint mask) and the 6-tri un-hide (hidden prim7
+    // trimmed + appended skin prim9). What C4 pins: every non-index
+    // accessor decodes byte-equal at the same index (index-accessor content
+    // is pinned by C2/C3); every non-skin image payload is byte-equal with
+    // its mimeType (comparison NAME-keyed, no zip truncation); the skin
+    // image (*.skin-baked, UNIQUE in both, EQUAL name pre<->live) differs
+    // from pre ONLY inside the P2e-A mask (pixels outside byte-equal;
+    // >= 1 pixel inside differs, so an identical image fails).
     expect(existsSync(GLB), `${GLB} exists`).toBe(true);
     const pre = writePreImageGlb();
     const py = `
@@ -497,25 +706,114 @@ for i in range(len(pre_doc.get("accessors",[]))):
     if a != b:
         mismatch.append(i)
 def image_payloads(doc, binary):
-    out = []
+    out = {}
     for im in doc.get("images",[]):
         bv = im.get("bufferView")
         if bv is None:
-            out.append({"mime": im.get("mimeType"), "bytes": None})
+            out[im.get("name","")] = {"mime": im.get("mimeType"), "bytes": None}
             continue
         v = doc["bufferViews"][bv]
         base = v.get("byteOffset",0)
-        out.append({"mime": im.get("mimeType"), "bytes": binary[base:base+v["byteLength"]].hex()})
+        out[im.get("name","")] = {"mime": im.get("mimeType"), "bytes": binary[base:base+v["byteLength"]].hex()}
     return out
+def skin_names(doc):
+    return [im.get("name","") for im in doc.get("images",[]) if str(im.get("name","")).endswith(".skin-baked")]
+def skin_idx(doc):
+    for i, im in enumerate(doc.get("images",[])):
+        if str(im.get("name","")).endswith(".skin-baked"):
+            return i
+    return -1
 pre_imgs = image_payloads(pre_doc, pre_bin)
 live_imgs = image_payloads(live_doc, live_bin)
-img_mismatch = [i for i,(a,b) in enumerate(zip(pre_imgs, live_imgs)) if a != b]
-print(json.dumps({"pre_bin_len": len(pre_bin), "live_bin_len": len(live_bin), "mismatch": mismatch, "skipped_index": skipped, "n_images": len(pre_imgs), "img_mismatch": img_mismatch, "pre_acc": len(pre_doc.get("accessors",[])), "live_acc": len(live_doc.get("accessors",[]))}))
+pre_skin = skin_names(pre_doc)
+live_skin = skin_names(live_doc)
+missing = [n for n in pre_imgs if n not in live_imgs]
+extra = [n for n in live_imgs if n not in pre_imgs]
+common_diff = [n for n in pre_imgs if n in live_imgs and pre_imgs[n] != live_imgs[n]]
+print(json.dumps({"pre_bin_len": len(pre_bin), "live_bin_len": len(live_bin), "mismatch": mismatch, "skipped_index": skipped, "pre_count": len(pre_imgs), "live_count": len(live_imgs), "pre_names": sorted(pre_imgs.keys()), "live_names": sorted(live_imgs.keys()), "pre_skin": pre_skin, "live_skin": live_skin, "pre_skin_idx": skin_idx(pre_doc), "live_skin_idx": skin_idx(live_doc), "missing": missing, "extra": extra, "common_diff": common_diff, "pre_acc": len(pre_doc.get("accessors",[])), "live_acc": len(live_doc.get("accessors",[]))}))
 `;
-    const out = JSON.parse(pyOut(py)) as { pre_bin_len: number; live_bin_len: number; mismatch: number[]; skipped_index: number[]; n_images: number; img_mismatch: number[]; pre_acc: number; live_acc: number };
+    const out = JSON.parse(pyOut(py)) as { pre_bin_len: number; live_bin_len: number; mismatch: number[]; skipped_index: number[]; pre_count: number; live_count: number; pre_names: string[]; live_names: string[]; pre_skin: string[]; live_skin: string[]; pre_skin_idx: number; live_skin_idx: number; missing: string[]; extra: string[]; common_diff: string[]; pre_acc: number; live_acc: number };
     expect(out.mismatch, `pre-range non-index accessor bytes unchanged (mismatches ${JSON.stringify(out.mismatch)}, skipped index ${JSON.stringify(out.skipped_index)})`).toEqual([]);
-    expect(out.n_images, "image count unchanged").toBeGreaterThan(0);
-    expect(out.img_mismatch, `image payload bytes + mime unchanged (${out.n_images} images, mismatches ${JSON.stringify(out.img_mismatch)})`).toEqual([]);
+    // Image comparison is NAME-keyed (no zip truncation). The live image
+    // COUNT equals the pre count; the skin image name (*.skin-baked) is
+    // UNIQUE in both and EQUAL between pre and live.
+    expect(out.live_count, `live image count == pre count (${out.pre_count})`).toBe(out.pre_count);
+    expect(out.pre_skin, "skin image *.skin-baked UNIQUE in pre").toHaveLength(1);
+    expect(out.live_skin, "skin image *.skin-baked UNIQUE in live").toHaveLength(1);
+    expect(out.live_skin[0], "skin image name EQUAL between pre and live").toBe(out.pre_skin[0]);
+    const skinName = out.pre_skin[0]!;
+    // The P2e-A inpaint rewrote the skin image, so byte-equality holds for
+    // every image EXCEPT the skin (identified BY NAME, never by position).
+    expect(out.missing, `no pre image missing from live (pre ${JSON.stringify(out.pre_names)})`).toEqual([]);
+    expect(out.extra, `no extra live image (live ${JSON.stringify(out.live_names)})`).toEqual([]);
+    expect(
+      out.common_diff.filter((n) => n !== skinName),
+      `non-skin image payload bytes + mime unchanged (diffs ${JSON.stringify(out.common_diff)})`,
+    ).toEqual([]);
+    expect(out.common_diff.includes(skinName), "skin image differs from pre (P2e-A inpainted it)").toBe(true);
+    const preSkinIdx = out.pre_skin_idx;
+    const liveSkinIdx = out.live_skin_idx;
+    // The P2e-A mask path is read FROM the sidecar's own P2e-A (inpaint)
+    // derivationArgv --footprint-mask (never hand-typed); its sha256 is
+    // pinned (fixture provenance). F1 chain: the top level runs the tracked
+    // chain (nurse-vneck-chain.py, stage 1 = the inpaint tool with the same
+    // --footprint-mask fixture), so the walk also accepts the chain level;
+    // the superseded interim levels (machine-local preImageFile) are gone.
+    const provC4 = JSON.parse(readFileSync(PROVENANCE_JSON, "utf8")) as { byteLineage: unknown };
+    let maskRel = "";
+    let nodeC4 = provC4.byteLineage as
+      | { derivationArgv?: string[]; recordedBefore?: { byteLineage?: unknown } }
+      | undefined;
+    while (nodeC4 !== undefined) {
+      const argv = nodeC4.derivationArgv as string[];
+      if (argv.join(" ").includes("inpaint_hide_footprint.py") || argv.join(" ").includes("nurse-vneck-chain.py")) {
+        maskRel = String(argv[argv.indexOf("--footprint-mask") + 1]);
+        break;
+      }
+      const rb = nodeC4.recordedBefore as { byteLineage?: unknown } | undefined;
+      nodeC4 = rb?.byteLineage as typeof nodeC4;
+    }
+    expect(maskRel, "sidecar P2e-A derivationArgv names --footprint-mask").toBe(
+      "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/pre-e9-footprint-mask.png",
+    );
+    const maskAbs = join(REPO_ROOT, maskRel);
+    expect(sha256File(maskAbs), "P2e-A footprint mask sha256 pinned").toBe(
+      "71f07b0508d4a90f23054dedd16d4eda007a12e5456f75ca7bd5aeb1348c5724",
+    );
+    // Pixels OUTSIDE the mask byte-equal (RGBA); >= 1 pixel INSIDE differs
+    // (vacuity: an identical image fails). Decoded sizes equal the mask.
+    const cmp = JSON.parse(
+      pyOut(`
+import json, struct
+from pathlib import Path
+from PIL import Image
+import numpy as np
+import io
+def payload(path, idx):
+    raw = Path(path).read_bytes()
+    jl = struct.unpack("<I", raw[12:16])[0]
+    doc = json.loads(raw[20:20+jl].decode("utf8"))
+    bl = struct.unpack("<I", raw[20+jl:24+jl])[0]
+    binary = raw[28+jl:28+jl+bl]
+    im = doc["images"][idx]
+    v = doc["bufferViews"][im["bufferView"]]
+    return bytes(binary[v.get("byteOffset",0):v.get("byteOffset",0)+v["byteLength"]])
+live = np.array(Image.open(io.BytesIO(payload(${JSON.stringify(GLB)}, ${liveSkinIdx}))).convert("RGBA"))
+preIm = np.array(Image.open(io.BytesIO(payload(${JSON.stringify(pre)}, ${preSkinIdx}))).convert("RGBA"))
+m = np.array(Image.open(${JSON.stringify(maskAbs)}).convert("L")) > 127
+print(json.dumps({"lw": int(live.shape[1]), "lh": int(live.shape[0]), "pw": int(preIm.shape[1]), "ph": int(preIm.shape[0]), "mw": int(m.shape[1]), "mh": int(m.shape[0]),
+  "outsideDiffer": int(((live != preIm).any(axis=2) & (~m)).sum()), "insideDiffer": int(((live != preIm).any(axis=2) & m).sum())}))
+`),
+    ) as { lw: number; lh: number; pw: number; ph: number; mw: number; mh: number; outsideDiffer: number; insideDiffer: number };
+    expect({ lw: cmp.lw, lh: cmp.lh, pw: cmp.pw, ph: cmp.ph }, "decoded skin sizes (1024x1024)").toEqual({
+      lw: 1024,
+      lh: 1024,
+      pw: 1024,
+      ph: 1024,
+    });
+    expect({ mw: cmp.mw, mh: cmp.mh }, "mask size matches decoded skin").toEqual({ mw: cmp.lw, mh: cmp.lh });
+    expect(cmp.outsideDiffer, "skin-baked pixels OUTSIDE the P2e-A mask byte-equal to pre").toBe(0);
+    expect(cmp.insideDiffer, "skin-baked pixels INSIDE the mask differ from pre (vacuity: identical image fails)").toBeGreaterThan(0);
   }, 120_000);
 
   it("C5: body first hits outside the boxes are unchanged except on moved tris", async () => {
@@ -558,6 +856,52 @@ print(json.dumps(moved_idx))
     ) as number[];
     expect(moved.length, "moved set size for C5 conservation (SAFE'')").toBe(SAFE_IDS.length);
     const movedSet = new Set(moved);
+    // P2e-C un-hide explained branch (F1 chain): the newest byteLineage level runs
+    // the tracked chain (nurse-vneck-chain.py: stage-1 inpaint into a run-owned
+    // temp, then nurse-vneck-6tri-unhide.py --faces-from <fixture> on that temp).
+    // The fixture path is read FROM that argv (never hand-typed); the 6
+    // faces are keyed by the fixture's own position keys. POSITION is
+    // byte-equal pre<->live (pinned by C4), so fixture keys match live
+    // prim9 tris exactly. The branch is ENABLED only when liveIsP2e:
+    // sha256(GLB) == sidecar newest outputSha256 AND the newest
+    // derivationArgv is the chain (or, for older sidecars, the un-hide tool).
+    // Otherwise C5 is the E9 rule and any new live body is red.
+    const provC5 = JSON.parse(readFileSync(PROVENANCE_JSON, "utf8")) as {
+      outputSha256: string;
+      byteLineage: unknown;
+    };
+    let facesFrom = "";
+    let newestIsUnhide = false;
+    let nodeC5 = provC5.byteLineage as
+      | { derivationArgv?: string[]; recordedBefore?: { byteLineage?: unknown } }
+      | undefined;
+    let firstLevel = true;
+    while (nodeC5 !== undefined) {
+      const argv = nodeC5.derivationArgv as string[];
+      if (firstLevel) {
+        newestIsUnhide = argvTokens(argv).some(
+          (t) => baseName(t) === "nurse-vneck-6tri-unhide.py" || baseName(t) === "nurse-vneck-chain.py",
+        );
+        firstLevel = false;
+      }
+      const k = argv.indexOf("--faces-from");
+      if (k >= 0) {
+        facesFrom = String(argv[k + 1]);
+        break;
+      }
+      const rb = nodeC5.recordedBefore as { byteLineage?: unknown } | undefined;
+      nodeC5 = rb?.byteLineage as typeof nodeC5;
+    }
+    expect(facesFrom, "byteLineage un-hide level names --faces-from").toBe(
+      "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/nurse-vneck-6tri.json",
+    );
+    const liveIsP2e = sha256File(GLB) === String(provC5.outputSha256) && newestIsUnhide;
+    const fixFaces = JSON.parse(readFileSync(join(REPO_ROOT, facesFrom), "utf8")) as {
+      faces: { prim: number; tri: number; key: string }[];
+    };
+    expect(fixFaces.faces.map((f) => f.tri).sort((a, b) => a - b), "un-hide fixture wanted tris").toEqual([2, 3, 4, 5, 6, 53]);
+    const unhideKeys = new Set(fixFaces.faces.map((f) => f.key));
+    expect(unhideKeys.size, "un-hide record carries exactly 6 faces").toBe(6);
     const cases = [
       { view: "front" as const, box: FRONT_BOX },
       { view: "three_quarter" as const, box: TQ_BOX },
@@ -570,6 +914,7 @@ print(json.dumps(moved_idx))
       let preOutside = 0;
       let explained = 0;
       let explainedMiss = 0;
+      let unhideExplained = 0;
       for (let y = 0; y < 4096; y += C5_STRIDE) {
         for (let x = 0; x < 4096; x += C5_STRIDE) {
           if (inBox(x, y, box)) continue;
@@ -583,14 +928,31 @@ print(json.dumps(moved_idx))
             explained++;
             if (l === null) explainedMiss++;
             expect(lBody, `${view} explained ray (${x},${y}) now non-body`).toBe(false);
+          } else if (!pBody && lBody && l !== null) {
+            // Un-hide explained branch (P2e-C): ENABLED only when
+            // liveIsP2e. The live first hit must be a face in the 6-tri
+            // un-hide record (position-keyed) — intended V-neck skin.
+            // Otherwise C5 is the E9 rule and any new live body is red.
+            const key = liveTriKey(liveS.model, l.name, l.faceIndex);
+            if (liveIsP2e && unhideKeys.has(key)) {
+              unhideExplained++;
+            } else {
+              expect(
+                lBody,
+                `${view} outside ray (${x},${y}) unchanged (pre non-body, live ${l.name}#${l.faceIndex} outside un-hide record)`,
+              ).toBe(pBody);
+            }
           } else {
             expect(lBody, `${view} outside ray (${x},${y}) unchanged (pre ${p === null ? "miss" : pBody})`).toBe(pBody);
           }
         }
       }
-      expect(preOutside, `${view} pre stride-${C5_STRIDE} body outside box in-run (anti-vacuity; explained ${explained})`).toBeGreaterThan(0);
+      expect(preOutside, `${view} pre stride-${C5_STRIDE} body outside box in-run (anti-vacuity; explained ${explained}, un-hide ${unhideExplained})`).toBeGreaterThan(0);
       expect(explainedMiss, `${view} explained rays (${explained}) with new misses`).toBe(0);
+      console.log(`${view} C5: preOutside=${preOutside} explained=${explained} unhideExplained=${unhideExplained}`);
     }
+    // Anti-vacuity for the un-hide branch is logged per view above; the
+    // T2 clause pins the 6-key set independently, so no count literal here.
   }, 300_000);
 
   it("C7: full-frame backface-aware new see-through is 0", async () => {

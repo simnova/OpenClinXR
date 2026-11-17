@@ -93,6 +93,85 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
       `correctSidecarByteLineage: refused — ${preImageFlag(input.preImage)} bytes changed between gate and correction: expected ${input.expectedPreImageSha256} but read ${preImageDigest} from ${preImageLabel(input.preImage)}. Refusing before any write.`,
     );
   }
+  // Chain-aware idempotence (P2e-C, ported from the P2e-AB pattern): the
+  // sidecar may already record this exact correction BELOW the top (an
+  // earlier run nested a corrected level on top of a stale same-step level
+  // instead of replacing it). Re-running a below-top level's argv against
+  // its pre-image cannot reproduce the newer shipped bytes, so deriving
+  // first would throw instead of skipping — the chain is checked first and
+  // a match returns with no write and no re-derivation. A different
+  // source/file or a different why with identical bytes+argv is a different
+  // correction and nests.
+  const record = JSON.parse(readFileSync(input.provenancePath, "utf8")) as Record<string, unknown>;
+  const priorLineage = record["byteLineage"];
+  const priorIsLineage =
+    priorLineage !== null && typeof priorLineage === "object" && !Array.isArray(priorLineage);
+  const priorRecord = (priorIsLineage ? (priorLineage as Record<string, unknown>) : {}) as Record<
+    string,
+    unknown
+  >;
+  const currentDescriptor =
+    input.preImage.kind === "revision"
+      ? `revision:${input.preImage.revision}`
+      : `file:${input.preImage.path}`;
+  const shipped = readFileSync(input.assetPath);
+  const shippedDigest = sha256(shipped);
+  const levelMatches = (level: Record<string, unknown>): boolean => {
+    const descriptor =
+      typeof level["preImageRevision"] === "string"
+        ? `revision:${level["preImageRevision"] as string}`
+        : typeof level["preImageFile"] === "string"
+          ? `file:${level["preImageFile"] as string}`
+          : undefined;
+    const rb = level["recordedBefore"];
+    const rbValid =
+      rb !== null &&
+      typeof rb === "object" &&
+      !Array.isArray(rb) &&
+      typeof (rb as Record<string, unknown>)["outputSha256"] === "string" &&
+      typeof (rb as Record<string, unknown>)["outputBytes"] === "number";
+    return (
+      level["preImageSha256"] === preImageDigest &&
+      descriptor === currentDescriptor &&
+      JSON.stringify(level["derivationArgv"]) === JSON.stringify(input.derivationArgv) &&
+      level["why"] === input.why &&
+      rbValid
+    );
+  };
+  let chainLevel: unknown = priorIsLineage ? priorLineage : null;
+  let chainMatched = false;
+  let matchedIsTop = false;
+  let isTop = true;
+  while (chainLevel !== null && typeof chainLevel === "object" && !Array.isArray(chainLevel)) {
+    const level = chainLevel as Record<string, unknown>;
+    if (levelMatches(level)) {
+      chainMatched = true;
+      matchedIsTop = isTop;
+      break;
+    }
+    isTop = false;
+    const rb = level["recordedBefore"] as Record<string, unknown> | undefined;
+    const next = rb !== null && typeof rb === "object" && !Array.isArray(rb)
+      ? (rb as Record<string, unknown>)["byteLineage"]
+      : undefined;
+    chainLevel = next ?? null;
+  }
+  // A top-level match still requires the recorded top output to equal the
+  // shipped bytes (else the asset changed without a provenance update: fall
+  // through to re-derive, which refuses on mismatch). A below-top match
+  // NEVER skips (F3): only the top derivation can reproduce the shipped
+  // bytes, so a below-top level must re-run; its re-derivation either
+  // reproduces the shipped file (throwing nothing) or refuses, and a
+  // caller validating only that level against altered shipped bytes gets a
+  // refusal instead of a successful reproduction result.
+  if (chainMatched && matchedIsTop && record["outputSha256"] === shippedDigest) {
+    const topRb = priorRecord["recordedBefore"] as {
+      outputSha256: unknown;
+      outputBytes: unknown;
+    };
+    return { reproduced: true, sha256: shippedDigest, bytes: shipped.byteLength, previous: topRb };
+  }
+  // No established correction: derive the pre-image and compare.
   const base = path.resolve(rawBase);
   mkdirSync(base, { recursive: true });
   const callDir = mkdtempSync(path.join(base, `${path.basename(input.assetPath, ".glb")}-`));
@@ -112,60 +191,13 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
   execFileSync(executable, argv.slice(1), { stdio: "pipe" });
 
   const rederived = readFileSync(rederivedPath);
-  const shipped = readFileSync(input.assetPath);
   const rederivedDigest = sha256(rederived);
-  const shippedDigest = sha256(shipped);
   if (rederivedDigest !== shippedDigest) {
     throw new Error(
       `correctSidecarByteLineage: refused — re-running the derivation on ${preImageLabel(input.preImage)} (${preImageFlag(input.preImage)}) produced ${rederivedDigest} (${rederived.byteLength} B) but ${input.assetPath} holds ${shippedDigest} (${shipped.byteLength} B). The shipped bytes are NOT explained by this derivation, so the recorded hash must not be rewritten to match them.`,
     );
   }
 
-  const record = JSON.parse(readFileSync(input.provenancePath, "utf8")) as Record<string, unknown>;
-  const priorLineage = record["byteLineage"];
-  const priorIsLineage =
-    priorLineage !== null && typeof priorLineage === "object" && !Array.isArray(priorLineage);
-  const priorRecord = (priorIsLineage ? (priorLineage as Record<string, unknown>) : {}) as Record<
-    string,
-    unknown
-  >;
-  const priorDescriptor =
-    typeof priorRecord["preImageRevision"] === "string"
-      ? `revision:${priorRecord["preImageRevision"] as string}`
-      : typeof priorRecord["preImageFile"] === "string"
-        ? `file:${priorRecord["preImageFile"] as string}`
-        : undefined;
-  const currentDescriptor =
-    input.preImage.kind === "revision"
-      ? `revision:${input.preImage.revision}`
-      : `file:${input.preImage.path}`;
-  const priorRecordedBefore = priorRecord["recordedBefore"];
-  const priorRecordedBeforeValid =
-    priorRecordedBefore !== null &&
-    typeof priorRecordedBefore === "object" &&
-    !Array.isArray(priorRecordedBefore) &&
-    typeof (priorRecordedBefore as Record<string, unknown>)["outputSha256"] === "string" &&
-    typeof (priorRecordedBefore as Record<string, unknown>)["outputBytes"] === "number";
-  // Idempotence: the sidecar already records this exact correction (same pre-image
-  // descriptor + digest, same derivation, same rationale, same established output,
-  // with a valid recordedBefore), so leave the file untouched instead of nesting
-  // a duplicate level or bumping the timestamp. A different source/file or a
-  // different why with identical bytes+argv is a different correction and nests.
-  const sameCorrection =
-    priorIsLineage &&
-    priorRecord["preImageSha256"] === preImageDigest &&
-    priorDescriptor === currentDescriptor &&
-    JSON.stringify(priorRecord["derivationArgv"]) === JSON.stringify(input.derivationArgv) &&
-    priorRecord["why"] === input.why &&
-    record["outputSha256"] === shippedDigest &&
-    priorRecordedBeforeValid;
-  if (sameCorrection) {
-    const previous = priorRecord["recordedBefore"] as {
-      outputSha256: unknown;
-      outputBytes: unknown;
-    };
-    return { reproduced: true, sha256: shippedDigest, bytes: shipped.byteLength, previous };
-  }
   const previous = {
     outputSha256: record["outputSha256"],
     outputBytes: record["outputBytes"],
@@ -205,7 +237,9 @@ const TIGHTJEANS_FP_RUNG_WHY =
   + "Re-running that rung on the pre-image reproduces the shipped file byte for byte; the digest "
   + "below is therefore a derivation, not a reading taken off disk.";
 
-const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory" | "expectedPreImageSha256">[] = [
+/** p2e-c-prod: exported so the card's lin re-exec proof can run the nurse
+ * corrections through this exact table (no duplicated argv/why text). */
+export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory" | "expectedPreImageSha256">[] = [
   {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
@@ -243,24 +277,6 @@ const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory" | "ex
     why: TIGHTJEANS_FP_RUNG_WHY,
   },
   {
-    assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
-    provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.provenance.json",
-    preImage: { kind: "revision", revision: "3d019031^:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb" },
-    derivationArgv: [
-      "node",
-      "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
-      "--input",
-      "{pre}",
-      "--output",
-      "{out}",
-      "--report",
-      "{report}",
-      "--half-span-m",
-      "0.085",
-    ],
-    why: CHEST_ANCHOR_WHY,
-  },
-  {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.provenance.json",
     preImage: { kind: "revision", revision: "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb" },
@@ -295,6 +311,36 @@ const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory" | "ex
       "0.085",
     ],
     why: CHEST_ANCHOR_WHY,
+  },
+  {
+    assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+    provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.provenance.json",
+    // P2e-C tracked factory chain (F1, single run, no archived mid): stage 1
+    // fills the hide-mask footprint of the skin baseColor from the shipped
+    // skin (P2e-A inpaint) into a temp file under the run's out dir; stage 2
+    // un-hides exactly prim7 tris {2,3,4,5,6,53} (position-keyed 6-tri set)
+    // from that temp output. The only external input is the c1da76fb4 git
+    // revision below; mask + faces-from are tracked fixtures.
+    preImage: { kind: "revision", revision: "c1da76fb4:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb" },
+    derivationArgv: [
+      "mise",
+      "exec",
+      "--",
+      "python3",
+      "-I",
+      "tools/openclinxr/evidence/skin-footprint-inpaint/scripts/nurse-vneck-chain.py",
+      "--pre",
+      "{pre}",
+      "--out",
+      "{out}",
+      "--footprint-mask",
+      "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/pre-e9-footprint-mask.png",
+      "--faces-from",
+      "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/nurse-vneck-6tri.json",
+      "--report",
+      "{report}",
+    ],
+    why: "P2e-C tracked factory chain (single run, no archived mid): stage 1 fills the hide-mask footprint of the skin baseColor from the shipped skin (P2e-A inpaint) into a temp file under the run's out dir, then stage 2 un-hides exactly prim7 tris {2,3,4,5,6,53} (position-keyed 6-tri set) from that temp output so the scrub V-neck shows skin instead of the E9 T patch, with no other tri moved. Re-running the chain on the c1da76fb4 pre-image reproduces the shipped file byte for byte; the digest below is therefore a derivation, not a reading taken off disk.",
   },
 ];
 

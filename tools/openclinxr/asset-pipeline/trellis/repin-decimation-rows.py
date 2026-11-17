@@ -81,13 +81,14 @@ PLAN = {
     # GLB image chunks. Texture bytes only: tris/face/hand/joints hold at their
     # pinned values (asserted live per row by main()).
     "mpfb-clinical-nurse-adult.glb": {
-        "bytesAfter": 12355972,
+        "bytesAfter": 12477104,
         "triangleCountAfter": 43412,
         "faceAfter": 15233,
         # faceBefore is the historical rung input (cap10 2026-11-10); a02b66f3e had raised it to live.
         "faceBefore": 10779,
         "handBodyMeshAfter": 12833,
-        "note": ("Re-measured 2026-11-13 (E9 nurse chest rehide, tsk_4b1c60a631bf39b3): rehide-poking-skin.py moves 92 posed-converged body tris under the hide mask in a new body primitive (patch-prim-in-place), bytes-only drift, geometry counts hold (tris 43412 / face 15233 / hand 12833 / joints 137, asserted by main()), 12353924 -> 12355972 B. "
+        "note": ("Re-measured 2026-11-16 (P2e-C nurse footprint inpaint + V-neck 6-tri un-hide, p2e-c-prod): inpaint_hide_footprint.py repaints the hide-footprint skin texels from surrounding skin and nurse-vneck-6tri-unhide.py moves exactly prim7 tris {2,3,4,5,6,53} to a new skin prim9 (position-keyed, moved==6); bytes-only drift, geometry counts hold (tris 43412 / face 15233 / hand 12833 / joints 137, asserted by main()), 12355972 -> 12477104 B. "
+                 "Re-measured 2026-11-13 (E9 nurse chest rehide, tsk_4b1c60a631bf39b3): rehide-poking-skin.py moves 92 posed-converged body tris under the hide mask in a new body primitive (patch-prim-in-place), bytes-only drift, geometry counts hold (tris 43412 / face 15233 / hand 12833 / joints 137, asserted by main()), 12353924 -> 12355972 B. "
                  "Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (45904 -> 43412, 17725 -> 15233), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 12353944 -> 12353924 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 9254712 -> 12353944 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 9233948 -> 9254712 B. "

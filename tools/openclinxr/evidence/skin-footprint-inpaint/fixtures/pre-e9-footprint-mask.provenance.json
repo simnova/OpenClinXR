@@ -1,0 +1,18 @@
+{
+ "schemaVersion": "openclinxr.skin-footprint-fixture.v1",
+ "description": "Pre-E9 hide-mask footprint rasterized to a 1024x1024 0/255 mask. Committed so the gate reads no git history (cap27 A1.4).",
+ "sourceRevision": "0ad5234d0d4883ca38346356ae3c16670e8eea1b",
+ "sourceGlb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+ "sourceGlbSha256": "f6573124437c4f170643ad33d2f922bb66a069fcc58bcf3bbeef8b9a8da2833c",
+ "hiddenPrimCount": 7,
+ "hiddenTriCount": 4511,
+ "footprintTexels": 200412,
+ "size": [
+  1024,
+  1024
+ ],
+ "maskSha256": "71f07b0508d4a90f23054dedd16d4eda007a12e5456f75ca7bd5aeb1348c5724",
+ "derivationCommand": "sh -c 'git show 0ad5234d0d4883ca38346356ae3c16670e8eea1b:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb > /tmp/p2e-pre-e9-0ad5234d0.glb && mise exec -- python3 -I tools/openclinxr/evidence/skin-footprint-inpaint/inpaint_hide_footprint.py derive-fixture --footprint-glb /tmp/p2e-pre-e9-0ad5234d0.glb --out-mask tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/pre-e9-footprint-mask.png'",
+ "rasterRule": "glTF UV x=u*W, y=v*H, origin top-left, pixel centres inside, no dilation (same as store st-teeth/skin-audit-2/scripts/measure.py; verified byte-identical to its --out-mask output)",
+ "rasterOf": "TEXCOORD_0 of every openclinxr_hidden_ primitive of the body mesh in the pre-E9 GLB"
+}

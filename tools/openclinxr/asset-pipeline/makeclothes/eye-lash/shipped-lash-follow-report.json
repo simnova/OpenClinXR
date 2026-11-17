@@ -107,7 +107,7 @@
   "actors": [
     {
       "actor": "mpfb-clinical-nurse-adult",
-      "inputSha256": "8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86",
+      "inputSha256": "ce10321833f92ccc5930fafbadfc8544c9b5ec715a33e71c96ebf5b4e5d6056e",
       "lashStageInputSha256": "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b",
       "lashMesh": "openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ed_chest_pain_nurse_adult_mesh",
       "bodyMesh": "mpfb_ed_chest_pain_nurse_adult_body",
@@ -158,7 +158,7 @@
           "cardsOver1mmClosedOwnRegion": 0,
           "cardsOver1mmClosedGeneralBody": 0,
           "lidMarginVerts": 67,
-          "bodyPrimitiveCount": 9,
+          "bodyPrimitiveCount": 10,
           "boundaryLoopCount": 0,
           "eyeOpeningLoopVerts": 0,
           "eyeOpeningLoopStatus": "no-eye-opening-loop",
@@ -1622,7 +1622,7 @@
           "cardsOver1mmClosedOwnRegion": 0,
           "cardsOver1mmClosedGeneralBody": 0,
           "lidMarginVerts": 65,
-          "bodyPrimitiveCount": 9,
+          "bodyPrimitiveCount": 10,
           "boundaryLoopCount": 0,
           "eyeOpeningLoopVerts": 0,
           "eyeOpeningLoopStatus": "no-eye-opening-loop",

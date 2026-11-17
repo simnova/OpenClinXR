@@ -29,7 +29,7 @@ import {
 
 const NURSE = "mpfb-clinical-nurse-adult.glb";
 const EMITTED = "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b";
-const SHIPPED_SPLIT = "8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86";
+const SHIPPED_SPLIT = "ce10321833f92ccc5930fafbadfc8544c9b5ec715a33e71c96ebf5b4e5d6056e";
 
 function sha256(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
@@ -99,7 +99,7 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     const plantedBody = matched(plantedDoc, NURSE).body.getMesh()!;
     const plantedPrims = plantedBody.listPrimitives();
     const keptSha = indicesSha256(plantedPrims[0]!);
-    const hiddenSha = indicesSha256(plantedPrims[plantedPrims.length - 1]!);
+    const hiddenSha = indicesSha256(plantedPrims[plantedPrims.length - 2]!);
     expect(keptSha, "kept pin intact: morph plant moved no indices").toBe(NURSE_CHEST_STAGE_KEPT_INDICES_SHA256);
     expect(NURSE_CHEST_STAGE_INDICES_SHA256, "hidden pin intact: morph plant moved no indices").toContain(hiddenSha);
     const cw = counterweights(plantedDoc, base, NURSE);
@@ -156,7 +156,7 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     const livePrims = liveBody.listPrimitives();
     expect(indicesSha256(livePrims[0]!), "live kept pin intact").toBe(NURSE_CHEST_STAGE_KEPT_INDICES_SHA256);
     expect(NURSE_CHEST_STAGE_INDICES_SHA256, "live hidden pin intact").toContain(
-      indicesSha256(livePrims[livePrims.length - 1]!),
+      indicesSha256(livePrims[livePrims.length - 2]!),
     );
     const cw = counterweights(shipped, plantedBase, NURSE);
     console.log("G1 plant-split counterweights", cw);
@@ -185,7 +185,8 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     const cur = await io.readBinary(new Uint8Array(shippedBytes));
     const bodyMesh = matched(cur, NURSE).body.getMesh()!;
     const prims = bodyMesh.listPrimitives();
-    const hidden = prims[prims.length - 1]!;
+    // P2e-C appended the skin prim9 last: the E9 hidden prim8 is second-to-last.
+    const hidden = prims[prims.length - 2]!;
     const targets = hidden.listTargets();
     // Find two morph targets whose POSITION accessors are distinct objects
     // with byte-identical payloads (body prim0 targets 16/17 are the known
@@ -213,7 +214,7 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     const plantedPrims = matched(cur, NURSE).body.getMesh()!.listPrimitives();
     expect(indicesSha256(plantedPrims[0]!), "live kept pin intact").toBe(NURSE_CHEST_STAGE_KEPT_INDICES_SHA256);
     expect(NURSE_CHEST_STAGE_INDICES_SHA256, "live hidden pin intact").toContain(
-      indicesSha256(plantedPrims[plantedPrims.length - 1]!),
+      indicesSha256(plantedPrims[plantedPrims.length - 2]!),
     );
     const cw = counterweights(cur, base, NURSE);
     console.log("G1 plant-repoint counterweights", cw);
@@ -242,7 +243,8 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     const root = cur.getRoot();
     const bodyMesh = matched(cur, NURSE).body.getMesh()!;
     const prims = bodyMesh.listPrimitives();
-    const hidden = prims[prims.length - 1]!;
+    // P2e-C appended the skin prim9 last: the E9 hidden prim8 is second-to-last.
+    const hidden = prims[prims.length - 2]!;
     const liveHide = hidden.getMaterial()?.getName() ?? "";
     expect(liveHide, "setup: E9 hide material is the upper hidden material").toContain("openclinxr_hidden_upper_");
     const other = root.listMaterials().find(
@@ -255,7 +257,7 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     const plantedPrims = matched(cur, NURSE).body.getMesh()!.listPrimitives();
     expect(indicesSha256(plantedPrims[0]!), "live kept pin intact").toBe(NURSE_CHEST_STAGE_KEPT_INDICES_SHA256);
     expect(NURSE_CHEST_STAGE_INDICES_SHA256, "live hidden pin intact").toContain(
-      indicesSha256(plantedPrims[plantedPrims.length - 1]!),
+      indicesSha256(plantedPrims[plantedPrims.length - 2]!),
     );
     const cw = counterweights(cur, base, NURSE);
     console.log("G1 plant-material counterweights", cw);
@@ -284,7 +286,8 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     const cur = await io.readBinary(new Uint8Array(shippedBytes));
     const bodyMesh = matched(cur, NURSE).body.getMesh()!;
     const prims = bodyMesh.listPrimitives();
-    const hidden = prims[prims.length - 1]!;
+    // P2e-C appended the skin prim9 last: rotate the E9 hidden prim8.
+    const hidden = prims[prims.length - 2]!;
     const indices = hidden.getIndices()!;
     const arr = indices.getArray() as unknown as ArrayLike<number> & { length: number };
     expect(arr.length % 3, "setup: hidden indices form whole triangles").toBe(0);

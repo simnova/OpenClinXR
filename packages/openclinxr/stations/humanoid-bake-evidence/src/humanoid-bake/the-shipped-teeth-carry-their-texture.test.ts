@@ -331,11 +331,34 @@ const NURSE_ACTOR = "mpfb-clinical-nurse-adult.glb";
 const NURSE_BODY_MESH = 4;
 const NURSE_BODY_PRIM0_SLOT = "primitive[0].indices";
 
-/** Pre-E9 nurse bytes (recorded pre-image descriptor): the rehide split's union baseline. */
+/** F1 single-run chain (p2e-c-prod-r2, Codex F1): the inpaint + 6-tri un-hide
+ * interim levels collapsed into one tracked chain derivation
+ * (nurse-vneck-chain.py) from the c1da76fb4 pre-image straight to the shipped
+ * bytes. The chain's recordedBefore is the superseded same-bytes pin, not its
+ * derivation input, so per-level junction (pre === recordedBefore.output)
+ * cannot hold for the chain level by construction; the chain level instead
+ * must name the tracked pre-image revision + sha below. */
+const P2E_CHAIN_SCRIPT = "nurse-vneck-chain.py";
+const P2E_CHAIN_PREIMAGE_REV =
+  "c1da76fb4:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb";
+const P2E_CHAIN_PREIMAGE_SHA256 =
+  "8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86";
+
+/** Pre-E9 nurse bytes (recorded pre-image descriptor): the rehide split's union baseline.
+ * P2e-C (cap31, 2026-11-16) added newer levels on top (r2 F1: the single-run
+ * inpaint+un-hide chain with a c1da76fb4 revision pre-image), so the baseline
+ * comes from the E9 rehide level by content (rehide-poking-skin.py in argv),
+ * never from the top level. */
 const nurseBaselineCache = new Map<string, Glb>();
+function e9Level(sidecar: Record<string, unknown>): ByteLineageLevel {
+  const found = lineageLevels(sidecar).find((level) =>
+    (level.derivationArgv ?? []).join(" ").includes("rehide-poking-skin.py"),
+  );
+  if (!found) throw new Error("T3 E9 chest: sidecar byteLineage carries no E9 rehide level");
+  return found;
+}
 function nurseBaselineGlb(sidecar: Record<string, unknown>): Glb {
-  const rev = ((sidecar as NeckChainSidecar).byteLineage as ByteLineageLevel | undefined)
-    ?.preImageRevision;
+  const rev = e9Level(sidecar).preImageRevision;
   if (typeof rev !== "string" || rev.length === 0) {
     throw new Error("T3 E9 chest: sidecar byteLineage carries no preImageRevision descriptor");
   }
@@ -417,13 +440,25 @@ function nurseChestWitness(
   const mesh = glb.document.meshes[NURSE_BODY_MESH];
   const prims = mesh?.primitives ?? [];
   const basePrims = baseline.document.meshes[NURSE_BODY_MESH]?.primitives ?? [];
-  if (prims.length !== basePrims.length + 1) {
+  // E9 adds one hidden prim (baseline +1). P2e-C appends one more skin prim
+  // (the 6-tri un-hide; F1 single-run chain: newest level runs
+  // nurse-vneck-chain.py, which stages the same un-hide from its temp
+  // inpaint output), so live is baseline +2 with the E9 hidden prim
+  // second-to-last. A +2 live body without the un-hide record on top refuses
+  // (not an E9-shaped live).
+  const extra = prims.length - basePrims.length;
+  const newestArgv = (lineageLevels(sidecar)[0]?.derivationArgv ?? []).join(" ");
+  const p2eAppend =
+    extra === 2 &&
+    (newestArgv.includes("nurse-vneck-6tri-unhide.py") || newestArgv.includes(P2E_CHAIN_SCRIPT));
+  if (extra !== 1 && !p2eAppend) {
     throw new Error(
-      `T3 E9 chest: live body prims ${prims.length} != baseline ${basePrims.length} + 1`,
+      `T3 E9 chest: live body prims ${prims.length} != baseline ${basePrims.length} + 1` +
+        (extra === 2 ? " (and the newest level is not the 6-tri un-hide)" : ""),
     );
   }
   const kept = prims[0]!;
-  const hidden = prims[prims.length - 1]!;
+  const hidden = p2eAppend ? prims[prims.length - 2]! : prims[prims.length - 1]!;
   if (kept.indices !== rowAccessorIndex || hidden.indices === undefined || kept.indices === undefined) {
     throw new Error(
       `T3 E9 chest: live prim0 indices accessor ${kept.indices} != row accessor ${rowAccessorIndex}`,
@@ -488,8 +523,10 @@ function nurseChestRowOrThrow(
  * GLB because a later byte-identical correction moved the top pin, the swap output must still
  * pin the junction: the pin the swap level established, read as the sidecar top pin when the
  * swap level is newest, else as the next-newer level's recordedBefore.outputSha256. Continuity:
- * for every level L, L.preImageSha256 === L.recordedBefore.outputSha256 (each derivation re-ran
- * on exactly the bytes the pin it supersedes named). The walked chain must contain the
+ * for every non-chain level L, L.preImageSha256 === L.recordedBefore.outputSha256 (each derivation re-ran
+ * on exactly the bytes the pin it supersedes named). The F1 chain level is exempt by construction
+ * (one derivation spanning both stages; recordedBefore is the superseded same-bytes pin) and must
+ * name the tracked c1da76fb4 pre-image instead. The walked chain must contain the
  * teeth-swap derivation record (swap_teeth.py in argv) with the nested #741 record older still.
  */
 function validateT3LineageChain(
@@ -507,6 +544,19 @@ function validateT3LineageChain(
     throw new Error(`T3 chain ${actor}: teethSwapB1 output does not pin this GLB and no byteLineage chain exists`);
   }
   for (const [index, level] of levels.entries()) {
+    if ((level.derivationArgv ?? []).join(" ").includes(P2E_CHAIN_SCRIPT)) {
+      // F1 chain level: the one derivation spans both stages, so junction
+      // against recordedBefore cannot hold; require the tracked pre-image.
+      if (
+        level.preImageSha256 !== P2E_CHAIN_PREIMAGE_SHA256 ||
+        level.preImageRevision !== P2E_CHAIN_PREIMAGE_REV
+      ) {
+        throw new Error(
+          `T3 chain ${actor} L${index}: chain level must name the tracked pre-image ${P2E_CHAIN_PREIMAGE_REV} sha ${P2E_CHAIN_PREIMAGE_SHA256}, got ${level.preImageRevision} sha ${level.preImageSha256}`,
+        );
+      }
+      continue;
+    }
     if (level.recordedBefore === undefined || level.preImageSha256 !== level.recordedBefore.outputSha256) {
       throw new Error(
         `T3 chain ${actor} L${index}: preImageSha256 ${level.preImageSha256} != recordedBefore.outputSha256 ${level.recordedBefore?.outputSha256}`,
@@ -693,7 +743,15 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     expect(block?.output?.sha256).toBeDefined();
     validateT3LineageChain(actor, live, nurse, block);
     const levels = lineageLevels(nurse);
-    console.info(`T3 chain-walk ${actor}: depth=${levels.length} swap=1 fix741=2 live=${live.slice(0, 12)}`);
+    const swapAt = levels.findIndex((level) =>
+      (level.derivationArgv ?? []).join(" ").includes("swap_teeth.py"),
+    );
+    const fixAt = levels.findIndex(
+      (level) =>
+        (level.why ?? "").includes("fix(#741)") ||
+        (level.derivationArgv ?? []).join(" ").includes("tongue-forward-place.ts"),
+    );
+    console.info(`T3 chain-walk ${actor}: depth=${levels.length} swap=${swapAt} fix741=${fixAt} live=${live.slice(0, 12)}`);
     // Collapsed shape: the e9-install top level without its nested byteLineage
     // (recordedBefore kept, byteLineage dropped) — built in memory so a clean
     // checkout exercises the negative without a gitignored fixture.
@@ -708,7 +766,9 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     expect(() => validateT3LineageChain(actor, live, collapsed, collapsedBlock)).toThrow(
       /no teeth-swap derivation record/,
     );
-    // Plant 1: broken preImageSha256 continuity at the newest level.
+    // Plant 1: broken preImageSha256 continuity at the newest level. The
+    // newest level is the F1 chain level, so the chain branch refuses first
+    // with the tracked-pre-image message (not the generic junction text).
     const brokenContinuity = JSON.parse(JSON.stringify(nurse)) as Record<string, unknown>;
     (brokenContinuity as NeckChainSidecar).byteLineage!.preImageSha256 = "0".repeat(64);
     expect(() =>
@@ -718,7 +778,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
         brokenContinuity,
         (brokenContinuity as NeckChainSidecar)["teethSwapB1"]!,
       ),
-    ).toThrow(/preImageSha256 .* != recordedBefore\.outputSha256/);
+    ).toThrow(/chain level must name the tracked pre-image/);
     // Plant 2: wrong swap junction — the swap output no longer pins the junction.
     const wrongJunction = JSON.parse(JSON.stringify(nurse)) as Record<string, unknown>;
     (wrongJunction as NeckChainSidecar)["teethSwapB1"] = {
@@ -733,22 +793,32 @@ describe("the shipped teeth carry their own CC0 texture", () => {
         (wrongJunction as NeckChainSidecar)["teethSwapB1"]!,
       ),
     ).toThrow(/pins neither the top pin nor the swap junction/);
-    // Plant 3: #741 moved newer than the swap — swap the two older levels' argv
-    // so the fix(#741) record reads newer than the swap_teeth.py record.
+    // Plant 3: #741 moved newer than the swap — swap the CONTENT (argv+why)
+    // of the swap level with the #741 level, wherever the chain nests them
+    // (P2e-C added two newer levels on top, so no fixed depth is assumed).
     const reordered = JSON.parse(JSON.stringify(nurse)) as Record<string, unknown>;
-    const reorderedTop = (reordered as NeckChainSidecar).byteLineage!;
-    const reorderedNext = reorderedTop.recordedBefore?.byteLineage;
-    const reorderedOldest = reorderedNext?.recordedBefore?.byteLineage;
-    if (!reorderedNext || !reorderedOldest) throw new Error("setup: expected depth 3 for reorder plant");
-    const swapArgv = reorderedNext.derivationArgv;
-    if (swapArgv === undefined || reorderedOldest.derivationArgv === undefined) {
-      throw new Error("setup: swap levels carry argv for the reorder plant");
+    const reorderedLevels = lineageLevels(reordered);
+    const reorderedSwap = reorderedLevels.findIndex((level) =>
+      (level.derivationArgv ?? []).join(" ").includes("swap_teeth.py"),
+    );
+    const reorderedFix = reorderedLevels.findIndex(
+      (level) =>
+        (level.why ?? "").includes("fix(#741)") ||
+        (level.derivationArgv ?? []).join(" ").includes("tongue-forward-place.ts"),
+    );
+    if (reorderedSwap < 0 || reorderedFix < 0)
+      throw new Error("setup: swap and #741 levels present for reorder plant");
+    const swapLevel = reorderedLevels[reorderedSwap]!;
+    const fixLevel = reorderedLevels[reorderedFix]!;
+    const swapArgv = swapLevel.derivationArgv;
+    if (swapArgv === undefined || fixLevel.derivationArgv === undefined) {
+      throw new Error("setup: swap and #741 levels carry argv for the reorder plant");
     }
-    reorderedNext.derivationArgv = reorderedOldest.derivationArgv;
-    reorderedOldest.derivationArgv = swapArgv;
-    const swapWhy = (reorderedNext as Record<string, unknown>)["why"];
-    (reorderedNext as Record<string, unknown>)["why"] = (reorderedOldest as Record<string, unknown>)["why"];
-    (reorderedOldest as Record<string, unknown>)["why"] = swapWhy;
+    swapLevel.derivationArgv = fixLevel.derivationArgv;
+    fixLevel.derivationArgv = swapArgv;
+    const swapWhy = (swapLevel as Record<string, unknown>)["why"];
+    (swapLevel as Record<string, unknown>)["why"] = (fixLevel as Record<string, unknown>)["why"];
+    (fixLevel as Record<string, unknown>)["why"] = swapWhy;
     expect(() =>
       validateT3LineageChain(
         actor,
@@ -770,9 +840,8 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     const glb = parseGlb(join(DIR, actor));
     const sidecar = sidecarFor(actor);
     const live = sha256(glb.raw);
-    const rev = ((sidecar as NeckChainSidecar).byteLineage as ByteLineageLevel | undefined)
-      ?.preImageRevision;
-    expect(typeof rev, "setup: sidecar top carries a preImageRevision descriptor").toBe("string");
+    const rev = e9Level(sidecar).preImageRevision;
+    expect(typeof rev, "setup: E9 level carries a preImageRevision descriptor").toBe("string");
     expect(rev as string, "baseline descriptor is a pinned commit, not symbolic HEAD").toMatch(
       /^[0-9a-f]{40}:/,
     );
@@ -795,15 +864,19 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     ).toBe(8);
     expect(
       glb.document.meshes[NURSE_BODY_MESH]?.primitives?.length,
-      "live body is the pre-image +1 split prim",
-    ).toBe(9);
+      "live body is the pre-image +2 split prims (E9 hidden prim8 + P2e-C skin prim9)",
+    ).toBe(10);
     expect(isNurseChestStageSplit(witness), "recorded-descriptor baseline witnesses the live split").toBe(
       true,
     );
     // A HEAD-shaped descriptor is refused instead of read: post-commit,
-    // HEAD:<nurse.glb> would be the 9-prim shipped GLB, not the pre-image.
+    // HEAD:<nurse.glb> would be the 10-prim shipped GLB, not the pre-image.
+    // The plant targets the E9 level (the top levels carry no revision).
     const headShaped = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown>;
-    ((headShaped as NeckChainSidecar).byteLineage as ByteLineageLevel).preImageRevision =
+    const headE9 = lineageLevels(headShaped).find((level) =>
+      (level.derivationArgv ?? []).join(" ").includes("rehide-poking-skin.py"),
+    )!;
+    headE9.preImageRevision =
       `HEAD:apps/ui-xr/public/generated-humanoids/${actor}`;
     expect(() => nurseBaselineGlb(headShaped)).toThrow(/pinned commit descriptor/);
   });
@@ -826,7 +899,8 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     };
     const blockOf = (copy: Record<string, unknown>): string =>
       `swap=${JSON.stringify(((copy as NeckChainSidecar)["teethSwapB1"] as TeethSwapBlock)?.output?.sha256)}`;
-    // Broken continuity through the real path.
+    // Broken continuity through the real path (top level is the F1 chain
+    // level: refusal carries the tracked-pre-image message).
     expect(
       () =>
         validateT3(
@@ -837,7 +911,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
           }),
         ),
       `broken continuity plant ${blockOf(sidecar)}`,
-    ).toThrow(/preImageSha256 .* != recordedBefore\.outputSha256/);
+    ).toThrow(/chain level must name the tracked pre-image/);
     // Wrong junction through the real path.
     expect(
       () =>
@@ -864,26 +938,36 @@ describe("the shipped teeth carry their own CC0 texture", () => {
         ),
       "block-output-equals-live plant",
     ).toThrow(/pins neither the top pin nor the swap junction/);
-    // Reordered #741 (newer than the swap) through the real path.
+    // Reordered #741 (newer than the swap) through the real path: swap the
+    // CONTENT of the swap and #741 levels wherever the chain nests them.
     expect(
       () =>
         validateT3(
           actor,
           glb,
           plant((copy) => {
-            const top = (copy as NeckChainSidecar).byteLineage!;
-            const next = top.recordedBefore?.byteLineage;
-            const oldest = next?.recordedBefore?.byteLineage;
-            if (!next || !oldest) throw new Error("setup: expected depth 3 for reorder plant");
-            const swapArgv = next.derivationArgv;
-            if (swapArgv === undefined || oldest.derivationArgv === undefined) {
+            const planted = lineageLevels(copy);
+            const swapIdx = planted.findIndex((level) =>
+              (level.derivationArgv ?? []).join(" ").includes("swap_teeth.py"),
+            );
+            const fixIdx = planted.findIndex(
+              (level) =>
+                (level.why ?? "").includes("fix(#741)") ||
+                (level.derivationArgv ?? []).join(" ").includes("tongue-forward-place.ts"),
+            );
+            if (swapIdx < 0 || fixIdx < 0)
+              throw new Error("setup: swap and #741 levels present for reorder plant");
+            const swapLevel = planted[swapIdx]!;
+            const fixLevel = planted[fixIdx]!;
+            const swapArgv = swapLevel.derivationArgv;
+            if (swapArgv === undefined || fixLevel.derivationArgv === undefined) {
               throw new Error("setup: expected derivationArgv on both levels for reorder plant");
             }
-            next.derivationArgv = oldest.derivationArgv;
-            oldest.derivationArgv = swapArgv;
-            const swapWhy = (next as Record<string, unknown>)["why"];
-            (next as Record<string, unknown>)["why"] = (oldest as Record<string, unknown>)["why"];
-            (oldest as Record<string, unknown>)["why"] = swapWhy;
+            swapLevel.derivationArgv = fixLevel.derivationArgv;
+            fixLevel.derivationArgv = swapArgv;
+            const swapWhy = (swapLevel as Record<string, unknown>)["why"];
+            (swapLevel as Record<string, unknown>)["why"] = (fixLevel as Record<string, unknown>)["why"];
+            (fixLevel as Record<string, unknown>)["why"] = swapWhy;
           }),
         ),
       "reordered #741 plant",
@@ -1044,7 +1128,12 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
     expect(isNurseChestStageSplit(witness), "live nurse split passes the shared predicate").toBe(true);
     const prims = glb.document.meshes[NURSE_BODY_MESH]?.primitives ?? [];
-    const hidden = prims[prims.length - 1]!;
+    // P2e-C appended the skin prim9 last: the E9 hidden prim is second-to-last.
+    const hidden = prims[prims.length - 2]!;
+    expect(
+      sha256(accessorBytes(glb, hidden.indices!)),
+      "setup: second-to-last prim is the E9 hidden prim",
+    ).toBe(witness.hiddenIndicesSha256);
     const hiddenIdx = hidden.indices!;
     const acc = glb.document.accessors[hiddenIdx]!;
     const view = glb.document.bufferViews[acc.bufferView!]!;
@@ -1089,7 +1178,16 @@ describe("the shipped teeth carry their own CC0 texture", () => {
         candidate.meshIndex === NURSE_BODY_MESH && candidate.slot === NURSE_BODY_PRIM0_SLOT,
     )!;
     const prims = glb.document.meshes[NURSE_BODY_MESH]?.primitives ?? [];
-    const hidden = prims[prims.length - 1]!;
+    // P2e-C appended the skin prim9 last: the E9 hidden prim is second-to-last.
+    const hidden = prims[prims.length - 2]!;
+    const hiddenSha = sha256(accessorBytes(glb, hidden.indices!));
+    expect(
+      NURSE_CHEST_STAGE_INDICES_SHA256,
+      "setup: second-to-last prim carries a pinned split sha",
+    ).toContain(hiddenSha);
+    expect(hiddenSha, "setup: second-to-last prim is the hidden half, not the kept half").not.toBe(
+      NURSE_CHEST_STAGE_KEPT_INDICES_SHA256,
+    );
     const hiddenIdx = hidden.indices!;
     const acc = glb.document.accessors[hiddenIdx]!;
     const view = glb.document.bufferViews[acc.bufferView!]!;
@@ -1241,14 +1339,24 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     expect(row, "nurse body prim0.indices row recorded").toBeDefined();
     // Sanity: the live nurse passes through the row path (guard (a) direction).
     nurseChestRowOrThrow(actor, glb, baseline, sidecar, row.accessorIndex);
+    // P2e-C: the E9 rehide level is no longer the top (the chain sits
+    // above it), so the guard splices the E9 level out wherever it nests.
     const copy = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown>;
-    const top = (copy as NeckChainSidecar).byteLineage!;
-    const next = top.recordedBefore?.byteLineage;
-    if (!next) throw new Error("guard setup: expected a chained recordedBefore.byteLineage");
-    expect((top.derivationArgv ?? []).join(" "), "setup removes the E9 rehide level").toContain(
-      "rehide-poking-skin.py",
+    const copyLevels = lineageLevels(copy);
+    const e9Idx = copyLevels.findIndex((level) =>
+      (level.derivationArgv ?? []).join(" ").includes("rehide-poking-skin.py"),
     );
-    (copy as NeckChainSidecar).byteLineage = next;
+    expect(e9Idx, "setup: E9 rehide level present to remove").toBeGreaterThanOrEqual(0);
+    const e9Recorded = copyLevels[e9Idx]!.recordedBefore;
+    if (e9Idx === 0) {
+      const e9Inner = e9Recorded?.byteLineage;
+      if (e9Inner === undefined) throw new Error("setup: E9 level carries a nested chain to keep");
+      (copy as NeckChainSidecar).byteLineage = e9Inner;
+    } else if (e9Recorded === undefined) {
+      delete (copyLevels[e9Idx - 1]! as unknown as Record<string, unknown>)["recordedBefore"];
+    } else {
+      copyLevels[e9Idx - 1]!.recordedBefore = e9Recorded;
+    }
     const dir = mkdtempSync(join(tmpdir(), "e9r2b-guard-b-"));
     try {
       const file = join(dir, "sidecar.json");

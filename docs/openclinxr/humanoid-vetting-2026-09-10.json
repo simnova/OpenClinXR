@@ -17,29 +17,29 @@
    "captures": {
     "front_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_lit.png",
-     "bytes": 840815,
-     "sha256": "7ce43db824aa7f9f86f4ca4b00658d6a2211aeb4659b2ff02476984303f5bc85",
+     "bytes": 844972,
+     "sha256": "e1ab1dc35fe3a7c720c2a1bf152f0d0712d613d6461d06ed7e80233067809893",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "front_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-front_structure.png",
-     "bytes": 2967934,
-     "sha256": "c1b59af3bcfdd18fd55fb97dbc977ad8b2b16173af46396ffc74228bd4b8b5e1",
+     "bytes": 2969738,
+     "sha256": "c37e3ec86df1a86c935232b2d26bf5be693babd6287fb330ff4e1fe50391fcbc",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "three_quarter_lit": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_lit.png",
-     "bytes": 881407,
-     "sha256": "748ea7c1cb387b2653466eb45b5475cfdb97539f4be9f286ccb90f5e371b8599",
+     "bytes": 883848,
+     "sha256": "ef554ea457738e143a276f9a76158b8f02c784bfd13b203412442af91e2b28b0",
      "pngWidth": 4096,
      "pngHeight": 4096
     },
     "three_quarter_structure": {
      "path": "docs/openclinxr/humanoid-vetting-captures/mpfb-clinical-nurse-adult-three_quarter_structure.png",
-     "bytes": 2866607,
-     "sha256": "c62408730582a8c6cc547082444d3f88285472c7be34b4da1a82a97e0ecfcdbe",
+     "bytes": 2868756,
+     "sha256": "33eccf04d340298a59829e39e19fd18a6204a9b4d26cd29c6d1f4742f0650e7e",
      "pngWidth": 4096,
      "pngHeight": 4096
     }
@@ -862,7 +862,7 @@
  "harness": {
   "engine": "three.js GLTFLoader through the model-vetting-studio capture route (candidate-capture.ts renders the staged GLB, no Blender scene opened)",
   "expectedImagesPerBody": "front_lit + front_structure (the tool's GRADE_VIEWS default also covers three_quarter; this card's manual pass covers front only and says so)",
-  "renderer": "Chromium 147.0.7727.15 headless via Playwright 1.59.1; WebGL backend ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver) \u2014 software rasterisation, recorded so a grey-on-grey grade can be told apart from a material finding",
+  "renderer": "Chromium 147.0.7727.15 headless via Playwright 1.59.1; WebGL backend ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver) — software rasterisation, recorded so a grey-on-grey grade can be told apart from a material finding",
   "subjectAlone": "staged GLB mesh names only (10 meshes per body, listed per body); no ground-plane mesh in the GLB scene graph; no lamp nodes in a GLB; grade canvas is the isolated capture canvas (#model-vetting-candidate-capture-canvas). The grid floor in the PNGs is the studio capture backdrop, not GLB geometry.",
   "viewport": "4096x4096 browser viewport; tracked PNG IHDR 4096x4096 (rendered, not resampled)",
   "webglRenderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (LLVM 10.0.0) (0x0000C0DE)), SwiftShader driver)",

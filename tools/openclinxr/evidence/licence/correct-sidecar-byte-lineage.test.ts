@@ -106,9 +106,11 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
       workingDirectory: callDir,
     });
     expect(r2.reproduced).toBe(true);
+    // Chain-aware idempotence (r2 X3) skips before any derivation IO, so the
+    // identical re-run creates no second child dir (the old derive-then-skip
+    // left two). The first run's files stay byte-identical (below).
     const children2 = readdirSync(callDir).filter((n: string) => n.startsWith("shipped-"));
-    expect(children2.length).toBe(2);
-    expect(new Set(children2).size).toBe(2);
+    expect(children2).toEqual(children);
     expect(readFileSync(path.join(callDir, children[0]!, "shipped-report.json")).equals(firstReport)).toBe(true);
     expect(readFileSync(path.join(callDir, children[0]!, "shipped-pre.glb")).equals(firstPre)).toBe(true);
     expect(readFileSync(path.join(callDir, children[0]!, "shipped-rederived.glb")).equals(firstOut)).toBe(true);
@@ -395,5 +397,66 @@ describe("correct-sidecar-byte-lineage nesting + idempotence (e9-r2lineage)", ()
       "byteLineage"
     ] as Record<string, unknown>;
     expect(lineage["preImageFile"]).toBe(preFile);
+  });
+
+  it("F3: a below-top match with altered shipped bytes refuses instead of reproducing", () => {
+    // A caller validating only the below-top level against shipped bytes it
+    // never produced must get a refusal, not `reproduced: true`. Setup: the
+    // top level is a different (newer) correction, the below-top level
+    // matches the input identity exactly, and the shipped bytes were altered
+    // after the sidecar pin. The corrected code falls through to a real
+    // re-derivation, which mismatches and throws; the sidecar is unchanged.
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-f3-")));
+    process.env.OWN_JOB_TMP = job;
+    const fixture = gitShow("HEAD:package.json");
+    const fixtureSha = sha256(fixture);
+    const child = makeChildScript(job);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const belowArgv = ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"];
+    const below = {
+      correctedBy: "f3-below",
+      correctedAt: "2026-01-01T00:00:00.000Z",
+      recordedBefore: { outputSha256: "older", outputBytes: 1 },
+      preImageRevision: "HEAD:package.json",
+      preImageSha256: fixtureSha,
+      preImageBytes: fixture.byteLength,
+      derivationArgv: belowArgv,
+      reproduction: "byte-identical to the shipped file",
+      why: "f3 below-top level",
+    };
+    const top = {
+      correctedBy: "f3-top",
+      correctedAt: "2026-01-02T00:00:00.000Z",
+      recordedBefore: { outputSha256: fixtureSha, outputBytes: fixture.byteLength, byteLineage: below },
+      preImageRevision: "HEAD:package.json",
+      preImageSha256: fixtureSha,
+      preImageBytes: fixture.byteLength,
+      derivationArgv: belowArgv,
+      reproduction: "byte-identical to the shipped file",
+      why: "f3 newer top level",
+    };
+    const sidecar = path.join(job, "own.provenance.json");
+    writeFileSync(sidecar, JSON.stringify({ outputSha256: fixtureSha, outputBytes: fixture.byteLength, byteLineage: top }));
+    // Alter the shipped bytes after the pin (what F3's caller validates).
+    const shipped = path.join(job, "shipped.glb");
+    writeFileSync(shipped, Buffer.from("altered-shipped-bytes"));
+    const sidecarBefore = readFileSync(sidecar, "utf8");
+    let message = "";
+    try {
+      correctSidecarByteLineage({
+        assetPath: shipped,
+        provenancePath: sidecar,
+        preImage: { kind: "revision", revision: "HEAD:package.json" },
+        expectedPreImageSha256: fixtureSha,
+        derivationArgv: belowArgv,
+        why: "f3 below-top level",
+        workingDirectory: callDir,
+      });
+    } catch (e) {
+      message = String(e);
+    }
+    console.log(`f3 below-top refusal: ${message.slice(0, 120)}`);
+    expect(message, "below-top match against altered bytes refuses").toContain("NOT explained");
+    expect(readFileSync(sidecar, "utf8"), "sidecar unchanged by the refused correction").toBe(sidecarBefore);
   });
 });

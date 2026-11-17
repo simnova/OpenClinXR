@@ -194,7 +194,9 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // was fef34e2ad855….
   // teeth F3 re-pinned 2026-11-10 (tsk_27e0cec12cab410d): aa upper-shell lateral mean -5.79 mm -> 0
   // (HEAD_MEAN x); 9256 B inside one accessor; 12355972 B live (E9 chest rehide); was f6573124437c….
-  "mpfb-clinical-nurse-adult": "8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86",
+  // p2e-c-prod re-pinned 2026-11-16: P2e-C inpaint (skin-footprint Telea fill) + 6-tri V-neck un-hide
+  // (prim7 {2,3,4,5,6,53} -> new skin prim9); 12477104 B live; was 8957543dfc9f….
+  "mpfb-clinical-nurse-adult": "ce10321833f92ccc5930fafbadfc8544c9b5ec715a33e71c96ebf5b4e5d6056e",
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).

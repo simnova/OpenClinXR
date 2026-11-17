@@ -9,8 +9,13 @@
  * Owning gate: packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-adult-nurse-chest-shows-no-skin-through-the-scrub.test.ts.
  * This pin moves only on a new chest rehide stage (a new rehide-poking-skin.py run changes the split).
  *
- * Source: shipped GLB sha256 8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86
- * (e9-r1 rehide-poking-skin.py output, installed by ceo/e9-install); the tool moves the
+ * Source: e9-r1 rehide-poking-skin.py output sha256 8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86
+ * (installed by ceo/e9-install), carried forward by the P2e-C chain
+ * (skin-footprint inpaint 8957543d -> 9d05524d, 6-tri V-neck un-hide
+ * prim7 {2,3,4,5,6,53} -> appended skin prim9, 9d05524d -> ce10321833f92c,
+ * 12477104 B shipped): prim0/prim8 indices byte-identical across the chain
+ * (kept f424cfc4 24690 idx, hidden 554f04f8 276 idx), so this pin holds on
+ * the shipped GLB; the tool moves the
  * 92 posed-converged SAFE'' body-skin tris poking through the scrub shirt back under
  * the hide mask, patch-prim-in-place: prim0 shrinks 24966 -> 24690 indices
  * (8322 -> 8230 tris) and the moved 92 land in a new hidden prim8 (276 indices).
