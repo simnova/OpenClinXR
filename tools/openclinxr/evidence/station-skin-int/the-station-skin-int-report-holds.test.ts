@@ -29,7 +29,7 @@ function testRepoRoot(): string {
   throw new Error("workspace root (pnpm-workspace.yaml) not found");
 }
 
-const MISE_TRUST_DIR = "/Volumes/files/src/openclinxr";
+/** Mise trusts the current checkout (testRepoRoot below), never a machine-local literal. */
 const REPORT_REL = "tools/openclinxr/evidence/station-skin-int/station-skin-int-report.json";
 
 type Gate = {
@@ -57,7 +57,7 @@ function loadReport(): {
 }
 
 function py(code: string): string {
-  return execFileSync("mise", ["exec", "-C", MISE_TRUST_DIR, "--", "python3", "-c", code], {
+  return execFileSync("mise", ["exec", "-C", testRepoRoot(), "--", "python3", "-c", code], {
     cwd: testRepoRoot(),
     timeout: 600_000,
     encoding: "utf8",

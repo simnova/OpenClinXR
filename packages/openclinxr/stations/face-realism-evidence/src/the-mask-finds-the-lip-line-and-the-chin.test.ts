@@ -61,7 +61,7 @@ function runInstrument(input: string): MaskJson {
   const png = path.join(tmp, "mask.png");
   const json = path.join(tmp, "mask.json");
   execFileSync("mise",
-    ["exec", "-C", "/Volumes/files/src/openclinxr", "--",
+    ["exec", "-C", repoRoot(), "--",
       "python3", MODULE, input, png, json],
     { encoding: "utf8", timeout: 300000 });
   return JSON.parse(fs.readFileSync(json, "utf8")) as MaskJson;
@@ -142,7 +142,7 @@ describe("the mask finds the lip line and the chin", { timeout: 240000 }, () => 
 
   gate("polygons come from face_gate and clear the n floor", () => {
     const fgCheck = execFileSync("mise",
-      ["exec", "-C", "/Volumes/files/src/openclinxr", "--",
+      ["exec", "-C", repoRoot(), "--",
         "python3", "-c",
         "import sys; sys.path.insert(0, '" + DIR + "');" +
         "import face_landmark_regions as F;" +
@@ -169,7 +169,7 @@ describe("the mask finds the lip line and the chin", { timeout: 240000 }, () => 
         expect(m.regions[r].Lab, `${name} polygon ${r} Lab measured`).not.toBeNull();
       }
       const fgCentroid = execFileSync("mise",
-        ["exec", "-C", "/Volumes/files/src/openclinxr", "--",
+        ["exec", "-C", repoRoot(), "--",
           "python3", "-c",
           "import sys; sys.path.insert(0, '" + path.join(repoRoot(), "tools/openclinxr/evidence/face-gate") + "');" +
           "import face_gate as F;" +

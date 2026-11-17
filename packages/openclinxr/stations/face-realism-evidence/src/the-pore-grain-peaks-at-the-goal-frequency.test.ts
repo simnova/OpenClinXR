@@ -37,7 +37,7 @@ const SUBJECT_WORDS = ["body2", "aisha", "adult_male", "warm_medium", "warm_ligh
 
 function misePython(args: string[], options?: { timeout?: number }): string {
   return execFileSync("mise",
-    ["exec", "-C", "/Volumes/files/src/openclinxr", "--", "python3", ...args],
+    ["exec", "-C", repoRoot(), "--", "python3", ...args],
     { encoding: "utf8", timeout: options?.timeout ?? 280000,
       env: { ...process.env,
         MISE_TRUSTED_CONFIG_PATHS: `${process.env["HOME"]}/.grok/worktrees` } });

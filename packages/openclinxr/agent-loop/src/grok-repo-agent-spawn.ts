@@ -4,6 +4,9 @@
  */
 
 import type { GrokSubagentType } from "./grok-tier-routing.js";
+import { existsSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 import {
   formatPathScopeBlock,
   GROK_WORKER_FALLBACK_MODEL,
@@ -189,6 +192,17 @@ export function resolveGrokSpawnSurfaceForPolicy(policy: RepoRoleHarnessPolicy):
   };
 }
 
+/** Workspace root anchored at this module, never a machine-local literal:
+ * worker worktrees check out the repo at a different path. */
+function workspaceRoot(): string {
+  let dir = dirname(fileURLToPath(import.meta.url));
+  for (let i = 0; i < 12; i += 1) {
+    if (existsSync(join(dir, "pnpm-workspace.yaml"))) return dir;
+    dir = dirname(dir);
+  }
+  throw new Error("workspace root (pnpm-workspace.yaml) not found");
+}
+
 export function buildRepoAgentSpawnPrompt(input: {
   roleId: string;
   roleDir: string;
@@ -248,7 +262,7 @@ export function buildRepoAgentSpawnPrompt(input: {
     WORKER_OUTPUT_BUDGET_DIRECTIVE,
     WORKER_STATUS_REPORTING_DIRECTIVE,
     WORKER_PLANTED_CONTRACT_DIRECTIVE,
-    `Role \`${input.roleId}\` @ /Volumes/files/src/openclinxr (OpenClaw file-backed, not external runtime).`,
+    `Role \`${input.roleId}\` @ ${workspaceRoot()} (OpenClaw file-backed, not external runtime).`,
     `Rehydrate: pathScope+${input.roleDir}/charter.md+memory.md+PROJECT_STATUS header; full AGENTS.md/LEX only if UNABLE.`,
     "MANDATE_VISIBILITY: agents/rules/MANDATE_VISIBILITY.md + LEX.",
     compositionPointer,

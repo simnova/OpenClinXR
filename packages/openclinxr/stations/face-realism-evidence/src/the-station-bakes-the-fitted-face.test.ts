@@ -176,7 +176,7 @@ describe("the station bakes the fitted face", () => {
       const outTmp = join(os.tmpdir(), `.g5-recompute-${caseId}-${side}-${process.pid}.json`);
       const raw = execFileSync(
         "mise",
-        ["exec", "-C", "/Volumes/files/src/openclinxr", "--", "python3", gateScript,
+        ["exec", "-C", root, "--", "python3", gateScript,
           "--case", caseId, "--glb", row.glb.path, "--flat-render", row.flatRender.path, "--out", outTmp],
         { encoding: "utf8", timeout: 600_000 },
       );

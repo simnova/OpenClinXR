@@ -78,9 +78,12 @@ export const CASE_INPUTS_REL =
 /** Asset-store roots. Large files live here; tracked JSON cites store paths + sha256. */
 export const ASSET_STORE_ROOT = "/Volumes/files/openclinxr-assets/store";
 
-/** Python always runs through the repo-pinned interpreter. */
-const MISE_TRUST_DIR = "/Volumes/files/src/openclinxr";
-const MISE_PYTHON_ARGV = ["exec", "-C", MISE_TRUST_DIR, "--", "python3"];
+/** Python always runs through the repo-pinned interpreter. The mise trust
+ * dir is the current checkout (module-anchored repoRoot), never a
+ * machine-local literal: the shared-checkout path does not exist on CI. */
+function misePythonArgv(): string[] {
+  return ["exec", "-C", repoRoot(), "--", "python3"];
+}
 
 /**
  * Subprocess env with model credentials stripped so a model call fails
@@ -120,7 +123,7 @@ export function sha256File(absPath: string): string {
 }
 
 export function runMisePython(args: string[], timeoutMs: number): string {
-  const raw = execFileSync("mise", [...MISE_PYTHON_ARGV, ...args], {
+  const raw = execFileSync("mise", [...misePythonArgv(), ...args], {
     cwd: repoRoot(),
     env: sanitizedFaceRealismEnv(),
     timeout: timeoutMs,

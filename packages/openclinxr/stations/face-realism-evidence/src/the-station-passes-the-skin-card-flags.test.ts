@@ -39,7 +39,7 @@ function testRepoRoot(): string {
   throw new Error("workspace root (pnpm-workspace.yaml) not found");
 }
 
-const MISE_TRUST_DIR = "/Volumes/files/src/openclinxr";
+/** Mise trusts the current checkout (testRepoRoot below), never a machine-local literal. */
 
 /** Pure measure M for gate G2: texels inside mask that differ. */
 export function countChangedTexels(before: number[], after: number[], mask: number[]): number {
@@ -149,7 +149,7 @@ function runProbe(): { detailWith: string[]; detailWithout: string[]; beard: str
   const root = testRepoRoot();
   const scratch = mkdtempSync(join(tmpdir(), "skin-card-flags-"));
   try {
-    execFileSync("mise", ["exec", "-C", MISE_TRUST_DIR, "--", "python3", "-c", FIXTURE_PY], {
+    execFileSync("mise", ["exec", "-C", root, "--", "python3", "-c", FIXTURE_PY], {
       cwd: root,
       timeout: 300_000,
       env: { ...process.env, PROBE_SCRATCH: scratch },
