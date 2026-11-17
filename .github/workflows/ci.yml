@@ -9,9 +9,12 @@ on:
   push:
     branches:
       - main
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
+  group: ci-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 permissions:
@@ -96,6 +99,8 @@ jobs:
         timeout-minutes: 35
         env:
           OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE: "1"
+          OPENCLINXR_STATION_SAMPLE: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && '2' || '' }}
+          OPENCLINXR_STATION_SAMPLE_SEED: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && github.sha || '' }}
         run: pnpm test
 
       - name: Security audit policy

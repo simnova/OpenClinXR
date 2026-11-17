@@ -3,6 +3,7 @@
   "tags": ["internal"],
   "tasks": {
     "test": {
+      "env": ["OPENCLINXR_STATION_SAMPLE", "OPENCLINXR_STATION_SAMPLE_SEED"],
       "dependsOn": [
         "build",
         "^build",

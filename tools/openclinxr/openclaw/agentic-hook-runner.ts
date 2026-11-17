@@ -13,7 +13,13 @@ export type HookStep = {
   label: string;
   command: string[];
   reason: string;
+  env?: Record<string, string>;
 };
+
+/** Per-push station sweep: SAMPLE=2 with SEED = the commit under test (never a literal). */
+export const PRE_PUSH_STATION_SAMPLE_SIZE = "2";
+export const PRE_PUSH_STATION_SAMPLE_ENV = "OPENCLINXR_STATION_SAMPLE";
+export const PRE_PUSH_STATION_SAMPLE_SEED_ENV = "OPENCLINXR_STATION_SAMPLE_SEED";
 
 type HookRunResult = {
   step: HookStep;
@@ -668,7 +674,28 @@ export function buildTestTouchedStep(commitFiles: string[]): HookStep {
 /** CLI flag test-touched.ts consumes for the explicit commit file set. */
 export const COMMIT_FILES_B64_ARG = "--commit-files-b64";
 
-function buildPathAwareSteps(profile: HookProfile, changedFiles: string[], commitFiles?: string[]): HookStep[] {
+/**
+ * HEAD sha for the per-push sampled sweep, resolved at hook time (never a literal).
+ * An explicit sha (tests) wins; otherwise `git rev-parse HEAD`. Undefined when
+ * git cannot answer — the caller then leaves the sample unset (full sweep, safe).
+ */
+export function resolvePrePushHeadSha(explicit?: string, cwd?: string): string | undefined {
+  if (explicit !== undefined && explicit.length > 0) {
+    return explicit;
+  }
+  try {
+    const sha = execFileSync("git", ["rev-parse", "HEAD"], {
+      cwd: cwd ?? process.cwd(),
+      encoding: "utf8",
+      env: gitEnvWithoutInheritedRepoVars(),
+    }).trim();
+    return sha.length > 0 ? sha : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function buildPathAwareSteps(profile: HookProfile, changedFiles: string[], commitFiles?: string[], headSha?: string): HookStep[] {
   const publicAssetChanged = matchesAnyPath(changedFiles, [
     /^README\.md$/u,
     /^docs\/(?:index\.html|styles\.css|assets\/)/u,
@@ -769,10 +796,20 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[], commi
   }
 
   if (profile === "pre-push" && productCodeChanged) {
+    const sha = resolvePrePushHeadSha(headSha);
+    if (sha === undefined) console.warn("pre-push: HEAD sha unresolved, station sample unset (full sweep)");
     steps.push({
       label: "Affected package tests",
       command: pnpm("packages:test:affected"),
       reason: "code changes get a Turbo-scoped test pass before leaving the machine",
+      ...(sha === undefined
+        ? {}
+        : {
+            env: {
+              [PRE_PUSH_STATION_SAMPLE_ENV]: PRE_PUSH_STATION_SAMPLE_SIZE,
+              [PRE_PUSH_STATION_SAMPLE_SEED_ENV]: sha,
+            },
+          }),
     });
   }
 
@@ -828,7 +865,12 @@ function buildPathAwareSteps(profile: HookProfile, changedFiles: string[], commi
   return steps;
 }
 
-export function stepsForProfile(profile: HookProfile, changedFiles?: string[], commitFiles?: string[]): HookStep[] {
+export function stepsForProfile(
+  profile: HookProfile,
+  changedFiles?: string[],
+  commitFiles?: string[],
+  headSha?: string,
+): HookStep[] {
   if (profile === "local-exam") {
     return [
       {
@@ -861,7 +903,7 @@ export function stepsForProfile(profile: HookProfile, changedFiles?: string[], c
   }
 
   const files = changedFiles ?? changedFilesForProfile(profile);
-  return [...buildBaseOpenClawSteps(profile, files), ...buildPathAwareSteps(profile, files, commitFiles)];
+  return [...buildBaseOpenClawSteps(profile, files), ...buildPathAwareSteps(profile, files, commitFiles, headSha)];
 }
 
 function formatCommand(command: string[]): string {
@@ -942,6 +984,9 @@ function runStep(step: HookStep, index: number, total: number, profile: HookProf
   // hook run so the tests pass for real.
   if (step.label === "Affected package tests") {
     env.TURBO_CONCURRENCY ??= "2";
+  }
+  if (step.env !== undefined) {
+    env = { ...env, ...step.env };
   }
 
   let result: ReturnType<typeof spawnSync> | undefined;

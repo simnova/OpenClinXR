@@ -137,6 +137,7 @@
     },
     "//#test:tools:serial-browser": {
       "cache": true,
+      "env": ["OPENCLINXR_STATION_SAMPLE", "OPENCLINXR_STATION_SAMPLE_SEED"],
       "inputs": [
         "packages/cellix/config-vitest/src/**",
         "packages/openclinxr/asset-registry/src/**",
