@@ -36,6 +36,7 @@ import {
 } from "./lib/measurement-tree-stamp.js";
 import type { Page } from "./lib/slotted-playwright.js";
 import {
+  currentPassTreeStampForWrite,
   readOrMeasureStagingAllStationReport,
   registerStagingAllStationProducer,
   runSingleStagingAllStationProducer,
@@ -47,6 +48,8 @@ import {
 
 export const CLEARANCE_EVIDENCE_DIR = ".openclinxr/evidence/issue-169";
 export const PRE_FIX_NAME = "pre-fix.json";
+/** S1: fixed sampled path next to the canonical artifact (key lives in content). */
+export const PRE_FIX_SAMPLED_NAME = "pre-fix.json.sampled.json";
 
 /**
  * Overlap fraction of the SMALLER footprint at/above which a standing figure is
@@ -116,6 +119,15 @@ function preFixPath(): string {
   return path.join(CLEARANCE_EVIDENCE_DIR, PRE_FIX_NAME);
 }
 
+function sampledPreFixPath(): string {
+  return path.join(CLEARANCE_EVIDENCE_DIR, PRE_FIX_SAMPLED_NAME);
+}
+
+/** S4: a sampled writePreFix goes to the fixed sampled path, never canonical. */
+export function furnitureClearancePreFixPathForReport(report: ActorFurnitureClearanceReport): string {
+  return report.sample ? sampledPreFixPath() : preFixPath();
+}
+
 export async function listShippedScenarioManifestIds(): Promise<string[]> {
   if (!existsSync(generatedRoot)) return [];
   const entries = await readdir(generatedRoot, { withFileTypes: true });
@@ -166,8 +178,9 @@ export async function inspectActorFurnitureClearance(input?: {
   });
   if (input?.writePreFix) {
     await writeClearanceDump(report, {
-      outputPath: preFixPath(),
+      outputPath: furnitureClearancePreFixPathForReport(report),
       label: input?.label ?? "pre-fix",
+      treeStamp: currentPassTreeStampForWrite(),
     });
   }
   return report;
@@ -181,6 +194,20 @@ async function tryReadArtifact(
     const report = (parsed["report"] ?? parsed) as ActorFurnitureClearanceReport | undefined;
     // R2: shape check only — coverage (coveredIds ⊇ needed) is the READER's guard
     // in the pass, which knows the run's needed ids. Length alone never accepts.
+    if (report?.stations && Array.isArray(report.stations)) {
+      return report;
+    }
+    return null;
+  }, treeStamp ? { currentStamp: treeStamp } : undefined);
+}
+
+async function tryReadSampledArtifact(
+  treeStamp?: MeasurementTreeStamp,
+): Promise<ActorFurnitureClearanceReport | null> {
+  return tryReadStampedArtifact(sampledPreFixPath(), (parsed) => {
+    const report = (parsed["report"] ?? parsed) as ActorFurnitureClearanceReport | undefined;
+    // Same shape-only contract as the canonical reader; coverage (seed + ids)
+    // is the PASS's guard, which knows the run's plan.
     if (report?.stations && Array.isArray(report.stations)) {
       return report;
     }
@@ -283,6 +310,14 @@ registerStagingAllStationProducer({
     await writeClearanceDump(report as ActorFurnitureClearanceReport, {
       outputPath: preFixPath(),
       label: "combined-measure",
+      treeStamp,
+    });
+  },
+  readSampledArtifact: (treeStamp) => tryReadSampledArtifact(treeStamp),
+  writeSampledArtifact: async (report, treeStamp) => {
+    await writeClearanceDump(report as ActorFurnitureClearanceReport, {
+      outputPath: sampledPreFixPath(),
+      label: "combined-measure-sampled",
       treeStamp,
     });
   },

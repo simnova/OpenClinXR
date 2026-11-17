@@ -37,6 +37,7 @@ import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer }
 import { POSED_WORLD_BOX_SOURCE } from "./lib/posed-world-bounds.js";
 import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
+  currentPassTreeStampForWrite,
   readOrMeasureStagingAllStationReport,
   registerStagingAllStationProducer,
   runSingleStagingAllStationProducer,
@@ -50,6 +51,8 @@ import {
 
 export const PROP_INTERSECTION_EVIDENCE_DIR = ".openclinxr/evidence/issue-183";
 export const PRE_FIX_NAME = "pre-fix.json";
+/** S1: fixed sampled path next to the canonical artifact (key lives in content). */
+export const PRE_FIX_SAMPLED_NAME = "pre-fix.json.sampled.json";
 export const AFTER_PNG_NAME = "actor-prop-after.png";
 
 /**
@@ -125,6 +128,15 @@ function preFixPath(): string {
   return path.join(PROP_INTERSECTION_EVIDENCE_DIR, PRE_FIX_NAME);
 }
 
+function sampledPreFixPath(): string {
+  return path.join(PROP_INTERSECTION_EVIDENCE_DIR, PRE_FIX_SAMPLED_NAME);
+}
+
+/** S4: a sampled writePreFix goes to the fixed sampled path, never canonical. */
+export function propIntersectionPreFixPathForReport(report: ActorPropIntersectionReport): string {
+  return report.sample ? sampledPreFixPath() : preFixPath();
+}
+
 export async function inspectActorPropIntersection(input?: {
   baseUrl?: string;
   force?: boolean;
@@ -142,8 +154,9 @@ export async function inspectActorPropIntersection(input?: {
   });
   if (input?.writePreFix) {
     await writePropDump(report, {
-      outputPath: preFixPath(),
+      outputPath: propIntersectionPreFixPathForReport(report),
       label: input?.label ?? "pre-fix",
+      treeStamp: currentPassTreeStampForWrite(),
     });
   }
   return report;
@@ -157,6 +170,20 @@ async function tryReadArtifact(
     const report = (parsed["report"] ?? parsed) as ActorPropIntersectionReport | undefined;
     // R2: shape check only — coverage (coveredIds ⊇ needed) is the READER's guard
     // in the pass, which knows the run's needed ids. Length alone never accepts.
+    if (report?.stations && Array.isArray(report.stations)) {
+      return report;
+    }
+    return null;
+  }, treeStamp ? { currentStamp: treeStamp } : undefined);
+}
+
+async function tryReadSampledArtifact(
+  treeStamp?: MeasurementTreeStamp,
+): Promise<ActorPropIntersectionReport | null> {
+  return tryReadStampedArtifact(sampledPreFixPath(), (parsed) => {
+    const report = (parsed["report"] ?? parsed) as ActorPropIntersectionReport | undefined;
+    // Same shape-only contract as the canonical reader; coverage (seed + ids)
+    // is the PASS's guard, which knows the run's plan.
     if (report?.stations && Array.isArray(report.stations)) {
       return report;
     }
@@ -292,6 +319,14 @@ registerStagingAllStationProducer({
     await writePropDump(report as ActorPropIntersectionReport, {
       outputPath: preFixPath(),
       label: "combined-measure",
+      treeStamp,
+    });
+  },
+  readSampledArtifact: (treeStamp) => tryReadSampledArtifact(treeStamp),
+  writeSampledArtifact: async (report, treeStamp) => {
+    await writePropDump(report as ActorPropIntersectionReport, {
+      outputPath: sampledPreFixPath(),
+      label: "combined-measure-sampled",
       treeStamp,
     });
   },

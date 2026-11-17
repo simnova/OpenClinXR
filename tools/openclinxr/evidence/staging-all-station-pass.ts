@@ -32,6 +32,9 @@ export type StagingAllStationProducer = {
   buildReport: (scenarioIds: string[], rows: unknown[]) => unknown;
   readArtifact: (treeStamp: MeasurementTreeStamp) => Promise<unknown | null>;
   writeArtifact: (report: unknown, treeStamp: MeasurementTreeStamp) => Promise<void>;
+  /** S1: a combined sampled run writes here (never the canonical path). */
+  readSampledArtifact: (treeStamp: MeasurementTreeStamp) => Promise<unknown | null>;
+  writeSampledArtifact: (report: unknown, treeStamp: MeasurementTreeStamp) => Promise<void>;
   /** Scenario ids the report's rows cover (R2 reader contract; [] when unknown). */
   coveredIds: (report: unknown) => string[];
 };
@@ -57,6 +60,15 @@ type PassDependencies = {
     report: unknown,
     treeStamp: MeasurementTreeStamp,
   ) => Promise<void>;
+  readSampledArtifact: (
+    producer: StagingAllStationProducer,
+    treeStamp: MeasurementTreeStamp,
+  ) => Promise<unknown | null>;
+  writeSampledArtifact: (
+    producer: StagingAllStationProducer,
+    report: unknown,
+    treeStamp: MeasurementTreeStamp,
+  ) => Promise<void>;
 };
 
 const defaultDependencies: PassDependencies = {
@@ -77,12 +89,38 @@ const defaultDependencies: PassDependencies = {
   readArtifact: (producer, treeStamp) => producer.readArtifact(treeStamp),
   writeArtifact: (producer, report, treeStamp) =>
     producer.writeArtifact(report, treeStamp),
+  readSampledArtifact: (producer, treeStamp) => producer.readSampledArtifact(treeStamp),
+  writeSampledArtifact: (producer, report, treeStamp) =>
+    producer.writeSampledArtifact(report, treeStamp),
 };
 
 const producers = new Map<StagingAllStationProducerId, StagingAllStationProducer>();
 const cachedReports = new Map<StagingAllStationProducerId, unknown>();
+// S3: the in-process cache is keyed by (SAMPLE, SEED) — a sampled report must
+// never serve an unset call (or another seed) within one process. The key is
+// refreshed on every shared-path entry; a change drops the cached set.
+let cachedSampleKey: string | null = null;
 let dependencies: PassDependencies = defaultDependencies;
-let combinedPassInFlight: Promise<Map<StagingAllStationProducerId, unknown>> | null = null;
+let combinedPassInFlight: {
+  key: string;
+  promise: Promise<Map<StagingAllStationProducerId, unknown>>;
+} | null = null;
+
+function currentSampleCacheKey(): string {
+  return `${process.env["OPENCLINXR_STATION_SAMPLE"] ?? ""}|${process.env["OPENCLINXR_STATION_SAMPLE_SEED"] ?? ""}`;
+}
+
+function ensureCacheKeyFresh(): void {
+  const key = currentSampleCacheKey();
+  if (cachedSampleKey === null) {
+    cachedSampleKey = key;
+    return;
+  }
+  if (cachedSampleKey !== key) {
+    cachedReports.clear();
+    cachedSampleKey = key;
+  }
+}
 
 export function registerStagingAllStationProducer(
   producer: StagingAllStationProducer,
@@ -137,6 +175,51 @@ async function readCompleteArtifactSet(
           `staging-all-station-pass: refused ${id} artifact (covers ${covered} of ${needed.length} needed)\n`,
         );
       }
+      return null;
+    }
+    reports.set(id, report);
+  }
+  return reports;
+}
+
+/** S2: a sampled artifact is reusable only on exact equality — same seed and
+ * the same planned id set (order-insensitive). No subset reuse in this card. */
+function sampledReportMatchesPlan(
+  report: unknown,
+  planned: SampleRecord | null,
+): boolean {
+  if (planned === null) return false;
+  const shaped = report as {
+    sample?: { seed?: unknown; ids?: unknown } | null;
+  } | null;
+  const sample = shaped?.sample;
+  if (!sample || typeof sample !== "object") return false;
+  if (sample.seed !== planned.seed) return false;
+  if (!Array.isArray(sample.ids)) return false;
+  // F5: ids must be strings with no duplicates — compare as sets AND require
+  // recorded length == set size == planned size.
+  const recorded: unknown[] = sample.ids;
+  if (!recorded.every((id): id is string => typeof id === "string")) return false;
+  const recordedSet = new Set(recorded);
+  if (recordedSet.size !== recorded.length) return false;
+  if (recordedSet.size !== planned.ids.length) return false;
+  const plannedSet = new Set(planned.ids);
+  for (const id of recordedSet) {
+    if (!plannedSet.has(id)) return false;
+  }
+  return true;
+}
+
+async function readSampledArtifactSet(
+  treeStamp: MeasurementTreeStamp,
+  plan: StationPlan,
+): Promise<Map<StagingAllStationProducerId, unknown> | null> {
+  const reports = new Map<StagingAllStationProducerId, unknown>();
+  for (const id of PRODUCER_IDS) {
+    const producer = registeredProducer(id);
+    const report = await dependencies.readSampledArtifact(producer, treeStamp);
+    const planned = plan.sampleByProducer.get(id) ?? null;
+    if (report === null || !sampledReportMatchesPlan(report, planned)) {
       return null;
     }
     reports.set(id, report);
@@ -295,31 +378,48 @@ async function runPass(
 }
 
 async function measureAndPublishCompleteSet(plan?: StationPlan): Promise<Map<StagingAllStationProducerId, unknown>> {
-  if (combinedPassInFlight) return combinedPassInFlight;
-  combinedPassInFlight = (async () => {
+  // F4: the in-flight pass is keyed by the sample cache key — a caller whose
+  // key changed mid-flight neither joins another key's pass nor lets its own
+  // reports land in the cache under the new key.
+  const startKey = currentSampleCacheKey();
+  const ongoing = combinedPassInFlight;
+  if (ongoing && ongoing.key === startKey) return ongoing.promise;
+  const task = (async () => {
     const activeProducers = PRODUCER_IDS.map(registeredProducer);
     const usePlan = plan ?? await planStations(activeProducers);
     const { reports, sampled } = await runPass(activeProducers, undefined, usePlan);
     if (sampled) {
-      // S2 CACHE: a sampled run must never WRITE an artifact — a later full run on
-      // the same tree stamp would read the partial set as complete (see
-      // readOrMeasureStagingAllStationReport above, which may READ a complete
-      // full-set artifact for the same stamp). Sampled runs only warm the
-      // in-process cache below.
-      process.stdout.write("staging-all-station-pass: sampled run, skipping artifact writes\n");
+      // S1: a sampled run writes ONE fixed sampled artifact per producer
+      // (<canonical>.sampled.json, overwritten on mismatch) and NEVER the
+      // canonical path — a partial set must not satisfy a later unset read.
+      const treeStamp = dependencies.computeTreeStamp();
+      for (const producer of activeProducers) {
+        await dependencies.writeSampledArtifact(producer, reports.get(producer.id), treeStamp);
+      }
+      process.stdout.write("staging-all-station-pass: sampled run, wrote sampled artifacts\n");
     } else {
       const treeStamp = dependencies.computeTreeStamp();
       for (const producer of activeProducers) {
         await dependencies.writeArtifact(producer, reports.get(producer.id), treeStamp);
       }
     }
-    for (const [id, report] of reports) cachedReports.set(id, report);
+    // F4: store into the in-process cache only when the key captured at pass
+    // START still matches — otherwise a sampled report would sit in the cache
+    // under an unset (or different-seed) key.
+    if (currentSampleCacheKey() === startKey) {
+      for (const [id, report] of reports) cachedReports.set(id, report);
+    } else {
+      process.stdout.write(
+        "staging-all-station-pass: sample key changed mid-flight, skipping in-process cache store\n",
+      );
+    }
     return reports;
   })();
+  combinedPassInFlight = { key: startKey, promise: task };
   try {
-    return await combinedPassInFlight;
+    return await task;
   } finally {
-    combinedPassInFlight = null;
+    if (combinedPassInFlight?.promise === task) combinedPassInFlight = null;
   }
 }
 
@@ -331,6 +431,7 @@ export async function readOrMeasureStagingAllStationReport<TReport>(
   // R2/R6: one selection per call, threaded to the cache check, the reader and
   // the measure below — so exactly one `station-subset: seed=` line is printed.
   const plan = await planStations(activeProducers);
+  ensureCacheKeyFresh();
   const producer = registeredProducer(id);
   const needed = plan.effectiveByProducer.get(id) ?? [];
   const cached = cachedReports.get(id);
@@ -345,6 +446,17 @@ export async function readOrMeasureStagingAllStationReport<TReport>(
   if (artifacts) {
     for (const [producerId, report] of artifacts) cachedReports.set(producerId, report);
     return artifacts.get(id) as TReport;
+  }
+
+  // S2: a sampled run reuses its fixed sampled artifacts only on tree stamp +
+  // seed + planned-id-set equality. An UNSET run never reads a sample-keyed
+  // artifact — this branch is sampled-only by construction.
+  if (plan.sampled) {
+    const sampled = await readSampledArtifactSet(treeStamp, plan);
+    if (sampled) {
+      for (const [producerId, report] of sampled) cachedReports.set(producerId, report);
+      return sampled.get(id) as TReport;
+    }
   }
 
   const measured = await measureAndPublishCompleteSet(plan);
@@ -367,11 +479,29 @@ export function setStagingAllStationPassDependenciesForTest(
   overrides: Partial<PassDependencies>,
 ): void {
   dependencies = { ...defaultDependencies, ...overrides };
+  // F3: a test that stubs the canonical pair without the sampled pair must not
+  // fall through to real sampled disk IO — the missing sampled side becomes an
+  // in-memory no-op (read -> null, write -> no-op).
+  if (overrides.readArtifact !== undefined && overrides.readSampledArtifact === undefined) {
+    dependencies = { ...dependencies, readSampledArtifact: async () => null };
+  }
+  if (overrides.writeArtifact !== undefined && overrides.writeSampledArtifact === undefined) {
+    dependencies = { ...dependencies, writeSampledArtifact: async () => undefined };
+  }
   resetStagingAllStationPassRuntimeForTest();
+}
+
+/** F7/F8: the stamp a non-shared write carries. Production value is identical
+ * to the old withTreeStamp default (same function, same timing); tests stub
+ * computeTreeStamp, so no test shells out to git.
+ */
+export function currentPassTreeStampForWrite(): MeasurementTreeStamp {
+  return dependencies.computeTreeStamp();
 }
 
 export function resetStagingAllStationPassRuntimeForTest(): void {
   cachedReports.clear();
+  cachedSampleKey = null;
   combinedPassInFlight = null;
 }
 

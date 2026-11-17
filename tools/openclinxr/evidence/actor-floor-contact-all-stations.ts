@@ -23,6 +23,7 @@ import {
 } from "./lib/measurement-tree-stamp.js";
 import type { Page } from "./lib/slotted-playwright.js";
 import {
+  currentPassTreeStampForWrite,
   readOrMeasureStagingAllStationReport,
   registerStagingAllStationProducer,
   runSingleStagingAllStationProducer,
@@ -35,6 +36,8 @@ import {
 
 export const FLOOR_CONTACT_DIR = ".openclinxr/evidence/actor-floor-contact";
 export const FLOOR_CONTACT_NAME = "actor-floor-contact-all-stations.json";
+/** S1: fixed sampled path next to the canonical artifact (key lives in content). */
+export const FLOOR_CONTACT_SAMPLED_NAME = "actor-floor-contact-all-stations.json.sampled.json";
 
 export type ActorFloorContact = {
   scenarioId: string;
@@ -68,6 +71,15 @@ function artifactPath(): string {
   return path.join(FLOOR_CONTACT_DIR, FLOOR_CONTACT_NAME);
 }
 
+function sampledArtifactPath(): string {
+  return path.join(FLOOR_CONTACT_DIR, FLOOR_CONTACT_SAMPLED_NAME);
+}
+
+/** S4: a sampled non-shared write goes to the fixed sampled path, never canonical. */
+export function floorContactPathForReport(report: ActorFloorContactReport): string {
+  return report.sample ? sampledArtifactPath() : artifactPath();
+}
+
 async function listFloorContactScenarioIds(): Promise<string[]> {
   const { listShippedCastScenarioIds } = await import(
     "../../../packages/openclinxr/asset-registry/src/actor-casting.js"
@@ -94,7 +106,13 @@ export async function measureActorFloorContact(input?: {
     baseUrl: input?.baseUrl,
     scenarioIds: input?.scenarioIds,
   });
-  await writeFloorContactDump(report, { label: input?.label ?? "measure" });
+  // F7: one path via the router — sampled reports land on the sampled path,
+  // unset reports resolve to the canonical default exactly as before.
+  await writeFloorContactDump(report, {
+    outputPath: floorContactPathForReport(report),
+    label: input?.label ?? "measure",
+    treeStamp: currentPassTreeStampForWrite(),
+  });
   return report;
 }
 
@@ -105,6 +123,24 @@ async function tryReadArtifact(
   // R2: shape check only — coverage (coveredIds ⊇ needed) is the READER's guard
   // in the pass, which knows the run's needed ids. Length alone never accepts.
   return tryReadStampedArtifact(artifactPath(), (parsed) => {
+    const report = parsed["report"] as ActorFloorContactReport | undefined;
+    if (
+      report?.scenarios
+      && Array.isArray(report.scenarios)
+      && Array.isArray(report.actors)
+    ) {
+      return report;
+    }
+    return null;
+  }, treeStamp ? { currentStamp: treeStamp } : undefined);
+}
+
+async function tryReadSampledArtifact(
+  treeStamp?: MeasurementTreeStamp,
+): Promise<ActorFloorContactReport | null> {
+  // Same shape-only contract as the canonical reader; coverage (seed + ids)
+  // is the PASS's guard, which knows the run's plan.
+  return tryReadStampedArtifact(sampledArtifactPath(), (parsed) => {
     const report = parsed["report"] as ActorFloorContactReport | undefined;
     if (
       report?.scenarios
@@ -196,6 +232,14 @@ registerStagingAllStationProducer({
   writeArtifact: async (report, treeStamp) => {
     await writeFloorContactDump(report as ActorFloorContactReport, {
       label: "combined-measure",
+      treeStamp,
+    });
+  },
+  readSampledArtifact: tryReadSampledArtifact,
+  writeSampledArtifact: async (report, treeStamp) => {
+    await writeFloorContactDump(report as ActorFloorContactReport, {
+      outputPath: sampledArtifactPath(),
+      label: "combined-measure-sampled",
       treeStamp,
     });
   },
