@@ -1,5 +1,5 @@
 {
-  "baseSha": "39a20a295c4b345a186225ef9297925deed3b163",
+  "baseSha": "f4d420dcea3b8406a11a97c416f0fab6809590d8",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -419,14 +419,6 @@
     "tools/openclinxr/evidence/hair-count2/holes.py",
     "tools/openclinxr/evidence/hair-count2/make_sheet.py",
     "tools/openclinxr/evidence/hair-count2/score_time.py",
-    "tools/openclinxr/evidence/hair-cover1/build_cells.py",
-    "tools/openclinxr/evidence/hair-cover1/build_cells2.py",
-    "tools/openclinxr/evidence/hair-cover1/make_sheet.py",
-    "tools/openclinxr/evidence/hair-cover1/repair.py",
-    "tools/openclinxr/evidence/hair-cover1/step1_attr.py",
-    "tools/openclinxr/evidence/hair-cover1/step1_density.py",
-    "tools/openclinxr/evidence/hair-cover1/step1_holes.py",
-    "tools/openclinxr/evidence/hair-cover1/summarize.py",
     "tools/openclinxr/evidence/hair-crown1/audit_blender.py",
     "tools/openclinxr/evidence/hair-crown1/build_cells.py",
     "tools/openclinxr/evidence/hair-crown1/diagnose_blender.py",
