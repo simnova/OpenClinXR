@@ -11,7 +11,7 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { listShippedCastScenarioIds } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
+import { listShippedCastScenarioIds, resolveScenarioActorCast } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
 import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 import {
   type MeasurementTreeStamp,
@@ -77,6 +77,36 @@ export type IdleArmHangReport = {
   arms: ArmMeasurement[];
   /** R6: the selection this report measured (null when it measured everything). */
   sample: SampleRecord | null;
+  /**
+   * ARM-PARTIAL-CAST: per-station settle + completeness for the counterweight
+   * (additive; absent in pre-fix artifacts). A throw on an incomplete cast means
+   * no report is returned at all — this field is the all-green record.
+   */
+  settle?: ArmStationSettle[];
+};
+
+/**
+ * ARM-PARTIAL-CAST: per-station cast-completeness row. `settled` is the H1 helper
+ * result; `liveObserved` counts distinct posture-tagged actor ids in the live read.
+ */
+export type ArmStationSettle = {
+  scenarioId: string;
+  castExpected: number;
+  liveObserved: number;
+  settled: boolean;
+  pendingIds: string[];
+};
+
+/**
+ * ARM-PARTIAL-CAST test seam: delay one GLB behind a page.route so the settle
+ * bound (60 s cap + 30 s fallback) expires with an asset still pending. Default
+ * (absent) is production behaviour: no route, no delay.
+ */
+export type IdleArmHangGlbDelay = {
+  /** Playwright route pattern, e.g. "**\/mpfb-clinical-nurse-adult.glb". */
+  urlPattern: string;
+  /** Sleep before route.continue(), ms. The defect fixture uses 100_000. */
+  delayMs: number;
 };
 
 /** One row of the tracked #678 decomposition artifact. */
@@ -157,6 +187,8 @@ export async function inspectIdleArmHang(input?: {
   scenarioIds?: string[];
   /** When true, write/overwrite pre-fix.json (must be done BEFORE product edits). */
   writePreFix?: boolean;
+  /** ARM-PARTIAL-CAST test seam: delay one GLB behind a page.route (default: none). */
+  glbDelay?: IdleArmHangGlbDelay;
 }): Promise<IdleArmHangReport> {
   // R2: the in-process fast path serves only the in-flight flight; cached reports
   // are coverage-checked inside the closure below, never returned blindly.
@@ -206,6 +238,7 @@ export async function inspectIdleArmHang(input?: {
     const measured = await (measureLiveArmHangForTest ?? measureLiveArmHang)({
       baseUrl: input?.baseUrl,
       scenarioIds: subset.ids,
+      ...(input?.glbDelay === undefined ? {} : { glbDelay: input.glbDelay }),
     });
     // R6: the measured report records its own selection (null on full runs).
     const report: IdleArmHangReport = {
@@ -386,12 +419,52 @@ export async function writeArmMetricDecomposition(input: {
 }
 
 /**
+ * F1 (ARM-PARTIAL-CAST follow-up 1): pure cast-completeness comparison.
+ *
+ * Throws unless the run settled AND the live id set equals the cast actorId set
+ * (symmetric difference empty). A count-only check passes an equal-sized WRONG cast;
+ * the live reader falls back openClinXrActorId -> actorId -> root.name -> actor_<i>
+ * (readLiveArmHangFromPage), so a fallback id must fail loudly here, not count as cast.
+ *
+ * Same id space (verified, no STOP): bundle actorIds == cast actorIds for all 14 bank
+ * actors (computed over the 5 arm stations); the slot assignment stages bundle ids
+ * verbatim (xr-runtime-state/src/runtime-actor-slots.ts: staged[i] = actor.actorId);
+ * the runtime writes them to userData.openClinXrActorId
+ * (xr-station-room/src/actor-staging.ts:188,233,298,351;
+ * xr-asset-loading/src/generated-loaders.ts:136,139); the live reader prefers that field.
+ */
+export function assertLiveCastMatchesDeclared(input: {
+  scenarioId: string;
+  castIds: readonly string[];
+  liveIds: ReadonlySet<string> | readonly string[];
+  pendingIds: readonly string[];
+  settled: boolean;
+}): void {
+  if (input.castIds.length === 0) throw new Error(`idle-arm-hang: ${input.scenarioId} cast resolved empty`);
+  const cast = new Set(input.castIds);
+  const live = input.liveIds instanceof Set ? input.liveIds : new Set(input.liveIds);
+  const missing = [...cast].filter((id) => !live.has(id));
+  const unexpected = [...live].filter((id) => !cast.has(id));
+  if (input.settled && missing.length === 0 && unexpected.length === 0) return;
+  const missingIds = [...new Set([...missing, ...input.pendingIds])];
+  const parts = [
+    `missing ${missingIds.length > 0 ? missingIds.join(",") : "(none named)"}`,
+  ];
+  if (unexpected.length > 0) parts.push(`unexpected ${unexpected.join(",")}`);
+  if (!input.settled) parts.push("unsettled");
+  throw new Error(
+    `idle-arm-hang: ${input.scenarioId} cast incomplete: ${parts.join("; ")}`,
+  );
+}
+
+/**
  * Core measure: same server/boot/wait pattern as measureLivePostureGeometry,
  * then a page.evaluate that dumps arm-chain bones (names, local rot/quat, world pos).
  */
 async function measureLiveArmHang(input: {
   baseUrl?: string | undefined;
   scenarioIds?: string[] | undefined;
+  glbDelay?: IdleArmHangGlbDelay | undefined;
 }): Promise<IdleArmHangReport> {
   // Full bank is expensive; contracts need standing + at least one seated counterweight.
   // The default set lives in DEFAULT_ARM_SCENARIOS (module scope, shared with the
@@ -424,6 +497,18 @@ async function measureLiveArmHang(input: {
       const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
       try {
         const arms: ArmMeasurement[] = [];
+        const settle: ArmStationSettle[] = [];
+        // ARM-PARTIAL-CAST test seam: hold one GLB past the settle bound.
+        if (input.glbDelay) {
+          const { urlPattern, delayMs } = input.glbDelay;
+          await page.route(urlPattern, async (route) => {
+            process.stdout.write(
+              `idle-arm-hang: delaying ${route.request().url()} by ${delayMs}ms\n`,
+            );
+            await new Promise((resolve) => setTimeout(resolve, delayMs));
+            await route.continue();
+          });
+        }
         for (const scenarioId of scenarios) {
           process.stdout.write(`idle-arm-hang: goto ${scenarioId}\n`);
           const url = buildRoomCaptureUrl(baseUrl, scenarioId, ROOM_CAPTURE_MODE);
@@ -433,11 +518,31 @@ async function measureLiveArmHang(input: {
           // #675: waitForHumanoidsAndFrames returns as soon as ONE skinned mesh exists; sibling
           // GLBs may still be loading, so their actor roots are absent at the sample instant.
           // Wait for the settle signal before sampling; a failed asset counts as settled.
-          await waitForSceneAssetsSettled(page, 60_000);
+          // ARM-PARTIAL-CAST: the helper result is the cast-completeness signal — no second
+          // bespoke cast wait. F1: assertLiveCastMatchesDeclared throws unless settled AND
+          // the live id set equals the cast set — a silent partial or substituted cast fails loudly.
+          const settleResult = await waitForSceneAssetsSettled(page, 60_000);
           // Extra settle so mixer + clinical idle re-apply have run several times.
           await page.waitForTimeout(900);
           const live = await readLiveArmHangFromPage(page);
           const sid = live.scenarioId || scenarioId;
+          const castIds = resolveScenarioActorCast(sid).map((entry) => entry.actorId);
+          const liveIds = new Set(live.arms.map((a) => String(a.actorId)));
+          settle.push({
+            scenarioId: sid,
+            castExpected: castIds.length,
+            liveObserved: liveIds.size,
+            settled: settleResult.settled,
+            pendingIds: settleResult.pendingIds,
+          });
+          // F1: symmetric-difference check — an equal-sized WRONG cast throws.
+          assertLiveCastMatchesDeclared({
+            scenarioId: sid,
+            castIds,
+            liveIds,
+            pendingIds: settleResult.pendingIds,
+            settled: settleResult.settled,
+          });
           for (const a of live.arms) {
             const row: ArmMeasurement = { ...a, scenarioId: sid };
             arms.push(row);
@@ -455,7 +560,7 @@ async function measureLiveArmHang(input: {
             process.stdout.write(`  WARN: no arms measured for ${scenarioId}\n`);
           }
         }
-        return { scenarios: [...scenarios], arms, sample: null };
+        return { scenarios: [...scenarios], arms, sample: null, settle };
       } finally {
         await page.close().catch(() => undefined);
       }

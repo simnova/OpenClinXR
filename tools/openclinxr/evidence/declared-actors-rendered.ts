@@ -31,21 +31,21 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
-import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import {
   listShippedCastScenarioIds,
   resolveScenarioActorCast,
 } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { scenarioBank } from "../../../packages/openclinxr/scenario-fixtures/src/scenario-bank.js";
 import {
+  type MeasurementTreeStamp,
   tryReadStampedArtifact,
   withTreeStamp,
-  type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
-  ROOM_CAPTURE_MODE,
   buildRoomCaptureUrl,
+  ROOM_CAPTURE_MODE,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
 
@@ -390,8 +390,45 @@ async function measureLiveDeclaredActors(input: {
  * anyway so a stuck/pending asset still surfaces as a 0-triangle actor instead
  * of hanging the suite. A `failed` asset is settled, so a genuinely-broken load
  * is reported rather than masked.
+ *
+ * ARM-PARTIAL-CAST: returns the settle outcome instead of void. A pending asset
+ * surfaces as a 0-triangle actor by design (cap31 ruling) — the 60 s cap and the
+ * 30 s fallback sleep are unchanged — but the caller now learns WHICH assets were
+ * still pending, so a partial-cast read can fail loudly instead of silently.
+ * Additive: callers that ignore the return value behave exactly as before.
  */
-export async function waitForSceneAssetsSettled(page: Page, timeoutMs: number): Promise<void> {
+export type SceneAssetsSettledResult = {
+  /** True when every recorded asset reached loaded|failed inside the bound. */
+  settled: boolean;
+  /**
+   * assetIds whose scene-asset record still reads status "pending" after the
+   * fallback sleep (empty when settled). Read from
+   * `__openClinXrSceneAssetEvidence.assets` entries with `status === "pending"`;
+   * `assetId`/`status` are written by `recordSceneAssetStatus`
+   * (packages/openclinxr/xr-capture-evidence/src/scene-asset-evidence.ts:78-79,
+   * pendingCount derived :87; status type
+   * packages/openclinxr/xr-runtime-state/src/runtime-state.ts:1044).
+   */
+  pendingIds: string[];
+};
+
+/**
+ * String IIFE (not a TS arrow) so tsx/esbuild cannot inject `__name` into the browser.
+ * Returns the assetIds still pending — the straggler names for a cast-incomplete error.
+ */
+const SCENE_ASSET_PENDING_IDS_EXPR = `(() => {
+  const win = browserPageWindow;
+  const ev = win.__openClinXrSceneAssetEvidence;
+  const assets = (ev && ev.assets) || [];
+  const pending = [];
+  for (let i = 0; i < assets.length; i++) {
+    const a = assets[i];
+    if (a && a.status === "pending" && typeof a.assetId === "string") pending.push(a.assetId);
+  }
+  return pending;
+})()`;
+
+export async function waitForSceneAssetsSettled(page: Page, timeoutMs: number): Promise<SceneAssetsSettledResult> {
   const started = Date.now();
   try {
     await page.waitForFunction(
@@ -409,10 +446,20 @@ export async function waitForSceneAssetsSettled(page: Page, timeoutMs: number): 
       {},
       { timeout: Math.min(timeoutMs, 60_000) },
     );
+    return { settled: true, pendingIds: [] };
   } catch {
     const remaining = timeoutMs - (Date.now() - started);
     if (remaining > 0) {
       await page.waitForTimeout(Math.min(remaining, 30_000));
+    }
+    try {
+      const pending = (await page.evaluate(SCENE_ASSET_PENDING_IDS_EXPR)) as unknown;
+      const pendingIds = Array.isArray(pending)
+        ? pending.filter((id): id is string => typeof id === "string")
+        : [];
+      return { settled: pendingIds.length === 0, pendingIds };
+    } catch {
+      return { settled: false, pendingIds: [] };
     }
   }
 }
