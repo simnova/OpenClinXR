@@ -102,15 +102,28 @@ jobs:
           pnpm exec tsx packages/openclinxr/stations/scene-closure-evidence/src/scene-closure-research/prepare-sc10-metadata-store.ts --output-dir "$SC10_DIR"
           echo "OPENCLINXR_SC_EVIDENCE_REGISTRY=$SC10_DIR/registry.json" >> "${GITHUB_ENV}"
 
-      # Source: CI run 43835973904, 09:06:31Z to slowest completed area at 09:23:44Z = 17.2 min; 2x = 34.4, rounded up.
-      - name: Test
+      # 35 = prior value; run 44100121469 killed at 35m12s with >=61/82 serial-browser files unstarted; not a measured budget.
+      - name: Test tools
+        id: test-tools
         timeout-minutes: 35
         env:
           OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE: "1"
           OPENCLINXR_REQUIRE_UV: "1"
           OPENCLINXR_STATION_SAMPLE: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && '2' || '' }}
           OPENCLINXR_STATION_SAMPLE_SEED: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && github.sha || '' }}
-        run: pnpm test
+        run: pnpm test:tools
+
+      # Runs after a tools failure OR a tools timeout (a timed-out step has outcome failure, not skipped); skipped only when setup/build/typecheck failed so tools never ran.
+      # 64 = 2 x 31m45s, measured local pnpm packages:test:affected with 13/170 cached, sampled n=2 (jobs/ci-sample-wire/push.log, 2026-11-17); local Mac, 13/170 cached; CI runner speed unmeasured.
+      - name: Test packages
+        timeout-minutes: 64
+        if: ${{ !cancelled() && steps.test-tools.outcome != 'skipped' }}
+        env:
+          OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE: "1"
+          OPENCLINXR_REQUIRE_UV: "1"
+          OPENCLINXR_STATION_SAMPLE: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && '2' || '' }}
+          OPENCLINXR_STATION_SAMPLE_SEED: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && github.sha || '' }}
+        run: pnpm packages:test
 
       - name: Security audit policy
         run: pnpm security:audit-policy
