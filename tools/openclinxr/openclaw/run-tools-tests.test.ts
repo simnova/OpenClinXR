@@ -12,6 +12,15 @@ import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 import { parse as parseYaml } from "yaml";
 import {
+  CI_SPLIT_PACKAGES_STEP,
+  CI_SPLIT_TOOL_STEP,
+  ciSplitYmlPath,
+  expectedStepsForVar,
+  findCiSplitStep,
+  loadTurboDeclarations,
+  type TurboDeclarations,
+} from "./ci-split-steps.js";
+import {
   buildDiscoveryArgs,
   buildNodeTestArgs,
   buildTurboChildEnv,
@@ -696,23 +705,135 @@ describe("cache keys carry the trigger (T6)", () => {
   });
 });
 
+// ---------------------------------------------------------------------------
+// CI-SPLIT-READERS: ci.yml verify now runs "Test tools" + "Test packages"
+// (CI-SPLIT-TEST 6040386d7 split the old "Test" step). Step resolution and
+// the per-var turbo derivation live in ./ci-split-steps.js; only the T7
+// policy assertion and its counterweights remain here.
+// ---------------------------------------------------------------------------
+
+const CI_SPLIT_SAMPLE_VAR = "OPENCLINXR_STATION_SAMPLE";
+const CI_SPLIT_SEED_VAR = "OPENCLINXR_STATION_SAMPLE_SEED";
+
+/**
+ * T7 check. Returns violations (empty = pass). Resolves the split steps by
+ * exact name first, so a renamed/missing step throws naming the step instead
+ * of crashing on an undefined property. Validates every actual setter step
+ * instance in ci.yml order (multiplicity preserved) against the derived
+ * expected sequence for the ECG var, and requires a non-empty derived set.
+ */
+function ecgTriggerViolations(
+  yamlText: string = readFileSync(ciSplitYmlPath(), "utf8"),
+  declarations: TurboDeclarations = loadTurboDeclarations(),
+): string[] {
+  const doc = parseYaml(yamlText) as {
+    env?: Record<string, unknown>;
+    jobs?: Record<string, { env?: Record<string, unknown>; steps?: { name?: unknown; env?: unknown }[] }>;
+  };
+  const violations: string[] = [];
+  if ((doc.env as Record<string, unknown> | undefined)?.[ECG_ARCHIVE_SKIP_ENV_VAR] !== undefined) {
+    violations.push(`workflow env sets ${ECG_ARCHIVE_SKIP_ENV_VAR}`);
+  }
+  const verify = doc?.jobs?.["verify"];
+  if (!verify) throw new Error("[ci-split-readers] ci.yml has no verify job");
+  if ((verify.env as Record<string, unknown> | undefined)?.[ECG_ARCHIVE_SKIP_ENV_VAR] !== undefined) {
+    violations.push(`verify job env sets ${ECG_ARCHIVE_SKIP_ENV_VAR}`);
+  }
+  const steps = Array.isArray(verify.steps) ? verify.steps : [];
+  // Resolve by exact name (C1): throws naming the step when renamed/missing.
+  findCiSplitStep(steps, CI_SPLIT_TOOL_STEP);
+  findCiSplitStep(steps, CI_SPLIT_PACKAGES_STEP);
+  const derived = expectedStepsForVar(ECG_ARCHIVE_SKIP_ENV_VAR, yamlText, declarations);
+  // Unique names in ci.yml order: a duplicated same-name setter step is an
+  // extra actual instance the derived sequence does not contain, so it fails.
+  const expected = [...new Set(derived)];
+  if (expected.length === 0) violations.push(`${ECG_ARCHIVE_SKIP_ENV_VAR} has no turbo declaration`);
+  // F2: collect every actual setter instance (no first-match lookup); the
+  // name sequence must equal the derived expected sequence in ci.yml order,
+  // so a duplicate same-name setter fails; each instance must carry "1".
+  const setters = steps.filter(
+    (s) => (s.env as Record<string, unknown> | undefined)?.[ECG_ARCHIVE_SKIP_ENV_VAR] !== undefined,
+  );
+  const actualNames = setters.map((s) => String(s.name));
+  const quoted = (names: string[]): string => `[${names.map((n) => `"${n}"`).join(", ")}]`;
+  if (actualNames.join("") !== expected.join("")) {
+    violations.push(`ECG setter steps ${quoted(actualNames)} != expected ${quoted(expected)}`);
+  }
+  setters.forEach((s, i) => {
+    const value = (s.env as Record<string, unknown> | undefined)?.[ECG_ARCHIVE_SKIP_ENV_VAR];
+    if (value !== "1") {
+      violations.push(
+        `step "${String(s.name)}" setter #${i + 1} sets ${ECG_ARCHIVE_SKIP_ENV_VAR} to ${JSON.stringify(value)} (want "1")`,
+      );
+    }
+  });
+  return violations;
+}
+
+/** Derived per-var step map, printed once by the T7 pass (KNOWN-GOOD line). */
+function ciSplitStepMapLine(): string {
+  const vars = [ECG_ARCHIVE_SKIP_ENV_VAR, CI_SPLIT_SAMPLE_VAR, CI_SPLIT_SEED_VAR];
+  return `ci-split-readers step map: ${vars.map((v) => `${v} -> ${expectedStepsForVar(v).join(", ")}`).join("; ")}`;
+}
+
 describe("ci.yml sets the trigger on the Test step only (T7)", () => {
   it("Test step env has \"1\"; no other step, job, or workflow env sets it", () => {
-    const root = repoRootFromTestFile();
-    const doc = parseYaml(readFileSync(join(root, ".github/workflows/ci.yml"), "utf8")) as {
-      env?: Record<string, unknown>;
-      jobs?: Record<string, { env?: Record<string, unknown>; steps?: { name?: unknown; env?: unknown }[] }>;
-    };
-    expect(doc.env?.[ECG_ARCHIVE_SKIP_ENV_VAR]).toBeUndefined();
-    const verify = doc.jobs?.["verify"];
-    if (verify === undefined) throw new Error("[ecg-skip-test] ci.yml has no verify job");
-    expect(verify.env?.[ECG_ARCHIVE_SKIP_ENV_VAR]).toBeUndefined();
-    const steps = verify.steps ?? [];
-    const setters = steps.filter(
-      (s) => (s.env as Record<string, unknown> | undefined)?.[ECG_ARCHIVE_SKIP_ENV_VAR] !== undefined,
-    );
-    expect(setters.map((s) => String(s.name))).toEqual(["Test"]);
-    const testStep = steps.find((s) => s.name === "Test");
-    expect((testStep?.env as Record<string, unknown> | undefined)?.[ECG_ARCHIVE_SKIP_ENV_VAR]).toBe("1");
+    process.stdout.write(`${ciSplitStepMapLine()}\n`);
+    expect(ecgTriggerViolations()).toEqual([]);
+    // The other asserted vars derive non-empty step sets too (F1 per-var guard).
+    for (const v of [CI_SPLIT_SAMPLE_VAR, CI_SPLIT_SEED_VAR]) {
+      expect(expectedStepsForVar(v).length).toBeGreaterThan(0);
+    }
+  });
+
+  it("CW1: renaming Test tools to Test throws naming \"Test tools\"", () => {
+    const real = readFileSync(ciSplitYmlPath(), "utf8");
+    const renamed = real.replace("- name: Test tools", "- name: Test");
+    expect(renamed).not.toBe(real);
+    let msg = "";
+    try {
+      ecgTriggerViolations(renamed);
+    } catch (err) {
+      msg = String(err);
+    }
+    expect(msg).toContain('"Test tools"');
+    process.stdout.write(`[CW1 T7] ${msg}\n`);
+  });
+
+  it("CW3: workflow env setting the trigger fails T7", () => {
+    const real = readFileSync(ciSplitYmlPath(), "utf8");
+    const modified = real.replace("name: CI\n", `name: CI\nenv:\n  ${ECG_ARCHIVE_SKIP_ENV_VAR}: "1"\n`);
+    expect(modified).not.toBe(real);
+    const violations = ecgTriggerViolations(modified);
+    expect(violations.length).toBeGreaterThan(0);
+    expect(violations.some((v) => v.includes("workflow env"))).toBe(true);
+    process.stdout.write(`[CW3 T7] ${violations.join(" | ")}\n`);
+  });
+
+  it("CW5: ECG var absent from turbo and ci.yml fails T7 (non-empty guard)", () => {
+    const real = readFileSync(ciSplitYmlPath(), "utf8");
+    const decls = loadTurboDeclarations();
+    const strippedRoot = decls.rootTurboJson.replace(',\n    "OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE"', "");
+    expect(strippedRoot).not.toBe(decls.rootTurboJson);
+    const strippedYml = real.replaceAll(`          ${ECG_ARCHIVE_SKIP_ENV_VAR}: "1"\n`, "");
+    expect(strippedYml).not.toBe(real);
+    const violations = ecgTriggerViolations(strippedYml, { ...decls, rootTurboJson: strippedRoot });
+    expect(violations.length).toBeGreaterThan(0);
+    expect(violations.some((v) => v.includes("has no turbo declaration"))).toBe(true);
+    expect(violations.some((v) => v.includes(ECG_ARCHIVE_SKIP_ENV_VAR))).toBe(true);
+    process.stdout.write(`[CW5 T7] ${violations.join(" | ")}\n`);
+  });
+
+  it("CW6: duplicate Test tools setter with value \"0\" fails T7", () => {
+    const real = readFileSync(ciSplitYmlPath(), "utf8");
+    const dup = `\n      - name: Test tools\n        env:\n          ${ECG_ARCHIVE_SKIP_ENV_VAR}: "0"\n        run: pnpm test:tools`;
+    const modified = real.replace("        run: pnpm test:tools", `        run: pnpm test:tools${dup}`);
+    expect(modified).not.toBe(real);
+    const violations = ecgTriggerViolations(modified);
+    expect(violations.length).toBeGreaterThan(0);
+    const msg = violations.join(" | ");
+    expect(msg).toContain('"Test tools"');
+    expect(msg).toContain('"0"');
+    process.stdout.write(`[CW6 T7] ${msg}\n`);
   });
 });

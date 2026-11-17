@@ -6,6 +6,15 @@ import { describe, expect, it } from "vitest";
 import { parse as parseYaml } from "yaml";
 import { selectStationSubset } from "../evidence/station-subset.js";
 import { stepsForProfile } from "./agentic-hook-runner.js";
+import {
+  CI_SPLIT_PACKAGES_STEP,
+  CI_SPLIT_TOOL_STEP,
+  expectedStepsForVar,
+  findCiSplitStep,
+  loadTurboDeclarations,
+  readCiSplitVerifySteps,
+  type TurboDeclarations,
+} from "./ci-split-steps.js";
 
 /**
  * CI-SAMPLE-WIRE (C3): per-push we sweep a seeded SAMPLE=2, nightly we sweep everything.
@@ -22,28 +31,101 @@ import { stepsForProfile } from "./agentic-hook-runner.js";
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const CI_YML_PATH = join(REPO_ROOT, ".github", "workflows", "ci.yml");
 
-function loadCi(): {
+// CI-SPLIT-READERS: ci.yml verify now runs "Test tools" + "Test packages"
+// (CI-SPLIT-TEST 6040386d7 split the old "Test" step). Step resolution and
+// the per-var turbo derivation live in ./ci-split-steps.js; only the G-series
+// policy assertion and its counterweights remain here. Each asserted var
+// derives its own NON-EMPTY step set and its YAML value is asserted on that
+// var's own derived steps (never a union across variables).
+const SAMPLE_VAR = "OPENCLINXR_STATION_SAMPLE";
+const SEED_VAR = "OPENCLINXR_STATION_SAMPLE_SEED";
+
+function loadCi(
+  yamlText: string = readFileSync(CI_YML_PATH, "utf8"),
+  declarations: TurboDeclarations = loadTurboDeclarations(),
+): {
   on: Record<string, unknown>;
   group: string;
   cancel: unknown;
-  testEnv: Record<string, string>;
-  seedRaw: string;
-  sampleRaw: string;
+  sampleSteps: string[];
+  seedSteps: string[];
+  stepEnvs: Record<string, Record<string, string>>;
 } {
-  const doc = parseYaml(readFileSync(CI_YML_PATH, "utf8")) as Record<string, unknown>;
+  const doc = parseYaml(yamlText) as Record<string, unknown>;
   const on = doc["on"] as Record<string, unknown>;
   const concurrency = doc["concurrency"] as { group: string; "cancel-in-progress": unknown };
-  const jobs = doc["jobs"] as Record<string, { steps: Array<{ name?: string; env?: Record<string, string> }> }>;
-  const testStep = jobs["verify"].steps.find((s) => s.name === "Test");
-  if (!testStep?.env) throw new Error("ci.yml Test step has no env");
+  const steps = readCiSplitVerifySteps(yamlText);
+  // Resolve by exact name (C1): a renamed/missing step throws naming the step.
+  const toolsStep = findCiSplitStep(steps, CI_SPLIT_TOOL_STEP);
+  const packagesStep = findCiSplitStep(steps, CI_SPLIT_PACKAGES_STEP);
+  if (!(toolsStep.env as Record<string, string> | undefined)) {
+    throw new Error(`ci.yml verify step "${CI_SPLIT_TOOL_STEP}" has no env`);
+  }
+  if (!(packagesStep.env as Record<string, string> | undefined)) {
+    throw new Error(`ci.yml verify step "${CI_SPLIT_PACKAGES_STEP}" has no env`);
+  }
   return {
     on,
     group: concurrency.group,
     cancel: concurrency["cancel-in-progress"],
-    testEnv: testStep.env,
-    seedRaw: testStep.env["OPENCLINXR_STATION_SAMPLE_SEED"] ?? "",
-    sampleRaw: testStep.env["OPENCLINXR_STATION_SAMPLE"] ?? "",
+    sampleSteps: expectedStepsForVar(SAMPLE_VAR, yamlText, declarations),
+    seedSteps: expectedStepsForVar(SEED_VAR, yamlText, declarations),
+    stepEnvs: {
+      [CI_SPLIT_TOOL_STEP]: toolsStep.env as Record<string, string>,
+      [CI_SPLIT_PACKAGES_STEP]: packagesStep.env as Record<string, string>,
+    },
   };
+}
+
+/**
+ * Assert the sample/seed expressions on EACH var's own derived steps
+ * (existing evaluateCiEnvExpression semantics, unchanged). An empty derived
+ * set fails naming the var; otherwise the thrown Error names the offending
+ * step.
+ */
+function assertSampleSeedOnSteps(
+  yamlText: string = readFileSync(CI_YML_PATH, "utf8"),
+  declarations: TurboDeclarations = loadTurboDeclarations(),
+): void {
+  const { sampleSteps, seedSteps, stepEnvs } = loadCi(yamlText, declarations);
+  const failures: string[] = [];
+  if (sampleSteps.length === 0) failures.push(`${SAMPLE_VAR} has no turbo declaration`);
+  if (seedSteps.length === 0) failures.push(`${SEED_VAR} has no turbo declaration`);
+  const events = ["push", "pull_request", "schedule", "workflow_dispatch"] as const;
+  for (const name of sampleSteps) {
+    const env = stepEnvs[name]!;
+    const sampleRaw = env[SAMPLE_VAR] ?? "";
+    const seedRaw = env[SEED_VAR] ?? "";
+    for (const event_name of events) {
+      const sample = evaluateCiEnvExpression(sampleRaw, { event_name, sha: FIXTURE_SHA });
+      if (event_name === "push" || event_name === "pull_request") {
+        if (sample !== "2") failures.push(`step "${name}": SAMPLE for ${event_name} is ${JSON.stringify(sample)} (want "2")`);
+      } else {
+        if (sample !== "") failures.push(`step "${name}": SAMPLE for ${event_name} is not empty`);
+        // Empty string = unset (station-subset.ts:83,88): the scheduled/manual run is a full sweep.
+        const subset = selectStationSubset(["s1", "s2", "s3"], {
+          OPENCLINXR_STATION_SAMPLE: sample,
+          OPENCLINXR_STATION_SAMPLE_SEED: evaluateCiEnvExpression(seedRaw, { event_name, sha: FIXTURE_SHA }),
+        });
+        if (!subset.full) failures.push(`step "${name}": full sweep for ${event_name} is not full`);
+      }
+    }
+  }
+  for (const name of seedSteps) {
+    const seedRaw = stepEnvs[name]![SEED_VAR] ?? "";
+    if (!seedRaw.includes("github.sha")) {
+      failures.push(`step "${name}": ${SEED_VAR} is not derived from github.sha`);
+    }
+    for (const event_name of events) {
+      const seed = evaluateCiEnvExpression(seedRaw, { event_name, sha: FIXTURE_SHA });
+      if (event_name === "push" || event_name === "pull_request") {
+        if (seed !== FIXTURE_SHA) failures.push(`step "${name}": SEED for ${event_name} is not the fixture sha`);
+      } else if (seed !== "") {
+        failures.push(`step "${name}": SEED for ${event_name} is not empty`);
+      }
+    }
+  }
+  if (failures.length > 0) throw new Error(`ci.yml sample/seed mismatch:\n${failures.join("\n")}`);
 }
 
 type Token =
@@ -211,35 +293,19 @@ const FIXTURE_SHA = "f00d";
 
 describe("per-push runs a seeded sample of two stations", () => {
   it("G1: ci Test env samples push/PR and unsets schedule/dispatch; schedule + dispatch triggers exist", () => {
-    const { on, testEnv, seedRaw, sampleRaw } = loadCi();
+    const { on, sampleSteps, seedSteps } = loadCi();
     // `on` triggers: push to main, PRs, one nightly cron, manual dispatch.
     expect(on["pull_request"]).toBeDefined();
     expect(on["push"]).toBeDefined();
     const schedule = on["schedule"] as Array<{ cron: string }> | undefined;
     expect(Array.isArray(schedule) && schedule.length >= 1).toBe(true);
     expect("workflow_dispatch" in on).toBe(true);
-    // SEED is derived from the commit under test, never a literal.
-    expect(seedRaw).toContain("github.sha");
-    const events = ["push", "pull_request", "schedule", "workflow_dispatch"] as const;
-    for (const event_name of events) {
-      const sample = evaluateCiEnvExpression(sampleRaw, { event_name, sha: FIXTURE_SHA });
-      const seed = evaluateCiEnvExpression(seedRaw, { event_name, sha: FIXTURE_SHA });
-      if (event_name === "push" || event_name === "pull_request") {
-        expect(sample, `SAMPLE for ${event_name}`).toBe("2");
-        expect(seed, `SEED for ${event_name}`).toBe(FIXTURE_SHA);
-      } else {
-        expect(sample, `SAMPLE for ${event_name}`).toBe("");
-        expect(seed, `SEED for ${event_name}`).toBe("");
-        // Empty string = unset (station-subset.ts:83,88): the scheduled/manual run is a full sweep.
-        const subset = selectStationSubset(["s1", "s2", "s3"], {
-          OPENCLINXR_STATION_SAMPLE: sample,
-          OPENCLINXR_STATION_SAMPLE_SEED: seed,
-        });
-        expect(subset.full, `full sweep for ${event_name}`).toBe(true);
-      }
+    // Each asserted var derives its own non-empty step set (never a union).
+    for (const steps of [sampleSteps, seedSteps]) {
+      expect(steps).toContain(CI_SPLIT_TOOL_STEP);
+      expect(steps).toContain(CI_SPLIT_PACKAGES_STEP);
     }
-    expect(testEnv["OPENCLINXR_STATION_SAMPLE_SEED"]).toContain("github.sha");
-    void testEnv;
+    assertSampleSeedOnSteps();
   });
 
   it("G1-concurrency: scheduled and dispatch runs are not cancelled by a push", () => {
@@ -250,6 +316,60 @@ describe("per-push runs a seeded sample of two stations", () => {
     // Either partitioning the group by event or conditioning cancel-in-progress
     // on push/pull_request keeps a push to main from cancelling the nightly.
     expect(groupMentionsEvent || cancelIsConditional).toBe(true);
+    // The split steps resolve by name and each carries the sample wiring.
+    assertSampleSeedOnSteps();
+  });
+
+  it("CW1: renaming Test tools to Test throws naming \"Test tools\"", () => {
+    const real = readFileSync(CI_YML_PATH, "utf8");
+    const renamed = real.replace("- name: Test tools", "- name: Test");
+    expect(renamed).not.toBe(real);
+    let msg = "";
+    try {
+      loadCi(renamed);
+    } catch (err) {
+      msg = String(err);
+    }
+    expect(msg).toContain('"Test tools"');
+    process.stdout.write(`[CW1 G1] ${msg}\n`);
+  });
+
+  it("CW2: removing SAMPLE from the Test packages env block fails naming \"Test packages\"", () => {    const real = readFileSync(CI_YML_PATH, "utf8");
+    const marker = "- name: Test packages";
+    const at = real.indexOf(marker);
+    expect(at).toBeGreaterThanOrEqual(0);
+    const key = "OPENCLINXR_STATION_SAMPLE:";
+    const keyAt = real.indexOf(key, at);
+    expect(keyAt).toBeGreaterThanOrEqual(0);
+    const lineStart = real.lastIndexOf("\n", keyAt) + 1;
+    const lineEnd = real.indexOf("\n", keyAt);
+    const modified = real.slice(0, lineStart) + real.slice(lineEnd + 1);
+    let msg = "";
+    try {
+      assertSampleSeedOnSteps(modified);
+    } catch (err) {
+      msg = String(err);
+    }
+    expect(msg).toContain('"Test packages"');
+    process.stdout.write(`[CW2 G1] ${msg}\n`);
+  });
+
+  it("CW4: SAMPLE with no turbo declaration fails naming the var", () => {
+    const decls = loadTurboDeclarations(REPO_ROOT);
+    const stripSample = (text: string): string => text.replaceAll('"OPENCLINXR_STATION_SAMPLE", ', "");
+    const stripped: TurboDeclarations = {
+      rootTurboJson: stripSample(decls.rootTurboJson),
+      packageTurboJsons: decls.packageTurboJsons.map(stripSample),
+    };
+    expect(stripped.rootTurboJson).not.toBe(decls.rootTurboJson);
+    let msg = "";
+    try {
+      assertSampleSeedOnSteps(readFileSync(CI_YML_PATH, "utf8"), stripped);
+    } catch (err) {
+      msg = String(err);
+    }
+    expect(msg).toContain("OPENCLINXR_STATION_SAMPLE has no turbo declaration");
+    process.stdout.write(`[CW4 G1] ${msg}\n`);
   });
 
   it("G2: pre-push affected tests carry SAMPLE=2 + HEAD seed; strict carries neither", () => {
