@@ -74,7 +74,7 @@ jobs:
       # uv the way the local machine has it: a pip package inside mise's python@3.13, whose bin
       # `mise exec` puts on PATH (mise.toml declares python, not uv). Version = local `uv --version`.
       - name: Install uv into mise python
-        run: mise exec -- python -m pip install --disable-pip-version-check uv==0.12.3
+        run: mise exec -- python -m pip install --disable-pip-version-check uv==0.12.3 numpy==2.5.1
 
       - name: Confirm mise resolves uv
         run: command -v mise && mise exec -- uv --version

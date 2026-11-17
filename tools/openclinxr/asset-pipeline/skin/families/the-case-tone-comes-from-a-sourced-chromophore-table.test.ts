@@ -142,7 +142,9 @@ function runDerivation(args: string[]): string {
       path.join(HERE, "derive_chromophore_lab.py"),
       ...args,
     ],
-    { encoding: "utf8", timeout: 120_000 },
+    // CI duration unmeasured: killed at 120 s; local M3 cold 33.06 s (2026-11-17); 300 s is a
+    // ceiling until the first CI pass prints T2b's duration.
+    { encoding: "utf8", timeout: 300_000 },
   );
   expect(result.status, result.stderr || result.stdout).toBe(0);
   return result.stdout;
@@ -180,9 +182,16 @@ describe("case skin_tone comes from a sourced chromophore table", () => {
   it("T2b re-derives every known-good Cm and Lab from the model, not from the report", (context) => {
     if (!UV_AVAILABLE) context.skip(UV_ABSENT_REASON);
     const report = requireReport();
-    const fresh = JSON.parse(
-      runDerivation(["--calibrate", path.join(HERE, "tone-report.json")]),
-    ) as { knownGood: KnownGood[] };
+    const started = Date.now();
+    let fresh: { knownGood: KnownGood[] };
+    try {
+      fresh = JSON.parse(
+        runDerivation(["--calibrate", path.join(HERE, "tone-report.json")]),
+      ) as { knownGood: KnownGood[] };
+    } finally {
+      // Printed on pass and on a timeout/exit/parse failure alike.
+      console.log(`T2b chromophore derivation ms=${Date.now() - started}`);
+    }
     const byId = new Map(fresh.knownGood.map((point) => [point.id, point]));
     for (const point of report.knownGood) {
       const again = byId.get(point.id);
@@ -192,7 +201,8 @@ describe("case skin_tone comes from a sourced chromophore table", () => {
       expect(Math.abs(again!.Ch - point.Ch)).toBeLessThanOrEqual(1e-9);
       expectLabClose(point.derivedLab, again!.derivedLab, 1e-6);
     }
-  }, 180_000);
+  // 360 s vitest budget stays above the 300 s spawn ceiling.
+  }, 360_000);
 
   it("T3 falsifies iff a miss exceeds half the measured inter-tone gap", () => {
     const report = requireReport();
