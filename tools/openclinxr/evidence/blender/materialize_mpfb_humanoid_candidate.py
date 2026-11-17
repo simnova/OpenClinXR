@@ -2553,6 +2553,80 @@ def mesh_from_numpy(name, verts, faces):
     return obj
 
 
+# Garment delete groups: MPFB creates Delete.<slot> without a modifier; the
+# existing alpha-0 hide material applies it. Post-strip indices remain hm08 ids.
+_DG_SLOTS = ("upper", "lower", "shoe")
+_DG = {"mode": "off", "mesh": None, "paths": {}, "parsed": {}, "verts": {}, "g": {}, "hon": {}}
+
+
+def _skip_slot_mask(slot):
+    """M1 replace: discard the measured geometric mask iff its group is non-empty."""
+    return _DG["mode"] == "replace" and len(_DG["verts"].get(slot) or ()) > 0
+
+
+def _garment_delete_group(op, slot=None, faces=None, hoff=None, mhclo_path=None, mhclo_paths=None, masks=None):
+    """Delete-group stage (S2/M2): create (one update_delete_group per slot,
+    pre-strip hm08 indexing), read (post-strip group verts), finalize (hon +
+    per-slot S3 line), obj (.obj beside an override .mhclo, as MPFB does).
+    Off mode: create prints DELETE_GROUP off; finalize returns (hoff,None,None)."""
+    if op == "obj":
+        try:
+            return mhclo_path.parent / declared_hair_obj_file(mhclo_path)
+        except RuntimeError:
+            return mhclo_path.parent / (mhclo_path.stem + ".obj")
+    if _DG["mode"] == "off":
+        if op == "create":
+            print("DELETE_GROUP off")
+        return (hoff, None, None) if op == "finalize" else hoff
+    if op == "create":
+        from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo as _MH  # noqa: E402
+        from bl_ext.user_default.mpfb.services.clothesservice import ClothesService as _CS  # noqa: E402
+        for _s, _p in mhclo_paths.items():
+            _p = pathlib.Path(_p)
+            _DG["paths"][_s] = _p
+            _m = _MH()
+            _m.load(str(_p))
+            _DG["parsed"][_s] = len(_m.delverts) if _m.delete else 0
+            _CS.update_delete_group(_m, _DG["mesh"], replace_delete_group=False, delete_group_name=f"Delete.{_s}", add_modifier=False)
+        return None
+    if op == "read":
+        for _s in _DG_SLOTS:
+            _DG["verts"][_s] = _vertex_indices_in_groups(_DG["mesh"], [f"Delete.{_s}"])
+        return None
+    if op == "union":
+        _gs, _hos, _hons = [_DG["g"][s] for s in _DG_SLOTS], [hoff[s] for s in _DG_SLOTS], list(masks)
+        _gu, _hu = np.logical_or.reduce(_gs), np.logical_or.reduce(_hons)
+        if any(_h is None for _h in _hos):
+            _hs = _ix = "SKIP"
+        else:
+            _ho = np.logical_or.reduce(_hos)
+            _hs, _ix = str(int(_ho.sum())), str(int((_ho & _gu).sum()))
+        print(f"DELETE_GROUP_UNION slots=upper+lower+shoe mode={_DG['mode']} g={int(_gu.sum())} hoff={_hs} inter={_ix} hon={int(_hu.sum())}")
+        return _hu
+    if op == "final":
+        for _s in (*_DG_SLOTS, "orphan"):
+            _token = "foot" if _s == "shoe" else _s
+            _cur, _ti = np.zeros(len(faces), dtype=bool), 0
+            for _poly in _DG["mesh"].data.polygons:
+                _n = max(len(_poly.vertices) - 2, 1)
+                _mat = _DG["mesh"].data.materials[int(_poly.material_index)]
+                if f"openclinxr_hidden_{_token}_" in (_mat.name or ""):
+                    _cur[_ti:_ti + _n] = True
+                _ti += _n
+            _before = _DG["hon"].get(_s, np.zeros(len(faces), dtype=bool))
+            _g = _DG["g"].get(_s, np.zeros(len(faces), dtype=bool))
+            _later = _cur & ~_before
+            print(f"DELETE_GROUP_FINAL slot={_s} h_final={int(_cur.sum())} later_added={int(_later.sum())} later_added_in_G_complement={int((_later & ~_g).sum())}")
+        return None
+    _mem = set(map(int, _DG["verts"].get(slot) or ()))
+    _gf = np.array([len(_r) > 0 and all(int(_v) in _mem for _v in _r) for _r in np.asarray(faces)], dtype=bool)
+    _ho = np.asarray(hoff, dtype=bool)
+    _hon = _gf if _skip_slot_mask(slot) else _ho | _gf
+    _DG["g"][slot], _DG["hon"][slot] = _gf, _hon
+    print(f"DELETE_GROUP slot={slot} mhclo={_DG['paths'].get(slot)} mode={_DG['mode']} parsed={_DG['parsed'].get(slot, 0)} group={len(_mem)} g={int(_gf.sum())} hoff={int(_ho.sum())} inter={int((_ho & _gf).sum())} hon={int(_hon.sum())}")
+    return _hon, _gf, _ho
+
+
 def parse_args():
     argv = []
     if "--" in sys.argv:
@@ -2890,6 +2964,20 @@ def parse_args():
             "openings the conform pass derives its rings from."
         ),
     )
+    parser.add_argument("--garment-delete-groups", default="off",
+        choices=["off", "union", "replace"],
+        help=("MPFB-DELETE-GROUP: garment-driven hide via MPFB's own "
+            "ClothesService.update_delete_group (add_modifier=False). off "
+            "keeps the byte path unchanged. union ORs each fitted garment's "
+            "Delete.<slot> faces into that slot's refined mask (hon == "
+            "hoff | G). replace uses the group alone for non-empty groups "
+            "after measuring (but not applying) that slot's geometric mask."))
+    parser.add_argument("--upper-mhclo", default=None,
+        help="MPFB-DELETE-GROUP: .mhclo replacing this slot's hardcoded upper (.obj resolves beside it, as MPFB does).")
+    parser.add_argument("--lower-mhclo", default=None,
+        help="MPFB-DELETE-GROUP: .mhclo replacing this slot's hardcoded lower (.obj resolves beside it, as MPFB does).")
+    parser.add_argument("--shoe-mhclo", default=None,
+        help="MPFB-DELETE-GROUP: .mhclo replacing this slot's hardcoded shoe (.obj resolves beside it, as MPFB does).")
     return parser.parse_args(argv)
 
 
@@ -8014,9 +8102,28 @@ def main():
         f"CLINICIAN_BRANCH role={args.actor_role} reference={args.reference} "
         f"clinician={_is_clinician}"
     )
+    _DG["mode"] = getattr(args, "garment_delete_groups", "off") or "off"
+    _sources = REPO_ROOT / ".openclinxr-local/provider-cache/garments/sources"
+    _long_sleeve_style = LONG_SLEEVE_UPPER_BY_REFERENCE.get(args.reference)
+    if _is_clinician and _long_sleeve_style:
+        _garment_dir = _sources / "makehuman-shirts01" / _long_sleeve_style
+        garment_obj, garment_mhclo = _garment_dir / "sweater_fisherman.obj", _garment_dir / "toigo_fisherman_sweater.mhclo"
+        _upper_lib_name, _upper_kind = "makeclothes_library_fisherman_sweater", "scrub"
+    elif _is_clinician:
+        _garment_dir = _sources / "makehuman-community-scrub-shirt"
+        garment_obj, garment_mhclo = _garment_dir / "Scrub_Shirt.obj", _garment_dir / "Scrub_Shirt.mhclo"
+        _upper_lib_name, _upper_kind = "makeclothes_library_scrub_shirt", "scrub"
+    else:
+        _garment_dir = _sources / "makehuman-shirts01/toigo_basic_tucked_t-shirt"
+        garment_obj, garment_mhclo = _garment_dir / "t_shirt_basic_tucked.obj", _garment_dir / "toigo_basic_tucked_t-shirt.mhclo"
+        _upper_lib_name, _upper_kind = "makeclothes_library_toigo_t_shirt", "closed_casual"
+    garment_mhclo = pathlib.Path(args.upper_mhclo) if args.upper_mhclo else garment_mhclo
+    if args.upper_mhclo:
+        garment_obj, _garment_dir = _garment_delete_group("obj", mhclo_path=garment_mhclo), garment_mhclo.parent
+
     pants = None
-    pants_mhclo = None
-    _lower_lib_name = None
+    _stem_lower = LOWER_GARMENT_BY_OUTPUT_STEM.get(pathlib.Path(args.output).stem)
+    _ref_lower = _stem_lower if _stem_lower is not None else LOWER_GARMENT_BY_REFERENCE.get(args.reference or "")
     _lower_lic_raw = None
     if _is_clinician:
         import sys as _sys_pants_pre
@@ -8029,13 +8136,43 @@ def main():
         from bl_ext.user_default.mpfb.entities.clothes.mhclo import Mhclo as _MhcloPre  # noqa: E402
         from bl_ext.user_default.mpfb.services.clothesservice import ClothesService as _ClothesPre  # noqa: E402
 
-        _pants_dir = (
-            REPO_ROOT
-            / ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-pants"
-        )
-        pants_obj = _pants_dir / "Scrub_Pants.obj"
-        pants_mhclo = _pants_dir / "Scrub_Pants.mhclo"
+        _pants_dir = _sources / "makehuman-community-scrub-pants"
+        pants_obj, pants_mhclo = _pants_dir / "Scrub_Pants.obj", _pants_dir / "Scrub_Pants.mhclo"
         _lower_lib_name = "makeclothes_library_scrub_pants"
+    else:
+        if _ref_lower == MISSING_FEMALE_COVERING_LOWER:
+            raise RuntimeError(
+                "missing covering female library lower for "
+                f"{pathlib.Path(args.output).stem}: staged covering mhclo assets "
+                "are tag male/menswear (elvs jeans/trousers, punkduck, mindfront, "
+                "toigo_wool_pants) or clinician unisex Scrub_Pants; do not dress "
+                "this actor in menswear or fall back to build_cover_shell. "
+                "See remaining-cover-shell-lowers-2026-09-12.md."
+            )
+        _lower_parts = {
+            "cortu_cargo_pants": ("makehuman-pants01/cortu_cargo_pants", "cargo_pants.obj", "cargo_pants.mhclo", "makeclothes_library_cargo_pants"),
+            "elvs_jeans_bootcut": ("makehuman-pants02/clothes/elvs_jeans_bootcut", "mens_elv_jeans1f.obj", "elvs_jeans_bootcut.mhclo", "makeclothes_library_bootcut_jeans_pants"),
+            FEMALE_COVERING_LOWER: ("makehuman-pants02/clothes/punkduck_female_tight_jeans", "tightjeans.obj", "punkduck_female_tight_jeans.mhclo", "makeclothes_library_female_tight_jeans_pants"),
+        }.get(_ref_lower, ("makehuman-pants02/clothes/elvs_jeans_straight_leg", "mens_elv_jeans2slf.obj", "elvs_jeans_straight_leg.mhclo", "makeclothes_library_straight_leg_jeans_pants"))
+        _pants_dir = _sources / _lower_parts[0]
+        pants_obj, pants_mhclo, _lower_lib_name = _pants_dir / _lower_parts[1], _pants_dir / _lower_parts[2], _lower_parts[3]
+    pants_mhclo = pathlib.Path(args.lower_mhclo) if args.lower_mhclo else pants_mhclo
+    if args.lower_mhclo:
+        pants_obj, _pants_dir = _garment_delete_group("obj", mhclo_path=pants_mhclo), pants_mhclo.parent
+
+    shoe_kind = SHOE_BY_REFERENCE.get(args.reference)
+    if shoe_kind is None:
+        raise RuntimeError(f"#333: no footwear mapped for reference {args.reference!r}")
+    _shoes_dir = _sources / "makehuman-shoes01" / shoe_kind
+    shoe_mhclo = pathlib.Path(args.shoe_mhclo) if args.shoe_mhclo else next(_shoes_dir.glob("*.mhclo"), None)
+    shoe_obj = _garment_delete_group("obj", mhclo_path=shoe_mhclo) if args.shoe_mhclo else next(_shoes_dir.glob("*.obj"), None)
+    if args.shoe_mhclo:
+        _shoes_dir = shoe_mhclo.parent
+    for _slot_source in (garment_obj, garment_mhclo, pants_obj, pants_mhclo, shoe_obj, shoe_mhclo):
+        if _slot_source is None or not _slot_source.is_file():
+            raise RuntimeError(f"garment source missing in provider cache: {_slot_source}")
+
+    if _is_clinician:
         if not pants_obj.is_file() or not pants_mhclo.is_file():
             raise RuntimeError(f"scrub pants sources missing in provider cache: {_pants_dir}")
         _lower_lic_ok, _lower_lic_raw = read_hair_mhclo_licence(pants_mhclo)
@@ -8239,6 +8376,10 @@ def main():
     )
     _hm08_features = extract_hm08_feature_helpers(human, _feature_arm, _feature_ref_tag)
     print(f"HM08_FEATURES {json.dumps(_hm08_features)}")
+    _DG["mesh"] = human
+    _garment_delete_group("create", mhclo_paths={
+        "upper": garment_mhclo, "lower": pants_mhclo, "shoe": shoe_mhclo,
+    })
 
     # #318: strip MakeHuman's clothes and hair FITTING SHELLS with the proven MPFB export
     # service (D1). `bpy.ops.mpfb.create_human()` materialises the FULL base.obj including
@@ -8268,6 +8409,7 @@ def main():
         f"HELPER_STRIP verts {verts_before_strip} -> {verts_after_strip}; "
         f"tris {tris_before_strip} -> {tris_after_strip}"
     )
+    _garment_delete_group("read")
     # Subdiv AFTER the strip so mhclo still binds to 13,380 verts; applied at
     # export (bake_subdiv=True, remove_helpers=False) once clothes are fitted.
     ensure_body_subsurf(human, render_levels=1)
@@ -8354,35 +8496,6 @@ def main():
     # kind stays "scrub" so the locked clinical colour keeps the cast pairwise
     # distinct (#180 contract). The fit is the SAME ClothesService path and fit
     # order as the t-shirt below (after the #318 strip).
-    _long_sleeve_style = LONG_SLEEVE_UPPER_BY_REFERENCE.get(args.reference)
-    if _is_clinician and _long_sleeve_style:
-        _garment_dir = (
-            REPO_ROOT
-            / ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01"
-            / _long_sleeve_style
-        )
-        garment_obj = _garment_dir / "sweater_fisherman.obj"
-        garment_mhclo = _garment_dir / "toigo_fisherman_sweater.mhclo"
-        _upper_lib_name = "makeclothes_library_fisherman_sweater"
-        _upper_kind = "scrub"
-    elif _is_clinician:
-        _garment_dir = (
-            REPO_ROOT
-            / ".openclinxr-local/provider-cache/garments/sources/makehuman-community-scrub-shirt"
-        )
-        garment_obj = _garment_dir / "Scrub_Shirt.obj"
-        garment_mhclo = _garment_dir / "Scrub_Shirt.mhclo"
-        _upper_lib_name = "makeclothes_library_scrub_shirt"
-        _upper_kind = "scrub"
-    else:
-        _garment_dir = (
-            REPO_ROOT
-            / ".openclinxr-local/provider-cache/garments/sources/makehuman-shirts01/toigo_basic_tucked_t-shirt"
-        )
-        garment_obj = _garment_dir / "t_shirt_basic_tucked.obj"
-        garment_mhclo = _garment_dir / "toigo_basic_tucked_t-shirt.mhclo"
-        _upper_lib_name = "makeclothes_library_toigo_t_shirt"
-        _upper_kind = "closed_casual"
     if not garment_obj.is_file() or not garment_mhclo.is_file():
         raise RuntimeError(f"upper garment sources missing in provider cache: {_garment_dir}")
 
@@ -8478,53 +8591,6 @@ def main():
     # HB-07: peds_patient_child is keyed to cargo so a rebake keeps the shipped
     # 2,628-tri cover shell (LOWER_GARMENT_BY_REFERENCE).
     if pants is None:
-        _stem_lower = LOWER_GARMENT_BY_OUTPUT_STEM.get(pathlib.Path(args.output).stem)
-        _ref_lower = (
-            _stem_lower
-            if _stem_lower is not None
-            else LOWER_GARMENT_BY_REFERENCE.get(args.reference or "")
-        )
-        if _ref_lower == MISSING_FEMALE_COVERING_LOWER:
-            raise RuntimeError(
-                "missing covering female library lower for "
-                f"{pathlib.Path(args.output).stem}: staged covering mhclo assets "
-                "are tag male/menswear (elvs jeans/trousers, punkduck, mindfront, "
-                "toigo_wool_pants) or clinician unisex Scrub_Pants; do not dress "
-                "this actor in menswear or fall back to build_cover_shell. "
-                "See remaining-cover-shell-lowers-2026-09-12.md."
-            )
-        if _ref_lower == "cortu_cargo_pants":
-            _pants_dir = (
-                REPO_ROOT
-                / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants01/cortu_cargo_pants"
-            )
-            pants_obj = _pants_dir / "cargo_pants.obj"
-            pants_mhclo = _pants_dir / "cargo_pants.mhclo"
-            _lower_lib_name = "makeclothes_library_cargo_pants"
-        elif _ref_lower == "elvs_jeans_bootcut":
-            _pants_dir = (
-                REPO_ROOT
-                / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_bootcut"
-            )
-            pants_obj = _pants_dir / "mens_elv_jeans1f.obj"
-            pants_mhclo = _pants_dir / "elvs_jeans_bootcut.mhclo"
-            _lower_lib_name = "makeclothes_library_bootcut_jeans_pants"
-        elif _ref_lower == FEMALE_COVERING_LOWER:
-            _pants_dir = (
-                REPO_ROOT
-                / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/punkduck_female_tight_jeans"
-            )
-            pants_obj = _pants_dir / "tightjeans.obj"
-            pants_mhclo = _pants_dir / "punkduck_female_tight_jeans.mhclo"
-            _lower_lib_name = "makeclothes_library_female_tight_jeans_pants"
-        else:
-            _pants_dir = (
-                REPO_ROOT
-                / ".openclinxr-local/provider-cache/garments/sources/makehuman-pants02/clothes/elvs_jeans_straight_leg"
-            )
-            pants_obj = _pants_dir / "mens_elv_jeans2slf.obj"
-            pants_mhclo = _pants_dir / "elvs_jeans_straight_leg.mhclo"
-            _lower_lib_name = "makeclothes_library_straight_leg_jeans_pants"
         if not pants_obj.is_file() or not pants_mhclo.is_file():
             raise RuntimeError(f"lower garment sources missing in provider cache: {_pants_dir}")
 
@@ -9419,6 +9485,8 @@ def main():
             "p95AdjMm": float(_dz[int(len(_dz) * 0.95)] if len(_dz) else 0.0),
         }
     print(f"MASK_RING_364 upper {json.dumps(_mask_ring_p95())}")
+    hide_mask, _g_upper, _hoff_upper = _garment_delete_group(
+        "finalize", slot="upper", faces=body_faces, hoff=hide_mask)
     applied = apply_body_hide_material_region(human, hide_mask, slot="upper")
     print(
         f"BODY_HIDE {hide_info} "
@@ -9538,6 +9606,8 @@ def main():
         _lower_black_slivers = int(_l_unhide.sum())
         lower_hide_mask[_lower_hidden_idx[_l_unhide]] = False
         print(f"LOWER_BLACK_SLIVERS unhidden {_lower_black_slivers}")
+    lower_hide_mask, _g_lower, _hoff_lower = _garment_delete_group(
+        "finalize", slot="lower", faces=body_faces, hoff=lower_hide_mask)
     lower_applied = apply_body_hide_material_region(human, lower_hide_mask, slot="lower")
     print(
         f"LOWER_BODY_HIDE {lower_hide_info} "
@@ -9564,19 +9634,6 @@ def main():
     # mm BELOW the body's foot bottom (measured 8-13 mm on probes — real sole depth);
     # the shoe is then lifted by that landmark gap so sole == body bottom, exactly the
     # known-good library measurement (-0.00 cm) and embed_library_footwear's sole-anchor.
-    shoe_kind = SHOE_BY_REFERENCE.get(args.reference)
-    if shoe_kind is None:
-        raise RuntimeError(f"#333: no footwear mapped for reference {args.reference!r}")
-    _shoes_dir = (
-        pathlib.Path(__file__).resolve().parents[4]
-        / ".openclinxr-local/provider-cache/garments/sources/makehuman-shoes01"
-        / shoe_kind
-    )
-    shoe_obj = next(_shoes_dir.glob("*.obj"), None)
-    shoe_mhclo = next(_shoes_dir.glob("*.mhclo"), None)
-    if shoe_obj is None or shoe_mhclo is None:
-        raise RuntimeError(f"#333: {shoe_kind} sources missing in provider cache: {_shoes_dir}")
-
     shoe = import_obj(str(shoe_obj), f"makeclothes_library_footwear_{shoe_kind}", force_z=False)
     # Same axis bake as the t-shirt/pants (#321 handback): identity/Z-up before the fit
     # writes body-local coordinates into the mesh.
@@ -9592,7 +9649,7 @@ def main():
     # clinical stations (#553) — nothing in any case definition authors leopard shoes. Drop the
     # diffuse for EVERY toigo_flats wearer; keep the plain dark factor (gown-patient precedent).
     # kevin's culturalibre_male_boots / mj_cloth_shoes are different shoe_kind and stay textured.
-    if shoe_kind == "toigo_flats":
+    if shoe_kind == "toigo_flats" and not args.shoe_mhclo:
         _shoe_mat = make_material(
             f"mat_makeclothes_library_footwear_{shoe_kind}", (0.10, 0.09, 0.08)
         )
@@ -9767,12 +9824,17 @@ def main():
         _foot_black_slivers = int(_f_unhide.sum())
         foot_hide_mask[_foot_hidden_idx[_f_unhide]] = False
         print(f"FOOT_BLACK_SLIVERS unhidden {_foot_black_slivers}")
+    foot_hide_mask, _g_shoe, _hoff_foot = _garment_delete_group(
+        "finalize", slot="shoe", faces=body_faces, hoff=foot_hide_mask)
     foot_applied = apply_body_hide_material_region(human, foot_hide_mask, slot="foot")
     print(
         f"FOOT_HIDE {foot_hide_info} "
         f"appliedPolygonCount {foot_applied['appliedPolygonCount']} "
         f"hiddenMaterialName {foot_applied['hiddenMaterialName']}"
     )
+    if _DG["mode"] != "off":
+        _garment_delete_group("union", hoff={"upper": _hoff_upper, "lower": _hoff_lower, "shoe": _hoff_foot},
+                              masks=(hide_mask, lower_hide_mask, foot_hide_mask))
 
     # issue-341 round 9 — RENDER_TRUTH_REHIDE: the counterpart to round 7's
     # monotone un-hide. Round 7's render-truth pass ONLY un-hides; a skin polygon
@@ -10055,6 +10117,7 @@ def main():
         f"polygons {_ss_final_polys}",
         flush=True,
     )
+    _garment_delete_group("final", faces=body_faces)
 
     bpy.context.scene.frame_start = 1
     bpy.context.scene.frame_end = 90
