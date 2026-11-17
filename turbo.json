@@ -183,6 +183,7 @@
         "tools/agent-factory/benchmark-gate-report.test.ts",
         "tools/agent-factory/build-benchmark-gate-report.ts",
         "tools/agent-factory/lib.ts",
+        "tools/openclinxr/asset-pipeline/**",
         "tools/openclinxr/evidence/**",
         "tools/openclinxr/evidence/browser-boot-inventory/**",
         "tools/openclinxr/factory/**",
