@@ -15,6 +15,8 @@
  *   --calib renders the P1a chrome/grey spheres (head_front camera) into <out>/calib/.
  *   --calib-sweep <path> sweeps HDRI rotationYDeg (then exposure) for calib mode.
  *   --nohair adds hideHair:true (brows/lashes stay; lab enforces) to beauty specs.
+ *   --eye-shading forwards eyeRuntimeShading:true (P2d probe; the lab refuses
+ *     it in parity/HDRI mode — the refusal is the verdict, recorded in E).
  *   --only <cam,cam> limits cameras (e.g. head_front,head_34 for nohair).
  *
  * Output per preset dir <out>/<preset>/ (or <out>/<preset>-nohair/):
@@ -130,6 +132,7 @@ type Cli = {
   exposures: number[];
   only: string[];
   nohair: boolean;
+  eyeShading: boolean;
   cwd: string;
 };
 
@@ -149,6 +152,7 @@ function parseCli(argv: string[]): Cli {
     exposures: [],
     only: [],
     nohair: false,
+    eyeShading: false,
     cwd: process.cwd(),
   };
   for (let i = 0; i < argv.length; i += 1) {
@@ -172,6 +176,7 @@ function parseCli(argv: string[]): Cli {
     else if (arg === "--exposures") cli.exposures = take().split(",").map(Number);
     else if (arg === "--only") cli.only = take().split(",").map((s) => s.trim()).filter(Boolean);
     else if (arg === "--nohair") cli.nohair = true;
+    else if (arg === "--eye-shading") cli.eyeShading = true;
     else if (arg === "--cwd") cli.cwd = take();
     else throw new Error(`unknown arg ${arg}`);
   }
@@ -255,6 +260,8 @@ function buildSpec(cam: CameraRec, opts: {
   masks: boolean;
   calibSpheres: { radiusM: number; chromeCenter: Vec3; greyCenter: Vec3 } | null;
   nohair: boolean;
+  /** P2d probe: forward the product eye path flag (lab refuses it in parity mode — recorded). */
+  eyeShading?: boolean;
 }): Record<string, unknown> {
   const cameraOverride = {
     position: cam.three.position,
@@ -302,6 +309,7 @@ function buildSpec(cam: CameraRec, opts: {
       ...parityLevers,
     },
     ...(opts.nohair ? { hideHair: true } : {}),
+    ...(opts.eyeShading ? { eyeRuntimeShading: true } : {}),
   };
   if (opts.calibSpheres) {
     (spec as Record<string, unknown>)["calib"] = { spheres: opts.calibSpheres };
@@ -760,7 +768,7 @@ export async function runRuntimeCapture(argv: string[]): Promise<void> {
       const dir = path.join(outAbs, cli.nohair ? `${presetName}-nohair-dump` : `${presetName}-dump`);
       const perCam: Record<string, unknown> = {};
       for (const cam of cameras) {
-        const spec = buildSpec(cam, { levers, masks: false, calibSpheres: null, nohair: cli.nohair });
+        const spec = buildSpec(cam, { levers, masks: false, calibSpheres: null, nohair: cli.nohair, eyeShading: cli.eyeShading });
         const [w, h] = cam.resolution;
         await page.setViewportSize({ width: w, height: h });
         await page.goto(subjectUrl(serverUrl, spec), { waitUntil: "domcontentloaded", timeout: 120_000 });
@@ -792,7 +800,7 @@ export async function runRuntimeCapture(argv: string[]): Promise<void> {
         consoleErrors.push(`[pageerror] ${String(e && (e as Error).message ? (e as Error).message : e)}`.slice(0, 500));
       });
       for (const cam of cameras) {
-        const spec = buildSpec(cam, { levers, masks: false, calibSpheres: null, nohair: cli.nohair });
+        const spec = buildSpec(cam, { levers, masks: false, calibSpheres: null, nohair: cli.nohair, eyeShading: cli.eyeShading });
         const [w, h] = cam.resolution;
         await page.setViewportSize({ width: w, height: h });
         await page.goto(subjectUrl(serverUrl, spec), { waitUntil: "domcontentloaded", timeout: 120_000 });
@@ -831,7 +839,7 @@ export async function runRuntimeCapture(argv: string[]): Promise<void> {
     const dir = path.join(outAbs!, cli.nohair ? `${presetName}-nohair` : presetName);
     const perCam: Record<string, unknown> = {};
     for (const cam of cameras) {
-      const spec = buildSpec(cam, { levers, masks: false, calibSpheres: null, nohair: cli.nohair });
+      const spec = buildSpec(cam, { levers, masks: false, calibSpheres: null, nohair: cli.nohair, eyeShading: cli.eyeShading });
       const pngPath = path.join(dir, `${cam.name}.png`);
       console.log(`[capture] ${presetName}${cli.nohair ? "-nohair" : ""} ${cam.name} ...`);
       const { evidence, frameMs } = await captureCamera({ page, baseUrl: serverUrl, cam, spec, pngPath });
