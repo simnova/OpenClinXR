@@ -30,7 +30,7 @@ function readLiveInventory(): Record<string, Array<{ name: string; versions: str
 }
 
 it("known-good: the MPFB build-time tool row records GPL-3.0-or-later, build-time use, no redistribution, with a MADR line that states it", () => {
-  expect(LICENCE_BOM_BUILD_TIME_TOOLS).toHaveLength(1);
+  expect(LICENCE_BOM_BUILD_TIME_TOOLS).toHaveLength(3);
   const tool = LICENCE_BOM_BUILD_TIME_TOOLS[0];
   expect(tool?.license).toBe("GPL-3.0-or-later");
   expect(tool?.use).toBe("build-time");
@@ -49,6 +49,29 @@ it("known-good: the MPFB build-time tool row records GPL-3.0-or-later, build-tim
   if (!citedLine.includes("GPL-3.0-or-later")) {
     throw new Error(`MADR cited line ${lineNumber} does not state GPL-3.0-or-later: ${citedLine}`);
   }
+
+  const bom = readBom();
+  expect(bom.buildTimeTools).toEqual(LICENCE_BOM_BUILD_TIME_TOOLS);
+});
+
+it("known-good: the anny and certifi build-time tool rows record CI-only use with no redistribution", () => {
+  expect(LICENCE_BOM_BUILD_TIME_TOOLS).toHaveLength(3);
+  const anny = LICENCE_BOM_BUILD_TIME_TOOLS[1];
+  expect(anny?.name).toBe("anny 0.6.0");
+  expect(anny?.license).toBe("Apache-2.0");
+  expect(anny?.use).toBe("build-time");
+  expect(anny?.redistributed).toBe(false);
+  expect(anny?.source).toContain("https://github.com/naver/anny@v0.6.0");
+  expect(anny?.source).toContain("72104cac8242d1735ec06433b65bec5e26953ce7");
+  expect(anny?.source).toContain("1d459b13c9650c763d6351ce21ad3b02433c80131195cf9d908de4fbc213cf27");
+
+  const certifi = LICENCE_BOM_BUILD_TIME_TOOLS[2];
+  expect(certifi?.name).toBe("certifi 2026.10.23");
+  expect(certifi?.license).toBe("MPL-2.0");
+  expect(certifi?.use).toBe("build-time");
+  expect(certifi?.redistributed).toBe(false);
+  expect(certifi?.source).toContain("not distributed");
+  expect(certifi?.source).toContain("file-level copyleft, CI-only via requests");
 
   const bom = readBom();
   expect(bom.buildTimeTools).toEqual(LICENCE_BOM_BUILD_TIME_TOOLS);

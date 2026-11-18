@@ -5753,6 +5753,20 @@
       "use": "build-time",
       "redistributed": false,
       "source": "docs/madr/0044-makeclothes-with-anny-as-reference-cagematch.md:59"
+    },
+    {
+      "name": "anny 0.6.0",
+      "license": "Apache-2.0",
+      "use": "build-time",
+      "redistributed": false,
+      "source": "https://github.com/naver/anny@v0.6.0 (commit 72104cac8242d1735ec06433b65bec5e26953ce7) LICENSE sha256 1d459b13c9650c763d6351ce21ad3b02433c80131195cf9d908de4fbc213cf27; bundled data/mpfb2 + data/faceunits01 CC0-1.0"
+    },
+    {
+      "name": "certifi 2026.10.23",
+      "license": "MPL-2.0",
+      "use": "build-time",
+      "redistributed": false,
+      "source": "https://pypi.org/project/certifi/ (certifi 2026.10.23, MPL-2.0 classifier) file-level copyleft, CI-only via requests, not distributed; operator-approved 2026-11-17 build-time only"
     }
   ]
 }
