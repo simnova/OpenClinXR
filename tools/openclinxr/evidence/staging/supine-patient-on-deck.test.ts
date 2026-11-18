@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { assertSampledStationCoverage } from "../station-subset/room-supine-sample.js";
 import { ED_SUPINE_SCENARIO_ID } from "../supine-patient-on-deck.js";
+import { STATION_SAMPLE_ENV } from "../station-subset.js";
 
 /**
  * PLANTED CONTRACTS (#150) — the ED chest-pain patient stands in front of a stretcher that is fully
@@ -187,6 +188,10 @@ const MAX_SUPINE_HEIGHT_TO_LENGTH = 0.9;
  */
 const MAX_PENETRATION_METERS = 0.05;
 
+// The first clause pays the live measurement. Unsampled CI took 1,282 s (run 44230842037, job 134555209816:
+// vitest:start 04:36:55Z, artifact 04:58:17Z) x 1.5 = 1,930 s; sampled runs keep 900 s.
+const MEASURE_CLAUSE_TIMEOUT_MS = process.env[STATION_SAMPLE_ENV] ? 900_000 : 1_930_000;
+
 describe("the ED patient lies on the stretcher instead of standing through it (#150)", () => {
   it("the ED primary patient is supine and clear of the deck", async () => {
     // actor-posture.ts:51-64 returns "standing" for everything but telehealth, so the chest-pain
@@ -209,7 +214,7 @@ describe("the ED patient lies on the stretcher instead of standing through it (#
       }
     }
     expect(wrong, `the ED patient is not resting on the stretcher:\n${wrong.join("\n")}`).toHaveLength(0);
-  }, 900_000);
+  }, MEASURE_CLAUSE_TIMEOUT_MS);
 
   it("the supine body reads as recumbent, not as a standing figure tipped over", async () => {
     // Kills the cheap satisfaction of the first contract: root.rotation.x = 90 clears the posture
