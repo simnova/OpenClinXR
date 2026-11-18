@@ -143,6 +143,42 @@
       "verdict": "pass",
       "date": "2026-11-14",
       "sampleRule": "native 1:1 frames t=0.5,3,6,12,15.76 s (clip-1/contact-1to1.png)"
+    },
+    {
+      "path": "site/media/kc-kevin-head-before.png",
+      "sha256": "dd066aec16f61efda69463bb6fd81b0805d2b2c2807edd92e959c095602a0a40",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap39 [9905ca]",
+      "gradeMessageId": "super-ceo-cap39/kce-r3-2026-11-18",
+      "demonstrates": "Head still before the change: mid-brown scalp hair on the low-poly cap mesh, same front camera and light as the after still.",
+      "slot": "KC",
+      "verdict": "pass",
+      "date": "2026-11-18",
+      "sampleRule": "native 1:1 sheet r3/sheet/sheet-head-front-before-left-after-right.png 1200x820"
+    },
+    {
+      "path": "site/media/kc-kevin-head-after.png",
+      "sha256": "b30df442d86d3a9238ecc3e4253748aee632b98739b38d9680474ae4b7b4e61b",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap39 [9905ca]",
+      "gradeMessageId": "super-ceo-cap39/kce-r3-2026-11-18",
+      "demonstrates": "Head still after the change: near-black scalp hair on the same cap mesh, brows reading the same as the before still.",
+      "slot": "KC",
+      "verdict": "pass",
+      "date": "2026-11-18",
+      "sampleRule": "native 1:1 sheet r3/sheet/sheet-head-front-before-left-after-right.png 1200x820"
+    },
+    {
+      "path": "site/media/kc-kevin-head-turntable.webm",
+      "sha256": "bd1c25a12e3589219afbe1ca18b4a77ade6ead3e14a26408c0995d6c09f90985",
+      "grader": "super-ceo",
+      "graderSession": "super-ceo-cap39 [9905ca]",
+      "gradeMessageId": "super-ceo-cap39/kce-r4-crf30-2026-11-18",
+      "demonstrates": "Split head turntable, before on the left and after on the right, 6.5 s with no audio, the model turning about twice.",
+      "slot": "KC",
+      "verdict": "pass",
+      "date": "2026-11-18",
+      "sampleRule": "native 1:1 12-frame tile n=0,15,...,165 (r4/sheet/crf30-tile-12f-n0to165-step15.png)"
     }
   ]
 }
