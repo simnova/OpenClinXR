@@ -160,12 +160,13 @@ describe("workspace architecture rules", () => {
     const preCommitHook = readFileSync(join(workspaceRoot, ".githooks/pre-commit"), "utf8");
     const prePushHook = readFileSync(join(workspaceRoot, ".githooks/pre-push"), "utf8");
 
-    // Commit and push hooks run inside the machine-wide heavy-job slot (heavy-slot.ts), still on the hook runner.
+    // Commit hook runs inside the machine-wide heavy-job slot (heavy-slot.ts), still on the hook runner.
+    // Push hook is the fast thinning + licences gate (THIN-C2); it must stay free of the heavy slot and hook runner.
     expect(rootPackage.scripts?.["hooks:pre-commit"]).toBe(
       "tsx tools/openclinxr/openclaw/heavy-slot.ts pre-commit -- tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile pre-commit",
     );
     expect(rootPackage.scripts?.["hooks:pre-push"]).toBe(
-      "tsx tools/openclinxr/openclaw/heavy-slot.ts pre-push -- tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile pre-push",
+      "git fetch -q origin main || { echo \"pre-push: fetch origin/main failed; refusing push\" >&2; exit 1; } && tsx tools/thinning/check-thinning.ts --base origin/main && pnpm security:licenses",
     );
     expect(rootPackage.scripts?.["hooks:strict"]).toBe("tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile strict");
     expect(rootPackage.scripts?.["hooks:local-exam"]).toBe("tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile local-exam");

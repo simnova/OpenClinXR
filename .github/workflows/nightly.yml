@@ -1,0 +1,161 @@
+# Slow suites, non-blocking (THIN-C2). Never runs on push.
+# Schedule mirrors the old CI sweep (cron carried over from ci.yml).
+name: Nightly
+
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: nightly-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  slow-suites:
+    runs-on: ubuntu-24.04
+    env:
+      TURBO_CACHE_DIR: ${{ github.workspace }}/.turbo/cache
+      MISE_TRUSTED_CONFIG_PATHS: ${{ github.workspace }}/mise.toml
+      # `mise exec` installs missing mise.toml tools through the GitHub API; unauthenticated it hit the
+      # rate limit: run 44133928084 attempts 1+2, "Failed to install aqua:pnpm/pnpm@11.18.0: HTTP status
+      # client error (403 Forbidden)" (mise 2026.7.3). Read-only token; permissions stay contents: read.
+      MISE_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Historical negative-control assets require history while old blobs stay on demand.
+          fetch-depth: 0
+          filter: blob:none
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+
+      - name: Cache Turbo
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.TURBO_CACHE_DIR }}
+          key: turbo-v2.9.14-${{ runner.os }}-${{ runner.arch }}-${{ github.sha }}
+          restore-keys: |
+            turbo-v2.9.14-${{ runner.os }}-${{ runner.arch }}-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Install vulture with mise
+        uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd411 # v5.2.5
+        with:
+          # mise binary pin: the local mise version that ran the cruft gate, measured 2026-11-16 (`mise --version`).
+          version: 2026.7.3
+          install_args: python@3.13 pipx:vulture
+          add_shims_to_path: false
+          env: false
+          export_path: false
+
+      - name: Confirm mise resolves vulture
+        run: |
+          if command -v mise && mise which vulture && vulture --version; then :; else
+            mise exec pipx:vulture@2.14 -- vulture --version
+          fi
+
+      - name: Cache pip downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: py-deps-uv-0.12.3-numpy-2.5.1-pillow-12.3.0-torch-2.13.0-cpu-anny-0.6.0-opencv-headless-5.0.0.93-${{ runner.os }}-${{ runner.arch }}
+          restore-keys: |
+            py-deps-uv-0.12.3-numpy-2.5.1-pillow-12.3.0-torch-2.13.0-cpu-anny-0.6.0-opencv-headless-5.0.0.93-
+
+      # uv the way the local machine has it: a pip package inside mise's python@3.13, whose bin
+      # `mise exec` puts on PATH (mise.toml declares python, not uv). Version = local `uv --version`.
+      # The same interpreter also gets the pinned package-test deps at LOCAL versions
+      # (numpy 2.5.1, pillow 12.3.0, torch 2.13.0 CPU wheel, anny 0.6.0, opencv headless
+      # 5.0.0.93 for the `import cv2` scripts in face-replay/roughness-breakup).
+      # NOTE: torch uses --extra-index-url, not a replacing --index-url: a bare --index-url
+      # would hide PyPI and break numpy/anny/opencv in this one pip line; extra keeps
+      # PyPI primary and adds the CPU-wheel index.
+      - name: Install uv into mise python
+        run: |
+          PY_INSTALL_START="$(date +%s)"
+          mise exec -- python -m pip install --disable-pip-version-check uv==0.12.3 numpy==2.5.1 pillow==12.3.0 torch==2.13.0+cpu anny==0.6.0 opencv-python-headless==5.0.0.93 --extra-index-url https://download.pytorch.org/whl/cpu
+          PY_INSTALL_END="$(date +%s)"
+          echo "PY_INSTALL_S=$((PY_INSTALL_END - PY_INSTALL_START))"
+          echo "PY_INSTALL_S=$((PY_INSTALL_END - PY_INSTALL_START))" >> "$GITHUB_ENV"
+
+      # Bare `python3` in package tests must resolve to this same mise python@3.13.
+      # Runner-side cause (CI 44173841207): ci.yml installs into `mise exec` but tests
+      # spawn bare `python3`, which resolves outside mise (mise-action runs with
+      # add_shims_to_path:false / export_path:false, deliberately unchanged here).
+      # Prepending ONLY mise's python bin dir is safe for setup-node: that dir holds
+      # no node/pnpm/npm (verified locally), so the step below stays green.
+      - name: Put mise python first on PATH
+        run: |
+          PY_BIN="$(mise exec -- python -c 'import sys,os;print(os.path.dirname(sys.executable))')"
+          echo "$PY_BIN" >> "$GITHUB_PATH"
+          echo "mise python bin: $PY_BIN"
+
+      - name: Confirm mise resolves uv
+        run: command -v mise && mise exec -- uv --version
+
+      - name: Confirm setup-node and pnpm remain authoritative
+        run: |
+          node --version
+          pnpm --version
+          command -v node pnpm
+
+      - name: Install browser and media tools for tests
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends ffmpeg zsh
+          pnpm exec playwright install --with-deps chromium
+
+      - name: Bootstrap workspace builds (cold-safe exports)
+        run: pnpm packages:build
+
+      - name: Prepare SC-10 metadata store
+        run: |
+          SC10_DIR="$(mktemp -d "${RUNNER_TEMP}/sc10-${{ github.job }}-${{ github.run_id }}-${{ github.run_attempt }}-XXXXXX")"
+          pnpm exec tsx packages/openclinxr/stations/scene-closure-evidence/src/scene-closure-research/prepare-sc10-metadata-store.ts --output-dir "$SC10_DIR"
+          echo "OPENCLINXR_SC_EVIDENCE_REGISTRY=$SC10_DIR/registry.json" >> "${GITHUB_ENV}"
+
+      # Proof that the PATH fix worked: bare python3 must be mise's python with the
+      # pinned imports available. PY_INSTALL_S is recorded by the install step.
+      - name: Prove bare python3 resolves to mise python
+        run: |
+          command -v python3
+          python3 -c 'import sys,numpy,torch,anny;print(sys.executable,numpy.__version__,torch.__version__,anny.__version__)'
+          python3 -c 'import cv2,PIL;print(cv2.__version__,PIL.__version__)'
+          echo "PY_INSTALL_S=${PY_INSTALL_S:-unrecorded}"
+
+      # schedule/dispatch sweep the full station bank: 120 = measurement window, not a budget; full bank expected to exceed it (m1 unsampled: 44 files 179.8 min); completion needs a shard matrix.
+      - name: Test tools
+        id: test-tools
+        timeout-minutes: 120
+        env:
+          OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE: "1"
+          OPENCLINXR_REQUIRE_UV: "1"
+        run: pnpm test:tools
+
+      # Runs after a tools failure OR a tools timeout (a timed-out step has outcome failure, not skipped); skipped only when setup/build failed so tools never ran.
+      # 64 = 2 x 31m45s, measured local pnpm packages:test:affected with 13/170 cached, sampled n=2 (jobs/ci-sample-wire/push.log, 2026-11-17); local Mac, 13/170 cached; CI runner speed unmeasured.
+      - name: Test packages
+        timeout-minutes: 64
+        if: ${{ !cancelled() && steps.test-tools.outcome != 'skipped' }}
+        env:
+          OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE: "1"
+          OPENCLINXR_REQUIRE_UV: "1"
+        # First line prints the interpreter so its value can be compared with the
+        # pre-tools print (step name unchanged: the CSR step-name readers read it).
+        run: |
+          command -v python3
+          pnpm packages:test --continue --log-order=stream

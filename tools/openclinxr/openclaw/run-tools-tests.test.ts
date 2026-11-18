@@ -706,10 +706,11 @@ describe("cache keys carry the trigger (T6)", () => {
 });
 
 // ---------------------------------------------------------------------------
-// CI-SPLIT-READERS: ci.yml verify now runs "Test tools" + "Test packages"
-// (CI-SPLIT-TEST 6040386d7 split the old "Test" step). Step resolution and
-// the per-var turbo derivation live in ./ci-split-steps.js; only the T7
-// policy assertion and its counterweights remain here.
+// CI-SPLIT-READERS: nightly.yml slow-suites now runs "Test tools" + "Test packages"
+// (THIN-C2 moved the suites out of ci.yml; CI-SPLIT-TEST 6040386d7 had split
+// the old "Test" step). Step resolution and the per-var turbo derivation live
+// in ./ci-split-steps.js; only the T7 policy assertion and its counterweights
+// remain here.
 // ---------------------------------------------------------------------------
 
 const CI_SPLIT_SAMPLE_VAR = "OPENCLINXR_STATION_SAMPLE";
@@ -719,7 +720,7 @@ const CI_SPLIT_SEED_VAR = "OPENCLINXR_STATION_SAMPLE_SEED";
  * T7 check. Returns violations (empty = pass). Resolves the split steps by
  * exact name first, so a renamed/missing step throws naming the step instead
  * of crashing on an undefined property. Validates every actual setter step
- * instance in ci.yml order (multiplicity preserved) against the derived
+ * instance in nightly.yml order (multiplicity preserved) against the derived
  * expected sequence for the ECG var, and requires a non-empty derived set.
  */
 function ecgTriggerViolations(
@@ -734,22 +735,27 @@ function ecgTriggerViolations(
   if ((doc.env as Record<string, unknown> | undefined)?.[ECG_ARCHIVE_SKIP_ENV_VAR] !== undefined) {
     violations.push(`workflow env sets ${ECG_ARCHIVE_SKIP_ENV_VAR}`);
   }
-  const verify = doc?.jobs?.["verify"];
-  if (!verify) throw new Error("[ci-split-readers] ci.yml has no verify job");
+  const verify = doc?.jobs?.["slow-suites"];
+  if (!verify) throw new Error("[ci-split-readers] nightly.yml has no slow-suites job");
   if ((verify.env as Record<string, unknown> | undefined)?.[ECG_ARCHIVE_SKIP_ENV_VAR] !== undefined) {
-    violations.push(`verify job env sets ${ECG_ARCHIVE_SKIP_ENV_VAR}`);
+    violations.push(`slow-suites job env sets ${ECG_ARCHIVE_SKIP_ENV_VAR}`);
   }
-  const steps = Array.isArray(verify.steps) ? verify.steps : [];
+  // Fail closed when the job has no steps: every absence assertion below would
+  // otherwise pass vacuously on [].
+  if (!Array.isArray(verify.steps) || verify.steps.length === 0) {
+    throw new Error("[ci-split-readers] nightly.yml slow-suites has no steps");
+  }
+  const steps = verify.steps;
   // Resolve by exact name (C1): throws naming the step when renamed/missing.
   findCiSplitStep(steps, CI_SPLIT_TOOL_STEP);
   findCiSplitStep(steps, CI_SPLIT_PACKAGES_STEP);
   const derived = expectedStepsForVar(ECG_ARCHIVE_SKIP_ENV_VAR, yamlText, declarations);
-  // Unique names in ci.yml order: a duplicated same-name setter step is an
+  // Unique names in nightly.yml order: a duplicated same-name setter step is an
   // extra actual instance the derived sequence does not contain, so it fails.
   const expected = [...new Set(derived)];
   if (expected.length === 0) violations.push(`${ECG_ARCHIVE_SKIP_ENV_VAR} has no turbo declaration`);
   // F2: collect every actual setter instance (no first-match lookup); the
-  // name sequence must equal the derived expected sequence in ci.yml order,
+  // name sequence must equal the derived expected sequence in nightly.yml order,
   // so a duplicate same-name setter fails; each instance must carry "1".
   const setters = steps.filter(
     (s) => (s.env as Record<string, unknown> | undefined)?.[ECG_ARCHIVE_SKIP_ENV_VAR] !== undefined,
@@ -776,7 +782,7 @@ function ciSplitStepMapLine(): string {
   return `ci-split-readers step map: ${vars.map((v) => `${v} -> ${expectedStepsForVar(v).join(", ")}`).join("; ")}`;
 }
 
-describe("ci.yml sets the trigger on the Test step only (T7)", () => {
+describe("nightly.yml sets the trigger on the Test step only (T7)", () => {
   it("Test step env has \"1\"; no other step, job, or workflow env sets it", () => {
     process.stdout.write(`${ciSplitStepMapLine()}\n`);
     expect(ecgTriggerViolations()).toEqual([]);
@@ -802,7 +808,7 @@ describe("ci.yml sets the trigger on the Test step only (T7)", () => {
 
   it("CW3: workflow env setting the trigger fails T7", () => {
     const real = readFileSync(ciSplitYmlPath(), "utf8");
-    const modified = real.replace("name: CI\n", `name: CI\nenv:\n  ${ECG_ARCHIVE_SKIP_ENV_VAR}: "1"\n`);
+    const modified = real.replace("name: Nightly\n", `name: Nightly\nenv:\n  ${ECG_ARCHIVE_SKIP_ENV_VAR}: "1"\n`);
     expect(modified).not.toBe(real);
     const violations = ecgTriggerViolations(modified);
     expect(violations.length).toBeGreaterThan(0);
@@ -810,7 +816,7 @@ describe("ci.yml sets the trigger on the Test step only (T7)", () => {
     process.stdout.write(`[CW3 T7] ${violations.join(" | ")}\n`);
   });
 
-  it("CW5: ECG var absent from turbo and ci.yml fails T7 (non-empty guard)", () => {
+  it("CW5: ECG var absent from turbo and nightly.yml fails T7 (non-empty guard)", () => {
     const real = readFileSync(ciSplitYmlPath(), "utf8");
     const decls = loadTurboDeclarations();
     const strippedRoot = decls.rootTurboJson.replace(',\n    "OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE"', "");

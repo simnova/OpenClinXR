@@ -2,18 +2,22 @@
  * ci-split-steps.ts — one turbo-declaration walker + run-command-to-step
  * resolver shared by the CI-SPLIT-READERS assertions (both split-step
  * readers). Test files import this module; it registers no tests itself.
+ *
+ * THIN-C2: the split steps moved from ci.yml `verify` to nightly.yml
+ * `slow-suites`. Names keep the CI-SPLIT-READERS prefix (both readers
+ * share them); paths and job lookup point at nightly.yml.
  */
 import { readdirSync, readFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parse as parseYaml } from "yaml";
 
-/** First split-step name in ci.yml verify. */
+/** First split-step name in nightly.yml slow-suites. */
 export const CI_SPLIT_TOOL_STEP = "Test tools";
-/** Second split-step name in ci.yml verify. */
+/** Second split-step name in nightly.yml slow-suites. */
 export const CI_SPLIT_PACKAGES_STEP = "Test packages";
 
-/** Minimal shape of a ci.yml verify step consumed by the readers. */
+/** Minimal shape of a nightly.yml slow-suites step consumed by the readers. */
 export type CiSplitStep = { name?: unknown; run?: unknown; env?: unknown };
 
 /** Turbo declaration texts consumed by the resolver. */
@@ -24,25 +28,28 @@ export function ciSplitRepoRoot(): string {
   return join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 }
 
-/** Default absolute path of the CI workflow file. */
+/** Default absolute path of the slow-suites workflow file (THIN-C2: nightly.yml). */
 export function ciSplitYmlPath(root: string = ciSplitRepoRoot()): string {
-  return join(root, ".github", "workflows", "ci.yml");
+  return join(root, ".github", "workflows", "nightly.yml");
 }
 
-/** Parse verify steps out of ci.yml text (default: the real file). */
+/** Parse slow-suites steps out of nightly.yml text (default: the real file). */
 export function readCiSplitVerifySteps(
   yamlText: string = readFileSync(ciSplitYmlPath(), "utf8"),
 ): CiSplitStep[] {
   const doc = parseYaml(yamlText) as { jobs?: Record<string, { steps?: CiSplitStep[] }> };
-  const verify = doc?.jobs?.["verify"];
-  if (!verify || !Array.isArray(verify.steps)) throw new Error("[ci-split-readers] ci.yml has no verify job steps");
+  const verify = doc?.jobs?.["slow-suites"];
+  if (!verify || !Array.isArray(verify.steps)) throw new Error("[ci-split-readers] nightly.yml has no slow-suites job steps");
+  // Fail closed on an empty step list too: downstream "no SAMPLE/SEED set"
+  // assertions would otherwise pass vacuously on [].
+  if (verify.steps.length === 0) throw new Error("[ci-split-readers] nightly.yml slow-suites has no steps");
   return verify.steps;
 }
 
-/** Find a verify step by exact name, throwing when absent. */
+/** Find a slow-suites step by exact name, throwing when absent. */
 export function findCiSplitStep(steps: CiSplitStep[], name: string): CiSplitStep {
   const step = steps.find((s) => s.name === name);
-  if (!step) throw new Error(`ci.yml verify has no step "${name}"`);
+  if (!step) throw new Error(`nightly.yml slow-suites has no step "${name}"`);
   return step;
 }
 

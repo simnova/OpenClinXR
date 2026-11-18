@@ -337,7 +337,7 @@
     "asset:humanoid-toolchain:validate": "tsx tools/openclinxr/evidence/humanoid-toolchain-bakeoff.ts --validate-latest",
     "hooks:install": "git config core.hooksPath .githooks",
     "hooks:pre-commit": "tsx tools/openclinxr/openclaw/heavy-slot.ts pre-commit -- tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile pre-commit",
-    "hooks:pre-push": "tsx tools/openclinxr/openclaw/heavy-slot.ts pre-push -- tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile pre-push",
+    "hooks:pre-push": "git fetch -q origin main || { echo \"pre-push: fetch origin/main failed; refusing push\" >&2; exit 1; } && tsx tools/thinning/check-thinning.ts --base origin/main && pnpm security:licenses",
     "hooks:strict": "tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile strict",
     "hooks:local-exam": "tsx tools/openclinxr/openclaw/agentic-hook-runner.ts --profile local-exam",
     "codex:hook": "tsx tools/openclinxr/openclaw/codex-lifecycle-hook.ts",

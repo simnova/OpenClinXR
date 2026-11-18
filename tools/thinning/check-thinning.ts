@@ -32,8 +32,24 @@ const defaultRun: GitRunner = (args) =>
 // ONE base sha for both the base tree and the added-line diff. Throws NoBaseError
 // (the CLI exits 2): a missing base must never silently become HEAD, which yields
 // a zero diff that always PASSes.
-export function resolveBaseSha(explicit: string | undefined, run: GitRunner): string {
+//
+// Exact mode (--exact-base, push path with a non-zero `before` sha) uses the
+// given sha as-is via rev-parse --verify <sha>^{commit}: a force-push must be
+// judged old-tip -> new-tip, not ancestor -> new-tip. Merge-base mode (PR and
+// pre-push paths) keeps comparing against the common ancestor.
+export function resolveBaseSha(explicit: string | undefined, run: GitRunner, opts?: { exact?: boolean }): string {
   if (explicit !== undefined && explicit === "") throw new NoBaseError("bare --base with no value");
+  if (opts?.exact && explicit === undefined) throw new NoBaseError("--exact-base with no --base value");
+  if (opts?.exact && explicit !== undefined) {
+    let sha = "";
+    try {
+      sha = run(["rev-parse", "--verify", `${explicit}^{commit}`]).trim();
+    } catch {
+      sha = "";
+    }
+    if (sha) return sha;
+    throw new NoBaseError(`exact base ${explicit} does not resolve`);
+  }
   const args =
     explicit === undefined ? ["merge-base", "HEAD", "origin/main"] : ["merge-base", "HEAD", explicit];
   let sha = "";
@@ -174,8 +190,10 @@ function listTree(ref: string, run: GitRunner = defaultRun): FileRow[] {
   return rows;
 }
 
-function diffAddedLines(base: string, run: GitRunner = defaultRun): AddedLine[] {
-  const out = run(["diff", "-U0", `${base}...HEAD`, "--"]);
+function diffAddedLines(base: string, run: GitRunner = defaultRun, exact = false): AddedLine[] {
+  // Exact mode diffs old-tip..HEAD (two-dot): three-dot would re-resolve through
+  // the merge-base and reintroduce the narrowing --exact-base removes.
+  const out = run(["diff", "-U0", exact ? `${base}..HEAD` : `${base}...HEAD`, "--"]);
   const lines: AddedLine[] = [];
   let cur = "";
   for (const line of out.split("\n")) {
@@ -193,10 +211,10 @@ function toplevel(): string {
 // The CLI gathers base tree + added lines from the single resolved base sha so
 // tree totals and the diff can never disagree about what "base" means.
 export function gatherInputs(
-  explicit: string | undefined, run: GitRunner,
+  explicit: string | undefined, run: GitRunner, opts?: { exact?: boolean },
 ): { baseSha: string; base: FileRow[]; addedLines: AddedLine[] } {
-  const baseSha = resolveBaseSha(explicit, run);
-  return { baseSha, base: listTree(baseSha, run), addedLines: diffAddedLines(baseSha, run) };
+  const baseSha = resolveBaseSha(explicit, run, opts);
+  return { baseSha, base: listTree(baseSha, run), addedLines: diffAddedLines(baseSha, run, opts?.exact ?? false) };
 }
 
 function printTotals(totals: BucketTotals[]): void {
@@ -210,6 +228,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   const started = performance.now();
   const measureOnly = cliArgs.includes("--measure");
   const ceilingsOnly = cliArgs.includes("--ceilings-only");
+  const exactBase = cliArgs.includes("--exact-base");
   const policyFlag = cliArgs.indexOf("--policy");
   const policyPath = policyFlag >= 0 ? cliArgs[policyFlag + 1] : join(toplevel(), "thinning-policy.json");
   const policy = JSON.parse(readFileSync(policyPath ?? "", "utf8")) as ThinningPolicy;
@@ -232,7 +251,7 @@ if (import.meta.url === pathToFileURL(process.argv[1] ?? "").href) {
   } else {
     const explicit = baseFlag < 0 ? undefined : raw;
     try {
-      const inputs = gatherInputs(explicit, defaultRun);
+      const inputs = gatherInputs(explicit, defaultRun, { exact: exactBase });
       const result = evaluateThinning({ policy, base: inputs.base, head, addedLines: inputs.addedLines });
       printTotals(result.totals);
       for (const v of result.violations) console.log(`VIOLATION [${v.rule}] ${v.message}`);

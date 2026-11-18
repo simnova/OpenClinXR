@@ -1,7 +1,8 @@
 // tools/thinning/check-thinning.test.ts — pure-core tests, in-memory rows only
 // (no git fixture repos) except T12, which reads the real policy + `git ls-files` once.
-import { execFileSync } from "node:child_process";
-import { readFileSync } from "node:fs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
@@ -244,9 +245,101 @@ describe("thinning core", () => {
   it("T19 ci.yml Thinning step passes an explicit base per event (no HEAD-vs-itself on push)", () => {
     const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
     const ci = readFileSync(join(root, ".github/workflows/ci.yml"), "utf8");
+    const nightly = readFileSync(join(root, ".github/workflows/nightly.yml"), "utf8");
     expect(ci).toMatch("github.event.before");
     expect(ci).toMatch("base_ref");
-    expect(ci).toMatch("--ceilings-only");
+    // Push with a non-zero `before` judges old-tip -> new-tip exactly (F3);
+    // the all-zero (new branch) path fetches and resolves merge-base, never HEAD~1.
+    expect(ci).toMatch("--exact-base");
+    expect(ci).toMatch("merge-base HEAD");
+    expect(ci).not.toMatch('BASE="HEAD~1"');
+    // THIN-C2 split: the schedule path left ci.yml for nightly.yml, so the
+    // ceilings-only invocation no longer lives in ci.yml.
+    expect(ci).not.toMatch("schedule:");
+    expect(ci).not.toMatch("--ceilings-only");
+    expect(nightly).toMatch("0 3 * * *");
+    expect(nightly).toMatch("workflow_dispatch");
+    expect(nightly).not.toMatch("pull_request");
+  });
+
+  it("T20 --exact-base judges old-tip B -> C (force-push); merge-base judges ancestor A -> C", () => {
+    // Fixture: A holds 2000 G bytes; B deletes 100; C forks from A restoring the
+    // 2000 unchanged. merge-base(B, C) = A, so the merge-base path sees no growth
+    // (PASS) while the exact path sees B -> C grow G by 100 above target (FAIL).
+    const tmp = mkdtempSync(join(tmpdir(), "thin-exact-"));
+    const git = (args: string[]): string =>
+      execFileSync("git", args, { encoding: "utf8", cwd: tmp }).toString();
+    git(["init", "-q"]);
+    git(["config", "user.email", "t@t.example"]);
+    git(["config", "user.name", "t"]);
+    mkdirSync(join(tmp, "proc"), { recursive: true });
+    writeFileSync(join(tmp, "proc", "a.md"), "x".repeat(2000));
+    git(["add", "."]);
+    git(["commit", "-qm", "A"]);
+    const A = git(["rev-parse", "HEAD"]).trim();
+    writeFileSync(join(tmp, "proc", "a.md"), "x".repeat(1900));
+    git(["add", "."]);
+    git(["commit", "-qm", "B"]);
+    const B = git(["rev-parse", "HEAD"]).trim();
+    git(["checkout", "-q", A]);
+    git(["commit", "-q", "--allow-empty", "-m", "C"]);
+    const C = git(["rev-parse", "HEAD"]).trim();
+    expect(C).not.toBe(A);
+    const calls: string[][] = [];
+    const run = (args: string[]): string => {
+      calls.push(args);
+      return git(args);
+    };
+    const rowsOf = (ref: string): { path: string; bytes: number }[] =>
+      git(["ls-tree", "-r", "-l", ref])
+        .split("\n")
+        .filter(Boolean)
+        .map((line) => {
+          const tab = line.indexOf("\t");
+          const size = line.slice(0, tab).trim().split(/\s+/).pop() ?? "0";
+          return { path: line.slice(tab + 1), bytes: size === "-" ? 0 : Number(size) };
+        });
+    // Merge-base path: resolves to the ancestor A and diffs A...HEAD (three-dot).
+    calls.length = 0;
+    expect(resolveBaseSha(B, run)).toBe(A);
+    const viaAncestor = gatherInputs(B, run);
+    expect(viaAncestor.baseSha).toBe(A);
+    expect(calls.some((c) => c[0] === "diff" && c[2] === `${A}...HEAD`)).toBe(true);
+    const head = rowsOf(C);
+    const passResult = evaluateThinning({
+      policy: testPolicy(), base: viaAncestor.base, head,
+      addedLines: viaAncestor.addedLines, today: TODAY,
+    });
+    expect(passResult.ok).toBe(true);
+    // Exact path: uses old tip B as-is and diffs B..HEAD (two-dot) -> offset FAIL.
+    calls.length = 0;
+    expect(resolveBaseSha(B, run, { exact: true })).toBe(B);
+    const viaExact = gatherInputs(B, run, { exact: true });
+    expect(viaExact.baseSha).toBe(B);
+    expect(calls.some((c) => c[0] === "diff" && c[2] === `${B}..HEAD`)).toBe(true);
+    const failResult = evaluateThinning({
+      policy: testPolicy(), base: viaExact.base, head,
+      addedLines: viaExact.addedLines, today: TODAY,
+    });
+    expect(failResult.ok).toBe(false);
+    expect(rulesOf(failResult.violations)).toContain("offset");
+    process.stdout.write(`[T20] A=${A.slice(0, 8)} B=${B.slice(0, 8)} C=${C.slice(0, 8)} ancestor=PASS exact=FAIL(offset)\n`);
+  });
+
+  it("T21 unresolvable --exact-base throws NoBaseError and the CLI exits 2", () => {
+    const throwing = (): string => { throw new Error("fatal: no such ref"); };
+    expect(() => resolveBaseSha("deadbeef", throwing, { exact: true })).toThrow(NoBaseError);
+    expect(() => resolveBaseSha("deadbeef", () => "  \n", { exact: true })).toThrow(NoBaseError);
+    expect(() => resolveBaseSha(undefined, throwing, { exact: true })).toThrow(NoBaseError);
+    const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+    const res = spawnSync(
+      "pnpm", ["exec", "tsx", "tools/thinning/check-thinning.ts",
+        "--base", "1111111111111111111111111111111111111111", "--exact-base"],
+      { cwd: root, encoding: "utf8" },
+    );
+    expect(res.status).toBe(2);
+    expect(`${res.stdout}${res.stderr}`).toMatch("THINNING: ERROR no base");
+    process.stdout.write(`[T21] CLI exit=${res.status} (want 2)\n`);
   });
 
   it("T12 real policy parses and every bucket glob matches >= 1 tracked path", () => {

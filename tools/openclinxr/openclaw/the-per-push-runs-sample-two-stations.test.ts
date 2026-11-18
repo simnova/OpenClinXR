@@ -4,7 +4,6 @@ import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import { parse as parseYaml } from "yaml";
-import { selectStationSubset } from "../evidence/station-subset.js";
 import { stepsForProfile } from "./agentic-hook-runner.js";
 import {
   CI_SPLIT_PACKAGES_STEP,
@@ -17,316 +16,146 @@ import {
 } from "./ci-split-steps.js";
 
 /**
- * CI-SAMPLE-WIRE (C3): per-push we sweep a seeded SAMPLE=2, nightly we sweep everything.
- *
- * YAML parser: `yaml` (package `yaml@2.9.0`, root dev dep, same as
- * run-tools-tests.test.ts `import { parse as parseYaml } from "yaml"`).
- *
- * Expression evaluator below supports exactly the forms used in ci.yml Test-step env:
- * single-quoted string literals, `github.event_name`, `github.sha`, `==`, `!=`,
- * `!`, `&&`, `||`, parentheses. `&&`/`||` return values (JS-like truthiness:
- * false/null/undefined/"" are falsy, non-empty strings truthy).
+ * CI-SAMPLE-WIRE (C3, THIN-C2 split): fast-ci runs no station suites; the
+ * nightly slow-suites sweep runs everything (full sweep by omission: no
+ * SAMPLE/SEED env). Per-push sampling survives only in the pre-push hook
+ * profile (G2 below, stepsForProfile). The CI-side SAMPLE expression
+ * evaluator is deleted with the old ci.yml Test steps; what remains asserts
+ * the split: triggers live in the right file, the slow steps live in
+ * nightly, and nothing reintroduces sampling into the nightly sweep.
  */
 
 const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const CI_YML_PATH = join(REPO_ROOT, ".github", "workflows", "ci.yml");
+const NIGHTLY_YML_PATH = join(REPO_ROOT, ".github", "workflows", "nightly.yml");
 
-// CI-SPLIT-READERS: ci.yml verify now runs "Test tools" + "Test packages"
-// (CI-SPLIT-TEST 6040386d7 split the old "Test" step). Step resolution and
-// the per-var turbo derivation live in ./ci-split-steps.js; only the G-series
-// policy assertion and its counterweights remain here. Each asserted var
-// derives its own NON-EMPTY step set and its YAML value is asserted on that
-// var's own derived steps (never a union across variables).
+// CI-SPLIT-READERS: nightly.yml slow-suites now runs "Test tools" + "Test packages"
+// (THIN-C2 moved the suites out of ci.yml fast-ci; CI-SPLIT-TEST 6040386d7 had
+// split the old "Test" step). Step resolution and the per-var turbo derivation
+// live in ./ci-split-steps.js; only the split-layout policy assertion and its
+// counterweights remain here. Each asserted var derives its own NON-EMPTY step
+// set from the nightly runs (never a union across variables).
 const SAMPLE_VAR = "OPENCLINXR_STATION_SAMPLE";
 const SEED_VAR = "OPENCLINXR_STATION_SAMPLE_SEED";
 
-function loadCi(
-  yamlText: string = readFileSync(CI_YML_PATH, "utf8"),
+function loadSplit(
+  nightlyText: string = readFileSync(NIGHTLY_YML_PATH, "utf8"),
   declarations: TurboDeclarations = loadTurboDeclarations(),
 ): {
-  on: Record<string, unknown>;
+  ciOn: Record<string, unknown>;
+  ciSteps: string[];
+  nightlyOn: Record<string, unknown>;
   group: string;
   cancel: unknown;
   sampleSteps: string[];
   seedSteps: string[];
   stepEnvs: Record<string, Record<string, string>>;
 } {
-  const doc = parseYaml(yamlText) as Record<string, unknown>;
-  const on = doc["on"] as Record<string, unknown>;
-  const concurrency = doc["concurrency"] as { group: string; "cancel-in-progress": unknown };
-  const steps = readCiSplitVerifySteps(yamlText);
+  const ci = parseYaml(readFileSync(CI_YML_PATH, "utf8")) as {
+    on: Record<string, unknown>;
+    jobs?: Record<string, { steps?: { name?: unknown }[] }>;
+  };
+  const nightly = parseYaml(nightlyText) as {
+    on: Record<string, unknown>;
+    concurrency: { group: string; "cancel-in-progress": unknown };
+  };
+  // F4 fail-closed: a missing/renamed/empty fast-ci must throw here, before any
+  // "contains no slow tests" assertion below can pass vacuously on [].
+  const fastCi = ci.jobs?.["fast-ci"];
+  if (!fastCi || !Array.isArray(fastCi.steps) || fastCi.steps.length === 0) {
+    throw new Error('ci.yml has no fast-ci job with >= 1 step (expected the fast-ci gate job)');
+  }
+  const ciSteps = (fastCi.steps as { name?: unknown }[]).map((s) => String(s.name));
+  const steps = readCiSplitVerifySteps(nightlyText);
   // Resolve by exact name (C1): a renamed/missing step throws naming the step.
   const toolsStep = findCiSplitStep(steps, CI_SPLIT_TOOL_STEP);
   const packagesStep = findCiSplitStep(steps, CI_SPLIT_PACKAGES_STEP);
-  if (!(toolsStep.env as Record<string, string> | undefined)) {
-    throw new Error(`ci.yml verify step "${CI_SPLIT_TOOL_STEP}" has no env`);
-  }
-  if (!(packagesStep.env as Record<string, string> | undefined)) {
-    throw new Error(`ci.yml verify step "${CI_SPLIT_PACKAGES_STEP}" has no env`);
-  }
   return {
-    on,
-    group: concurrency.group,
-    cancel: concurrency["cancel-in-progress"],
-    sampleSteps: expectedStepsForVar(SAMPLE_VAR, yamlText, declarations),
-    seedSteps: expectedStepsForVar(SEED_VAR, yamlText, declarations),
+    ciOn: ci.on,
+    ciSteps,
+    nightlyOn: nightly.on,
+    group: nightly.concurrency.group,
+    cancel: nightly.concurrency["cancel-in-progress"],
+    sampleSteps: expectedStepsForVar(SAMPLE_VAR, nightlyText, declarations),
+    seedSteps: expectedStepsForVar(SEED_VAR, nightlyText, declarations),
     stepEnvs: {
-      [CI_SPLIT_TOOL_STEP]: toolsStep.env as Record<string, string>,
-      [CI_SPLIT_PACKAGES_STEP]: packagesStep.env as Record<string, string>,
+      [CI_SPLIT_TOOL_STEP]: (toolsStep.env ?? {}) as Record<string, string>,
+      [CI_SPLIT_PACKAGES_STEP]: (packagesStep.env ?? {}) as Record<string, string>,
     },
   };
 }
 
 /**
- * Assert the sample/seed expressions on EACH var's own derived steps
- * (existing evaluateCiEnvExpression semantics, unchanged). An empty derived
- * set fails naming the var; otherwise the thrown Error names the offending
- * step.
+ * Assert the THIN-C2 split on each var's own derived steps (semantics
+ * unchanged from the old per-event check, except the nightly sweep is
+ * unconditional): each asserted var derives a NON-EMPTY step set from the
+ * nightly turbo runs, and no nightly Test step sets SAMPLE/SEED (full sweep
+ * by omission). An empty derived set fails naming the var; otherwise the
+ * thrown Error names the offending step.
  */
-function assertSampleSeedOnSteps(
-  yamlText: string = readFileSync(CI_YML_PATH, "utf8"),
+function assertFullSweepOnSteps(
+  nightlyText: string = readFileSync(NIGHTLY_YML_PATH, "utf8"),
   declarations: TurboDeclarations = loadTurboDeclarations(),
 ): void {
-  const { sampleSteps, seedSteps, stepEnvs } = loadCi(yamlText, declarations);
+  const { sampleSteps, seedSteps, stepEnvs } = loadSplit(nightlyText, declarations);
   const failures: string[] = [];
   if (sampleSteps.length === 0) failures.push(`${SAMPLE_VAR} has no turbo declaration`);
   if (seedSteps.length === 0) failures.push(`${SEED_VAR} has no turbo declaration`);
-  const events = ["push", "pull_request", "schedule", "workflow_dispatch"] as const;
-  for (const name of sampleSteps) {
+  for (const name of [CI_SPLIT_TOOL_STEP, CI_SPLIT_PACKAGES_STEP]) {
     const env = stepEnvs[name]!;
-    const sampleRaw = env[SAMPLE_VAR] ?? "";
-    const seedRaw = env[SEED_VAR] ?? "";
-    for (const event_name of events) {
-      const sample = evaluateCiEnvExpression(sampleRaw, { event_name, sha: FIXTURE_SHA });
-      if (event_name === "push" || event_name === "pull_request") {
-        if (sample !== "2") failures.push(`step "${name}": SAMPLE for ${event_name} is ${JSON.stringify(sample)} (want "2")`);
-      } else {
-        if (sample !== "") failures.push(`step "${name}": SAMPLE for ${event_name} is not empty`);
-        // Empty string = unset (station-subset.ts:83,88): the scheduled/manual run is a full sweep.
-        const subset = selectStationSubset(["s1", "s2", "s3"], {
-          OPENCLINXR_STATION_SAMPLE: sample,
-          OPENCLINXR_STATION_SAMPLE_SEED: evaluateCiEnvExpression(seedRaw, { event_name, sha: FIXTURE_SHA }),
-        });
-        if (!subset.full) failures.push(`step "${name}": full sweep for ${event_name} is not full`);
-      }
-    }
+    if ((env[SAMPLE_VAR] ?? "") !== "") failures.push(`step "${name}": ${SAMPLE_VAR} is set in nightly (nightly is always a full sweep)`);
+    if ((env[SEED_VAR] ?? "") !== "") failures.push(`step "${name}": ${SEED_VAR} is set in nightly (nightly is always a full sweep)`);
+    if (!sampleSteps.includes(name)) failures.push(`step "${name}": not in the derived ${SAMPLE_VAR} step set`);
+    if (!seedSteps.includes(name)) failures.push(`step "${name}": not in the derived ${SEED_VAR} step set`);
   }
-  for (const name of seedSteps) {
-    const seedRaw = stepEnvs[name]![SEED_VAR] ?? "";
-    if (!seedRaw.includes("github.sha")) {
-      failures.push(`step "${name}": ${SEED_VAR} is not derived from github.sha`);
-    }
-    for (const event_name of events) {
-      const seed = evaluateCiEnvExpression(seedRaw, { event_name, sha: FIXTURE_SHA });
-      if (event_name === "push" || event_name === "pull_request") {
-        if (seed !== FIXTURE_SHA) failures.push(`step "${name}": SEED for ${event_name} is not the fixture sha`);
-      } else if (seed !== "") {
-        failures.push(`step "${name}": SEED for ${event_name} is not empty`);
-      }
-    }
-  }
-  if (failures.length > 0) throw new Error(`ci.yml sample/seed mismatch:\n${failures.join("\n")}`);
+  if (failures.length > 0) throw new Error(`nightly full-sweep mismatch:\n${failures.join("\n")}`);
 }
 
-type Token =
-  | { kind: "lparen" }
-  | { kind: "rparen" }
-  | { kind: "op"; op: "&&" | "||" | "==" | "!=" | "!" }
-  | { kind: "str"; value: string }
-  | { kind: "ident"; name: string };
-
-function tokenize(input: string): Token[] {
-  const tokens: Token[] = [];
-  let i = 0;
-  while (i < input.length) {
-    const c = input[i]!;
-    if (/\s/.test(c)) {
-      i += 1;
-      continue;
-    }
-    if (c === "(") {
-      tokens.push({ kind: "lparen" });
-      i += 1;
-      continue;
-    }
-    if (c === ")") {
-      tokens.push({ kind: "rparen" });
-      i += 1;
-      continue;
-    }
-    if (c === "'") {
-      const end = input.indexOf("'", i + 1);
-      if (end === -1) throw new Error(`unterminated string in ${JSON.stringify(input)}`);
-      tokens.push({ kind: "str", value: input.slice(i + 1, end) });
-      i = end + 1;
-      continue;
-    }
-    const three = input.slice(i, i + 3);
-    void three;
-    if (input.startsWith("&&", i)) {
-      tokens.push({ kind: "op", op: "&&" });
-      i += 2;
-      continue;
-    }
-    if (input.startsWith("||", i)) {
-      tokens.push({ kind: "op", op: "||" });
-      i += 2;
-      continue;
-    }
-    if (input.startsWith("==", i)) {
-      tokens.push({ kind: "op", op: "==" });
-      i += 2;
-      continue;
-    }
-    if (input.startsWith("!=", i)) {
-      tokens.push({ kind: "op", op: "!=" });
-      i += 2;
-      continue;
-    }
-    if (c === "!") {
-      tokens.push({ kind: "op", op: "!" });
-      i += 1;
-      continue;
-    }
-    const ident = /^[A-Za-z_][A-Za-z0-9_.]*/.exec(input.slice(i));
-    if (ident) {
-      tokens.push({ kind: "ident", name: ident[0] });
-      i += ident[0].length;
-      continue;
-    }
-    throw new Error(`unexpected char ${JSON.stringify(c)} in ${JSON.stringify(input)}`);
-  }
-  return tokens;
-}
-
-function isTruthy(v: unknown): boolean {
-  if (v === false || v === null || v === undefined || v === "") return false;
-  if (typeof v === "number") return v !== 0;
-  if (typeof v === "boolean") return v;
-  return true;
-}
-
-/** Evaluate a stripped (no ${{ }}) expression against {event_name, sha}. */
-function evalStripped(tokens: Token[], ctx: { event_name: string; sha: string }): unknown {
-  let pos = 0;
-  const peek = (): Token | undefined => tokens[pos];
-  const next = (): Token => {
-    const t = tokens[pos];
-    if (!t) throw new Error("unexpected end of expression");
-    pos += 1;
-    return t;
-  };
-  const parseOr = (): unknown => {
-    let left = parseAnd();
-    while (peek()?.kind === "op" && (peek() as { op: string }).op === "||") {
-      next();
-      const right = parseAnd();
-      left = isTruthy(left) ? left : right;
-    }
-    return left;
-  };
-  const parseAnd = (): unknown => {
-    let left = parseEq();
-    while (peek()?.kind === "op" && (peek() as { op: string }).op === "&&") {
-      next();
-      const right = parseEq();
-      left = isTruthy(left) ? right : left;
-    }
-    return left;
-  };
-  const parseEq = (): unknown => {
-    let left = parseUnary();
-    for (;;) {
-      const t = peek();
-      if (t?.kind === "op" && (t.op === "==" || t.op === "!=")) {
-        next();
-        const right = parseUnary();
-        const eq = String(left) === String(right);
-        left = t.op === "==" ? eq : !eq;
-      } else {
-        return left;
-      }
-    }
-  };
-  const parseUnary = (): unknown => {
-    const t = peek();
-    if (t?.kind === "op" && t.op === "!") {
-      next();
-      return !isTruthy(parseUnary());
-    }
-    return parsePrimary();
-  };
-  const parsePrimary = (): unknown => {
-    const t = next();
-    if (t.kind === "lparen") {
-      const v = parseOr();
-      const close = next();
-      if (close.kind !== "rparen") throw new Error("expected )");
-      return v;
-    }
-    if (t.kind === "str") return t.value;
-    if (t.kind === "ident") {
-      if (t.name === "github.event_name") return ctx.event_name;
-      if (t.name === "github.sha") return ctx.sha;
-      if (t.name === "true") return true;
-      if (t.name === "false") return false;
-      if (t.name === "null") return null;
-      throw new Error(`unsupported identifier ${t.name}`);
-    }
-    throw new Error(`unexpected token ${JSON.stringify(t)}`);
-  };
-  const result = parseOr();
-  if (pos !== tokens.length) throw new Error("trailing tokens in expression");
-  return result;
-}
-
-/** Evaluate a full `${{ ... }}` env value; non-expression values pass through. */
-export function evaluateCiEnvExpression(raw: string, ctx: { event_name: string; sha: string }): string {
-  const m = /^\s*\$\{\{\s*([\s\S]*?)\s*\}\}\s*$/.exec(raw);
-  if (!m?.[1]) return raw;
-  const value = evalStripped(tokenize(m[1]), ctx);
-  if (value === null || value === undefined || value === false) return "";
-  return String(value);
-}
 
 const FIXTURE_SHA = "f00d";
 
-describe("per-push runs a seeded sample of two stations", () => {
-  it("G1: ci Test env samples push/PR and unsets schedule/dispatch; schedule + dispatch triggers exist", () => {
-    const { on, sampleSteps, seedSteps } = loadCi();
-    // `on` triggers: push to main, PRs, one nightly cron, manual dispatch.
-    expect(on["pull_request"]).toBeDefined();
-    expect(on["push"]).toBeDefined();
-    const schedule = on["schedule"] as Array<{ cron: string }> | undefined;
+describe("nightly sweeps everything; fast-ci runs no station suites", () => {
+  it("G1: fast-ci triggers push/PR only with no station tests; nightly carries the full-sweep suites", () => {
+    const { ciOn, ciSteps, nightlyOn, sampleSteps, seedSteps } = loadSplit();
+    // fast-ci: push to main + PRs only; no schedule, no dispatch, no Test steps.
+    expect(ciOn["pull_request"]).toBeDefined();
+    expect(ciOn["push"]).toBeDefined();
+    expect("schedule" in ciOn).toBe(false);
+    expect("workflow_dispatch" in ciOn).toBe(false);
+    expect(ciSteps).not.toContain(CI_SPLIT_TOOL_STEP);
+    expect(ciSteps).not.toContain(CI_SPLIT_PACKAGES_STEP);
+    expect(ciSteps.join("\n")).not.toContain("OPENCLINXR_STATION_SAMPLE");
+    // nightly: one cron + manual dispatch; never on push/PR.
+    const schedule = nightlyOn["schedule"] as Array<{ cron: string }> | undefined;
     expect(Array.isArray(schedule) && schedule.length >= 1).toBe(true);
-    expect("workflow_dispatch" in on).toBe(true);
+    expect("workflow_dispatch" in nightlyOn).toBe(true);
+    expect("push" in nightlyOn).toBe(false);
+    expect("pull_request" in nightlyOn).toBe(false);
     // Each asserted var derives its own non-empty step set (never a union).
     for (const steps of [sampleSteps, seedSteps]) {
       expect(steps).toContain(CI_SPLIT_TOOL_STEP);
       expect(steps).toContain(CI_SPLIT_PACKAGES_STEP);
     }
-    assertSampleSeedOnSteps();
+    assertFullSweepOnSteps();
   });
 
-  it("G1-concurrency: scheduled and dispatch runs are not cancelled by a push", () => {
-    const { group, cancel } = loadCi();
-    const groupMentionsEvent = group.includes("github.event_name");
-    const cancelIsConditional =
-      typeof cancel === "string" && cancel.includes("github.event_name");
-    // Either partitioning the group by event or conditioning cancel-in-progress
-    // on push/pull_request keeps a push to main from cancelling the nightly.
-    expect(groupMentionsEvent || cancelIsConditional).toBe(true);
-    // The split steps resolve by name and each carries the sample wiring.
-    assertSampleSeedOnSteps();
+  it("G1-concurrency: the nightly sweep is never cancelled by a push", () => {
+    const { group, cancel } = loadSplit();
+    // Separate workflow + partitioned group + unconditional cancel-in-progress:false:
+    // a push to main (different workflow, different group) cannot cancel the sweep.
+    expect(group).toContain("nightly-");
+    expect(cancel).toBe(false);
+    // The split steps resolve by name and each sweeps fully (no sampling).
+    assertFullSweepOnSteps();
   });
 
   it("CW1: renaming Test tools to Test throws naming \"Test tools\"", () => {
-    const real = readFileSync(CI_YML_PATH, "utf8");
+    const real = readFileSync(NIGHTLY_YML_PATH, "utf8");
     const renamed = real.replace("- name: Test tools", "- name: Test");
     expect(renamed).not.toBe(real);
     let msg = "";
     try {
-      loadCi(renamed);
+      loadSplit(renamed);
     } catch (err) {
       msg = String(err);
     }
@@ -334,19 +163,15 @@ describe("per-push runs a seeded sample of two stations", () => {
     process.stdout.write(`[CW1 G1] ${msg}\n`);
   });
 
-  it("CW2: removing SAMPLE from the Test packages env block fails naming \"Test packages\"", () => {    const real = readFileSync(CI_YML_PATH, "utf8");
-    const marker = "- name: Test packages";
-    const at = real.indexOf(marker);
-    expect(at).toBeGreaterThanOrEqual(0);
-    const key = "OPENCLINXR_STATION_SAMPLE:";
-    const keyAt = real.indexOf(key, at);
-    expect(keyAt).toBeGreaterThanOrEqual(0);
-    const lineStart = real.lastIndexOf("\n", keyAt) + 1;
-    const lineEnd = real.indexOf("\n", keyAt);
-    const modified = real.slice(0, lineStart) + real.slice(lineEnd + 1);
+  it("CW2: removing the packages turbo entrypoint fails naming \"Test packages\"", () => {
+    const real = readFileSync(NIGHTLY_YML_PATH, "utf8");
+    const marker = "pnpm packages:test";
+    expect(real).toContain(marker);
+    const modified = real.replaceAll(marker, "echo no-packages-tests");
+    expect(modified).not.toBe(real);
     let msg = "";
     try {
-      assertSampleSeedOnSteps(modified);
+      assertFullSweepOnSteps(modified);
     } catch (err) {
       msg = String(err);
     }
@@ -364,7 +189,7 @@ describe("per-push runs a seeded sample of two stations", () => {
     expect(stripped.rootTurboJson).not.toBe(decls.rootTurboJson);
     let msg = "";
     try {
-      assertSampleSeedOnSteps(readFileSync(CI_YML_PATH, "utf8"), stripped);
+      assertFullSweepOnSteps(readFileSync(NIGHTLY_YML_PATH, "utf8"), stripped);
     } catch (err) {
       msg = String(err);
     }
