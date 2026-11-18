@@ -71,10 +71,41 @@ jobs:
       - name: Confirm mise resolves vulture
         run: command -v mise && mise which vulture && vulture --version || mise exec pipx:vulture@2.14 -- vulture --version
 
+      - name: Cache pip downloads
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: py-deps-uv-0.12.3-numpy-2.5.1-pillow-12.3.0-torch-2.13.0-cpu-anny-0.6.0-opencv-headless-5.0.0.93-${{ runner.os }}-${{ runner.arch }}
+          restore-keys: |
+            py-deps-uv-0.12.3-numpy-2.5.1-pillow-12.3.0-torch-2.13.0-cpu-anny-0.6.0-opencv-headless-5.0.0.93-
+
       # uv the way the local machine has it: a pip package inside mise's python@3.13, whose bin
       # `mise exec` puts on PATH (mise.toml declares python, not uv). Version = local `uv --version`.
+      # The same interpreter also gets the pinned package-test deps at LOCAL versions
+      # (numpy 2.5.1, pillow 12.3.0, torch 2.13.0 CPU wheel, anny 0.6.0, opencv headless
+      # 5.0.0.93 for the `import cv2` scripts in face-replay/roughness-breakup).
+      # NOTE: torch uses --extra-index-url, not a replacing --index-url: a bare --index-url
+      # would hide PyPI and break numpy/anny/opencv in this one pip line; extra keeps
+      # PyPI primary and adds the CPU-wheel index.
       - name: Install uv into mise python
-        run: mise exec -- python -m pip install --disable-pip-version-check uv==0.12.3 numpy==2.5.1
+        run: |
+          PY_INSTALL_START="$(date +%s)"
+          mise exec -- python -m pip install --disable-pip-version-check uv==0.12.3 numpy==2.5.1 pillow==12.3.0 torch==2.13.0+cpu anny==0.6.0 opencv-python-headless==5.0.0.93 --extra-index-url https://download.pytorch.org/whl/cpu
+          PY_INSTALL_END="$(date +%s)"
+          echo "PY_INSTALL_S=$((PY_INSTALL_END - PY_INSTALL_START))"
+          echo "PY_INSTALL_S=$((PY_INSTALL_END - PY_INSTALL_START))" >> "$GITHUB_ENV"
+
+      # Bare `python3` in package tests must resolve to this same mise python@3.13.
+      # Runner-side cause (CI 44173841207): ci.yml installs into `mise exec` but tests
+      # spawn bare `python3`, which resolves outside mise (mise-action runs with
+      # add_shims_to_path:false / export_path:false, deliberately unchanged here).
+      # Prepending ONLY mise's python bin dir is safe for setup-node: that dir holds
+      # no node/pnpm/npm (verified locally), so the step below stays green.
+      - name: Put mise python first on PATH
+        run: |
+          PY_BIN="$(mise exec -- python -c 'import sys,os;print(os.path.dirname(sys.executable))')"
+          echo "$PY_BIN" >> "$GITHUB_PATH"
+          echo "mise python bin: $PY_BIN"
 
       - name: Confirm mise resolves uv
         run: command -v mise && mise exec -- uv --version
@@ -106,6 +137,15 @@ jobs:
           pnpm exec tsx packages/openclinxr/stations/scene-closure-evidence/src/scene-closure-research/prepare-sc10-metadata-store.ts --output-dir "$SC10_DIR"
           echo "OPENCLINXR_SC_EVIDENCE_REGISTRY=$SC10_DIR/registry.json" >> "${GITHUB_ENV}"
 
+      # Proof that the PATH fix worked: bare python3 must be mise's python with the
+      # pinned imports available. PY_INSTALL_S is recorded by the install step.
+      - name: Prove bare python3 resolves to mise python
+        run: |
+          command -v python3
+          python3 -c 'import sys,numpy,torch,anny;print(sys.executable,numpy.__version__,torch.__version__,anny.__version__)'
+          python3 -c 'import cv2,PIL;print(cv2.__version__,PIL.__version__)'
+          echo "PY_INSTALL_S=${PY_INSTALL_S:-unrecorded}"
+
       # 35 = prior value; run 44100121469 killed at 35m12s with >=61/82 serial-browser files unstarted; not a measured budget.
       - name: Test tools
         id: test-tools
@@ -127,7 +167,11 @@ jobs:
           OPENCLINXR_REQUIRE_UV: "1"
           OPENCLINXR_STATION_SAMPLE: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && '2' || '' }}
           OPENCLINXR_STATION_SAMPLE_SEED: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && github.sha || '' }}
-        run: pnpm packages:test --continue --log-order=stream
+        # First line prints the interpreter so its value can be compared with the
+        # pre-tools print (step name unchanged: the CSR step-name readers read it).
+        run: |
+          command -v python3
+          pnpm packages:test --continue --log-order=stream
 
       - name: Security audit policy
         run: pnpm security:audit-policy
