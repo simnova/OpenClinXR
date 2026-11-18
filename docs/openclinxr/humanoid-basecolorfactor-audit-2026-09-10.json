@@ -957,10 +957,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {
@@ -1343,10 +1343,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "bodyLastChanged": "399ae1f8fd27aaf987679918935b30fd53f36b71 2026-11-12 Neck: unhide the physician's neckline opening (tsk_d2791236a570a434)"
   },
   {
@@ -1704,10 +1704,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {
@@ -2035,10 +2035,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {
@@ -2351,10 +2351,10 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
@@ -2564,10 +2564,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {
@@ -2909,10 +2909,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Authored lash colour. Factor IS the albedo (no texture to multiply). origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Authored lash colour. Factor IS the albedo (no texture to multiply). origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {
@@ -3276,10 +3276,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {
@@ -3628,10 +3628,10 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
    "bodyLastChanged": "59980e7f6639c235de0ec645d119373cb101c501 2026-11-09 Re-seat shipped MPFB upper lashes so they follow the closing lid (r8)"
@@ -3931,10 +3931,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {
@@ -4300,10 +4300,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {
@@ -4662,10 +4662,10 @@
    "decision": "resolved",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
-    "line": 8062,
+    "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7959 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7974.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {

@@ -54,6 +54,34 @@ describe("the fitted brow and scalp share one actor hair-colour contract", () =>
     expect(brow).toContain("_brow_color,");
   });
 
+  it("gives textureless authored hair the authored RGBA on scalp and brow alike", () => {
+    const scalp = between(
+      materializer,
+      "_hair_textures = _source_hair_textures(",
+      "_hair.data.materials.append(_hair_mat)",
+    );
+    const brow = between(
+      materializer,
+      'if _eyebrow_style and getattr(args, "brow_form", None) != "texture":',
+      "_brow.data.materials.append(_brow_mat)",
+    );
+    // (a) authored token without diffuse: the gate no longer requires a texture,
+    // and the textureless branch takes the authored RGBA as the scalp base colour.
+    expect(scalp).toContain("if _hair_color_token:");
+    expect(scalp).not.toContain("if _hair_color_token and _hair_diffuse:");
+    expect(scalp).toContain("_authored_hair_color_rgba(_hair_color_token),");
+    // (a) ...and the brow takes the same authored target (first branch, no diffuse gate).
+    expect(brow).toContain("(*_hair_target_rgb, 1.0)");
+    // (b) authored token with diffuse: the diffuse-recolouring path is unchanged.
+    expect(scalp).toContain("if _hair_diffuse:");
+    expect(scalp).toContain("diffuse_target_rgb=_hair_target_rgb,");
+    // (c) no authored token: the prior texture/role-fallback behaviour is unchanged.
+    expect(scalp).toContain("# Unauthored phenotype: retain the r2 material call");
+    expect(scalp).toContain("_hair_color(args.actor_role),");
+    expect(brow).toContain("_texture_mean_linear(_hair_diffuse)");
+    expect(brow).toContain("_hair_color(args.actor_role)");
+  });
+
   it("has one shared authored token table and keeps the Anny scalp on its resolver", () => {
     const helper = readFileSync(HAIR_HELPER, "utf8");
     const automate = readFileSync(AUTOMATE_BLENDER, "utf8");

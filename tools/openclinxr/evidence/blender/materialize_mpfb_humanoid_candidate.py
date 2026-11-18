@@ -7813,14 +7813,25 @@ def main():
         _hair_color_token = phenotype_hair_color(args.reference)
         _hair_diffuse = _hair_textures.get("diffuse")
         _hair_target_rgb = None
-        if _hair_color_token and _hair_diffuse:
+        if _hair_color_token:
             _hair_target_rgb = _authored_hair_color_rgba(_hair_color_token)[:3]
-            _hair_mat = _hair_create_material(
-                f"openclinxr_fitted_hair_{_hair_style}_mpfb_{_hair_ref_tag}_mat",
-                _hair_color(args.actor_role),
-                _hair_textures,
-                diffuse_target_rgb=_hair_target_rgb,
-            )
+            if _hair_diffuse:
+                _hair_mat = _hair_create_material(
+                    f"openclinxr_fitted_hair_{_hair_style}_mpfb_{_hair_ref_tag}_mat",
+                    _hair_color(args.actor_role),
+                    _hair_textures,
+                    diffuse_target_rgb=_hair_target_rgb,
+                )
+            else:
+                # Textureless authored phenotype: the scalp takes the authored
+                # RGBA as its flat base colour. The diffuse-target path only
+                # recolours a wired texture, so without one the role fallback
+                # would survive on the scalp while the brow moves to the token.
+                _hair_mat = _hair_create_material(
+                    f"openclinxr_fitted_hair_{_hair_style}_mpfb_{_hair_ref_tag}_mat",
+                    _authored_hair_color_rgba(_hair_color_token),
+                    _hair_textures,
+                )
         else:
             # Unauthored phenotype: retain the r2 material call and source image exactly.
             _hair_mat = _hair_create_material(
@@ -7909,8 +7920,8 @@ def main():
             str(_brow_mhclo), str(_brow_obj), human, _brow_mesh_name
         )
         # Eyebrows are hair: when the scalp wires a diffuse texture, derive the flat
-        # strand colour from the pixels that texture actually shows. Textureless hair
-        # keeps the actor-role fallback; neither path samples the bypassed shader socket.
+        # strand colour from the pixels that texture actually shows. An authored token
+        # wins with or without diffuse; only unauthored hair keeps the role fallback.
         _brow_color = (
             (*_hair_target_rgb, 1.0)
             if _hair_target_rgb is not None

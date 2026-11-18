@@ -2,7 +2,9 @@
 /**
  * run-chain.ts — a re-derivable per-actor factory chain runner.
  *
- * Reads an ordered per-actor stage manifest (JSON: actorId, stages[] with
+ * Reads an ordered per-actor stage manifest (JSON: actorId, optional
+ * materialize {tool, argv, provenance} carried verbatim into the report and
+ * never executed, stages[] with
  * {id, name, tool, argv template, kind, inputs[]}, excluded[]) and runs the
  * kept stages in order. Each stage produces a write-once output
  * `<out>/<id>-<name>.glb`, prints `STAGE <id> <name> in=<sha8> out=<sha8>`,
@@ -30,7 +32,7 @@ import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, 
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
-import { pathToFileURL } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 export type StageKind = "node" | "python" | "blender";
 export type ExcludedReason = "gap" | "metadata_only" | "superseded" | "other";
@@ -60,8 +62,18 @@ export interface ExcludedStage {
   note: string;
 }
 
+export interface MaterializeRecord {
+  tool: string;
+  argv: string[];
+  provenance: string;
+}
+
 export interface ChainManifest {
   actorId: string;
+  /** Optional per-actor materialize (Blender bake) provenance record. Carried
+   * into chain-report.json verbatim; the runner never executes it — scope is
+   * the post-materialize replay. */
+  materialize?: MaterializeRecord;
   stages: ChainStage[];
   excluded: ExcludedStage[];
 }
@@ -99,6 +111,28 @@ function asNonEmptyString(v: unknown, what: string): string {
 export function validateManifest(raw: unknown): ChainManifest {
   const m = asRecord(raw, "manifest");
   const actorId = asNonEmptyString(m["actorId"], "actorId");
+  let materialize: MaterializeRecord | undefined;
+  if (m["materialize"] !== undefined) {
+    const r = asRecord(m["materialize"], "materialize");
+    const tool = r["tool"];
+    if (typeof tool !== "string" || tool.length === 0) {
+      fail("materialize.tool must be a non-empty string");
+    }
+    const argv = r["argv"];
+    if (!Array.isArray(argv) || argv.length === 0) {
+      fail("materialize.argv must be a non-empty array");
+    }
+    for (const a of argv) {
+      if (typeof a !== "string" || a.length === 0) {
+        fail("materialize.argv entries must be non-empty strings");
+      }
+    }
+    const provenance = r["provenance"];
+    if (typeof provenance !== "string" || provenance.length === 0) {
+      fail("materialize.provenance must be a non-empty string");
+    }
+    materialize = { tool, argv: argv as string[], provenance };
+  }
   if (!Array.isArray(m["stages"]) || m["stages"].length === 0) fail("stages must be a non-empty array");
   if (!Array.isArray(m["excluded"])) fail("excluded must be an array");
   const seen = new Set<string>();
@@ -169,7 +203,93 @@ export function validateManifest(raw: unknown): ChainManifest {
       note,
     };
   });
-  return { actorId, stages, excluded };
+  return {
+    actorId,
+    ...(materialize === undefined ? {} : { materialize }),
+    stages,
+    excluded,
+  };
+}
+
+/**
+ * Path of the Blender materializer whose argparse set bounds recorded
+ * materialize argv (read at invocation time; never imported or executed).
+ */
+export const MATERIALIZER_REL =
+  "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py";
+
+/** Flags a recorded materialize argv must always carry. F declares
+ * `--output` with required=True (F :2635); the reference/role/garment/budget
+ * pairs are per-actor data and stay in the manifests, not here. */
+export const REQUIRED_MATERIALIZE_FLAGS: readonly string[] = ["--output"];
+
+/** Repo root discovered by walking up from this module, so materializer
+ * resolution never depends on process.cwd() (N1: print-materialize-invocation
+ * from any cwd succeeds). Same pnpm-workspace.yaml walk as
+ * packages/openclinxr/factory-station-core/src/repo-root.ts, inlined so this
+ * tool keeps no package dependency. */
+function repoRootFromModule(): string {
+  let dir = dirname(fileURLToPath(import.meta.url));
+  for (;;) {
+    if (existsSync(join(dir, "pnpm-workspace.yaml"))) return dir;
+    const parent = dirname(dir);
+    if (parent === dir) {
+      throw new Error(`workspace root (pnpm-workspace.yaml) not found above ${fileURLToPath(import.meta.url)}`);
+    }
+    dir = parent;
+  }
+}
+
+/** Parse the long-flag set from F's `add_argument("--...")` calls. Reads F at
+ * call time so the bound tracks the materializer, not a stale copy. */
+export function materializerFlagSet(source?: string): Set<string> {
+  const text = source ?? readFileSync(join(repoRootFromModule(), MATERIALIZER_REL), "utf8");
+  const flags = new Set<string>();
+  for (const m of text.matchAll(/add_argument\(\s*["'](--[\w-]+)/g)) flags.add(m[1] as string);
+  return flags;
+}
+
+/** Optional hook receiving the resolved (tool, argv). Default is a noop, so
+ * the pure path never spawns; tests inject a recorder to capture the argv. */
+export type MaterializeSpawn = (tool: string, argv: string[]) => void;
+
+/**
+ * materializeInvocation — resolve the recorded Blender bake command for a
+ * manifest: substitute {out} with the given path, return the recorded
+ * tool+argv verbatim otherwise. The chain runner never calls this during
+ * replay (cap36: replay scope is post-materialize); it exists so a proof
+ * script can re-derive the exact bake command from the manifest.
+ *
+ * Throws when the manifest carries no materialize record, when argv lacks
+ * {out}, when argv names a flag F's argparse set does not declare, or when a
+ * required flag (--output) is missing.
+ */
+export function materializeInvocation(
+  manifest: ChainManifest,
+  out: string,
+  opts?: { knownFlags?: Set<string>; spawn?: MaterializeSpawn },
+): { tool: string; argv: string[] } {
+  const record = manifest.materialize;
+  if (record === undefined) throw new Error("materialize: manifest carries no materialize record");
+  if (!record.argv.some((a) => a.includes("{out}"))) {
+    throw new Error("materialize: argv lacks {out}");
+  }
+  const known = opts?.knownFlags ?? materializerFlagSet();
+  const used = new Set<string>();
+  for (const a of record.argv) {
+    if (a.startsWith("--")) used.add(a.split("=")[0] as string);
+  }
+  for (const flag of used) {
+    if (!known.has(flag)) {
+      throw new Error(`materialize: argv flag ${flag} is not declared by ${MATERIALIZER_REL}`);
+    }
+  }
+  for (const flag of REQUIRED_MATERIALIZE_FLAGS) {
+    if (!used.has(flag)) throw new Error(`materialize: argv misses required flag ${flag}`);
+  }
+  const argv = record.argv.map((a) => a.split("{out}").join(out));
+  (opts?.spawn ?? (() => {}))(record.tool, argv);
+  return { tool: record.tool, argv };
 }
 
 export function sha256File(path: string): string {
@@ -247,6 +367,8 @@ export interface ChainReport {
   manifest: string;
   manifestSha256: string;
   input: string;
+  /** Echo of the manifest's materialize record when present (never executed). */
+  materialize?: MaterializeRecord;
   stages: StageReport[];
   excluded: ExcludedStage[];
   status: "complete" | "failed";
@@ -284,6 +406,7 @@ export function runChain(opts: RunChainOptions): ChainReport {
     manifest: opts.manifestPath,
     manifestSha256,
     input,
+    ...(manifest.materialize === undefined ? {} : { materialize: manifest.materialize }),
     excluded: manifest.excluded,
     claimScope: CHAIN_CLAIM_SCOPE,
     notEvidenceFor: CHAIN_NOT_EVIDENCE_FOR,

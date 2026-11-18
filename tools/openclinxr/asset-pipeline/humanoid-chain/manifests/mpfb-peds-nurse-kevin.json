@@ -1,5 +1,21 @@
 {
   "actorId": "mpfb-peds-nurse-kevin",
+  "materialize": {
+    "tool": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+    "argv": [
+      "--output",
+      "{out}",
+      "--reference",
+      "peds_nurse_kevin",
+      "--actor-role",
+      "nurse",
+      "--garment-delete-groups",
+      "replace",
+      "--eyebrow-tris-budget",
+      "28716"
+    ],
+    "provenance": "style-08 undecimated, main e9ef9e3fb"
+  },
   "stages": [
     {
       "id": "01",
