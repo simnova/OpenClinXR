@@ -186,10 +186,6 @@
         "sha256": "100b4562a811b73c8b0bda990fd703fdef126ff892178f959ebafe4ba758f811"
       },
       {
-        "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/build-report.ts",
-        "sha256": "a73a7e8f2a640077a6e97d3801b28c38b1b23ae71ab556d6f060d3fd1ec2a851"
-      },
-      {
         "path": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts",
         "sha256": "39ca5c31d2f33f929d0c064eb45d021e489cd3cb9ba9b903a8e7e26004fb8bee"
       },
@@ -276,7 +272,6 @@
       "tools/openclinxr/evidence/scene-closure-research/retrieve-candidate-sources.ts",
       "tools/openclinxr/evidence/scene-closure-research/the-research-verdict-matches-the-evidence.test.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/baseline-replay-probe.ts",
-      "tools/openclinxr/evidence/scene-closure/proofs/sc-06/build-report.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/report-schema.ts",
       "tools/openclinxr/evidence/scene-closure/proofs/sc-06/two-sided-gate.sh",

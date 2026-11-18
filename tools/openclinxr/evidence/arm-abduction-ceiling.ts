@@ -16,23 +16,51 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { listShippedCastScenarioIds } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 import {
+  type MeasurementTreeStamp,
   tryReadStampedArtifact,
   withTreeStamp,
-  type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
-  ROOM_CAPTURE_MODE,
+  checkSampledDiskReport,
+  refuseSampledAtCanonical,
+  routedArtifactDefault,
+  SampledMeasureCache,
+  selectionIdentityKey,
+  selectRawSample,
+} from "./station-subset/sampled-measure.js";
+import type { SampleRecord } from "./station-subset.js";
+import {
   buildRoomCaptureUrl,
+  ROOM_CAPTURE_MODE,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
-import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 
 export const ARM_ABDUCTION_CEILING_DIR = ".openclinxr/evidence/arm-abduction-ceiling";
 export const PRE_FIX_NAME = "pre-fix.json";
+/** S2: fixed sampled siblings — a sampled run writes here, never the canonical path. */
+export const PRE_FIX_SAMPLED_NAME = "pre-fix.json.sampled.json";
+export const LATEST_NAME = "latest.json";
+export const LATEST_SAMPLED_NAME = "latest.json.sampled.json";
+
+/** Same default stations as idle-arm-hang (#91) so pre/post ranges are comparable. */
+export const ARM_ABDUCTION_DEFAULT_SCENARIO_IDS = [
+  "psych_suicidal_ideation_safety_v1",
+  "ward_delirium_med_rec_v1",
+  "oncology_bad_news_family_v1",
+  "peds_fever_v1",
+  "telehealth_diabetes_health_literacy_v1",
+] as const;
+
+/**
+ * Test-named stations (staging/arm-abduction-ceiling.test.ts): none — grep finds no
+ * `*_v1` id there, so the sampled selection is the raw subset with no union.
+ */
+export const ARM_ABDUCTION_ASSERTED_SCENARIO_IDS = [] as const;
 
 export type ArmAbduction = {
   scenarioId: string;
@@ -60,6 +88,8 @@ export type ArmAbduction = {
 export type ArmAbductionReport = {
   scenarios: string[];
   arms: ArmAbduction[];
+  /** R6: the selection this report measured (null when it measured everything). */
+  sample: SampleRecord | null;
 };
 
 type ArtifactPayload = {
@@ -74,11 +104,66 @@ type ArtifactPayload = {
   report: ArmAbductionReport;
 };
 
-let cachedReport: ArmAbductionReport | null = null;
-let measureInFlight: Promise<ArmAbductionReport> | null = null;
+/** Keyed in-process cache: a full report never satisfies a sampled call or vice versa. */
+const measureCache = new SampledMeasureCache<ArmAbductionReport>();
+
+/** Test seam: replace the live browser measurement (no browser). Null = production path. */
+type MeasureLiveArmAbductionFn = typeof measureLiveArmAbduction;
+let measureLiveArmAbductionForTest: MeasureLiveArmAbductionFn | null = null;
+
+/** Test seam: stub the live measurement. Pass null to restore production measurement. */
+export function setArmAbductionMeasureLiveForTest(fn: MeasureLiveArmAbductionFn | null): void {
+  measureLiveArmAbductionForTest = fn;
+}
+
+/** Test seam: restore production measurement and drop in-process caches. */
+export function resetArmAbductionTestSeam(): void {
+  measureLiveArmAbductionForTest = null;
+  measureCache.reset();
+}
 
 function preFixPath(): string {
   return path.join(ARM_ABDUCTION_CEILING_DIR, PRE_FIX_NAME);
+}
+
+function latestPath(): string {
+  return path.join(ARM_ABDUCTION_CEILING_DIR, LATEST_NAME);
+}
+
+function sampledPreFixPath(): string {
+  return path.join(ARM_ABDUCTION_CEILING_DIR, PRE_FIX_SAMPLED_NAME);
+}
+
+function sampledLatestPath(): string {
+  return path.join(ARM_ABDUCTION_CEILING_DIR, LATEST_SAMPLED_NAME);
+}
+
+/** S2: a sampled pre-fix write goes to the fixed sampled path, never canonical. */
+export function armAbductionPreFixPathForReport(report: ArmAbductionReport): string {
+  return report.sample ? sampledPreFixPath() : preFixPath();
+}
+
+/** S2: a sampled latest write goes to the fixed sampled path, never canonical. */
+export function armAbductionLatestPathForReport(report: ArmAbductionReport): string {
+  return report.sample ? sampledLatestPath() : latestPath();
+}
+
+/** CW1: pure selection — the sampled-or-full station list, no browser. */
+export type ArmAbductionSampleSelection = {
+  ids: string[];
+  sample: SampleRecord | null;
+};
+
+/** CW1: full bank for this instrument (the 5-default intersected with shipped). */
+export function listFullArmAbductionBankScenarioIds(): string[] {
+  return intersectWithShipped([...ARM_ABDUCTION_DEFAULT_SCENARIO_IDS]);
+}
+
+export function selectArmAbductionScenarioIds(
+  allIds: string[],
+  env: NodeJS.ProcessEnv = process.env,
+): ArmAbductionSampleSelection {
+  return selectRawSample(allIds, env);
 }
 
 /**
@@ -92,48 +177,83 @@ export async function inspectArmAbduction(input?: {
   scenarioIds?: string[];
   /** When true, write/overwrite pre-fix.json (must be done BEFORE product edits). */
   writePreFix?: boolean;
+  /** Test-only: redirect artifact reads/writes under this root (default: repo CWD). */
+  evidenceRoot?: string;
 }): Promise<ArmAbductionReport> {
-  if (!input?.force && !input?.writePreFix && cachedReport) return cachedReport;
-  if (!input?.force && !input?.writePreFix && measureInFlight) return measureInFlight;
+  // S1: the seeded subset applies whenever the caller did not name stations —
+  // including force:true re-measures, so each forced call re-measures the SAME
+  // sampled ids (same seed -> same ids). Explicit scenarioIds bypass sampling.
+  // One `station-subset: seed=` line is printed here on sampled runs.
+  const selection: ArmAbductionSampleSelection = input?.scenarioIds?.length
+    ? { ids: [...input.scenarioIds], sample: null }
+    : selectArmAbductionScenarioIds(listFullArmAbductionBankScenarioIds());
+  const sampled = selection.sample !== null;
+  const needed = selection.ids;
+  // F2: reuse only the exact selection identity (see SampledMeasureCache).
+  // R3-F1: an explicit scenarioIds call gets its own key, distinct from "full".
+  const key = selectionIdentityKey(input?.scenarioIds, selection.sample);
+  if (!input?.force && !input?.writePreFix) {
+    const hit = measureCache.peek(key) ?? measureCache.peekFlight(key);
+    if (hit) return hit;
+  }
 
-  measureInFlight = (async () => {
+  const task: Promise<ArmAbductionReport> = (async () => {
+    const atRoot = (p: string): string =>
+      input?.evidenceRoot ? path.join(input.evidenceRoot, p) : p;
     if (!input?.force && !input?.writePreFix && !input?.scenarioIds) {
-      const fromDisk = await tryReadArtifact(preFixPath());
-      if (fromDisk && process.env.OPENCLINXR_ARM_ABDUCTION_USE_DISK === "1") {
-        cachedReport = fromDisk;
-        return fromDisk;
+      if (process.env["OPENCLINXR_ARM_ABDUCTION_USE_DISK"] === "1") {
+        // Sampled runs read only the sampled artifact; full runs read only canonical.
+        const fromDisk = sampled
+          ? await tryReadArtifact(atRoot(sampledPreFixPath()))
+          : await tryReadArtifact(atRoot(preFixPath()));
+        const hit = checkSampledDiskReport({
+          instrument: "arm-abduction-ceiling",
+          fromDisk,
+          sampled,
+          selectionSample: selection.sample,
+          neededIds: needed,
+          diskSample: fromDisk ? fromDisk.sample : null,
+          diskMeasuredIds: fromDisk ? fromDisk.scenarios : [],
+        });
+        if (hit) {
+          measureCache.store(hit, key);
+          return hit;
+        }
       }
     }
 
-    const report = await measureLiveArmAbduction({
-      baseUrl: input?.baseUrl,
-      scenarioIds: input?.scenarioIds,
+    const liveBaseUrl = input?.baseUrl;
+    const measured = await (measureLiveArmAbductionForTest ?? measureLiveArmAbduction)({
+      ...(liveBaseUrl === undefined ? {} : { baseUrl: liveBaseUrl }),
+      scenarioIds: needed,
     });
+    // S2: the measured report records its own selection (null on full runs).
+    const report: ArmAbductionReport = {
+      scenarios: measured.scenarios,
+      arms: measured.arms,
+      sample: selection.sample,
+    };
 
     if (input?.writePreFix) {
       await writeArmAbductionDump(report, {
-        outputPath: preFixPath(),
+        outputPath: atRoot(armAbductionPreFixPathForReport(report)),
         label: input?.label ?? "pre-fix",
       });
     }
 
-    if (!input?.scenarioIds) {
-      cachedReport = report;
-    }
+    // R3-F1: every completed call is cached under its own key, so a repeated
+    // explicit selection is served without re-measuring.
+    measureCache.store(report, key);
     return report;
   })();
 
-  try {
-    return await measureInFlight;
-  } finally {
-    measureInFlight = null;
-  }
+  return measureCache.run(key, task);
 }
 
 async function tryReadArtifact(filePath: string): Promise<ArmAbductionReport | null> {
   // #141: refuse stale stamps (missing/mismatch → null). Fresh stamps still serve.
   return tryReadStampedArtifact(filePath, (parsed) => {
-    const report = parsed.report as ArmAbductionReport | undefined;
+    const report = (parsed["report"] ?? parsed) as Partial<ArmAbductionReport> | undefined;
     if (
       report?.scenarios
       && Array.isArray(report.scenarios)
@@ -141,7 +261,11 @@ async function tryReadArtifact(filePath: string): Promise<ArmAbductionReport | n
       && Array.isArray(report.arms)
       && report.arms.length > 0
     ) {
-      return report;
+      return {
+        scenarios: report.scenarios,
+        arms: report.arms,
+        sample: report.sample ?? null,
+      } satisfies ArmAbductionReport;
     }
     return null;
   });
@@ -149,9 +273,27 @@ async function tryReadArtifact(filePath: string): Promise<ArmAbductionReport | n
 
 export async function writeArmAbductionDump(
   report: ArmAbductionReport,
-  input?: { outputPath?: string; label?: string },
+  input?: { outputPath?: string; label?: string; evidenceRoot?: string },
 ): Promise<string> {
-  const outputPath = input?.outputPath ?? preFixPath();
+  // F1: routed default + canonical refusal live in station-subset/sampled-measure.
+  const outputPath = routedArtifactDefault({
+    reportSample: report.sample,
+    canonicalRel: preFixPath(),
+    sampledRel: armAbductionPreFixPathForReport(report),
+    evidenceRoot: input?.evidenceRoot,
+    outputPath: input?.outputPath,
+  });
+  refuseSampledAtCanonical({
+    instrument: "arm-abduction-ceiling",
+    kind: "sampled report",
+    reportSample: report.sample,
+    outputPath,
+    canonicalRels: [preFixPath(), latestPath()],
+    canonicalSuffix: (matched) => ` (canonical artifact ${matched})`,
+    // No evidenceRoot exemption: the original S4 refusal throws on every
+    // public path, exactly like station-room-not-empty's R3-F3 writer.
+    evidenceRoot: undefined,
+  });
   await mkdir(path.dirname(outputPath), { recursive: true });
   const payload = withTreeStamp({
     schemaVersion: "openclinxr.arm-abduction-ceiling.v1" as const,
@@ -179,19 +321,12 @@ export async function writeArmAbductionDump(
 async function measureLiveArmAbduction(input: {
   baseUrl?: string;
   scenarioIds?: string[];
-}): Promise<ArmAbductionReport> {
+}): Promise<Omit<ArmAbductionReport, "sample">> {
   // Same default stations as idle-arm-hang (#91) so pre/post ranges are comparable.
-  const defaultScenarios = [
-    "psych_suicidal_ideation_safety_v1",
-    "ward_delirium_med_rec_v1",
-    "oncology_bad_news_family_v1",
-    "peds_fever_v1",
-    "telehealth_diabetes_health_literacy_v1",
-  ];
   const scenarios =
     input.scenarioIds && input.scenarioIds.length > 0
       ? input.scenarioIds
-      : intersectWithShipped(defaultScenarios);
+      : intersectWithShipped([...ARM_ABDUCTION_DEFAULT_SCENARIO_IDS]);
 
   if (scenarios.length === 0) {
     throw new Error("measureLiveArmAbduction: no scenarios to measure");
@@ -495,10 +630,13 @@ async function main(): Promise<void> {
     force: true,
     writePreFix,
     label: writePreFix ? "pre-fix" : label,
-    scenarioIds: scenarioFilter,
+    ...(scenarioFilter === undefined ? {} : { scenarioIds: scenarioFilter }),
   });
+  // S2: sampled runs write the sampled siblings, never the canonical artifacts.
   await writeArmAbductionDump(report, {
-    outputPath: path.join(ARM_ABDUCTION_CEILING_DIR, writePreFix ? PRE_FIX_NAME : "latest.json"),
+    outputPath: writePreFix
+      ? armAbductionPreFixPathForReport(report)
+      : armAbductionLatestPathForReport(report),
     label: writePreFix ? "pre-fix" : label,
   });
   const standing = report.arms.filter((a) => a.posture === "standing");

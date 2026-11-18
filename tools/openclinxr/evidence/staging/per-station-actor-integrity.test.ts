@@ -108,6 +108,9 @@ import { describe, expect, it } from "vitest";
  * whether any figure is clinically appropriate.
  */
 
+import { PER_STATION_MUST_INCLUDE_SCENARIO_IDS } from "../per-station-actor-integrity.js";
+import { assertSampledStationCoverage } from "../station-subset/room-supine-sample.js";
+
 const load = async () => import("../per-station-actor-integrity.js") as Promise<Record<string, unknown>>;
 
 type StagedActorMesh = {
@@ -127,13 +130,17 @@ type StagedActorMesh = {
   liveMeshHeightMeters: number;
 };
 
-type Inspect = () => Promise<{ stations: string[]; actors: StagedActorMesh[] }>;
+type Inspect = () => Promise<{
+  stations: string[];
+  actors: StagedActorMesh[];
+  sample: { seed: string; ids: string[] } | null;
+}>;
 
 /** A substituted or half-loaded mesh will not match its source. Generous: LOD or culling may differ. */
 const MIN_LIVE_TO_SOURCE_TRIANGLE_RATIO = 0.8;
 
 /** Stations I have graded as rendering correctly today. The counterweight holds these. */
-const KNOWN_GOOD = ["psych_suicidal_ideation_safety_v1", "ed_chest_pain_priority_v1"];
+const KNOWN_GOOD = [...PER_STATION_MUST_INCLUDE_SCENARIO_IDS];
 
 describe("what a station renders matches what its cast resolves to (#144)", () => {
   it("every staged actor loads the mesh its cast resolves to", async () => {
@@ -144,7 +151,18 @@ describe("what a station renders matches what its cast resolves to (#144)", () =
     expect(inspect).toBeTypeOf("function");
 
     const report = await inspect!();
-    expect(report.stations.length, `only ${report.stations.length} stations enumerated`).toBeGreaterThan(8);
+    if (report.sample === null) {
+      expect(report.stations.length, `only ${report.stations.length} stations enumerated`).toBeGreaterThan(8);
+    } else {
+      // S3 sampled: the measured set equals sample.ids ∪ must-include targets.
+      expect(report.stations.length, "sampled run measured no stations").toBeGreaterThan(0);
+      assertSampledStationCoverage({
+        instrument: "per-station-actor-integrity",
+        measuredScenarioIds: report.stations,
+        sample: report.sample,
+        targets: [...PER_STATION_MUST_INCLUDE_SCENARIO_IDS],
+      });
+    }
     expect(report.actors.length, "no staged actors were measured").toBeGreaterThan(0);
 
     const diverged: string[] = [];

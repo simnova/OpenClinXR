@@ -129,6 +129,61 @@ export function supineSampleExpectedIds(sampleIds: string[], targets: string[]):
 }
 
 /**
+ * Generic sampled-coverage gate for instruments whose report carries
+ * `sample: SampleRecord | null` but whose rows are not room/supine rows.
+ * Full (sample null) is the caller's own floor; sampled requires the measured
+ * set to equal sample.ids ∪ targets (set equality). Throws naming violations.
+ */
+export function assertSampledStationCoverage(input: {
+  instrument: string;
+  measuredScenarioIds: string[];
+  sample: SampleRecord;
+  targets: string[];
+}): void {
+  const { instrument, measuredScenarioIds, sample, targets } = input;
+  const expected = supineSampleExpectedIds(sample.ids, targets);
+  if (measuredScenarioIds.length === 0) {
+    throw new Error(
+      `${instrument}: sampled run measured no stations (sample [${sample.ids.join(",")}])`,
+    );
+  }
+  // F4: an empty sample and duplicate ids are planting-shaped, never valid.
+  if (sample.ids.length === 0) {
+    throw new Error(
+      `${instrument}: sampled run recorded an empty sample (seed=${sample.seed})`,
+    );
+  }
+  const dupSample = findDuplicate(sample.ids);
+  if (dupSample !== null) {
+    throw new Error(
+      `${instrument}: duplicate station ${dupSample} in sample [${sample.ids.join(",")}]`,
+    );
+  }
+  const dupMeasured = findDuplicate(measuredScenarioIds);
+  if (dupMeasured !== null) {
+    throw new Error(
+      `${instrument}: duplicate station ${dupMeasured} in sampled stations [${measuredScenarioIds.join(",")}]`,
+    );
+  }
+  if (measuredScenarioIds.length !== expected.length) {
+    throw new Error(
+      `${instrument}: sampled stations [${[...measuredScenarioIds].sort().join(",")}] count ${measuredScenarioIds.length} != sample ∪ targets [${expected.join(",")}] count ${expected.length}`,
+    );
+  }
+  const measured = sortedUnique(measuredScenarioIds);
+  if (measured.join(",") !== expected.join(",")) {
+    const missing = expected.filter((id) => !measured.includes(id));
+    const extra = measured.filter((id) => !expected.includes(id));
+    const parts: string[] = [];
+    if (missing.length > 0) parts.push(`missing ${missing.join(",")}`);
+    if (extra.length > 0) parts.push(`extra ${extra.join(",")}`);
+    throw new Error(
+      `${instrument}: sampled stations [${measured.join(",")}] != sample ∪ targets [${expected.join(",")}] (${parts.join("; ")})`,
+    );
+  }
+}
+
+/**
  * S4/CW3 shared gate for inpatient-supine-staging.
  * Full (sample null): today's floor verbatim — at least `fullMin` rows.
  * Sampled: the set of row scenarioIds equals sample.ids ∪ targets (set equality).

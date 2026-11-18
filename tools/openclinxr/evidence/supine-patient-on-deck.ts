@@ -11,24 +11,44 @@
 
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
 import { listShippedCastScenarioIds } from "../../../packages/openclinxr/asset-registry/src/actor-casting.js";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 import {
+  type MeasurementTreeStamp,
   tryReadStampedArtifact,
   withTreeStamp,
-  type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
-  ROOM_CAPTURE_MODE,
+  checkSampledDiskReport,
+  refuseSampledAtCanonical,
+  routedArtifactDefault,
+  SampledMeasureCache,
+  selectionIdentityKey,
+  selectUnionSample,
+} from "./station-subset/sampled-measure.js";
+import type { SampleRecord } from "./station-subset.js";
+import {
   buildRoomCaptureUrl,
+  ROOM_CAPTURE_MODE,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
-import { waitForSceneAssetsSettled } from "./declared-actors-rendered.js";
 
 export const SUPINE_DECK_DIR = ".openclinxr/evidence/supine-patient-on-deck";
 export const SUPINE_DECK_NAME = "supine-patient-on-deck.json";
+/** S2: fixed sampled sibling — a sampled run writes here, never the canonical path. */
+export const SUPINE_DECK_SAMPLED_NAME = "supine-patient-on-deck.json.sampled.json";
 export const ISSUE_150_PRE_FIX = ".openclinxr/evidence/issue-150/pre-fix.json";
+/** F3: fixed sampled pre-fix sibling — a sampled --pre-fix writes here, never canonical. */
+export const ISSUE_150_PRE_FIX_SAMPLED = ".openclinxr/evidence/issue-150/pre-fix.json.sampled.json";
+
+/**
+ * The ED bay is the only station the deck clauses judge. Test-named stations:
+ * ed_chest_pain_priority_v1 (supine-patient-on-deck.test.ts:169; pillow.test.ts:45;
+ * deck-not-above-it.test.ts:84). telehealth/stepdown appear in S1 prose only.
+ */
+export const ED_SUPINE_SCENARIO_ID = "ed_chest_pain_priority_v1";
 
 export type ActorPlacementFacts = {
   scenarioId: string;
@@ -53,6 +73,8 @@ export type SupinePatientOnDeckReport = {
     deckTopY: number | null;
     position: { x: number; y: number; z: number } | null;
   };
+  /** R6: the selection this report measured (null when it measured everything). */
+  sample: SampleRecord | null;
 };
 
 type ArtifactPayload = {
@@ -66,11 +88,63 @@ type ArtifactPayload = {
   report: SupinePatientOnDeckReport;
 };
 
-let cachedReport: SupinePatientOnDeckReport | null = null;
-let measureInFlight: Promise<SupinePatientOnDeckReport> | null = null;
+/** Keyed in-process cache: a full report never satisfies a sampled call or vice versa. */
+const measureCache = new SampledMeasureCache<SupinePatientOnDeckReport>();
+
+/** Test seam: replace the live browser measurement (no browser). Null = production path. */
+type MeasureLiveSupineDeckFn = typeof measureLive;
+let measureLiveSupineDeckForTest: MeasureLiveSupineDeckFn | null = null;
+
+/** Test seam: stub the live measurement. Pass null to restore production measurement. */
+export function setSupinePatientOnDeckMeasureLiveForTest(fn: MeasureLiveSupineDeckFn | null): void {
+  measureLiveSupineDeckForTest = fn;
+}
+
+/** Test seam: restore production measurement and drop in-process caches. */
+export function resetSupinePatientOnDeckTestSeam(): void {
+  measureLiveSupineDeckForTest = null;
+  measureCache.reset();
+}
 
 function artifactPath(): string {
   return path.join(SUPINE_DECK_DIR, SUPINE_DECK_NAME);
+}
+
+function sampledArtifactPath(): string {
+  return path.join(SUPINE_DECK_DIR, SUPINE_DECK_SAMPLED_NAME);
+}
+
+/** S2: a sampled run writes here, never the canonical artifact path. */
+export function supineDeckPathForReport(report: SupinePatientOnDeckReport): string {
+  return report.sample ? sampledArtifactPath() : artifactPath();
+}
+
+/** F3: a sampled pre-fix writes here, never the canonical issue-150 artifact. */
+export function supinePreFixPathForReport(report: SupinePatientOnDeckReport): string {
+  return report.sample ? ISSUE_150_PRE_FIX_SAMPLED : ISSUE_150_PRE_FIX;
+}
+
+/** CW1: pure selection — the sampled-or-full station list, no browser. */
+export type SupinePatientSampleSelection = {
+  ids: string[];
+  sample: SampleRecord | null;
+};
+
+/** CW1: full bank for this instrument. */
+export function listFullSupinePatientBankScenarioIds(): string[] {
+  return listShippedCastScenarioIds();
+}
+
+/**
+ * S4a: the sampled station list is sample.ids ∪ {ED} — the ED bay is always
+ * measured so its deck clauses keep full strength. CW1: pure selection, no
+ * browser. sample.ids stays the raw subset; scenarios cover the union.
+ */
+export function selectSupinePatientScenarioIds(
+  allIds: string[],
+  env: NodeJS.ProcessEnv = process.env,
+): SupinePatientSampleSelection {
+  return selectUnionSample(allIds, env, [ED_SUPINE_SCENARIO_ID]);
 }
 
 /**
@@ -82,43 +156,84 @@ export async function inspectSupinePatientOnDeck(input?: {
   label?: string;
   scenarioIds?: string[];
   writePreFix?: boolean;
+  /** Test-only: redirect artifact reads/writes under this root (default: repo CWD). */
+  evidenceRoot?: string;
 }): Promise<SupinePatientOnDeckReport> {
-  if (!input?.force && cachedReport) return cachedReport;
-  if (!input?.force && measureInFlight) return measureInFlight;
+  // S1: the seeded subset (plus the ED bay) applies whenever the caller did not
+  // name stations — including force:true re-measures, so each forced call
+  // re-measures the SAME sampled ids. Explicit scenarioIds bypass sampling.
+  // One `station-subset: seed=` line is printed here on sampled runs.
+  const selection: SupinePatientSampleSelection = input?.scenarioIds?.length
+    ? { ids: [...input.scenarioIds], sample: null }
+    : selectSupinePatientScenarioIds(listShippedCastScenarioIds());
+  const sampled = selection.sample !== null;
+  const needed = selection.ids;
+  // F2: reuse only the exact selection identity (see SampledMeasureCache).
+  // The pillow/deck consumers call with no args, so a sampled artifact can
+  // never satisfy their full-bank read and vice versa.
+  // R3-F1: an explicit scenarioIds call gets its own key, distinct from "full".
+  const key = selectionIdentityKey(input?.scenarioIds, selection.sample);
 
-  measureInFlight = (async () => {
+  if (!input?.force) {
+    const hit = measureCache.peek(key) ?? measureCache.peekFlight(key);
+    if (hit) return hit;
+  }
+
+  const task: Promise<SupinePatientOnDeckReport> = (async () => {
+    const atRoot = (p: string): string =>
+      input?.evidenceRoot ? path.join(input.evidenceRoot, p) : p;
     if (!input?.force && !input?.scenarioIds && !input?.writePreFix) {
-      const fromDisk = await tryReadArtifact();
-      if (fromDisk) {
-        cachedReport = fromDisk;
-        return fromDisk;
+      // Sampled runs read only the sampled artifact; full runs read only canonical.
+      const fromDisk = sampled
+        ? await tryReadArtifact(atRoot(sampledArtifactPath()))
+        : await tryReadArtifact(atRoot(artifactPath()));
+      const hit = checkSampledDiskReport({
+        instrument: "supine-on-deck",
+        fromDisk,
+        sampled,
+        selectionSample: selection.sample,
+        neededIds: needed,
+        diskSample: fromDisk ? fromDisk.sample : null,
+        diskMeasuredIds: fromDisk ? fromDisk.scenarios : [],
+      });
+      if (hit) {
+        measureCache.store(hit, key);
+        return hit;
       }
     }
 
-    const report = await measureLive({
-      baseUrl: input?.baseUrl,
-      scenarioIds: input?.scenarioIds,
+    const measured = await (measureLiveSupineDeckForTest ?? measureLive)({
+      ...(input?.baseUrl === undefined ? {} : { baseUrl: input.baseUrl }),
+      scenarioIds: needed,
     });
-    await writeDump(report, { label: input?.label ?? "measure" });
+    // S2: the measured report records its own selection (null on full runs).
+    const report: SupinePatientOnDeckReport = {
+      ...measured,
+      sample: selection.sample,
+    };
+    await writeDump(report, {
+      ...(input?.evidenceRoot === undefined
+        ? {}
+        : { outputPath: path.join(input.evidenceRoot, supineDeckPathForReport(report)) }),
+      label: input?.label ?? "measure",
+    });
     if (input?.writePreFix) {
-      await writePreFixArtifact(report);
+      await writePreFixArtifact(
+        report,
+        input?.evidenceRoot === undefined ? undefined : { evidenceRoot: input.evidenceRoot },
+      );
     }
-    if (!input?.scenarioIds) {
-      cachedReport = report;
-    }
+    // R3-F1: every completed call is cached under its own key.
+    measureCache.store(report, key);
     return report;
   })();
 
-  try {
-    return await measureInFlight;
-  } finally {
-    measureInFlight = null;
-  }
+  return measureCache.run(key, task);
 }
 
-async function tryReadArtifact(): Promise<SupinePatientOnDeckReport | null> {
-  return tryReadStampedArtifact(artifactPath(), (parsed) => {
-    const report = parsed.report as SupinePatientOnDeckReport | undefined;
+async function tryReadArtifact(filePath: string): Promise<SupinePatientOnDeckReport | null> {
+  return tryReadStampedArtifact(filePath, (parsed) => {
+    const report = (parsed["report"] ?? parsed) as Partial<SupinePatientOnDeckReport> | undefined;
     if (
       report?.scenarios
       && Array.isArray(report.scenarios)
@@ -126,7 +241,12 @@ async function tryReadArtifact(): Promise<SupinePatientOnDeckReport | null> {
       && Array.isArray(report.actors)
       && report.actors.length > 0
     ) {
-      return report;
+      return {
+        scenarios: report.scenarios,
+        actors: report.actors,
+        ...(report.stretcherAxis ? { stretcherAxis: report.stretcherAxis } : {}),
+        sample: report.sample ?? null,
+      } satisfies SupinePatientOnDeckReport;
     }
     return null;
   });
@@ -134,9 +254,25 @@ async function tryReadArtifact(): Promise<SupinePatientOnDeckReport | null> {
 
 export async function writeDump(
   report: SupinePatientOnDeckReport,
-  input?: { outputPath?: string; label?: string },
+  input?: { outputPath?: string; label?: string; evidenceRoot?: string },
 ): Promise<string> {
-  const outputPath = input?.outputPath ?? artifactPath();
+  // F1: routed default + canonical refusal live in station-subset/sampled-measure.
+  const outputPath = routedArtifactDefault({
+    reportSample: report.sample,
+    canonicalRel: artifactPath(),
+    sampledRel: supineDeckPathForReport(report),
+    evidenceRoot: input?.evidenceRoot,
+    outputPath: input?.outputPath,
+  });
+  refuseSampledAtCanonical({
+    instrument: "supine-on-deck",
+    kind: "sampled report",
+    reportSample: report.sample,
+    outputPath,
+    canonicalRels: [artifactPath()],
+    canonicalSuffix: "",
+    evidenceRoot: input?.evidenceRoot,
+  });
   await mkdir(path.dirname(outputPath), { recursive: true });
   const payload = withTreeStamp({
     schemaVersion: "openclinxr.supine-patient-on-deck.v1" as const,
@@ -160,8 +296,28 @@ export async function writeDump(
   return outputPath;
 }
 
-export async function writePreFixArtifact(report: SupinePatientOnDeckReport): Promise<string> {
-  const outputPath = ISSUE_150_PRE_FIX;
+export async function writePreFixArtifact(
+  report: SupinePatientOnDeckReport,
+  input?: { outputPath?: string; evidenceRoot?: string },
+): Promise<string> {
+  // F3: routed default + canonical refusal live in station-subset/sampled-measure
+  // (station-room pattern: route by default; explicit canonical throws).
+  const outputPath = routedArtifactDefault({
+    reportSample: report.sample,
+    canonicalRel: ISSUE_150_PRE_FIX,
+    sampledRel: supinePreFixPathForReport(report),
+    evidenceRoot: input?.evidenceRoot,
+    outputPath: input?.outputPath,
+  });
+  refuseSampledAtCanonical({
+    instrument: "supine-on-deck",
+    kind: "sampled pre-fix",
+    reportSample: report.sample,
+    outputPath,
+    canonicalRels: [ISSUE_150_PRE_FIX],
+    canonicalSuffix: "",
+    evidenceRoot: input?.evidenceRoot,
+  });
   await mkdir(path.dirname(outputPath), { recursive: true });
   const payload = withTreeStamp({
     schemaVersion: "openclinxr.supine-patient-on-deck.v1" as const,
@@ -187,7 +343,7 @@ export async function writePreFixArtifact(report: SupinePatientOnDeckReport): Pr
 async function measureLive(input: {
   baseUrl?: string;
   scenarioIds?: string[];
-}): Promise<SupinePatientOnDeckReport> {
+}): Promise<Omit<SupinePatientOnDeckReport, "sample">> {
   // Prefer a diverse bank sample: ED (defect), telehealth (seated counterweight),
   // plus every other cast station so the counterweight can count standing actors.
   const all = listShippedCastScenarioIds();

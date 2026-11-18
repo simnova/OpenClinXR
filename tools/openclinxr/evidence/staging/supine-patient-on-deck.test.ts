@@ -1,4 +1,6 @@
 import { describe, expect, it } from "vitest";
+import { assertSampledStationCoverage } from "../station-subset/room-supine-sample.js";
+import { ED_SUPINE_SCENARIO_ID } from "../supine-patient-on-deck.js";
 
 /**
  * PLANTED CONTRACTS (#150) — the ED chest-pain patient stands in front of a stretcher that is fully
@@ -158,9 +160,13 @@ type ActorPlacementFacts = {
   clearanceAboveDeckMeters: number | null;
 };
 
-type Inspect = () => Promise<{ actors: ActorPlacementFacts[] }>;
+type Inspect = () => Promise<{
+  scenarios: string[];
+  actors: ActorPlacementFacts[];
+  sample: { seed: string; ids: string[] } | null;
+}>;
 
-const ED = "ed_chest_pain_priority_v1";
+const ED = ED_SUPINE_SCENARIO_ID;
 
 /**
  * A recumbent body's AABB is longer horizontally than vertically.
@@ -259,6 +265,23 @@ describe("the ED patient lies on the stretcher instead of standing through it (#
       .map((a) => `${a.scenarioId}/${a.actorId} (${a.slotKind}) was laid down`);
     expect(nonPatientSupine, `non-patient actors made supine:\n${nonPatientSupine.join("\n")}`)
       .toHaveLength(0);
+
+    if (report.sample !== null) {
+      // S3 sampled: the measured set equals sample.ids ∪ {ED} — the ED clauses
+      // above ran at full strength. The standing/seated population counts need
+      // the full bank and are skipped with one line (same skip-subject shape as
+      // the station-room and inpatient-supine S3 branches).
+      assertSampledStationCoverage({
+        instrument: "supine-patient-on-deck",
+        measuredScenarioIds: report.scenarios,
+        sample: report.sample,
+        targets: [ED],
+      });
+      process.stdout.write(
+        `supine-counterweight skipped: sampled seed=${report.sample.seed} scenarios=${[...report.scenarios].sort().join(",")}\n`,
+      );
+      return;
+    }
 
     const seated = report.actors.filter((a) => a.posture === "seated");
     expect(seated.length, "#81's seated telehealth patient is no longer seated anywhere").toBeGreaterThan(0);

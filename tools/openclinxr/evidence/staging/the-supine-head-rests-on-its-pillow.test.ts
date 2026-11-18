@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest";
 import { inspectShippedHeadOfBedIncline } from "../shipped-head-of-bed-incline.js";
-import { inspectSupinePatientOnDeck } from "../supine-patient-on-deck.js";
+import { ED_SUPINE_SCENARIO_ID, inspectSupinePatientOnDeck } from "../supine-patient-on-deck.js";
 
 /**
  * OBSERVABLE: the supine patient's head rests on the pillow that exists to support it.
@@ -42,7 +42,7 @@ import { inspectSupinePatientOnDeck } from "../supine-patient-on-deck.js";
 
 /** Reused verbatim from #620's landed contract — a contact band, not a new number. */
 const MAX_CONTACT_GAP_METERS = 0.05;
-const ED = "ed_chest_pain_priority_v1";
+const ED = ED_SUPINE_SCENARIO_ID;
 const BOOT_TIMEOUT_MS = 420_000;
 
 let headDeck: Awaited<ReturnType<typeof inspectShippedHeadOfBedIncline>>["headDeck"] = [];

@@ -16,21 +16,29 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { NodeIO } from "@gltf-transform/core";
-import { chromium, type Page } from "./lib/slotted-playwright.js";
-import { spawnPortlessDevServer, stopPortlessDevServer, type PortlessDevServer } from "./lib/portless-server.js";
+import { measureParametricComposite, REAL_EQUIPMENT_GLTF_BY_ID } from "@openclinxr/xr-station";
 import {
   computeMeasurementTreeStamp,
+  type MeasurementTreeStamp,
   tryReadStampedArtifact,
   withTreeStamp,
-  type MeasurementTreeStamp,
 } from "./lib/measurement-tree-stamp.js";
+import { type PortlessDevServer, spawnPortlessDevServer, stopPortlessDevServer } from "./lib/portless-server.js";
+import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
-  ROOM_CAPTURE_MODE,
+  checkSampledDiskReport,
+  refuseSampledAtCanonical,
+  routedArtifactDefault,
+  SampledMeasureCache,
+  selectionIdentityKey,
+  selectUnionSample,
+} from "./station-subset/sampled-measure.js";
+import type { SampleRecord } from "./station-subset.js";
+import {
   buildRoomCaptureUrl,
+  ROOM_CAPTURE_MODE,
   waitForStationShell,
 } from "./ui-xr-environment-room-capture.js";
-import { REAL_EQUIPMENT_GLTF_BY_ID } from "@openclinxr/xr-station";
-import { measureParametricComposite } from "@openclinxr/xr-station";
 
 export const DECLARED_EQUIPMENT_EVIDENCE_DIR = ".openclinxr/evidence/issue-140";
 export const PRE_FIX_NAME = "pre-fix.json";
@@ -100,7 +108,22 @@ export type StationEquipment = {
 
 export type DeclaredEquipmentMountingReport = {
   stations: StationEquipment[];
+  /** R6: the selection this report measured (null when it measured everything). */
+  sample: SampleRecord | null;
 };
+
+/**
+ * Must-include union. Test-named stations (staging/declared-equipment-mounted.test.ts):
+ * ed_chest_pain_priority_v1 (:308 ED-bay clause), ed_stroke_alert_handoff_v1 (:312, :422 bedside
+ * clause), adult_abdominal_pain_v1 (:423 bedside clause; stale vs live manifests, which show it
+ * declaring nothing — the union keeps the clause non-vacuous regardless).
+ * Context-only: ob_headache_preeclampsia_triage_v1 (:34, :87), clinic_abdominal_pain_interpreter_v1 (:35).
+ */
+export const DECLARED_EQUIPMENT_MUST_INCLUDE_SCENARIO_IDS = [
+  "ed_chest_pain_priority_v1",
+  "ed_stroke_alert_handoff_v1",
+  "adult_abdominal_pain_v1",
+] as const;
 
 type ArtifactPayload = {
   schemaVersion: "openclinxr.declared-equipment-mounted.v1";
@@ -135,11 +158,56 @@ type ArtifactPayload = {
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const generatedRoot = path.join(repoRoot, "apps/ui-xr/public/xr-assets/generated");
 
-let cachedReport: DeclaredEquipmentMountingReport | null = null;
-let measureInFlight: Promise<DeclaredEquipmentMountingReport> | null = null;
+/** Keyed in-process cache: a full report never satisfies a sampled call or vice versa. */
+const measureCache = new SampledMeasureCache<DeclaredEquipmentMountingReport>();
+
+/** Test seam: replace the live browser measurement (no browser). Null = production path. */
+type MeasureLiveEquipmentFn = typeof measureLiveEquipmentMounting;
+let measureLiveEquipmentForTest: MeasureLiveEquipmentFn | null = null;
+
+/** Test seam: stub the live measurement. Pass null to restore production measurement. */
+export function setDeclaredEquipmentMeasureLiveForTest(fn: MeasureLiveEquipmentFn | null): void {
+  measureLiveEquipmentForTest = fn;
+}
+
+/** Test seam: restore production measurement and drop in-process caches. */
+export function resetDeclaredEquipmentTestSeam(): void {
+  measureLiveEquipmentForTest = null;
+  measureCache.reset();
+}
+
+/** S2: fixed sampled sibling — a sampled run writes here, never the canonical path. */
+export const PRE_FIX_SAMPLED_NAME = "pre-fix.json.sampled.json";
 
 function preFixPath(): string {
   return path.join(DECLARED_EQUIPMENT_EVIDENCE_DIR, PRE_FIX_NAME);
+}
+
+function sampledPreFixPath(): string {
+  return path.join(DECLARED_EQUIPMENT_EVIDENCE_DIR, PRE_FIX_SAMPLED_NAME);
+}
+
+/** S2: a sampled pre-fix write goes to the fixed sampled path, never canonical. */
+export function declaredEquipmentPreFixPathForReport(report: DeclaredEquipmentMountingReport): string {
+  return report.sample ? sampledPreFixPath() : preFixPath();
+}
+
+/** CW1: pure selection — the sampled-or-full station list, no browser. */
+export type DeclaredEquipmentSampleSelection = {
+  ids: string[];
+  sample: SampleRecord | null;
+};
+
+/**
+ * S4a: the sampled station list is sample.ids ∪ MUST-INCLUDE — the ED bay and
+ * the bedside-monitor declaring station are always measured so their clauses
+ * keep full strength. CW1: pure selection, no browser.
+ */
+export function selectDeclaredEquipmentScenarioIds(
+  allIds: string[],
+  env: NodeJS.ProcessEnv = process.env,
+): DeclaredEquipmentSampleSelection {
+  return selectUnionSample(allIds, env, DECLARED_EQUIPMENT_MUST_INCLUDE_SCENARIO_IDS);
 }
 
 /** Stations = every shipped scene-manifest directory (never a hardcoded list). */
@@ -234,56 +302,93 @@ export async function inspectDeclaredEquipmentMounting(input?: {
    * .openclinxr/evidence/issue-258/pre-fix.json.
    */
   preFixOutputPath?: string;
+  /** Test-only: redirect artifact reads/writes under this root (default: repo CWD). */
+  evidenceRoot?: string;
 }): Promise<DeclaredEquipmentMountingReport> {
-  if (!input?.force && !input?.writePreFix && cachedReport) return cachedReport;
-  if (!input?.force && !input?.writePreFix && measureInFlight) return measureInFlight;
+  // S1: the seeded subset (plus must-include stations) applies whenever the
+  // caller did not name stations — including force:true re-measures, so each
+  // forced call re-measures the SAME sampled ids. Explicit scenarioIds bypass
+  // sampling. One `station-subset: seed=` line is printed here on sampled runs.
+  const allManifestIds = await listShippedScenarioManifestIds();
+  const selection: DeclaredEquipmentSampleSelection = input?.scenarioIds?.length
+    ? { ids: [...input.scenarioIds], sample: null }
+    : selectDeclaredEquipmentScenarioIds(allManifestIds);
+  const sampled = selection.sample !== null;
+  const needed = selection.ids;
+  // F2: reuse only the exact selection identity (see SampledMeasureCache).
+  // R3-F1: an explicit scenarioIds call gets its own key, distinct from "full".
+  const key = selectionIdentityKey(input?.scenarioIds, selection.sample);
 
-  measureInFlight = (async () => {
+  if (!input?.force && !input?.writePreFix) {
+    const hit = measureCache.peek(key) ?? measureCache.peekFlight(key);
+    if (hit) return hit;
+  }
+
+  const task: Promise<DeclaredEquipmentMountingReport> = (async () => {
+    const atRoot = (p: string): string =>
+      input?.evidenceRoot ? path.join(input.evidenceRoot, p) : p;
     if (!input?.force && !input?.writePreFix && !input?.scenarioIds) {
-      if (process.env.OPENCLINXR_EQUIPMENT_MOUNT_USE_DISK === "1") {
-        const fromDisk = await tryReadArtifact(preFixPath());
-        if (fromDisk) {
-          cachedReport = fromDisk;
-          return fromDisk;
+      if (process.env["OPENCLINXR_EQUIPMENT_MOUNT_USE_DISK"] === "1") {
+        // Sampled runs read only the sampled artifact; full runs read only canonical.
+        const fromDisk = sampled
+          ? await tryReadArtifact(atRoot(sampledPreFixPath()))
+          : await tryReadArtifact(atRoot(preFixPath()));
+        const hit = checkSampledDiskReport({
+          instrument: "declared-equipment-mounted",
+          fromDisk,
+          sampled,
+          selectionSample: selection.sample,
+          neededIds: needed,
+          diskSample: fromDisk ? fromDisk.sample : null,
+          diskMeasuredIds: fromDisk ? fromDisk.stations.map((s) => s.scenarioId) : [],
+        });
+        if (hit) {
+          measureCache.store(hit, key);
+          return hit;
         }
       }
     }
 
-    const report = await measureLiveEquipmentMounting({
-      baseUrl: input?.baseUrl,
-      scenarioIds: input?.scenarioIds,
+    const report = await (measureLiveEquipmentForTest ?? measureLiveEquipmentMounting)({
+      ...(input?.baseUrl === undefined ? {} : { baseUrl: input.baseUrl }),
+      scenarioIds: needed,
     });
 
     if (input?.writePreFix) {
-      await writeEquipmentMountDump(report, {
-        outputPath: input.preFixOutputPath ?? preFixPath(),
-        label: input?.label ?? "pre-fix",
-      });
+      await writeEquipmentMountDump(
+        { stations: report.stations, sample: selection.sample },
+        {
+          outputPath: input.preFixOutputPath ?? atRoot(declaredEquipmentPreFixPathForReport({ stations: report.stations, sample: selection.sample })),
+          label: input?.label ?? "pre-fix",
+        },
+      );
     }
 
-    if (!input?.scenarioIds) {
-      cachedReport = report;
-    }
-    return report;
+    // R3-F1: every completed call is cached under its own key.
+    const finalReport: DeclaredEquipmentMountingReport = {
+      stations: report.stations,
+      sample: selection.sample,
+    };
+    measureCache.store(finalReport, key);
+    return finalReport;
   })();
 
-  try {
-    return await measureInFlight;
-  } finally {
-    measureInFlight = null;
-  }
+  return measureCache.run(key, task);
 }
 
 async function tryReadArtifact(filePath: string): Promise<DeclaredEquipmentMountingReport | null> {
   // #141: refuse stale stamps (missing/mismatch → null). Fresh stamps still serve.
   return tryReadStampedArtifact(filePath, (parsed) => {
-    const report = parsed.report as DeclaredEquipmentMountingReport | undefined;
+    const report = (parsed["report"] ?? parsed) as Partial<DeclaredEquipmentMountingReport> | undefined;
     if (
       report?.stations
       && Array.isArray(report.stations)
       && report.stations.length > 0
     ) {
-      return report;
+      return {
+        stations: report.stations,
+        sample: report.sample ?? null,
+      } satisfies DeclaredEquipmentMountingReport;
     }
     return null;
   });
@@ -291,9 +396,25 @@ async function tryReadArtifact(filePath: string): Promise<DeclaredEquipmentMount
 
 export async function writeEquipmentMountDump(
   report: DeclaredEquipmentMountingReport,
-  input?: { outputPath?: string; label?: string },
+  input?: { outputPath?: string; label?: string; evidenceRoot?: string },
 ): Promise<string> {
-  const outputPath = input?.outputPath ?? preFixPath();
+  // F1: routed default + canonical refusal live in station-subset/sampled-measure.
+  const outputPath = routedArtifactDefault({
+    reportSample: report.sample,
+    canonicalRel: preFixPath(),
+    sampledRel: declaredEquipmentPreFixPathForReport(report),
+    evidenceRoot: input?.evidenceRoot,
+    outputPath: input?.outputPath,
+  });
+  refuseSampledAtCanonical({
+    instrument: "declared-equipment-mounted",
+    kind: "sampled report",
+    reportSample: report.sample,
+    outputPath,
+    canonicalRels: [preFixPath()],
+    canonicalSuffix: "",
+    evidenceRoot: input?.evidenceRoot,
+  });
   await mkdir(path.dirname(outputPath), { recursive: true });
   const stamp = computeMeasurementTreeStamp();
   const payload = withTreeStamp({
@@ -407,7 +528,7 @@ function measureDeclaredPlacementEnvelopes(): Record<
 async function measureLiveEquipmentMounting(input: {
   baseUrl?: string;
   scenarioIds?: string[];
-}): Promise<DeclaredEquipmentMountingReport> {
+}): Promise<Omit<DeclaredEquipmentMountingReport, "sample">> {
   const scenarios =
     input.scenarioIds && input.scenarioIds.length > 0
       ? input.scenarioIds
@@ -875,7 +996,7 @@ if (
     writePreFix,
     force,
     label: writePreFix ? "pre-fix" : "cli",
-    preFixOutputPath,
+    ...(preFixOutputPath === undefined ? {} : { preFixOutputPath }),
   })
     .then((report) => {
       process.stdout.write(`stations=${report.stations.length}\n`);

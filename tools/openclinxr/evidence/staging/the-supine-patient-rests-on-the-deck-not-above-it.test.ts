@@ -1,5 +1,5 @@
 import { beforeAll, describe, expect, it } from "vitest";
-import { inspectSupinePatientOnDeck } from "../supine-patient-on-deck.js";
+import { ED_SUPINE_SCENARIO_ID, inspectSupinePatientOnDeck } from "../supine-patient-on-deck.js";
 
 /**
  * OBSERVABLE: the ED patient's body touches the stretcher he is lying on.
@@ -81,7 +81,7 @@ import { inspectSupinePatientOnDeck } from "../supine-patient-on-deck.js";
  * this contract deliberately does not bound.
  */
 
-const ED = "ed_chest_pain_priority_v1";
+const ED = ED_SUPINE_SCENARIO_ID;
 
 /** One live boot for the whole file (§7b): three tests must not pay three dev servers. */
 const BOOT_TIMEOUT_MS = 300_000;

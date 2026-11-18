@@ -1,13 +1,14 @@
-import { describe, expect, it } from "vitest";
-import { NodeIO } from "@gltf-transform/core";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { REAL_EQUIPMENT_GLTF_BY_ID } from "@openclinxr/xr-station";
-import { measureParametricComposite } from "@openclinxr/xr-station";
+import { NodeIO } from "@gltf-transform/core";
+import { measureParametricComposite, REAL_EQUIPMENT_GLTF_BY_ID } from "@openclinxr/xr-station";
+import { describe, expect, it } from "vitest";
+import { DECLARED_EQUIPMENT_MUST_INCLUDE_SCENARIO_IDS } from "../declared-equipment-mounted.js";
 import {
   aspectToleranceFor,
   measureGltfAssetLocalBounds,
 } from "../equipment-aspect-preservation.js";
+import { assertSampledStationCoverage } from "../station-subset/room-supine-sample.js";
 
 /**
  * PLANTED CONTRACTS (#140) — every station's shipped manifest declares the clinical equipment that
@@ -288,7 +289,10 @@ type StationEquipment = {
   undeclaredMountedIds: string[];
 };
 
-type Inspect = () => Promise<{ stations: StationEquipment[] }>;
+type Inspect = () => Promise<{
+  stations: StationEquipment[];
+  sample: { seed: string; ids: string[] } | null;
+}>;
 
 /** A recognisable clinical object is more than one box. Deliberately low — this is a floor, not a target. */
 const MIN_MESHES_FOR_A_KNOWN_KIND = 2;
@@ -301,7 +305,7 @@ const KNOWN_KINDS = [
   "exam_table_equipment",
 ];
 
-const ED = "ed_chest_pain_priority_v1";
+const ED = DECLARED_EQUIPMENT_MUST_INCLUDE_SCENARIO_IDS[0] as string;
 
 describe("a station renders the equipment it declares (#140)", () => {
   it("every declared equipment id is mounted in the station that declares it", async () => {
@@ -312,7 +316,20 @@ describe("a station renders the equipment it declares (#140)", () => {
     expect(inspect).toBeTypeOf("function");
 
     const report = await inspect!();
-    expect(report.stations.length, `only ${report.stations.length} stations enumerated`).toBeGreaterThan(8);
+    if (report.sample === null) {
+      expect(report.stations.length, `only ${report.stations.length} stations enumerated`).toBeGreaterThan(8);
+    } else {
+      // S3 sampled: the measured set equals sample.ids ∪ must-include targets
+      // (ED bay + bedside-monitor declaring station), so the ED-GLB and
+      // bedside-monitor clauses below keep full strength.
+      expect(report.stations.length, "sampled run measured no stations").toBeGreaterThan(0);
+      assertSampledStationCoverage({
+        instrument: "declared-equipment-mounted",
+        measuredScenarioIds: report.stations.map((s) => s.scenarioId),
+        sample: report.sample,
+        targets: [...DECLARED_EQUIPMENT_MUST_INCLUDE_SCENARIO_IDS],
+      });
+    }
 
     const missing: string[] = [];
     for (const s of report.stations) {

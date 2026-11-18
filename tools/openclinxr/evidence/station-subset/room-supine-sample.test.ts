@@ -4,6 +4,25 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
 import {
+  ARM_ABDUCTION_ASSERTED_SCENARIO_IDS,
+  armAbductionLatestPathForReport,
+  armAbductionPreFixPathForReport,
+  inspectArmAbduction,
+  listFullArmAbductionBankScenarioIds,
+  resetArmAbductionTestSeam,
+  selectArmAbductionScenarioIds,
+  setArmAbductionMeasureLiveForTest,
+} from "../arm-abduction-ceiling.js";
+import {
+  DECLARED_EQUIPMENT_MUST_INCLUDE_SCENARIO_IDS,
+  declaredEquipmentPreFixPathForReport,
+  inspectDeclaredEquipmentMounting,
+  listShippedScenarioManifestIds as listEquipmentManifestIds,
+  resetDeclaredEquipmentTestSeam,
+  selectDeclaredEquipmentScenarioIds,
+  setDeclaredEquipmentMeasureLiveForTest,
+} from "../declared-equipment-mounted.js";
+import {
   DECLARED_INPATIENT_SCENARIO_IDS,
   inspectInpatientSupineStaging,
   listFullSupineBankScenarioIds,
@@ -14,6 +33,16 @@ import {
   supinePreFixPathForReport,
   writeDump as writeSupineDump,
 } from "../inpatient-supine-staging.js";
+import {
+  inspectPerStationActorIntegrity,
+  integrityDumpPathForReport,
+  listFullPerStationBankScenarioIds,
+  PER_STATION_MUST_INCLUDE_SCENARIO_IDS,
+  resetPerStationTestSeam,
+  selectPerStationScenarioIds,
+  setPerStationMeasureLiveForTest,
+  writeIntegrityDump,
+} from "../per-station-actor-integrity.js";
 import {
   inspectStationRoomNotEmpty,
   listShippedScenarioManifestIds,
@@ -26,6 +55,16 @@ import {
 } from "../station-room-not-empty.js";
 import { STATION_SAMPLE_ENV, STATION_SAMPLE_SEED_ENV, selectStationSubset } from "../station-subset.js";
 import {
+  ED_SUPINE_SCENARIO_ID,
+  inspectSupinePatientOnDeck,
+  listFullSupinePatientBankScenarioIds,
+  resetSupinePatientOnDeckTestSeam,
+  selectSupinePatientScenarioIds,
+  setSupinePatientOnDeckMeasureLiveForTest,
+  supineDeckPathForReport,
+} from "../supine-patient-on-deck.js";
+import {
+  assertSampledStationCoverage,
   assertStationRoomSampleCoverage,
   assertSupineStagingSampleCoverage,
   explicitSelectionCacheKey,
@@ -38,7 +77,32 @@ afterEach(() => {
   delete process.env[STATION_SAMPLE_SEED_ENV];
   resetStationRoomTestSeam();
   resetSupineStagingTestSeam();
+  resetArmAbductionTestSeam();
+  resetDeclaredEquipmentTestSeam();
+  resetPerStationTestSeam();
+  resetSupinePatientOnDeckTestSeam();
 });
+
+function sampledEnv(seed: string): NodeJS.ProcessEnv {
+  return { [STATION_SAMPLE_ENV]: "2", [STATION_SAMPLE_SEED_ENV]: seed } as NodeJS.ProcessEnv;
+}
+
+function tmpRoot(prefix: string): string {
+  return mkdtempSync(join(tmpdir(), prefix));
+}
+
+const fakeDeckActor = {
+  scenarioId: "s",
+  actorId: "a",
+  slotKind: "primary_patient",
+  posture: "supine",
+  bodyMin: { x: 0, y: 0, z: 0 },
+  bodyMax: { x: 1, y: 1, z: 1 },
+  longestAxis: "x",
+  deckPenetrationMeters: 0,
+  deckTopY: 0.55,
+  clearanceAboveDeckMeters: 0.01,
+};
 
 function sha256File(p: string): string {
   return createHash("sha256").update(readFileSync(p)).digest("hex");
@@ -88,7 +152,7 @@ describe("CW1 supine list selection (unit, no browser)", () => {
 describe("CW2 canonical untouched (unit, temp dir)", () => {
   it("room: sampled writes go to *.sampled.json; canonical sha unchanged", async () => {
     process.env[STATION_SAMPLE_SEED_ENV] = "cw2-seed";
-    const dir = mkdtempSync(join(tmpdir(), "room-cw2-"));
+    const dir = tmpRoot("room-cw2-");
     const canonicalPath = join(dir, "pre-fix.json");
     writeFileSync(canonicalPath, JSON.stringify({ rooms: ["a", "b", "c"] }));
     const before = sha256File(canonicalPath);
@@ -138,7 +202,7 @@ describe("CW2 canonical untouched (unit, temp dir)", () => {
 
   it("supine: sampled writes go to *.sampled.json; canonical sha unchanged", async () => {
     process.env[STATION_SAMPLE_SEED_ENV] = "cw2-seed";
-    const dir = mkdtempSync(join(tmpdir(), "supine-cw2-"));
+    const dir = tmpRoot("supine-cw2-");
     const canonicalPath = join(dir, "inpatient-supine-staging.json");
     writeFileSync(canonicalPath, JSON.stringify({ rows: ["a", "b"] }));
     const before = sha256File(canonicalPath);
@@ -254,7 +318,7 @@ function fakeSupineRow(scenarioId: string) {
 
 describe("F1 writer defaults route sampled reports (unit, temp evidence root)", () => {
   it("room: writeRoomDump(sampled) with NO outputPath writes the sampled sibling only", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "room-f1-"));
+    const dir = tmpRoot("room-f1-");
     const report = { rooms: [fakeRoom("a")], sample: { seed: "f1-seed", ids: ["a"] } };
     const written = await writeRoomDump(report, { label: "f1", evidenceRoot: dir });
     expect(written).toContain(".sampled.json");
@@ -269,7 +333,7 @@ describe("F1 writer defaults route sampled reports (unit, temp evidence root)", 
   });
 
   it("supine: writeDump(sampled) with NO outputPath writes the sampled sibling only", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "supine-f1-"));
+    const dir = tmpRoot("supine-f1-");
     const report = {
       rows: [fakeSupineRow("a")],
       declaredInpatientScenarioIds: [],
@@ -297,7 +361,7 @@ describe("F1 writer defaults route sampled reports (unit, temp evidence root)", 
 
 describe("F2 cache identity (unit, stubbed measure, temp evidence root)", () => {
   it("room: a cached full report is not reused by a sampled call", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "room-f2-"));
+    const dir = tmpRoot("room-f2-");
     let calls = 0;
     setStationRoomMeasureLiveForTest(async (input) => {
       calls += 1;
@@ -306,15 +370,14 @@ describe("F2 cache identity (unit, stubbed measure, temp evidence root)", () => 
     const full = await inspectStationRoomNotEmpty({ evidenceRoot: dir });
     expect(full.sample).toBeNull();
     expect(calls).toBe(1);
-    process.env[STATION_SAMPLE_ENV] = "2";
-    process.env[STATION_SAMPLE_SEED_ENV] = "f2-a";
+    Object.assign(process.env, sampledEnv("f2-a"));
     const sampled = await inspectStationRoomNotEmpty({ evidenceRoot: dir });
     expect(calls).toBe(2);
     expect(sampled.sample?.seed).toBe("f2-a");
   });
 
   it("supine: seed A cached, then seed B re-measures", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "supine-f2-"));
+    const dir = tmpRoot("supine-f2-");
     let calls = 0;
     setSupineStagingMeasureLiveForTest(async (input) => {
       calls += 1;
@@ -326,8 +389,7 @@ describe("F2 cache identity (unit, stubbed measure, temp evidence root)", () => 
         notEvidenceFor: ["clinical"],
       };
     });
-    process.env[STATION_SAMPLE_ENV] = "2";
-    process.env[STATION_SAMPLE_SEED_ENV] = "f2-seed-a";
+    Object.assign(process.env, sampledEnv("f2-seed-a"));
     const first = await inspectInpatientSupineStaging({ evidenceRoot: dir });
     expect(first.sample?.seed).toBe("f2-seed-a");
     expect(calls).toBe(1);
@@ -338,7 +400,7 @@ describe("F2 cache identity (unit, stubbed measure, temp evidence root)", () => 
   });
 
   it("room: an in-flight sampled promise is not returned to a full call", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "room-f2flight-"));
+    const dir = tmpRoot("room-f2flight-");
     let calls = 0;
     const pending: Array<{ resolve: (v: { rooms: ReturnType<typeof fakeRoom>[] }) => void; ids: string[] }> = [];
     setStationRoomMeasureLiveForTest((input) => {
@@ -348,8 +410,7 @@ describe("F2 cache identity (unit, stubbed measure, temp evidence root)", () => 
         pending.push({ resolve, ids });
       });
     });
-    process.env[STATION_SAMPLE_ENV] = "2";
-    process.env[STATION_SAMPLE_SEED_ENV] = "f2-flight";
+    Object.assign(process.env, sampledEnv("f2-flight"));
     const sampledPromise = inspectStationRoomNotEmpty({ evidenceRoot: dir });
     await new Promise((r) => setTimeout(r, 100));
     expect(calls).toBe(1);
@@ -512,7 +573,7 @@ describe("R3-F1 explicit selections get their own cache key (unit, stubbed measu
   });
 
   it("room (a): explicit in flight is not served to a full call", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "room-r3f1a-"));
+    const dir = tmpRoot("room-r3f1a-");
     let calls = 0;
     const pending: Array<{
       resolve: (v: { rooms: ReturnType<typeof fakeRoom>[] }) => void;
@@ -543,7 +604,7 @@ describe("R3-F1 explicit selections get their own cache key (unit, stubbed measu
   });
 
   it("room (b): full cached, then explicit ids re-measure", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "room-r3f1b-"));
+    const dir = tmpRoot("room-r3f1b-");
     let calls = 0;
     setStationRoomMeasureLiveForTest(async (input) => {
       calls += 1;
@@ -561,7 +622,7 @@ describe("R3-F1 explicit selections get their own cache key (unit, stubbed measu
   });
 
   it("room (c): same explicit ids twice are reused", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "room-r3f1c-"));
+    const dir = tmpRoot("room-r3f1c-");
     let calls = 0;
     setStationRoomMeasureLiveForTest(async (input) => {
       calls += 1;
@@ -580,7 +641,7 @@ describe("R3-F1 explicit selections get their own cache key (unit, stubbed measu
   });
 
   it("supine (a): explicit in flight is not served to a full call", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "supine-r3f1a-"));
+    const dir = tmpRoot("supine-r3f1a-");
     let calls = 0;
     const pending: Array<{
       resolve: (v: {
@@ -625,7 +686,7 @@ describe("R3-F1 explicit selections get their own cache key (unit, stubbed measu
   });
 
   it("supine (b): full cached, then explicit ids re-measure", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "supine-r3f1b-"));
+    const dir = tmpRoot("supine-r3f1b-");
     let calls = 0;
     setSupineStagingMeasureLiveForTest(async (input) => {
       calls += 1;
@@ -649,7 +710,7 @@ describe("R3-F1 explicit selections get their own cache key (unit, stubbed measu
   });
 
   it("supine (c): same explicit ids twice are reused", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "supine-r3f1c-"));
+    const dir = tmpRoot("supine-r3f1c-");
     let calls = 0;
     setSupineStagingMeasureLiveForTest(async (input) => {
       calls += 1;
@@ -676,7 +737,7 @@ describe("R3-F1 explicit selections get their own cache key (unit, stubbed measu
 
 describe("R3-F3 canonical only by a full run (unit, temp evidence root)", () => {
   it("room: sampled report + explicit canonical outputPath throws, canonical unchanged", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "room-r3f3-"));
+    const dir = tmpRoot("room-r3f3-");
     const canonicalRel = ".openclinxr/evidence/issue-133/pre-fix.json";
     const before = existsSync(canonicalRel) ? sha256File(canonicalRel) : null;
     const report = { rooms: [fakeRoom("a")], sample: { seed: "r3-f3", ids: ["a"] } };
@@ -692,7 +753,7 @@ describe("R3-F3 canonical only by a full run (unit, temp evidence root)", () => 
   });
 
   it("supine: sampled report + explicit canonical outputPath throws, canonical unchanged", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "supine-r3f3-"));
+    const dir = tmpRoot("supine-r3f3-");
     const canonicalRel = ".openclinxr/evidence/issue-179/inpatient-supine-staging.json";
     const before = existsSync(canonicalRel) ? sha256File(canonicalRel) : null;
     const report = {
@@ -715,7 +776,7 @@ describe("R3-F3 canonical only by a full run (unit, temp evidence root)", () => 
   });
 
   it("room: canonical file carrying a sampled report is refused by a full call", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "room-r3f3disk-"));
+    const dir = tmpRoot("room-r3f3disk-");
     const planted = { rooms: [fakeRoom("a")], sample: { seed: "planted", ids: ["a"] } };
     await writeRoomDump(planted, { evidenceRoot: dir, label: "plant" });
     copyFileSync(
@@ -739,7 +800,7 @@ describe("R3-F3 canonical only by a full run (unit, temp evidence root)", () => 
   });
 
   it("supine: canonical file carrying a sampled report is refused by a full call", async () => {
-    const dir = mkdtempSync(join(tmpdir(), "supine-r3f3disk-"));
+    const dir = tmpRoot("supine-r3f3disk-");
     const planted = {
       rows: [fakeSupineRow("a")],
       declaredInpatientScenarioIds: [],
@@ -769,4 +830,400 @@ describe("R3-F3 canonical only by a full run (unit, temp evidence root)", () => 
     expect(report.sample).toBeNull();
     expect(report.rows.length).toBeGreaterThan(3);
   });
+});
+
+describe("CW1 round-1 selection (unit, no browser)", () => {
+  it.each([
+    {
+      tag: "supine-deck",
+      bank: "cast bank",
+      minBank: 14,
+      minStrict: false,
+      allIds: async () => listFullSupinePatientBankScenarioIds(),
+      select: selectSupinePatientScenarioIds,
+    },
+    {
+      tag: "per-station",
+      bank: "cast bank",
+      minBank: 14,
+      minStrict: false,
+      allIds: async () => listFullPerStationBankScenarioIds(),
+      select: selectPerStationScenarioIds,
+    },
+    {
+      tag: "declared-equipment",
+      bank: "manifest bank",
+      minBank: 14,
+      minStrict: false,
+      allIds: async () => listEquipmentManifestIds(),
+      select: selectDeclaredEquipmentScenarioIds,
+    },
+    {
+      tag: "arm-abduction",
+      bank: "5-default bank",
+      minBank: 0,
+      minStrict: true,
+      allIds: async () => listFullArmAbductionBankScenarioIds(),
+      select: selectArmAbductionScenarioIds,
+    },
+  ])("$tag: unset selects the full $bank", async ({ minBank, minStrict, allIds, select }) => {
+    const all = await allIds();
+    if (minStrict) expect(all.length).toBeGreaterThan(minBank);
+    else expect(all.length).toBeGreaterThanOrEqual(minBank);
+    const sel = select(all, {});
+    expect(sel.sample).toBeNull();
+    expect(sel.ids).toEqual(all);
+  });
+
+  it.each([
+    {
+      tag: "supine-deck",
+      union: "ED",
+      seed: "cw1-deck",
+      allIds: async () => listFullSupinePatientBankScenarioIds(),
+      select: selectSupinePatientScenarioIds,
+      mustInclude: [ED_SUPINE_SCENARIO_ID] as readonly string[],
+    },
+    {
+      tag: "per-station",
+      union: "psych+ED",
+      seed: "cw1-perst",
+      allIds: async () => listFullPerStationBankScenarioIds(),
+      select: selectPerStationScenarioIds,
+      mustInclude: PER_STATION_MUST_INCLUDE_SCENARIO_IDS,
+    },
+    {
+      tag: "declared-equipment",
+      union: "ED+stroke+adult",
+      seed: "cw1-decl",
+      allIds: async () => listEquipmentManifestIds(),
+      select: selectDeclaredEquipmentScenarioIds,
+      mustInclude: DECLARED_EQUIPMENT_MUST_INCLUDE_SCENARIO_IDS,
+    },
+  ])(
+    "$tag: SAMPLE=2 SEED=x equals selectStationSubset(all) union $union",
+    async ({ seed, allIds, select, mustInclude }) => {
+      const all = await allIds();
+      const env = sampledEnv(seed);
+      const expected = selectStationSubset(all, env);
+      const sel = select(all, env);
+      expect(sel.sample).toEqual({ seed, ids: expected.ids });
+      const targets = [...mustInclude].filter((id) => all.includes(id));
+      expect(new Set(sel.ids)).toEqual(new Set([...expected.ids, ...targets]));
+    },
+  );
+
+  it("arm-abduction: SAMPLE=2 SEED=x equals selectStationSubset(all), no union", () => {
+    const all = listFullArmAbductionBankScenarioIds();
+    const env = sampledEnv("cw1-arm");
+    const expected = selectStationSubset(all, env);
+    const sel = selectArmAbductionScenarioIds(all, env);
+    expect(sel.sample).toEqual({ seed: "cw1-arm", ids: expected.ids });
+    expect(new Set(sel.ids)).toEqual(new Set(expected.ids));
+  });
+});
+
+describe("CW2 round-1 path routing (unit, no browser)", () => {
+  it("supine-deck: sampled reports route to the sampled sibling", () => {
+    expect(supineDeckPathForReport({ scenarios: ["a"], actors: [], sample: null })).not.toContain(".sampled.json");
+    expect(
+      supineDeckPathForReport({ scenarios: ["a"], actors: [], sample: { seed: "s", ids: ["a"] } }),
+    ).toContain(".sampled.json");
+  });
+
+  it("per-station: sampled dumps route to the sampled sibling", () => {
+    expect(integrityDumpPathForReport({ stations: ["a"], actors: [], sample: null }, "cli")).not.toContain(
+      ".sampled.json",
+    );
+    expect(
+      integrityDumpPathForReport({ stations: ["a"], actors: [], sample: { seed: "s", ids: ["a"] } }, "cli"),
+    ).toContain(".sampled.json");
+  });
+
+  it("declared-equipment: sampled pre-fix routes to the sampled sibling", () => {
+    expect(declaredEquipmentPreFixPathForReport({ stations: [], sample: null })).not.toContain(".sampled.json");
+    expect(
+      declaredEquipmentPreFixPathForReport({ stations: [], sample: { seed: "s", ids: ["a"] } }),
+    ).toContain(".sampled.json");
+  });
+
+  it("arm-abduction: sampled pre-fix and latest route to sampled siblings", () => {
+    expect(armAbductionPreFixPathForReport({ scenarios: ["a"], arms: [], sample: null })).not.toContain(
+      ".sampled.json",
+    );
+    const sampled = { scenarios: ["a"], arms: [], sample: { seed: "s", ids: ["a"] } };
+    expect(armAbductionPreFixPathForReport(sampled)).toContain(".sampled.json");
+    expect(armAbductionLatestPathForReport(sampled)).toContain(".sampled.json");
+    expect(armAbductionLatestPathForReport({ scenarios: ["a"], arms: [], sample: null })).not.toContain(
+      ".sampled.json",
+    );
+  });
+});
+
+describe("CW3 generic sampled coverage (unit, no browser)", () => {
+  it("dropping one union station fails naming it; present passes", () => {
+    const sample = { seed: "cw3", ids: ["s1", "s2"] };
+    let message = "";
+    try {
+      assertSampledStationCoverage({
+        instrument: "cw3",
+        measuredScenarioIds: ["s1", "s2", "t1"],
+        sample,
+        targets: ["t1", "t2"],
+      });
+    } catch (error) {
+      message = error instanceof Error ? error.message : String(error);
+    }
+    expect(message).toContain("t2");
+    expect(() =>
+      assertSampledStationCoverage({
+        instrument: "cw3",
+        measuredScenarioIds: ["s1", "s2", "t1", "t2"],
+        sample,
+        targets: ["t1", "t2"],
+      }),
+    ).not.toThrow();
+  });
+
+  it("empty sample and duplicates throw", () => {
+    expect(() =>
+      assertSampledStationCoverage({
+        instrument: "cw3",
+        measuredScenarioIds: ["s1"],
+        sample: { seed: "cw3", ids: [] },
+        targets: [],
+      }),
+    ).toThrow(/empty sample/);
+    expect(() =>
+      assertSampledStationCoverage({
+        instrument: "cw3",
+        measuredScenarioIds: ["s1", "s1"],
+        sample: { seed: "cw3", ids: ["s1"] },
+        targets: [],
+      }),
+    ).toThrow(/duplicate/i);
+  });
+});
+
+describe("C3 cache separation (unit, stubbed measure, no browser)", () => {
+  it("supine-deck: a sampled report is not served to a full call and vice versa", async () => {
+    const dir = tmpRoot("deck-c3-");
+    let calls = 0;
+    const fakeActor = fakeDeckActor;
+    setSupinePatientOnDeckMeasureLiveForTest(async (input) => {
+      calls += 1;
+      return {
+        scenarios: [...(input.scenarioIds ?? [])],
+        actors: (input.scenarioIds ?? []).map((scenarioId) => ({ ...fakeActor, scenarioId })),
+      };
+    });
+    const full = await inspectSupinePatientOnDeck({ evidenceRoot: dir });
+    expect(full.sample).toBeNull();
+    expect(calls).toBe(1);
+    Object.assign(process.env, sampledEnv("c3-deck"));
+    const sampled = await inspectSupinePatientOnDeck({ evidenceRoot: dir });
+    expect(calls).toBe(2);
+    expect(sampled.sample?.seed).toBe("c3-deck");
+    delete process.env[STATION_SAMPLE_ENV];
+    delete process.env[STATION_SAMPLE_SEED_ENV];
+    const fullAgain = await inspectSupinePatientOnDeck({ evidenceRoot: dir });
+    // Served from the canonical disk artifact the first full call wrote (fresh
+    // parse, same selection) — the sampled report is not reused.
+    expect(fullAgain.sample).toBeNull();
+    expect(fullAgain.scenarios).toEqual(full.scenarios);
+    expect(calls).toBe(2);
+  });
+
+  it("per-station: explicit scenarioIds get their own key, full is not reused", async () => {
+    const dir = tmpRoot("perst-c3-");
+    void dir;
+    let calls = 0;
+    setPerStationMeasureLiveForTest(async (input) => {
+      calls += 1;
+      return { stations: [...(input.scenarioIds ?? [])], actors: [] };
+    });
+    const full = await inspectPerStationActorIntegrity();
+    expect(full.sample).toBeNull();
+    expect(calls).toBe(1);
+    Object.assign(process.env, sampledEnv("c3-perst"));
+    const sampled = await inspectPerStationActorIntegrity();
+    expect(calls).toBe(2);
+    expect(sampled.sample?.seed).toBe("c3-perst");
+  });
+
+  it("arm-abduction: sampled seed A then seed B re-measures", async () => {
+    let calls = 0;
+    setArmAbductionMeasureLiveForTest(async (input) => {
+      calls += 1;
+      return { scenarios: [...(input.scenarioIds ?? [])], arms: [] };
+    });
+    Object.assign(process.env, sampledEnv("c3-arm-a"));
+    const first = await inspectArmAbduction();
+    expect(first.sample?.seed).toBe("c3-arm-a");
+    expect(calls).toBe(1);
+    process.env[STATION_SAMPLE_SEED_ENV] = "c3-arm-b";
+    const second = await inspectArmAbduction();
+    expect(calls).toBe(2);
+    expect(second.sample?.seed).toBe("c3-arm-b");
+  });
+
+  it("declared-equipment: full cached, then sampled re-measures with union", async () => {
+    const dir = tmpRoot("decl-c3-");
+    const seen: string[][] = [];
+    setDeclaredEquipmentMeasureLiveForTest(async (input) => {
+      seen.push([...(input.scenarioIds ?? [])]);
+      return {
+        stations: (input.scenarioIds ?? []).map((scenarioId) => ({
+          scenarioId,
+          declaredEquipmentIds: [],
+          declaredPlacements: {},
+          mounted: [],
+          undeclaredMountedIds: [],
+        })),
+      };
+    });
+    const full = await inspectDeclaredEquipmentMounting({ evidenceRoot: dir });
+    expect(full.sample).toBeNull();
+    Object.assign(process.env, sampledEnv("c3-decl"));
+    const sampled = await inspectDeclaredEquipmentMounting({ evidenceRoot: dir });
+    expect(sampled.sample?.seed).toBe("c3-decl");
+    expect(seen.length).toBe(2);
+    expect(new Set(seen[1])).toEqual(
+      new Set([...(sampled.sample?.ids ?? []), ...DECLARED_EQUIPMENT_MUST_INCLUDE_SCENARIO_IDS]),
+    );
+  });
+});
+
+describe("FU1-F1 union is a superset of the asserted stations (unit, no browser)", () => {
+  it.each([
+    {
+      tag: "S1",
+      note: "ED bay named by all three S1 tests",
+      seed: "fu1-deck",
+      allIds: async () => listFullSupinePatientBankScenarioIds(),
+      select: selectSupinePatientScenarioIds,
+      asserted: [ED_SUPINE_SCENARIO_ID] as readonly string[],
+    },
+    {
+      tag: "S2",
+      note: "psych+ED named by the counterweight",
+      seed: "fu1-perst",
+      allIds: async () => listFullPerStationBankScenarioIds(),
+      select: selectPerStationScenarioIds,
+      asserted: PER_STATION_MUST_INCLUDE_SCENARIO_IDS,
+    },
+    {
+      tag: "S3",
+      note: "ED+stroke+adult named by the ED/bedside clauses",
+      seed: "fu1-decl",
+      allIds: async () => listEquipmentManifestIds(),
+      select: selectDeclaredEquipmentScenarioIds,
+      asserted: DECLARED_EQUIPMENT_MUST_INCLUDE_SCENARIO_IDS,
+    },
+  ])("$tag: union covers $note", async ({ seed, allIds, select, asserted }) => {
+    const all = await allIds();
+    const sel = select(all, sampledEnv(seed));
+    expect(sel.sample).not.toBeNull();
+    for (const id of asserted) {
+      expect(sel.ids, "union dropped asserted station").toContain(id);
+    }
+  });
+
+  it("S4: nothing asserted, selection is the raw subset", () => {
+    expect(ARM_ABDUCTION_ASSERTED_SCENARIO_IDS).toHaveLength(0);
+    const all = listFullArmAbductionBankScenarioIds();
+    const sel = selectArmAbductionScenarioIds(all, sampledEnv("fu1-arm"));
+    expect(sel.sample).not.toBeNull();
+    const expected = selectStationSubset(all, sampledEnv("fu1-arm"));
+    expect(new Set(sel.ids)).toEqual(new Set(expected.ids));
+  });
+});
+
+describe("FU1-F3/F4 sampled pre-fix routing (unit, stubbed measure, no browser)", () => {
+  const fakeDeckActors = (ids: string[]) =>
+    ids.map((scenarioId) => ({ ...fakeDeckActor, scenarioId }));
+
+  it.each([
+    {
+      tag: "S1 sampled",
+      seed: "f3-deck",
+      prefix: "deck-f3-",
+      stub: () =>
+        setSupinePatientOnDeckMeasureLiveForTest(async (input) => ({
+          scenarios: [...(input.scenarioIds ?? [])],
+          actors: fakeDeckActors([...(input.scenarioIds ?? [])]),
+        })),
+      run: (dir: string) =>
+        inspectSupinePatientOnDeck({ evidenceRoot: dir, writePreFix: true, force: true }),
+      canonicalRel: ".openclinxr/evidence/issue-150/pre-fix.json",
+      sampledRel: ".openclinxr/evidence/issue-150/pre-fix.json.sampled.json",
+    },
+    {
+      tag: "S1 full",
+      seed: null as string | null,
+      prefix: "deck-f3full-",
+      stub: () =>
+        setSupinePatientOnDeckMeasureLiveForTest(async (input) => ({
+          scenarios: [...(input.scenarioIds ?? [])],
+          actors: fakeDeckActors([...(input.scenarioIds ?? [])]),
+        })),
+      run: (dir: string) =>
+        inspectSupinePatientOnDeck({ evidenceRoot: dir, writePreFix: true, force: true }),
+      canonicalRel: ".openclinxr/evidence/issue-150/pre-fix.json",
+      sampledRel: ".openclinxr/evidence/issue-150/pre-fix.json.sampled.json",
+    },
+    {
+      tag: "S2 sampled",
+      seed: "f4-perst",
+      prefix: "perst-f4-",
+      stub: () =>
+        setPerStationMeasureLiveForTest(async (input) => ({
+          stations: [...(input.scenarioIds ?? [])],
+          actors: [],
+        })),
+      // Fixed main flow: no explicit writePath; the writer routes by report.sample.
+      run: async (dir: string) => {
+        const report = await inspectPerStationActorIntegrity({ force: true, label: "pre-fix" });
+        await writeIntegrityDump(report, { label: "pre-fix", evidenceRoot: dir });
+        return report;
+      },
+      canonicalRel: ".openclinxr/evidence/issue-144/pre-fix.json",
+      sampledRel: ".openclinxr/evidence/issue-144/pre-fix.json.sampled.json",
+    },
+    {
+      tag: "S2 full",
+      seed: null as string | null,
+      prefix: "perst-f4full-",
+      stub: () =>
+        setPerStationMeasureLiveForTest(async (input) => ({
+          stations: [...(input.scenarioIds ?? [])],
+          actors: [],
+        })),
+      run: async (dir: string) => {
+        const report = await inspectPerStationActorIntegrity({ force: true, label: "pre-fix" });
+        await writeIntegrityDump(report, { label: "pre-fix", evidenceRoot: dir });
+        return report;
+      },
+      canonicalRel: ".openclinxr/evidence/issue-144/pre-fix.json",
+      sampledRel: ".openclinxr/evidence/issue-144/pre-fix.json.sampled.json",
+    },
+  ])(
+    "$tag: writePreFix routes by sample",
+    async ({ seed, prefix, stub, run, canonicalRel, sampledRel }) => {
+      const dir = tmpRoot(prefix);
+      stub();
+      if (seed === null) {
+        delete process.env[STATION_SAMPLE_ENV];
+        delete process.env[STATION_SAMPLE_SEED_ENV];
+      } else {
+        process.env[STATION_SAMPLE_ENV] = "2";
+        process.env[STATION_SAMPLE_SEED_ENV] = seed;
+      }
+      const report = await run(dir);
+      const sampled = seed !== null;
+      expect(sampled ? report.sample?.seed : report.sample).toBe(sampled ? seed : null);
+      expect(existsSync(join(dir, canonicalRel))).toBe(!sampled);
+      expect(existsSync(join(dir, sampledRel))).toBe(sampled);
+    },
+  );
 });

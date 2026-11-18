@@ -34,6 +34,14 @@ import {
 } from "./lib/portless-server.js";
 import { chromium, type Page } from "./lib/slotted-playwright.js";
 import {
+	refuseSampledAtCanonical,
+	routedArtifactDefault,
+	SampledMeasureCache,
+	selectionIdentityKey,
+	selectUnionSample,
+} from "./station-subset/sampled-measure.js";
+import type { SampleRecord } from "./station-subset.js";
+import {
 	buildRoomCaptureUrl,
 	ROOM_CAPTURE_MODE,
 	waitForStationShell,
@@ -55,7 +63,22 @@ export type PerStationActorIntegrityReport = {
 	actors: StagedActorMesh[];
 	/** Pre-fix discriminator notes — what separates stations mechanically. */
 	discriminatorNotes?: string[];
+	/** R6: the selection this report measured (null when it measured everything). */
+	sample: SampleRecord | null;
 };
+
+/**
+ * Must-include union. Test-named stations (staging/per-station-actor-integrity.test.ts):
+ * psych_suicidal_ideation_safety_v1 + ed_chest_pain_priority_v1 (KNOWN_GOOD, counterweight code).
+ * Context-only: ob_headache_preeclampsia_triage_v1 (:39, :90-91).
+ */
+export const PER_STATION_MUST_INCLUDE_SCENARIO_IDS = [
+	"psych_suicidal_ideation_safety_v1",
+	"ed_chest_pain_priority_v1",
+] as const;
+
+/** S2: sampled sibling — a sampled run writes here, never the canonical label path. */
+export const MEASURE_SAMPLED_SUFFIX = ".sampled.json";
 
 const repoRoot = path.resolve(
 	path.dirname(fileURLToPath(import.meta.url)),
@@ -75,8 +98,53 @@ const REAL_GARMENT_RE = /openclinxr_real_garment_/i;
 const LIBRARY_GARMENT_RE =
 	/makeclothes_library_(scrub|shirt|pant|trouser|gown)/i;
 
-let cachedReport: PerStationActorIntegrityReport | null = null;
-let measureInFlight: Promise<PerStationActorIntegrityReport> | null = null;
+/** Keyed in-process cache: a full report never satisfies a sampled call or vice versa. */
+const measureCache = new SampledMeasureCache<PerStationActorIntegrityReport>();
+
+/** Test seam: replace the live browser measurement (no browser). Null = production path. */
+type MeasureLiveAllStationsFn = typeof measureLiveAllStations;
+let measureLiveAllStationsForTest: MeasureLiveAllStationsFn | null = null;
+
+/** Test seam: stub the live measurement. Pass null to restore production measurement. */
+export function setPerStationMeasureLiveForTest(fn: MeasureLiveAllStationsFn | null): void {
+	measureLiveAllStationsForTest = fn;
+}
+
+/** Test seam: restore production measurement and drop in-process caches. */
+export function resetPerStationTestSeam(): void {
+	measureLiveAllStationsForTest = null;
+	measureCache.reset();
+}
+
+/** CW1: pure selection — the sampled-or-full station list, no browser. */
+export type PerStationSampleSelection = {
+	ids: string[];
+	sample: SampleRecord | null;
+};
+
+/** CW1: full bank for this instrument. */
+export function listFullPerStationBankScenarioIds(): string[] {
+	return listShippedCastScenarioIds();
+}
+
+/**
+ * S4a: the sampled station list is sample.ids ∪ MUST-INCLUDE — the psych and ED
+ * stations are always measured so the counterweight keeps full strength.
+ * CW1: pure selection, no browser. sample.ids stays the raw subset; stations cover the union.
+ */
+export function selectPerStationScenarioIds(
+	allIds: string[],
+	env: NodeJS.ProcessEnv = process.env,
+): PerStationSampleSelection {
+	return selectUnionSample(allIds, env, PER_STATION_MUST_INCLUDE_SCENARIO_IDS);
+}
+
+/** S2: a sampled dump goes to the fixed sampled sibling, never the canonical label path. */
+export function integrityDumpPathForReport(report: PerStationActorIntegrityReport, label: string): string {
+	return report.sample
+		? path.join(INTEGRITY_EVIDENCE_DIR, `${label}.json${MEASURE_SAMPLED_SUFFIX}`)
+		: path.join(INTEGRITY_EVIDENCE_DIR, `${label}.json`);
+}
 
 const sourceTriCache = new Map<string, number>();
 
@@ -366,7 +434,7 @@ async function waitForHumanoidsAndFrames(
 async function measureLiveAllStations(input: {
 	baseUrl?: string;
 	scenarioIds?: string[];
-}): Promise<PerStationActorIntegrityReport> {
+}): Promise<Omit<PerStationActorIntegrityReport, "sample">> {
 	const scenarios =
 		input.scenarioIds && input.scenarioIds.length > 0
 			? input.scenarioIds
@@ -487,11 +555,26 @@ async function measureLiveAllStations(input: {
 
 export async function writeIntegrityDump(
 	report: PerStationActorIntegrityReport,
-	input?: { outputPath?: string; label?: string },
+	input?: { outputPath?: string; label?: string; evidenceRoot?: string },
 ): Promise<string> {
-	const outputPath =
-		input?.outputPath ??
-		path.join(INTEGRITY_EVIDENCE_DIR, `${input?.label ?? "measure"}.json`);
+	// F1: routed default + canonical refusal live in station-subset/sampled-measure.
+	const label = input?.label ?? "measure";
+	const outputPath = routedArtifactDefault({
+		reportSample: report.sample,
+		canonicalRel: integrityDumpPathForReport({ ...report, sample: null }, label),
+		sampledRel: integrityDumpPathForReport(report, label),
+		evidenceRoot: input?.evidenceRoot,
+		outputPath: input?.outputPath,
+	});
+	refuseSampledAtCanonical({
+		instrument: "actor-integrity",
+		kind: "sampled report",
+		reportSample: report.sample,
+		outputPath,
+		canonicalRels: [path.join(INTEGRITY_EVIDENCE_DIR, `${label}.json`)],
+		canonicalSuffix: "",
+		evidenceRoot: input?.evidenceRoot,
+	});
 	await mkdir(path.dirname(outputPath), { recursive: true });
 	const payload = {
 		schemaVersion: "openclinxr.per-station-actor-integrity.v1",
@@ -528,31 +611,52 @@ export async function inspectPerStationActorIntegrity(input?: {
 	/** When set, also write this path (pre-fix proof). */
 	writePath?: string;
 }): Promise<PerStationActorIntegrityReport> {
-	if (!input?.force && cachedReport) return cachedReport;
-	if (!input?.force && measureInFlight) return measureInFlight;
+	// S1: the seeded subset (plus must-include counterweight stations) applies
+	// whenever the caller did not name stations — including force:true
+	// re-measures, so each forced call re-measures the SAME sampled ids.
+	// Explicit scenarioIds bypass sampling.
+	const selection: PerStationSampleSelection = input?.scenarioIds?.length
+		? { ids: [...input.scenarioIds], sample: null }
+		: selectPerStationScenarioIds(listShippedCastScenarioIds());
+	const sampled = selection.sample !== null;
+	const needed = selection.ids;
+	// F2: reuse only the exact selection identity (see SampledMeasureCache).
+	const key = selectionIdentityKey(input?.scenarioIds, selection.sample);
 
-	measureInFlight = (async () => {
-		const report = await measureLiveAllStations({
-			baseUrl: input?.baseUrl,
-			scenarioIds: input?.scenarioIds,
+	if (!input?.force) {
+		const hit = measureCache.peek(key) ?? measureCache.peekFlight(key);
+		if (hit) return hit;
+	}
+
+	const task: Promise<PerStationActorIntegrityReport> = (async () => {
+		const measured = await (measureLiveAllStationsForTest ?? measureLiveAllStations)({
+			...(input?.baseUrl === undefined ? {} : { baseUrl: input.baseUrl }),
+			scenarioIds: needed,
 		});
+		// S2: the measured report records its own selection (null on full runs).
+		const report: PerStationActorIntegrityReport = {
+			stations: measured.stations,
+			actors: measured.actors,
+			...(measured.discriminatorNotes ? { discriminatorNotes: measured.discriminatorNotes } : {}),
+			sample: selection.sample,
+		};
 		if (input?.writePath) {
 			await writeIntegrityDump(report, {
 				outputPath: input.writePath,
 				label: input.label ?? "pre-fix",
 			});
 		}
-		if (!input?.scenarioIds) {
-			cachedReport = report;
+		// R3-F1: every completed call is cached under its own key.
+		measureCache.store(report, key);
+		if (sampled && selection.sample) {
+			process.stdout.write(
+				`actor-integrity: sampled seed=${selection.sample.seed} stations=${needed.slice().sort().join(",")}\n`,
+			);
 		}
 		return report;
 	})();
 
-	try {
-		return await measureInFlight;
-	} finally {
-		measureInFlight = null;
-	}
+	return measureCache.run(key, task);
 }
 
 async function main(): Promise<void> {
@@ -568,14 +672,16 @@ async function main(): Promise<void> {
 			scenarioFilter = (scenarioFilter ?? []).concat(args[++i]!);
 		}
 	}
-	const defaultPreFix = path.join(INTEGRITY_EVIDENCE_DIR, PRE_FIX_NAME);
 	const report = await inspectPerStationActorIntegrity({
 		force: true,
 		label,
-		scenarioIds: scenarioFilter,
-		writePath: writePath ?? (label === "pre-fix" ? defaultPreFix : undefined),
+		...(scenarioFilter === undefined ? {} : { scenarioIds: scenarioFilter }),
+		...(writePath === undefined ? {} : { writePath }),
 	});
-	if (!writePath && label !== "pre-fix") {
+	if (writePath === undefined) {
+		// F4: no explicit path — the writer routes by report.sample (same rule as
+		// F3): a full pre-fix lands on the canonical label path, a sampled one on
+		// its sampled sibling, instead of failing on a canonical default.
 		await writeIntegrityDump(report, { label });
 	}
 	process.stdout.write(
