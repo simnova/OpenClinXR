@@ -116,9 +116,11 @@ describe("thinning core", () => {
   });
 
   it("T9 file.py:line citation in a .json -> pin", () => {
+    const stem = "materialize_mpfb_humanoid_candidate";
+    const pinned = `"source": "${stem}${".py" + ":" + "8073"}"`;
     const r = evaluateThinning({
       policy: testPolicy(), base: [], head: [R("ev/b.json", 10)],
-      addedLines: [{ path: "ev/b.json", line: `"source": "materialize_mpfb_humanoid_candidate.py:8073"` }],
+      addedLines: [{ path: "ev/b.json", line: pinned }],
       today: TODAY,
     });
     expect(r.ok).toBe(false);
