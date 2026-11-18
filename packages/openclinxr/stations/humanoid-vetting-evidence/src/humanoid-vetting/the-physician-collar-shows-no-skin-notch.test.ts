@@ -83,19 +83,20 @@
  * lower.001 prim5 3 tris, nurse lower prim2 27 + lower.001 prim5 30).
  */
 
-import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
-import { inflateSync } from "node:zlib";
 import { join } from "node:path";
+import { inflateSync } from "node:zlib";
+import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { Raycaster, Vector2 } from "three";
 import { describe, expect, it } from "vitest";
 import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
 import {
-  SITES,
   classifyNurseWaistHit,
   countSeeThrough,
   loadScene,
+  SITES,
+  sortHitsBruteForceOrder,
 } from "../../../../../../tools/openclinxr/evidence/humanoid-vetting/see-through-pixels.js";
 
 const REPO_ROOT = repoRoot();
@@ -246,6 +247,7 @@ async function afterClasses(
     ndc.set(((x + 0.5) / 4096) * 2 - 1, -((y + 0.5) / 4096) * 2 + 1);
     raycaster.setFromCamera(ndc, camera);
     const hits = raycaster.intersectObject(model, true);
+    sortHitsBruteForceOrder(model, hits);
     if (hits.length === 0) {
       missed++;
       continue;

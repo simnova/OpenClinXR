@@ -17,19 +17,24 @@ import {
   BufferGeometry,
   DoubleSide,
   Group,
+  type Intersection,
   Mesh,
   MeshBasicMaterial,
+  type Object3D,
   PerspectiveCamera,
   Raycaster,
   Vector2,
   Vector3,
 } from "three";
+import { acceleratedRaycast, MeshBVH } from "three-mesh-bvh";
 import {
   computeBaseMeshBounds,
   frameCameraForBounds,
 } from "../../../../apps/arena/model-vetting-studio/src/candidate-capture-geometry.js";
+
 // mirrors FixedCameraView in apps/arena/model-vetting-studio/src/candidate-capture-views.ts (local copy keeps the archunit freeze at 449)
 type FixedCameraView = "front" | "side" | "three_quarter";
+
 import { type DecodedPng, decodePng } from "../decode-png.js";
 
 export const BG_LUMA = 0.299 * 24 + 0.587 * 33 + 0.114 * 29;
@@ -87,6 +92,44 @@ function classify(name: string, matName: string, alphaMode: string): string {
     return "visible_skin";
   }
   return "other";
+}
+
+/**
+ * HVE-BVH tie order (cap35 FU1 F1, FU2 F1): three's Raycaster sorts hits by
+ * distance only (three r184 src/core/Raycaster.js:230 ascSort) and
+ * Array.sort is stable, so equal-distance ties keep insertion order — which
+ * is BVH traversal order on the accelerated path (three-mesh-bvh never sorts
+ * raycast hits; MeshBVH.raycastObject3D src/core/MeshBVH.js:447 pushes
+ * traversal order) but (object traversal, face) order on the brute-force
+ * path (Mesh.raycast emits triangles in index order). Re-sorting with
+ * (distance, live traversal index, faceIndex) therefore reproduces the
+ * brute-force order on both paths, so hits[0] is identical even at exact
+ * ties. The traversal index is derived at sort time from the live tree the
+ * cast ran on (depth-first pre-order: node, then children in array order —
+ * exactly three r184 src/core/Raycaster.js:236-255 recursion), so meshes
+ * appended or nested after construction sort at their live brute-force
+ * position; a hit whose object is not under the root throws instead of
+ * silently ordering first. Call after every intersect on a loadScene model
+ * before reading hits[0], passing the root that was passed to
+ * intersectObject. No call site sets raycaster.firstHitOnly.
+ */
+export function sortHitsBruteForceOrder(root: Object3D, hits: Intersection[]): void {
+  const order = new Map<Object3D, number>();
+  const visit = (o: Object3D): void => {
+    order.set(o, order.size);
+    for (const c of o.children) visit(c);
+  };
+  visit(root);
+  hits.sort((a, b) => {
+    if (a.distance !== b.distance) return a.distance - b.distance;
+    const ao = order.get(a.object);
+    const bo = order.get(b.object);
+    if (ao === undefined || bo === undefined) {
+      throw new Error("see-through-pixels: tie-sort hit object not under the cast root");
+    }
+    if (ao !== bo) return ao - bo;
+    return (a.faceIndex ?? -1) - (b.faceIndex ?? -1);
+  });
 }
 
 function multiply(a: number[], b: number[]): number[] {
@@ -175,6 +218,16 @@ export async function loadScene(glbPath: string, view: FixedCameraView = "front"
       obj.name = `${mesh.getName() || node.getName() || "mesh"}#${primI}`;
       obj.userData = { matName: mat?.getName() ?? "", alphaMode: mat?.getAlphaMode() ?? "OPAQUE" };
       obj.frustumCulled = false;
+      // HVE-BVH (cap35 step 2a): per-instance BVH only. mesh.raycast is
+      // assigned on this instance and boundsTree on this geometry;
+      // Mesh.prototype.raycast and BufferGeometry.prototype stay untouched
+      // (see-through-bvh-scope.test.ts). indirect:true keeps the BVH from
+      // reordering geometry.index, so faceIndex numbering is identical to
+      // the brute-force path (chest C5 moved-tri conservation depends on
+      // it). firstHitOnly stays OFF: hits must sort exactly like the
+      // brute-force path; hits[0] is the first hit.
+      geom.boundsTree = new MeshBVH(geom, { verbose: false, indirect: true });
+      obj.raycast = acceleratedRaycast;
       captureModel.add(obj);
       primI++;
     }
@@ -246,6 +299,7 @@ function sampleBox(
       ndc.set(((x + 0.5) / W) * 2 - 1, -((y + 0.5) / lit.h) * 2 + 1);
       raycaster.setFromCamera(ndc, scene.camera);
       const hits = raycaster.intersectObject(scene.model, true);
+      sortHitsBruteForceOrder(scene.model, hits);
       if (hits.length === 0) {
         if (isBg) out.miss++;
         continue;
@@ -316,6 +370,7 @@ export async function countFirstHitsInBox(opts: {
       ndc.set(((x + 0.5) / lit.w) * 2 - 1, -((y + 0.5) / lit.h) * 2 + 1);
       raycaster.setFromCamera(ndc, scene.camera);
       const hits = raycaster.intersectObject(scene.model, true);
+      sortHitsBruteForceOrder(scene.model, hits);
       if (hits.length === 0) continue;
       const hit = hits[0];
       if (hit === undefined) throw new Error("see-through-pixels: first raycast hit vanished after length check");

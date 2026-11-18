@@ -89,7 +89,7 @@ import { join } from "node:path";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { type BufferAttribute, type Group, type Mesh, type PerspectiveCamera, Raycaster, Vector2 } from "three";
 import { describe, expect, it } from "vitest";
-import { loadScene } from "../../../../../../tools/openclinxr/evidence/humanoid-vetting/see-through-pixels.js";
+import { loadScene, sortHitsBruteForceOrder } from "../../../../../../tools/openclinxr/evidence/humanoid-vetting/see-through-pixels.js";
 
 const REPO_ROOT = repoRoot();
 const GLB = process.env["E9_R1_GLB"] ?? join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
@@ -200,6 +200,7 @@ function makeCaster(scene: { camera: PerspectiveCamera; model: Group }): (x: num
     ndc.set(((x + 0.5) / 4096) * 2 - 1, -((y + 0.5) / 4096) * 2 + 1);
     rc.setFromCamera(ndc, camera);
     const hits = rc.intersectObject(model, true);
+    sortHitsBruteForceOrder(model, hits);
     if (hits.length === 0) return null;
     const first = hits[0];
     if (first === undefined) return null;

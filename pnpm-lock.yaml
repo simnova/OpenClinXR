@@ -206,6 +206,9 @@ importers:
       three:
         specifier: 0.184.0
         version: 0.184.0
+      three-mesh-bvh:
+        specifier: 0.9.14
+        version: 0.9.14(three@0.184.0)
       tinyglobby:
         specifier: 0.2.16
         version: 0.2.16
