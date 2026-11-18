@@ -53,7 +53,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Install vulture with mise
-        uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd411 # v5.2.5
+        uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
         with:
           # mise binary pin: the local mise version that ran the cruft gate, measured 2026-11-16 (`mise --version`).
           version: 2026.7.3
