@@ -222,7 +222,7 @@ describe("compiler-resolved surface meter", () => {
     // 2026-11-02 root batch worldmodel (operator-approved 2026-11-02): the private
     // sidecar @openclinxr/world-model-ui-evidence adds one root that publishes
     // nothing (89 -> 90).
-    // 2026-11-18 render-parity station (@openclinxr/station-render-parity) adds one root (90 -> 91) and one entrypoint (198 -> 199); coordinator ruling super-ceo-cap41 2026-11-18, operator ratification requested before land.
+    // 2026-11-18 render-parity station (@openclinxr/station-render-parity) adds one root (90 -> 91) and one entrypoint (198 -> 199); operator-approved 2026-11-18 (super-ceo-cap41 relay).
     expect(report.totals.roots).toBe(91);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
@@ -382,7 +382,7 @@ describe("compiler-resolved surface meter", () => {
     // xr-sync-server adds one reviewed ./conversation-replay subpath
     // (xr-sync-mn2-replay-v1 admission) for the MN2 replay recompute, root
     // export delta 0 (197 -> 198).
-    // 2026-11-18 render-parity station (@openclinxr/station-render-parity) adds one root (90 -> 91) and one entrypoint (198 -> 199); coordinator ruling super-ceo-cap41 2026-11-18, operator ratification requested before land.
+    // 2026-11-18 render-parity: see the note at the totals.roots pin.
     expect(report.totals.entrypoints).toBe(199);
   });
 
@@ -450,7 +450,7 @@ describe("compiler-resolved surface meter", () => {
     // 2026-11-01 root batch blender-bake sidecar adds one root (87 -> 88), operator-approved 2026-10-31.
     // 2026-10-31 png-measure split adds one root (88 -> 89), operator-approved 2026-10-31.
     // 2026-11-02 root batch worldmodel sidecar adds one root (89 -> 90), operator-approved 2026-11-02.
-    // 2026-11-18 render-parity station (@openclinxr/station-render-parity) adds one root (90 -> 91) and one entrypoint (198 -> 199); coordinator ruling super-ceo-cap41 2026-11-18, operator ratification requested before land.
+    // 2026-11-18 render-parity: see the note at the totals.roots pin.
     expect(report.packages.length).toBe(91);
   });
 
