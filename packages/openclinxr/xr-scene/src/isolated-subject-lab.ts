@@ -26,37 +26,50 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
-import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
-import {
-  type ArticulatingHobMeasure,
-  measureArticulatingHob,
+import type {
+  ArticulatingHobMeasure,
 } from "./articulating-hob-measure.js";
-import { type CaptureView, computeMeshBounds, frameCamera, framePortraitCamera } from "./camera-fit-to-bounds.js";
-import { type FocusRegion, resolveFocus } from "./isolated-subject-focus.js";
+import { type CaptureView, computeMeshBounds } from "./camera-fit-to-bounds.js";
 import { type PackFramingRecord, recordPackFraming } from "./isolated-pack-framing.js";
+import { buildSubjectRoot } from "./isolated-subject-assembly.js";
 import {
+  dumpSupineJointState,
+  round3,
+  type SupineJointDump,
+} from "./isolated-subject-debug-evidence.js";
+import type { FocusRegion } from "./isolated-subject-focus.js";
+import {
+  applyMaterialOverrides,
+  applySkinOverride,
   type MaterialOverride,
   type MaterialOverrideApplied,
   type SkinOverride,
   type SkinOverrideApplied,
-  applyMaterialOverrides,
-  applySkinOverride,
 } from "./isolated-subject-material-variants.js";
-import {
-  type ProductLightingRigFns,
-  type RigOverride,
-  applyRigOverride,
-} from "./isolated-subject-rig-variants.js";
 import { applyLabProductRig } from "./isolated-subject-product-rig.js";
 import {
-  type SupineJointDump,
-  collectRuntimeDebug,
-  dumpSupineJointState,
-  projectBoxPx,
-  round3,
-} from "./isolated-subject-debug-evidence.js";
-import { buildSubjectRoot } from "./isolated-subject-assembly.js";
+  applyRigOverride,
+  type ProductLightingRigFns,
+  type RigOverride,
+} from "./isolated-subject-rig-variants.js";
 import { parseIsolatedSubjectSpec } from "./isolated-subject-spec-params.js";
+import type { ParityReadback, ParitySpecExtension } from "./parity/parity-types.js";
+
+export type { ParityReadback };
+
+import {
+  finalizeIsolatedSubjectCapture,
+  frameLabCamera,
+} from "./parity/parity-finalize.js";
+import { buildParityPipeline } from "./parity/parity-pipeline.js";
+import {
+  applyParityBeautyLevers,
+  applyParityCameraOverride,
+  applyParitySceneModes,
+  assertParityProductRigRefusal,
+  enforceHideHairOnly,
+  resolveParityScene,
+} from "./parity/parity-scene.js";
 
 /**
  * Reference-pack capture views (#262). Mirrors the #232 pack view set
@@ -173,7 +186,7 @@ export type IsolatedSubjectSpec = {
   eyeCorneaFresnelGain?: number;
   eyeCorneaFresnelExponent?: number;
   label?: string;
-};
+} & ParitySpecExtension;
 
 
 
@@ -209,6 +222,12 @@ export type IsolatedSubjectEvidence = {
   productRenderer: "apps/ui-xr three.js WebGLRenderer + imported station builders / supine-pose";
   claimScope: "isolated_subject_harness_capture_only";
   notEvidenceFor: string[];
+  /**
+   * Aisha-parity (P2) readback: every lever echoed live from the scene /
+   * renderer. Absent when no parity/hdri/cameraOverride/calib/masks spec is
+   * present (levers OFF by default).
+   */
+  parity?: ParityReadback;
 };
 
 export type { ArticulatingHobMeasure };
@@ -234,23 +253,6 @@ const HEIGHT_LEGACY = 960;
 const PACK_WIDTH = 1024;
 const BG = "#18211d";
 
-function measureCanvasCoverage(renderer: WebGLRenderer): number {
-  const canvas = renderer.domElement;
-  const gl = renderer.getContext();
-  const w = canvas.width;
-  const h = canvas.height;
-  if (w < 1 || h < 1) return 0;
-  const pixels = new Uint8Array(w * h * 4);
-  gl.readPixels(0, 0, w, h, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
-  let nonBg = 0;
-  for (let i = 0; i < pixels.length; i += 4) {
-    const r = pixels[i] ?? 0;
-    const g = pixels[i + 1] ?? 0;
-    const b = pixels[i + 2] ?? 0;
-    if (Math.abs(r - 0x18) + Math.abs(g - 0x21) + Math.abs(b - 0x1d) > 36) nonBg += 1;
-  }
-  return nonBg / (w * h);
-}
 
 
 
@@ -268,7 +270,11 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   canvas.id = "isolated-subject-capture-canvas";
   mount.append(canvas);
 
-  const renderer = new WebGLRenderer({ antialias: true, canvas, preserveDrawingBuffer: true });
+  const wallT0 = Date.now();
+  const { masksMode, calibMode, parityScene } = resolveParityScene(spec);
+  assertParityProductRigRefusal({ masksMode, calibMode, parityScene, productEnvironmentId: spec.productEnvironmentId });
+
+  const renderer = new WebGLRenderer({ antialias: masksMode ? false : true, canvas, preserveDrawingBuffer: true });
   // Product rig call order per apps/ui-xr/src/main.ts: ACES first, right after
   // renderer creation, so the rig exposure value takes effect.
   if (spec.productEnvironmentId) {
@@ -285,17 +291,19 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   const packSize = spec.renderSize != null && Number.isFinite(spec.renderSize)
     ? Math.min(4096, Math.max(512, Math.round(spec.renderSize)))
     : PACK_WIDTH;
-  const width = square ? packSize : WIDTH_LEGACY;
-  const height = square ? packSize : HEIGHT_LEGACY;
+  // Aisha-parity: exact drawing buffer, pixelRatio 1, no auto framing.
+  const width = spec.cameraOverride?.width ?? (square ? packSize : WIDTH_LEGACY);
+  const height = spec.cameraOverride?.height ?? (square ? packSize : HEIGHT_LEGACY);
   renderer.setSize(width, height, false);
-  renderer.setClearColor(new Color(BG));
+  renderer.setClearColor(new Color(masksMode ? "#000000" : BG));
   renderer.setPixelRatio(1);
 
   const scene = new Scene();
-  scene.background = new Color(BG);
+  scene.background = new Color(masksMode ? "#000000" : BG);
   // Variant evaluator: removeDefaultLights drops this exact default rig (identical otherwise).
-  // A product rig or a studio rig also replaces the lab defaults.
-  if (spec.rigOverride?.removeDefaultLights !== true && !spec.productEnvironmentId && !spec.rigOverride?.studio) {
+  // A product rig or a studio rig also replaces the lab defaults. Parity HDRI /
+  // calib / masks captures run lightless (HDRI env or unlit) — no lab defaults.
+  if (spec.rigOverride?.removeDefaultLights !== true && !spec.productEnvironmentId && !spec.rigOverride?.studio && !spec.rigOverride?.hdri && !masksMode && !calibMode) {
     scene.add(new AmbientLight("#dceee6", 1.45));
     const key = new DirectionalLight("#ffffff", 2.2);
     key.position.set(3.2, 5.2, 4.1);
@@ -309,7 +317,8 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   // render is the #262 input defect — TRELLIS reconstructed the lit ground plane as
   // geometry, which is what every #262 metric read as "pole lost". One variable:
   // subject geometry only, flat background, nothing else changes.
-  if (spec.subjectOnly !== true) {
+  // Aisha-parity (P2): P1a has no ground — parity scenes are always groundless.
+  if (spec.subjectOnly !== true && !parityScene) {
     const ground = new Mesh(
       new PlaneGeometry(6, 6),
       new MeshStandardMaterial({
@@ -326,6 +335,8 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   }
 
   const { root, meshCount, humanoid, hairHidden, hiddenHairMeshes } = await buildSubjectRoot(spec);
+  // P2 cap39 hideHair: ONLY the scalp hair mesh; brows and lashes stay (enforced).
+  enforceHideHairOnly(root, spec.hideHair === true, hiddenHairMeshes);
   scene.add(root);
   window.__openClinXrIsolatedSceneRoot = root;
   root.updateMatrixWorld(true);
@@ -343,6 +354,9 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     materialOverridesApplied = await applyMaterialOverrides(root, spec.materialOverrides);
     root.updateMatrixWorld(true);
   }
+
+  // P2 test-harness modes: flat P1a-table masks, or calib spheres (needs HDRI + cameraOverride).
+  const { maskReadback, calibReadback, hdriReadback } = await applyParitySceneModes(renderer, scene, root, spec, masksMode);
 
   if (humanoid && (spec.subjectKind === "runtime_posture" || spec.subjectKind === "posture_on_furniture")) {
     window.__openClinXrSupineJointDump = dumpSupineJointState(
@@ -372,38 +386,14 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     max: { x: round3(bounds.max.x), y: round3(bounds.max.y), z: round3(bounds.max.z) },
   };
 
-  // #354/#358: focus framing — the frame is driven to the DERIVED region, never
-  // a literal camera position. An unresolvable focus REFUSES (#358) instead of
-  // silently falling back; the evidence records which framing was actually used.
-  const { focusRegion, frameBounds } = resolveFocus(root, spec.focus, bounds);
-
   const camera = new PerspectiveCamera(35, width / height, 0.01, 100);
-  let frameSpanFraction: number | null;
-  let portrait: {
-    fovDeg: number;
-    fillTarget: number;
-    distanceM: number;
-    headHeightPx: number;
-    headBoxPx: { x0: number; y0: number; x1: number; y1: number };
-    yawDegrees: number;
-  } | null = null;
-  if (spec.portrait === true) {
-    // Tight portrait: fov 24 on the frameBounds centre, frameBounds height fills 78%.
-    // Head path: chin-to-crown. st-vitbody r4: forearm / neck-close frameBounds.
-    const framed = framePortraitCamera(camera, frameBounds, spec.yawDegrees ?? 0);
-    frameSpanFraction = null;
-    const boxPx = projectBoxPx(camera, frameBounds, renderer.domElement.width, renderer.domElement.height);
-    portrait = {
-      fovDeg: 24,
-      fillTarget: 0.78,
-      distanceM: framed.distanceM,
-      headHeightPx: boxPx.heightPx,
-      headBoxPx: { x0: boxPx.x0, y0: boxPx.y0, x1: boxPx.x1, y1: boxPx.y1 },
-      yawDegrees: spec.yawDegrees ?? 0,
-    };
-  } else {
-    frameSpanFraction = frameCamera(camera, frameBounds, spec.view, spec.yawDegrees);
+  if (spec.cameraOverride) {
+    // Aisha-parity: exactly the P1a camera — no auto framing.
+    applyParityCameraOverride(camera, spec.cameraOverride);
   }
+  const { focusRegion, frameBounds, frameSpanFraction, portrait } = frameLabCamera({
+    camera, spec, root, bounds, renderer,
+  });
 
   // Variant evaluator: rig lights resolve AFTER focus so relativeToHead offsets
   // anchor to the framed head centre (portable across humanoids); tone mapping
@@ -411,6 +401,22 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   if (spec.rigOverride) {
     applyRigOverride(scene, renderer, spec.rigOverride, frameBounds.getCenter(new Vector3()));
   }
+
+  // Aisha-parity levers (each OFF by default; beauty + calib only, never masks).
+  const parityBeauty = !masksMode && !calibMode;
+  const { shadowReadback, eyesReadback, clothReadback, browLashReadback, hairRimReadback, skinReadback } = applyParityBeautyLevers({
+    scene, renderer, root, spec, masksMode, calibMode, parityBeauty,
+    frameCentre: frameBounds.getCenter(new Vector3()), hdriReadback,
+  });
+
+  const pipeline = buildParityPipeline(
+    renderer,
+    scene,
+    camera,
+    parityBeauty ? spec.parity : undefined,
+    width,
+    height,
+  );
 
   // Product rig through the PRODUCT functions (see
   // ./isolated-subject-product-rig.ts — split by the file-size budget).
@@ -431,96 +437,18 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
   }
 
   const packFraming = recordPackFraming(camera, frameBounds, spec.view);
-  window.__openClinXrIsolatedRenderFrame = () => { renderer.render(scene, camera); };
 
-  let framesAdvanced = 0;
-  await new Promise<void>((resolve) => {
-    const step = () => {
-      renderer.render(scene, camera);
-      framesAdvanced += 1;
-      if (framesAdvanced >= 4) {
-        resolve();
-        return;
-      }
-      requestAnimationFrame(step);
-    };
-    requestAnimationFrame(step);
-  });
-
-  const requestedDeg = spec.inclineDegrees ?? 0;
-  window.__openClinXrArticulatingHobMeasure = measureArticulatingHob(root, requestedDeg, framesAdvanced);
-
-  if (spec.exportGlb === true) {
-    // Parametric-source serialization (#262): export the same root the harness
-    // rendered to a GLB so the bake output can be compared with the same
-    // instrument (glTF-vs-glTF), not a browser-side count vs a trimesh count.
-    const exporter = new GLTFExporter();
-    await new Promise<void>((resolve) => {
-      exporter.parse(
-        root,
-        (result) => {
-          if (result instanceof ArrayBuffer) {
-            const bytes = new Uint8Array(result);
-            let binary = "";
-            const CHUNK = 0x8000;
-            for (let i = 0; i < bytes.length; i += CHUNK) {
-              binary += String.fromCharCode(...bytes.subarray(i, i + CHUNK));
-            }
-            window.__openClinXrExportedGlbBase64 = btoa(binary);
-          }
-          resolve();
-        },
-        (error: unknown) => {
-          console.error("GLB export failed", error);
-          resolve();
-        },
-        { binary: true },
-      );
-    });
-  }
-
-  const frameCoverageHint = Math.min(
-    0.95,
-    Math.max(0.05, (size.x * size.y) / Math.max(size.length() * size.length() * 0.35, 0.01)),
-  );
-  const frameCoverage = measureCanvasCoverage(renderer);
-
-  const evidence: IsolatedSubjectEvidence = {
-    source: "window.__openClinXrIsolatedSubjectEvidence",
-    subjectId: spec.subjectId,
-    subjectKind: spec.subjectKind,
-    label: spec.label ?? spec.subjectId,
-    roomGeometryPresent: false,
-    hudPresent: false,
-    extraActorIds: [],
-    meshCount,
-    boundsMeters: {
-      width: Math.round(size.x * 1000) / 1000,
-      height: Math.round(size.y * 1000) / 1000,
-      depth: Math.round(size.z * 1000) / 1000,
+  // Boot/render/evidence split (size-freeze): finalization lives in parity-scene.
+  return finalizeIsolatedSubjectCapture({
+    pipeline, root, camera, renderer, scene, spec,
+    meshCount, size, packFraming, frameSpanFraction, groundPlanePresent, focusRegion, portrait,
+    hairHidden, hiddenHairMeshes, skinOverrideApplied, materialOverridesApplied, productRig,
+    masksMode, calibMode, wallT0,
+    readbacks: {
+      hdri: hdriReadback, shadow: shadowReadback, mask: maskReadback, calib: calibReadback,
+      eyes: eyesReadback, cloth: clothReadback, browLash: browLashReadback, hairRim: hairRimReadback, skin: skinReadback,
     },
-    packFraming,
-    frameCoverageHint,
-    frameCoverage,
-    frameSpanFraction,
-    groundPlanePresent,
-    focusRegion,
-    inclineDegrees: spec.inclineDegrees ?? null,
-    usesProductRenderer: true,
-    productRenderer: "apps/ui-xr three.js WebGLRenderer + imported station builders / supine-pose",
-    claimScope: "isolated_subject_harness_capture_only",
-    notEvidenceFor: [
-      "clinical_validity",
-      "quest_readiness",
-      "learner_readiness",
-      "semi_fowler_product_ship",
-      "visual_realism_b_plus",
-      "multi_joint_articulation",
-    ],
-  };
-  window.__openClinXrIsolatedSubjectEvidence = evidence;
-  window.__openClinXrIsolatedRuntimeDebug = collectRuntimeDebug({ renderer, scene, root, hairHidden, hiddenHairMeshes, skinOverrideApplied, materialOverridesApplied, productRig, portrait });
-  return evidence;
+  });
 }
 
 

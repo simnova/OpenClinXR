@@ -1,0 +1,14 @@
+{
+  "rotationYDeg": 0,
+  "exposure": 0.87,
+  "aa": "msaa",
+  "ao": {
+    "kind": "gtao",
+    "radius": 0.25,
+    "intensity": 1.0
+  },
+  "shadows": {
+    "type": "pcfsoft",
+    "mapSize": 4096
+  }
+}

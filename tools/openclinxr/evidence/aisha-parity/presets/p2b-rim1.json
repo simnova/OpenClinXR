@@ -1,0 +1,21 @@
+{
+  "rotationYDeg": 0,
+  "exposure": 0.87,
+  "aa": "msaa",
+  "ao": {
+    "kind": "gtao",
+    "radius": 0.25,
+    "intensity": 1.0
+  },
+  "physical": {
+    "browLash": {
+      "colorScale": 0.05,
+      "envMapIntensity": 0.0,
+      "roughness": 1.0
+    },
+    "hairRim": {
+      "factor": -2,
+      "units": -2
+    }
+  }
+}

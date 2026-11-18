@@ -1,0 +1,22 @@
+{
+  "rotationYDeg": 0,
+  "exposure": 0.87,
+  "aa": "msaa",
+  "ao": {
+    "kind": "gtao",
+    "radius": 0.1,
+    "intensity": 2.0
+  },
+  "shadows": {
+    "type": "pcfsoft",
+    "mapSize": 4096,
+    "intensity": 0.3
+  },
+  "physical": {
+    "browLash": {
+      "colorScale": 0.05,
+      "envMapIntensity": 0.0,
+      "roughness": 1.0
+    }
+  }
+}

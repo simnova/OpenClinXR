@@ -1,0 +1,1 @@
+{"aa":"ssaa","ao":{"intensity":2.0,"kind":"gtao","radius":0.25},"exposure":0.87,"physical":{"browLash":{"colorScale":0.05,"envMapIntensity":0.0,"roughness":1.0},"eyes":{"clearcoat":1,"clearcoatRoughness":0.02,"roughness":0.05,"specularIntensity":0.5},"skin":{"roughness":0.6}},"rotationYDeg":0,"ssaa":{"filter":"gauss15","scale":3}}
