@@ -176,55 +176,55 @@
       "id": "02",
       "name": "licence-notice-skipped",
       "reason": "metadata_only",
-      "note": "STAGES.md GAP 1: the tracked writer has no target CLI and would write apps/ui-xr/public/**; the stage changes only glTF asset.copyright. A chain run carries the predecessor bytes forward unchanged."
+      "note": "STAGES.md GAP 1 (verified 2026-11-18): the tracked writer tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts (commit bbf3f84af 2026-09-10) is dir-wide over apps/ui-xr/public/generated-humanoids/ with no per-file CLI (no {in}/{out} argv; manifest validation would reject it as a chain stage), so the stage changes only glTF asset.copyright and a chain run carries the predecessor bytes forward unchanged. Main notice (ship-superset P1): \"Contains WojackOWL, Medical Scrubs Kit, CC-BY. Notices: https://developers.simnova.com/OpenClinXR/attribution.html#mpfb-peds-nurse-kevin\"."
     },
     {
       "id": "06",
       "name": "walk-clip-graft",
       "reason": "gap",
-      "note": "STAGES.md GAP 2: required source human-base-animations.glb#Walk is not in IN/WT/store; byte-changing animation graft, cannot be skipped silently."
+      "note": "STAGES.md GAP 2 (verified 2026-11-18): shipped clip openclinxr_retarget_walk_source was bound by tools/openclinxr/factory/bind-walk-clip-all.ts (commit 91aa4b5d3 2026-09-25), recipe extract-library-clip.ts -> motion_bind_stage.py Blender retarget onto this actor -> dropLeadingRestFrame -> graft (motionClips graftedChannels 411, graftedJoints 137, licence row-05 CC0). The graft CLI alone (--target/--source/--clip/--output/--report) cannot reproduce it: --source human-base-animations.glb#Walk is the unbound library clip on a different rig, and no per-actor bound-clip file exists as a chain input. No single chain-compatible ({in}/{out}) tracked tool reproduces main's bound clip bytes."
     },
     {
       "id": "07",
       "name": "walk-rebind-heading",
       "reason": "gap",
-      "note": "STAGES.md GAP 2 family: corrected heading/rebind of the stage-06 graft; blocked on the same missing clip source."
+      "note": "STAGES.md GAP 2 family (verified 2026-11-18): rebindBoundClipTravelHeading reverse_existing_channels (commit 7d71273e3 2026-09-25; CLI --rebind-travel-heading --target/--clip/--output/--report) operates on the stage-06 graft output; blocked on the same missing bound clip (retiredMotionClips records the remove-then-rebind). No chain-compatible tracked reproduction without 06."
     },
     {
       "id": "11",
       "name": "garment-60deg-smooth",
       "reason": "gap",
-      "note": "STAGES.md GAP 3: the sidecar names only the internal Blender function materialize_mpfb_humanoid_candidate.py#apply_garment_auto_smooth_normals (angle_deg=60.0); no tracked standalone CLI exists, so the runner has nothing to execute."
+      "note": "STAGES.md GAP 3 (verified 2026-11-18): the sidecar (garmentRestoreD1) names only the internal Blender function materialize_mpfb_humanoid_candidate.py#apply_garment_auto_smooth_normals (angle_deg=60.0; #371 smooth commit 95c2b6237). A #function fragment has no standalone driver (run-chain.ts: fragment tools stay excluded until a lane adds one); editing the DG-owned materializer is forbidden. No tracked standalone CLI, so the runner has nothing to execute."
     },
     {
       "id": "15",
       "name": "skin-normal-f1",
       "reason": "gap",
-      "note": "STAGES.md GAP 5: Blender bake (F1, cell 6, randomness 0.85, strength 0.8) whose baked PNG/report inputs are absent from WT/store; needs lane Blender regeneration, and editing the DG-owned materializer is forbidden."
+      "note": "STAGES.md GAP 5 (verified 2026-11-18): internal Blender bake bake_skin_normal_to_texture + configure_skin_normal_detail (commit d5496bf5b 2026-11-05; provenance stages[0]: e52a3e25... -> 60985034..., recipe dermal-F1-6tex-randomness0.85-strength0.8). No standalone CLI; baked PNG/report inputs absent from WT/store. Needs lane Blender regeneration; editing the DG-owned materializer is forbidden."
     },
     {
       "id": "16",
       "name": "skin-normal-seeded",
       "reason": "gap",
-      "note": "STAGES.md GAP 4+5: seeded re-bake (seed 27.623558213846657) with the same missing Blender inputs, and the sidecar compresses away the intermediate SHA."
+      "note": "STAGES.md GAP 4+5 (verified 2026-11-18): seeded re-bake of stage 15 (seed 27.623558213846657; provenance stages[1]: 60985034... -> 9cf92b1e...; vitfacet r7 commit 0ed4fcfc7). Same missing standalone driver and missing Blender inputs as 15, and the sidecar compresses away the intermediate SHA."
     },
     {
       "id": "18",
       "name": "lash-follow",
       "reason": "gap",
-      "note": "STAGES.md GAP 6: the lash tool requires a companion provenance sidecar and no minimal-sidecar derivation is recorded."
+      "note": "STAGES.md GAP 6 (verified 2026-11-18): tracked tool tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py (commit 59980e7f6 2026-11-09, r8 inputSha256 9cf92b1e...) is dir-wide (--directory/--actor/--source-ref, in-place over apps/ui-xr/public/**, needs a companion provenance sidecar) with no per-file {in}/{out} argv, so manifest validation rejects it as a chain stage; no minimal-sidecar derivation is recorded."
     },
     {
       "id": "19",
       "name": "teeth-swap",
       "reason": "gap",
-      "note": "STAGES.md GAP 7: requires the scratch GLB f86aa766 (Blender fit) absent from IN/WT/store; the tracked tool cannot regenerate it."
+      "note": "STAGES.md GAP 7 (verified 2026-11-18, HONEST STOP pair): tracked tool tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py (commit 0459e4ae2 2026-11-10) requires --scratch, the Blender fit product .openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-peds-nurse-kevin.glb sha256 f86aa7669fc424732583e4104339b04a2f35d4d019b249b2b5a17f0a099e8b (36482664 B). That path is gitignored with no git history and no copy in WT or /Volumes/files/openclinxr-assets/store/st-teeth (swap dirs carry ob/nurse only). Main swap output 64bc5d53... is therefore unreproducible; post-steps were clearance --delta 0.0102 --in-place-bytes, tongue --delta -0.004 --in-place-bytes, couple-fitted-teeth-to-lip-viseme, decimate."
     },
     {
       "id": "20",
       "name": "teeth-decimate",
       "reason": "gap",
-      "note": "STAGES.md GAP 7 family: --in-place --ratio 0.65 --error 0.005 decimate downstream of the stage-19 swap output; blocked on the same missing scratch."
+      "note": "STAGES.md GAP 7 family (verified 2026-11-18, HONEST STOP pair): tracked tool tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts (commit b042f849c; chain argv {out} --in-place --ratio 0.65 --error 0.005) REFUSES chain bytes: `decimate_teeth: refusing: teeth indices 2 shares bufferView 12` on chain-r1 17-skin-shade-carrier.glb (ab4351ab, teeth 7120). Its faithful input is the stage-19 swap output 64bc5d53... (dedicated bufferViews), unavailable per stage 19. Tri evidence (main fitted teeth 4627 = 7120*0.65) is consistent with a missing decimate, but the tool will not run on non-swap bytes, so no stage is added (no partial superset)."
     },
     {
       "id": "14",
