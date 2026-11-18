@@ -34,3 +34,4 @@ A trial can inform production only when:
 - [0035 — Digital-native station primitives (doorway as cargo-cult)](0035-digital-native-station-primitives.md)
 - [0054 — Equipment three-lane factory (bank / thin parametric / modular kit)](0054-equipment-three-lane-factory.md)
 - [0055 — Equipment asset catalogue file-first SSOT (+ optional Mongo)](0055-equipment-asset-catalog-ssot.md)
+- [0064 — Retire the ambient-fail gate (pre-dispatch vacuous-plant refusal)](0064-ambient-fail-gate-retired.md)
