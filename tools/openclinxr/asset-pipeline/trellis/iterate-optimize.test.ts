@@ -13,7 +13,7 @@ import { NodeIO, type Buffer as GltfBuffer, Document } from "@gltf-transform/cor
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
 import { MeshoptSimplifier } from "meshoptimizer";
 import { describe, expect, it } from "vitest";
-import { writeFacePreservingRung } from "./iterate-optimize.js";
+import { parseIterateOptimizeArgv, writeFacePreservingRung } from "./iterate-optimize.js";
 
 const TOOL = join(dirname(fileURLToPath(import.meta.url)), "iterate-optimize.ts");
 
@@ -107,7 +107,8 @@ describe("writeFacePreservingRung --face-preserving-keep", () => {
 });
 
 describe("face-preserving report keep fields (F1: backward-compatible shape)", () => {
-  it("omits keep at rung and top level when no --face-preserving-keep is given", async () => {
+  // CI 44195741094 measured 5.7 s max; x3 ≈ 20 s
+  it("omits keep at rung and top level when no --face-preserving-keep is given", { timeout: 20_000 }, async () => {
     const input = await twoMeshFixture();
     const dir = mkdtempSync(join(tmpdir(), "fp-nokeep-"));
     execFileSync("pnpm", ["exec", "tsx", TOOL, "--input", input, "--out", dir, "--face-preserving", "--face-preserving-ratio", "0.3"], {
@@ -133,7 +134,8 @@ describe("face-preserving report keep fields (F1: backward-compatible shape)", (
     }
   });
 
-  it("emits keep at rung and top level when --face-preserving-keep is given", async () => {
+  // CI 44195741094 measured 5.7 s max; x3 ≈ 20 s
+  it("emits keep at rung and top level when --face-preserving-keep is given", { timeout: 20_000 }, async () => {
     const input = await twoMeshFixture();
     const dir = mkdtempSync(join(tmpdir(), "fp-keepcli-"));
     execFileSync(
@@ -155,20 +157,27 @@ describe("--face-preserving-keep argv validation (F4)", () => {
   const dummyOut = join(tmpdir(), "fp-dummy-out");
 
   it("rejects --face-preserving-keep at end of argv", () => {
-    const r = runCli(["--input", dummyIn, "--out", dummyOut, "--face-preserving", "--face-preserving-keep"]);
-    expect(r.status).not.toBe(0);
-    expect(r.stderr).toMatch(/--face-preserving-keep/);
+    expect(() =>
+      parseIterateOptimizeArgv(["--input", dummyIn, "--out", dummyOut, "--face-preserving", "--face-preserving-keep"]),
+    ).toThrow(/--face-preserving-keep/);
   });
 
   it("rejects --face-preserving-keep followed by another flag without consuming it", () => {
-    const r = runCli(["--input", dummyIn, "--out", dummyOut, "--face-preserving", "--face-preserving-keep", "--face-preserving-ratio", "0.3"]);
-    expect(r.status).not.toBe(0);
-    expect(r.stderr).toMatch(/--face-preserving-keep/);
+    expect(() =>
+      parseIterateOptimizeArgv(["--input", dummyIn, "--out", dummyOut, "--face-preserving", "--face-preserving-keep", "--face-preserving-ratio", "0.3"]),
+    ).toThrow(/--face-preserving-keep/);
   });
 
   it("rejects an empty --face-preserving-keep value", () => {
-    const r = runCli(["--input", dummyIn, "--out", dummyOut, "--face-preserving", "--face-preserving-keep", ""]);
-    expect(r.status).not.toBe(0);
+    expect(() =>
+      parseIterateOptimizeArgv(["--input", dummyIn, "--out", dummyOut, "--face-preserving", "--face-preserving-keep", ""]),
+    ).toThrow(/--face-preserving-keep/);
+  });
+
+  // CI 44195741094 measured 5.7 s max; x3 ≈ 20 s
+  it("CLI exits 2 with --face-preserving-keep on stderr for a trailing keep flag", { timeout: 20_000 }, () => {
+    const r = runCli(["--input", dummyIn, "--out", dummyOut, "--face-preserving", "--face-preserving-keep"]);
+    expect(r.status).toBe(2);
     expect(r.stderr).toMatch(/--face-preserving-keep/);
   });
 });

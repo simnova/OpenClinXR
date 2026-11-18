@@ -177,7 +177,8 @@ describe("shipped kevin manifest (read-only validation, no stage runs)", () => {
   });
 });
 describe("runChain", () => {
-  it("runs two fake stages in order and writes the chain report", () => {
+  // CI 44195741094 measured 5.7 s max; x3 ≈ 20 s
+  it("runs two fake stages in order and writes the chain report", { timeout: 20_000 }, () => {
     const dir = tmpRoot();
     const manifest = writeManifest(dir, twoStageManifest());
     const out = join(dir, "out");
@@ -211,7 +212,8 @@ describe("runChain", () => {
     ]);
   });
 
-  it("refuses to overwrite write-once stage outputs", () => {
+  // CI 44195741094 measured 5.7 s max; x3 ≈ 20 s
+  it("refuses to overwrite write-once stage outputs", { timeout: 20_000 }, () => {
     const dir = tmpRoot();
     const manifest = writeManifest(dir, twoStageManifest());
     const input = writeInput(dir);
@@ -220,7 +222,8 @@ describe("runChain", () => {
     expect(() => runChain({ manifestPath: manifest, input, out })).toThrow(/write-once/);
   });
 
-  it("refuses a pre-existing out directory even when empty and writes nothing", () => {
+  // CI 44195741094 measured 5.7 s max; x3 ≈ 20 s
+  it("refuses a pre-existing out directory even when empty and writes nothing", { timeout: 20_000 }, () => {
     const dir = tmpRoot();
     const manifest = writeManifest(dir, twoStageManifest());
     const input = writeInput(dir);
@@ -231,7 +234,8 @@ describe("runChain", () => {
     expect(existsSync(join(out, "01-first.glb"))).toBe(false);
   });
 
-  it("a failing in-place stage leaves no final-named GLB and writes a failed report", () => {
+  // CI 44195741094 measured 5.7 s max; x3 ≈ 20 s
+  it("a failing in-place stage leaves no final-named GLB and writes a failed report", { timeout: 20_000 }, () => {
     const dir = tmpRoot();
     const manifest = writeManifest(dir, [
       {
@@ -257,7 +261,8 @@ describe("runChain", () => {
     expect(onDisk.notEvidenceFor).toEqual(CHAIN_NOT_EVIDENCE_FOR);
   });
 
-  it("collects a workdir product via collectFrom", () => {
+  // CI 44195741094 measured 5.7 s max; x3 ≈ 20 s
+  it("collects a workdir product via collectFrom", { timeout: 20_000 }, () => {
     const dir = tmpRoot();
     const manifest = writeManifest(dir, [
       {
@@ -274,7 +279,8 @@ describe("runChain", () => {
     expect(readFileSync(join(out, "01-baked.glb"), "utf8")).toBe("GLB0+W");
   });
 
-  it("creates parent dirs for --report/--outdir/--out argv targets", () => {
+  // CI 44195741094 measured 5.7 s max; x3 ≈ 20 s
+  it("creates parent dirs for --report/--outdir/--out argv targets", { timeout: 20_000 }, () => {
     const dir = tmpRoot();
     const manifest = writeManifest(dir, [
       {
@@ -292,7 +298,8 @@ describe("runChain", () => {
     expect(existsSync(join(out, "01-first.glb"))).toBe(true);
   });
 
-  it("materializes a git-blob input and verifies its sha256", () => {
+  // CI 44195741094 measured 5.7 s max; x3 ≈ 20 s
+  it("materializes a git-blob input and verifies its sha256", { timeout: 20_000 }, () => {
     const root = process.cwd();
     const ref = "HEAD:package.json";
     const bytes = execFileSync("git", ["-C", root, "show", ref]);

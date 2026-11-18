@@ -139,7 +139,7 @@ function resolveOut(out: string): string {
   return path.resolve(out);
 }
 
-function parseArgs(argv: string[]) {
+export function parseIterateOptimizeArgv(argv: string[]) {
   let input = "";
   let out = "";
   let bake = false;
@@ -163,48 +163,51 @@ function parseArgs(argv: string[]) {
     else if (argv[i] === "--face-preserving-keep") {
       const nxt = argv[i + 1];
       if (nxt === undefined || nxt.length === 0 || nxt.startsWith("--")) {
-        console.error("--face-preserving-keep requires a non-empty value that does not start with --");
-        process.exit(2);
+        throw new Error("--face-preserving-keep requires a non-empty value that does not start with --");
       }
       facePreservingKeep.push(nxt);
       i += 1;
     }
   }
   if (!input || !out) {
-    console.error("Usage: iterate-optimize.ts --input <raw.glb> --out <dir> [--bake] [--bake-res <n>] [--target <low.glb>] [--render] [--render-out <png>]");
-    console.error("   or: iterate-optimize.ts --input <raw.glb> --out <dir> --face-preserving [--face-preserving-ratio <r>]");
-    process.exit(2);
+    throw new Error(
+      "Usage: iterate-optimize.ts --input <raw.glb> --out <dir> [--bake] [--bake-res <n>] [--target <low.glb>] [--render] [--render-out <png>]\n" +
+      "   or: iterate-optimize.ts --input <raw.glb> --out <dir> --face-preserving [--face-preserving-ratio <r>]",
+    );
   }
   if (target && !bake && !render) {
-    console.error("--target requires --bake and/or --render (stage-only mode)");
-    process.exit(2);
+    throw new Error("--target requires --bake and/or --render (stage-only mode)");
   }
   if (!Number.isFinite(bakeRes) || bakeRes < 1) {
-    console.error(`invalid --bake-res ${bakeRes}`);
-    process.exit(2);
+    throw new Error(`invalid --bake-res ${bakeRes}`);
   }
   if (facePreservingRatio !== 0 && !facePreserving) {
-    console.error("--face-preserving-ratio requires --face-preserving");
-    process.exit(2);
+    throw new Error("--face-preserving-ratio requires --face-preserving");
   }
   let facePreservingKeepRes: RegExp[] = [];
   if (facePreservingKeep.length > 0) {
     if (!facePreserving) {
-      console.error("--face-preserving-keep requires --face-preserving");
-      process.exit(2);
+      throw new Error("--face-preserving-keep requires --face-preserving");
     }
     try {
       facePreservingKeepRes = facePreservingKeep.map((s) => new RegExp(s));
     } catch (e) {
-      console.error(`invalid --face-preserving-keep regex: ${String(e)}`);
-      process.exit(2);
+      throw new Error(`invalid --face-preserving-keep regex: ${String(e)}`);
     }
   }
   if (facePreserving && target) {
-    console.error("--face-preserving cannot combine with --target (bake/render stage-only mode)");
-    process.exit(2);
+    throw new Error("--face-preserving cannot combine with --target (bake/render stage-only mode)");
   }
   return { input: resolveInput(input), out: resolveOut(out), bake, render, target: target ? resolveInput(target) : "", bakeRes, renderOut, facePreserving, facePreservingRatio, facePreservingKeep, facePreservingKeepRes };
+}
+
+function parseArgs(argv: string[]) {
+  try {
+    return parseIterateOptimizeArgv(argv);
+  } catch (e) {
+    console.error(e instanceof Error ? e.message : String(e));
+    process.exit(2);
+  }
 }
 
 async function countTris(glbPath: string): Promise<number> {
