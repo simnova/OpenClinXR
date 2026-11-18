@@ -1,4 +1,4 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -458,5 +458,239 @@ describe("correct-sidecar-byte-lineage nesting + idempotence (e9-r2lineage)", ()
     console.log(`f3 below-top refusal: ${message.slice(0, 120)}`);
     expect(message, "below-top match against altered bytes refuses").toContain("NOT explained");
     expect(readFileSync(sidecar, "utf8"), "sidecar unchanged by the refused correction").toBe(sidecarBefore);
+  });
+});
+
+describe("correct-sidecar-byte-lineage --asset selection + termination (corrector-one)", () => {
+  const FIXTURES_ENV = "CORRECT_SIDECAR_CORRECTIONS_FILE";
+
+  function writeCopyChild(dir: string, name: string, marker?: string): string {
+    const p = path.join(dir, name);
+    const markLine =
+      marker === undefined ? "" : `writeFileSync(${JSON.stringify(marker)}, "marker");\n`;
+    writeFileSync(
+      p,
+      `import { copyFileSync, writeFileSync } from "node:fs";\n${markLine}copyFileSync(process.argv[2], process.argv[3]);\n`,
+    );
+    return p;
+  }
+
+  function writeEntryFiles(
+    job: string,
+    tag: string,
+    opts: { shippedDiffers: boolean; marker?: string },
+  ): { assetPath: string; provenancePath: string; preImage: { kind: "file"; path: string }; derivationArgv: string[] } {
+    const pre = path.join(job, `${tag}-pre.glb`);
+    writeFileSync(pre, Buffer.from(`${tag}-pre-image-bytes`));
+    const shipped = path.join(job, `${tag}-shipped.glb`);
+    writeFileSync(shipped, opts.shippedDiffers ? Buffer.from(`${tag}-SHIPPED-DIFFERS`) : Buffer.from(`${tag}-pre-image-bytes`));
+    const sidecar = path.join(job, `${tag}.provenance.json`);
+    writeFileSync(sidecar, JSON.stringify({ outputSha256: "old", outputBytes: 1 }));
+    const child = writeCopyChild(job, `${tag}-child.mjs`, opts.marker);
+    return {
+      assetPath: shipped,
+      provenancePath: sidecar,
+      preImage: { kind: "file", path: pre },
+      derivationArgv: ["node", child, "{pre}", "{out}"],
+    };
+  }
+
+  function writeCorrectionsFile(job: string, entries: Array<Record<string, unknown>>): string {
+    const p = path.join(job, "corrections.json");
+    writeFileSync(p, JSON.stringify(entries));
+    return p;
+  }
+
+  function gateOnEnv(correctionsFile: string): NodeJS.ProcessEnv {
+    return { ...process.env, VITEST: "true", [FIXTURES_ENV]: correctionsFile };
+  }
+
+  function gateOffEnv(correctionsFile: string): NodeJS.ProcessEnv {
+    const env: NodeJS.ProcessEnv = { ...process.env, [FIXTURES_ENV]: correctionsFile };
+    delete env["VITEST"];
+    env["NODE_ENV"] = "production";
+    return env;
+  }
+
+  function runCliExpectStatus(args: string[], env: NodeJS.ProcessEnv): { status: number; stderr: string; stdout: string } {
+    let status = -1;
+    let stderr = "";
+    let stdout = "";
+    try {
+      stdout = execFileSync("node", ["--experimental-strip-types", CLI, ...args], {
+        env,
+        encoding: "utf8",
+        stdio: "pipe",
+        timeout: 20_000,
+      });
+      status = 0;
+    } catch (e) {
+      status = (e as { status?: number }).status ?? -1;
+      stderr = String((e as { stderr?: unknown }).stderr ?? e);
+      stdout = String((e as { stdout?: unknown }).stdout ?? "");
+    }
+    return { status, stderr, stdout };
+  }
+
+  it("--asset runs only the named entry; the stale first entry's derivation never runs", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-asset-")));
+    const marker = path.join(job, "first-derivation-ran.marker");
+    const first = writeEntryFiles(job, "first", { shippedDiffers: true, marker });
+    const second = writeEntryFiles(job, "second", { shippedDiffers: false });
+    const correctionsFile = writeCorrectionsFile(job, [
+      { ...first, why: "asset-selection test" },
+      { ...second, why: "asset-selection test" },
+    ]);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const env = gateOnEnv(correctionsFile);
+    const out = execFileSync(
+      "node",
+      ["--experimental-strip-types", CLI, "--working-directory", callDir, "--asset", second.assetPath],
+      { env, encoding: "utf8", stdio: "pipe", timeout: 20_000 },
+    );
+    expect(out).toContain(`${second.assetPath}: reproduced`);
+    expect(out).not.toContain(first.assetPath);
+    expect(existsSync(marker), "first entry derivation must not run (marker absent)").toBe(false);
+    const secondSidecar = JSON.parse(readFileSync(second.provenancePath, "utf8")) as Record<string, unknown>;
+    expect(secondSidecar["outputSha256"]).toBe(sha256(readFileSync(second.assetPath)));
+    const firstSidecarBefore = JSON.stringify({ outputSha256: "old", outputBytes: 1 });
+    expect(readFileSync(first.provenancePath, "utf8")).toBe(firstSidecarBefore);
+  });
+
+  it("unknown --asset exits 2 and names --asset and the value on stderr", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-asset-unknown-")));
+    const only = writeEntryFiles(job, "only", { shippedDiffers: false });
+    const correctionsFile = writeCorrectionsFile(job, [{ ...only, why: "asset-unknown test" }]);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const r = runCliExpectStatus(
+      ["--working-directory", callDir, "--asset", "nope.glb"],
+      gateOnEnv(correctionsFile),
+    );
+    expect(r.status).toBe(2);
+    expect(r.stderr).toContain("--asset");
+    expect(r.stderr).toContain("nope.glb");
+  });
+
+  it("H1+H5 refusing fixture via tsx exits integer 1 with refusal on stderr, no Node.js footer, null signal", async () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-h1-refuse-")));
+    const refusing = writeEntryFiles(job, "refusing", { shippedDiffers: true });
+    const correctionsFile = writeCorrectionsFile(job, [{ ...refusing, why: "h1 refusing-fixture test" }]);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const env = gateOnEnv(correctionsFile);
+    const child = spawn("pnpm", ["exec", "tsx", CLI, "--working-directory", callDir], { env });
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (d: Buffer) => { stdout += d.toString("utf8"); });
+    child.stderr.on("data", (d: Buffer) => { stderr += d.toString("utf8"); });
+    const outcome = await new Promise<{ hung: boolean; code: number | null; signal: NodeJS.Signals | null }>(
+      (resolve, reject) => {
+        const deadline = setTimeout(() => {
+          child.kill("SIGKILL");
+          resolve({ hung: true, code: null, signal: null });
+        }, 30_000);
+        if (deadline.unref) deadline.unref();
+        child.on("close", (code, signal) => {
+          clearTimeout(deadline);
+          resolve({ hung: false, code, signal });
+        });
+        child.on("error", reject);
+      },
+    );
+    expect(outcome.hung, `CLI did not terminate within 30000ms (hang); stdout=${stdout.slice(0, 300)}`).toBe(false);
+    expect(Number.isInteger(outcome.code), `exit code must be an integer; stderr=${stderr.slice(0, 500)}`).toBe(true);
+    expect(outcome.code, `refusing fixture must exit 1; stderr=${stderr.slice(0, 500)}`).toBe(1);
+    expect(outcome.signal, "no terminating signal expected").toBe(null);
+    expect(stderr, "stderr carries the refusal message").toContain("refused");
+    expect(stderr, "no node uncaught-exception footer: the H1 catch owns the exit path").not.toMatch(/^Node\.js v\d+/m);
+  }, 60_000);
+
+  it.each([
+    { tag: "H2a", tmp: "sc04-asset-trailing-", extra: [] },
+    { tag: "H2b", tmp: "sc04-asset-flagfollows-", extra: ["--other-flag"] },
+    { tag: "H2c", tmp: "sc04-asset-twice-", extra: ["__ASSET__", "--asset", "__ASSET__"] },
+  ])("$tag exits 2 naming --asset before any IO", ({ tmp, extra }) => {
+    const job = track(mkdtempSync(path.join(tmpdir(), tmp)));
+    const marker = path.join(job, "derivation-ran.marker");
+    const only = writeEntryFiles(job, "only", { shippedDiffers: false, marker });
+    const correctionsFile = writeCorrectionsFile(job, [{ ...only, why: "h2 test" }]);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const sidecarBefore = readFileSync(only.provenancePath, "utf8");
+    const tail = extra.map((t) => (t === "__ASSET__" ? only.assetPath : t));
+    const r = runCliExpectStatus(
+      ["--working-directory", callDir, "--asset", ...tail],
+      gateOnEnv(correctionsFile),
+    );
+    expect(r.status).toBe(2);
+    expect(r.stderr).toContain("--asset");
+    expect(existsSync(marker), "no derivation IO before the --asset usage refusal").toBe(false);
+    expect(readFileSync(only.provenancePath, "utf8")).toBe(sidecarBefore);
+  });
+
+  it("H3 gated off: fixture file without VITEST/NODE_ENV=test exits 2 naming the env var before any IO", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-gate-off-")));
+    const marker = path.join(job, "derivation-ran.marker");
+    const only = writeEntryFiles(job, "only", { shippedDiffers: false, marker });
+    const correctionsFile = writeCorrectionsFile(job, [{ ...only, why: "h3 gate-off test" }]);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const sidecarBefore = readFileSync(only.provenancePath, "utf8");
+    const r = runCliExpectStatus(
+      ["--working-directory", callDir],
+      gateOffEnv(correctionsFile),
+    );
+    expect(r.status).toBe(2);
+    expect(r.stderr).toContain("CORRECT_SIDECAR_CORRECTIONS_FILE");
+    expect(existsSync(marker), "no derivation IO once the test gate refuses").toBe(false);
+    expect(readFileSync(only.provenancePath, "utf8")).toBe(sidecarBefore);
+  });
+
+  it("H3 on: NODE_ENV=test without VITEST honours the fixture table", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-gate-on-")));
+    const only = writeEntryFiles(job, "only", { shippedDiffers: false });
+    const correctionsFile = writeCorrectionsFile(job, [{ ...only, why: "h3 gate-on test" }]);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const env: NodeJS.ProcessEnv = { ...process.env, [FIXTURES_ENV]: correctionsFile };
+    delete env["VITEST"];
+    env["NODE_ENV"] = "test";
+    const r = runCliExpectStatus(["--working-directory", callDir], env);
+    expect(r.status, `fixture table must run under NODE_ENV=test; stderr=${r.stderr.slice(0, 500)}`).toBe(0);
+    expect(r.stdout).toContain(`${only.assetPath}: reproduced`);
+  });
+
+  it("H4 malformed fixture row refuses before any IO naming file, row index, and field", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-row-validate-")));
+    const marker = path.join(job, "derivation-ran.marker");
+    const ok = writeEntryFiles(job, "ok", { shippedDiffers: false, marker });
+    const bad = writeEntryFiles(job, "bad", { shippedDiffers: false });
+    const malformed = { ...bad, derivationArgv: [] as string[], why: "h4 malformed test" };
+    const correctionsFile = writeCorrectionsFile(job, [
+      { ...ok, why: "h4 valid first row" },
+      malformed,
+    ]);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const sidecarBefore = readFileSync(ok.provenancePath, "utf8");
+    const r = runCliExpectStatus(
+      ["--working-directory", callDir],
+      gateOnEnv(correctionsFile),
+    );
+    expect(r.status, `malformed row must fail; stdout=${r.stdout.slice(0, 300)}`).not.toBe(0);
+    expect(r.stderr).toContain(correctionsFile);
+    expect(r.stderr).toContain("row 1");
+    expect(r.stderr).toContain("derivationArgv");
+    expect(existsSync(marker), "row validation runs before any derivation IO").toBe(false);
+    expect(readFileSync(ok.provenancePath, "utf8")).toBe(sidecarBefore);
+    const wsFile = writeCorrectionsFile(job, [
+      { ...ok, why: "h4 valid first row" },
+      { ...bad, derivationArgv: ["node", "   "], why: "h4 whitespace-token test" },
+    ]);
+    const rw = runCliExpectStatus(
+      ["--working-directory", callDir],
+      gateOnEnv(wsFile),
+    );
+    expect(rw.status, `whitespace-only argv token must fail; stdout=${rw.stdout.slice(0, 300)}`).not.toBe(0);
+    expect(rw.stderr).toContain(wsFile);
+    expect(rw.stderr).toContain("row 1");
+    expect(rw.stderr).toContain("derivationArgv");
+    expect(existsSync(marker), "whitespace-token validation runs before any derivation IO").toBe(false);
+    expect(readFileSync(ok.provenancePath, "utf8")).toBe(sidecarBefore);
   });
 });

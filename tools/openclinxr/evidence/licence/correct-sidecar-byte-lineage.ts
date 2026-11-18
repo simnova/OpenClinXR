@@ -344,29 +344,193 @@ export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory
   },
 ];
 
-function main(): void {
-  const argv = process.argv.slice(2);
-  if (argv.includes("--help")) {
-    process.stdout.write(
-      "usage: correct-sidecar-byte-lineage.ts --working-directory <dir>\n",
+/** Fixture-injectable table row: everything main() needs except the run-local fields. */
+export type InjectedByteLineageCorrection = Omit<ByteLineageCorrection, "workingDirectory" | "expectedPreImageSha256">;
+
+export class UnknownAssetError extends Error {
+  readonly asset: string;
+  constructor(asset: string) {
+    super(`correct-sidecar-byte-lineage: unknown --asset ${asset} (no corrections entry has that assetPath).`);
+    this.name = "UnknownAssetError";
+    this.asset = asset;
+  }
+}
+
+export class CorrectionsFileGateError extends Error {
+  readonly file: string;
+  constructor(file: string) {
+    super(
+      `correct-sidecar-byte-lineage: CORRECT_SIDECAR_CORRECTIONS_FILE=${file} is set outside a test gate (requires VITEST or NODE_ENV=test); refusing before any correction IO.`,
     );
-    return;
+    this.name = "CorrectionsFileGateError";
+    this.file = file;
   }
-  const flagIndex = argv.indexOf("--working-directory");
-  const value = flagIndex >= 0 ? argv[flagIndex + 1] : undefined;
-  if (flagIndex < 0 || value === undefined || value.trim() === "" || value.startsWith("-")) {
-    throw new Error("correct-sidecar-byte-lineage: --working-directory <dir> is required before any derivation IO.");
+}
+
+/** H4: every fixture row is validated before any correction IO. The error names the file, row index, and field. */
+function validateInjectedCorrectionsTable(file: string, parsed: unknown[]): void {
+  const seen = new Set<string>();
+  parsed.forEach((row, index) => {
+    const at = `${file} row ${index}`;
+    const bad = (field: string, detail: string): Error =>
+      new Error(`correct-sidecar-byte-lineage: ${at}: bad ${field} ${detail}. Refusing before any correction IO.`);
+    if (row === null || typeof row !== "object" || Array.isArray(row)) {
+      throw bad("row", "(expected an object with assetPath/provenancePath/preImage/derivationArgv/why)");
+    }
+    const record = row as Record<string, unknown>;
+    for (const field of ["assetPath", "provenancePath", "why"] as const) {
+      if (typeof record[field] !== "string" || (record[field] as string).trim() === "") {
+        throw bad(field, "(expected a non-empty string)");
+      }
+    }
+    const assetPath = record["assetPath"] as string;
+    if (seen.has(assetPath)) throw bad("assetPath", `(duplicate ${JSON.stringify(assetPath)})`);
+    seen.add(assetPath);
+    const preImage = record["preImage"] as Record<string, unknown> | null;
+    if (preImage === null || typeof preImage !== "object" || Array.isArray(preImage)) {
+      throw bad("preImage", '(expected { kind: "revision", revision } or { kind: "file", path })');
+    } else if (preImage["kind"] === "revision") {
+      if (typeof preImage["revision"] !== "string" || (preImage["revision"] as string).trim() === "") {
+        throw bad("preImage", '(revision kind requires a non-empty "revision" string)');
+      }
+    } else if (preImage["kind"] === "file") {
+      if (typeof preImage["path"] !== "string" || (preImage["path"] as string).trim() === "") {
+        throw bad("preImage", '(file kind requires a non-empty "path" string)');
+      }
+    } else {
+      throw bad("preImage", `(unknown kind ${JSON.stringify(preImage["kind"])})`);
+    }
+    const derivationArgv: unknown = record["derivationArgv"];
+    if (
+      !Array.isArray(derivationArgv) ||
+      derivationArgv.length === 0 ||
+      !derivationArgv.every((token: unknown) => typeof token === "string" && token.trim().length > 0)
+    ) {
+      throw bad("derivationArgv", "(expected a non-empty array of non-empty strings)");
+    }
+  });
+}
+
+/**
+ * Fixture injection WITHOUT editing the real CORRECTIONS table: when
+ * CORRECT_SIDECAR_CORRECTIONS_FILE names a file, main() runs the JSON array
+ * it holds (same row shape as CORRECTIONS) instead of the production table.
+ * Absent or blank: today's run-all table, unchanged. H3: the override is
+ * honoured only under an explicit test gate (VITEST set, or NODE_ENV=test);
+ * otherwise main() fails closed with exit 2 before any correction IO.
+ */
+export function resolveCorrectionsTable(): readonly InjectedByteLineageCorrection[] {
+  const file = process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"];
+  if (file === undefined || file.trim() === "") return CORRECTIONS;
+  const gated =
+    (process.env["VITEST"] !== undefined && (process.env["VITEST"] as string).trim() !== "") ||
+    process.env["NODE_ENV"] === "test";
+  if (!gated) throw new CorrectionsFileGateError(file);
+  const parsed: unknown = JSON.parse(readFileSync(file, "utf8"));
+  if (!Array.isArray(parsed)) {
+    throw new Error(`correct-sidecar-byte-lineage: ${file} must hold a JSON array of corrections.`);
   }
-  const base = path.resolve(value);
-  for (const correction of CORRECTIONS) {
+  validateInjectedCorrectionsTable(file, parsed);
+  return parsed as InjectedByteLineageCorrection[];
+}
+
+/**
+ * The loop main() runs, exported so tests can drive a fixture list directly.
+ * With asset set, only the entry whose assetPath equals it runs; an unknown
+ * value throws UnknownAssetError (main() maps it to exit 2 + stderr).
+ */
+export function runCorrectionsTable(
+  corrections: readonly InjectedByteLineageCorrection[],
+  workingDirectory: string,
+  asset: string | undefined,
+): void {
+  let selected = corrections;
+  if (asset !== undefined) {
+    const missing = asset.trim() === "" || asset.startsWith("-");
+    selected = missing ? [] : corrections.filter((correction) => correction.assetPath === asset);
+    if (selected.length === 0) throw new UnknownAssetError(missing ? "(missing)" : asset);
+  }
+  for (const correction of selected) {
     // Revision blobs are immutable, so the gate-time read and the corrector's
     // own re-read agree; the expected sha is pinned here and re-checked inside.
     const expectedPreImageSha256 = sha256(readPreImageBytes(correction.preImage));
-    const result = correctSidecarByteLineage({ ...correction, expectedPreImageSha256, workingDirectory: base });
+    const result = correctSidecarByteLineage({ ...correction, expectedPreImageSha256, workingDirectory });
     process.stdout.write(
       `${correction.assetPath}: reproduced ${result.sha256} (${result.bytes} B), superseding ${String(result.previous.outputSha256)} (${String(result.previous.outputBytes)} B)\n`,
     );
   }
 }
 
-if (process.argv[1]?.endsWith("correct-sidecar-byte-lineage.ts")) main();
+function main(): void {
+  const argv = process.argv.slice(2);
+  if (argv.includes("--help")) {
+    process.stdout.write(
+      "usage: correct-sidecar-byte-lineage.ts --working-directory <dir> [--asset <assetPath>]\n",
+    );
+    return;
+  }
+  const flagIndex = argv.indexOf("--working-directory");
+  const value = flagIndex >= 0 ? argv[flagIndex + 1] : undefined;
+  if (flagIndex < 0 || value === undefined || value.trim() === "" || value.startsWith("-")) {
+    process.stderr.write(
+      "correct-sidecar-byte-lineage: --working-directory <dir> is required before any derivation IO.\n",
+    );
+    process.exitCode = 2;
+    return;
+  }
+  // H2: every --asset occurrence is parsed before any IO. Present with a
+  // missing value (trailing, or the next token is another flag) or given
+  // twice: exit 2 naming --asset, with no correction IO.
+  const assetIndexes: number[] = [];
+  argv.forEach((token, index) => {
+    if (token === "--asset") assetIndexes.push(index);
+  });
+  if (assetIndexes.length > 1) {
+    process.stderr.write(
+      "correct-sidecar-byte-lineage: --asset was given twice; pass exactly one --asset <assetPath>.\n",
+    );
+    process.exitCode = 2;
+    return;
+  }
+  let asset: string | undefined;
+  if (assetIndexes.length === 1) {
+    const raw = argv[(assetIndexes[0] as number) + 1];
+    if (raw === undefined || raw.trim() === "" || raw.startsWith("-")) {
+      process.stderr.write(
+        `correct-sidecar-byte-lineage: --asset requires a value <assetPath> (got ${raw === undefined ? "(missing)" : JSON.stringify(raw)}); pass exactly one --asset <assetPath>.\n`,
+      );
+      process.exitCode = 2;
+      return;
+    }
+    asset = raw;
+  }
+  const base = path.resolve(value);
+  try {
+    runCorrectionsTable(resolveCorrectionsTable(), base, asset);
+  } catch (error) {
+    if (error instanceof UnknownAssetError || error instanceof CorrectionsFileGateError) {
+      process.stderr.write(`${error.message}\n`);
+      process.exitCode = 2;
+      return;
+    }
+    throw error;
+  }
+}
+
+if (process.argv[1]?.endsWith("correct-sidecar-byte-lineage.ts")) {
+  // H1 exit path (super-ceo-cap37): a refusal thrown during module
+  // evaluation under tsx becomes a rejected import promise and hangs node in
+  // WorkerThreadsTaskRunner::Shutdown. Catching it here keeps exit on the
+  // normal loop-drain path: refusal text on stderr, exit code 1. Usage and
+  // unknown-asset paths above already set exit code 2 via exitCode.
+  try {
+    main();
+  } catch (error) {
+    process.exitCode = 1;
+    try {
+      process.stderr.write(`${error instanceof Error ? error.message : String(error)}\n`);
+    } catch {
+      /* exit code already set; diagnostic write is best effort */
+    }
+  }
+}
