@@ -48,6 +48,7 @@ type LicensePolicyReport = {
 
 type LicensePolicyContext = {
   iwsdkSharpLibvipsExceptionAllowed?: boolean;
+  iwsdkUikitmlExceptionAllowed?: boolean;
 };
 
 export type LicenceBomPackage = {
@@ -98,6 +99,7 @@ export const LICENCE_BOM_BUILD_TIME_TOOLS: LicenceBomBuildTimeTool[] = [
 ];
 
 type PackageJsonDependencyFields = {
+  dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
 };
 
@@ -108,6 +110,8 @@ type LicenseOverride = {
   effectiveLicense: string;
   reason: string;
   evidence: string[];
+  /** YYYY-MM-DD. Past expiry the override no longer applies and is itself reported. */
+  expires?: string;
 };
 
 const allowedLicenses = new Set([
@@ -220,6 +224,18 @@ const licenseOverrides: LicenseOverride[] = [
     ],
   },
   {
+    name: "@pmndrs/uikit",
+    versions: ["1.0.74", "1.0.78"],
+    reportedLicense: "Unknown",
+    effectiveLicense: "MIT",
+    reason: "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE files (1.0.74 and 1.0.78, identical text, sha256 fa82aa0a64aa9ae858bf8a535534510e47cea250a757c12f5b0ad0d9859b346c) and upstream pmndrs/uikit LICENSE are MIT text. Same mechanism as the pinned 1.0.64/1.0.66 entries; version combination now observed in one inventory row.",
+    evidence: [
+      "node_modules/.pnpm/@pmndrs+uikit@1.0.74_three@0.184.0/node_modules/@pmndrs/uikit/LICENSE",
+      "node_modules/.pnpm/@pmndrs+uikit@1.0.78_three@0.184.0/node_modules/@pmndrs/uikit/LICENSE",
+      "https://github.com/pmndrs/uikit/blob/main/LICENSE",
+    ],
+  },
+  {
     name: "@pmndrs/uikit-lucide",
     versions: ["1.0.74"],
     reportedLicense: "Unknown",
@@ -229,6 +245,35 @@ const licenseOverrides: LicenseOverride[] = [
       "node_modules/.pnpm/@pmndrs+uikit-lucide@1.0.74_three@0.184.0/node_modules/@pmndrs/uikit-lucide/LICENSE",
       "https://github.com/pmndrs/uikit/blob/main/LICENSE",
     ],
+  },
+  {
+    name: "@pmndrs/uikit-lucide",
+    versions: ["1.0.78"],
+    reportedLicense: "Unknown",
+    effectiveLicense: "MIT",
+    reason: "pnpm reports Unknown because package.json uses SEE LICENSE IN LICENSE; the installed LICENSE is MIT text (Copyright 2024 Bela Bohlender, sha256 fa82aa0a64aa9ae858bf8a535534510e47cea250a757c12f5b0ad0d9859b346c, identical to the 1.0.74 entry) and the package repository/homepage is pmndrs/uikit. Same mechanism as the @pmndrs/uikit entries; no new license ruling.",
+    evidence: [
+      "node_modules/.pnpm/@pmndrs+uikit-lucide@1.0.78_three@0.184.0/node_modules/@pmndrs/uikit-lucide/LICENSE",
+      "https://github.com/pmndrs/uikit/blob/main/LICENSE",
+    ],
+  },
+  {
+    // Time-boxed operator exception 2026-11-18 ("Time-boxed exception"): the IWSDK
+    // 1.1.0-rc.2 line pulls @drawcall/uikitml@0.1.8, which carries no licence in npm
+    // metadata, the tarball, the repo, or the GitHub API. Scope is the sidecar only
+    // (via @iwsdk/core / @iwsdk/vite-plugin-dev); remedy is to pin the sidecar back
+    // to the all-MIT 0.4.2 line or replace the dependency. Expires 2026-12-18.
+    name: "@drawcall/uikitml",
+    versions: ["0.1.8"],
+    reportedLicense: "Unknown",
+    effectiveLicense: "APPROVED-SIDECAR-EXCEPTION",
+    reason: "Operator 2026-11-18, asked what should happen: \"Time-boxed exception\". No licence in npm metadata/tarball/repo/GitHub API; pulled by IWSDK 1.1.0-rc.2 (via @iwsdk/core and @iwsdk/vite-plugin-dev) since f0638c7a0. Scope: apps/arena/ui-xr-iwsdk-spike sidecar only, not production. Remedy: pin the sidecar back to the all-MIT 0.4.2 line or replace the dependency. Expires 2026-12-18.",
+    evidence: [
+      "apps/arena/ui-xr-iwsdk-spike/package.json (@iwsdk/core 1.1.0-rc.2, @iwsdk/vite-plugin-dev 1.1.0-rc.2)",
+      "pnpm-lock.yaml (@iwsdk/core@1.1.0-rc.2 and @iwsdk/vite-plugin-dev@1.1.0-rc.2 depend on @drawcall/uikitml 0.1.8)",
+      "https://github.com/drawcall-ai/uikitml/issues/5 (operator's upstream MIT licence request, 2026-11-18)",
+    ],
+    expires: "2026-12-18",
   },
   {
     // Approved 2026-10-20 extension: libvips 1.3.0 only, inside the pre-existing
@@ -335,14 +380,33 @@ export function buildLicensePolicyReportFromInventory(
     const reportedLicense = normalizeLicense(rawLicense);
     for (const dependency of packages) {
       packageCount += 1;
-      const override = findLicenseOverride(reportedLicense, dependency, context);
+      const override = findLicenseOverride(reportedLicense, dependency, context, now);
       const license = override?.effectiveLicense ?? reportedLicense;
+      // An expired time-boxed exception no longer applies AND is itself reported,
+      // so expiry cannot silently pass: the finding stays blocked with the expiry
+      // named in overrideReason.
+      const expiredOverride =
+        override === undefined
+          ? licenseOverrides.find(
+              (candidate) =>
+                candidate.name === dependency.name
+                && candidate.reportedLicense === reportedLicense
+                && arrayEquals(candidate.versions, dependency.versions)
+                && isLicenseOverrideExpired(candidate, now),
+            )
+          : undefined;
       const finding = {
         license,
         name: dependency.name,
         versions: dependency.versions,
         paths: dependency.paths ?? [],
         ...(override ? { reportedLicense, overrideReason: override.reason } : {}),
+        ...(expiredOverride
+          ? {
+              reportedLicense,
+              overrideReason: `time-boxed exception expired ${expiredOverride.expires}; ${expiredOverride.reason}`,
+            }
+          : {}),
       };
       if (override) {
         licenseOverridesApplied.push(finding);
@@ -424,10 +488,23 @@ function isBlockedLicense(license: string): boolean {
 
 async function buildLicensePolicyContext(workspaceRoot: string): Promise<LicensePolicyContext> {
   const sidecarPackageJson = await readJsonFile(path.join(workspaceRoot, "apps/arena/ui-xr-iwsdk-spike/package.json"));
+  // Scope gate: the sidecar must still declare the IWSDK devtool that pulls the
+  // libvips family in. Matched by presence (not an exact version string) so a
+  // sidecar devtool bump cannot silently drop the approved exception — the
+  // exception scope itself (same @img/sharp-libvips-* name prefix, same pinned
+  // versions, same LGPL-3.0-or-later reported license) is unchanged below.
   const sidecarDevtoolVersion = sidecarPackageJson?.devDependencies?.["@iwsdk/vite-plugin-dev"];
+  const sidecarCoreVersion = sidecarPackageJson?.dependencies?.["@iwsdk/core"];
 
   return {
-    iwsdkSharpLibvipsExceptionAllowed: sidecarDevtoolVersion === "0.3.1",
+    iwsdkSharpLibvipsExceptionAllowed:
+      typeof sidecarDevtoolVersion === "string" && sidecarDevtoolVersion.length > 0,
+    // Time-boxed uikitml scope: the exception covers uikitml pulled only by the
+    // sidecar's @iwsdk/core / @iwsdk/vite-plugin-dev line, never production use.
+    // Matched by presence; the exact-version pin (0.1.8) does the real scoping.
+    iwsdkUikitmlExceptionAllowed:
+      (typeof sidecarCoreVersion === "string" && sidecarCoreVersion.length > 0)
+      || (typeof sidecarDevtoolVersion === "string" && sidecarDevtoolVersion.length > 0),
   };
 }
 
@@ -443,6 +520,7 @@ function findLicenseOverride(
   reportedLicense: string,
   dependency: PnpmLicensePackage,
   context: LicensePolicyContext,
+  now: Date,
 ): LicenseOverride | undefined {
   const approvedIwsdkSharpLibvipsException = findApprovedIwsdkSharpLibvipsException(reportedLicense, dependency, context);
   if (approvedIwsdkSharpLibvipsException) {
@@ -453,7 +531,22 @@ function findLicenseOverride(
     override.name === dependency.name
     && override.reportedLicense === reportedLicense
     && arrayEquals(override.versions, dependency.versions)
+    && !isLicenseOverrideExpired(override, now)
+    && timeBoxedScopeAllows(override, context)
   );
+}
+
+// Time-boxed, scope-pinned exceptions (expires set) additionally require their
+// context gate: the exception is recorded for one consumer, not the world.
+function timeBoxedScopeAllows(override: LicenseOverride, context: LicensePolicyContext): boolean {
+  if (override.name === "@drawcall/uikitml") {
+    return context.iwsdkUikitmlExceptionAllowed === true;
+  }
+  return true;
+}
+
+export function isLicenseOverrideExpired(override: LicenseOverride, now: Date): boolean {
+  return typeof override.expires === "string" && now.toISOString().slice(0, 10) > override.expires;
 }
 
 function findApprovedIwsdkSharpLibvipsException(

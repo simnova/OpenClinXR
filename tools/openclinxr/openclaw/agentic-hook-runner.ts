@@ -903,7 +903,25 @@ export function stepsForProfile(
   }
 
   const files = changedFiles ?? changedFilesForProfile(profile);
-  return [...buildBaseOpenClawSteps(profile, files), ...buildPathAwareSteps(profile, files, commitFiles, headSha)];
+  const steps = [...buildBaseOpenClawSteps(profile, files), ...buildPathAwareSteps(profile, files, commitFiles, headSha)];
+  if (profile === "pre-push") {
+    // Thinning gate FIRST (before the large-file guard): a push that grows
+    // non-product surface or pins artifacts must fail before anything else runs.
+    // License policy runs right after it; both are fast and path-independent.
+    steps.unshift(
+      {
+        label: "Thinning policy",
+        command: ["pnpm", "exec", "tsx", "tools/thinning/check-thinning.ts"],
+        reason: "non-product surface may only shrink — fail closed before the push leaves the machine",
+      },
+      {
+        label: "Security licenses",
+        command: pnpm("security:licenses"),
+        reason: "dependency licenses stay inside approved boundaries",
+      },
+    );
+  }
+  return steps;
 }
 
 function formatCommand(command: string[]): string {

@@ -16,7 +16,7 @@
  * Incident classes behind each criterion:
  *   forbidden-class          — worker touched a path class the policy forbids
  *   added-suppression        — worker silenced the gate rather than fixing the code
- *   deleted-test             — worker removed the proof instead of making it green
+ *   deleted-test             — worker renamed the proof out of a test name (pure deletes are allowed)
  *   raised-ceiling           — worker widened a freeze ratchet (the classic escape hatch)
  *   empty-diff-with-passing-proofs — forged / no-op proof with nothing to verify
  *   contract-not-verified    — merge with no (or failing) contract verification
@@ -265,6 +265,12 @@ function isTestFileName(path: string): boolean {
   return /\.(test|spec)\./.test(path);
 }
 
+/** Basename minus extension minus any .test/.spec suffix: foo.test.ts -> foo. */
+function testStem(path: string): string {
+  const base = path.split("/").pop() ?? path;
+  return base.replace(/\.[^.]*$/, "").replace(/\.(test|spec)$/, "");
+}
+
 // ── Individual kill criteria ─────────────────────────────────────────────────
 
 function checkForbiddenClass(
@@ -334,15 +340,9 @@ function checkAddedSuppression(addedLines: AddedLine[]): KillFinding[] {
 function checkDeletedTest(entries: NameStatusEntry[]): KillFinding[] {
   const evidence: KillFinding["evidence"] = [];
   for (const entry of entries) {
-    // Pure delete of a test file
-    if (entry.status === "D" && isTestFileName(entry.path)) {
-      evidence.push({
-        file: entry.path,
-        excerpt: `git status ${entry.status}: deleted test file`,
-      });
-      continue;
-    }
-    // Rename that takes a test file out of a test-file name (e.g. foo.test.ts → foo.ts)
+    // Pure deletes are allowed: obsolete tests are deleted, not inverted into
+    // guards (the thinning check, not prose, limits growth). Only a rename that
+    // takes a test file out of a test-file name still kills.
     if (
       entry.status.startsWith("R") &&
       entry.fromPath &&
@@ -355,15 +355,38 @@ function checkDeletedTest(entries: NameStatusEntry[]): KillFinding[] {
       });
     }
   }
+  // A deleted test paired with an ADDED same-stem file is a rename git did not
+  // detect (heavy rewrite shows as D+A, defeating rename detection): treat it
+  // as a rename, not a pure delete.
+  const addedByStem = new Map<string, string[]>();
+  for (const entry of entries) {
+    if (entry.status === "A") {
+      const stem = testStem(entry.path);
+      const list = addedByStem.get(stem) ?? [];
+      list.push(entry.path);
+      addedByStem.set(stem, list);
+    }
+  }
+  for (const entry of entries) {
+    if (entry.status === "D" && isTestFileName(entry.path)) {
+      const same = addedByStem.get(testStem(entry.path)) ?? [];
+      if (same.length > 0) {
+        evidence.push({
+          file: entry.path,
+          excerpt: `deleted test ${entry.path} paired with added same-stem file(s): ${same.join(", ")}`,
+        });
+      }
+    }
+  }
   if (evidence.length === 0) return [];
   return [
     {
       id: "deleted-test",
       severity: "kill",
-      title: "Test file deleted or renamed out of test naming",
+      title: "Test file renamed out of test naming",
       evidence,
       reason:
-        "Incident class: worker removed the proof (deleted *.test.* / *.spec.*, or renamed it out of a test name) instead of making it green.",
+        "Incident class: worker renamed the proof out of a test name (foo.test.ts → foo.ts) instead of making it green. A delete paired with a same-stem add is the same move with rename detection defeated. Pure deletes are allowed.",
     },
   ];
 }

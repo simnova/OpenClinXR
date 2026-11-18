@@ -101,10 +101,7 @@ number, state the aggregation (min/max/mean/per-item). The tell: the subject is 
 
 ## Superseding, never deleting
 
-Merge-kill fires on `deleted-test` with no opt-out. A superseded clause becomes an **inverted guard**
-that records the absence, and **its failure message must name the restoration** - what to reinstate,
-against which artifact, and that widening or deleting it is wrong. Otherwise the next engineer to hit
-that red deletes it.
+Obsolete tests are deleted, not inverted into guards. The thinning check, not prose, limits growth.
 
 ## Before dispatch
 

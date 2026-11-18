@@ -59,11 +59,21 @@ const EXCLUDED_PRODUCT_PATHS = [
   // done_when machinery + loop tooling: measuring the factory is not shipping it
   "packages/openclinxr/agent-loop/",
   "packages/openclinxr/test-harness/",
+  // verification is evidence, not product
+  "packages/openclinxr-verification/",
+];
+
+// Predicate exclusions: per-station evidence packages live under
+// packages/openclinxr/stations/*-evidence/ (ratchet displacement made them
+// product-counted; they are not shipped capability).
+const EXCLUDED_PRODUCT_PATH_PREDICATES: ((p: string) => boolean)[] = [
+  (p) => /^packages\/openclinxr\/stations\/[^/]*-evidence\//.test(p),
 ];
 
 export function isProductPath(filePath: string): boolean {
   const p = filePath.replace(/\\/g, "/");
   if (EXCLUDED_PRODUCT_PATHS.some((x) => p === x || p.startsWith(x))) return false;
+  if (EXCLUDED_PRODUCT_PATH_PREDICATES.some((pred) => pred(p))) return false;
   return PRODUCT_PATHS.some((x) => p === x || p.startsWith(x));
 }
 

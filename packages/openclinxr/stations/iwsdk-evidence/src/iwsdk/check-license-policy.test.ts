@@ -258,4 +258,71 @@ describe("dependency license policy", () => {
       }),
     ]);
   });
+
+  it("time-boxed uikitml 0.1.8 exception clears the finding while in date", () => {
+    const report = buildLicensePolicyReportFromInventory({
+      Unknown: [
+        { name: "@drawcall/uikitml", versions: ["0.1.8"], paths: [] },
+      ],
+    }, new Date("2026-11-20T00:00:00.000Z"), {
+      iwsdkUikitmlExceptionAllowed: true,
+    });
+
+    expect(report.blockedFindings).toEqual([]);
+    expect(report.licenseOverridesApplied).toEqual([
+      expect.objectContaining({
+        name: "@drawcall/uikitml",
+        versions: ["0.1.8"],
+        reportedLicense: "Unknown",
+        license: "APPROVED-SIDECAR-EXCEPTION",
+      }),
+    ]);
+  });
+
+  it("expired uikitml exception no longer applies and is itself reported", () => {
+    const report = buildLicensePolicyReportFromInventory({
+      Unknown: [
+        { name: "@drawcall/uikitml", versions: ["0.1.8"], paths: [] },
+      ],
+    }, new Date("2026-12-19T00:00:00.000Z"), {
+      iwsdkUikitmlExceptionAllowed: true,
+    });
+
+    expect(report.blockedFindings).toEqual([
+      expect.objectContaining({
+        name: "@drawcall/uikitml",
+        license: "Unknown",
+        overrideReason: expect.stringContaining("expired"),
+      }),
+    ]);
+  });
+
+  it("uikitml 0.1.9 is not covered by the 0.1.8 exception", () => {
+    const report = buildLicensePolicyReportFromInventory({
+      Unknown: [
+        { name: "@drawcall/uikitml", versions: ["0.1.9"], paths: [] },
+      ],
+    }, new Date("2026-11-20T00:00:00.000Z"), {
+      iwsdkUikitmlExceptionAllowed: true,
+    });
+
+    expect(report.blockedFindings).toEqual([
+      expect.objectContaining({ name: "@drawcall/uikitml", license: "Unknown" }),
+    ]);
+    expect(report.licenseOverridesApplied).toEqual([]);
+  });
+
+  it("uikitml 0.1.8 stays blocked without the sidecar scope gate", () => {
+    const report = buildLicensePolicyReportFromInventory({
+      Unknown: [
+        { name: "@drawcall/uikitml", versions: ["0.1.8"], paths: [] },
+      ],
+    }, new Date("2026-11-20T00:00:00.000Z"), {
+      iwsdkUikitmlExceptionAllowed: false,
+    });
+
+    expect(report.blockedFindings).toEqual([
+      expect.objectContaining({ name: "@drawcall/uikitml", license: "Unknown" }),
+    ]);
+  });
 });

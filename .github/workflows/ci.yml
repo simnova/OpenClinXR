@@ -15,7 +15,7 @@ on:
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
@@ -57,6 +57,29 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Thinning policy
+        # Push to main: checkout moves origin/main to the pushed sha, so a bare
+        # merge-base check would compare HEAD with itself (zero diff, always PASS).
+        # Pass the pre-push sha explicitly; pull_request diffs against the base
+        # branch; schedule/dispatch enforce ceilings only (no diff rules).
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            pnpm exec tsx tools/thinning/check-thinning.ts --base "origin/${{ github.base_ref }}"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            BEFORE="${{ github.event.before }}"
+            if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+              BASE="HEAD~1"
+            else
+              BASE="$BEFORE"
+            fi
+            pnpm exec tsx tools/thinning/check-thinning.ts --base "$BASE"
+          else
+            pnpm exec tsx tools/thinning/check-thinning.ts --ceilings-only
+          fi
+
+      - name: Security licenses
+        run: pnpm security:licenses
 
       - name: Install vulture with mise
         uses: jdx/mise-action@6612f0ef07ed2a736cd1e00a94a065522dd41195 # v5.2.5
@@ -179,6 +202,3 @@ jobs:
 
       - name: Security audit policy
         run: pnpm security:audit-policy
-
-      - name: Security licenses
-        run: pnpm security:licenses

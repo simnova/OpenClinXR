@@ -266,18 +266,23 @@ describe("agentic-hook-runner path-scoped architecture", () => {
     ).toBe(false);
   });
 
-  it("runs the large-file guard first on pre-commit/pre-push/strict, never on local-exam", () => {
+  it("runs the large-file guard first on pre-commit/strict and third on pre-push, never on local-exam", () => {
     const label = "Large-file / .env / .bak guard";
     // NOT path-scoped: present even when the only changed file is PROJECT_STATUS.md.
-    for (const profile of ["pre-commit", "pre-push", "strict"] as const) {
+    for (const profile of ["pre-commit", "strict"] as const) {
       const steps = stepsForProfile(profile, ["PROJECT_STATUS.md"]);
       expect(steps[0]?.label).toBe(label);
     }
+    // Pre-push runs the thinning gate and license policy before everything else.
+    const pushSteps = stepsForProfile("pre-push", ["PROJECT_STATUS.md"]);
+    expect(pushSteps[0]?.label).toBe("Thinning policy");
+    expect(pushSteps[1]?.label).toBe("Security licenses");
+    expect(pushSteps[2]?.label).toBe(label);
     const staged = stepsForProfile("pre-commit", ["PROJECT_STATUS.md"])[0]?.command;
     expect(staged).toContain("--staged");
     expect(staged).not.toContain("--push");
     for (const profile of ["pre-push", "strict"] as const) {
-      const cmd = stepsForProfile(profile, ["PROJECT_STATUS.md"])[0]?.command;
+      const cmd = stepsForProfile(profile, ["PROJECT_STATUS.md"]).find((s) => s.label === label)?.command;
       expect(cmd).toContain("--push");
       expect(cmd).not.toContain("--staged");
     }

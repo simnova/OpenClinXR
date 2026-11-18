@@ -235,7 +235,7 @@ describe("runMergeKill", () => {
     expect(report.killed).toBe(false);
   });
 
-  it("4. deleted foo.test.ts → deleted-test kill", () => {
+  it("4. deleted foo.test.ts → NO deleted-test finding (pure deletes are allowed)", () => {
     const root = initRepo();
     write(root, "foo.test.ts", "export {};\n");
     write(root, "README.md", "x\n");
@@ -252,10 +252,8 @@ describe("runMergeKill", () => {
       classifyForbidden: () => [],
     });
 
-    expect(report.killed).toBe(true);
-    expect(killIds(report)).toContain("deleted-test");
-    const finding = report.findings.find((f) => f.id === "deleted-test");
-    expect(finding?.evidence.some((e) => e.file === "foo.test.ts")).toBe(true);
+    expect(killIds(report)).not.toContain("deleted-test");
+    expect(report.findings.find((f) => f.id === "deleted-test")).toBeUndefined();
   });
 
   it("5. maxLines 100 → 200 in freeze map → raised-ceiling kill naming the entry", () => {
@@ -431,7 +429,7 @@ describe("runMergeKill", () => {
     write(root, "gone.test.ts", "export {};\n");
     commitAll(root, "init");
     git(root, ["checkout", "-q", "-b", "wt/multi"]);
-    git(root, ["rm", "-q", "gone.test.ts"]);
+    git(root, ["mv", "gone.test.ts", "gone.ts"]);
     const ignore = ["@", "ts-ignore"].join("");
     write(root, "src/bad.ts", `// ${ignore}\nexport const z = 0;\n`);
     commitAll(root, "feat: multi-violation");
@@ -474,5 +472,52 @@ describe("runMergeKill", () => {
     });
 
     expect(killIds(report)).toContain("deleted-test");
+  });
+
+  it("13. deleted foo.test.ts + added src/foo.ts with rewritten content (D+A) → deleted-test kill", () => {
+    const root = initRepo();
+    const oldShape = "it('keeps the old shape', () => { expect(1).toBe(1); });\n";
+    write(root, "foo.test.ts", oldShape.repeat(40));
+    write(root, "README.md", "x\n");
+    commitAll(root, "init");
+    git(root, ["checkout", "-q", "-b", "wt/move-rewrite"]);
+    git(root, ["rm", "-q", "foo.test.ts"]);
+    const rewritten = "export const rewritten = 'nothing like the test';\n";
+    write(root, "src/foo.ts", rewritten.repeat(40));
+    commitAll(root, "feat: move the test with a heavy rewrite");
+
+    const report = runMergeKill({
+      repoRoot: root,
+      base: "main",
+      head: "wt/move-rewrite",
+      contract: okContract,
+      classifyForbidden: () => [],
+    });
+
+    expect(killIds(report)).toContain("deleted-test");
+    const finding = report.findings.find((f) => f.id === "deleted-test");
+    expect((finding?.evidence ?? []).map((e) => e.file)).toContain("foo.test.ts");
+  });
+
+  it("14. deleted foo.test.ts + added unrelated bar.ts → NO deleted-test kill", () => {
+    const root = initRepo();
+    write(root, "foo.test.ts", "export {};\n");
+    write(root, "README.md", "x\n");
+    commitAll(root, "init");
+    git(root, ["checkout", "-q", "-b", "wt/del-plus-unrelated"]);
+    git(root, ["rm", "-q", "foo.test.ts"]);
+    write(root, "bar.ts", "export const unrelated = 1;\n");
+    commitAll(root, "chore: drop the test, add unrelated source");
+
+    const report = runMergeKill({
+      repoRoot: root,
+      base: "main",
+      head: "wt/del-plus-unrelated",
+      contract: okContract,
+      classifyForbidden: () => [],
+    });
+
+    expect(killIds(report)).not.toContain("deleted-test");
+    expect(report.killed).toBe(false);
   });
 });

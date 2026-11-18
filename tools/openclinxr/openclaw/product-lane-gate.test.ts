@@ -112,6 +112,18 @@ describe("product-lane gate", () => {
     commitOn(repo, "apps/ui-xr/src/main.ts", "wire the clip into the mixer");
     expect(measureProductLaneState(repo).evidenceOnlyCommits).toBe(0);
   });
+
+  it("a *-evidence station package is NOT a release lane — it must not reset the clock", () => {
+    const repo = repoWithHistory(1, 0);
+    commitOn(repo, "packages/openclinxr/stations/lip-sync-evidence/src/probe.ts", "evidence tweak");
+    expect(measureProductLaneState(repo).evidenceOnlyCommits).toBe(1);
+  });
+
+  it("packages/openclinxr-verification is NOT a release lane — it must not reset the clock", () => {
+    const repo = repoWithHistory(1, 0);
+    commitOn(repo, "packages/openclinxr-verification/src/rule.ts", "verification tweak");
+    expect(measureProductLaneState(repo).evidenceOnlyCommits).toBe(1);
+  });
 });
 
 function commitOn(repo: string, path: string, message: string): void {

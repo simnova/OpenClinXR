@@ -1,0 +1,75 @@
+{
+  "schema": "openclinxr.thinning-policy.v1",
+  "comment": "Thinning rule: tracked non-product surface may only shrink. First match wins in `order`. Slash-less globs match the basename at any depth; globs with `/` match the full repo-relative path. P (product) is the untaxed fallback. D (evidence data) may never add files or bytes. G/E additions above target must remove >= offsetRatio x added bytes from the SAME bucket. pinBan forbids pinning binary SHAs or source line citations in added lines only. Exceptions exempt matching paths from the NAMED rule only; expired exceptions do not apply and are themselves a violation until removed.",
+  "order": ["D", "G", "E", "P"],
+  "buckets": {
+    "D": {
+      "kind": "evidence data",
+      "globs": [
+        ".openclinxr/**",
+        "docs/openclinxr/**/*.{png,jpg,jpeg,glb,obj,mp4,webm,npz,npy,bin}",
+        "**/*-captures/**",
+        "tools/openclinxr/evidence/hair-*/**"
+      ],
+      "ceilingBytes": 1521424740,
+      "ceilingFiles": 5280,
+      "targetBytes": null,
+      "targetFiles": 0
+    },
+    "G": {
+      "kind": "process",
+      "globs": [
+        "AGENTS.md",
+        "CLAUDE.md",
+        "PROJECT_*.md",
+        "AUTONOMOUS_WORK_PLAN.md",
+        "agents/**",
+        ".claude/**",
+        ".agents/**",
+        ".grok/**",
+        ".codex/**",
+        ".cursor/**",
+        "tools/openclinxr/openclaw/**",
+        "tools/agent-factory/**",
+        "packages/openclinxr-verification/**",
+        "docs/openclinxr/*registry*",
+        "docs/openclinxr/package-public-surface-reduction/**"
+      ],
+      "ceilingBytes": 28063115,
+      "ceilingFiles": null,
+      "targetBytes": 1500000,
+      "targetFiles": null
+    },
+    "E": {
+      "kind": "evidence code",
+      "globs": [
+        "tools/openclinxr/evidence/**",
+        "packages/openclinxr/stations/*-evidence/**"
+      ],
+      "ceilingBytes": 152228338,
+      "ceilingFiles": null,
+      "targetBytes": 5000000,
+      "targetFiles": null
+    },
+    "P": {
+      "kind": "product",
+      "globs": [],
+      "ceilingBytes": null,
+      "ceilingFiles": null,
+      "targetBytes": null,
+      "targetFiles": null
+    }
+  },
+  "rules": {
+    "offsetRatio": 2,
+    "ruleNames": ["ceiling", "offset", "d-growth", "pin", "exception"],
+    "dGrowth": "D may not add files or bytes at all (governed by rule d-growth, not by offset).",
+    "offset": "While a bucket with targetBytes is above its target, added bytes must be matched by >= offsetRatio x removed bytes from the SAME bucket.",
+    "pinBan": "Added lines (diff vs base) in pinBan paths must not contain a 64-hex sha256 next to a .glb/.png/.py/.npz path, nor a <file>.py:<line> / .ts:<line> citation."
+  },
+  "pinBan": {
+    "pathGlobs": ["*.test.*", "*.json"],
+    "buckets": ["E", "G", "P"]
+  },
+  "exceptions": []
+}
