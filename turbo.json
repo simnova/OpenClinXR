@@ -360,6 +360,8 @@
         "tools/openclinxr/openclaw/tools-test-areas.ts",
         "tools/openclinxr/staging-solver/**",
         "tools/openclinxr/the-licence-ledger-migration-lost-nothing.test.ts",
+        "tools/thinning/check-thinning.test.ts",
+        "tools/thinning/check-thinning.ts",
         "tsconfig.tools-relaxed.json",
         "vitest.config.ts"
       ],
