@@ -360,6 +360,23 @@ export interface RunChainOptions {
   root?: string;
 }
 
+export interface StageVars {
+  [key: string]: string;
+  in: string;
+  out: string;
+  outdir: string;
+  inBase: string;
+}
+
+/**
+ * resolveStageArgv — pure argv template substitution for one stage (the same
+ * mapping runChain applies before spawning the tool). Exported so the
+ * stage-21 replayability test resolves argv without running any stage.
+ */
+export function resolveStageArgv(stage: ChainStage, vars: StageVars): string[] {
+  return stage.argv.map((a) => substitute(a, vars));
+}
+
 export interface ChainReport {
   generator: string;
   schemaVersion: string;
@@ -429,7 +446,7 @@ export function runChain(opts: RunChainOptions): ChainReport {
         outdir: outDir,
         inBase: basename(inPath).replace(/\.glb$/i, ""),
       };
-      const argv = stage.argv.map((a) => substitute(a, vars));
+      const argv = resolveStageArgv(stage, vars);
       // Make report/work dirs the argv names before the tool runs.
       for (let i = 0; i < argv.length; i += 1) {
         if ((argv[i] === "--outdir" || argv[i] === "--out") && i + 1 < argv.length) {

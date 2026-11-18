@@ -9,7 +9,7 @@ Opt-in in the browser (`?fixedClock=1`; default is legacy frame-dt stepping sinc
 - Execution wiring (band evaluated per 1/60 s substep): `packages/openclinxr/xr-runtime-state/src/bedside-approach-execution-mod.ts:420`.
 - Frame-loop wiring: `apps/ui-xr/src/main.ts:2856` (flag + frame state), `:3377` (frame dt: exactly 1/60 under the deterministic clock, clamped wall dt otherwise), `:3484` (`stepActorSimulation` one-substep body), `:3500` (fixed-clock vs legacy branch).
 - Capture pacing modes: `tools/openclinxr/evidence/settle-entry/settle-entry-capture.ts:57` (`capture|real|fixed72|jitter`), `:66` (seed 20261012), `:84` (synthetic dt), `:170` (fixed-clock probe).
-- Analysis: `tools/openclinxr/evidence/settle-entry/settle-entry-analyze.ts:329` (rendered reversals + second difference), `:354` (substep histogram).
+- Analysis: removed 2026-11-18 with the settle-entry analyzer (last recorded reading: rendered reversals + second difference, substep histogram).
 
 ## Proof matrix (SC-05, stepping turn on; branch stage3 vs main stage0 control)
 

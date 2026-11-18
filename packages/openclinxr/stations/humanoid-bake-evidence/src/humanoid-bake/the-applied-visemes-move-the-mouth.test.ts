@@ -173,7 +173,10 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // was a872dbd0f469….
   // teeth F3 re-pinned 2026-11-10 (tsk_27e0cec12cab410d): aa upper-shell lateral mean -5.79 mm -> 0
   // (HEAD_MEAN x); 9256 B inside one accessor; 20026072 B live; was f3b840d19154….
-  "mpfb-peds-nurse-kevin": "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444",
+  // kevin-colour re-pinned 2026-11-18: post-export stage actor_hair_colour_post_export_v1
+  // resolves hair_color black to [0.035, 0.028, 0.022] on scalp + brow baseColorFactor only
+  // (BIN chunk identical); 20026072 -> 20026180 B live; was 0e610fe7fda8….
+  "mpfb-peds-nurse-kevin": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
   // buffer are untouched.

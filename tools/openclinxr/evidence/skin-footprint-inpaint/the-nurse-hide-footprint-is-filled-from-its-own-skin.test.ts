@@ -119,9 +119,11 @@ const IMAGE_SHAS: Record<number, string> = {
 // 63e79aa3 pins (afb88b28/a9d361b2, prims 9,10,11 appended).
 const ACCESSOR_HASH = "ef2c9cbcc7b473700bde085042543f3fe2bd97aa931fc189591bb5fe72b4a3cd"; // index accessors: hidden prim7 trimmed + 1 appended skin prim9 (moved==6).
 const JSONSHAPE_HASH = "80fd1eff251ba0ec77f9330e13b12a421d005a1506f623fe3b7e75116dc778cd"; // JSON shape changed by the trimmed prim7 + appended prim9 accessors/bufferViews.
-// (d) baselines: the 8 other STALE GLBs at c1da76fb4 (WT files, unmodified).
+// (d) baselines: the 8 other STALE GLBs at c1da76fb4 (WT files, unmodified),
+// except mpfb-peds-nurse-kevin.glb re-derived 2026-11-18 by kevin-colour
+// actor_hair_colour_post_export_v1 (scalp + brow factors only, BIN identical).
 // Provenance: `git show c1da76fb4:<path> | sha256sum` per file (commit
-// c1da76fb45ea04b3875e4a748211b679b447355c).
+// c1da76fb45ea04b3875e4a748211b679b447355c); kevin value from shasum of the shipped GLB.
 const GLB_SHAS: Record<string, string> = {
   "mpfb-clinical-physician-adult.glb":
     "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
@@ -134,7 +136,7 @@ const GLB_SHAS: Record<string, string> = {
   "mpfb-gown-inspect.glb":
     "ba8f7ad538510baa9fdd328f1afbbda9eb243ba224c72fca324dd7c771451d91",
   "mpfb-peds-nurse-kevin.glb":
-    "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444",
+    "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
   "mpfb-peds-patient-child.glb":
     "1e90c396b7eeba779fa33be9ebfffef3a76f4b15c28b1f63b7e85656be4f980b",
   "mpfb-viseme-inspect.glb":

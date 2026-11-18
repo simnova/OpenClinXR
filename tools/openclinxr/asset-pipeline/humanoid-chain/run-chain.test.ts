@@ -9,7 +9,13 @@ import { mkdtempSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
-import { CHAIN_CLAIM_SCOPE, CHAIN_NOT_EVIDENCE_FOR, runChain, validateManifest } from "./run-chain";
+import {
+  CHAIN_CLAIM_SCOPE,
+  CHAIN_NOT_EVIDENCE_FOR,
+  type ChainStage,
+  runChain,
+  validateManifest,
+} from "./run-chain";
 
 const FAKE = "tools/openclinxr/asset-pipeline/humanoid-chain/tests/helpers/fake-stage.mjs";
 const FAKE_FAIL = "tools/openclinxr/asset-pipeline/humanoid-chain/tests/helpers/fake-fail-stage.mjs";
@@ -101,17 +107,17 @@ describe("validateManifest", () => {
 });
 
 describe("shipped kevin manifest (read-only validation, no stage runs)", () => {
-  it("passes schema with 12 kept and 12 excluded stages", () => {
+  it("passes schema with 13 kept and 12 excluded stages", () => {
     const root = process.cwd();
     const raw = JSON.parse(
       readFileSync(join(root, "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.json"), "utf8"),
     );
     const manifest = validateManifest(raw);
-    expect(manifest.stages).toHaveLength(12);
+    expect(manifest.stages).toHaveLength(13);
     expect(manifest.excluded).toHaveLength(12);
     expect(manifest.stages.map((s) => s.id)).toEqual([
       "01", "03a", "04", "05", "08a", "08b",
-      "10a", "10b", "10c", "12", "13", "17",
+      "10a", "10b", "10c", "12", "13", "17", "21",
     ]);
     for (const s of manifest.stages) {
       expect(existsSync(resolve(root, s.tool.split("#")[0] as string))).toBe(true);
@@ -138,6 +144,12 @@ describe("shipped kevin manifest (read-only validation, no stage runs)", () => {
     expect(four?.note).toBe("trousers kept undecimated via --face-preserving-keep library_scrub_pants (K2 R2)");
     const thirteen = manifest.stages.find((s) => s.id === "13");
     expect(thirteen?.note).toBe("--renormalize keeps the authored shirt albedo texels (K2 R3)");
+    const twentyOne = manifest.stages.find((s) => s.id === "21");
+    expect(twentyOne?.name).toBe("actor_hair_colour_post_export_v1");
+    expect(twentyOne?.kind).toBe("python");
+    expect(twentyOne?.tool).toBe("tools/openclinxr/asset-pipeline/makeclothes/apply_actor_hair_colour.py");
+    expect(twentyOne?.argv.join(" ")).toContain("{in}");
+    expect(twentyOne?.argv.join(" ")).toContain("{out}");
   });
 
   it("both shipped manifests validate (with10 + no-stage10)", () => {
@@ -147,12 +159,12 @@ describe("shipped kevin manifest (read-only validation, no stage runs)", () => {
       "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.no-stage10.json",
     ];
     const manifests = files.map((f) => validateManifest(JSON.parse(readFileSync(join(root, f), "utf8"))));
-    expect(manifests[0].stages).toHaveLength(12);
+    expect(manifests[0].stages).toHaveLength(13);
     expect(manifests[0].excluded).toHaveLength(12);
-    expect(manifests[1].stages).toHaveLength(9);
+    expect(manifests[1].stages).toHaveLength(10);
     expect(manifests[1].excluded).toHaveLength(15);
     expect(manifests[1].stages.map((s) => s.id)).toEqual([
-      "01", "03a", "04", "05", "08a", "08b", "12", "13", "17",
+      "01", "03a", "04", "05", "08a", "08b", "12", "13", "17", "21",
     ]);
     for (const m of manifests) {
       const nine = m.excluded.find((e) => e.id === "09");
@@ -174,6 +186,150 @@ describe("shipped kevin manifest (read-only validation, no stage runs)", () => {
       const e = no10.excluded.find((x) => x.id === id);
       expect(e?.reason).toBe("superseded");
     }
+  });
+});
+
+describe("shipped kevin stage 21 executes through runChain (kevin-colour h3 F1)", () => {
+  const SHIPPED_MANIFEST =
+    "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.json";
+  const STAGE_ID = "21";
+  const STAGE_NAME = "actor_hair_colour_post_export_v1";
+  const EXPECTED_LINEAR_RGB = [0.035, 0.028, 0.022];
+  const SCENARIO = "kevin-colour-h3-test";
+  const ACTOR = "test-actor";
+
+  function shippedStage21(): ChainStage {
+    const root = process.cwd();
+    const manifest = validateManifest(JSON.parse(readFileSync(join(root, SHIPPED_MANIFEST), "utf8")));
+    const stage = manifest.stages.find((s) => s.id === STAGE_ID);
+    expect(stage, `shipped manifest carries stage ${STAGE_ID}`).toBeDefined();
+    return stage as ChainStage;
+  }
+
+  /** Minimal GLB carrying exactly the scalp + brow materials the tool matches. */
+  function minimalHairGlb(): Buffer {
+    const doc = {
+      asset: { version: "2.0" },
+      materials: [
+        { name: "openclinxr_fitted_hair_style08", pbrMetallicRoughness: { baseColorFactor: [1, 1, 1, 1] } },
+        { name: "openclinxr_fitted_eyebrow_style08", pbrMetallicRoughness: { baseColorFactor: [1, 1, 1, 1] } },
+      ],
+    };
+    const json = Buffer.from(JSON.stringify(doc), "utf8");
+    const padded = Buffer.concat([json, Buffer.alloc((4 - (json.length % 4)) % 4, 0x20)]);
+    const jc = Buffer.alloc(8);
+    jc.writeUInt32LE(padded.length, 0);
+    jc.writeUInt32LE(0x4e4f534a, 4);
+    const bc = Buffer.alloc(8);
+    bc.writeUInt32LE(0, 0);
+    bc.writeUInt32LE(0x004e4942, 4);
+    const total = 12 + 8 + padded.length + 8;
+    const header = Buffer.alloc(12);
+    header.write("glTF", 0);
+    header.writeUInt32LE(2, 4);
+    header.writeUInt32LE(total, 8);
+    return Buffer.concat([header, jc, padded, bc]);
+  }
+
+  function glbJson(raw: Buffer): { materials: { name: string; pbrMetallicRoughness: { baseColorFactor: number[] } }[] } {
+    return JSON.parse(raw.subarray(20, 20 + raw.readUInt32LE(12)).toString("utf8")) as {
+      materials: { name: string; pbrMetallicRoughness: { baseColorFactor: number[] } }[];
+    };
+  }
+
+  function glbBin(raw: Buffer): Buffer {
+    const h = 20 + raw.readUInt32LE(12);
+    return Buffer.from(raw.subarray(h + 8, h + 8 + raw.readUInt32LE(h)));
+  }
+
+  function stage21Inputs(dir: string): { manifest: unknown[]; provenance: string; phenotypes: string } {
+    const provenance = JSON.stringify({ scenarioId: SCENARIO, actorId: ACTOR });
+    const phenotypes = JSON.stringify({ entries: { [SCENARIO]: { [ACTOR]: { phenotype: { hair_color: "black" } } } } });
+    const provPath = join(dir, "pre.provenance.json");
+    const phenPath = join(dir, "actor-phenotype.v1.json");
+    writeFileSync(provPath, provenance);
+    writeFileSync(phenPath, phenotypes);
+    const shipped = shippedStage21();
+    const manifest = [
+      {
+        id: STAGE_ID,
+        name: STAGE_NAME,
+        tool: shipped.tool,
+        kind: shipped.kind,
+        argv: shipped.argv,
+        inputs: [
+          { name: "pre.provenance.json", path: provPath, sha256: createHash("sha256").update(provenance).digest("hex") },
+          { name: "actor-phenotype.v1.json", path: phenPath, sha256: createHash("sha256").update(phenotypes).digest("hex") },
+        ],
+      },
+    ];
+    return { manifest, provenance, phenotypes };
+  }
+
+  it("executes the stage-21-only manifest through runChain on a small GLB", { timeout: 60_000 }, () => {
+    const root = process.cwd();
+    const shipped = shippedStage21();
+    expect(shipped.kind).toBe("python");
+    expect(shipped.tool).toBe("tools/openclinxr/asset-pipeline/makeclothes/apply_actor_hair_colour.py");
+    const dir = tmpRoot();
+    const preGlb = join(dir, "pre.glb");
+    writeFileSync(preGlb, minimalHairGlb());
+    const { manifest } = stage21Inputs(dir);
+    const manifestPath = writeManifest(dir, manifest);
+    const out = join(dir, "out");
+    const report = runChain({ manifestPath, input: preGlb, out, root });
+    expect(report.status).toBe("complete");
+    expect(report.stages).toHaveLength(1);
+    const outGlbPath = join(out, `${STAGE_ID}-${STAGE_NAME}.glb`);
+    expect(existsSync(outGlbPath), "stage 21 output GLB written").toBe(true);
+    const outRaw = readFileSync(outGlbPath);
+    const doc = glbJson(outRaw);
+    expect(doc.materials).toHaveLength(2);
+    for (const material of doc.materials) {
+      expect(material.pbrMetallicRoughness.baseColorFactor).toEqual([...EXPECTED_LINEAR_RGB, 1]);
+    }
+    expect(glbBin(outRaw).equals(glbBin(readFileSync(preGlb))), "BIN chunk byte-identical").toBe(true);
+    // The runner-recorded argv (written by runChain in chain-report.json after
+    // real execution) equals the byteLineage-shaped argv: --glb {in},
+    // --output {out}, provenance/phenotypes at the materialized .inputs paths.
+    const outDir = resolve(out);
+    const onDisk = JSON.parse(readFileSync(join(out, "chain-report.json"), "utf8")) as {
+      stages: { argv: string[] }[];
+    };
+    expect(onDisk.stages[0]?.argv).toEqual([
+      "--glb",
+      resolve(preGlb),
+      "--output",
+      join(outDir, `.tmp-${STAGE_ID}-${STAGE_NAME}.glb`),
+      "--provenance",
+      join(outDir, ".inputs", "pre.provenance.json"),
+      "--phenotypes",
+      join(outDir, ".inputs", "actor-phenotype.v1.json"),
+    ]);
+  });
+
+  it("counterweight: an altered declared-input hash fails through runChain materialization (RED)", { timeout: 60_000 }, () => {
+    const root = process.cwd();
+    const dir = tmpRoot();
+    const preGlb = join(dir, "pre.glb");
+    writeFileSync(preGlb, minimalHairGlb());
+    const { manifest } = stage21Inputs(dir);
+    const bad = JSON.parse(JSON.stringify(manifest)) as {
+      inputs: { name: string; path: string; sha256: string }[];
+    }[];
+    const phen = bad[0]?.inputs.find((i) => i.name === "actor-phenotype.v1.json");
+    expect(phen, "phenotype input declared").toBeDefined();
+    phen!.sha256 = `${phen!.sha256.slice(0, 63)}${phen!.sha256.endsWith("0") ? "1" : "0"}`;
+    const manifestPath = writeManifest(dir, bad);
+    let caught: unknown;
+    try {
+      runChain({ manifestPath, input: preGlb, out: join(dir, "out-bad"), root });
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(Error);
+    expect((caught as Error).message).toMatch(/stage 21: input actor-phenotype\.v1\.json sha256/);
+    expect((caught as Error).stack ?? "").toContain("run-chain");
   });
 });
 describe("runChain", () => {

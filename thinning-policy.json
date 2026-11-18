@@ -71,5 +71,17 @@
     "pathGlobs": ["*.test.*", "*.json"],
     "buckets": ["E", "G", "P"]
   },
-  "exceptions": []
+  "exceptions": [
+    {
+      "id": "supine-freeze-kevin-pin",
+      "scope": ["tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json"],
+      "rule": "pin",
+      "approvedBy": "super-ceo-cap38",
+      "quote": "pin exception for writer-regenerated supine record until SUPINE-FREEZE-STRUCTURAL",
+      "date": "2026-11-18",
+      "expires": "2026-12-18",
+      "evidence": "writer tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts line 223 (writeSupineControlFreeze rewrite of the kevin row on every GLB re-derivation by design); card SUPINE-FREEZE-STRUCTURAL tsk_f140fd27582c6d4e tracks the structural fix",
+      "reason": "writer-owned control pin; hand edits would be overwritten on the next run"
+    }
+  ]
 }

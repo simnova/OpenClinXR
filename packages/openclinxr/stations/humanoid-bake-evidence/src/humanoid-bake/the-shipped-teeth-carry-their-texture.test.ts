@@ -23,6 +23,14 @@ import { describe, expect, it } from "vitest";
 process.chdir(repoRoot());
 
 const DIR = "apps/ui-xr/public/generated-humanoids";
+/**
+ * kevin-colour pre-probe parent (2026-11-18): HEAD is the kevin-colour probe
+ * commit (depth-3 colour sidecar + GLB), so the previous depth-2 blobs beside
+ * their matching GLB live at this pinned parent, never at HEAD. A named
+ * constant (not HEAD or HEAD^) so the next card that moves the pin cannot
+ * silently re-point this regression.
+ */
+const KEVIN_PRE_COLOUR_PARENT = "5259f80f3";
 const EXPECTED_IMAGE_SHA = {
   teeth: "d0afb57869c6fbb56b98f5efc4aec629ee7593e70d8dd2bfb9de923acfb65f43",
   tongue: "3150be398e48e8ba1feac164c3143c16c0b2e959d9ffb6155f0171f59cfb4ea9",
@@ -527,8 +535,16 @@ function nurseChestRowOrThrow(
  * on exactly the bytes the pin it supersedes named). The F1 chain level is exempt by construction
  * (one derivation spanning both stages; recordedBefore is the superseded same-bytes pin) and must
  * name the tracked c1da76fb4 pre-image instead. The walked chain must contain the
- * teeth-swap derivation record (swap_teeth.py in argv) with the nested #741 record older still.
- */
+ * teeth-swap record (swap_teeth.py in argv) with the #741 record (fix(#741) in why
+ * or tongue-forward-place.ts in argv) either nested older still, or carried by the
+ * swap level itself: a single level that ran both the swap and the #741 post-step
+ * (the kevin combined derivation) satisfies the ordering by its contents, at any
+ * depth. The combined case is contents-identified by the EXACT tool invocations
+ * in derivationArgv (full swap + tongue-forward paths): free-form why text never
+ * suffices, so a forged fix(#741) note on a swap level whose argv lacks the
+ * tongue-forward invocation still refuses. Otherwise the #741 search is scoped
+ * to levels older than the swap level, so a newer-only #741 still refuses
+ * instead of passing. */
 function validateT3LineageChain(
   actor: string,
   live: string,
@@ -564,18 +580,44 @@ function validateT3LineageChain(
     }
   }
   const argvText = (level: ByteLineageLevel): string => (level.derivationArgv ?? []).join(" ");
-  const swapIndex = levels.findIndex((level) => argvText(level).includes("swap_teeth.py"));
+  const matchesSwap = (level: ByteLineageLevel): boolean => argvText(level).includes("swap_teeth.py");
+  const matches741 = (level: ByteLineageLevel): boolean =>
+    (level.why ?? "").includes("fix(#741)") || argvText(level).includes("tongue-forward-place.ts");
+  /**
+   * Combined swap+post level (kevin-colour h2 F3, hardened h3): the swap level
+   * carries the ordering ONLY when derivationArgv names the EXACT swap tool
+   * invocation AND the EXACT tongue-forward tool invocation. Live token shape
+   * (read from the shipped sidecar): the combined level's derivationArgv is
+   * ["sh", "-c", "<one shell script>", "x", ...] — both tool paths sit
+   * singly-quoted INSIDE that single sh -c token, not as separate argv
+   * tokens, so bare `some(a => a === TOOL)` would RED the live shape.
+   * Exactness is therefore word-token equality: each argv token is split on
+   * whitespace/quotes and the full tool path must appear as a whole word.
+   * A forged token that prefixes/suffixes the path (FORGED-<path>-FORGED)
+   * stays one word and never equals the tool, so basename/substring markers
+   * and free-form why text never suffice.
+   */
+  const SWAP_TOOL_INVOCATION = "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py";
+  const TONGUE_TOOL_INVOCATION = "tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts";
+  const argvWords = (level: ByteLineageLevel): string[] =>
+    (level.derivationArgv ?? []).flatMap((a) => a.split(/[\s'"]+/).filter((w) => w.length > 0));
+  const argvHasExactTool = (level: ByteLineageLevel, tool: string): boolean =>
+    argvWords(level).some((w) => w === tool);
+  const isCombinedSwapPostLevel = (level: ByteLineageLevel): boolean =>
+    argvHasExactTool(level, SWAP_TOOL_INVOCATION) && argvHasExactTool(level, TONGUE_TOOL_INVOCATION);
+  const swapIndex = levels.findIndex(matchesSwap);
   if (swapIndex < 0) {
     throw new Error(`T3 chain ${actor}: no teeth-swap derivation record (swap_teeth.py) in the byteLineage chain`);
   }
-  const fix741Index = levels.findIndex(
-    (level) => (level.why ?? "").includes("fix(#741)") || argvText(level).includes("tongue-forward-place.ts"),
-  );
+  const fix741Index = levels.findIndex(matches741);
   if (fix741Index < 0) {
-    throw new Error(`T3 chain ${actor}: no nested #741 record in the byteLineage chain`);
+    throw new Error(`T3 chain ${actor}: no nested #741 record (missing #741) in the byteLineage chain`);
   }
-  if (!(fix741Index > swapIndex)) {
-    throw new Error(`T3 chain ${actor}: the #741 record must nest older than the teeth-swap record`);
+  if (!isCombinedSwapPostLevel(levels[swapIndex]!)) {
+    const older741 = levels.findIndex((level, index) => index > swapIndex && matches741(level));
+    if (older741 < 0) {
+      throw new Error(`T3 chain ${actor}: the #741 record must nest older than the teeth-swap record`);
+    }
   }
   const established = swapIndex === 0 ? chain.outputSha256 : levels[swapIndex - 1]!.recordedBefore?.outputSha256;
   if (block.output?.sha256 !== established) {
@@ -625,14 +667,15 @@ function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>): 
   } else if (lineageLevels(sidecar).length > 0) {
     // M3: no skip when the swap output is rewritten to live — any sidecar
     // carrying a chain still validates (top pin, junction, continuity). The
-    // only bypasses are the two proven legacy shapes below (robert-hayes
-    // blender-bake genesis; peds-nurse-kevin combined single-level
-    // derivation); the neck-stage allowance above already covers the physician
-    // non-live path. Both bypasses are actor- plus shape-pinned and self-retire
-    // if their sidecars ever gain a validatable chain shape.
+    // only bypass is the one proven legacy shape below (robert-hayes
+    // blender-bake genesis); the kevin combined single-level derivation now
+    // validates directly through the combined rule above, so its former
+    // depth-pinned bypass retired with the depth-3 sidecar. The neck-stage
+    // allowance above already covers the physician non-live path. The bypass
+    // is actor- plus shape-pinned and self-retires if its sidecar ever gains
+    // a validatable chain shape.
     const levels = lineageLevels(sidecar);
     const oldest = levels[levels.length - 1]!;
-    const newestArgv = (levels[0]?.derivationArgv ?? []).join(" ");
     const isRobertHayesGenesis =
       actor === "mpfb-gown-ed-robert-hayes.glb" &&
       levels.length === 2 &&
@@ -642,23 +685,7 @@ function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>): 
       // JSON path byteLineage.recordedBefore.byteLineage.inputSha256 (genesis level has no recordedBefore)
       oldest.inputSha256 ===
         "27cbf4e5ed5a007ad497a3bafe2763ac72746583374ad1718d51573ba649aa66";
-    // Proven combined single-level derivation (e9-r2e F2): peds-nurse-kevin
-    // records swap_teeth.py plus the post-swap stations (teeth-rest-clearance,
-    // tongue-forward-place, couple, decimate) in ONE newest byteLineage level,
-    // so the cross-level "741 nests older than swap" invariant cannot model it
-    // (first-match swap and 741 coincide at L0) even though a genuine older
-    // fix(#741) record exists at L1 and continuity holds. Shape-pinned and
-    // self-retiring: if the sidecar ever splits the levels, this stops matching.
-    const isCombinedSwapPostLevel =
-      actor === "mpfb-peds-nurse-kevin.glb" &&
-      levels.length === 2 &&
-      newestArgv.includes("swap_teeth.py") &&
-      newestArgv.includes("tongue-forward-place.ts") &&
-      // sidecar apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json
-      // JSON path byteLineage.recordedBefore.outputSha256 (newest combined level's recorded output)
-      levels[0]?.recordedBefore?.outputSha256 ===
-        "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa";
-    if (!isRobertHayesGenesis && !isCombinedSwapPostLevel) validateT3LineageChain(actor, live, sidecar, block);
+    if (!isRobertHayesGenesis) validateT3LineageChain(actor, live, sidecar, block);
   }
   for (const row of block.protectedAccessorHashes ?? []) {
     const actual = accessorHash(glb, row.accessorIndex);
@@ -990,12 +1017,13 @@ describe("the shipped teeth carry their own CC0 texture", () => {
   });
 
   /**
-   * e9-r2f G2: both legacy bypasses are pinned to actor + depth 2 + the
-   * bypassed level's recorded output sha. In-memory plants (never a sidecar
+   * e9-r2f G2: the legacy bypass is pinned to actor + depth 2 + the bypassed
+   * level's genesis input sha, and the kevin combined-shape chain is pinned to
+   * its combined level's recorded output sha. In-memory plants (never a sidecar
    * file write): flipping the pinned sha by one hex digit, or changing the
    * depth by +1/-1, must fail closed through validateT3.
    */
-  it("M3 legacy bypass pins fail closed on sha or depth change", () => {
+  it("M3 legacy bypass and combined-shape pins fail closed on sha or depth change", () => {
     const flipLastHex = (sha: string): string =>
       sha.slice(0, -1) + (sha.endsWith("0") ? "1" : "0");
     // Robert-hayes blender-bake genesis bypass (depth 2, genesis input sha).
@@ -1030,27 +1058,31 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     >)["byteLineage"];
     expect(lineageLevels(rhMinus).length, "setup: robert-hayes depth -1").toBe(1);
     expect(() => validateT3(rhActor, rhGlb, rhMinus)).toThrow(/no nested #741 record/);
-    // Peds-nurse-kevin combined single-level bypass (depth 2, newest recorded output sha).
+    // Peds-nurse-kevin combined shape (live depth 3: colour L0, combined swap
+    // L1, #741 L2). The combined L1 carries the newest recorded output pin;
+    // the +1 plant breaks continuity at the new oldest level, and the -1 plant
+    // drops the swap level itself so the chain refuses at the swap search.
     const keActor = "mpfb-peds-nurse-kevin.glb";
     const keGlb = parseGlb(join(DIR, keActor));
     const keSidecar = sidecarFor(keActor);
-    expect(lineageLevels(keSidecar).length, "setup: kevin chain depth").toBe(2);
+    expect(lineageLevels(keSidecar).length, "setup: kevin chain depth").toBe(3);
     validateT3(keActor, keGlb, keSidecar);
     const keShaPlant = JSON.parse(JSON.stringify(keSidecar)) as Record<string, unknown>;
-    const keNewest = lineageLevels(keShaPlant)[0]!;
-    expect(keNewest.recordedBefore?.outputSha256, "setup: combined level output sha pinned").toBe(
-      "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa",
+    const keCombined = lineageLevels(keShaPlant)[1]!;
+    expect(keCombined.recordedBefore?.outputSha256?.slice(0, 12), "setup: combined level output pin").toBe(
+      "a872dbd0f469",
     );
-    keNewest.recordedBefore!.outputSha256 = flipLastHex(keNewest.recordedBefore!.outputSha256!);
+    keCombined.recordedBefore!.outputSha256 = flipLastHex(keCombined.recordedBefore!.outputSha256!);
     expect(() => validateT3(keActor, keGlb, keShaPlant)).toThrow(
       /preImageSha256 .* != recordedBefore\.outputSha256/,
     );
     const kePlus = JSON.parse(JSON.stringify(keSidecar)) as Record<string, unknown>;
-    lineageLevels(kePlus)[1]!.recordedBefore!.byteLineage = {
-      derivationArgv: ["extra"],
-      preImageSha256: "b".repeat(64),
+    lineageLevels(kePlus)[2]!.recordedBefore = {
+      outputSha256: "a".repeat(64),
+      outputBytes: 1,
+      byteLineage: { derivationArgv: ["extra"], preImageSha256: "b".repeat(64) },
     };
-    expect(lineageLevels(kePlus).length, "setup: kevin depth +1").toBe(3);
+    expect(lineageLevels(kePlus).length, "setup: kevin depth +1").toBe(4);
     expect(() => validateT3(keActor, keGlb, kePlus)).toThrow(
       /preImageSha256 .* != recordedBefore\.outputSha256/,
     );
@@ -1060,9 +1092,159 @@ describe("the shipped teeth carry their own CC0 texture", () => {
       unknown
     >)["byteLineage"];
     expect(lineageLevels(keMinus).length, "setup: kevin depth -1").toBe(1);
-    expect(() => validateT3(keActor, keGlb, keMinus)).toThrow(
-      /must nest older than the teeth-swap record/,
+    expect(() => validateT3(keActor, keGlb, keMinus)).toThrow(/no teeth-swap derivation record/);
+  });
+
+  /**
+   * T3 combined ordering (kevin-colour h1). One byteLineage level that ran both
+   * the teeth swap and the #741 post-step satisfies the ordering by its contents
+   * at any depth: the live depth-3 shape (R4b) and the previous depth-2 shape
+   * (R4a, pinned-parent blobs beside their matching GLB) both validate.
+   * Counterweights, built in memory from the live sidecar: a SEPARATE #741 level
+   * newer than a pure-swap level (R2) still refuses with the ordering message,
+   * and a chain with no #741 level at all (R3) refuses as missing #741.
+   */
+  it("T3 combined swap level satisfies the ordering at any depth; newer-only or absent #741 still refuse", () => {
+    const actor = "mpfb-peds-nurse-kevin.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const live = sha256(glb.raw);
+    const kevin = sidecarFor(actor);
+    const block = (kevin as NeckChainSidecar)["teethSwapB1"]!;
+    // R4b: the live depth-3 shape (colour on top of the combined swap level) validates.
+    expect(lineageLevels(kevin).length, "setup: live kevin chain depth").toBe(3);
+    validateT3LineageChain(actor, live, kevin, block);
+    validateT3(actor, glb, kevin);
+    const swapAt = lineageLevels(kevin).findIndex((level) =>
+      (level.derivationArgv ?? []).join(" ").includes("swap_teeth.py"),
     );
+    console.info(`T3 combined ${actor}: depth=3 swap=${swapAt} live=${live.slice(0, 12)}`);
+    // R4a: the depth-2 shape from before this card (combined newest, #741 older),
+    // read from the pinned-parent blobs beside their matching GLB, still validates.
+    const prevSidecar = JSON.parse(
+      execFileSync("git", ["show", `${KEVIN_PRE_COLOUR_PARENT}:${DIR}/${actor.replace(/\.glb$/, ".provenance.json")}`], {
+        maxBuffer: 64 * 1024 * 1024,
+      }).toString("utf8"),
+    ) as Record<string, unknown>;
+    const prevGlb = parseGlbBytes(
+      execFileSync("git", ["show", `${KEVIN_PRE_COLOUR_PARENT}:${DIR}/${actor}`], { maxBuffer: 128 * 1024 * 1024 }),
+    );
+    const prevLive = sha256(prevGlb.raw);
+    expect(lineageLevels(prevSidecar).length, "setup: previous kevin chain depth").toBe(2);
+    validateT3LineageChain(
+      actor,
+      prevLive,
+      prevSidecar,
+      (prevSidecar as NeckChainSidecar)["teethSwapB1"]!,
+    );
+    validateT3(actor, prevGlb, prevSidecar);
+    console.info(`T3 combined previous ${actor}: depth=2 live=${prevLive.slice(0, 12)}`);
+    // R2 counterweight: the #741 markers live on a SEPARATE level NEWER than a
+    // pure-swap level (combined split apart) -> the ordering still refuses.
+    const newer741 = JSON.parse(JSON.stringify(kevin)) as Record<string, unknown>;
+    const newerLevels = lineageLevels(newer741);
+    newerLevels[0]!.why = `${newerLevels[0]!.why ?? ""} fix(#741) plant: separate newer #741`;
+    newerLevels[1]!.derivationArgv = (newerLevels[1]!.derivationArgv ?? []).map((arg) =>
+      arg.replaceAll("tongue-forward-place.ts", "tongue-forward-place-removed-for-plant.ts"),
+    );
+    newerLevels[2]!.why = "plant: oldest-level #741 markers stripped";
+    newerLevels[2]!.derivationArgv = ["plant: oldest-level argv stripped"];
+    expect(
+      () =>
+        validateT3LineageChain(
+          actor,
+          live,
+          newer741,
+          (newer741 as NeckChainSidecar)["teethSwapB1"]!,
+        ),
+      "R2: separate newer #741 plant",
+    ).toThrow(/must nest older than the teeth-swap record/);
+    // R3 counterweight: no #741 level at all (combined split apart AND the older
+    // record stripped) -> the chain refuses as missing #741, never as optional.
+    const no741 = JSON.parse(JSON.stringify(kevin)) as Record<string, unknown>;
+    const no741Levels = lineageLevels(no741);
+    no741Levels[1]!.derivationArgv = (no741Levels[1]!.derivationArgv ?? []).map((arg) =>
+      arg.replaceAll("tongue-forward-place.ts", "tongue-forward-place-removed-for-plant.ts"),
+    );
+    no741Levels[2]!.why = "plant: oldest-level #741 markers stripped";
+    no741Levels[2]!.derivationArgv = ["plant: oldest-level argv stripped"];
+    expect(
+      () =>
+        validateT3LineageChain(actor, live, no741, (no741 as NeckChainSidecar)["teethSwapB1"]!),
+      "R3: absent #741 plant",
+    ).toThrow(/missing #741/);
+  });
+
+  /**
+   * T3 forged-why counterweight (kevin-colour h2 F3). Strip every real #741
+   * command (the tongue-forward invocation from the combined level's argv, all
+   * markers from the older level) and plant fix(#741) in the swap level's why:
+   * the combined case needs the EXACT swap + tongue-forward invocations in
+   * derivationArgv, so why text never suffices and the chain still refuses
+   * with the ordering message. h1 R2/R3/R4 plants stay GREEN (asserted in the
+   * test above; this test re-runs the live shape GREEN as its setup).
+   */
+  it("T3 forged fix(#741) why on a tongue-stripped swap level still refuses", () => {
+    const actor = "mpfb-peds-nurse-kevin.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const live = sha256(glb.raw);
+    const kevin = sidecarFor(actor);
+    expect(lineageLevels(kevin).length, "setup: live kevin chain depth").toBe(3);
+    validateT3(actor, glb, kevin);
+    const forged = JSON.parse(JSON.stringify(kevin)) as Record<string, unknown>;
+    const forgedLevels = lineageLevels(forged);
+    forgedLevels[1]!.derivationArgv = (forgedLevels[1]!.derivationArgv ?? []).map((arg) =>
+      arg.replaceAll("tongue-forward-place.ts", "tongue-forward-place-removed-for-plant.ts"),
+    );
+    forgedLevels[1]!.why = `${forgedLevels[1]!.why ?? ""} fix(#741) forged why plant`;
+    forgedLevels[2]!.why = "plant: oldest-level #741 markers stripped";
+    forgedLevels[2]!.derivationArgv = ["plant: oldest-level argv stripped"];
+    expect(
+      () =>
+        validateT3LineageChain(actor, live, forged, (forged as NeckChainSidecar)["teethSwapB1"]!),
+      "F3: forged why on tongue-stripped swap level",
+    ).toThrow(/must nest older than the teeth-swap record/);
+  });
+
+  /**
+   * T3 forged-path counterweight (kevin-colour h3 F3). A single forged token
+   * that prefixes/suffixes BOTH full tool paths (FORGED-<path>-FORGED) still
+   * contains both paths as substrings, so joined-string includes would pass —
+   * but word-token equality refuses because neither exact invocation is
+   * present. The older #741 markers are stripped as in the h2 plant, so the
+   * chain refuses with the ordering message.
+   */
+  it("T3 forged single token wrapping both tool paths still refuses", () => {
+    const actor = "mpfb-peds-nurse-kevin.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const live = sha256(glb.raw);
+    const kevin = sidecarFor(actor);
+    expect(lineageLevels(kevin).length, "setup: live kevin chain depth").toBe(3);
+    validateT3(actor, glb, kevin);
+    const forged = JSON.parse(JSON.stringify(kevin)) as Record<string, unknown>;
+    const forgedLevels = lineageLevels(forged);
+    forgedLevels[1]!.derivationArgv = (forgedLevels[1]!.derivationArgv ?? []).map((arg) =>
+      arg
+        .replaceAll(
+          "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py",
+          "FORGED-tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py-FORGED",
+        )
+        .replaceAll(
+          "tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts",
+          "FORGED-tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts-FORGED",
+        ),
+    );
+    forgedLevels[2]!.why = "plant: oldest-level #741 markers stripped";
+    forgedLevels[2]!.derivationArgv = ["plant: oldest-level argv stripped"];
+    expect(
+      () =>
+        validateT3LineageChain(
+          actor,
+          live,
+          forged,
+          (forged as NeckChainSidecar)["teethSwapB1"]!,
+        ),
+      "F3: forged prefix/suffix token around both tool paths",
+    ).toThrow(/must nest older than the teeth-swap record/);
   });
 
   it("M1: swapped kept/hidden roles refuse even though both shas are in the pin set", () => {

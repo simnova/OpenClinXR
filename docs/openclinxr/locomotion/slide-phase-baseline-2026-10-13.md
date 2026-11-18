@@ -58,8 +58,8 @@ both turn windows, and the frozen walking window. Unit test
 `slide-phase-analyze.test.ts` prints the planted `leftToe.x` ramp before/after
 to show the plant applied. Pass.
 
-b. Ungated replica of `settle-entry-analyze` windowSlidesM agrees with that tool
-on the same 6 SC-05 runs to 0.0 m on every run (per-run diff 0.00e+00; aggregate
+b. Ungated windowSlides replica agrees with that tool's last recorded output
+(the analyzer was removed 2026-11-18) on the same 6 SC-05 runs to 0.0 m on every run (per-run diff 0.00e+00; aggregate
 max 0.0011 m both). The band-gated turn number is smaller (0.0003 m) because
 early settling frames carry a stance label while the toe is still airborne
 (e.g. sc05-run0 frame 26: stance=left, leftToe.y=0.101 > 0.06): the label-only

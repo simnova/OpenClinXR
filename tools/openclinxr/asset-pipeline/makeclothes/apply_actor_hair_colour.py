@@ -12,7 +12,12 @@ import argparse
 import hashlib
 import json
 import struct
+import sys
 from pathlib import Path
+
+_HERE = Path(__file__).resolve().parent
+if str(_HERE) not in sys.path:
+    sys.path.insert(0, str(_HERE))
 
 from embed_library_hair import authored_hair_color_rgba
 
@@ -144,6 +149,11 @@ def main() -> None:
 
     output = args.output or args.glb
     provenance_path = args.provenance or args.glb.with_suffix(".provenance.json")
+    if not args.no_provenance and not provenance_path.exists():
+        raise RuntimeError(
+            f"provenance sidecar missing: {provenance_path} (no --provenance given and no "
+            "colocated .provenance.json beside --glb; pass --provenance with the pinned sidecar)"
+        )
     provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
     phenotypes = json.loads(args.phenotypes.read_text(encoding="utf-8"))
     hair_color, hair_color_source = authored_hair_token(provenance, phenotypes)

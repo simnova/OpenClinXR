@@ -1,7 +1,7 @@
 {
   "schema": "openclinxr.teeth-seat-measure.v1",
   "card": "tsk_2a74bbdb3f03cb3e",
-  "measuredAt": "2026-11-16T20:30:00.000Z",
+  "measuredAt": "2026-11-18T06:26:28.174Z",
   "tool": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/teeth-seat-measure.ts",
   "rows": [
     {
@@ -108,7 +108,7 @@
     },
     {
       "actor": "mpfb-peds-nurse-kevin.glb",
-      "glbSha256": "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444",
+      "glbSha256": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
       "m1SignedSide": 3110,
       "m1f": 17,
       "teethVertexCount": 3114,

@@ -40,8 +40,8 @@ import {
  *      present, of |toe[i+1]-toe[i]|_xz (0 for a single-frame run).
  * 2. walking: windows = maximal runs [a..b] (b-a >= 1) of consecutive indices
  *    with phase = "walking", stanceFoot == F, every frame planted(F), toes present.
- *    windowTravel = MAX_{i in [a..b]} |toeF[i]-toeF[a]|_xz (span from window base,
- *    the settle-entry-analyze method). sumWalkSlide = SUM windowTravel.
+ *    windowTravel = MAX_{i in [a..b]} |toeF[i]-toeF[a]|_xz (span from window base).
+ *    sumWalkSlide = SUM windowTravel.
  *    rootPathM = SUM over consecutive walking indices with both slots present
  *    of |slot[i]-slot[i-1]|_xz. slidePerMetre = sumWalkSlide / rootPathM
  *    (null when rootPathM == 0).
@@ -55,7 +55,7 @@ import {
  *    first turn window (null when none). turnMaxM = MAX window travel
  *    (0 when no windows). replicaUngatedMaxM = MAX span-from-base over
  *    stanceFoot runs (>= 2 frames) across ALL settling indices with NO band
- *    gate: a line-for-line replica of settle-entry-analyze's windowSlidesM,
+ *    gate: an ungated span-from-base replica,
  *    used only to reconcile against the published whole-run figure.
  * 5. end stance at E = S1 (last settling frame: the turn is complete and
  *    arrival-close has not yet reshaped the toes):
@@ -221,7 +221,7 @@ export type SlidePhaseMetrics = {
     pivotFoot: string | null;
     windows: StanceWindow[];
     maxM: number;
-    /** Ungated replica of settle-entry-analyze windowSlidesM; reconciliation only. */
+    /** Ungated span-from-base replica; reconciliation only. */
     replicaUngatedMaxM: number;
     replicaUngatedWindows: number;
   };

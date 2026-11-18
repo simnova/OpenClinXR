@@ -180,7 +180,10 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // (non-mouth meshes value-equal, st-teeth counterweight); values from stat/shasum of the shipped GLB; was 16926856 B, sha a872dbd0f469….
       // teeth F3 re-pinned 2026-11-10 (tsk_27e0cec12cab410d): aa upper-shell lateral mean -> 0; skin prim untouched;
       // values from stat/shasum of the shipped GLB; was 20026092 B, sha f3b840d19154….
-      [PEDS_GLB, "pedsKevin", 20026072, "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444"],
+      // kevin-colour re-pinned 2026-11-18: actor_hair_colour_post_export_v1 (hair_color black ->
+      // [0.035, 0.028, 0.022] on scalp + brow factors; BIN identical); values from stat/shasum of
+      // the shipped GLB; was 20026072 B, sha 0e610fe7fda8….
+      [PEDS_GLB, "pedsKevin", 20026180, "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72"],
       // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
       // ci-w11b re-pinned 2026-10-30: ci-w11 D3 d0e2104d3 repaired midline breast keyframes
       // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….

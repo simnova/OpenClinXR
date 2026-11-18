@@ -213,7 +213,6 @@
     "tools/openclinxr/evidence/scene-closure/proofs/sc-10/build-report.ts",
     "tools/openclinxr/evidence/seated-parent-placement.ts",
     "tools/openclinxr/evidence/seated-patient-floor-landmarks.ts",
-    "tools/openclinxr/evidence/settle-entry/settle-entry-analyze.ts",
     "tools/openclinxr/evidence/settle-entry/settle-entry-bars-check.ts",
     "tools/openclinxr/evidence/settle-entry/settle-entry-trace-analyze.ts",
     "tools/openclinxr/evidence/settle-entry/turn-leg-snaps-analyze.ts",

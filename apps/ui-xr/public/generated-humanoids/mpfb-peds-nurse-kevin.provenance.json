@@ -69,13 +69,14 @@
   "2026-09-20: garment-provenance-stamp extras on remaining garments. Geometry unchanged. outputSha256/outputBytes re-recorded.",
   "2026-10-30 ci-w11 D3 (chest-anchor re-separation, post-bake stage, not rebake): repair mode: rest already +-0.085 from #0; restored 2 openclinxr_retarget_walk_source keyframes per breast joint from midline to rest (walk graft 91aa4b5d3 had re-pinned them after the #0 run). Rest TRS untouched. Tool: tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs (half-span 0.085, uniform with nurse known-good 1f5519d2).",
   "st-weld2 D1 (garment topology weld, post-export byte stage, not a Blender rebake): connected each MakeClothes garment's per-face index islands by position (scrub shirt 4692 raw components -> 2 meaningful: body + collar band kept split on its textured UV seam, same pattern as the physician scrub; pants 1345 -> 1 meaningful), carrying one normal per cloth side so creases at/above the flat-shade 60-deg floor stay split (shirt kept_sharp 65, pants 67; weights splits 0; textured-uv splits 222 on the shirt, kept to avoid smearing the print). Byte length unchanged at 16291676; only garment indices and survivor NORMALs rewritten in place. Tool: tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py --angle 90, wired pre-#371 in tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py. Shoulder-span counterweight still false on this asset (collar band separate, as physician); recorded in E/weld-census.json.",
-  "st-palette R11 (clinician lock kept): --replace dropped the HB-02 flat fill (437,089 B, decoded dark) on the scrub shirt and attached the corrected sRGB weave at the locked teal [0.05,0.48,0.52] (miss 0.00016). Scrub pants stay factor-only (clause-3 control intact). No hem recorded on this asset."
+  "st-palette R11 (clinician lock kept): --replace dropped the HB-02 flat fill (437,089 B, decoded dark) on the scrub shirt and attached the corrected sRGB weave at the locked teal [0.05,0.48,0.52] (miss 0.00016). Scrub pants stay factor-only (clause-3 control intact). No hem recorded on this asset.",
+  "2026-11-05 st-vitbrow r4: post-export fitted scalp-hair and eyebrow baseColorFactor now resolve from the case-authored hair_color token; BIN/image bytes, geometry, rig, animations, eyes, eyelashes, and skin remain unchanged."
  ],
  "claimScope": "kevin_staff_kit_via_clothesservice_scrub_shirt_scrub_pants_mhair02_kept",
  "promotionGates": false,
  "generatedAt": "2026-11-02T19:13:49.000Z",
- "outputSha256": "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444",
- "outputBytes": 20026072,
+ "outputSha256": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
+ "outputBytes": 20026180,
  "licenceNoticeWrittenAt": "2026-09-10T17:27:31.899Z",
  "licenceNoticeNote": "asset.copyright written by tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts from the components actually present in this file. Geometry, materials and animations are unchanged; only the glTF asset block moved, which is why outputSha256 and outputBytes are re-recorded here.",
  "albedoBakeWrittenAt": "2026-09-11T05:16:52.423Z",
@@ -109,46 +110,74 @@
  ],
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-11-11T02:16:13.787Z",
+  "correctedAt": "2026-11-18T06:04:49.720Z",
   "recordedBefore": {
-   "outputSha256": "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa",
-   "outputBytes": 16926856,
+   "outputSha256": "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444",
+   "outputBytes": 20026072,
    "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-    "correctedAt": "2026-09-28T04:06:59.478Z",
+    "correctedAt": "2026-11-11T02:16:13.787Z",
     "recordedBefore": {
-     "outputSha256": "9ece440713a6d0a0bb1de80b55ad868784a9c5cad0a96e195dad822375e56809",
-     "outputBytes": 7894884
+     "outputSha256": "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa",
+     "outputBytes": 16926856,
+     "byteLineage": {
+      "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
+      "correctedAt": "2026-09-28T04:06:59.478Z",
+      "recordedBefore": {
+       "outputSha256": "9ece440713a6d0a0bb1de80b55ad868784a9c5cad0a96e195dad822375e56809",
+       "outputBytes": 7894884
+      },
+      "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+      "preImageSha256": "9ece440713a6d0a0bb1de80b55ad868784a9c5cad0a96e195dad822375e56809",
+      "preImageBytes": 7894884,
+      "derivationArgv": [
+       "sh",
+       "-c",
+       "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0082 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+       "x",
+       "{pre}",
+       "{out}"
+      ],
+      "reproduction": "byte-identical to the shipped file",
+      "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+     }
     },
-    "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
-    "preImageSha256": "9ece440713a6d0a0bb1de80b55ad868784a9c5cad0a96e195dad822375e56809",
-    "preImageBytes": 7894884,
+    "preImageRevision": "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+    "preImageSha256": "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa",
+    "preImageBytes": 16926856,
     "derivationArgv": [
      "sh",
      "-c",
-     "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0082 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
+     "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-peds-nurse-kevin.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0102' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts' \"$2\" '--delta' '-0.004' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts' \"$2\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'",
      "x",
      "{pre}",
-     "{out}"
+     "{out}",
+     "{report}"
     ],
     "reproduction": "byte-identical to the shipped file",
-    "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
+    "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts, tongue-forward-place.ts, couple-fitted-teeth-to-lip-viseme.ts, decimate_teeth.mts."
    }
   },
-  "preImageRevision": "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
-  "preImageSha256": "a872dbd0f4694ca04201717fdfcbb287103c1b7d9fcb53dcdcc17a9195915bfa",
-  "preImageBytes": 16926856,
+  "preImageRevision": "41b5ea07e:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+  "preImageSha256": "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444",
+  "preImageBytes": 20026072,
   "derivationArgv": [
-   "sh",
-   "-c",
-   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-peds-nurse-kevin.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0102' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts' \"$2\" '--delta' '-0.004' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts' \"$2\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'",
-   "x",
+   "mise",
+   "exec",
+   "--",
+   "python3",
+   "tools/openclinxr/asset-pipeline/makeclothes/apply_actor_hair_colour.py",
+   "--glb",
    "{pre}",
+   "--output",
    "{out}",
-   "{report}"
+   "--provenance",
+   "/Volumes/files/openclinxr-assets/store/st-teeth/kevin-colour/r1/pre.provenance.json",
+   "--phenotypes",
+   "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts, tongue-forward-place.ts, couple-fitted-teeth-to-lip-viseme.ts, decimate_teeth.mts."
+  "why": "kevin-colour 2026-11-18: post-export stage actor_hair_colour_post_export_v1 resolves the case-authored hair_color (black) to linear [0.035, 0.028, 0.022] and re-tints the fitted scalp + style-08 brow baseColorFactor only; GLB BIN chunk byte-identical, geometry/rig/animation untouched. Re-running the stage on the pre-image reproduces the shipped file byte for byte."
  },
  "garmentRestoreD1": {
   "stage": "post_export_glb",
@@ -6698,6 +6727,60 @@
    "Quest readiness",
    "clinical validity",
    "in-app T4 still quality"
+  ]
+ },
+ "actorHairColourPostExport": {
+  "stage": "actor_hair_colour_post_export_v1",
+  "tool": "tools/openclinxr/asset-pipeline/makeclothes/apply_actor_hair_colour.py",
+  "inputGlbSha256": "0e610fe7fda86626526513d146f0fe87a6d718248f1f98be1855069100de3444",
+  "outputGlbSha256": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
+  "outputBytes": 20026180,
+  "resolvedLinearRgb": [
+   0.035,
+   0.028,
+   0.022
+  ],
+  "actorId": "nurse_kevin_lee_v1",
+  "scenarioId": "peds_asthma_parent_anxiety_v1",
+  "hairColor": "black",
+  "hairColorSource": "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json#entries.peds_asthma_parent_anxiety_v1.nurse_kevin_lee_v1.phenotype.hair_color",
+  "matchedMaterials": [
+   {
+    "kind": "hair",
+    "index": 1,
+    "name": "openclinxr_fitted_hair_mhair02_mpfb_peds_nurse_kevin_mat",
+    "textured": false,
+    "before": [
+     0.18000000715255737,
+     0.12999999523162842,
+     0.10000000149011612,
+     1
+    ],
+    "after": [
+     0.035,
+     0.028,
+     0.022,
+     1
+    ]
+   },
+   {
+    "kind": "eyebrow",
+    "index": 13,
+    "name": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mat",
+    "textured": false,
+    "before": [
+     0.05000000074505806,
+     0.029999999329447746,
+     0.019999999552965164,
+     1
+    ],
+    "after": [
+     0.035,
+     0.028,
+     0.022,
+     1
+    ]
+   }
   ]
  }
 }

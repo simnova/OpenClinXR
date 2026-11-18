@@ -208,6 +208,35 @@
         "peds_nurse_kevin"
       ],
       "note": "STAGES.md row 17 (sourceNotes[0]). In-place; no --record-provenance, so no sidecar writes."
+    },
+    {
+      "id": "21",
+      "name": "actor_hair_colour_post_export_v1",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/apply_actor_hair_colour.py",
+      "kind": "python",
+      "argv": [
+        "--glb",
+        "{in}",
+        "--output",
+        "{out}",
+        "--provenance",
+        "{outdir}/.inputs/pre.provenance.json",
+        "--phenotypes",
+        "{outdir}/.inputs/actor-phenotype.v1.json"
+      ],
+      "inputs": [
+        {
+          "name": "pre.provenance.json",
+          "path": "/Volumes/files/openclinxr-assets/store/st-teeth/kevin-colour/r1/pre.provenance.json",
+          "sha256": "3a2fd81b58db025d9ab81c5c15e949ab0a897cc48a2f39d10f67e1ea77591f88"
+        },
+        {
+          "name": "actor-phenotype.v1.json",
+          "path": "packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json",
+          "sha256": "b69d88a9ad881a0915b2990f09951ac62c2deef352cd9cc62ef9e89dc0bc0cc2"
+        }
+      ],
+      "note": "Shipped/recorded post-export stage (kevin-colour 2026-11-18): resolves hair_color black to [0.035, 0.028, 0.022] and re-tints scalp + brow baseColorFactor only; BIN chunk byte-identical. Replayable: the tool is python3 -I safe (sibling import via sys.path from __file__), and provenance/phenotype are hash-pinned inputs materialized to {outdir}/.inputs, so the resolved argv equals the recorded byteLineage argv modulo input staging (proven by the stage-21 execution test in run-chain.test.ts)."
     }
   ],
   "excluded": [
