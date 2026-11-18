@@ -711,6 +711,24 @@
     ]
   },
   {
+    "provider": "@openclinxr/station-render-parity",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "CaptureCli",
+        "kind": "type"
+      },
+      {
+        "name": "parseCaptureArgs",
+        "kind": "runtime"
+      },
+      {
+        "name": "runRuntimeCapture",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/telemetry",
     "entrypoint": ".",
     "names": [

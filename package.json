@@ -471,6 +471,7 @@
     "@openclinxr/service-local-compute": "workspace:*",
     "@openclinxr/station-mouth-registry": "workspace:*",
     "@openclinxr/station-mouth-verifier": "workspace:*",
+    "@openclinxr/station-render-parity": "workspace:*",
     "@openclinxr/xr-asset-loading": "workspace:*",
     "@openclinxr/xr-capture-evidence": "workspace:*",
     "@openclinxr/xr-dialogue": "workspace:*",

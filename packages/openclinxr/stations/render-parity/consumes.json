@@ -1,0 +1,42 @@
+[
+  {
+    "provider": "@cellix/config-vitest",
+    "entrypoint": "./node",
+    "names": [
+      {
+        "name": "nodeConfig",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/compute-slots",
+    "entrypoint": "./slots",
+    "names": [
+      {
+        "name": "withComputeSlot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "repoRoot",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/service-local-compute",
+    "entrypoint": "./local",
+    "names": [
+      {
+        "name": "createLocalComputeServices",
+        "kind": "runtime"
+      }
+    ]
+  }
+]

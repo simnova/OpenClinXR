@@ -222,7 +222,8 @@ describe("compiler-resolved surface meter", () => {
     // 2026-11-02 root batch worldmodel (operator-approved 2026-11-02): the private
     // sidecar @openclinxr/world-model-ui-evidence adds one root that publishes
     // nothing (89 -> 90).
-    expect(report.totals.roots).toBe(90);
+    // 2026-11-18 render-parity station (@openclinxr/station-render-parity) adds one root (90 -> 91) and one entrypoint (198 -> 199); coordinator ruling super-ceo-cap41 2026-11-18, operator ratification requested before land.
+    expect(report.totals.roots).toBe(91);
     // 137 before PSR-06; 114 after it un-published 23 ui-route-admin subpaths whose every name the
     // approval removes. Re-derived independently by counting `exports` keys in the 47 scoped
     // package.json files (137 on origin/main 91429f54, 114 on the PSR-06 tree).
@@ -381,7 +382,8 @@ describe("compiler-resolved surface meter", () => {
     // xr-sync-server adds one reviewed ./conversation-replay subpath
     // (xr-sync-mn2-replay-v1 admission) for the MN2 replay recompute, root
     // export delta 0 (197 -> 198).
-    expect(report.totals.entrypoints).toBe(198);
+    // 2026-11-18 render-parity station (@openclinxr/station-render-parity) adds one root (90 -> 91) and one entrypoint (198 -> 199); coordinator ruling super-ceo-cap41 2026-11-18, operator ratification requested before land.
+    expect(report.totals.entrypoints).toBe(199);
   });
 
   it("(2) rest, ui-route-admin, and xr-sync-server match compiler exports", () => {
@@ -448,7 +450,8 @@ describe("compiler-resolved surface meter", () => {
     // 2026-11-01 root batch blender-bake sidecar adds one root (87 -> 88), operator-approved 2026-10-31.
     // 2026-10-31 png-measure split adds one root (88 -> 89), operator-approved 2026-10-31.
     // 2026-11-02 root batch worldmodel sidecar adds one root (89 -> 90), operator-approved 2026-11-02.
-    expect(report.packages.length).toBe(90);
+    // 2026-11-18 render-parity station (@openclinxr/station-render-parity) adds one root (90 -> 91) and one entrypoint (198 -> 199); coordinator ruling super-ceo-cap41 2026-11-18, operator ratification requested before land.
+    expect(report.packages.length).toBe(91);
   });
 
   it("(4) COUNTERWEIGHT: a nested package outside the ceiling fails inventory", () => {
