@@ -126,5 +126,15 @@
         "via": "path-reach"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/station-face-realism",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "skipIfStoreAbsent",
+        "kind": "runtime"
+      }
+    ]
   }
 ]

@@ -1,0 +1,20 @@
+{
+  "packages/openclinxr/stations/cast-readiness-evidence/src/cast-readiness/mpfb-skin-carries-surface-relief.test.ts": [
+    "skin-families/deep/r8/deep-family.png",
+    "face-station-cases/aisha/st-vitfamily-r1/stage3-colour-fixed8.png"
+  ],
+  "packages/openclinxr/stations/cast-readiness-evidence/src/cast-readiness/skin-atlas-has-subsurface-not-occlusion.test.ts": [
+    "skin-families/deep/r8/deep-family.png",
+    "face-station-cases/aisha/st-vitfamily-r1/stage3-colour-fixed8.png"
+  ],
+  "packages/openclinxr/stations/face-realism-evidence/src/the-face-station-runs-seven-stages-from-a-case.test.ts": "face-station-cases/aisha/run1/aisha-lidconform.glb",
+  "packages/openclinxr/stations/face-realism-evidence/src/the-regional-shading-layer-is-found-by-ablation.test.ts": "skin-regional-shading/regshade-a1-body2-front.png",
+  "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/body2-canthus-seat-and-lift.test.ts": "b2canthus/sheet-body2-pre-front-eyeL-crop.png",
+  "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/lid-conform-takes-its-subject-from-the-case.test.ts": "lid-conform-any/any-conform-measure.json",
+  "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/the-child-lid-conforms-to-its-age-sized-globe.test.ts": "lid-conform-child/control/pre/aisha-lidconform.glb",
+  "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/sclera-shade/the-iris-spare-scales-with-lid-occlusion.test.ts": "shell-iris-spare/sheet/band-aisha-r2-front.png",
+  "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/sclera-shade/the-sclera-lid-shadow-bake-report.test.ts": "sclera-lid-shadow-bake/pre/aisha-bake.log",
+  "packages/openclinxr/stations/rig-fit-evidence/src/rig-fit/cast-actors-wear-the-fitted-hair-the-library-rail-already-proves.test.ts": "ci-cleanup/hair-pack-20261030-cb04b877/hair-pack-inputs.tar.gz",
+  "packages/openclinxr/stations/scene-closure-evidence/src/scene-closure-research/the-research-verdict-matches-the-evidence.test.ts": "ci-cleanup/sc-evidence-20261030-cb04b877/registry.json",
+  "packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/the-lid-ring-sits-on-the-globe.test.ts": "lid-conform/h1/natural-base-front-full.png"
+}

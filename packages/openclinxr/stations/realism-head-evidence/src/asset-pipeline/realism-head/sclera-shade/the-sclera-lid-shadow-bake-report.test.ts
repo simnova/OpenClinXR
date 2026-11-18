@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { createRequire } from "node:module";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { skipIfStoreAbsent, resolveAssetStoreRoot } from "@openclinxr/station-face-realism/runner";
 
 /**
  * CARD tsk_6a923ad05526b9e0: bake the lid shadow into the sclera texture.
@@ -31,7 +32,7 @@ const MATERIALIZE = join(
 );
 const EYE_SRC = join(REPO_ROOT, "tools/openclinxr/asset-pipeline/eyes/iris-centred-c.png");
 const EYE_SRC_SHA = "76c805e58e8c7b451ce4453dd529a073e4d84c48fd4136744484b8b503a7d695";
-const STORE = "/Volumes/files/openclinxr-assets/store/sclera-lid-shadow-bake";
+const STORE = join(resolveAssetStoreRoot(), "sclera-lid-shadow-bake");
 
 const GOAL = {
   aisha: { M1: -14.032, M2a: 7.182, M2b: -8.655, D90: -7.201 },
@@ -106,7 +107,7 @@ function functionSlice(src: string, start: string, end: string): string {
 const IRIS_C: Array<[number, number]> = [[299.55 / 1024, 724.0 / 1024], [724.65 / 1024, 302.72 / 1024]];
 const IRIS_R = 135 / 1024;
 
-describe("the lid shadow bakes into the sclera texture (report integrity)", () => {
+describe.skipIf(skipIfStoreAbsent("packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/sclera-shade/the-sclera-lid-shadow-bake-report.test.ts"))("the lid shadow bakes into the sclera texture (report integrity)", () => {
   it("report exists with the not_converged verdict", () => {
     expect(existsSync(REPORT_PATH)).toBe(true);
     const r = loadReport();

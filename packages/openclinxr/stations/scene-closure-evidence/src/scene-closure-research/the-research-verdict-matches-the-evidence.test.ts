@@ -1,3 +1,4 @@
+import { skipIfStoreAbsent } from "@openclinxr/station-face-realism/runner";
 import { describe, expect, it } from "vitest";
 import { recompute } from "../../../../../../tools/openclinxr/evidence/scene-closure/proofs/sc-10/verify.js";
 import {
@@ -40,7 +41,7 @@ function actualScreeningInput(observations: readonly InferenceObservation[] = []
   return { sources: loaded.sources, host: measureHostFacts(), observations };
 }
 
-describe("SC-10 A13 research eligibility", () => {
+describe.skipIf(skipIfStoreAbsent("packages/openclinxr/stations/scene-closure-evidence/src/scene-closure-research/the-research-verdict-matches-the-evidence.test.ts"))("SC-10 A13 research eligibility", () => {
   it("SC-10-required-behavior", () => {
     const input = actualScreeningInput();
     const result = screenCandidate(input);

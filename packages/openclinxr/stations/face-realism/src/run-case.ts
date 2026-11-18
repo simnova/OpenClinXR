@@ -6,8 +6,8 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { runFaceRealism } from "./run.js";
+import { resolveAssetStoreRoot } from "./shared.js";
 
-const STORE_ROOT = "/Volumes/files/openclinxr-assets/store";
 const CASES_DIR = "face-station-cases";
 const FACE_DIR_REL = "packages/openclinxr/stations/face-realism/src";
 
@@ -59,7 +59,7 @@ export function rebuildCaseRunReport(): Record<string, unknown> {
   const caseIds = Object.keys(inputsDoc.cases ?? {}).sort();
   const cases: Record<string, unknown> = {};
   for (const caseId of caseIds) {
-    const caseDir = path.join(STORE_ROOT, CASES_DIR, caseId);
+    const caseDir = path.join(resolveAssetStoreRoot(), CASES_DIR, caseId);
     const runs: Record<string, unknown> = {};
     if (existsSync(caseDir)) {
       const runNames = readdirSync(caseDir)
@@ -141,7 +141,7 @@ export function rebuildCaseRunReport(): Record<string, unknown> {
       }
     }
   }
-  const report = { version: 1, store: path.join(STORE_ROOT, CASES_DIR), cases, knownGood, blockedChecks, unchainedInputs: unchained };
+  const report = { version: 1, store: path.join(resolveAssetStoreRoot(), CASES_DIR), cases, knownGood, blockedChecks, unchainedInputs: unchained };
   writeFileSync(path.join(root, FACE_DIR_REL, "case-run-report.json"), `${JSON.stringify(report, null, 1)}\n`);
   return report;
 }
@@ -177,7 +177,7 @@ async function main(): Promise<void> {
   if (typeof caseId !== "string" || caseId.length === 0) {
     throw new Error("usage: run-case.ts <caseId> [runN]");
   }
-  const caseDir = path.join(STORE_ROOT, CASES_DIR, caseId);
+  const caseDir = path.join(resolveAssetStoreRoot(), CASES_DIR, caseId);
   const runArg = Number(process.argv[3]);
   const requested = Number.isInteger(runArg) && runArg > 0 ? runArg : null;
   const { runN, redirected } = resolveRunDir(caseDir, requested);

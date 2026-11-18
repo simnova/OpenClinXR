@@ -4,6 +4,7 @@ import { join } from "node:path";
 import { inflateSync } from "node:zlib";
 import { NodeIO, type Primitive } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { skipIfStoreAbsent } from "@openclinxr/station-face-realism/runner";
 import { listUniqueLiveCastMpfbAssetPaths } from "../../../../../../tools/openclinxr/evidence/live-scenario-actor-cast.js";
 import { measureProvidedSource } from "./provided-albedo-source.js";
 
@@ -292,19 +293,25 @@ async function measure(rel: string): Promise<Row | null> {
   };
 }
 
-/** Live cast MPFB paths — never a directory scan of harness subjects (#528). */
+/** Live cast MPFB paths — never a directory scan of harness subjects (#528).
+ * The measurement reads sidecar-declared store sources, so it runs only when
+ * the gate below is present: a skipped suite never touches the store. */
 const files = listUniqueLiveCastMpfbAssetPaths();
 
-const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null)))).filter(
-  (r): r is Row => r !== null,
-);
+const rows = skipIfStoreAbsent(
+  "packages/openclinxr/stations/cast-readiness-evidence/src/cast-readiness/mpfb-skin-carries-surface-relief.test.ts",
+)
+  ? []
+  : (
+      await Promise.all(files.map((f) => measure(f).catch(() => null)))
+    ).filter((r): r is Row => r !== null);
 
 /** An empty enumeration must FAIL, never pass vacuously (§7t). */
 function requireRows(): void {
   expect(rows.length, `MPFB bodies measured (live cast ${files.length})`).toBeGreaterThanOrEqual(3);
 }
 
-describe("MPFB skin carries a tangent-space normal map without breaking the albedo (#370)", () => {
+describe.skipIf(skipIfStoreAbsent("packages/openclinxr/stations/cast-readiness-evidence/src/cast-readiness/mpfb-skin-carries-surface-relief.test.ts"))("MPFB skin carries a tangent-space normal map without breaking the albedo (#370)", () => {
   it("(4) VACUITY: all three actors enumerate with a decodable base-colour atlas", () => {
     requireRows();
     for (const r of rows) {

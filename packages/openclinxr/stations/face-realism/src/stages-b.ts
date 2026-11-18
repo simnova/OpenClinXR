@@ -19,7 +19,7 @@ import {
   type Stage4FaceFit,
 } from "./fit-bake.js";
 import {
-  ASSET_STORE_ROOT,
+  resolveAssetStoreRoot,
   browFormArgv,
   caseValue,
   emptyStageRecord,
@@ -68,7 +68,7 @@ export function runStage4(caseRec: Record<string, unknown>, outDir: string, case
   const rec = emptyStageRecord(4, "lid_conform_bake");
   const t0 = Date.now();
   const ringEntry = caseRec["lid_ring_source"] as Record<string, unknown>;
-  const ringAbs = path.join(ASSET_STORE_ROOT, entryString(ringEntry, "assets", "value"));
+  const ringAbs = path.join(resolveAssetStoreRoot(), entryString(ringEntry, "assets", "value"));
   if (sha256File(ringAbs) !== entryString(ringEntry, "sha256", "value")) {
     throw new Error(`lid ring-source sha mismatch at ${ringAbs}: refused`);
   }
@@ -81,7 +81,7 @@ export function runStage4(caseRec: Record<string, unknown>, outDir: string, case
     typeof knownEntry?.sha256?.value === "string" ? (knownEntry.sha256.value as string) : null;
   const knownSource =
     typeof knownEntry?.sha256?.source === "string" ? (knownEntry.sha256.source as string) : "";
-  const knownAbs = knownRel !== null ? path.join(ASSET_STORE_ROOT, knownRel) : null;
+  const knownAbs = knownRel !== null ? path.join(resolveAssetStoreRoot(), knownRel) : null;
   const bakeArgv = [...caseValue<string[]>(caseRec, "materializer_argv")];
   const resolvedArgv = bakeArgv.map((token) => {
     if (token.startsWith("-")) return token;
@@ -279,7 +279,7 @@ export function runStage4(caseRec: Record<string, unknown>, outDir: string, case
       body?: { value?: unknown };
     };
     const r3Rel = String(posValue.glb?.assets ?? "");
-    const r3Abs = path.join(ASSET_STORE_ROOT, r3Rel);
+    const r3Abs = path.join(resolveAssetStoreRoot(), r3Rel);
     const r3Sha = String(posValue.glb?.sha256 ?? "");
     if (sha256File(r3Abs) !== r3Sha) {
       throw new Error(`stage-4 r3 record GLB sha mismatch at ${r3Abs}: refused`);
@@ -397,7 +397,7 @@ export function runStage7(
     ?.faceFit;
   const fitSupersedes = Array.isArray(faceFit?.applied) && faceFit.applied.length > 0 && faceFit.logVerified === true;
   if (stage4.ran && !stage4.blocked && knownRel !== null) {
-    const knownAbs = path.join(ASSET_STORE_ROOT, knownRel);
+    const knownAbs = path.join(resolveAssetStoreRoot(), knownRel);
     const oursGlb = stage4.outputs[0]?.path ?? "";
     if (existsSync(oursGlb) && existsSync(knownAbs)) {
       const ours = runPositionDriver(oursGlb);

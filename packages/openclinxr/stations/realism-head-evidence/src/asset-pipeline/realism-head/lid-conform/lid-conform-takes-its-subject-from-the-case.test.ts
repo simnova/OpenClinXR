@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { skipIfStoreAbsent, resolveAssetStoreRoot } from "@openclinxr/station-face-realism/runner";
 
 /**
  * Card tsk_56c4fed983304ea6: lid-conform takes its subject from the case.
@@ -54,7 +55,7 @@ import { describe, expect, it } from "vitest";
 const HERE = join(repoRoot(), "tools/openclinxr/asset-pipeline/realism-head/lid-conform");
 const REPO_ROOT = repoRoot();
 const REPORT = join(HERE, "any-subject-report.json");
-const STORE_ROOT = "/Volumes/files/openclinxr-assets/store/";
+const STORE_ROOT = resolveAssetStoreRoot();
 const MEASURE = join(STORE_ROOT, "lid-conform-any/any-conform-measure.json");
 const MATERIALIZE = join(
   REPO_ROOT,
@@ -124,7 +125,7 @@ function pngWidth(p: string): number {
   return b.readUInt32BE(16);
 }
 
-describe("lid-conform takes its subject from the case", () => {
+describe.skipIf(skipIfStoreAbsent("packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/lid-conform-takes-its-subject-from-the-case.test.ts"))("lid-conform takes its subject from the case", () => {
   it("(1) report records the card, the case target and the head-scale method", () => {
     const r = readReport();
     expect(r.card).toBe("tsk_56c4fed983304ea6");

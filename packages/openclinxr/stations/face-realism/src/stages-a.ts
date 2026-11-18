@@ -15,7 +15,7 @@ import {
   type Stage3ManifestDoc,
 } from "./chain.js";
 import {
-  ASSET_STORE_ROOT,
+  resolveAssetStoreRoot,
   caseValue,
   emptyStageRecord,
   entryString,
@@ -102,7 +102,7 @@ export function runStage1(
   const gatePass =
     reproduced && pick === expectedFamily && pick === nearestPick && (measured === null || measured.gate.pass);
   const familyAssets = String(toneReport.families?.[pick]?.assets ?? "");
-  const familyAbs = path.join(ASSET_STORE_ROOT, familyAssets);
+  const familyAbs = path.join(resolveAssetStoreRoot(), familyAssets);
   const pickDoc = {
     phenotype_tone: tone,
     anchor_lab: anchor,
@@ -146,7 +146,7 @@ export function runStage2(caseRec: Record<string, unknown>, outDir: string): Sta
   const familyRel = entryString(caseRec, "family_png", "assets", "value");
   const familySha = entryString(caseRec, "family_png", "sha256", "value");
   const weights = caseValue<Record<string, number>>(caseRec, "layer_weights");
-  const familyAbs = path.join(ASSET_STORE_ROOT, familyRel);
+  const familyAbs = path.join(resolveAssetStoreRoot(), familyRel);
   if (sha256File(familyAbs) !== familySha) {
     throw new Error(`family PNG sha mismatch at ${familyAbs}: refused`);
   }

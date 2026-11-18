@@ -16,6 +16,7 @@ import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { skipIfStoreAbsent } from "@openclinxr/station-face-realism/runner";
 
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
 /** Relocated evidence: skin sources stay under tools/ (S4); anchor via the repo-root helper (S5). */
@@ -100,7 +101,7 @@ function frozenThresholds(): Record<string, number> {
   return out;
 }
 
-describe("the regional-shading layer is found by ablation", () => {
+describe.skipIf(skipIfStoreAbsent("packages/openclinxr/stations/face-realism-evidence/src/the-regional-shading-layer-is-found-by-ablation.test.ts"))("the regional-shading layer is found by ablation", () => {
   it("STEP 0 is present before ablations and decomposes every failing gate", () => {
     const rep = loadReport();
     expect(rep.card).toBe("tsk_bfe7c0ec6b0ba639");

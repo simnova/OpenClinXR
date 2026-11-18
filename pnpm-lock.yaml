@@ -1674,6 +1674,9 @@ importers:
       '@openclinxr/factory-station-core':
         specifier: workspace:*
         version: link:../../factory-station-core
+      '@openclinxr/station-face-realism':
+        specifier: workspace:*
+        version: link:../face-realism
       '@openclinxr/xr-scene':
         specifier: workspace:*
         version: link:../../xr-scene
@@ -2313,6 +2316,9 @@ importers:
       '@openclinxr/factory-station-core':
         specifier: workspace:*
         version: link:../../factory-station-core
+      '@openclinxr/station-face-realism':
+        specifier: workspace:*
+        version: link:../face-realism
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*
@@ -2338,6 +2344,9 @@ importers:
       '@openclinxr/factory-station-core':
         specifier: workspace:*
         version: link:../../factory-station-core
+      '@openclinxr/station-face-realism':
+        specifier: workspace:*
+        version: link:../face-realism
       '@openclinxr/xr-pose':
         specifier: workspace:*
         version: link:../../xr-pose
@@ -2440,6 +2449,9 @@ importers:
       '@openclinxr/factory-station-core':
         specifier: workspace:*
         version: link:../../factory-station-core
+      '@openclinxr/station-face-realism':
+        specifier: workspace:*
+        version: link:../face-realism
     devDependencies:
       '@cellix/config-typescript':
         specifier: workspace:*

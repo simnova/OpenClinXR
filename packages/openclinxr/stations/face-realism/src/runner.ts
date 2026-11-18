@@ -31,3 +31,8 @@ export { stage4OutputStem } from "./stages-b.js";
 export { planFaceRealism } from "./plan.js";
 export { resolveRunDir } from "./run-case.js";
 export { toneAnchorGate } from "./tone-anchor.js";
+export {
+  GATED_FILES,
+  resolveAssetStoreRoot,
+  skipIfStoreAbsent,
+} from "./shared.js";

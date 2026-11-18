@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { join } from "node:path";
 import { NodeIO, type Primitive } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { skipIfStoreAbsent } from "@openclinxr/station-face-realism/runner";
 import { decodePng } from "../../../../../../tools/openclinxr/evidence/decode-png.js";
 import { listUniqueLiveCastMpfbAssetPaths } from "../../../../../../tools/openclinxr/evidence/live-scenario-actor-cast.js";
 import { measureProvidedSource } from "./provided-albedo-source.js";
@@ -233,18 +234,24 @@ async function measure(rel: string): Promise<Row | null> {
   };
 }
 
-/** Live cast MPFB paths — never a directory scan of harness subjects (#528). */
+/** Live cast MPFB paths — never a directory scan of harness subjects (#528).
+ * The measurement reads sidecar-declared store sources, so it runs only when
+ * the gate below is present: a skipped suite never touches the store. */
 const files = listUniqueLiveCastMpfbAssetPaths();
 
-const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null)))).filter(
-  (r): r is Row => r !== null,
-);
+const rows = skipIfStoreAbsent(
+  "packages/openclinxr/stations/cast-readiness-evidence/src/cast-readiness/skin-atlas-has-subsurface-not-occlusion.test.ts",
+)
+  ? []
+  : (
+      await Promise.all(files.map((f) => measure(f).catch(() => null)))
+    ).filter((r): r is Row => r !== null);
 
 function requireRows(): void {
   expect(rows.length, `MPFB skin atlases measured (live cast ${files.length})`).toBeGreaterThanOrEqual(3);
 }
 
-describe("an MPFB skin atlas carries subsurface tint, not baked occlusion (#343)", () => {
+describe.skipIf(skipIfStoreAbsent("packages/openclinxr/stations/cast-readiness-evidence/src/cast-readiness/skin-atlas-has-subsurface-not-occlusion.test.ts"))("an MPFB skin atlas carries subsurface tint, not baked occlusion (#343)", () => {
   it("(4) VACUITY: live-cast atlases decode and cover a real skin area", () => {
     requireRows();
     for (const r of rows) {

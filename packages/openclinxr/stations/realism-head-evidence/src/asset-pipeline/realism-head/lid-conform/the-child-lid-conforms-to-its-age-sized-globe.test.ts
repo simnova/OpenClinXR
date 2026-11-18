@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { skipIfStoreAbsent, resolveAssetStoreRoot } from "@openclinxr/station-face-realism/runner";
 
 /**
  * Card tsk_083b92e9c7ca5d7b: the child's eyelids conform to an age-sized globe.
@@ -33,7 +34,7 @@ import { describe, expect, it } from "vitest";
 const HERE = join(repoRoot(), "tools/openclinxr/asset-pipeline/realism-head/lid-conform");
 const REPO_ROOT = repoRoot();
 const REPORT = join(HERE, "child-conform-report.json");
-const STORE_ROOT = "/Volumes/files/openclinxr-assets/store/";
+const STORE_ROOT = resolveAssetStoreRoot();
 const CHILD_STORE = join(STORE_ROOT, "lid-conform-child/");
 const SHEET_DIR = join(CHILD_STORE, "sheet/");
 const LID_CONFORM_PY = join(HERE, "lid_conform.py");
@@ -174,7 +175,7 @@ function pngDims(abs: string): [number, number] {
   return [raw.readUInt32BE(16), raw.readUInt32BE(20)];
 }
 
-describe("the child lid conforms to its age-sized globe", () => {
+describe.skipIf(skipIfStoreAbsent("packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/the-child-lid-conforms-to-its-age-sized-globe.test.ts"))("the child lid conforms to its age-sized globe", () => {
   it("(1) report records the card, the child row and the bake record", () => {
     const r = readReport();
     expect(r.card).toBe("tsk_083b92e9c7ca5d7b");

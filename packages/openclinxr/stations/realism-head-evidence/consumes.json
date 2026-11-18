@@ -18,5 +18,19 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/station-face-realism",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "resolveAssetStoreRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "skipIfStoreAbsent",
+        "kind": "runtime"
+      }
+    ]
   }
 ]

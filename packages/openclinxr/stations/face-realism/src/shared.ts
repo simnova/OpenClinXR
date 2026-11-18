@@ -78,6 +78,67 @@ export const CASE_INPUTS_REL =
 /** Asset-store roots. Large files live here; tracked JSON cites store paths + sha256. */
 export const ASSET_STORE_ROOT = "/Volumes/files/openclinxr-assets/store";
 
+/**
+ * The 12 package test files allowed to skip when the machine-local store is
+ * absent, each with its sentinel(s): every store path the file reads before
+ * its first assertion, as paths relative under the store root. The table lives
+ * in the sibling asset-store-gate.json data file (this station's G4 rule
+ * refuses case-id literals in non-test .ts), loaded once at module load.
+ * Adding a file requires editing that data file (the ratchet): an unlisted
+ * caller of skipIfStoreAbsent fails loudly instead of skipping.
+ */
+export const GATED_FILES: Record<string, string | readonly string[]> = JSON.parse(
+  readFileSync(
+    path.join(repoRoot(), "packages/openclinxr/stations/face-realism/src/asset-store-gate.json"),
+    "utf8",
+  ),
+) as Record<string, string | readonly string[]>;
+
+const STORE_ENV_VAR = "OPENCLINXR_ASSET_STORE";
+const STORE_REQUIRE_ENV_VAR = "OPENCLINXR_REQUIRE_ASSET_STORE";
+const printedSkips = new Set<string>();
+
+/**
+ * Resolve the asset-store root: OPENCLINXR_ASSET_STORE when set non-empty
+ * (must be absolute, else throw), otherwise the machine-local literal.
+ * Pure: it never checks existence; skipIfStoreAbsent does that.
+ */
+export function resolveAssetStoreRoot(): string {
+  const env = process.env[STORE_ENV_VAR];
+  if (env !== undefined && env !== "") {
+    if (!path.isAbsolute(env)) {
+      throw new Error(`[asset-store] refusing non-absolute ${STORE_ENV_VAR}: ${env}`);
+    }
+    return env;
+  }
+  return ASSET_STORE_ROOT;
+}
+
+/**
+ * The ONLY store-skip mechanism: a pure predicate over the resolved root.
+ * Returns true when ANY of the file's sentinels is absent under the root
+ * (after printing exactly one `SKIP STORE <file>: asset store absent: <root>`
+ * line per file). Throws when the file is not in GATED_FILES, and throws
+ * (instead of skipping) when OPENCLINXR_REQUIRE_ASSET_STORE=1.
+ */
+export function skipIfStoreAbsent(file: string): boolean {
+  const entry = GATED_FILES[file];
+  if (entry === undefined) {
+    throw new Error(`[asset-store] ${file} calls the store gate but is not listed in GATED_FILES`);
+  }
+  const root = resolveAssetStoreRoot();
+  const sentinels = typeof entry === "string" ? [entry] : entry;
+  if (sentinels.every((s) => existsSync(path.join(root, s)))) return false;
+  if (process.env[STORE_REQUIRE_ENV_VAR] === "1") {
+    throw new Error(`asset store required but absent: ${root}`);
+  }
+  if (!printedSkips.has(file)) {
+    printedSkips.add(file);
+    console.log(`SKIP STORE ${file}: asset store absent: ${root}`);
+  }
+  return true;
+}
+
 /** Python always runs through the repo-pinned interpreter. The mise trust
  * dir is the current checkout (module-anchored repoRoot), never a
  * machine-local literal: the shared-checkout path does not exist on CI. */

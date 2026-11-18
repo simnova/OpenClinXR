@@ -126,6 +126,18 @@
       {
         "name": "toneAnchorGate",
         "kind": "runtime"
+      },
+      {
+        "name": "GATED_FILES",
+        "kind": "runtime"
+      },
+      {
+        "name": "resolveAssetStoreRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "skipIfStoreAbsent",
+        "kind": "runtime"
       }
     ]
   }

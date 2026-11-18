@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { skipIfStoreAbsent } from "@openclinxr/station-face-realism/runner";
 
 /**
  * Card tsk_0b0a357a8e83645b handback 1 (seat only, no lift): body2's
@@ -40,7 +41,6 @@ import { describe, expect, it } from "vitest";
 
 const HERE = join(repoRoot(), "tools/openclinxr/asset-pipeline/realism-head/lid-conform");
 const REPORT = join(HERE, "body2-canthus-report.json");
-const STORE_ROOT = "/Volumes/files/openclinxr-assets/store/";
 const LID_CONFORM = join(HERE, "lid_conform.py");
 const LID_CORE = join(HERE, "lid_conform_core.py");
 const LID_MEASURE = join(HERE, "measure_conform.py");
@@ -99,7 +99,7 @@ function readReport(): Report {
   return JSON.parse(readFileSync(REPORT, "utf8")) as Report;
 }
 
-describe("body2 canthus seats clean with no lift", () => {
+describe.skipIf(skipIfStoreAbsent("packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/body2-canthus-seat-and-lift.test.ts"))("body2 canthus seats clean with no lift", () => {
   it("(1) report records the card, the spread row and the bake record", () => {
     const r = readReport();
     expect(r.card).toBe("tsk_0b0a357a8e83645b");

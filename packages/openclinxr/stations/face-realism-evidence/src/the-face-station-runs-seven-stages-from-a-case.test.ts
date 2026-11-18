@@ -4,7 +4,7 @@ import { existsSync, readFileSync, statSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
-import { runFaceRealism } from "@openclinxr/station-face-realism/runner";
+import { skipIfStoreAbsent, resolveAssetStoreRoot, runFaceRealism } from "@openclinxr/station-face-realism/runner";
 
 /**
  * The face station runs its 7 stages from a case id.
@@ -29,7 +29,7 @@ function testRepoRoot(): string {
 
 const FACE_DIR = "packages/openclinxr/stations/face-realism/src";
 const RECORD = "tools/openclinxr/asset-pipeline/reference-set/manifest.json";
-const STORE_CASES = "/Volumes/files/openclinxr-assets/store/face-station-cases";
+const STORE_CASES = join(resolveAssetStoreRoot(), "face-station-cases");
 
 function shaFile(file: string): string {
   return createHash("sha256").update(readFileSync(file)).digest("hex");
@@ -232,7 +232,7 @@ function collectRouted(
   return routed;
 }
 
-describe("the face station runs seven stages from a case", () => {
+describe.skipIf(skipIfStoreAbsent("packages/openclinxr/stations/face-realism-evidence/src/the-face-station-runs-seven-stages-from-a-case.test.ts"))("the face station runs seven stages from a case", () => {
   it("(G1) each case runs twice from empty out dirs with equal stage output shas", () => {
     const report = readReport();
     const caseIds = Object.keys(report.cases).sort();
@@ -419,7 +419,7 @@ describe("the face station runs seven stages from a case", () => {
         };
         const r3out = r3.body2.runs["r3-run1"]!.stages.find((s) => s.stage === 4)!.outputs[0]!;
         const r3glb = r3out.path.startsWith("assets:")
-          ? join("/Volumes/files/openclinxr-assets/store", r3out.path.slice("assets:".length))
+          ? join(resolveAssetStoreRoot(), r3out.path.slice("assets:".length))
           : r3out.path;
         expect(shaFile(r3glb), "r3 record GLB recomputes").toBe(r3out.sha256);
         const inputs = JSON.parse(readFileSync(join(root, FACE_DIR, "case-inputs.json"), "utf8")) as {

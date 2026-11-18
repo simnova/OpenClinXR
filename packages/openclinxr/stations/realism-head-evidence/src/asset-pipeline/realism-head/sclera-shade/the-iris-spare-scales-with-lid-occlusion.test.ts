@@ -2,6 +2,7 @@ import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { skipIfStoreAbsent } from "@openclinxr/station-face-realism/runner";
 
 /**
  * CARD tsk_57f4ae74d62739e0: spare the iris from the eye shell and scale its
@@ -106,7 +107,7 @@ function functionSlice(src: string, start: string, end: string): string {
   return src.slice(i, j);
 }
 
-describe("the iris spare scales with lid occlusion (report integrity)", () => {
+describe.skipIf(skipIfStoreAbsent("packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/sclera-shade/the-iris-spare-scales-with-lid-occlusion.test.ts"))("the iris spare scales with lid occlusion (report integrity)", () => {
   it("report exists with a card verdict", () => {
     expect(existsSync(REPORT_PATH)).toBe(true);
     const r = loadReport();

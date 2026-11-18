@@ -3,7 +3,7 @@
 // gated against the instrument calibration. Case values come from case-inputs.json.
 import path from "node:path";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
-import { ASSET_STORE_ROOT, readJsonFile, runMisePython } from "./shared.js";
+import { readJsonFile, resolveAssetStoreRoot, runMisePython } from "./shared.js";
 
 export const TONE_ANCHOR_REL = "tools/openclinxr/asset-pipeline/skin/families/tone-anchor.py";
 export const TONE_ANCHOR_REPORT_REL = "tools/openclinxr/asset-pipeline/skin/families/tone-anchor-report.json";
@@ -61,7 +61,7 @@ export function measureToneAnchor(
   if (typeof out?.store_relpath !== "string" || typeof out?.sha256 !== "string") {
     throw new Error(`tone report holds no anchor for ${tone} and the record names no goal_front image to measure one from`);
   }
-  const imageAbs = path.join(ASSET_STORE_ROOT, out.store_relpath);
+  const imageAbs = path.join(resolveAssetStoreRoot(), out.store_relpath);
   const raw = runMisePython(
     [path.join(repoRoot(), TONE_ANCHOR_REL), "--image", imageAbs, "--expect-sha256", out.sha256],
     600_000,

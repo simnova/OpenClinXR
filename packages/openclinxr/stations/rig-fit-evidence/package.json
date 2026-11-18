@@ -11,6 +11,7 @@
   "dependencies": {
     "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/factory-station-core": "workspace:*",
+    "@openclinxr/station-face-realism": "workspace:*",
     "@openclinxr/xr-pose": "workspace:*"
   },
   "devDependencies": {

@@ -2,6 +2,7 @@ import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
+import { skipIfStoreAbsent } from "@openclinxr/station-face-realism/runner";
 import {
   HAIR_PACK_DIR,
   HAIR_PAGE_CC0_OVERRIDE_BASENAMES,
@@ -220,19 +221,35 @@ async function measure(dir: string, id: string): Promise<HairRow> {
   return { id, exists: true, fittedTris, fittedWeighted, fittedNames, paintedTris };
 }
 
+/**
+ * The store gate is the only skip: with no sentinel there is nothing to
+ * materialize, so the archive throw and the live licence read both move
+ * behind it. The sha-verified manifest still pins every byte when present.
+ * The suite below re-checks the same gate (one SKIP line per file).
+ */
+const RIG_FIT_TEST =
+  "packages/openclinxr/stations/rig-fit-evidence/src/rig-fit/cast-actors-wear-the-fitted-hair-the-library-rail-already-proves.test.ts";
+
 /** ci-w10: the staged hair pack is machine-local (gitignored). Materialize it
  * from the asset store before the live licence read below; the manifest pins
  * archive sha256 + bytes and every .mhclo, and a missing store throws a named
  * `[ci-cleanup]` error instead of passing vacuously. */
-materializeArchive(
-  join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/hair-pack-inputs.manifest.json"),
-  REPO_ROOT,
-);
+if (!skipIfStoreAbsent(RIG_FIT_TEST)) {
+  materializeArchive(
+    join(REPO_ROOT, "tools/openclinxr/asset-pipeline/makeclothes/hair-pack-inputs.manifest.json"),
+    REPO_ROOT,
+  );
+}
 
 /** Live licence read — never a list typed into this file. HAIR_PACK_DIR is CWD-relative
  * in the helper; anchor it at the repo root so the sidecar CWD does not matter. */
-const classification = classifyHairPack(join(REPO_ROOT, HAIR_PACK_DIR));
-const usableStyles = classification.assets.filter((a) => a.usable).map((a) => a.asset);
+const usableStyles: string[] = [];
+let hairSummary = "store absent (skipped)";
+if (!skipIfStoreAbsent(RIG_FIT_TEST)) {
+  const classification = classifyHairPack(join(REPO_ROOT, HAIR_PACK_DIR));
+  usableStyles.push(...classification.assets.filter((a) => a.usable).map((a) => a.asset));
+  hairSummary = `${classification.summary.total} styles, ${classification.summary.refusedCopyleft} refused copyleft`;
+}
 
 const castRows = await Promise.all(CAST.map((id) => measure(GENERATED, id)));
 const knownGood = await measure(CANDIDATES, KNOWN_GOOD);
@@ -251,7 +268,7 @@ function requireMeasured(): void {
   ).toBeGreaterThanOrEqual(1);
 }
 
-describe("cast actors wear the fitted hair the library rail already proves", () => {
+describe.skipIf(skipIfStoreAbsent(RIG_FIT_TEST))("cast actors wear the fitted hair the library rail already proves", () => {
   it("(1) RED: aisha carries a separate fitted hair mesh, weighted to the head", () => {
     requireMeasured();
     const row = castRows.find((r) => r.id === SLICE_1_ACTOR);
@@ -282,7 +299,7 @@ describe("cast actors wear the fitted hair the library rail already proves", () 
         const override = [...HAIR_PAGE_CC0_OVERRIDE_BASENAMES].some((s) => name.includes(s));
         if (!matched && !override) {
           dirty.push(
-            `${row.id}: fitted hair "${name}" does not match any licence-clean style or the named page-CC0 override (${usableStyles.length} usable of ${classification.summary.total}; ${classification.summary.refusedCopyleft} refused copyleft)`,
+            `${row.id}: fitted hair "${name}" does not match any licence-clean style or the named page-CC0 override (${usableStyles.length} usable of ${hairSummary})`,
           );
         }
       }

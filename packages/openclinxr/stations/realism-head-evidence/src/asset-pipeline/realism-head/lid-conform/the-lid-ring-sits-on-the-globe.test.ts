@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { skipIfStoreAbsent, resolveAssetStoreRoot } from "@openclinxr/station-face-realism/runner";
 
 /**
  * H1 widen-then-seat (tsk_83147b9cfdf9ab03 handback h1): the base fissure
@@ -31,7 +32,7 @@ import { describe, expect, it } from "vitest";
 const HERE = join(repoRoot(), "tools/openclinxr/asset-pipeline/realism-head/lid-conform");
 const REPO_ROOT = repoRoot();
 const REPORT = join(HERE, "conform-report.json");
-const STORE_ROOT = "/Volumes/files/openclinxr-assets/store/";
+const STORE_ROOT = resolveAssetStoreRoot();
 const MATERIALIZE = join(
   REPO_ROOT,
   "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
@@ -85,7 +86,7 @@ function storePath(src: string): string {
   return join(STORE_ROOT, src.startsWith("assets:") ? src.slice(7) : src);
 }
 
-describe("the lid ring sits on the globe", () => {
+describe.skipIf(skipIfStoreAbsent("packages/openclinxr/stations/realism-head-evidence/src/asset-pipeline/realism-head/lid-conform/the-lid-ring-sits-on-the-globe.test.ts"))("the lid ring sits on the globe", () => {
   it("(1) report records the h1 round, the case target and the verdict", () => {
     const r = readReport();
     expect(r.card).toBe("tsk_83147b9cfdf9ab03");

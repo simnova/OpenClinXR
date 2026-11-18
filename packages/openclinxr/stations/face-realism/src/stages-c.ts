@@ -5,7 +5,7 @@ import { existsSync } from "node:fs";
 import path from "node:path";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
 import {
-  ASSET_STORE_ROOT,
+  resolveAssetStoreRoot,
   BEARD_REL,
   caseValue,
   COLOUR_REL,
@@ -78,7 +78,7 @@ export function cfgValue<T>(cfg: Record<string, unknown>, key: string): T {
 }
 
 export function storeAbs(storeRel: string): string {
-  return path.join(ASSET_STORE_ROOT, storeRel);
+  return path.join(resolveAssetStoreRoot(), storeRel);
 }
 
 export function checkSha(abs: string, expected: string): void {
