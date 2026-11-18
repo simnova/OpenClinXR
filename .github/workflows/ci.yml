@@ -127,7 +127,7 @@ jobs:
           OPENCLINXR_REQUIRE_UV: "1"
           OPENCLINXR_STATION_SAMPLE: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && '2' || '' }}
           OPENCLINXR_STATION_SAMPLE_SEED: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && github.sha || '' }}
-        run: pnpm packages:test --continue
+        run: pnpm packages:test --continue --log-order=stream
 
       - name: Security audit policy
         run: pnpm security:audit-policy
