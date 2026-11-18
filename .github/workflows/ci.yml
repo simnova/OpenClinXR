@@ -150,9 +150,10 @@ jobs:
           echo "PY_INSTALL_S=${PY_INSTALL_S:-unrecorded}"
 
       # 35 = prior value; run 44100121469 killed at 35m12s with >=61/82 serial-browser files unstarted; not a measured budget.
+      # schedule/dispatch sweep the full station bank: 120 = measurement window, not a budget; full bank expected to exceed it (m1 unsampled: 44 files 179.8 min); completion needs a shard matrix.
       - name: Test tools
         id: test-tools
-        timeout-minutes: 35
+        timeout-minutes: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && 35 || 120 }}
         env:
           OPENCLINXR_TOOLS_TESTS_SKIP_ECG_ARCHIVE: "1"
           OPENCLINXR_REQUIRE_UV: "1"
