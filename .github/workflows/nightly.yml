@@ -87,7 +87,7 @@ jobs:
       - name: Install uv into mise python
         run: |
           PY_INSTALL_START="$(date +%s)"
-          mise exec -- python -m pip install --disable-pip-version-check uv==0.12.3 numpy==2.5.1 pillow==12.3.0 torch==2.13.0+cpu anny==0.6.0 opencv-python-headless==5.0.0.93 --extra-index-url https://download.pytorch.org/whl/cpu
+          mise exec -- python -m pip install --disable-pip-version-check uv==0.12.3 numpy==2.5.1 pillow==12.3.0 torch==2.13.0+cpu anny==0.6.0 opencv-python-headless==5.0.0.93 scipy==1.18.0 scikit-image==0.26.0 --extra-index-url https://download.pytorch.org/whl/cpu
           PY_INSTALL_END="$(date +%s)"
           echo "PY_INSTALL_S=$((PY_INSTALL_END - PY_INSTALL_START))"
           echo "PY_INSTALL_S=$((PY_INSTALL_END - PY_INSTALL_START))" >> "$GITHUB_ENV"

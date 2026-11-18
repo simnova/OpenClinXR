@@ -96,6 +96,13 @@ export const LICENCE_BOM_BUILD_TIME_TOOLS: LicenceBomBuildTimeTool[] = [
     redistributed: false,
     source: "https://pypi.org/project/certifi/ (certifi 2026.10.23, MPL-2.0 classifier) file-level copyleft, CI-only via requests, not distributed; operator-approved 2026-11-17 build-time only",
   },
+  {
+    name: "scipy 1.18.0",
+    license: "BSD-3-Clause AND GPL-3.0-or-later WITH GCC-exception-3.1 AND LGPL-2.1-or-later",
+    use: "build-time",
+    redistributed: false,
+    source: "https://pypi.org/project/scipy/ License field names bundled libgfortran (GPL-3.0-or-later WITH GCC-exception-3.1) and libquadmath (LGPL-2.1-or-later); CI runner only (station-face-realism-evidence python tests), not distributed; operator 2026-11-18: \"I approve scipy for CI usage,\"",
+  },
 ];
 
 type PackageJsonDependencyFields = {

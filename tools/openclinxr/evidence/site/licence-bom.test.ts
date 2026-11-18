@@ -30,7 +30,7 @@ function readLiveInventory(): Record<string, Array<{ name: string; versions: str
 }
 
 it("known-good: the MPFB build-time tool row records GPL-3.0-or-later, build-time use, no redistribution, with a MADR line that states it", () => {
-  expect(LICENCE_BOM_BUILD_TIME_TOOLS).toHaveLength(3);
+  expect(LICENCE_BOM_BUILD_TIME_TOOLS).toHaveLength(4);
   const tool = LICENCE_BOM_BUILD_TIME_TOOLS[0];
   expect(tool?.license).toBe("GPL-3.0-or-later");
   expect(tool?.use).toBe("build-time");
@@ -55,7 +55,7 @@ it("known-good: the MPFB build-time tool row records GPL-3.0-or-later, build-tim
 });
 
 it("known-good: the anny and certifi build-time tool rows record CI-only use with no redistribution", () => {
-  expect(LICENCE_BOM_BUILD_TIME_TOOLS).toHaveLength(3);
+  expect(LICENCE_BOM_BUILD_TIME_TOOLS).toHaveLength(4);
   const anny = LICENCE_BOM_BUILD_TIME_TOOLS[1];
   expect(anny?.name).toBe("anny 0.6.0");
   expect(anny?.license).toBe("Apache-2.0");
@@ -72,6 +72,23 @@ it("known-good: the anny and certifi build-time tool rows record CI-only use wit
   expect(certifi?.redistributed).toBe(false);
   expect(certifi?.source).toContain("not distributed");
   expect(certifi?.source).toContain("file-level copyleft, CI-only via requests");
+
+  const bom = readBom();
+  expect(bom.buildTimeTools).toEqual(LICENCE_BOM_BUILD_TIME_TOOLS);
+});
+
+it("known-good: the scipy build-time tool row records the bundled GPL/LGPL runtime licences with operator approval", () => {
+  expect(LICENCE_BOM_BUILD_TIME_TOOLS).toHaveLength(4);
+  const scipy = LICENCE_BOM_BUILD_TIME_TOOLS[3];
+  expect(scipy?.name).toBe("scipy 1.18.0");
+  expect(scipy?.license).toBe("BSD-3-Clause AND GPL-3.0-or-later WITH GCC-exception-3.1 AND LGPL-2.1-or-later");
+  expect(scipy?.use).toBe("build-time");
+  expect(scipy?.redistributed).toBe(false);
+  expect(scipy?.source).toContain("https://pypi.org/project/scipy/");
+  expect(scipy?.source).toContain("libgfortran (GPL-3.0-or-later WITH GCC-exception-3.1)");
+  expect(scipy?.source).toContain("libquadmath (LGPL-2.1-or-later)");
+  expect(scipy?.source).toContain("not distributed");
+  expect(scipy?.source).toContain("I approve scipy for CI usage,");
 
   const bom = readBom();
   expect(bom.buildTimeTools).toEqual(LICENCE_BOM_BUILD_TIME_TOOLS);
