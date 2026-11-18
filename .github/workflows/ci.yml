@@ -69,7 +69,10 @@ jobs:
           export_path: false
 
       - name: Confirm mise resolves vulture
-        run: command -v mise && mise which vulture && vulture --version || mise exec pipx:vulture@2.14 -- vulture --version
+        run: |
+          if command -v mise && mise which vulture && vulture --version; then :; else
+            mise exec pipx:vulture@2.14 -- vulture --version
+          fi
 
       - name: Cache pip downloads
         uses: actions/cache@v4
