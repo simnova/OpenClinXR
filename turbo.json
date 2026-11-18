@@ -169,6 +169,8 @@
         "tools/openclinxr/evidence/browser-boot-inventory/**",
         "tools/openclinxr/mouth-solver/**",
         "tools/openclinxr/openclaw/**",
+        "tools/thinning/check-thinning.test.ts",
+        "tools/thinning/check-thinning.ts",
         "tsconfig.tools-relaxed.json",
         "vitest.config.ts"
       ],
