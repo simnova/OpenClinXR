@@ -20,8 +20,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-sys.path.insert(0, "/Volumes/files/src/wt/aisha-parity-p3/tools/openclinxr/evidence/aisha-parity")
-from compare import region_masks  # noqa: E402  (read-only reuse, never copied)
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from compare import region_masks  # noqa: E402  (package-local judge, lifted verbatim from the p3 tree)
 
 C_T = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, 1.0], [0.0, -1.0, 0.0]])
 

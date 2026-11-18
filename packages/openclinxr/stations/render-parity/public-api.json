@@ -1,1 +1,1 @@
-{"entrypoints": {".": ["CaptureCli", "parseCaptureArgs", "runRuntimeCapture"]}}
+{"entrypoints": {".": ["CaptureCli", "parseCaptureArgs", "resolveLevers", "runRuntimeCapture"]}}

@@ -2,14 +2,20 @@
 
 import type { CameraRec, Vec3 } from "./capture-args.js";
 
-export const HDRI_URL = "/cagematch/aisha-parity/studio_small_09_2k.hdr";
-const BODY_GLB = "generated-humanoids/mpfb-ob-patient-aisha.glb";
+/** Subject inputs: everything that varies per parity subject (id, assets, mesh names). */
+export type SubjectSpec = {
+  id: string;
+  bodyGlb: string;
+  hdriUrl: string;
+  bodyMeshName: string;
+  garmentMeshNames: string[];
+};
 function vsub(a: Vec3, b: Vec3): Vec3 {
   return [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
 }
 
 function vcross(a: Vec3, b: Vec3): Vec3 {
-  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  return [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[1], a[0] * b[1] - a[1] * b[0]];
 }
 
 function vnorm(a: Vec3): Vec3 {
@@ -31,7 +37,7 @@ export function calibSpheres(headFront: CameraRec): { radiusM: number; chromeCen
   };
 }
 
-export function buildSpec(cam: CameraRec, opts: {
+export function buildSpec(cam: CameraRec, subject: SubjectSpec, opts: {
   levers: Record<string, unknown>;
   masks: boolean;
   calibSpheres: { radiusM: number; chromeCenter: Vec3; greyCenter: Vec3 } | null;
@@ -51,9 +57,9 @@ export function buildSpec(cam: CameraRec, opts: {
   };
   if (opts.masks) {
     return {
-      subjectId: "aisha-parity",
+      subjectId: subject.id,
       subjectKind: "glb",
-      bodyGlb: BODY_GLB,
+      bodyGlb: subject.bodyGlb,
       skinShadeLoader: true,
       cameraOverride,
       masks: true,
@@ -66,14 +72,14 @@ export function buildSpec(cam: CameraRec, opts: {
     [k: string]: unknown;
   };
   const spec: Record<string, unknown> = {
-    subjectId: "aisha-parity",
+    subjectId: subject.id,
     subjectKind: "glb",
-    bodyGlb: BODY_GLB,
+    bodyGlb: subject.bodyGlb,
     skinShadeLoader: true,
     cameraOverride,
     rigOverride: {
       hdri: {
-        url: HDRI_URL,
+        url: subject.hdriUrl,
         rotationYDeg: rotationYDeg ?? 0,
         intensity: intensity ?? 1,
         background: true,

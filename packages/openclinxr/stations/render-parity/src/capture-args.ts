@@ -1,11 +1,30 @@
 /** Capture CLI model: preset/lever resolution and camera records (station render-parity). */
 
+import { existsSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { fileURLToPath } from "node:url";
 
-const STATION_REL = "packages/openclinxr/stations/render-parity";
-const PRESETS_DIR = path.join(repoRoot(), STATION_REL, "src/presets");
+/**
+ * Package root: walk up from this module to the dir holding package.json, so
+ * the same code resolves presets from src (vitest) and from dist (built).
+ */
+function packageRootDir(): string {
+  let dir = path.dirname(fileURLToPath(import.meta.url));
+  for (;;) {
+    if (existsSync(path.join(dir, "package.json"))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) throw new Error("package root not found above render-parity module — refusing");
+    dir = parent;
+  }
+}
+
+const PRESETS_DIR = path.join(packageRootDir(), "src/presets");
+
+/** Resolve a CLI-relative path under the capture cwd (absolute paths pass through). */
+export function resolveUnderCwd(cwd: string, p: string): string {
+  return path.isAbsolute(p) ? p : path.resolve(cwd, p);
+}
 
 export type Vec3 = [number, number, number];
 
@@ -96,7 +115,8 @@ export function parseCaptureArgs(argv: string[]): CaptureCli {
   return cli;
 }
 
-export async function resolveLevers(spec: string): Promise<{ name: string; levers: Record<string, unknown> }> {
+/** Resolve a lever spec to its preset name and parsed levers: inline JSON, a preset name, or a cwd-relative path. */
+export async function resolveLevers(spec: string, cwd: string = process.cwd()): Promise<{ name: string; levers: Record<string, unknown> }> {
   const inline = spec.trim().startsWith("{") ? spec : null;
   if (inline) return { name: "inline", levers: JSON.parse(inline) as Record<string, unknown> };
   const direct = path.isAbsolute(spec) ? spec : path.join(PRESETS_DIR, `${spec}.json`);
@@ -104,7 +124,7 @@ export async function resolveLevers(spec: string): Promise<{ name: string; lever
     const raw = await readFile(direct, "utf8");
     return { name: path.basename(direct, ".json"), levers: JSON.parse(raw) as Record<string, unknown> };
   } catch {
-    const raw = await readFile(path.resolve(spec), "utf8");
+    const raw = await readFile(resolveUnderCwd(cwd, spec), "utf8");
     return { name: path.basename(spec, ".json"), levers: JSON.parse(raw) as Record<string, unknown> };
   }
 }

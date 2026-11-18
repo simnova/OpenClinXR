@@ -38,5 +38,31 @@
         "kind": "runtime"
       }
     ]
+  },
+  {
+    "provider": "@openclinxr/station-render-parity",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "CaptureCli",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "parseCaptureArgs",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "resolveLevers",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "runRuntimeCapture",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
   }
 ]

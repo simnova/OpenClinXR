@@ -17,10 +17,7 @@
     "clean": "rm -rf dist *.tsbuildinfo"
   },
   "dependencies": {
-    "@openclinxr/compute-slots": "workspace:*",
-    "@openclinxr/factory-station-core": "workspace:*",
-    "@openclinxr/service-local-compute": "workspace:*",
-    "playwright": "1.59.1"
+    "@openclinxr/service-local-compute": "workspace:*"
   },
   "devDependencies": {
     "@cellix/config-typescript": "workspace:*",

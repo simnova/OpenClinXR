@@ -2,24 +2,28 @@
   "package": "stations/render-parity",
   "name": "@openclinxr/station-render-parity",
   "entrypoint": "packages/openclinxr/stations/render-parity/src/index.ts",
-  "purpose": "Render-parity station entrypoint: the Blender/three.js parity capture harness (moved from tools/openclinxr/evidence/aisha-parity, P2e).",
+  "purpose": "Render-parity station entrypoint: the Blender/three.js parity capture harness (moved from the evidence parity tooling, P2e).",
   "exports": [
     "CaptureCli",
     "parseCaptureArgs",
+    "resolveLevers",
     "runRuntimeCapture"
   ],
   "exportSummaries": {
     "CaptureCli": "Parsed capture CLI: every flag the thin CLI forwards, with parsed --only/--rotations lists.",
     "parseCaptureArgs": "Parse the capture argv into a CaptureCli, refusing unknown flags and missing required ones.",
+    "resolveLevers": "Resolve a lever spec to its preset name and parsed levers: inline JSON, a preset name, or a cwd-relative path.",
     "runRuntimeCapture": "Run one parity capture from parsed CLI opts: beauty/calib/masks/normal-pass/dump-state capture into the out dir."
   },
   "workspaceDependencies": [
-    "@openclinxr/compute-slots",
-    "@openclinxr/factory-station-core",
     "@openclinxr/service-local-compute"
   ],
   "tests": [
-    "src/capture-args.test.ts"
+    "src/capture-args.test.ts",
+    "src/capture-subject.test.ts",
+    "src/deps-boundary.test.ts",
+    "src/entrypoint.test.ts",
+    "src/server-lifecycle.test.ts"
   ],
   "commands": {
     "test": "pnpm --filter @openclinxr/station-render-parity test",

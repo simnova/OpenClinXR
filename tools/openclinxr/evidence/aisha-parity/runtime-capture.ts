@@ -1,12 +1,22 @@
 #!/usr/bin/env tsx
 /**
  * Thin CLI: forwards argv to the render-parity station (P2e station move).
- * Runtime lives in @openclinxr/station-render-parity; outputs go to the store, never the repo.
+ * Aisha subject values live ONLY here; runtime lives in the station package.
  */
-import { parseCaptureArgs, runRuntimeCapture, type CaptureCli } from "@openclinxr/station-render-parity";
+import { parseCaptureArgs, runRuntimeCapture } from "@openclinxr/station-render-parity";
+import { BROWSER_PAGE_GLOBALS_INIT_SCRIPT } from "../lib/evidence-page.js";
+import { spawnPortlessDevServer, stopPortlessDevServer } from "../lib/portless-server.js";
+import { chromium } from "../lib/slotted-playwright.js";
 
-const opts: CaptureCli = parseCaptureArgs(process.argv.slice(2));
-await runRuntimeCapture(opts).then(
+const AISHA = {
+  id: "aisha-parity",
+  bodyGlb: "generated-humanoids/mpfb-ob-patient-aisha.glb",
+  hdriUrl: "/cagematch/aisha-parity/studio_small_09_2k.hdr",
+  bodyMeshName: "mpfb_ob_patient_aisha_v1_body",
+  garmentMeshNames: ["toigo_t_shirt"],
+};
+const deps = { chromium, spawnPortlessDevServer, stopPortlessDevServer, BROWSER_PAGE_GLOBALS_INIT_SCRIPT };
+await runRuntimeCapture(parseCaptureArgs(process.argv.slice(2)), AISHA, deps).then(
   () => process.exit(0),
   (e: unknown) => {
     console.error(e);

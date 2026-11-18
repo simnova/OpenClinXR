@@ -2,7 +2,7 @@
 
 import { readFileSync } from "node:fs";
 import { inflateSync } from "node:zlib";
-import type { Page } from "./slotted-playwright.js";
+import type { CapturePage } from "./capture-deps.js";
 
 export function decodePngFloat(file: string): { w: number; h: number; data: Float32Array } {
   const bytes = readFileSync(file);
@@ -67,7 +67,7 @@ export function meanAbsDiffFloat(aPath: string, bPath: string): number {
   for (let i = 0; i < a.data.length; i += 1) sum += Math.abs(a.data[i]! - b.data[i]!);
   return sum / a.data.length;
 }
-export async function waitForParityEvidence(page: Page, timeoutMs = 180_000): Promise<Record<string, unknown>> {
+export async function waitForParityEvidence(page: CapturePage, timeoutMs = 180_000): Promise<Record<string, unknown>> {
   await page.waitForFunction(
     () => {
       const g = globalThis as unknown as {
@@ -104,7 +104,7 @@ export async function waitForParityEvidence(page: Page, timeoutMs = 180_000): Pr
   return evidence;
 }
 
-export async function measureFrameMs(page: Page, frames = 60): Promise<{ medianMs: number; p95Ms: number; samples: number }> {
+export async function measureFrameMs(page: CapturePage, frames = 60): Promise<{ medianMs: number; p95Ms: number; samples: number }> {
   const deltas = (await page.evaluate(
     (n: number) => {
       const g = globalThis as unknown as {
@@ -127,7 +127,7 @@ export async function measureFrameMs(page: Page, frames = 60): Promise<{ medianM
   return { medianMs: q(0.5), p95Ms: q(0.95), samples: deltas.length };
 }
 
-export async function readGpuString(page: Page): Promise<string> {
+export async function readGpuString(page: CapturePage): Promise<string> {
   return (await page.evaluate(
     () => {
       const g = globalThis as unknown as { document: { createElement(t: string): unknown } };
