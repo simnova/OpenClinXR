@@ -15,6 +15,7 @@ import {
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   type Object3D,
+  type Texture,
 } from "three";
 
 export type PhysicalSwapReadback = {
@@ -109,6 +110,7 @@ export function applyEyePhysical(
     clearcoat?: number;
     clearcoatRoughness?: number;
   },
+  envMap?: Texture | null,
 ): PhysicalSwapReadback[] {
   const eye = {
     roughness: params?.roughness,
@@ -141,6 +143,7 @@ export function applyEyePhysical(
       next.specularIntensity = eye.specularIntensity;
       if (eye.roughness !== undefined) next.roughness = eye.roughness;
       if (eye.envMapIntensity !== undefined) next.envMapIntensity = eye.envMapIntensity;
+      if (envMap) next.envMap = envMap;
       next.needsUpdate = true;
       out.push({
         mesh: mesh.name,
