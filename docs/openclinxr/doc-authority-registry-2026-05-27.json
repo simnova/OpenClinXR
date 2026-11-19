@@ -3657,6 +3657,13 @@
       "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
     },
     {
+      "path": "docs/madr/0066-post-export-hair-material-maps-stage.md",
+      "authority": "decision-record",
+      "agentInstructionWeight": "medium",
+      "action": "treat-as-evidence",
+      "rationale": "Architecture decision record; durable context but subordinate to protected guardrails and active queue."
+    },
+    {
       "path": "docs/madr/README.md",
       "authority": "decision-record",
       "agentInstructionWeight": "medium",

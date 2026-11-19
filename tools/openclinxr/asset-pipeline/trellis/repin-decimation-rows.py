@@ -124,13 +124,14 @@ PLAN = {
     },
     # --- HB-03 rows (partner includes the deliberate r5b brow-only geometry change) ---
     "mpfb-family-partner-adult.glb": {
-        "bytesAfter": 13327592,
+        "bytesAfter": 31816816,
         "triangleCountAfter": 42912,
         # faceBefore is the historical rung input (cap10 2026-11-10); a02b66f3e had raised it to live.
         "faceBefore": 13429,
         "faceAfter": 17883,
         "handBodyMeshAfter": 13357,
-        "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (45404 -> 42912, 20375 -> 17883), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 13327612 -> 13327592 B. Prior re-measure preserved below. "
+        "note": ("Re-measured 2026-11-18 (MAPS-TOIGO hair-material-maps stage, tsk_d26e6e1b855a15bb, MADR 0066): apply_hair_material_maps.py wires the authored hair maps post-export, bytes-only drift, geometry counts hold (asserted by main()), 13327592 -> 31816816 B. "
+                 "Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (45404 -> 42912, 20375 -> 17883), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 13327612 -> 13327592 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 10228348 -> 13327612 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 10077060 -> 10228348 B. "
                  "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 9649116 -> 10077060 B. Prior re-measure preserved below. "
@@ -174,11 +175,12 @@ PLAN = {
                  "rebake, 1814a43c1 byte-lineage) preserved in git history."),
     },
     "mpfb-peds-patient-child.glb": {
-        "bytesAfter": 14341940,
+        "bytesAfter": 35332712,
         "triangleCountAfter": 81858,
         "faceAfter": 43696,
         "handBodyMeshAfter": 26756,
-        "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (84350 -> 81858, 46188 -> 43696), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 14341960 -> 14341940 B. Prior re-measure preserved below. "
+        "note": ("Re-measured 2026-11-18 (MAPS-TOIGO hair-material-maps stage, tsk_d26e6e1b855a15bb, MADR 0066): apply_hair_material_maps.py wires the authored hair maps post-export, bytes-only drift, geometry counts hold (asserted by main()), 14341940 -> 35332712 B. "
+                 "Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (84350 -> 81858, 46188 -> 43696), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 14341960 -> 14341940 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 11242708 -> 14341960 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 10842652 -> 11242708 B. Pre-repack bytes are those of 1c5027169 (last origin/main commit touching this GLB). Prior re-measure preserved below. "
                  "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 10418700 -> 10842648 B. Prior re-measure preserved below. "

@@ -36,3 +36,4 @@ A trial can inform production only when:
 - [0055 — Equipment asset catalogue file-first SSOT (+ optional Mongo)](0055-equipment-asset-catalog-ssot.md)
 - [0064 — Retire the ambient-fail gate (pre-dispatch vacuous-plant refusal)](0064-ambient-fail-gate-retired.md)
 - [0065 — kevin-collar: drop the 8 leaking unhidden tris (L), keep index-only selection](0065-kevin-collar-drop-leaking-unhidden-tris.md)
+- [0066 — post-export hair material-maps stage (MAPS-TOIGO)](0066-post-export-hair-material-maps-stage.md)

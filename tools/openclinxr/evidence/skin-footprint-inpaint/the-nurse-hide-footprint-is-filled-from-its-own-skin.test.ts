@@ -141,15 +141,15 @@ const GLB_SHAS: Record<string, string> = {
   "mpfb-clinical-physician-adult.glb":
     "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
   "mpfb-family-partner-adult.glb":
-    "1fd58873ddba9519d442396635bd2d91a08c8b4b63606b186ecc56a9c0f5cb8b",
+    "9f7e3c13abe278e35f9b7f53a1dc9069a36db8a3cca1a5d34ad4048e3de52be0",
   "mpfb-gown-adult-patient.glb":
     "107d7ec951744032298b5e4fafd1d14b33f4860538fe1480968db02678014864",
   "mpfb-gown-ed-robert-hayes.glb":
-    "4707db8662d8de790370efaf3356b41780f5ee0b880470ef496d70b82f79a27e",
+    "d0c15d7166cda923d209f74bf2f488e6b5907ee6c6f70d3411f1742f30b8861b",
   "mpfb-gown-inspect.glb":
     "ba8f7ad538510baa9fdd328f1afbbda9eb243ba224c72fca324dd7c771451d91",
   "mpfb-peds-patient-child.glb":
-    "1e90c396b7eeba779fa33be9ebfffef3a76f4b15c28b1f63b7e85656be4f980b",
+    "82bd15663737ea871e62df917db5c36e16ff447bd88ad3b973e0b15d548e12ce",
   "mpfb-viseme-inspect.glb":
     "b517b416dca5f0921d4be8224560ed07bdab9e7cc2e4009d9b0b654e3007ece0",
 };

@@ -63,8 +63,19 @@ const TEXTURE_DWARF_THRESHOLD = 3.0;
  * read off the shipped GLB (main rule before r4c: 13.30). The entry fails if
  * the ratio rises above measuredRatio or drops to the threshold or below.
  */
-const EXCEPTION_MAP: Record<string, { measuredRatio: number; image: string }> = {
+const EXCEPTION_MAP: Record<string, { measuredRatio: number; image: string; note?: string }> = {
   "mpfb-ob-patient-aisha.glb": { measuredRatio: 7.984937599941184, image: "family-albedo-4096" },
+  // FU6 MAPS-TOIGO (tsk_d26e6e1b855a15bb): fitted-hair authored maps are large
+  // source PNGs by design (lossless diffuse + normal, ~8-10 MB each). Each entry
+  // retires card HAIR-MAPS-SIZE tsk_e9c8ba77470fb8e4 for that GLB: the
+  // size-optimization stage shrinks these images and deletes the entry; the
+  // entry fails if the ratio rises above measuredRatio or drops to the
+  // threshold or below (self-retiring both ways, same as the ob-patient entry).
+  // measuredRatio + image were read off the shipped GLB (same computation as
+  // the gate: max image / peer median), never invented.
+  "mpfb-peds-patient-child.glb": { measuredRatio: 9.609639842604945, image: "hair-diffuse-light_brown.png", note: "MAPS-TOIGO FU6: wired toigo_curled_under_bob_with_bangs authored diffuse+normal; retires HAIR-MAPS-SIZE tsk_e9c8ba77470fb8e4 for this GLB" },
+  "mpfb-gown-ed-robert-hayes.glb": { measuredRatio: 7.714982732446534, image: "hair-normal-toigo_blunt_bob_with_bangs.png", note: "MAPS-TOIGO FU6: wired toigo_blunt_bob_with_bangs authored diffuse+normal; retires HAIR-MAPS-SIZE tsk_e9c8ba77470fb8e4 for this GLB" },
+  "mpfb-family-partner-adult.glb": { measuredRatio: 9.618161604590973, image: "hair-normal-toigo_curled_under_bob.png", note: "MAPS-TOIGO FU6: wired toigo_curled_under_bob authored diffuse+normal; retires HAIR-MAPS-SIZE tsk_e9c8ba77470fb8e4 for this GLB" },
 };
 
 interface ImageInfo {
@@ -329,7 +340,9 @@ describe("no shipped garment texture dwarfs its body's other images", () => {
   it("every multi-image body passes threshold except the one recorded entry", () => {
     const multiImageBodies = bodies.filter((b) => b.images.length > 1);
     // Widening this list is wrong; the size-optimization stage shrinks it to [].
-    expect(Object.keys(EXCEPTION_MAP)).toEqual(["mpfb-ob-patient-aisha.glb"]);
+    // FU6 MAPS-TOIGO adds the 3 fitted-hair GLBs (measured ratios read off the
+    // shipped bytes); the size card retires each entry as it shrinks that GLB.
+    expect(Object.keys(EXCEPTION_MAP)).toEqual(["mpfb-ob-patient-aisha.glb", "mpfb-peds-patient-child.glb", "mpfb-gown-ed-robert-hayes.glb", "mpfb-family-partner-adult.glb"]);
 
     for (const body of multiImageBodies) {
       const ratio = maxToPeerMedianRatio(body);

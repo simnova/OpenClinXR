@@ -165,6 +165,59 @@ def is_white_factor(factor):
     return factor is not None and all(abs(x - 1) < 5e-4 for x in factor[:3])
 
 
+# Convention for a row that measures textured with factor absent (MAPS-TOIGO
+# hair-material-maps stage wires authored maps post-export, so the old
+# flat-colour reason/kind no longer describes the bytes).
+TEXTURED_FACTOR_ABSENT_KIND = "authored texture, factor absent (defaults white)"
+TEXTURED_FACTOR_ABSENT_REASON = (
+    "Factor absent = glTF default white; the baseColorTexture carries the look. "
+    "Maps wired post-export by the hair-material-maps stage; decisions recorded in "
+    "docs/madr/0066-post-export-hair-material-maps-stage.md.")
+STAGE_FILE_FALLBACK = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py"
+WIRING_NEEDLE = 'pbr["baseColorTexture"]'
+
+
+def stage_origin_for_body(body):
+    """Origin for a newly textured row: the stage file from the sidecar's
+    byteLineage record (FU8 maps level names the stage), line = the
+    pbr["baseColorTexture"] wiring line found in that file (never hard-coded).
+    Falls back to STAGE_FILE_FALLBACK only when no record names the stage file."""
+    stage_file = STAGE_FILE_FALLBACK
+    try:
+        with open(os.path.join(GENERATED, body.replace(".glb", ".provenance.json")),
+                  encoding="utf-8") as f:
+            sidecar = json.load(f)
+        cur = sidecar.get("byteLineage")
+        while isinstance(cur, dict):
+            for key in ("correctedBy", "tool"):
+                val = cur.get(key)
+                if isinstance(val, str) and "apply_hair_material_maps" in val:
+                    hit = re.search(r"tools/\S*apply_hair_material_maps\.py", val)
+                    if hit:
+                        stage_file = hit.group(0)
+            argv = cur.get("derivationArgv")
+            if isinstance(argv, list):
+                for arg in argv:
+                    if isinstance(arg, str) and arg.endswith("apply_hair_material_maps.py"):
+                        tail = re.search(r"tools/\S*apply_hair_material_maps\.py", arg)
+                        if tail:
+                            stage_file = tail.group(0)
+            rec = cur.get("recordedBefore")
+            cur = rec.get("byteLineage") if isinstance(rec, dict) else None
+    except (OSError, ValueError):
+        pass
+    try:
+        with open(os.path.join(REPO, stage_file), encoding="utf-8") as f:
+            for i, line in enumerate(f, 1):
+                if WIRING_NEEDLE in line:
+                    return {"file": stage_file, "line": i, "literal": line.strip()[:200]}
+    except OSError as exc:
+        raise RuntimeError(
+            f"newly-textured row for {body}: cannot read stage file {stage_file}") from exc
+    raise RuntimeError(
+        f"newly-textured row for {body}: wiring line {WIRING_NEEDLE!r} not found in {stage_file}")
+
+
 WHITE_NO_LITERAL_NOTE = (
     " Re-measured 2026-10-30: the live factor is white, whose setter in the tree "
     "is the undotted HB-02 bake reset (tools/openclinxr/asset-pipeline/trellis/"
@@ -268,36 +321,57 @@ def main():
                     stats["searched"] += 1
                 else:
                     stats["unresolved"] += 1
-                base_reason = (prev.get("reason", "") + " " if prev else "")
-                if hit:
+                if (m["factor"] is None and m["tex"] and prev is not None
+                        and not prev.get("hasBaseColorTexture")):
+                    # Texture newly wired since the recorded row (MAPS-TOIGO
+                    # hair-material-maps stage): the stale flat-colour
+                    # reason/kind no longer describe the bytes, so emit the
+                    # textured/factor-absent convention fresh (no .py:line in
+                    # reason text; the structured origin names the wiring line
+                    # found in the stage file, never a hard-coded line).
+                    rowo = {
+                        "body": body,
+                        "material": m["name"],
+                        "baseColorFactor": None,
+                        "hasBaseColorTexture": True,
+                        "reason": TEXTURED_FACTOR_ABSENT_REASON,
+                        "origin": stage_origin_for_body(body),
+                        "kind": TEXTURED_FACTOR_ABSENT_KIND,
+                    }
+                    if prev.get("decision"):
+                        rowo["decision"] = prev["decision"]
+                else:
+                    base_reason = (prev.get("reason", "") + " " if prev else "")
+                if rowo is None and hit:
                     reason = (base_reason + (
                         f"Measured {m['factor']} on live bytes ({'textured' if m['tex'] else 'untextured'}); "
                         f"origin first recorded 2026-10-30 at {hit['file']}:{hit['line']}.")).strip()
                     origin = {"file": hit["file"], "line": hit["line"], "literal": hit["literal"]}
-                elif m["factor"] is None:
+                elif rowo is None and m["factor"] is None:
                     reason = (base_reason + (
                         "Measured on live bytes 2026-10-30: factor absent (glTF default white); "
                         f"{'textured' if m['tex'] else 'untextured'}.")).strip()
                     origin = dict(prev["origin"]) if prev and prev.get("origin") else {"file": "", "line": 0, "literal": NO_LITERAL}
-                elif is_white_factor(m["factor"]):
+                elif rowo is None and is_white_factor(m["factor"]):
                     reason = (base_reason + (
                         f"Measured {m['factor']} on live bytes ({'textured' if m['tex'] else 'untextured'}); "
                         + WHITE_NO_LITERAL_NOTE)).strip()
                     origin = {"file": "", "line": 0, "literal": NO_LITERAL}
-                else:
+                elif rowo is None:
                     reason = (base_reason + (
                         f"Measured {m['factor']} on live bytes ({'textured' if m['tex'] else 'untextured'}); "
                         "no numeric literal in tree — row says so, refusal clause decides.")).strip()
                     origin = {"file": "", "line": 0, "literal": NO_LITERAL}
-                rowo = {
-                    "body": body,
-                    "material": m["name"],
-                    "baseColorFactor": m["factor"],
-                    "hasBaseColorTexture": m["tex"],
-                    "reason": reason,
-                    "origin": origin,
-                }
-                if prev and prev.get("kind"):
+                if rowo is None:
+                    rowo = {
+                        "body": body,
+                        "material": m["name"],
+                        "baseColorFactor": m["factor"],
+                        "hasBaseColorTexture": m["tex"],
+                        "reason": reason,
+                        "origin": origin,
+                    }
+                if prev and prev.get("kind") and "kind" not in rowo:
                     rowo["kind"] = prev["kind"]
                 if prev and prev.get("decision"):
                     rowo["decision"] = prev["decision"]

@@ -27,8 +27,8 @@
 
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { describe, expect, it } from "vitest";
 
 const REPO = repoRoot();
 const GENERATED = join(REPO, "apps/ui-xr/public/generated-humanoids");
@@ -49,6 +49,7 @@ interface AuditRow {
   baseColorFactor: readonly number[] | null;
   hasBaseColorTexture: boolean;
   reason?: string;
+  kind?: string;
   bodyLastChanged?: string;
   origin: Origin;
 }
@@ -164,6 +165,47 @@ function refusalRows(rows: AuditRow[]): AuditRow[] {
   });
 }
 
+/** MAPS-TOIGO hair-material-maps stage file: stage-origin rows must cite it. */
+const STAGE_FILE = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
+const TEXTURED_CONVENTION_KIND = "authored texture, factor absent (defaults white)";
+const TEXTURED_CONVENTION_REASON_HEAD = "Factor absent = glTF default white; the baseColorTexture carries the look.";
+const MADR_0066 = "docs/madr/0066-post-export-hair-material-maps-stage.md";
+
+/**
+ * Textured factor-absent rows must carry the convention, never stale
+ * flat-colour text (FU16 hardens FU13): a row with hasBaseColorTexture true
+ * and factor null REDs when its reason still claims "(untextured)" without a
+ * superseding "textured" measurement (a bare "(untextured)" with no later
+ * textured sentence is the stale shape; a superseded history sentence, e.g.
+ * the robert gown row whose later sentence re-measures textured, does not
+ * count), when its reason still claims "factor IS the albedo", or — for rows
+ * whose origin names the hair-material-maps stage file — when kind, reason
+ * head, or MADR cite differ from the convention.
+ */
+function texturedFactorAbsentViolations(rows: AuditRow[]): string[] {
+  const bad: string[] = [];
+  for (const r of rows) {
+    if (r.hasBaseColorTexture !== true || r.baseColorFactor !== null) continue;
+    const reason = r.reason ?? "";
+    const id = `${r.body}::${r.material}`;
+    if (reason.includes("(untextured)") && !reason.replace(/untextured/g, "").includes("textured")) {
+      bad.push(`${id} :: stale untextured claim on a textured row`);
+      continue;
+    }
+    if (reason.includes("factor IS the albedo")) {
+      bad.push(`${id} :: stale flat-colour claim on a textured row`);
+      continue;
+    }
+    if (r.origin.file === STAGE_FILE) {
+      if (r.kind !== TEXTURED_CONVENTION_KIND) bad.push(`${id} :: stage-origin kind is not the convention`);
+      else if (!reason.startsWith(TEXTURED_CONVENTION_REASON_HEAD)) {
+        bad.push(`${id} :: stage-origin reason head is not the convention`);
+      } else if (!reason.includes(MADR_0066)) bad.push(`${id} :: stage-origin reason does not cite ${MADR_0066}`);
+    }
+  }
+  return bad;
+}
+
 describe("every humanoid baseColorFactor is resolved (HB-00)", () => {
   it("audit body count == .glb count on disk", () => {
     const audit = readAudit();
@@ -242,6 +284,96 @@ describe("every humanoid baseColorFactor is resolved (HB-00)", () => {
       hit.length,
       "canonical no-literal must not exempt a textured non-white row from refusal",
     ).toBe(1);
+  });
+
+  it("(FU13 plant, FU16 hardened) COUNTERWEIGHT: textured factor-absent rows carry the convention", () => {
+    const audit = readAudit();
+    const bad = texturedFactorAbsentViolations(audit.rows.filter((r) => !r.body.startsWith("__synthetic")));
+    expect(
+      bad,
+      "textured factor-absent rows must carry the textured convention (kind, reason head, " +
+        "MADR cite), never a stale (untextured) claim without a superseding textured " +
+        "measurement and never the flat-colour text the writer emitted before FU13",
+    ).toEqual([]);
+  });
+
+  it("(FU16 plant) COUNTERWEIGHT: stale textured-row shapes RED under the hardened predicate", () => {
+    const fu13 = (rows: AuditRow[]) =>
+      rows
+        .filter((r) => r.hasBaseColorTexture === true && r.baseColorFactor === null)
+        .filter((r) => (r.reason ?? "").includes("factor IS the albedo"))
+        .map((r) => `${r.body}::${r.material}`);
+    // P-a: Robert row with HEAD's stale reason (untextured, no textured sentence).
+    const robertStale: AuditRow = {
+      body: "mpfb-gown-ed-robert-hayes.glb",
+      material: "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mat",
+      baseColorFactor: null,
+      hasBaseColorTexture: true,
+      reason:
+        "Measured [0.12999999523162842, 0.09000000357627869, 0.07000000029802322, 1] on live bytes " +
+        "(untextured); origin first recorded 2026-10-30 in embed_library_hair.py, then relocated.",
+      origin: {
+        file: "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+        line: 352,
+        literal: "return (0.13, 0.09, 0.07, 1.0)  # near-black",
+      },
+    };
+    const fu13a = fu13([robertStale]);
+    console.log(`PLANT FU13 predicate on stale Robert: ${fu13a.length === 0 ? "passes (the F2 defect)" : "REDs"}`);
+    expect(fu13a, "FU13 predicate must pass the stale untextured Robert reason (the F2 gap)").toEqual([]);
+    const newA = texturedFactorAbsentViolations([robertStale]);
+    console.log(`PLANT new predicate on stale Robert: ${newA.length > 0 ? `REDs: ${newA.join("; ")}` : "UNEXPECTED-GREEN"}`);
+    expect(newA.length, "hardened predicate must RED the stale untextured Robert row").toBeGreaterThan(0);
+    // P-b: family row with the flat-colour phrase (FU13 already REDs this one).
+    const familyFlat: AuditRow = {
+      body: "mpfb-family-partner-adult.glb",
+      material: "openclinxr_fitted_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mat",
+      baseColorFactor: null,
+      hasBaseColorTexture: true,
+      reason: "Flat authored colour; the factor IS the albedo (no texture to multiply).",
+      origin: {
+        file: "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
+        line: 63,
+        literal: '"black": (0.035, 0.028, 0.022),',
+      },
+    };
+    const fu13b = fu13([familyFlat]);
+    console.log(`PLANT FU13 predicate on flat-colour family: ${fu13b.length > 0 ? "REDs (already covered)" : "UNEXPECTED-GREEN"}`);
+    expect(fu13b.length, "FU13 predicate REDs the flat-colour phrase").toBeGreaterThan(0);
+    const newB = texturedFactorAbsentViolations([familyFlat]);
+    console.log(`PLANT new predicate on flat-colour family: ${newB.length > 0 ? `REDs: ${newB.join("; ")}` : "UNEXPECTED-GREEN"}`);
+    expect(newB.length, "hardened predicate must RED the flat-colour family row").toBeGreaterThan(0);
+    // P-c: stage-origin row with a stale kind (reason already convention-shaped).
+    const stageWrongKind: AuditRow = {
+      body: "mpfb-gown-ed-robert-hayes.glb",
+      material: "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mat",
+      baseColorFactor: null,
+      hasBaseColorTexture: true,
+      kind: "MPFB fitted hair, robert role (untextured)",
+      reason:
+        "Factor absent = glTF default white; the baseColorTexture carries the look. Maps wired " +
+        "post-export by the hair-material-maps stage; decisions recorded in " +
+        "docs/madr/0066-post-export-hair-material-maps-stage.md.",
+      origin: {
+        file: "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py",
+        line: 217,
+        literal: 'pbr["baseColorTexture"] = {"index": diffuse_tex}',
+      },
+    };
+    const fu13c = fu13([stageWrongKind]);
+    console.log(`PLANT FU13 predicate on stale-kind stage row: ${fu13c.length === 0 ? "passes (the F2 defect)" : "REDs"}`);
+    expect(fu13c, "FU13 predicate must pass the stale-kind stage row (the F2 gap)").toEqual([]);
+    const newC = texturedFactorAbsentViolations([stageWrongKind]);
+    console.log(`PLANT new predicate on stale-kind stage row: ${newC.length > 0 ? `REDs: ${newC.join("; ")}` : "UNEXPECTED-GREEN"}`);
+    expect(newC.length, "hardened predicate must RED the stale-kind stage row").toBeGreaterThan(0);
+    // Counterweight: one of the 30 base convention rows passes all three rules.
+    const audit = readAudit();
+    const nurse = audit.rows.find(
+      (r) => r.body === "mpfb-clinical-nurse-adult.glb" && r.material === "mat_makeclothes_library_footwear_toigo_mj_cloth_shoes",
+    )!;
+    const cw = texturedFactorAbsentViolations([nurse]);
+    console.log(`COUNTERWEIGHT convention row ${nurse.body}::${nurse.material}: ${cw.length === 0 ? "passes unchanged" : `UNEXPECTED-RED: ${cw.join("; ")}`}`);
+    expect(cw, "base convention row must pass the hardened predicate unchanged").toEqual([]);
   });
 
   it("COUNTERWEIGHT: every row origin cites a numeric literal in the tree, or honestly declares no literal on a refusal-exempt row", () => {

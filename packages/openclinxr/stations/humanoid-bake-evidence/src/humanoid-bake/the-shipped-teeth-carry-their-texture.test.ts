@@ -17,16 +17,16 @@ import {
   NURSE_CHEST_STAGE_INDICES_SHA256,
   NURSE_CHEST_STAGE_KEPT_INDICES_SHA256,
 } from "@openclinxr/asset-registry/nurse-chest-stage";
+import type {
+  ByteLineageLevel,
+  NeckChainSidecar,
+  TeethSwapBlock,
+} from "@openclinxr/factory-station-core/runner";
 import {
   lineageLevels,
   P2E_CHAIN_SCRIPT,
   repoRoot,
   validateT3LineageChain,
-} from "@openclinxr/factory-station-core/runner";
-import type {
-  ByteLineageLevel,
-  NeckChainSidecar,
-  TeethSwapBlock,
 } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 
@@ -533,7 +533,7 @@ function sidecarFor(actor: string): Record<string, unknown> {
   >;
 }
 
-function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>): void {
+function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>, liveOverride?: string): void {
   const block = (sidecar as NeckChainSidecar)["teethSwapB1"];
   if (!block) {
     if (actor !== BAKE_NATIVE_KNOWN_GOOD) {
@@ -541,7 +541,54 @@ function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>): 
     }
     return;
   }
-  const live = sha256(glb.raw);
+  const live = liveOverride ?? sha256(glb.raw);
+  // FU8 MAPS-TOIGO peel (actor-free, single): a top post-export maps level is
+  // peeled when it names the exact stage tool, the sidecar top pin matches the
+  // live GLB, and its pre-image matches the recorded pin it supersedes. The
+  // existing branches below then run unchanged on recordedBefore as the
+  // sidecar with live' = preImageSha256. A top maps level that fails (ii) or
+  // (iii) throws here and never falls through to the old branches. At most one
+  // peel: a stacked (nested) maps level throws instead of peeling again.
+  const MAPS_TOOL_INVOCATION =
+    "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
+  const chainLevels = lineageLevels(sidecar);
+  const topLevel = chainLevels[0];
+  if (topLevel !== undefined && argvHasExactTool(topLevel, MAPS_TOOL_INVOCATION)) {
+    const recorded = topLevel.recordedBefore;
+    if ((sidecar as NeckChainSidecar).outputSha256 !== live) {
+      throw new Error(
+        `T3 maps peel ${actor}: top level names the maps stage but sidecar top ${(sidecar as NeckChainSidecar).outputSha256} != live ${live}`,
+      );
+    }
+    const livePrime = topLevel.preImageSha256;
+    if (
+      recorded === undefined ||
+      typeof recorded.outputSha256 !== "string" ||
+      typeof livePrime !== "string" ||
+      livePrime !== recorded.outputSha256
+    ) {
+      throw new Error(
+        `T3 maps peel ${actor}: top level preImageSha256 ${topLevel.preImageSha256} != recordedBefore.outputSha256 ${recorded?.outputSha256}`,
+      );
+    }
+    if (chainLevels.length > 1 && argvHasExactTool(chainLevels[1]!, MAPS_TOOL_INVOCATION)) {
+      throw new Error(`T3 maps peel ${actor}: stacked maps levels — peel at most once`);
+    }
+    const inner = lineageLevels(recorded as unknown as Record<string, unknown>);
+    if (inner.length === 0) {
+      throw new Error(
+        `T3 maps peel ${actor}: recordedBefore carries no nested byteLineage to peel onto`,
+      );
+    }
+    const peeled = {
+      ...(sidecar as Record<string, unknown>),
+      outputSha256: recorded.outputSha256,
+      outputBytes: recorded.outputBytes,
+      byteLineage: recorded.byteLineage,
+    };
+    validateT3(actor, glb, peeled, livePrime);
+    return;
+  }
   if (block.output?.sha256 !== live) {
     // R2 neck-stage chain (physician only; owning gate: the collar test): the swap
     // output pins the pre-neck bytes in byteLineage.recordedBefore, and the sidecar
@@ -921,14 +968,15 @@ describe("the shipped teeth carry their own CC0 texture", () => {
   it("M3 legacy bypass and combined-shape pins fail closed on sha or depth change", () => {
     const flipLastHex = (sha: string): string =>
       sha.slice(0, -1) + (sha.endsWith("0") ? "1" : "0");
-    // Robert-hayes blender-bake genesis bypass (depth 2, genesis input sha).
+    // Robert-hayes blender-bake genesis bypass (depth 3 with the maps top level;
+    // the bypass itself runs on the peeled chain, where the depth is still 2).
     const rhActor = "mpfb-gown-ed-robert-hayes.glb";
     const rhGlb = parseGlb(join(DIR, rhActor));
     const rhSidecar = sidecarFor(rhActor);
-    expect(lineageLevels(rhSidecar).length, "setup: robert-hayes chain depth").toBe(2);
+    expect(lineageLevels(rhSidecar).length, "setup: robert-hayes chain depth").toBe(3);
     validateT3(rhActor, rhGlb, rhSidecar);
     const rhShaPlant = JSON.parse(JSON.stringify(rhSidecar)) as Record<string, unknown>;
-    const rhOldest = lineageLevels(rhShaPlant)[1]!;
+    const rhOldest = lineageLevels(rhShaPlant)[2]!;
     expect(rhOldest.inputSha256, "setup: genesis input sha pinned").toBe(
       "27cbf4e5ed5a007ad497a3bafe2763ac72746583374ad1718d51573ba649aa66",
     );
@@ -937,22 +985,29 @@ describe("the shipped teeth carry their own CC0 texture", () => {
       /preImageSha256 .* != recordedBefore\.outputSha256/,
     );
     const rhPlus = JSON.parse(JSON.stringify(rhSidecar)) as Record<string, unknown>;
-    lineageLevels(rhPlus)[1]!.recordedBefore = {
+    // +1 at the oldest level (genesis [2] under the maps top [0], was [1] at depth 2).
+    lineageLevels(rhPlus)[2]!.recordedBefore = {
       outputSha256: "a".repeat(64),
       outputBytes: 1,
       byteLineage: { derivationArgv: ["extra"], preImageSha256: "b".repeat(64) },
     };
-    expect(lineageLevels(rhPlus).length, "setup: robert-hayes depth +1").toBe(3);
+    expect(lineageLevels(rhPlus).length, "setup: robert-hayes depth +1").toBe(4);
     expect(() => validateT3(rhActor, rhGlb, rhPlus)).toThrow(
       /preImageSha256 .* != recordedBefore\.outputSha256/,
     );
     const rhMinus = JSON.parse(JSON.stringify(rhSidecar)) as Record<string, unknown>;
-    delete (((rhMinus as NeckChainSidecar).byteLineage as ByteLineageLevel).recordedBefore as Record<
+    delete (lineageLevels(rhMinus)[1]!.recordedBefore as Record<string, unknown>)["byteLineage"];
+    expect(lineageLevels(rhMinus).length, "setup: robert-hayes depth -1").toBe(2);
+    expect(() => validateT3(rhActor, rhGlb, rhMinus)).toThrow(/no nested #741 record/);
+    // FU8 peel refusal (separate assertion): a copy with the maps level's own
+    // nested chain deleted refuses at the peel, since there is nothing to peel onto.
+    const rhMinusPeel = JSON.parse(JSON.stringify(rhSidecar)) as Record<string, unknown>;
+    delete (((rhMinusPeel as NeckChainSidecar).byteLineage as ByteLineageLevel).recordedBefore as Record<
       string,
       unknown
     >)["byteLineage"];
-    expect(lineageLevels(rhMinus).length, "setup: robert-hayes depth -1").toBe(1);
-    expect(() => validateT3(rhActor, rhGlb, rhMinus)).toThrow(/no nested #741 record/);
+    expect(lineageLevels(rhMinusPeel).length, "setup: robert-hayes maps-peel depth -1").toBe(1);
+    expect(() => validateT3(rhActor, rhGlb, rhMinusPeel)).toThrow(/carries no nested byteLineage/);
     // Peds-nurse-kevin combined shape (live depth 4: stage-22 L0, colour L1,
     // combined swap L2, #741 L3). The combined L2 carries the newest recorded
     // output pin; the +1 plant breaks continuity at the new oldest level, and
@@ -989,6 +1044,107 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     >)["byteLineage"];
     expect(lineageLevels(keMinus).length, "setup: kevin depth -1").toBe(1);
     expect(() => validateT3(keActor, keGlb, keMinus)).toThrow(/no teeth-swap derivation record/);
+  });
+
+  /**
+   * FU8 MAPS-TOIGO peel plants (cap42 RULING-cap42-maps-toigo-fu8.txt): a top
+   * post-export maps level peels exactly once, only on the exact tool path,
+   * and only when its pins match the live GLB. In-memory copies of live maps
+   * sidecars (never a sidecar file write); each plant prints the forged
+   * field before/after and must throw.
+   */
+  it("T3 MAPS-TOIGO P1: tool path forged as a prefix word REDs", () => {
+    // P1 runs on robert, where the peel is load-bearing: the forged word does
+    // not equal the tool, so no peel happens and the old-branch walk reaches
+    // the genesis level, which has no recordedBefore.
+    const actor = "mpfb-gown-ed-robert-hayes.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const planted = JSON.parse(JSON.stringify(sidecarFor(actor))) as Record<string, unknown>;
+    const top = lineageLevels(planted)[0]!;
+    const before = (top.derivationArgv ?? []).join(" ");
+    expect(before, "setup: robert top level names the maps stage").toContain(
+      "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py",
+    );
+    top.derivationArgv = top.derivationArgv!.map((a) =>
+      a.includes("apply_hair_material_maps.py") ? `FORGED-${a}` : a,
+    );
+    const after = (top.derivationArgv ?? []).join(" ");
+    console.info(`PLANT P1 prefix-forged tool word on ${actor}: before=[${before.slice(0, 80)}...] after=[${after.slice(0, 100)}...]`);
+    expect(before).not.toContain("FORGED-");
+    expect(after).toContain("FORGED-");
+    expect(() => validateT3(actor, glb, planted)).toThrow(
+      /preImageSha256 undefined != recordedBefore\.outputSha256 undefined/,
+    );
+  });
+
+  it("T3 MAPS-TOIGO P2: tool path forged as a suffix word REDs", () => {
+    const actor = "mpfb-gown-ed-robert-hayes.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const live = sha256(glb.raw);
+    expect(live, "setup: robert live pins the sidecar top").toBe(
+      (sidecarFor(actor) as NeckChainSidecar).outputSha256,
+    );
+    const planted = JSON.parse(JSON.stringify(sidecarFor(actor))) as Record<string, unknown>;
+    const top = lineageLevels(planted)[0]!;
+    const before = (top.derivationArgv ?? []).join(" ");
+    top.derivationArgv = top.derivationArgv!.map((a) =>
+      a.includes("apply_hair_material_maps.py") ? `${a}-FORGED` : a,
+    );
+    const after = (top.derivationArgv ?? []).join(" ");
+    console.info(`PLANT P2 suffix-forged tool word on ${actor}: before=[${before.slice(0, 80)}...] after=[${after.slice(-100)}...]`);
+    expect(before).not.toMatch(/-FORGED/);
+    expect(after).toMatch(/-FORGED/);
+    expect(() => validateT3(actor, glb, planted)).toThrow(
+      /preImageSha256 undefined != recordedBefore\.outputSha256 undefined/,
+    );
+  });
+
+  it("T3 MAPS-TOIGO P3: pre-image off by one hex REDs", () => {
+    const actor = "mpfb-family-partner-adult.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const planted = JSON.parse(JSON.stringify(sidecarFor(actor))) as Record<string, unknown>;
+    const top = lineageLevels(planted)[0]!;
+    const before = top.preImageSha256!;
+    expect(before, "setup: planted pre-image starts pinned").toBe(
+      top.recordedBefore!.outputSha256,
+    );
+    top.preImageSha256 = before.slice(0, -1) + (before.endsWith("0") ? "1" : "0");
+    console.info(`PLANT P3 pre-image 1-hex off on ${actor}: before=${before.slice(0, 12)}... after=${top.preImageSha256!.slice(0, 12)}...`);
+    expect(() => validateT3(actor, glb, planted)).toThrow(
+      /preImageSha256 .* != recordedBefore\.outputSha256/,
+    );
+  });
+
+  it("T3 MAPS-TOIGO P4: stacked maps levels RED (peel at most once)", () => {
+    const actor = "mpfb-family-partner-adult.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const planted = JSON.parse(JSON.stringify(sidecarFor(actor))) as Record<string, unknown>;
+    const inner = (planted as NeckChainSidecar).byteLineage!;
+    const stacked = JSON.parse(JSON.stringify(inner)) as ByteLineageLevel;
+    (planted as NeckChainSidecar).byteLineage = stacked;
+    const innerPre = inner.preImageSha256;
+    if (innerPre === undefined) throw new Error(`setup P4 ${actor}: inner maps level has no preImageSha256`);
+    stacked.recordedBefore = {
+      outputSha256: innerPre,
+      outputBytes: 0,
+      byteLineage: inner,
+    };
+    const depth = lineageLevels(planted).length;
+    console.info(`PLANT P4 stacked maps levels on ${actor}: depth ${depth - 1} -> ${depth}, nested top names maps tool`);
+    expect(depth, "setup: stacked plant adds exactly one level").toBeGreaterThan(1);
+    expect(() => validateT3(actor, glb, planted)).toThrow(/peel at most once/);
+  });
+
+  it("T3 MAPS-TOIGO P5: maps level whose output != live REDs", () => {
+    const actor = "mpfb-family-partner-adult.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const live = sha256(glb.raw);
+    const planted = JSON.parse(JSON.stringify(sidecarFor(actor))) as Record<string, unknown>;
+    const before = (planted as NeckChainSidecar).outputSha256;
+    expect(before, "setup: sidecar top pins live").toBe(live);
+    (planted as NeckChainSidecar).outputSha256 = "f".repeat(64);
+    console.info(`PLANT P5 output mismatch on ${actor}: before=${String(before).slice(0, 12)}... after=ffffffffffff (live=${live.slice(0, 12)}...)`);
+    expect(() => validateT3(actor, glb, planted)).toThrow(/!= live/);
   });
 
   /**

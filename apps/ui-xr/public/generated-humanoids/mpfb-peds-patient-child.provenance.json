@@ -73,8 +73,8 @@
  "claimScope": "mpfb2_materializer_makes_distinct_people_from_anny_references_not_readiness",
  "promotionGates": false,
  "generatedAt": "2026-09-11T23:26:23Z",
- "outputSha256": "1e90c396b7eeba779fa33be9ebfffef3a76f4b15c28b1f63b7e85656be4f980b",
- "outputBytes": 14341940,
+ "outputSha256": "82bd15663737ea871e62df917db5c36e16ff447bd88ad3b973e0b15d548e12ce",
+ "outputBytes": 35332712,
  "albedoBakeWrittenAt": "2026-09-11T23:26:23Z",
  "albedoBakeNote": "HB-07 attempt 5 full-chain rebake (materialize -> bake-humanoid-albedo.ts -> separate_chest_anchor_joints.mjs; decimation skipped, chosenRungId=raw). Capture-aligned 4096 screen-space unhide after REHIDE; garment-only occluder; sleeve prim4 f79/f190 restored to skin.",
  "command": "blender --background --python tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py -- --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --reference peds_patient_child --actor-role patient | tsx tools/openclinxr/asset-pipeline/trellis/bake-humanoid-albedo.ts --inputs /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/materialize/mpfb-peds-patient-child.glb --outdir /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo-report.json | node tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs --input /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/albedo/mpfb-peds-patient-child.glb --output /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/final/mpfb-peds-patient-child.glb --report /var/folders/sy/ycs0d4hj4552t2dn87x96x780000gn/T//openclinxr-job-hb07a5b-35403/chest-anchor.json --half-span-m 0.085",
@@ -114,6 +114,13 @@
   }
  ],
  "byteLineage": {
+  "correctedAt": "2026-11-19T01:13:29.000Z",
+  "correctedBy": "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py (MAPS-TOIGO tsk_d26e6e1b855a15bb)",
+  "derivationArgv": ["mise", "exec", "--", "python3", "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py", "--glb", "/Volumes/files/src/openclinxr/.openclinxr/slices/website-reimagine/jobs/hair-material-maps-toigo/out-fu4/.inputs/child-in.glb", "--output", "/Volumes/files/src/openclinxr/.openclinxr/slices/website-reimagine/jobs/hair-material-maps-toigo/out-fu5/mpfb-peds-patient-child.glb", "--provenance", "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.provenance.json"],
+  "preImageBytes": 14341940,
+  "preImageRevision": "30083bee8",
+  "preImageSha256": "1e90c396b7eeba779fa33be9ebfffef3a76f4b15c28b1f63b7e85656be4f980b",
+  "recordedBefore": {"outputSha256": "1e90c396b7eeba779fa33be9ebfffef3a76f4b15c28b1f63b7e85656be4f980b", "outputBytes": 14341940, "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
   "correctedAt": "2026-11-11T02:16:17.251Z",
   "recordedBefore": {
@@ -155,6 +162,9 @@
   ],
   "reproduction": "byte-identical to the shipped file",
   "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: couple-fitted-teeth-to-lip-viseme.ts, decimate_teeth.mts."
+  }},
+  "reproduction": "re-run derivationArgv with --output pointed at a scratch dir from the pre-image bytes reproduces the recorded outputSha256.",
+  "why": "MAPS-TOIGO tsk_d26e6e1b855a15bb post-export hair-material-maps stage (tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py) added the fitted hair's authored maps + roughness 0.98039 to the shipped bytes; pre-image is the 30083bee8 shipped GLB; meshes byte-equal per FU7 A1 accessor equality; decisions recorded in docs/madr/0066-post-export-hair-material-maps-stage.md."
  },
  "garmentWeaveFold": {
   "tool": "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts",

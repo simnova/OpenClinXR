@@ -1,6 +1,6 @@
-import { NodeIO } from "@gltf-transform/core";
-import { existsSync, readFileSync, readdirSync } from "node:fs";
+import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { type Document, NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -76,35 +76,71 @@ const SHIPPED_MESH_COUNT: Readonly<Record<string, number>> = {
 };
 
 /**
- * Shipped normal-map state. ADAPTED (ci-w4): two ED actors deliberately ship WITHOUT a
- * normal map — the gown patient (unbound 1814a43c1, 2026-10-10, factory-skin-publication
+ * Shipped SKIN normal-map state. ADAPTED (ci-w4): two ED actors deliberately ship WITHOUT a
+ * skin normal — the gown patient (unbound 1814a43c1, 2026-10-10, factory-skin-publication
  * proof) and the family partner (unbound fc57e5a9d, same proof lane). The clause pins the
- * newer state per-actor: nurse and physician must KEEP theirs (a silent future unbind
- * still fails), and the two recorded normal-free actors are named so a future rebake
- * that restores/drops maps without updating this record fails loudly.
+ * SKIN state per-actor: nurse and physician must KEEP theirs (a silent future unbind
+ * still fails), and the two recorded skin-normal-free actors are named so a future rebake
+ * that restores/drops maps without updating this record fails loudly. A HAIR normal (the
+ * MAPS-TOIGO family hair map) must never satisfy this clause.
  */
-const SHIPPED_HAS_NORMAL_MAP: Readonly<Record<string, boolean>> = {
+const SHIPPED_HAS_SKIN_NORMAL_MAP: Readonly<Record<string, boolean>> = {
   "mpfb-gown-adult-patient": false,
   "mpfb-clinical-nurse-adult": true,
   "mpfb-family-partner-adult": false,
   "mpfb-clinical-physician-adult": true,
 };
 
-type Asset = { tris: number; meshes: number; hasNormalMap: boolean };
+/**
+ * Body-skin material per ED actor, from cited sources — NOT a name pattern:
+ * - gown: tools/openclinxr/asset-pipeline/anny/automate_blender.py names
+ *   "mpfb-gown-adult-patient.glb, material mpfb_skin_robert_reference".
+ * - nurse: own sidecar `--reference ed_chest_pain_nurse_adult` plus the bake rule in
+ *   tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py
+ *   (`skin_material_name = f"mpfb_skin_{subject_id}"`);
+ *   corroborated by ACTOR_SKIN_SUB in rebake_actor_skin_normal.py.
+ * - family: own sidecar `--reference ed_chest_pain_spouse_adult` plus the same bake rule.
+ * - physician: ACTOR_SKIN_SUB in rebake_actor_skin_normal.py (explicit shipped-GLB skin-material record;
+ *   the sidecar `--reference ed_chest_pain_nurse_adult` is stale for skin after the
+ *   ward-delirium re-subjecting, and the live census confirms the rebind name).
+ */
+const SKIN_MATERIAL: Readonly<Record<string, string>> = {
+  "mpfb-gown-adult-patient": "mpfb_skin_robert_reference",
+  "mpfb-clinical-nurse-adult": "mpfb_skin_ed_chest_pain_nurse_adult",
+  "mpfb-family-partner-adult": "mpfb_skin_ed_chest_pain_spouse_adult",
+  "mpfb-clinical-physician-adult": "mpfb_skin_ward_delirium_senior_resident_adult",
+};
 
-async function readAsset(name: string): Promise<Asset> {
-  const doc = await new NodeIO().read(join(DIR, `${name}.glb`));
+type Asset = { tris: number; meshes: number; hasSkinNormalMap: boolean };
+
+function probeDocument(name: string, doc: Document): Asset {
   const meshes = doc.getRoot().listMeshes();
   let tris = 0;
-  let hasNormalMap = false;
   for (const m of meshes) {
     for (const p of m.listPrimitives()) {
       const idx = p.getIndices();
       tris += idx ? idx.getCount() / 3 : (p.getAttribute("POSITION")?.getCount() ?? 0) / 3;
-      if (p.getMaterial()?.getNormalTexture()) hasNormalMap = true;
     }
   }
-  return { tris: Math.round(tris), meshes: meshes.length, hasNormalMap };
+  const skinName = SKIN_MATERIAL[name];
+  if (skinName === undefined) throw new Error(`${name}: no cited body-skin material for this actor`);
+  const candidates = doc
+    .getRoot()
+    .listMaterials()
+    .filter((m) => m.getName() === skinName);
+  if (candidates.length === 0)
+    throw new Error(`${name}: cited body-skin material ${skinName} not found in the GLB`);
+  if (candidates.length > 1)
+    throw new Error(`${name}: more than one body-skin candidate named ${skinName} in the GLB`);
+  const candidate = candidates[0]!;
+  if (!meshes.some((m) => m.listPrimitives().some((p) => p.getMaterial() === candidate)))
+    throw new Error(`${name}: cited body-skin material ${skinName} not bound to any primitive`);
+  return { tris: Math.round(tris), meshes: meshes.length, hasSkinNormalMap: !!candidate.getNormalTexture() };
+}
+
+async function readAsset(name: string): Promise<Asset> {
+  const doc = await new NodeIO().read(join(DIR, `${name}.glb`));
+  return probeDocument(name, doc);
 }
 
 describe("a humanoid bake is judged before it is shipped", () => {
@@ -176,16 +212,133 @@ describe("a humanoid bake is judged before it is shipped", () => {
     }
   });
 
-  it("(4) COUNTERWEIGHT: no ED actor loses its normal map", async () => {
+  it("(4) COUNTERWEIGHT: no ED actor loses its skin normal map", async () => {
     for (const name of ED_STATION) {
       const a = await readAsset(name);
       expect(
-        a.hasNormalMap,
-        `${name}: the recorded normal-map state is ${SHIPPED_HAS_NORMAL_MAP[name]} `
+        a.hasSkinNormalMap,
+        `${name}: the recorded skin normal-map state is ${SHIPPED_HAS_SKIN_NORMAL_MAP[name]} `
           + "(gown 1814a43c1, family fc57e5a9d — deliberate factory-skin-publication "
           + "unbinds; nurse/physician maps still doing work since 114265f4). A new bake "
-          + "must not silently change which actors carry one",
-      ).toBe(SHIPPED_HAS_NORMAL_MAP[name]);
+          + "must not silently change which actors carry a SKIN normal; a hair normal "
+          + "on the fitted hair material does not count",
+      ).toBe(SHIPPED_HAS_SKIN_NORMAL_MAP[name]);
+    }
+  });
+
+  /**
+   * FU12 plants: the SKIN probe, not the any-material probe, decides clause (4).
+   * All mutations are in-memory (NodeIO read of the live GLB, same probeDocument
+   * the clause runs; no file writes). Each plant prints skin/hair normal state
+   * before and after the mutation.
+   */
+  async function familyDoc(): Promise<Document> {
+    return new NodeIO().read(join(DIR, "mpfb-family-partner-adult.glb"));
+  }
+  function skinAndHair(doc: Document, skinName: string) {
+    const mats = doc.getRoot().listMaterials();
+    const skin = mats.find((m) => m.getName() === skinName)!;
+    const hair = mats.find((m) => /fitted_hair/i.test(m.getName() ?? ""))!;
+    return { skin, hair };
+  }
+  function printStates(label: string, skinName: string, doc: Document): string {
+    const { skin, hair } = skinAndHair(doc, skinName);
+    const s =
+      `${label}: skin(${skinName}).normal=${!!skin.getNormalTexture()} ` +
+      `hair(${hair.getName()}).normal=${!!hair.getNormalTexture()}`;
+    // eslint-disable-next-line no-console
+    console.log(s);
+    return s;
+  }
+
+  it("(4P1) plant: family skin rebound to the hair normal REDs the skin clause", async () => {
+    const skinName = SKIN_MATERIAL["mpfb-family-partner-adult"]!;
+    const doc = await familyDoc();
+    const before = printStates("P1 before", skinName, doc);
+    expect(before).toContain("skin(mpfb_skin_ed_chest_pain_spouse_adult).normal=false");
+    const { skin, hair } = skinAndHair(doc, skinName);
+    const hairTex = hair.getNormalTexture();
+    expect(hairTex, "live family hair must carry its MAPS-TOIGO normal").not.toBeNull();
+    skin.setNormalTexture(hairTex);
+    hair.setNormalTexture(null);
+    const after = printStates("P1 after", skinName, doc);
+    expect(after).toContain("skin(mpfb_skin_ed_chest_pain_spouse_adult).normal=true");
+    const probe = probeDocument("mpfb-family-partner-adult", doc);
+    expect(probe.hasSkinNormalMap).toBe(true);
+    // Clause (4) would RED: recorded false, measured true.
+    expect(probe.hasSkinNormalMap).not.toBe(SHIPPED_HAS_SKIN_NORMAL_MAP["mpfb-family-partner-adult"]);
+  });
+
+  it("(4P2) plant: family hair-only normal (live) keeps the skin clause GREEN", async () => {
+    const skinName = SKIN_MATERIAL["mpfb-family-partner-adult"]!;
+    const doc = await familyDoc();
+    printStates("P2 live", skinName, doc);
+    const probe = probeDocument("mpfb-family-partner-adult", doc);
+    expect(probe.hasSkinNormalMap).toBe(false);
+    expect(probe.hasSkinNormalMap).toBe(SHIPPED_HAS_SKIN_NORMAL_MAP["mpfb-family-partner-adult"]);
+  });
+
+  it("(4P3) plant: nurse skin normal removed REDs the skin clause", async () => {
+    const name = "mpfb-clinical-nurse-adult";
+    const skinName = SKIN_MATERIAL[name]!;
+    const doc = await new NodeIO().read(join(DIR, `${name}.glb`));
+    const before = printStates("P3 before", skinName, doc);
+    expect(before).toContain(`skin(${skinName}).normal=true`);
+    skinAndHair(doc, skinName).skin.setNormalTexture(null);
+    const after = printStates("P3 after", skinName, doc);
+    expect(after).toContain(`skin(${skinName}).normal=false`);
+    const probe = probeDocument(name, doc);
+    expect(probe.hasSkinNormalMap).toBe(false);
+    // Clause (4) would RED: recorded true, measured false.
+    expect(probe.hasSkinNormalMap).not.toBe(SHIPPED_HAS_SKIN_NORMAL_MAP[name]);
+  });
+
+  it("(4P4) plant: family with both skin and hair normals REDs (hair cannot mask a skin rebind)", async () => {
+    const skinName = SKIN_MATERIAL["mpfb-family-partner-adult"]!;
+    const doc = await familyDoc();
+    printStates("P4 before", skinName, doc);
+    const { skin, hair } = skinAndHair(doc, skinName);
+    skin.setNormalTexture(hair.getNormalTexture());
+    const after = printStates("P4 after", skinName, doc);
+    expect(after).toContain(`skin(${skinName}).normal=true`);
+    expect(after).toContain(
+      "hair(openclinxr_fitted_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mat).normal=true",
+    );
+    const probe = probeDocument("mpfb-family-partner-adult", doc);
+    // Clause (4) REDs on the skin state alone, hair normal notwithstanding.
+    expect(probe.hasSkinNormalMap).toBe(true);
+    expect(probe.hasSkinNormalMap).not.toBe(SHIPPED_HAS_SKIN_NORMAL_MAP["mpfb-family-partner-adult"]);
+  });
+
+  it("(4P5) plant: zero, many, or unknown skin candidates throw naming the actor", async () => {
+    const doc = await familyDoc();
+    expect(() => probeDocument("mpfb-unknown-actor", doc)).toThrow("mpfb-unknown-actor");
+    const skinName = SKIN_MATERIAL["mpfb-family-partner-adult"]!;
+    skinAndHair(doc, skinName).skin.setName(`${skinName}-renamed`);
+    expect(() => probeDocument("mpfb-family-partner-adult", doc)).toThrow("mpfb-family-partner-adult");
+    const doc2 = await familyDoc();
+    skinAndHair(doc2, skinName).hair.setName(skinName);
+    expect(() => probeDocument("mpfb-family-partner-adult", doc2)).toThrow("mpfb-family-partner-adult");
+  });
+
+  it("(4P6) plant: nurse and physician skin primitives repointed to slot 0 leave the cited skin declared but unbound and are refused", async () => {
+    for (const name of ["mpfb-clinical-nurse-adult", "mpfb-clinical-physician-adult"]) {
+      const skinName = SKIN_MATERIAL[name]!;
+      const doc = await new NodeIO().read(join(DIR, `${name}.glb`));
+      const root = doc.getRoot();
+      const slot0 = root.listMaterials()[0]!;
+      const skin = root.listMaterials().find((material) => material.getName() === skinName)!;
+      expect(slot0.getNormalTexture(), `${name}: slot 0 normal`).toBeNull();
+      expect(skin.getNormalTexture(), `${name}: cited skin normal`).not.toBeNull();
+      for (const mesh of root.listMeshes()) {
+        for (const primitive of mesh.listPrimitives()) {
+          if (primitive.getMaterial() === skin) primitive.setMaterial(slot0);
+        }
+      }
+      // Before the fix this plant returned hasSkinNormalMap true (Codex r4 F1).
+      expect(() => probeDocument(name, doc)).toThrow(
+        new RegExp(`${name}: cited body-skin material ${skinName} not bound to any primitive`),
+      );
     }
   });
 

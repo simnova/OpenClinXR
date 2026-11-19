@@ -1,5 +1,5 @@
 {
-  "baseSha": "ea75a92787cc7049d549e1289f88e5ea86928dfe",
+  "baseSha": "e4a5b87ed2ad1a67427d46939ebba5c17c55499c",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -250,7 +250,6 @@
     "tools/openclinxr/evidence/xr-sync/bundle-split.mjs",
     "tools/openclinxr/evidence/xr-sync/c10-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c13-run.mjs",
-    "tools/openclinxr/evidence/xr-sync/c15-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c2-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c22-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c23-run.mjs",
@@ -261,11 +260,6 @@
     "tools/openclinxr/evidence/xr-sync/c28-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c29-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c3-run.mjs",
-    "tools/openclinxr/evidence/xr-sync/c30-run.mjs",
-    "tools/openclinxr/evidence/xr-sync/c31-run.mjs",
-    "tools/openclinxr/evidence/xr-sync/c33-run.mjs",
-    "tools/openclinxr/evidence/xr-sync/c34-run.mjs",
-    "tools/openclinxr/evidence/xr-sync/c35-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c38-gaze-falsifier.mjs",
     "tools/openclinxr/evidence/xr-sync/c4-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c40-run.mjs",

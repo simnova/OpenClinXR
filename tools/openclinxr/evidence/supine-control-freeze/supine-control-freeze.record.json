@@ -6,7 +6,7 @@
     "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": "c7def44bda87d5d115d53c794f546ec6bf1b5ae655865f00df4262cdf538e6ab",
     "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": "e8896ed8905266c54ec87191a50c48e73e755f9b887a527190b0ed7fba5bca27",
     "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": "107d7ec951744032298b5e4fafd1d14b33f4860538fe1480968db02678014864",
-    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "1fd58873ddba9519d442396635bd2d91a08c8b4b63606b186ecc56a9c0f5cb8b",
+    "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "9f7e3c13abe278e35f9b7f53a1dc9069a36db8a3cca1a5d34ad4048e3de52be0",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "ce10321833f92ccc5930fafbadfc8544c9b5ec715a33e71c96ebf5b4e5d6056e",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
     "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "ad61615d110853cf9b959ca6801afc8d079fce77203dc091d4fde07460075d7a"
@@ -17,15 +17,15 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "kevin-collar S9 owner vitruvian-resume 2dc658",
-    "observedAtIso": "2026-11-19T08:11:41.970Z",
-    "reason": "Kevin GLB re-derived by kevin-collar S9 SELECTED-126 (index-only collar/sleeve unhide; ship ad61615d, superseding the S5 pin 7c9545a7); refresh the live control pin for the kevin row only, all other rows recomputed unchanged.",
+    "observedBy": "MAPS-TOIGO rebase-2 owner xr-sync-ceo 72d758",
+    "observedAtIso": "2026-11-19T08:41:56.079Z",
+    "reason": "Family-partner GLB re-derived by the post-export hair-material-maps stage (MAPS-TOIGO tsk_d26e6e1b855a15bb, MADR 0066); refresh the live control pin after the rebase onto d6a9886ef, all other rows recomputed.",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,
       "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb": 9000208,
       "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb": 10316520,
-      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 13327592,
+      "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 31816816,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 12477104,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 12618432,
       "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 20179696

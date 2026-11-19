@@ -2,10 +2,10 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
-import { describe, expect, it } from "vitest";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { describe, expect, it } from "vitest";
 import { hasValidProvenance, proceduralGownSourceHash } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts";
-import { isLegacyRecordedProceduralGown } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/recorded-garment-provenance.ts";
+import { edBakeLineage, isLegacyRecordedProceduralGown, RECORDED_GOWN_GENERATOR_TOOL } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/recorded-garment-provenance.ts";
 
 /**
  * After the 2026-09-20 fleet stamp, every shipped MPFB garment mesh that the
@@ -176,5 +176,93 @@ describe("the shipped MPFB garments record source-family provenance", () => {
         sidecar: { ...good, operations: [{ kind: "other", tool: "other", inputSha256: "0".repeat(64), outputSha256: "1".repeat(64) }] },
       }).ok,
     ).toBe(false);
+  });
+
+  it("(4) edBakeLineage P1: broken link at depth 2 refuses (C5)", () => {
+    const bake = {
+      derivationArgv: ["blender", "--background", "--python", RECORDED_GOWN_GENERATOR_TOOL, "--", "--input-glb", "x"],
+      inputSha256: "2".repeat(64),
+    };
+    const depth1 = {
+      derivationArgv: ["sh", "-c", "teeth-swap post-step"],
+      preImageSha256: "a".repeat(64),
+      recordedBefore: { outputSha256: "b".repeat(64), byteLineage: bake },
+    };
+    const top = {
+      derivationArgv: ["mise", "exec", "--", "python3", "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py"],
+      preImageSha256: "c".repeat(64),
+      recordedBefore: { outputSha256: "c".repeat(64), byteLineage: depth1 },
+    };
+    // L0 link holds but the depth-2 link is broken: no lineage is returned,
+    // so the ED branch cannot authenticate (C5 refuses).
+    expect(edBakeLineage(top)).toBeUndefined();
+  });
+
+  it("(5) edBakeLineage P2: depth-1 shape passes exactly as before", () => {
+    const bake = {
+      derivationArgv: ["blender", "--background", "--python", RECORDED_GOWN_GENERATOR_TOOL, "--", "--input-glb", "x"],
+      inputSha256: "2".repeat(64),
+    };
+    const top = {
+      derivationArgv: ["sh", "-c", "teeth-swap post-step"],
+      preImageSha256: "a".repeat(64),
+      recordedBefore: { outputSha256: "a".repeat(64), byteLineage: bake },
+    };
+    // One holding post-step over the bake: the walk returns the bake level
+    // itself, the same object the single-peel rule returned.
+    expect(edBakeLineage(top)).toBe(bake);
+  });
+
+  it("(6) edBakeLineage P3: no --python level reachable refuses", () => {
+    const bottom = {
+      derivationArgv: ["sh", "-c", "teeth-rest post-step"],
+      preImageSha256: "a".repeat(64),
+      recordedBefore: { outputSha256: "a".repeat(64) },
+    };
+    const top = {
+      derivationArgv: ["sh", "-c", "teeth-swap post-step"],
+      preImageSha256: "b".repeat(64),
+      recordedBefore: { outputSha256: "b".repeat(64), byteLineage: bottom },
+    };
+    // Every link holds but no level names --python: undefined (C5 refuses).
+    expect(edBakeLineage(top)).toBeUndefined();
+    // A top level with no nested chain at all also refuses.
+    expect(edBakeLineage({ derivationArgv: ["sh", "-c", "lone post-step"] })).toBeUndefined();
+  });
+
+  it("(7) peel depth per shipped gown sidecar: robert reaches the bake in 2 peels", () => {
+    const gowns = ["mpfb-gown-adult-patient.glb", "mpfb-gown-ed-robert-hayes.glb", "mpfb-gown-inspect.glb"];
+    const depths: Record<string, string> = {};
+    for (const f of gowns) {
+      const sidecar = JSON.parse(readFileSync(join(DIR, f.replace(/\.glb$/i, ".provenance.json")), "utf8")) as Record<
+        string,
+        unknown
+      >;
+      let cur: unknown = sidecar["byteLineage"];
+      let peels = 0;
+      let found = false;
+      for (;;) {
+        if (typeof cur !== "object" || cur === null) break;
+        const lineage = cur as Record<string, unknown>;
+        if (Array.isArray(lineage["derivationArgv"]) && (lineage["derivationArgv"] as unknown[]).includes("--python")) {
+          found = true;
+          break;
+        }
+        const before = lineage["recordedBefore"] as Record<string, unknown> | undefined;
+        const prior = before?.["byteLineage"];
+        if (typeof prior !== "object" || prior === null) break;
+        if (typeof lineage["preImageSha256"] !== "string" || lineage["preImageSha256"] !== before?.["outputSha256"])
+          break;
+        cur = prior;
+        peels += 1;
+      }
+      depths[f] = found ? `${peels} peels to --python` : "no --python reachable (refuses)";
+    }
+    // eslint-disable-next-line no-console
+    console.log(`peel depth per gown sidecar: ${JSON.stringify(depths)}`);
+    expect(depths["mpfb-gown-ed-robert-hayes.glb"]).toBe("2 peels to --python");
+    expect(edBakeLineage(
+      (JSON.parse(readFileSync(join(DIR, "mpfb-gown-ed-robert-hayes.provenance.json"), "utf8")) as Record<string, unknown>)["byteLineage"],
+    )).toMatchObject({ derivationArgv: expect.arrayContaining(["--python"]) });
   });
 });

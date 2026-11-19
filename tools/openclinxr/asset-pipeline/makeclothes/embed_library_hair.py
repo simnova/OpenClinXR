@@ -748,5 +748,68 @@ def main() -> None:
         print(f"[blender] #330 report {report_path}")
 
 
+def source_hair_shininess(mhclo_path: str) -> Optional[float]:
+    """The hair asset's own `.mhmat` `shininess` scalar, if it declares one.
+
+    Shared reader for the FU5 roughness rule (MPFB maps mhmat shininess to
+    Principled roughness as 1.0 - shininess when no roughness is declared).
+    Returns None when the asset declares no parseable shininess, so the caller
+    can STOP instead of inventing a number.
+    """
+    mhmat = _mhclo_material_path(mhclo_path)
+    if not mhmat:
+        return None
+    try:
+        with open(mhmat, "r", errors="replace") as handle:
+            for line in handle:
+                parts = line.split(None, 1)
+                if len(parts) == 2 and parts[0].lower() == "shininess":
+                    return float(parts[1].strip().split()[0])
+    except Exception:
+        return None
+    return None
+
+
+def recolour_to_token_chroma_linear(rgba_linear, target_rgb):
+    """Scale linear RGB by per-texel luminance toward the token chroma.
+
+    FU4 recolour (hair-material-maps): Y = 0.2126 R + 0.7152 G + 0.0722 B is the
+    Rec.709 luma with the IEC 61966-2-1 sRGB primaries (the same primaries the
+    sRGB transfer in linear_to_srgb/srgb_to_linear assumes); Ybar is the
+    alpha-weighted mean of Y over all texels (same weighting as
+    recolour_to_mean_linear); k = Y / Ybar per texel; out_c = clip(target_c * k,
+    0, 1); alpha is copied byte-for-byte. A per-channel mean scale keeps the
+    SOURCE channel spreads, so a saturated source tail (e.g. GingerHair B to 2x
+    the black token) survives and reads ash/silver; scaling by the shared
+    luminance ratio keeps every channel on the token's chroma instead. Pre-clip,
+    the alpha-weighted mean of out_c equals target_c exactly (sum(target_c * Y
+    * alpha) / weight = target_c * Ybar * weight / weight). Texels with
+    target_c * k > 1 clip; the caller reports that fraction. Raises on
+    Ybar <= 0 (a zero-luminance texture cannot take any non-zero token).
+    """
+    import numpy as np
+
+    rgba = np.asarray(rgba_linear)
+    if rgba.ndim != 3 or rgba.shape[2] != 4:
+        raise ValueError("rgba_linear must be HxWx4")
+    target = np.asarray(target_rgb, dtype=np.float64)
+    if target.shape != (3,):
+        raise ValueError("target_rgb must contain exactly three channels")
+    alpha = rgba[..., 3].astype(np.float64, copy=False)
+    weight = float(alpha.sum())
+    if weight <= 0.0:
+        raise ValueError("hair diffuse texture has no alpha-weighted texels")
+    rgb = rgba[..., :3].astype(np.float64, copy=False)
+    lum = 0.2126 * rgb[..., 0] + 0.7152 * rgb[..., 1] + 0.0722 * rgb[..., 2]
+    ybar = float(np.sum(lum * alpha) / weight)
+    if ybar <= 0.0:
+        raise ValueError("hair diffuse texture has no luminance")
+    k = lum / ybar
+    out = rgba.copy()
+    out[..., :3] = np.clip(target * k[..., None], 0.0, 1.0)
+    out[..., 3] = rgba[..., 3]
+    return out
+
+
 if __name__ == "__main__":
     main()

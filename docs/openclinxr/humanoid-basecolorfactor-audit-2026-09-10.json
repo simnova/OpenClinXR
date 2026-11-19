@@ -1450,20 +1450,15 @@
   {
    "body": "mpfb-family-partner-adult.glb",
    "material": "openclinxr_fitted_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mat",
-   "baseColorFactor": [
-    0.035,
-    0.028,
-    0.022,
-    1
-   ],
-   "hasBaseColorTexture": false,
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, family role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:156. origin confirmed 2026-10-30 at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:63 Measured [0.035, 0.028, 0.022, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:63.",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. Maps wired post-export by the hair-material-maps stage; decisions recorded in docs/madr/0066-post-export-hair-material-maps-stage.md. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
-    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
-    "line": 63,
-    "literal": "\"black\": (0.035, 0.028, 0.022),"
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py",
+    "line": 217,
+    "literal": "pbr[\"baseColorTexture\"] = {\"index\": diffuse_tex}"
    },
-   "kind": "MPFB fitted hair, family role (untextured)",
+   "kind": "authored texture, factor absent (defaults white)",
    "decision": "resolved",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
@@ -1707,7 +1702,7 @@
     "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:8073",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {
@@ -2143,19 +2138,15 @@
   {
    "body": "mpfb-gown-ed-robert-hayes.glb",
    "material": "openclinxr_fitted_hair_toigo_blunt_bob_with_bangs_mpfb_robert_reference_mat",
-   "baseColorFactor": [
-    0.12999999523162842,
-    0.09000000357627869,
-    0.07000000029802322,
-    1
-   ],
-   "hasBaseColorTexture": false,
-   "reason": "Measured [0.12999999523162842, 0.09000000357627869, 0.07000000029802322, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:239. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:352.",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. Maps wired post-export by the hair-material-maps stage; decisions recorded in docs/madr/0066-post-export-hair-material-maps-stage.md. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
-    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
-    "line": 352,
-    "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py",
+    "line": 217,
+    "literal": "pbr[\"baseColorTexture\"] = {\"index\": diffuse_tex}"
    },
+   "kind": "authored texture, factor absent (defaults white)",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {
@@ -2351,7 +2342,7 @@
     1
    ],
    "hasBaseColorTexture": false,
-   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
+   "reason": "Measured [0.019999999552965164, 0.019999999552965164, 0.019999999552965164, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7091. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:8073",
    "origin": {
     "file": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
     "line": 8073,
@@ -3676,21 +3667,16 @@
   {
    "body": "mpfb-peds-patient-child.glb",
    "material": "openclinxr_fitted_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mat",
-   "baseColorFactor": [
-    0.13,
-    0.09,
-    0.07,
-    1
-   ],
-   "hasBaseColorTexture": false,
-   "kind": "MPFB fitted hair, patient role (untextured)",
-   "decision": "resolved",
+   "baseColorFactor": null,
+   "hasBaseColorTexture": true,
+   "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. Maps wired post-export by the hair-material-maps stage; decisions recorded in docs/madr/0066-post-export-hair-material-maps-stage.md. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
    "origin": {
-    "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
-    "line": 352,
-    "literal": "return (0.13, 0.09, 0.07, 1.0)  # near-black"
+    "file": "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py",
+    "line": 217,
+    "literal": "pbr[\"baseColorTexture\"] = {\"index\": diffuse_tex}"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, patient role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:158. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:352",
+   "kind": "authored texture, factor absent (defaults white)",
+   "decision": "resolved",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {
@@ -3934,7 +3920,7 @@
     "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:8073",
    "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
   },
   {

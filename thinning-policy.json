@@ -153,6 +153,17 @@
       "expires": "2026-12-03",
       "evidence": "/Volumes/files/openclinxr-assets/store/st-teeth/kevin-collar/s10h9/thinning-committed.log",
       "reason": "Release with the next registry thinning toward the bucket G target of 1,500,000 bytes."
+    },
+    {
+      "id": "face-realism-run-report-pin",
+      "scope": ["packages/openclinxr/stations/face-realism/src/run-report.json"],
+      "rule": "pin",
+      "approvedBy": "super-ceo-cap42",
+      "quote": "pin exception for writer-regenerated one-line run-report until RUN-REPORT-MULTILINE",
+      "date": "2026-11-18",
+      "expires": "2026-12-18",
+      "evidence": "writer tools/openclinxr/evidence/station-skin-int/rederive_run_report.ts lines 140-145 (single-line compact JSON by design); card RUN-REPORT-MULTILINE tsk_f38a89b7e0c0f807 tracks the multi-line writer",
+      "reason": "writer-owned one-line report; a sha re-pin rewrites the whole line"
     }
   ]
 }
