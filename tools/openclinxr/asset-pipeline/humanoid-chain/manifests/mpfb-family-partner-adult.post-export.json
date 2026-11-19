@@ -1,0 +1,59 @@
+{
+  "actorId": "mpfb-family-partner-adult",
+  "stages": [
+    {
+      "id": "24",
+      "name": "hair-material-maps",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py",
+      "kind": "python",
+      "postExport": true,
+      "argv": [
+        "--glb",
+        "{in}",
+        "--output",
+        "{out}",
+        "--provenance",
+        "{outdir}/.inputs/pre.provenance.json",
+        "--output-provenance",
+        "{outdir}/24-hair-material-maps.provenance.json",
+        "--phenotypes",
+        "{outdir}/.inputs/actor-phenotype.v1.json",
+        "--hair-cache",
+        "{outdir}/.inputs"
+      ],
+      "inputs": [
+        {
+          "name": "pre.provenance.json",
+          "gitRef": "c613e86e8^:apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
+          "sha256": "e495791eb533dfe1d51cfbb643a0286da5350e5b920f2c1ff5363cce851d1ed9"
+        },
+        {
+          "name": "actor-phenotype.v1.json",
+          "gitRef": "c613e86e8^:packages/openclinxr/scenario-fixtures/generated/actor-phenotype.v1.json",
+          "sha256": "b69d88a9ad881a0915b2990f09951ac62c2deef352cd9cc62ef9e89dc0bc0cc2"
+        },
+        {
+          "name": "toigo_curled_under_bob/toigo_curled_under_bob.mhclo",
+          "path": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_curled_under_bob/toigo_curled_under_bob.mhclo",
+          "sha256": "725bf6f11fbea1ec2f461a52ed73774df195180c3e113716fbbc00639d81e78a"
+        },
+        {
+          "name": "toigo_curled_under_bob/bob_curled_under.mhmat",
+          "path": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_curled_under_bob/bob_curled_under.mhmat",
+          "sha256": "4bce159101adc6b182366eae66eeadd2138150a12ddac5ed95feb0def995d490"
+        },
+        {
+          "name": "toigo_curled_under_bob/GingerHair.png",
+          "path": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_curled_under_bob/GingerHair.png",
+          "sha256": "d87528154919da855eb5cf05d9a9a036fc5f8510c2a0d7baea155d7890ebfdc8"
+        },
+        {
+          "name": "toigo_curled_under_bob/BakedHairNORMAL.png",
+          "path": "/Volumes/files/src/openclinxr/.openclinxr-local/provider-cache/hair/sources/makehuman-hair01/extracted/hair/toigo_curled_under_bob/BakedHairNORMAL.png",
+          "sha256": "f0b761f31129ef5f808394a4f71b04e902fbd5eadfcad0f3ae0c8d89f87a73cb"
+        }
+      ]
+    }
+  ],
+  "excluded": []
+}

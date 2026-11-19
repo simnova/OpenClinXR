@@ -1,0 +1,1798 @@
+{
+  "schema": "openclinxr.post-export-stage-consumers.compact.v1",
+  "full": {
+    "store": "post-export-stage-finalize/post-export-stage-consumers.full-1e06aa00.json",
+    "sha256": "1e06aa00501abfd23f3c945c5cc7f46892abcb97fb1dda77587506191494f4a9"
+  },
+  "baseSha": "c613e86e88d7fba085b25f7fc1d2d0fde22b0c8f",
+  "rows": [
+    {
+      "file": ".openclinxr/evidence/face-morph-census/face-morph-census.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": ".openclinxr/evidence/issue-276/pre-fix.json",
+      "field": "bodySha256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": ".openclinxr/evidence/mpfb-bake-question/component-census.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": ".openclinxr/evidence/supine-control-freeze.json",
+      "field": "assetSha256ByPath",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": ".openclinxr/evidence/supine-control-freeze/supine-control-freeze.json",
+      "field": "assetSha256ByPath",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": ".openclinxr/evidence/walk-clip/report.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": ".openclinxr/evidence/walk-clip/stage1-attribution.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/adult_male_street_casual.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_adult_cast.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_nurse_adult.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/ed_chest_pain_spouse_adult.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.provenance.json",
+      "field": "currentRepair.inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.provenance.json",
+      "field": "garmentWeaveFold.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.provenance.json",
+      "field": "SKIN_FAMILY_ALBEDO_REPLACES_BAKE.inputGlbSha",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
+      "field": "vitruvianDarkRemap.inputGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
+      "field": "actorHairColourPostExport.inputGlbSha256, outputBytes, outputGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
+      "field": "actorBrowTransplantPostExport.inputGlbSha256, outputBytes, outputGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json",
+      "field": "garmentWeaveFold.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "gownRebake20261104R5.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "chestAnchorRestore20261104R5.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "gownRebake20261104R5b.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "chestAnchorRestore20261104R5b.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "garmentProvenanceStamp20261104R5.inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "gownRebake20261103.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "chestAnchorRestore20261103.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "gownRebake20261103R3.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "chestAnchorRestore20261103R3.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "gownRebake20261103R4.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-gown-inspect.provenance.json",
+      "field": "chestAnchorRestore20261103R4.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+      "field": "gravidGarmentRestore.inputBytes, inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+      "field": "garmentRestoreD1.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+      "field": "familyAlbedoEmbedR2.glbOutBytes, glbOutSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+      "field": "familyAlbedoEmbedR3.glbOutBytes, glbOutSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+      "field": "familyAlbedoEmbedR4.glbOutBytes, glbOutSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+      "field": "SKIN_FAMILY_ALBEDO_REPLACES_BAKE.inputGlbSha",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+      "field": "skinShadeCarrier.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json",
+      "field": "garmentRestoreD1.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json",
+      "field": "garmentWeaveFold.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json",
+      "field": "actorHairColourPostExport.inputGlbSha256, outputBytes, outputGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "garmentProvenanceStamp.outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "mouthPhysicalCorrection.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "albedoRepair.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "textureGrade.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "chestAnchorReseparation.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "orphanPrune.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "hairPositionRestore.inputBytes, inputSha256, outputBytes, outputSha256, sourceBytes, sourceSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "garmentTopologyWeld.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "garmentWeaveFold.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "skinShadeCarrier.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.provenance.json",
+      "field": "garmentWeaveFold.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-peds-patient-child.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.provenance.json",
+      "field": "jeansReplace.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.provenance.json",
+      "field": "maskFit.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.provenance.json",
+      "field": "lashFollowR8.inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.provenance.json",
+      "field": "byteLineage, input, preImageSha256, preImageBytes, recordedBefore.outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/peds_fever_patient_child.provenance.json",
+      "field": "garmentHemFinish.inputBytes, inputSha256, outputBytes, outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/public/generated-humanoids/peds_patient_child.provenance.json",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/src/the-normal-consumer-replays-and-invalidates-the-frozen-scene.test.ts",
+      "field": "instance.assetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "apps/ui-xr/src/the-shipped-humanoids-hash-to-their-provenance.test.ts",
+      "field": "actualSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "docs/madr/0065-kevin-collar-drop-leaking-unhidden-tris.md",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "docs/madr/0066-post-export-hair-material-maps-stage.md",
+      "field": "(file)",
+      "proposed_pin": "other",
+      "reader": "no"
+    },
+    {
+      "file": "docs/openclinxr/evidence/physician-walk-clip-graft.json",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.json",
+      "field": "(file)",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "docs/openclinxr/humanoid-evidence-byte-drift-2026-09-14.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "docs/openclinxr/humanoid-postopt-ladder-2026-09-10.json",
+      "field": "bytesAfter",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "docs/openclinxr/humanoid-postopt-ladder-face-preserving-2026-09-11.json",
+      "field": "bytesAfter",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "docs/openclinxr/humanoid-vetting-2026-09-10.json",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "docs/openclinxr/humanoid-vetting-captures/mpfb-peds-patient-child-defect-sites.json",
+      "field": "sha256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "docs/openclinxr/mouth-dynamics/teeth-gap/evaluator-step3.json",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-00.json",
+      "field": "selectedPhysicianSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-04.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "docs/openclinxr/scene-closure-2026-09-09/evidence/sc-06.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts",
+      "field": "assetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/asset-registry/src/case-frozen-scene-plans.ts",
+      "field": "assetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/asset-registry/src/measured-station-geometry-freshness-mod.ts",
+      "field": "fp.bytes",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/asset-registry/src/measured-station-geometry.json",
+      "field": "fingerprints",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/asset-registry/src/nurse-chest-stage.ts",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/asset-registry/src/scene-plan-freeze-mod.ts",
+      "field": "assetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/factory-station-core/src/teeth-swap-lineage.ts",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/factory-stations/src/motion_retarget/emit-walk-contact-phases.ts",
+      "field": "glbSha256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/factory-stations/src/motion_retarget/physician-walk-contact-phases.json",
+      "field": "sha256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/factory-stations/src/motion_retarget/walk-contact-phases.test.ts",
+      "field": "PHYSICIAN_GLB",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/face-realism-evidence/src/derive-refuses-a-non-body-skin-and-aisha-replays-for-real.test.ts",
+      "field": "glb_sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/face-realism-evidence/src/the-child-case-has-station-inputs.test.ts",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/face-realism-evidence/src/the-dark-atlas-keeps-african-region-chroma.test.ts",
+      "field": "shipped",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/face-realism-evidence/src/the-face-station-replays-a-stored-record.test.ts",
+      "field": "chainManifestSha",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/face-realism-evidence/src/the-renders-ride-the-lidconform-bake.test.ts",
+      "field": "adult.glb_sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/face-realism-evidence/src/the-second-body-cites-the-chain-and-not-the-parent-sheet.test.ts",
+      "field": "chain_manifest_sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/face-realism/src/plan.ts",
+      "field": "chainManifestSha",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/face-realism/src/run-report.json",
+      "field": "chainManifestSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/face-realism/src/station-manifest.json",
+      "field": "chainManifestSha",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/gown-phenotype-evidence/src/gown-phenotype/the-gown-shards-are-measured-before-anything-is-changed.test.ts",
+      "field": "GLB_SHA256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/gown-phenotype-evidence/src/gown-phenotype/the-gown-shell-clearance-is-measured-not-assumed.test.ts",
+      "field": "GLB_SHA256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/no-shipped-humanoid-carries-an-unbound-texture.test.ts",
+      "field": "orphanBytesAfter",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-applied-visemes-move-the-mouth.test.ts",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-flagged-bake-emits-the-hm08-mouth.reproduction.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-physician-teeth-seat-in-its-mouth.measure.json",
+      "field": "glbSha256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-physician-teeth-seat-in-its-mouth.test.ts",
+      "field": "glbSha256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-shipped-teeth-carry-their-texture.test.ts",
+      "field": "validateT3",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/mpfb-hair-materials-carry-their-authored-maps.test.ts",
+      "field": "base.getImage",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/no-shipped-humanoid-texture-dwarfs-its-peers.test.ts",
+      "field": "EXCEPTION_MAP",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-adult-nurse-chest-shows-no-skin-through-the-scrub.test.ts",
+      "field": "liveIsP2e",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-child-defect-sites-are-attributed-from-the-glb.test.ts",
+      "field": "(file)",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-nurse-sternal-t-is-classified-from-the-glb.test.ts",
+      "field": "(file)",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-and-sleeves-show-no-skin-notch.pre-fix.json",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-and-sleeves-show-no-skin-notch.test.ts",
+      "field": "appsActual",
+      "proposed_pin": "no-reader",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s10-heldout-census.fixture.json",
+      "field": "appsGlbSha256, glbSha256",
+      "proposed_pin": "no-reader",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s10e-f1b-parity.fixture.json",
+      "field": "appsGlbSha256, glbSha256",
+      "proposed_pin": "no-reader",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s10h1-classify.fixture.json",
+      "field": "appsGlbSha256, glbSha256",
+      "proposed_pin": "no-reader",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s9-allowance.fixture.json",
+      "field": "appsGlbSha256, glbSha256",
+      "proposed_pin": "no-reader",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-physician-collar-shows-no-skin-notch.pre-fix.json",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-vetted-humanoid-glb-is-the-subject-alone.test.ts",
+      "field": "outputSha256, outputBytes",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/every-humanoid-basecolorfactor-is-resolved.test.ts",
+      "field": "refusalRows",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/shipped-lash-follow-neck-stage.ts",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/shipped-lash-follow-nurse-chest-split.ts",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/the-nurse-chest-split-guards.test.ts",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/the-shipped-lashes-follow-the-lid.test.ts",
+      "field": "inputSha256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/the-shipped-mpfb-garments-record-source-mhclo.test.ts",
+      "field": "actualGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/mouth-verifier-evidence/src/the-evaluator-output-current-20261028.fixture.json",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/mouth-verifier-evidence/src/the-evaluator-output-current-20261028.provenance.json",
+      "field": "glbSHA256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "packages/openclinxr/stations/render-parity/src/drivers/blender_reference.py",
+      "field": "EXPECTED_GLB_SHA256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/trellis-evidence/src/trellis/the-decimated-humanoid-keeps-its-face-and-rig.test.ts",
+      "field": "bytesAfter",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/trellis-evidence/src/trellis/the-face-preserving-rung-keeps-every-face-triangle.test.ts",
+      "field": "bytesAfter",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/xr-scene/src/skin-shader/measure-body-tile-period.ts",
+      "field": "sha256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/anny/humanoid_provenance.py",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
+      "field": "afterBytes",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/anny/rebake_role_wardrobe_blender_only.py",
+      "field": "bytes_",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/eyes/apply_vitruvian_eye_texture.py",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.json",
+      "field": "gitRef",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.no-stage10.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/humanoid-chain/run-chain.test.ts",
+      "field": "KEVIN_SHIPPED",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/humanoid-chain/run-chain.ts",
+      "field": "inSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/humanoid-chain/ship-superset.test.ts",
+      "field": "createHash",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/apply-hem-finish-glb.py",
+      "field": "hashlib.sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/apply_actor_hair_colour.py",
+      "field": "update_provenance",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py",
+      "field": "inputGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/attach-weave-base-color-textures.ts",
+      "field": "afterBytes",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+      "field": "inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/shipped-lash-follow-report.json",
+      "field": "inputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/measure-humanoid-basecolorfactor.py",
+      "field": "main",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/recorded-garment-provenance.ts",
+      "field": "edBakeLineage",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/rehide-poking-skin.py",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/derive_sidecar.ts",
+      "field": "preImageTris",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/transplant_fitted_brow.py",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/transplant_library_hair.py",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/makeclothes/unhide-neckline-opening.py",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/provenance/compose-full-bake-sidecar.ts",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/provenance/run-stage.ts",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/child-conform-report.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/realism-head/lid-conform/child_conform_report.py",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/coherent-normal/bind_skin_normal.py",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/coherent-normal/rebake_actor_skin_normal.py",
+      "field": "bakeInputGlbFullSha",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/coherent-normal/rebind_baked_skin_normal.py",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/coherent-normal/rebind_bound_normal.py",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/face-replay/brow-form-report.json",
+      "field": "chain_manifest_sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/face-replay/chain-manifest.json",
+      "field": "glb_sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/face-replay/child-inputs-report.json",
+      "field": "glb_sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/face-replay/fixtures/second-body/report-crown-step-unlisted.json",
+      "field": "subject_glb_sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/face-replay/second-body-report.json",
+      "field": "chain_manifest_sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/families/apply_family_skin_albedo.py",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/maps/repack_skin_shade.py",
+      "field": "outputSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/roughness-breakup/apply_roughness_breakup.py",
+      "field": "update_provenance",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/vitruvian_dark/report.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/skin/vitruvian_dark/vitruvian_dark_remap.py",
+      "field": "update_provenance",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/trellis/measure-decimation-rows.ts",
+      "field": "bytesAfter",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/trellis/rederive-evidence-drift-2026-09-14.ts",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/asset-pipeline/trellis/repin-decimation-rows.py",
+      "field": "sha256",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/asset-store/historical-glb-migration-20261029.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/asset-store/historical-glb-migration-20261102.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/asset-store/issue288-retrieval-20261027.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/brow-form/renders/browform-ref-shipped.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/canonical-staging-contracts/canonical-staging-contracts.test.ts",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/canonical-staging-contracts/expected-foot-identity.ts",
+      "field": "assetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/canonical-staging-contracts/report.json",
+      "field": "assetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/cast-readiness-stale/the-measured-geometry-artifact-knows-when-it-is-stale.test.ts",
+      "field": "fp.sha256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/face-fit/child-inputs-report.json",
+      "field": "glb_sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/face-morph-census.ts",
+      "field": "(file)",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/fixtures/room-frames/room-frames.manifest.json",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/freshness/historical-measured-station-geometry.json",
+      "field": "fingerprints",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/garment-sleeve-fit-parent-nurse-inventory-2026-08-02.json",
+      "field": "glbBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/gown-fold-clamp-measurement.json",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/gown-fold-residual-diagnose.ts",
+      "field": "glbSha256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/gown-shard-mechanism-measure.ts",
+      "field": "GLB_SHA256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/gown-shell-clearance-measurement.json",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/hair-cage0/cage-spec.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/hair-cage1/cage-spec.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/hair-station0b/hair-inventory.json",
+      "field": "bodySha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/hm08-rig-carry-base-resolve.ts",
+      "field": "sha",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/hm08-rig-carry-cagematch.ts",
+      "field": "actualGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/humanoid-bake/a-humanoid-bake-is-judged-before-it-is-shipped.test.ts",
+      "field": "skinName",
+      "proposed_pin": "other",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/humanoid-vetting/mpfb-nurse-sternal-t-classify.json",
+      "field": "sha256",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/isolated-foot-grounder/capture.ts",
+      "field": "PHYSICIAN_GLB_PATH",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/isolated-foot-grounder/report.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/issue-737/lash-lod/mpfb-clinical-nurse-adult.json",
+      "field": "afterBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/issue-737/lash-lod/mpfb-clinical-physician-adult.json",
+      "field": "afterBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/issue-737/lash-lod/mpfb-family-partner-adult.json",
+      "field": "afterBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/issue-737/lash-lod/mpfb-gown-adult-patient.json",
+      "field": "afterBytes",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts",
+      "field": "shippedDigest",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/licence/selected-scene-asset-lineage.ts",
+      "field": "digest",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/licence/the-selected-scene-assets-have-cleared-byte-lineage.test.ts",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/licence/write-shipped-licence-notice.ts",
+      "field": "rerecordProvenance",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/motion-backend-bakeoff/capture.mts",
+      "field": "actorAssetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/motion-backend-bakeoff/report.json",
+      "field": "actorAssetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/motion-backend-bakeoff/runtime-goal-eval.json",
+      "field": "actorAssetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/motion-backend-bakeoff/runtime-goal-eval.mts",
+      "field": "actorAssetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/motion-backend-bakeoff/the-bakeoff-report-digests-match-the-files-on-disk.test.ts",
+      "field": "actorAssetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/mouth-frame-grade/mouth-frame-grade.ts",
+      "field": "diskSha",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/mouth-frame-grade/teeth-motion.json",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/mouth-open-cap-probe.ts",
+      "field": "servedSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/mouth-open-cap.json",
+      "field": "sourceGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/mpfb-component-census.ts",
+      "field": "(file)",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/natural-blink-emotion/speech-emotion-video/evidence-2026-09-17.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/natural-blink-emotion/speech-emotion-video/evidence-2026-09-18.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/natural-blink-emotion/validate.mjs",
+      "field": "assetHashes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/parent-fitted-teeth/aa.json",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/parent-fitted-teeth/jaw-lip-couple.test.ts",
+      "field": "liveSha",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/parent-fitted-teeth/jaw-lip-gap.json",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/parent-fitted-teeth/recapture-aa.ts",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/parent-fitted-teeth/viseme-realism-baseline.json",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/parent-fitted-teeth/visemes/viseme-realism.json",
+      "field": "baselineGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/parent-visemes02-stills.ts",
+      "field": "sourceGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/parent-visemes02.json",
+      "field": "sourceGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/peds-parent-nurse-real-garment-reorchestrate-inventory-2026-08-02.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/realism-head/eyes/census.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/realism-head/eyes/compat-report.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/realism-head/eyes/eye-census.ts",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/realism-head/mouth/census.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/realism-head/mouth/compat-report.json",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/realism-head/mouth/mouth-census.ts",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/room-ward-finish-chain/ship-ward-provenance.ts",
+      "field": "produceSupineControlFreeze",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/scene-closure/proofs/sc-00/build-report.ts",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/scene-closure/proofs/sc-04/build-report.ts",
+      "field": "sha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/baseline-replay-probe.ts",
+      "field": "physicianSha",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/requalification-20261009/report.json",
+      "field": "assetsActual",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/requalification-plant-20261009/baseline.json",
+      "field": "assetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/scene-closure/proofs/sc-06/verify.ts",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/scene-closure/proofs/sc-07/closure-inspection.ts",
+      "field": "assetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/scene-closure/proofs/sc-08/closure-inspection.ts",
+      "field": "assetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/scene-closure/proofs/sc-09/closure-inspection.ts",
+      "field": "assetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/shipped-blink-closure/closure-report.json",
+      "field": "controlSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/kevin-openings-footprint-mask.provenance.json",
+      "field": "(file)",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/pre-e9-footprint-mask.provenance.json",
+      "field": "sourceGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/skin-footprint-inpaint/the-nurse-hide-footprint-is-filled-from-its-own-skin.test.ts",
+      "field": "GLB_SHAS",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/skin-realism/runtime-portrait-capture.ts",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/speaking-parent-still-pair-probe.ts",
+      "field": "sourceGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/speaking-parent-still-pair.json",
+      "field": "sourceGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/supine-control-freeze/output-root-isolation.test.ts",
+      "field": "assetSha256ByPath",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json",
+      "field": "assetSha256ByPath, producedFrom.byteCountByPath",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts",
+      "field": "computeAssetHashes",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/supine-control-freeze/the-supine-control-station-is-frozen-by-asset-bytes.test.ts",
+      "field": "changedPaths",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/ui-xr-viseme-drive-capture.ts",
+      "field": "subjectAssetSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/unbound-texture-prune-2026-10-30.json",
+      "field": "fileBytesAfter",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/unbound-texture-prune.json",
+      "field": "fileBytesAfter",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/evidence/viseme-inspect-stills-probe.ts",
+      "field": "servedSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/viseme-inspect-stills.json",
+      "field": "subjectGlbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/walk-clip/clip-census-stage4.ts",
+      "field": "ensureServedGlb",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/evidence/walk-clip/walk-clip-census.ts",
+      "field": "sourceSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/measure-station-geometry.ts",
+      "field": "bytes",
+      "proposed_pin": "accessor-digest",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/mouth-solver/solved-teeth-gap.json",
+      "field": "glbSha256",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/openclaw/agentic-hook-runner.ts",
+      "field": "buildLargeFileGuardCommand",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/openclaw/large-file-guard.ts",
+      "field": "checkFile",
+      "proposed_pin": "other",
+      "reader": "yes"
+    },
+    {
+      "file": "tools/openclinxr/openclaw/tools-cruft-baseline.json",
+      "field": "unreferencedPy",
+      "proposed_pin": "other",
+      "reader": "no"
+    },
+    {
+      "file": "tools/openclinxr/openclaw/tools-cruft-gate.ts",
+      "field": "(file)",
+      "proposed_pin": "other",
+      "reader": "no"
+    }
+  ]
+}

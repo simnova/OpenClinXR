@@ -44,6 +44,10 @@
         "kind": "runtime"
       },
       {
+        "name": "postExportLevelPreserves",
+        "kind": "runtime"
+      },
+      {
         "name": "repoRoot",
         "kind": "runtime"
       }

@@ -25,15 +25,15 @@ reason goes on its stdout line (and RESULT). There is no brown fallback path.
 mhair02 hair materials are refused (another card).
 Images are named after their content (FU1 F4a): hair-diffuse-<token>.png for the
 recoloured diffuse, hair-normal-<style>.png for the normal map.
+Pass --output-provenance to record the derived GLB and material wiring in a new
+sidecar. The source sidecar must pin the input bytes.
 """
 from __future__ import annotations
 
 import argparse
-import hashlib
 import io
 import json
 import re
-import struct
 import sys
 from pathlib import Path
 
@@ -238,11 +238,21 @@ def apply_maps(
     return doc, new_binary, record
 
 
+def paths_alias(first: Path, second: Path) -> bool:
+    if first.resolve() == second.resolve():
+        return True
+    try:
+        return first.samefile(second)
+    except FileNotFoundError:
+        return False
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--glb", type=Path, required=True)
     parser.add_argument("--output", type=Path, default=None)
     parser.add_argument("--provenance", type=Path, default=None)
+    parser.add_argument("--output-provenance", type=Path, default=None)
     parser.add_argument("--phenotypes", type=Path, default=None)
     parser.add_argument("--hair-cache", type=Path, default=DEFAULT_HAIR_CACHE)
     parser.add_argument("--no-provenance", action="store_true")
@@ -276,6 +286,19 @@ def main() -> None:
     target_rgb = tuple(float(v) for v in authored_hair_color_rgba(token)[:3])
 
     source_raw = args.glb.read_bytes()
+    input_sha = sha_bytes(source_raw)
+    output_provenance = args.output_provenance
+    provenance = None
+    if output_provenance is not None:
+        if provenance_path is None:
+            raise RuntimeError("output provenance requires an input sidecar")
+        if paths_alias(output_provenance, args.glb) or paths_alias(output_provenance, output):
+            raise RuntimeError("output provenance cannot overwrite GLB bytes")
+        if paths_alias(output_provenance, provenance_path):
+            raise RuntimeError("output provenance cannot overwrite its input sidecar")
+        provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+        if provenance.get("outputSha256") != input_sha or provenance.get("outputBytes") != len(source_raw):
+            raise RuntimeError("input sidecar does not pin the pre-image GLB")
     doc, binary = parse_glb(source_raw)
 
     mats = doc.get("materials", [])
@@ -307,15 +330,36 @@ def main() -> None:
 
     doc, new_binary, record = apply_maps(doc, binary, diffuse_png, diffuse_name, normal_src, normal_name, roughness)
     output_raw = encode_glb(doc, new_binary)
+    output_sha = sha_bytes(output_raw)
+    if provenance is not None:
+        recorded_before = {key: provenance[key] for key in ("outputSha256", "outputBytes", "byteLineage")
+                           if key in provenance}
+        provenance["outputSha256"] = output_sha
+        provenance["outputBytes"] = len(output_raw)
+        provenance["byteLineage"] = {
+            "preImageFile": str(args.glb),
+            "preImageSha256": input_sha,
+            "derivationArgv": ["mise", "exec", "--", "python3", "-I", TOOL, *sys.argv[1:]],
+            "recordedBefore": recorded_before,
+            "stageRecord": {
+                "wiredMaterials": [{
+                    "materialName": record["materialName"],
+                    "texturesAdded": record["texturesAdded"],
+                }],
+            },
+        }
     output.parent.mkdir(parents=True, exist_ok=True)
     output.write_bytes(output_raw)
+    if output_provenance is not None and provenance is not None:
+        output_provenance.parent.mkdir(parents=True, exist_ok=True)
+        output_provenance.write_text(json.dumps(provenance, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
     print(
         json.dumps(
             {
                 "stage": STAGE,
                 "tool": TOOL,
-                "inputGlbSha256": sha_bytes(source_raw),
-                "outputGlbSha256": sha_bytes(output_raw),
+                "inputGlbSha256": input_sha,
+                "outputGlbSha256": output_sha,
                 "outputBytes": len(output_raw),
                 "bytesAdded": len(output_raw) - len(source_raw),
                 "hairStyle": style,

@@ -10,6 +10,16 @@
     ]
   },
   {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "postExportLevelPreserves",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/factory-stations",
     "entrypoint": ".",
     "names": [

@@ -14,6 +14,20 @@
     ]
   },
   {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "POST_EXPORT_STAGE_REGISTRY",
+        "kind": "runtime"
+      },
+      {
+        "name": "PostExportStage",
+        "kind": "type"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/factory-stations",
     "entrypoint": ".",
     "names": [

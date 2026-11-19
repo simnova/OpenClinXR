@@ -5,10 +5,11 @@
  */
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { deflateSync } from "node:zlib";
+import { POST_EXPORT_STAGE_REGISTRY } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 import {
   CHAIN_CLAIM_SCOPE,
@@ -17,6 +18,7 @@ import {
   runChain,
   validateManifest,
 } from "./run-chain";
+import { type GltfRoot, readGlb } from "./ship-superset";
 
 const FAKE = "tools/openclinxr/asset-pipeline/humanoid-chain/tests/helpers/fake-stage.mjs";
 const FAKE_FAIL = "tools/openclinxr/asset-pipeline/humanoid-chain/tests/helpers/fake-fail-stage.mjs";
@@ -105,6 +107,108 @@ describe("validateManifest", () => {
       }),
     ).toThrow(/required non-empty note/);
   });
+});
+
+describe("family-partner post-export chain", () => {
+  const actor = "mpfb-family-partner-adult";
+  const stageName = "24-hair-material-maps";
+  const asset = `apps/ui-xr/public/generated-humanoids/${actor}.glb`;
+  const materialName = "openclinxr_fitted_hair_toigo_curled_under_bob_mpfb_ed_chest_pain_spouse_adult_mat";
+  const preImageSha = "1fd58873ddba9519d442396635bd2d91a08c8b4b63606b186ecc56a9c0f5cb8b";
+  const sha256 = (raw: Buffer) => createHash("sha256").update(raw).digest("hex");
+
+  function hairEvidence(path: string) {
+    const { json, bin } = readGlb(path);
+    type TextureRef = { index: number };
+    const doc = json as GltfRoot & {
+      materials: { name: string; pbrMetallicRoughness: { baseColorTexture: TextureRef }; normalTexture: TextureRef }[];
+      textures: { source: number; sampler: number }[];
+      samplers: Record<string, number>[];
+      images: { name: string; mimeType: string; bufferView: number }[];
+    };
+    const material = doc.materials.find((entry) => entry.name === materialName);
+    if (!material) throw new Error(`missing material ${materialName} in ${path}`);
+    const textures = [material.pbrMetallicRoughness.baseColorTexture, material.normalTexture].map(({ index }) => {
+      const texture = doc.textures[index]!;
+      const { name, mimeType, bufferView } = doc.images[texture.source]!;
+      const { byteOffset = 0, byteLength } = doc.bufferViews![bufferView]!;
+      if (byteLength === undefined) throw new Error(`missing image byte length for ${name}`);
+      return { name, mimeType, texture, sampler: doc.samplers[texture.sampler], bytes: bin.subarray(byteOffset, byteOffset + byteLength) };
+    });
+    return { material, textures };
+  }
+
+  it("P1: the manifest validator refuses an unregistered post-export stage and the chain replays it when registered", () => {
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "chain-family-partner-"));
+    try {
+      const root = process.cwd();
+      const manifestPath = join(root, `tools/openclinxr/asset-pipeline/humanoid-chain/manifests/${actor}.post-export.json`);
+      const input = join(dir, "pre.glb");
+      const shipped = join(dir, "shipped.glb");
+      const gitBlob = (rev: string) => execFileSync("git", ["show", `${rev}:${asset}`], { maxBuffer: 64 * 1024 * 1024 });
+      const preImage = gitBlob("c613e86e8^");
+      expect(sha256(preImage)).toBe(preImageSha);
+      writeFileSync(input, preImage);
+      writeFileSync(shipped, gitBlob("c613e86e8"));
+
+      const tool = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
+      const postExportRegistry = { ...POST_EXPORT_STAGE_REGISTRY };
+      delete postExportRegistry[tool];
+      const refused = join(dir, "refused");
+      expect(() => {
+        try {
+          runChain({ root, manifestPath, input, out: refused, postExportRegistry });
+        } catch (error) {
+          console.info("P1 omitted registration:", (error as Error).message);
+          throw error;
+        }
+      }).toThrow(`unregistered post-export tool: ${tool}`);
+      expect(existsSync(refused)).toBe(false);
+
+      const out = join(dir, "out");
+      const started = performance.now();
+      const report = runChain({ root, manifestPath, input, out });
+      console.info(`P1 replay runtime: ${Math.round(performance.now() - started)} ms`);
+      expect(report.status).toBe("complete");
+      expect(report.stages).toMatchObject([{ id: "24", tool, inSha256: preImageSha }]);
+      const result = hairEvidence(join(out, `${stageName}.glb`));
+      const expected = hairEvidence(shipped);
+      expect(result.material).toEqual(expected.material);
+      expect(result.material).toEqual({
+        name: materialName,
+        doubleSided: true,
+        pbrMetallicRoughness: { roughnessFactor: 0.98039, metallicFactor: 0, baseColorTexture: { index: 10 } },
+        normalTexture: { index: 11 },
+        alphaMode: "MASK",
+        alphaCutoff: 0.2,
+      });
+      expect(result.textures.map(({ bytes, ...refs }) => ({ ...refs, sha256: sha256(bytes) }))).toEqual(
+        expected.textures.map(({ bytes, ...refs }) => ({ ...refs, sha256: sha256(bytes) })),
+      );
+      expect(result.textures.map(({ bytes }) => sha256(bytes))).toEqual([
+        "cf089d44bacecd763c330c151fce7606f05512481bd071aed42379e858606f20",
+        "f0b761f31129ef5f808394a4f71b04e902fbd5eadfcad0f3ae0c8d89f87a73cb",
+      ]);
+      expect(result.textures.every(({ bytes }, index) => bytes.equals(expected.textures[index]!.bytes))).toBe(true);
+
+      const record = JSON.parse(readFileSync(join(out, `${stageName}.provenance.json`), "utf8"));
+      const prior = JSON.parse(readFileSync(join(out, ".inputs/pre.provenance.json"), "utf8"));
+      expect(record.outputSha256).toBe(report.stages[0]!.outSha256);
+      expect(record.byteLineage.recordedBefore).toEqual({
+        outputSha256: preImageSha,
+        outputBytes: preImage.length,
+        byteLineage: prior.byteLineage,
+      });
+      expect(record.byteLineage.preImageSha256).toBe(preImageSha);
+      expect(record.byteLineage.derivationArgv).toContain(tool);
+      expect(record.byteLineage.stageRecord).toEqual({
+        wiredMaterials: [{ materialName, texturesAdded: [10, 11] }],
+      });
+      console.info("P1 scratch sidecar stageRecord:", JSON.stringify(record.byteLineage.stageRecord));
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 60_000);
 });
 
 describe("shipped kevin manifest (read-only validation, no stage runs)", () => {

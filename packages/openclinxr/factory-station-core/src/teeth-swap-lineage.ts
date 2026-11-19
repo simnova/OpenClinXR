@@ -1,16 +1,6 @@
-/**
- * Shared teeth-swap byte-lineage continuity rule (kevin-collar s10h4 B2).
- *
- * Extracted verbatim from validateT3LineageChain in
- * packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-shipped-teeth-carry-their-texture.test.ts
- * so the trellis face-preserving check enforces the SAME rule without importing
- * from a .test.ts file (refused). Behaviour-identical by construction: the T3
- * test keeps its argvWords/argvHasExactTool/SWAP_TOOL_INVOCATION/
- * TONGUE_TOOL_INVOCATION/isCombinedSwapPostLevel locals (FU8 owns those) and
- * passes its predicate in; the trellis mouth-swap check passes its own mirror.
- * No maps-level peel lives here (FU8 owns that).
- */
+import { postExportLevelStages } from "./post-export-stage-registry.js";
 
+/** Shared teeth-swap byte-lineage continuity rule for T3 and trellis evidence. */
 /** One recorded derivation level in sidecar byteLineage. */
 export type ByteLineageLevel = {
   preImageRevision?: string;
@@ -34,7 +24,7 @@ export type NeckChainSidecar = {
   teethSwapB1?: TeethSwapBlock;
 };
 
-/** Walk sidecar.byteLineage -> recordedBefore.byteLineage -> ... oldest-first. */
+/** Walk sidecar.byteLineage -> recordedBefore.byteLineage -> ... newest-first. */
 export function lineageLevels(sidecar: Record<string, unknown>): ByteLineageLevel[] {
   const levels: ByteLineageLevel[] = [];
   let cur = (sidecar as NeckChainSidecar).byteLineage;
@@ -52,7 +42,6 @@ export function lineageLevels(sidecar: Record<string, unknown>): ByteLineageLeve
  * derivation input, so per-level junction (pre === recordedBefore.output)
  * cannot hold for the chain level by construction; the chain level instead
  * must name the tracked pre-image revision + sha below. */
-export const P2E_CHAIN_SCRIPT = "nurse-vneck-chain.py";
 const P2E_CHAIN_PREIMAGE_REV =
   "c1da76fb4:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb";
 const P2E_CHAIN_PREIMAGE_SHA256 =
@@ -68,7 +57,10 @@ const P2E_CHAIN_PREIMAGE_SHA256 =
  */
 export function assertLineageContinuity(actor: string, levels: ByteLineageLevel[]): void {
   for (const [index, level] of levels.entries()) {
-    if ((level.derivationArgv ?? []).join(" ").includes(P2E_CHAIN_SCRIPT)) {
+    const stages = postExportLevelStages(level.derivationArgv);
+    if (stages?.some((stage) =>
+      stage.mutates.includes("nurse-neckline-indices") && stage.mutates.includes("skin-image"),
+    )) {
       // F1 chain level: the one derivation spans both stages, so junction
       // against recordedBefore cannot hold; require the tracked pre-image.
       if (
@@ -98,27 +90,17 @@ export function assertLineageContinuity(actor: string, levels: ByteLineageLevel[
  * on exactly the bytes the pin it supersedes named). The F1 chain level is exempt by construction
  * (one derivation spanning both stages; recordedBefore is the superseded same-bytes pin) and must
  * name the tracked c1da76fb4 pre-image instead. The walked chain must contain the
- * teeth-swap record (swap_teeth.py in argv) with the #741 record (fix(#741) in why
- * or tongue-forward-place.ts in argv) either nested older still, or carried by the
- * swap level itself: a single level that ran both the swap and the #741 post-step
- * (the kevin combined derivation) satisfies the ordering by its contents, at any
- * depth. The combined case is contents-identified by the EXACT tool invocations
- * in derivationArgv (full swap + tongue-forward paths): free-form why text never
- * suffices, so a forged fix(#741) note on a swap level whose argv lacks the
- * tongue-forward invocation still refuses. Otherwise the #741 search is scoped
- * to levels older than the swap level, so a newer-only #741 still refuses
- * instead of passing.
- *
- * The combined-swap predicate is injected by the caller (the T3 test owns the
- * exact-word argvWords/argvHasExactTool helpers; FU8 owns that surface), so this
- * module never matches tool paths itself.
+ * registered mouth-geometry stage with a #741 record nested at an older level,
+ * or a combined level that also mutates tongue positions. A historical #741
+ * note can identify a separate older level, but combined ordering requires
+ * both mutation domains in the registered level.
  */
 export function validateT3LineageChain(
   actor: string,
   live: string,
   sidecar: Record<string, unknown>,
   block: TeethSwapBlock,
-  isCombinedSwapPostLevel: (level: ByteLineageLevel) => boolean,
+  isCombinedSwapPostLevel?: (level: ByteLineageLevel) => boolean,
 ): void {
   const chain = sidecar as NeckChainSidecar;
   if (chain.outputSha256 !== live) {
@@ -129,13 +111,14 @@ export function validateT3LineageChain(
     throw new Error(`T3 chain ${actor}: teethSwapB1 output does not pin this GLB and no byteLineage chain exists`);
   }
   assertLineageContinuity(actor, levels);
-  const argvText = (level: ByteLineageLevel): string => (level.derivationArgv ?? []).join(" ");
-  const matchesSwap = (level: ByteLineageLevel): boolean => argvText(level).includes("swap_teeth.py");
-  const matches741 = (level: ByteLineageLevel): boolean =>
-    (level.why ?? "").includes("fix(#741)") || argvText(level).includes("tongue-forward-place.ts");
-  const swapIndex = levels.findIndex(matchesSwap);
+  const stages = levels.map((level) => postExportLevelStages(level.derivationArgv));
+  const mutates = (index: number, domain: string): boolean =>
+    stages[index]?.some((stage) => stage.mutates.includes(domain)) ?? false;
+  const matches741 = (level: ByteLineageLevel, index: number): boolean =>
+    (level.why ?? "").includes("fix(#741)") || mutates(index, "tongue-positions");
+  const swapIndex = levels.findIndex((_level, index) => mutates(index, "mouth-geometry"));
   if (swapIndex < 0) {
-    throw new Error(`T3 chain ${actor}: no teeth-swap derivation record (swap_teeth.py) in the byteLineage chain`);
+    throw new Error(`T3 chain ${actor}: no teeth-swap derivation record in the byteLineage chain`);
   }
   const fix741Index = levels.findIndex(matches741);
   if (fix741Index < 0) {
@@ -152,8 +135,11 @@ export function validateT3LineageChain(
     }
     return level;
   };
-  if (!isCombinedSwapPostLevel(at(swapIndex))) {
-    const older741 = levels.findIndex((level, index) => index > swapIndex && matches741(level));
+  if (
+    !mutates(swapIndex, "tongue-positions") ||
+    (isCombinedSwapPostLevel && !isCombinedSwapPostLevel(at(swapIndex)))
+  ) {
+    const older741 = levels.findIndex((level, index) => index > swapIndex && matches741(level, index));
     if (older741 < 0) {
       throw new Error(`T3 chain ${actor}: the #741 record must nest older than the teeth-swap record`);
     }
@@ -170,5 +156,9 @@ export function validateT3LineageChain(
     throw new Error(
       `T3 chain ${actor}: post-swap level preImageSha256 ${at(swapIndex - 1).preImageSha256} != teethSwapB1 output ${block.output?.sha256}`,
     );
+  }
+  const unresolved = stages.indexOf(undefined);
+  if (unresolved >= 0) {
+    throw new Error(`T3 chain ${actor} L${unresolved}: unregistered post-export level`);
   }
 }

@@ -113,6 +113,9 @@ importers:
       '@openclinxr/compute-slots':
         specifier: workspace:*
         version: link:packages/openclinxr/compute-slots
+      '@openclinxr/factory-station-core':
+        specifier: workspace:*
+        version: link:packages/openclinxr/factory-station-core
       '@openclinxr/factory-stations':
         specifier: workspace:*
         version: link:packages/openclinxr/factory-stations

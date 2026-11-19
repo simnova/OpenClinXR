@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
-import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { postExportLevelPreserves, repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 import { hasValidProvenance, proceduralGownSourceHash } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts";
 import { edBakeLineage, isLegacyRecordedProceduralGown, RECORDED_GOWN_GENERATOR_TOOL } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/recorded-garment-provenance.ts";
@@ -178,13 +178,38 @@ describe("the shipped MPFB garments record source-family provenance", () => {
     ).toBe(false);
   });
 
+  it("P2: refuses Robert's unregistered post-export tool with intact SHA links", async () => {
+    const actor = "mpfb-gown-ed-robert-hayes.glb";
+    const glbPath = join(DIR, actor);
+    const doc = await new NodeIO().read(glbPath);
+    const gown = doc.getRoot().listMeshes().find((mesh) => GOWN_MESH_RE.test(mesh.getName()))!;
+    const sidecar = JSON.parse(readFileSync(join(DIR, actor.replace(".glb", ".provenance.json")), "utf8"));
+    const args = {
+      meshName: gown.getName(),
+      extras: gown.getExtras(),
+      sidecar,
+      sidecarAssetPath: sidecar.assetPath,
+      expectedAssetPath: `apps/ui-xr/public/generated-humanoids/${actor}`,
+      actualGlbSha256: createHash("sha256").update(readFileSync(glbPath)).digest("hex"),
+      generatorFileExists: existsSync(join(REPO, GENERATOR_REL)),
+    };
+    expect(isLegacyRecordedProceduralGown(args).ok).toBe(true);
+    const top = sidecar.byteLineage;
+    const tool = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
+    const toolIndex = top.derivationArgv.indexOf(tool);
+    expect(toolIndex).toBeGreaterThanOrEqual(0);
+    expect(top.preImageSha256).toBe(top.recordedBefore.outputSha256);
+    top.derivationArgv[toolIndex] = "tools/openclinxr/asset-pipeline/makeclothes/unregistered_stage.py";
+    expect(isLegacyRecordedProceduralGown(args)).toEqual({ ok: false, failed: "C5" });
+  });
+
   it("(4) edBakeLineage P1: broken link at depth 2 refuses (C5)", () => {
     const bake = {
       derivationArgv: ["blender", "--background", "--python", RECORDED_GOWN_GENERATOR_TOOL, "--", "--input-glb", "x"],
       inputSha256: "2".repeat(64),
     };
     const depth1 = {
-      derivationArgv: ["sh", "-c", "teeth-swap post-step"],
+      derivationArgv: ["sh", "-c", "mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py"],
       preImageSha256: "a".repeat(64),
       recordedBefore: { outputSha256: "b".repeat(64), byteLineage: bake },
     };
@@ -204,7 +229,7 @@ describe("the shipped MPFB garments record source-family provenance", () => {
       inputSha256: "2".repeat(64),
     };
     const top = {
-      derivationArgv: ["sh", "-c", "teeth-swap post-step"],
+      derivationArgv: ["sh", "-c", "mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py"],
       preImageSha256: "a".repeat(64),
       recordedBefore: { outputSha256: "a".repeat(64), byteLineage: bake },
     };
@@ -215,12 +240,12 @@ describe("the shipped MPFB garments record source-family provenance", () => {
 
   it("(6) edBakeLineage P3: no --python level reachable refuses", () => {
     const bottom = {
-      derivationArgv: ["sh", "-c", "teeth-rest post-step"],
+      derivationArgv: ["sh", "-c", "pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts"],
       preImageSha256: "a".repeat(64),
       recordedBefore: { outputSha256: "a".repeat(64) },
     };
     const top = {
-      derivationArgv: ["sh", "-c", "teeth-swap post-step"],
+      derivationArgv: ["sh", "-c", "mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py"],
       preImageSha256: "b".repeat(64),
       recordedBefore: { outputSha256: "b".repeat(64), byteLineage: bottom },
     };
@@ -264,5 +289,33 @@ describe("the shipped MPFB garments record source-family provenance", () => {
     expect(edBakeLineage(
       (JSON.parse(readFileSync(join(DIR, "mpfb-gown-ed-robert-hayes.provenance.json"), "utf8")) as Record<string, unknown>)["byteLineage"],
     )).toMatchObject({ derivationArgv: expect.arrayContaining(["--python"]) });
+  });
+});
+
+const MAPS_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
+const UNKNOWN_TOOL = "tools/unregistered.py";
+const SHELL_PLANTS = {
+  semicolon: `python3 ${UNKNOWN_TOOL}; python3 ${MAPS_TOOL}`,
+  "and list": `python3 ${UNKNOWN_TOOL}&& python3 ${MAPS_TOOL}`,
+  pipeline: `python3 ${UNKNOWN_TOOL}| python3 ${MAPS_TOOL}`,
+  "command substitution": `echo $(python3 ${UNKNOWN_TOOL}); python3 ${MAPS_TOOL}`,
+  newline: `python3 ${UNKNOWN_TOOL}\npython3 ${MAPS_TOOL}`,
+  "mixed quoting": `python3 'tools/'"unregistered.py"; python3 "${MAPS_TOOL}"`,
+};
+
+describe("post-export shell lineage", () => {
+  it.each([
+    ["report argument", `python3 ${MAPS_TOOL} --report tools/x.json`],
+    ["heredoc data", `python3 ${MAPS_TOOL}; cat <<'EOF'\ntools/x.json\nEOF`],
+  ])("R4: accepts tool-directory data in a %s", (_name, shell) => {
+    expect(postExportLevelPreserves(["sh", "-c", shell], "procedural-gown-lineage")).toBe(true);
+  });
+
+  it("recognizes the registered maps stage terminated by shell punctuation", () => {
+    expect(postExportLevelPreserves(["sh", "-c", `python3 "${MAPS_TOOL}";`], "procedural-gown-lineage")).toBe(true);
+  });
+
+  it.each(Object.entries(SHELL_PLANTS))("refuses an unregistered tool beside a registered one (%s)", (_name, shell) => {
+    expect(postExportLevelPreserves(["sh", "-c", shell], "procedural-gown-lineage")).toBe(false);
   });
 });

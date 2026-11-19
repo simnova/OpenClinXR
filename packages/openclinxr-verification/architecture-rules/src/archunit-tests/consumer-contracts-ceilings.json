@@ -16,7 +16,7 @@
     }
   },
   "mixed": {
-    "total": 64,
+    "total": 65,
     "byProvider": {
       "@cellix/config-vitest": 1,
       "@openclinxr/asset-registry": 15,
@@ -27,6 +27,7 @@
       "@openclinxr/domain": 1,
       "@openclinxr/exam-assembly": 1,
       "@openclinxr/factory-stations": 3,
+      "@openclinxr/factory-station-core": 1,
       "@openclinxr/graphql": 1,
       "@openclinxr/model-gateway": 1,
       "@openclinxr/rest": 1,

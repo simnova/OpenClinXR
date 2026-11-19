@@ -24,7 +24,8 @@ import type {
 } from "@openclinxr/factory-station-core/runner";
 import {
   lineageLevels,
-  P2E_CHAIN_SCRIPT,
+  postExportLevelPreserves,
+  postExportLevelStages,
   repoRoot,
   validateT3LineageChain,
 } from "@openclinxr/factory-station-core/runner";
@@ -329,12 +330,12 @@ const NURSE_BODY_PRIM0_SLOT = "primitive[0].indices";
 /** Pre-E9 nurse bytes (recorded pre-image descriptor): the rehide split's union baseline.
  * P2e-C (cap31, 2026-11-16) added newer levels on top (r2 F1: the single-run
  * inpaint+un-hide chain with a c1da76fb4 revision pre-image), so the baseline
- * comes from the E9 rehide level by content (rehide-poking-skin.py in argv),
+ * comes from the registered level that changes hidden skin indices,
  * never from the top level. */
 const nurseBaselineCache = new Map<string, Glb>();
 function e9Level(sidecar: Record<string, unknown>): ByteLineageLevel {
   const found = lineageLevels(sidecar).find((level) =>
-    (level.derivationArgv ?? []).join(" ").includes("rehide-poking-skin.py"),
+    mutates(level.derivationArgv, "hidden-skin-indices"),
   );
   if (!found) throw new Error("T3 E9 chest: sidecar byteLineage carries no E9 rehide level");
   return found;
@@ -429,10 +430,8 @@ function nurseChestWitness(
   // second-to-last. A +2 live body without the un-hide record on top refuses
   // (not an E9-shaped live).
   const extra = prims.length - basePrims.length;
-  const newestArgv = (lineageLevels(sidecar)[0]?.derivationArgv ?? []).join(" ");
-  const p2eAppend =
-    extra === 2 &&
-    (newestArgv.includes("nurse-vneck-6tri-unhide.py") || newestArgv.includes(P2E_CHAIN_SCRIPT));
+  const newestArgv = lineageLevels(sidecar)[0]?.derivationArgv;
+  const p2eAppend = extra === 2 && mutates(newestArgv, "nurse-neckline-indices");
   if (extra !== 1 && !p2eAppend) {
     throw new Error(
       `T3 E9 chest: live body prims ${prims.length} != baseline ${basePrims.length} + 1` +
@@ -479,6 +478,13 @@ function nurseChestWitness(
   };
 }
 
+function isNurseChestSplitWithLineage(witness: ReturnType<typeof nurseChestWitness>): boolean {
+  const { derivationArgvs, ...geometry } = witness;
+  const rehide = derivationArgvs.findIndex((argv) => mutates(argv, "hidden-skin-indices"));
+  const swap = derivationArgvs.findIndex((argv) => mutates(argv, "mouth-geometry"));
+  return rehide >= 0 && rehide < swap && isNurseChestStageSplit(geometry);
+}
+
 function nurseChestRowOrThrow(
   actor: string,
   glb: Glb,
@@ -488,7 +494,7 @@ function nurseChestRowOrThrow(
 ): void {
   // M1: the ONE shared predicate owns the kept-role pin — no caller-local copy.
   const witness = nurseChestWitness(glb, baseline, sidecar, rowAccessorIndex);
-  if (!isNurseChestStageSplit(witness)) {
+  if (!isNurseChestSplitWithLineage(witness)) {
     const chain = lineageLevels(sidecar)
       .map((level) => (level.derivationArgv ?? []).join(" "))
       .join(" <- ");
@@ -500,31 +506,20 @@ function nurseChestRowOrThrow(
   }
 }
 
-/**
- * Combined swap+post level (kevin-colour h2 F3, hardened h3): the swap level
- * carries the ordering ONLY when derivationArgv names the EXACT swap tool
- * invocation AND the EXACT tongue-forward tool invocation. Live token shape
- * (read from the shipped sidecar): the combined level's derivationArgv is
- * ["sh", "-c", "<one shell script>", "x", ...] — both tool paths sit
- * singly-quoted INSIDE that single sh -c token, not as separate argv
- * tokens, so bare `some(a => a === TOOL)` would RED the live shape.
- * Exactness is therefore word-token equality: each argv token is split on
- * whitespace/quotes and the full tool path must appear as a whole word.
- * A forged token that prefixes/suffixes the path (FORGED-<path>-FORGED)
- * stays one word and never equals the tool, so basename/substring markers
- * and free-form why text never suffice.
- *
- * These helpers stay in this test (FU8 owns this surface): the shared
- * validateT3LineageChain takes isCombinedSwapPostLevel as a parameter.
- */
-const SWAP_TOOL_INVOCATION = "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py";
-const TONGUE_TOOL_INVOCATION = "tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts";
-const argvWords = (level: ByteLineageLevel): string[] =>
-  (level.derivationArgv ?? []).flatMap((a) => a.split(/[\s'"]+/).filter((w) => w.length > 0));
-const argvHasExactTool = (level: ByteLineageLevel, tool: string): boolean =>
-  argvWords(level).some((w) => w === tool);
-const isCombinedSwapPostLevel = (level: ByteLineageLevel): boolean =>
-  argvHasExactTool(level, SWAP_TOOL_INVOCATION) && argvHasExactTool(level, TONGUE_TOOL_INVOCATION);
+const SWAP_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py";
+const TONGUE_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts";
+const MAPS_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
+// Robert's Blender genesis is the one producer exempt from post-export registration.
+// Its --python operand must be the exact repo-relative path, as in hasConcreteLineage.
+const ROBERT_GENESIS_TOOL = "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py";
+
+function mutates(argv: unknown, domain: string): boolean {
+  return postExportLevelStages(argv)?.some((stage) => stage.mutates.includes(domain)) ?? false;
+}
+
+const matchesSwap = (level: ByteLineageLevel): boolean => mutates(level.derivationArgv, "mouth-geometry");
+const matches741 = (level: ByteLineageLevel): boolean =>
+  (level.why ?? "").includes("fix(#741)") || mutates(level.derivationArgv, "tongue-positions");
 
 function sidecarFor(actor: string): Record<string, unknown> {
   return JSON.parse(readFileSync(join(DIR, actor.replace(/\.glb$/, ".provenance.json")), "utf8")) as Record<
@@ -542,22 +537,14 @@ function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>, l
     return;
   }
   const live = liveOverride ?? sha256(glb.raw);
-  // FU8 MAPS-TOIGO peel (actor-free, single): a top post-export maps level is
-  // peeled when it names the exact stage tool, the sidecar top pin matches the
-  // live GLB, and its pre-image matches the recorded pin it supersedes. The
-  // existing branches below then run unchanged on recordedBefore as the
-  // sidecar with live' = preImageSha256. A top maps level that fails (ii) or
-  // (iii) throws here and never falls through to the old branches. At most one
-  // peel: a stacked (nested) maps level throws instead of peeling again.
-  const MAPS_TOOL_INVOCATION =
-    "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
-  const chainLevels = lineageLevels(sidecar);
-  const topLevel = chainLevels[0];
-  if (topLevel !== undefined && argvHasExactTool(topLevel, MAPS_TOOL_INVOCATION)) {
+  // A registered stage that preserves teeth-swap evidence can move the byte pin. Revalidate the SHA junction before
+  // peeling exactly one level and checking the original swap evidence.
+  const [topLevel, priorLevel] = lineageLevels(sidecar);
+  if (topLevel && postExportLevelPreserves(topLevel.derivationArgv, "teeth-swap-evidence")) {
     const recorded = topLevel.recordedBefore;
     if ((sidecar as NeckChainSidecar).outputSha256 !== live) {
       throw new Error(
-        `T3 maps peel ${actor}: top level names the maps stage but sidecar top ${(sidecar as NeckChainSidecar).outputSha256} != live ${live}`,
+        `T3 post-export peel ${actor}: sidecar top ${(sidecar as NeckChainSidecar).outputSha256} != live ${live}`,
       );
     }
     const livePrime = topLevel.preImageSha256;
@@ -568,16 +555,16 @@ function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>, l
       livePrime !== recorded.outputSha256
     ) {
       throw new Error(
-        `T3 maps peel ${actor}: top level preImageSha256 ${topLevel.preImageSha256} != recordedBefore.outputSha256 ${recorded?.outputSha256}`,
+        `T3 post-export peel ${actor}: top level preImageSha256 ${topLevel.preImageSha256} != recordedBefore.outputSha256 ${recorded?.outputSha256}`,
       );
     }
-    if (chainLevels.length > 1 && argvHasExactTool(chainLevels[1]!, MAPS_TOOL_INVOCATION)) {
-      throw new Error(`T3 maps peel ${actor}: stacked maps levels — peel at most once`);
+    if (postExportLevelPreserves(priorLevel?.derivationArgv, "teeth-swap-evidence")) {
+      throw new Error(`T3 post-export peel ${actor}: stacked levels, peel at most once`);
     }
     const inner = lineageLevels(recorded as unknown as Record<string, unknown>);
     if (inner.length === 0) {
       throw new Error(
-        `T3 maps peel ${actor}: recordedBefore carries no nested byteLineage to peel onto`,
+        `T3 post-export peel ${actor}: recordedBefore carries no nested byteLineage to peel onto`,
       );
     }
     const peeled = {
@@ -596,12 +583,18 @@ function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>, l
     const chain = sidecar as NeckChainSidecar;
     const legacyNeck =
       actor === LATE_SWAP &&
+      priorLevel === undefined &&
+      topLevel?.preImageSha256 === block.output?.sha256 &&
       block.output?.sha256 === chain.byteLineage?.recordedBefore?.outputSha256 &&
       chain.outputSha256 === live;
     // R2 lineage chain (nurse e9-r1 rehide): the swap output pins the junction in the
     // walked byteLineage chain (teeth-swap record, nested #741 record, per-level continuity).
-    if (!legacyNeck) {
-      validateT3LineageChain(actor, live, sidecar, block, isCombinedSwapPostLevel);
+    if (legacyNeck) {
+      if (!mutates(topLevel?.derivationArgv, "neckline-opening-indices")) {
+        throw new Error(`T3 physician neck ${actor}: unregistered post-export level or missing neckline mutation`);
+      }
+    } else {
+      validateT3LineageChain(actor, live, sidecar, block);
     }
   } else if (lineageLevels(sidecar).length > 0) {
     // M3: no skip when the swap output is rewritten to live — any sidecar
@@ -615,16 +608,24 @@ function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>, l
     // a validatable chain shape.
     const levels = lineageLevels(sidecar);
     const oldest = levels[levels.length - 1]!;
+    const genesisArgv = oldest.derivationArgv ?? [];
+    const separator = genesisArgv.indexOf("--");
+    const blenderArgs = separator < 0 ? [] : genesisArgv.slice(0, separator);
+    const genesisPython = blenderArgs.indexOf("--python");
     const isRobertHayesGenesis =
       actor === "mpfb-gown-ed-robert-hayes.glb" &&
       levels.length === 2 &&
-      (oldest.derivationArgv ?? []).join(" ").includes("bake_mpfb_gown_inspect.py") &&
+      genesisArgv[0] === "blender" &&
+      genesisPython >= 0 &&
+      genesisPython === blenderArgs.lastIndexOf("--python") &&
+      blenderArgs[genesisPython + 1] === ROBERT_GENESIS_TOOL &&
+      mutates(levels[0]?.derivationArgv, "mouth-geometry") &&
       oldest.recordedBefore === undefined &&
       // sidecar apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json
       // JSON path byteLineage.recordedBefore.byteLineage.inputSha256 (genesis level has no recordedBefore)
       oldest.inputSha256 ===
         "27cbf4e5ed5a007ad497a3bafe2763ac72746583374ad1718d51573ba649aa66";
-    if (!isRobertHayesGenesis) validateT3LineageChain(actor, live, sidecar, block, isCombinedSwapPostLevel);
+    if (!isRobertHayesGenesis) validateT3LineageChain(actor, live, sidecar, block);
   }
   for (const row of block.protectedAccessorHashes ?? []) {
     const actual = accessorHash(glb, row.accessorIndex);
@@ -668,6 +669,89 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     ).toEqual([]);
   }, 1_800_000);
 
+  it.each([
+    { name: "E9 rehide", actor: NURSE_ACTOR, domain: "hidden-skin-indices",
+      tool: "tools/openclinxr/asset-pipeline/makeclothes/rehide-poking-skin.py", alias: "scratch/rehide-poking-skin.py" },
+    { name: "nurse V-neck chain", actor: NURSE_ACTOR, domain: "nurse-neckline-indices",
+      tool: "tools/openclinxr/evidence/skin-footprint-inpaint/scripts/nurse-vneck-chain.py", alias: "scratch/nurse-vneck-chain.py" },
+    { name: "combined teeth swap", actor: "mpfb-peds-nurse-kevin.glb", domain: "mouth-geometry",
+      tool: SWAP_TOOL, alias: "scratch/swap_teeth.py" },
+    { name: "combined tongue placement", actor: "mpfb-peds-nurse-kevin.glb", domain: "mouth-geometry",
+      tool: TONGUE_TOOL, alias: "scratch/tongue-forward-place.ts" },
+  ])("F1: T3 refuses a scratch basename in place of the registered $name tool", ({ actor, domain, tool, alias }) => {
+    const glb = parseGlb(join(DIR, actor));
+    const planted = sidecarFor(actor);
+    validateT3(actor, glb, planted);
+    const level = lineageLevels(planted).find((entry) => mutates(entry.derivationArgv, domain))!;
+    const original = level.derivationArgv!;
+    level.derivationArgv = original.map((word) => word.replace(tool, alias));
+    expect(level.derivationArgv).not.toEqual(original);
+    expect(() => validateT3(actor, glb, planted)).toThrow(/unregistered post-export level|no teeth-swap derivation record|preImageSha256/);
+  });
+
+  it("R4-a: T3 refuses a registered tongue path passed to a shell no-op", () => {
+    const actor = "mpfb-peds-nurse-kevin.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const planted = sidecarFor(actor);
+    validateT3(actor, glb, planted);
+    const [, , swap, older] = lineageLevels(planted);
+    const original = swap!.derivationArgv![2]!;
+    swap!.derivationArgv![2] = original.replace(
+      /pnpm exec tsx '[^']*\/tongue-forward-place\.ts'[^&]+&&/,
+      `: ${TONGUE_TOOL};`,
+    );
+    expect(swap!.derivationArgv![2]).not.toBe(original);
+    older!.derivationArgv = ["pnpm", "exec", "tsx", "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts"];
+    delete older!.why;
+    expect(() => validateT3(actor, glb, planted)).toThrow(/no teeth-swap derivation record/);
+  });
+
+  it("R4-b: direct printf argv earns no mouth-geometry credit", () => {
+    expect(mutates(["printf", "%s", SWAP_TOOL], "mouth-geometry")).toBe(false);
+  });
+
+  it("R4: T3 refuses a second Robert genesis producer", () => {
+    const actor = "mpfb-gown-ed-robert-hayes.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const planted = sidecarFor(actor);
+    validateT3(actor, glb, planted);
+    const genesis = lineageLevels(planted)[2]!.derivationArgv!;
+    genesis.splice(genesis.indexOf("--"), 0, "--python", "tools/unregistered.py");
+    expect(() => validateT3(actor, glb, planted)).toThrow(/T3/);
+  });
+
+  it("F1: the nurse split refuses a scratch alias for the standalone six-triangle unhide", () => {
+    const glb = parseGlb(join(DIR, NURSE_ACTOR));
+    const sidecar = sidecarFor(NURSE_ACTOR);
+    const baseline = nurseBaselineGlb(sidecar);
+    const top = lineageLevels(sidecar)[0]!;
+    const row = (sidecar as NeckChainSidecar).teethSwapB1?.protectedAccessorHashes?.find(
+      (candidate) => candidate.meshIndex === NURSE_BODY_MESH && candidate.slot === NURSE_BODY_PRIM0_SLOT,
+    );
+    expect(row).toBeDefined();
+    const witness = () => nurseChestWitness(glb, baseline, sidecar, row!.accessorIndex);
+    top.derivationArgv = ["python3", "tools/openclinxr/evidence/skin-footprint-inpaint/scripts/nurse-vneck-6tri-unhide.py"];
+    expect(isNurseChestSplitWithLineage(witness())).toBe(true);
+    top.derivationArgv[1] = "scratch/nurse-vneck-6tri-unhide.py";
+    expect(witness).toThrow(/newest level is not the 6-tri un-hide/);
+  });
+
+  it("F2: T3 refuses an unregistered physician neck stage with intact SHA links", () => {
+    const glb = parseGlb(join(DIR, LATE_SWAP));
+    const planted = sidecarFor(LATE_SWAP) as NeckChainSidecar & Record<string, unknown>;
+    validateT3(LATE_SWAP, glb, planted);
+    const top = lineageLevels(planted)[0]!;
+    expect(top.preImageSha256).toBe(top.recordedBefore?.outputSha256);
+    expect(top.recordedBefore?.outputSha256).toBe(planted.teethSwapB1?.output?.sha256);
+    expect(planted.outputSha256).toBe(sha256(glb.raw));
+    const argv = top.derivationArgv!;
+    const script = "tools/openclinxr/asset-pipeline/makeclothes/unhide-neckline-opening.py";
+    const toolIndex = argv.indexOf(script);
+    expect(toolIndex).toBeGreaterThanOrEqual(0);
+    argv[toolIndex] = "tools/openclinxr/asset-pipeline/makeclothes/unregistered-stage.py";
+    expect(() => validateT3(LATE_SWAP, glb, planted)).toThrow(/unregistered post-export level/);
+  });
+
   it(`former inverted guard: ${LATE_SWAP} carries the fitted teeth/tongue and no hm08 pair since ${LATE_SWAP_CARD}`, () => {
     const names = parseGlb(join(DIR, LATE_SWAP)).document.meshes.map((mesh) => mesh.name ?? "");
     const count = (token: string) => names.filter((name) => name.includes(token)).length;
@@ -707,16 +791,10 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     const nurse = sidecarFor(actor);
     const block = (nurse as NeckChainSidecar)["teethSwapB1"]!;
     expect(block?.output?.sha256).toBeDefined();
-    validateT3LineageChain(actor, live, nurse, block, isCombinedSwapPostLevel);
+    validateT3LineageChain(actor, live, nurse, block);
     const levels = lineageLevels(nurse);
-    const swapAt = levels.findIndex((level) =>
-      (level.derivationArgv ?? []).join(" ").includes("swap_teeth.py"),
-    );
-    const fixAt = levels.findIndex(
-      (level) =>
-        (level.why ?? "").includes("fix(#741)") ||
-        (level.derivationArgv ?? []).join(" ").includes("tongue-forward-place.ts"),
-    );
+    const swapAt = levels.findIndex(matchesSwap);
+    const fixAt = levels.findIndex(matches741);
     console.info(`T3 chain-walk ${actor}: depth=${levels.length} swap=${swapAt} fix741=${fixAt} live=${live.slice(0, 12)}`);
     // Collapsed shape: the e9-install top level without its nested byteLineage
     // (recordedBefore kept, byteLineage dropped) — built in memory so a clean
@@ -729,7 +807,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     }
     expect(collapsed["outputSha256"]).toBe(live);
     const collapsedBlock = (collapsed as NeckChainSidecar)["teethSwapB1"]!;
-    expect(() => validateT3LineageChain(actor, live, collapsed, collapsedBlock, isCombinedSwapPostLevel)).toThrow(
+    expect(() => validateT3LineageChain(actor, live, collapsed, collapsedBlock)).toThrow(
       /no teeth-swap derivation record/,
     );
     // Plant 1: broken preImageSha256 continuity at the newest level. The
@@ -743,7 +821,6 @@ describe("the shipped teeth carry their own CC0 texture", () => {
         live,
         brokenContinuity,
         (brokenContinuity as NeckChainSidecar)["teethSwapB1"]!,
-        isCombinedSwapPostLevel,
       ),
     ).toThrow(/chain level must name the tracked pre-image/);
     // Plant 2: wrong swap junction — the swap output no longer pins the junction.
@@ -758,7 +835,6 @@ describe("the shipped teeth carry their own CC0 texture", () => {
         live,
         wrongJunction,
         (wrongJunction as NeckChainSidecar)["teethSwapB1"]!,
-        isCombinedSwapPostLevel,
       ),
     ).toThrow(/pins neither the top pin nor the swap junction/);
     // Plant 3: #741 moved newer than the swap — swap the CONTENT (argv+why)
@@ -766,14 +842,8 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     // (P2e-C added two newer levels on top, so no fixed depth is assumed).
     const reordered = JSON.parse(JSON.stringify(nurse)) as Record<string, unknown>;
     const reorderedLevels = lineageLevels(reordered);
-    const reorderedSwap = reorderedLevels.findIndex((level) =>
-      (level.derivationArgv ?? []).join(" ").includes("swap_teeth.py"),
-    );
-    const reorderedFix = reorderedLevels.findIndex(
-      (level) =>
-        (level.why ?? "").includes("fix(#741)") ||
-        (level.derivationArgv ?? []).join(" ").includes("tongue-forward-place.ts"),
-    );
+    const reorderedSwap = reorderedLevels.findIndex(matchesSwap);
+    const reorderedFix = reorderedLevels.findIndex(matches741);
     if (reorderedSwap < 0 || reorderedFix < 0)
       throw new Error("setup: swap and #741 levels present for reorder plant");
     const swapLevel = reorderedLevels[reorderedSwap]!;
@@ -793,7 +863,6 @@ describe("the shipped teeth carry their own CC0 texture", () => {
         live,
         reordered,
         (reordered as NeckChainSidecar)["teethSwapB1"]!,
-        isCombinedSwapPostLevel,
       ),
     ).toThrow(/must nest older than the teeth-swap record/);
   });
@@ -835,7 +904,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
       glb.document.meshes[NURSE_BODY_MESH]?.primitives?.length,
       "live body is the pre-image +2 split prims (E9 hidden prim8 + P2e-C skin prim9)",
     ).toBe(10);
-    expect(isNurseChestStageSplit(witness), "recorded-descriptor baseline witnesses the live split").toBe(
+    expect(isNurseChestSplitWithLineage(witness), "recorded-descriptor baseline witnesses the live split").toBe(
       true,
     );
     // A HEAD-shaped descriptor is refused instead of read: post-commit,
@@ -843,7 +912,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     // The plant targets the E9 level (the top levels carry no revision).
     const headShaped = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown>;
     const headE9 = lineageLevels(headShaped).find((level) =>
-      (level.derivationArgv ?? []).join(" ").includes("rehide-poking-skin.py"),
+      mutates(level.derivationArgv, "hidden-skin-indices"),
     )!;
     headE9.preImageRevision =
       `HEAD:apps/ui-xr/public/generated-humanoids/${actor}`;
@@ -916,14 +985,8 @@ describe("the shipped teeth carry their own CC0 texture", () => {
           glb,
           plant((copy) => {
             const planted = lineageLevels(copy);
-            const swapIdx = planted.findIndex((level) =>
-              (level.derivationArgv ?? []).join(" ").includes("swap_teeth.py"),
-            );
-            const fixIdx = planted.findIndex(
-              (level) =>
-                (level.why ?? "").includes("fix(#741)") ||
-                (level.derivationArgv ?? []).join(" ").includes("tongue-forward-place.ts"),
-            );
+            const swapIdx = planted.findIndex(matchesSwap);
+            const fixIdx = planted.findIndex(matches741);
             if (swapIdx < 0 || fixIdx < 0)
               throw new Error("setup: swap and #741 levels present for reorder plant");
             const swapLevel = planted[swapIdx]!;
@@ -1066,7 +1129,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
       "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py",
     );
     top.derivationArgv = top.derivationArgv!.map((a) =>
-      a.includes("apply_hair_material_maps.py") ? `FORGED-${a}` : a,
+      a === MAPS_TOOL ? `FORGED-${a}` : a,
     );
     const after = (top.derivationArgv ?? []).join(" ");
     console.info(`PLANT P1 prefix-forged tool word on ${actor}: before=[${before.slice(0, 80)}...] after=[${after.slice(0, 100)}...]`);
@@ -1088,12 +1151,29 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     const top = lineageLevels(planted)[0]!;
     const before = (top.derivationArgv ?? []).join(" ");
     top.derivationArgv = top.derivationArgv!.map((a) =>
-      a.includes("apply_hair_material_maps.py") ? `${a}-FORGED` : a,
+      a === MAPS_TOOL ? `${a}-FORGED` : a,
     );
     const after = (top.derivationArgv ?? []).join(" ");
     console.info(`PLANT P2 suffix-forged tool word on ${actor}: before=[${before.slice(0, 80)}...] after=[${after.slice(-100)}...]`);
     expect(before).not.toMatch(/-FORGED/);
     expect(after).toMatch(/-FORGED/);
+    expect(() => validateT3(actor, glb, planted)).toThrow(
+      /preImageSha256 undefined != recordedBefore\.outputSha256 undefined/,
+    );
+  });
+
+  // validateT3 already refused this substitution before the registry (job p2-red-teeth.log, 25 passed).
+  it("P2 regression guard: T3 refuses Robert's unregistered post-export tool with intact SHA links", () => {
+    const actor = "mpfb-gown-ed-robert-hayes.glb";
+    const glb = parseGlb(join(DIR, actor));
+    const planted = structuredClone(sidecarFor(actor));
+    validateT3(actor, glb, planted);
+    const top = lineageLevels(planted)[0]!;
+    const argv = top.derivationArgv!;
+    const toolIndex = argv.indexOf(MAPS_TOOL);
+    expect(toolIndex).toBeGreaterThanOrEqual(0);
+    expect(top.preImageSha256).toBe(top.recordedBefore?.outputSha256);
+    argv[toolIndex] = "tools/openclinxr/asset-pipeline/makeclothes/unregistered_stage.py";
     expect(() => validateT3(actor, glb, planted)).toThrow(
       /preImageSha256 undefined != recordedBefore\.outputSha256 undefined/,
     );
@@ -1164,11 +1244,9 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     const block = (kevin as NeckChainSidecar)["teethSwapB1"]!;
     // R4b: the live depth-4 shape (stage-22 on top of the combined swap level) validates.
     expect(lineageLevels(kevin).length, "setup: live kevin chain depth").toBe(4);
-    validateT3LineageChain(actor, live, kevin, block, isCombinedSwapPostLevel);
+    validateT3LineageChain(actor, live, kevin, block);
     validateT3(actor, glb, kevin);
-    const swapAt = lineageLevels(kevin).findIndex((level) =>
-      (level.derivationArgv ?? []).join(" ").includes("swap_teeth.py"),
-    );
+    const swapAt = lineageLevels(kevin).findIndex(matchesSwap);
     console.info(`T3 combined ${actor}: depth=4 swap=${swapAt} live=${live.slice(0, 12)}`);
     // R4a: the depth-2 shape from before this card (combined newest, #741 older),
     // read from the pinned-parent blobs beside their matching GLB, still validates.
@@ -1187,7 +1265,6 @@ describe("the shipped teeth carry their own CC0 texture", () => {
       prevLive,
       prevSidecar,
       (prevSidecar as NeckChainSidecar)["teethSwapB1"]!,
-      isCombinedSwapPostLevel,
     );
     validateT3(actor, prevGlb, prevSidecar);
     console.info(`T3 combined previous ${actor}: depth=2 live=${prevLive.slice(0, 12)}`);
@@ -1197,7 +1274,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     const newerLevels = lineageLevels(newer741);
     newerLevels[0]!.why = `${newerLevels[0]!.why ?? ""} fix(#741) plant: separate newer #741`;
     newerLevels[2]!.derivationArgv = (newerLevels[2]!.derivationArgv ?? []).map((arg) =>
-      arg.replaceAll("tongue-forward-place.ts", "tongue-forward-place-removed-for-plant.ts"),
+      arg.replace(TONGUE_TOOL, "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts"),
     );
     newerLevels[3]!.why = "plant: oldest-level #741 markers stripped";
     newerLevels[3]!.derivationArgv = ["plant: oldest-level argv stripped"];
@@ -1208,7 +1285,6 @@ describe("the shipped teeth carry their own CC0 texture", () => {
           live,
           newer741,
           (newer741 as NeckChainSidecar)["teethSwapB1"]!,
-          isCombinedSwapPostLevel,
         ),
       "R2: separate newer #741 plant",
     ).toThrow(/must nest older than the teeth-swap record/);
@@ -1217,13 +1293,13 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     const no741 = JSON.parse(JSON.stringify(kevin)) as Record<string, unknown>;
     const no741Levels = lineageLevels(no741);
     no741Levels[2]!.derivationArgv = (no741Levels[2]!.derivationArgv ?? []).map((arg) =>
-      arg.replaceAll("tongue-forward-place.ts", "tongue-forward-place-removed-for-plant.ts"),
+      arg.replace(TONGUE_TOOL, "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts"),
     );
     no741Levels[3]!.why = "plant: oldest-level #741 markers stripped";
     no741Levels[3]!.derivationArgv = ["plant: oldest-level argv stripped"];
     expect(
       () =>
-        validateT3LineageChain(actor, live, no741, (no741 as NeckChainSidecar)["teethSwapB1"]!, isCombinedSwapPostLevel),
+        validateT3LineageChain(actor, live, no741, (no741 as NeckChainSidecar)["teethSwapB1"]!),
       "R3: absent #741 plant",
     ).toThrow(/missing #741/);
   });
@@ -1247,14 +1323,14 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     const forged = JSON.parse(JSON.stringify(kevin)) as Record<string, unknown>;
     const forgedLevels = lineageLevels(forged);
     forgedLevels[2]!.derivationArgv = (forgedLevels[2]!.derivationArgv ?? []).map((arg) =>
-      arg.replaceAll("tongue-forward-place.ts", "tongue-forward-place-removed-for-plant.ts"),
+      arg.replace(TONGUE_TOOL, "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts"),
     );
     forgedLevels[2]!.why = `${forgedLevels[2]!.why ?? ""} fix(#741) forged why plant`;
     forgedLevels[3]!.why = "plant: oldest-level #741 markers stripped";
     forgedLevels[3]!.derivationArgv = ["plant: oldest-level argv stripped"];
     expect(
       () =>
-        validateT3LineageChain(actor, live, forged, (forged as NeckChainSidecar)["teethSwapB1"]!, isCombinedSwapPostLevel),
+        validateT3LineageChain(actor, live, forged, (forged as NeckChainSidecar)["teethSwapB1"]!),
       "F3: forged why on tongue-stripped swap level",
     ).toThrow(/must nest older than the teeth-swap record/);
   });
@@ -1264,8 +1340,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
    * that prefixes/suffixes BOTH full tool paths (FORGED-<path>-FORGED) still
    * contains both paths as substrings, so joined-string includes would pass —
    * but word-token equality refuses because neither exact invocation is
-   * present. The older #741 markers are stripped as in the h2 plant, so the
-   * chain refuses with the ordering message.
+   * present. The chain refuses before it can recognize a swap record.
    */
   it("T3 forged single token wrapping both tool paths still refuses", () => {
     const actor = "mpfb-peds-nurse-kevin.glb";
@@ -1279,12 +1354,12 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     forgedLevels[2]!.derivationArgv = (forgedLevels[2]!.derivationArgv ?? []).map((arg) =>
       arg
         .replaceAll(
-          "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py",
-          "FORGED-tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py-FORGED",
+          SWAP_TOOL,
+          `FORGED-${SWAP_TOOL}-FORGED`,
         )
         .replaceAll(
-          "tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts",
-          "FORGED-tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts-FORGED",
+          TONGUE_TOOL,
+          `FORGED-${TONGUE_TOOL}-FORGED`,
         ),
     );
     forgedLevels[3]!.why = "plant: oldest-level #741 markers stripped";
@@ -1296,10 +1371,9 @@ describe("the shipped teeth carry their own CC0 texture", () => {
           live,
           forged,
           (forged as NeckChainSidecar)["teethSwapB1"]!,
-          isCombinedSwapPostLevel,
         ),
       "F3: forged prefix/suffix token around both tool paths",
-    ).toThrow(/must nest older than the teeth-swap record/);
+    ).toThrow(/no teeth-swap derivation record/);
   });
 
   it("M1: swapped kept/hidden roles refuse even though both shas are in the pin set", () => {
@@ -1314,7 +1388,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     )!;
     expect(row, "nurse body prim0.indices row recorded").toBeDefined();
     const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
-    expect(isNurseChestStageSplit(witness), "live nurse split passes the shared predicate").toBe(true);
+    expect(isNurseChestSplitWithLineage(witness), "live nurse split passes the shared predicate").toBe(true);
     // Swap every role-bound field: shas, sorted index arrays, accessor maps,
     // and material index+name pairs. Both shas stay inside the pin set, but
     // the kept slot no longer carries the KEPT pin, so the predicate refuses.
@@ -1334,7 +1408,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
       hiddenMaterial: witness.keptMaterial,
     };
     expect(
-      isNurseChestStageSplit(swapped),
+      isNurseChestSplitWithLineage(swapped),
       "swapped kept/hidden roles must refuse the split",
     ).toBe(false);
     // Sha-only swap: every binding field stays live, only the two shas trade
@@ -1347,7 +1421,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
       hiddenIndicesSha256: witness.keptIndicesSha256,
     };
     expect(
-      isNurseChestStageSplit(shaOnlySwapped),
+      isNurseChestSplitWithLineage(shaOnlySwapped),
       "sha-only swapped roles must refuse the split",
     ).toBe(false);
   });
@@ -1363,7 +1437,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
         candidate.meshIndex === NURSE_BODY_MESH && candidate.slot === NURSE_BODY_PRIM0_SLOT,
     )!;
     const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
-    expect(isNurseChestStageSplit(witness), "live nurse split passes the shared predicate").toBe(true);
+    expect(isNurseChestSplitWithLineage(witness), "live nurse split passes the shared predicate").toBe(true);
     const prims = glb.document.meshes[NURSE_BODY_MESH]?.primitives ?? [];
     // P2e-C appended the skin prim9 last: the E9 hidden prim is second-to-last.
     const hidden = prims[prims.length - 2]!;
@@ -1399,7 +1473,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     );
     const planted = { ...witness, hiddenIndicesSha256: rotatedSha };
     expect(
-      isNurseChestStageSplit(planted),
+      isNurseChestSplitWithLineage(planted),
       "triangle-rotated hidden buffer must refuse (hidden pin)",
     ).toBe(false);
   });
@@ -1451,7 +1525,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     }
     const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
     expect(
-      isNurseChestStageSplit(witness),
+      isNurseChestSplitWithLineage(witness),
       "triangle-rotated hidden GLB must refuse through the caller-built witness",
     ).toBe(false);
     expect(() =>
@@ -1471,7 +1545,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     )!;
     expect(row, "nurse body prim0.indices row recorded").toBeDefined();
     const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
-    expect(isNurseChestStageSplit(witness), "live nurse split passes the shared predicate").toBe(true);
+    expect(isNurseChestSplitWithLineage(witness), "live nurse split passes the shared predicate").toBe(true);
     // Body prim0 morph targets 16/17 share byte-identical payloads: t16
     // POSITION 2055 == t17 POSITION 2057 (and NORMAL 2056 == 2058). A
     // byte-signature check cannot tell them apart; accessor-index identity can.
@@ -1483,14 +1557,14 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     expect(repointed[17]?.["POSITION"], "setup: hidden t17 POSITION is 2057").toBe(2057);
     repointed[17]!["POSITION"] = 2055;
     expect(
-      isNurseChestStageSplit({ ...witness, hiddenTargetAccessors: repointed }),
+      isNurseChestSplitWithLineage({ ...witness, hiddenTargetAccessors: repointed }),
       "prim8 morph target repointed to a byte-identical duplicate accessor must refuse",
     ).toBe(false);
     // Attribute repoint to any other index refuses as well (2018 is unique,
     // so this one differs in bytes too — the twin-target plant above is the
     // byte-identical case).
     expect(
-      isNurseChestStageSplit({
+      isNurseChestSplitWithLineage({
         ...witness,
         hiddenAttrAccessors: { ...witness.hiddenAttrAccessors, ["POSITION"]: 2775 },
       }),
@@ -1510,13 +1584,13 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     )!;
     expect(row, "nurse body prim0.indices row recorded").toBeDefined();
     const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
-    expect(isNurseChestStageSplit(witness), "live nurse split passes the shared predicate").toBe(true);
+    expect(isNurseChestSplitWithLineage(witness), "live nurse split passes the shared predicate").toBe(true);
     // Live body prim2 carries the lower hide material (index 6,
     // openclinxr_hidden_lower_...): still an openclinxr_hidden_* material,
     // but not the exact E9 hide material (index 5, ..._upper_...).
     expect(witness.hiddenMaterialIndex, "setup: E9 hide material index is 5").toBe(5);
     expect(
-      isNurseChestStageSplit({
+      isNurseChestSplitWithLineage({
         ...witness,
         hiddenMaterialIndex: 6,
         hiddenMaterial: "openclinxr_hidden_lower_mpfb_ed_chest_pain_nurse_adult_body_mesh",
@@ -1545,7 +1619,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     }
     expect(donor, "setup: GLB carries a non-hidden prim with a different attribute set").toBeDefined();
     expect(
-      isNurseChestStageSplit({
+      isNurseChestSplitWithLineage({
         ...witness,
         hiddenMaterialIndex: donor!.materialIndex,
         hiddenMaterial: donor!.material,
@@ -1553,7 +1627,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
       "prim8 material swapped to a non-hidden material must refuse",
     ).toBe(false);
     expect(
-      isNurseChestStageSplit({ ...witness, keptMaterial: donor!.material }),
+      isNurseChestSplitWithLineage({ ...witness, keptMaterial: donor!.material }),
       "kept prim material swapped away from the baseline must refuse",
     ).toBe(false);
   });
@@ -1581,7 +1655,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     const copy = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown>;
     const copyLevels = lineageLevels(copy);
     const e9Idx = copyLevels.findIndex((level) =>
-      (level.derivationArgv ?? []).join(" ").includes("rehide-poking-skin.py"),
+      mutates(level.derivationArgv, "hidden-skin-indices"),
     );
     expect(e9Idx, "setup: E9 rehide level present to remove").toBeGreaterThanOrEqual(0);
     const e9Recorded = copyLevels[e9Idx]!.recordedBefore;
@@ -1603,7 +1677,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
       expect(witness.keptIndicesSha256, "bytes untouched: kept sha still pinned").toBe(
         NURSE_CHEST_STAGE_KEPT_INDICES_SHA256,
       );
-      expect(isNurseChestStageSplit(witness), "E9 level removed must refuse the split").toBe(false);
+      expect(isNurseChestSplitWithLineage(witness), "E9 level removed must refuse the split").toBe(false);
       expect(() => nurseChestRowOrThrow(actor, glb, baseline, stripped, row.accessorIndex)).toThrow(
         /T3 E9 chest .* shared E9 split rejected/,
       );
@@ -1652,7 +1726,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
         [...witness.keptSortedIndices, ...witness.hiddenSortedIndices].sort((a, b) => a - b),
         "rotation keeps the sorted union intact",
       ).toEqual(witness.baselineSortedIndices);
-      expect(isNurseChestStageSplit(witness), "non-pin sha must refuse the split").toBe(false);
+      expect(isNurseChestSplitWithLineage(witness), "non-pin sha must refuse the split").toBe(false);
       expect(() =>
       nurseChestRowOrThrow(actor, plantedGlb, baseline, sidecar, keptAccessor),
       ).toThrow(/T3 E9 chest .* shared E9 split rejected/);
@@ -1681,7 +1755,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     )!;
     expect(row, "nurse body prim0.indices row recorded").toBeDefined();
     const witness = nurseChestWitness(glb, baseline, sidecar, row.accessorIndex);
-    expect(isNurseChestStageSplit(witness), "live nurse split passes the shared predicate").toBe(
+    expect(isNurseChestSplitWithLineage(witness), "live nurse split passes the shared predicate").toBe(
       true,
     );
     const offByOne = [...witness.baselineSortedIndices];
@@ -1690,7 +1764,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
       witness.baselineSortedIndices[0],
     );
     expect(
-      isNurseChestStageSplit({ ...witness, baselineSortedIndices: offByOne }),
+      isNurseChestSplitWithLineage({ ...witness, baselineSortedIndices: offByOne }),
       "union off by one must refuse the split",
     ).toBe(false);
   });

@@ -1,5 +1,5 @@
 {
-  "baseSha": "e4a5b87ed2ad1a67427d46939ebba5c17c55499c",
+  "baseSha": "b74790d66b18f2bbf10460af2e744b8aaef70786",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -129,7 +129,6 @@
     "tools/openclinxr/evidence/issue-188-footwear-grade.ts",
     "tools/openclinxr/evidence/issue-247-actor-floor-probe.ts",
     "tools/openclinxr/evidence/issue-247-bones-probe.ts",
-    "tools/openclinxr/evidence/issue-247-inspect-glb.mjs",
     "tools/openclinxr/evidence/issue-247-pixel-probe.ts",
     "tools/openclinxr/evidence/issue-260-pre-fix-measure.ts",
     "tools/openclinxr/evidence/issue-280-framing-measure.ts",
@@ -168,8 +167,6 @@
     "tools/openclinxr/evidence/parent-visemes02-stills.ts",
     "tools/openclinxr/evidence/patient-opening-utterance-capture.ts",
     "tools/openclinxr/evidence/physics-touch-capture-output.d.mts",
-    "tools/openclinxr/evidence/physics-touch-debug.mjs",
-    "tools/openclinxr/evidence/physics-touch-emissive-check.mjs",
     "tools/openclinxr/evidence/quest-capacity/audio-frame-tags/build.ts",
     "tools/openclinxr/evidence/quest-capacity/audio-frame-tags/check.ts",
     "tools/openclinxr/evidence/quest-capacity/audio-frame-tags/serve.ts",
@@ -249,7 +246,6 @@
     "tools/openclinxr/evidence/write-rapier-standing-cagematch.ts",
     "tools/openclinxr/evidence/xr-sync/bundle-split.mjs",
     "tools/openclinxr/evidence/xr-sync/c10-run.mjs",
-    "tools/openclinxr/evidence/xr-sync/c13-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c2-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c22-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c23-run.mjs",

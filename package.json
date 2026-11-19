@@ -465,6 +465,7 @@
     "@knip/language-server": "3.0.5",
     "@openclinxr/asset-registry": "workspace:*",
     "@openclinxr/compute-slots": "workspace:*",
+    "@openclinxr/factory-station-core": "workspace:*",
     "@openclinxr/factory-stations": "workspace:*",
     "@openclinxr/png-measure": "workspace:*",
     "@openclinxr/rest": "workspace:*",

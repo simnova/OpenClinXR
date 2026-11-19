@@ -1,3 +1,5 @@
+import { readFileSync } from "node:fs";
+import { postExportLevelPreserves } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 import {
   isLegacyRecordedProceduralGown,
@@ -38,6 +40,37 @@ const ED_LIN = {
 };
 
 describe("recorded garment provenance", () => {
+  it.each([
+    ["c: backslash-newline", (argv: string[]) => {
+      argv[2] += "; python3 to\\\nols/unregistered.p\\\ny";
+    }],
+    ["d: variable-built script", (argv: string[]) => {
+      argv[2] += '; dir=tools; ext=py; python3 "$dir/unregistered.$ext"';
+    }],
+    ["e: positional script", (argv: string[]) => {
+      argv[2] += '; python3 "$4"';
+      argv.push("tools/unregistered.py");
+    }],
+    ["f: second Blender producer", (_argv: string[], bake: string[]) => {
+      bake.splice(bake.indexOf("--"), 0, "--python", "tools/unregistered.py");
+    }],
+  ] as const)("R4-%s refuses with C5", (_name, plant) => {
+    const sidecar = JSON.parse(readFileSync(new URL(
+      "../../../../../../apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json",
+      import.meta.url,
+    ), "utf8"));
+    const swap = sidecar.byteLineage.recordedBefore.byteLineage;
+    const bake = swap.recordedBefore.byteLineage;
+    const run = () => isLegacyRecordedProceduralGown({
+      meshName: "openclinxr_real_garment_hospital_gown_mesh",
+      extras: GOWN_EXTRAS, sidecar, sidecarAssetPath: ED_PATH, expectedAssetPath: ED_PATH,
+      actualGlbSha256: sidecar.outputSha256, generatorFileExists: true,
+    });
+    expect(run()).toEqual({ ok: true, legacyType: "LEGACY_RECORDED_PROCEDURAL" });
+    plant(swap.derivationArgv, bake.derivationArgv);
+    expect(run()).toEqual({ ok: false, failed: "C5" });
+  });
+
   it("accepts both recorded gowns", () => {
     expect(isLegacyRecordedProceduralGown({ meshName: "openclinxr_real_garment_hospital_gown_mesh", extras: GOWN_EXTRAS, sidecar: ADULT_LIN, sidecarAssetPath: ADULT_PATH, expectedAssetPath: ADULT_PATH, actualGlbSha256: ADULT_SHA, generatorFileExists: true })).toEqual({ ok: true, legacyType: "LEGACY_RECORDED_PROCEDURAL" });
     expect(isLegacyRecordedProceduralGown({ meshName: "openclinxr_real_garment_hospital_gown_mesh", extras: GOWN_EXTRAS, sidecar: ED_LIN, sidecarAssetPath: ED_PATH, expectedAssetPath: ED_PATH, actualGlbSha256: ED_SHA, generatorFileExists: true })).toEqual({ ok: true, legacyType: "LEGACY_RECORDED_PROCEDURAL" });
@@ -83,22 +116,33 @@ describe("recorded garment provenance", () => {
     expect(isLegacyRecordedProceduralGown({ meshName: "openclinxr_real_garment_hospital_gown_mesh", extras: GOWN_EXTRAS, sidecar: bareCase, sidecarAssetPath: ED_PATH, expectedAssetPath: ED_PATH, actualGlbSha256: ED_SHA, generatorFileExists: true }).ok).toBe(false);
   });
   it("a post-step lineage keeps the ED bake lineage only through an intact chain link (R7, tsk_27e0cec12cab410d)", () => {
-    // A byte-preserving post-step (correct-sidecar-byte-lineage) replaces byteLineage; the bake lineage moves
-    // to recordedBefore.byteLineage and counts only when preImageSha256 == recordedBefore.outputSha256.
+    // A post-step preserving gown attribution moves the bake lineage into recordedBefore.byteLineage.
+    // Its pre-image SHA must match the prior output SHA.
     const PRE = "db3c0f95572fcb9426c530cb52eee00254e8a2e46a2954891ebbbe32f73daf50";
-    const chained = (preImageSha256: string, prior: unknown) => ({
+    // apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json
+    // byteLineage.recordedBefore.byteLineage.derivationArgv
+    const swapArgv = ["sh", "-c", "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-gown-ed-robert-hayes.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0023' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts' \"$2\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'", "x", "{pre}", "{out}", "{report}"];
+    const chained = (preImageSha256: string, prior: unknown, derivationArgv = swapArgv) => ({
       ...ED_LIN,
       byteLineage: {
         correctedBy: "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
         recordedBefore: { outputSha256: PRE, outputBytes: 1, byteLineage: prior },
         preImageSha256,
-        derivationArgv: ["sh", "-c", "swap_teeth.py ..."],
+        derivationArgv,
       },
     });
     const run = (sidecar: Record<string, unknown>) => isLegacyRecordedProceduralGown({ meshName: "openclinxr_real_garment_hospital_gown_mesh", extras: GOWN_EXTRAS, sidecar, sidecarAssetPath: ED_PATH, expectedAssetPath: ED_PATH, actualGlbSha256: ED_SHA, generatorFileExists: true });
     expect(run(chained(PRE, ED_LIN.byteLineage))).toEqual({ ok: true, legacyType: "LEGACY_RECORDED_PROCEDURAL" });
     expect(run(chained("0".repeat(64), ED_LIN.byteLineage)), "broken chain link").toEqual({ ok: false, failed: "C5" });
-    expect(run(chained(PRE, { derivationArgv: ["sh", "-c", "x"], inputSha256: ED_LIN.byteLineage.inputSha256 })), "prior is not the bake").toEqual({ ok: false, failed: "C5" });
+    const priorWithoutBake = {
+      derivationArgv: ["sh", "-c", "pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts"],
+      inputSha256: ED_LIN.byteLineage.inputSha256,
+    };
+    expect(postExportLevelPreserves(priorWithoutBake.derivationArgv, "procedural-gown-lineage")).toBe(true);
+    expect(run(chained(PRE, priorWithoutBake)), "prior is not the bake").toEqual({ ok: false, failed: "C5" });
     expect(run(chained(PRE, undefined)), "post-step lineage with no prior").toEqual({ ok: false, failed: "C5" });
+    expect(run(chained(PRE, ED_LIN.byteLineage, [
+      "sh", "-c", "python3 tools/openclinxr/asset-pipeline/makeclothes/not-a-registered-stage.py",
+    ])), "unregistered stage with intact SHA link").toEqual({ ok: false, failed: "C5" });
   });
 });

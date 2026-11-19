@@ -19,6 +19,8 @@
  * C7 legacy gown carries no fake sourceMhclo; unknown rows fail; malformed
  * modern inline fields never fall back to legacy.
  */
+import { postExportLevelPreserves } from "@openclinxr/factory-station-core/runner";
+
 export const RECORDED_GOWN_RECIPE =
   "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py#regular-clinical-gown-cage";
 export const RECORDED_GOWN_CLASS = "gown";
@@ -75,19 +77,27 @@ function isHex64(v: unknown): v is string {
 }
 
 /**
- * The ED bake lineage. A later byte-preserving post-step (correct-sidecar-byte-lineage, e.g. the teeth
- * swap tsk_27e0cec12cab410d, or the MAPS-TOIGO hair maps stage) replaces byteLineage and keeps the prior
- * one at recordedBefore.byteLineage. Walk the chain while each link holds: the level's preImageSha256
- * must be a 64-hex string equal to its recordedBefore.outputSha256. Returns the first level whose
- * derivationArgv names --python; a broken link, a missing nested chain, or no reachable --python
- * level returns undefined (C5 refuses).
+ * Follow registered post-export levels that preserve the gown attribution.
+ * Each pre-image SHA must match the nested record's output SHA. The first
+ * Blender bake level must name the single exempt producer.
  */
 export function edBakeLineage(raw: unknown): Record<string, unknown> | undefined {
   let cur: unknown = raw;
   for (;;) {
     if (typeof cur !== "object" || cur === null) return undefined;
     const lineage = cur as Record<string, unknown>;
-    if (Array.isArray(lineage["derivationArgv"]) && (lineage["derivationArgv"] as unknown[]).includes("--python")) return lineage;
+    const argv = lineage["derivationArgv"];
+    if (!Array.isArray(argv) || !argv.every((word) => typeof word === "string")) return undefined;
+    const separator = argv.indexOf("--");
+    const blenderArgs = separator < 0 ? [] : argv.slice(0, separator);
+    const python = blenderArgs.indexOf("--python");
+    if (python >= 0) {
+      return argv[0] === "blender" &&
+        lineage["recordedBefore"] === undefined &&
+        python === blenderArgs.lastIndexOf("--python") &&
+        blenderArgs[python + 1] === RECORDED_GOWN_GENERATOR_TOOL ? lineage : undefined;
+    }
+    if (!postExportLevelPreserves(argv, "procedural-gown-lineage")) return undefined;
     const before = lineage["recordedBefore"] as Record<string, unknown> | undefined;
     const prior = before?.["byteLineage"];
     if (typeof prior !== "object" || prior === null) return undefined;
@@ -130,8 +140,6 @@ function hasConcreteLineage(s: Record<string, unknown>): boolean {
   if (!Array.isArray(argv)) return false;
   if (!argv.every((a) => typeof a === "string")) return false;
   const strs = argv as string[];
-  const pyIdx = strs.indexOf("--python");
-  if (pyIdx < 0 || strs[pyIdx + 1] !== RECORDED_GOWN_GENERATOR_TOOL) return false;
   // --input-glb requires an actual following input value: the recorded ED
   // input GLB constant. A dangling flag with no value never passes.
   const inIdx = strs.indexOf("--input-glb");

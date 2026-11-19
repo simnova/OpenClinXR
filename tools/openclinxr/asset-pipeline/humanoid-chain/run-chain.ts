@@ -1,4 +1,5 @@
 #!/usr/bin/env -S pnpm exec tsx
+
 /**
  * run-chain.ts — a re-derivable per-actor factory chain runner.
  *
@@ -28,11 +29,16 @@
  * have no standalone driver and stay excluded until a lane adds one).
  */
 
-import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
-import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
+
+import {
+  POST_EXPORT_STAGE_REGISTRY,
+  type PostExportStage,
+} from "@openclinxr/factory-station-core/runner";
 
 export type StageKind = "node" | "python" | "blender";
 export type ExcludedReason = "gap" | "metadata_only" | "superseded" | "other";
@@ -108,7 +114,10 @@ function asNonEmptyString(v: unknown, what: string): string {
 }
 
 /** Validate a parsed manifest JSON value; throws on the first violation. */
-export function validateManifest(raw: unknown): ChainManifest {
+export function validateManifest(
+  raw: unknown,
+  registry: Readonly<Record<string, PostExportStage | undefined>> = POST_EXPORT_STAGE_REGISTRY,
+): ChainManifest {
   const m = asRecord(raw, "manifest");
   const actorId = asNonEmptyString(m["actorId"], "actorId");
   let materialize: MaterializeRecord | undefined;
@@ -142,6 +151,12 @@ export function validateManifest(raw: unknown): ChainManifest {
     const id = asNonEmptyString(r["id"], `stages[${i}].id`);
     const name = asNonEmptyString(r["name"], `stages[${i}].name`);
     const tool = asNonEmptyString(r["tool"], `stages[${i}].tool`);
+    if (r["postExport"] !== undefined && typeof r["postExport"] !== "boolean") {
+      fail(`stages[${i}] (${id}) postExport must be a boolean`);
+    }
+    if (r["postExport"] === true && (!Object.hasOwn(registry, tool) || registry[tool] === undefined)) {
+      fail(`stages[${i}] (${id}) unregistered post-export tool: ${tool}`);
+    }
     const kind = r["kind"];
     if (kind !== "node" && kind !== "python" && kind !== "blender") {
       fail(`stages[${i}] (${id}) has unknown kind ${JSON.stringify(kind)}; want one of ${KINDS.join("|")}`);
@@ -358,6 +373,7 @@ export interface RunChainOptions {
   input: string;
   out: string;
   root?: string;
+  postExportRegistry?: Readonly<Record<string, PostExportStage | undefined>>;
 }
 
 export interface StageVars {
@@ -408,7 +424,7 @@ export const CHAIN_NOT_EVIDENCE_FOR = [
 export function runChain(opts: RunChainOptions): ChainReport {
   const root = opts.root ?? process.cwd();
   const manifestRaw = readFileSync(opts.manifestPath, "utf8");
-  const manifest = validateManifest(JSON.parse(manifestRaw));
+  const manifest = validateManifest(JSON.parse(manifestRaw), opts.postExportRegistry);
   const manifestSha256 = createHash("sha256").update(manifestRaw).digest("hex");
   const input = resolve(opts.input);
   if (!existsSync(input)) throw new Error(`input missing: ${input}`);
