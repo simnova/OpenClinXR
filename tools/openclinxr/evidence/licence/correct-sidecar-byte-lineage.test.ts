@@ -346,57 +346,52 @@ describe("correct-sidecar-byte-lineage nesting + idempotence (e9-r2lineage)", ()
     expect(file2).toBe(file1);
   });
 
-  it("negative: same bytes+argv but a different pre-image descriptor or why NESTS", () => {
-    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-idem-neg-")));
-    process.env.OWN_JOB_TMP = job;
+  function writeProveChild(dir: string, name: string, marker: string, fail: boolean): string {
+    const p = path.join(dir, name);
+    const body = fail ? "process.exit(1)" : "copyFileSync(process.argv[2],process.argv[3])";
+    writeFileSync(p, `import{copyFileSync,writeFileSync}from"node:fs";\nwriteFileSync(${JSON.stringify(marker)},"r");\n${body};\n`);
+    return p;
+  }
+
+  it("same-transition re-proof RUNS the derivation: reproduce -> no write, failure -> throw", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-rp-")));
     const fixture = gitShow("HEAD:package.json");
-    writeFileSync(path.join(job, "shipped.glb"), fixture);
+    const shipped = path.join(job, "shipped.glb");
+    writeFileSync(shipped, fixture);
     const sidecar = path.join(job, "own.provenance.json");
     writeFileSync(sidecar, JSON.stringify({ outputSha256: "old", outputBytes: 1 }));
-    const child = makeChildScript(job);
     const callDir = track(mkdtempSync(path.join(job, "call-")));
-    const argv = ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"];
-    runOnce(job, sidecar, callDir, fixture, argv);
-    const depth1 = chainDepth(sidecar);
-    expect(depth1).toBe(1);
-    // Same bytes+argv but a different rationale is a different correction: must nest.
-    const rWhy = correctSidecarByteLineage({
-      assetPath: path.join(job, "shipped.glb"),
-      provenancePath: sidecar,
-      preImage: { kind: "revision", revision: "HEAD:package.json" },
-      expectedPreImageSha256: sha256(fixture),
-      derivationArgv: argv,
-      why: "a different audit rationale with identical bytes+argv",
-      workingDirectory: callDir,
-    });
-    expect(rWhy.reproduced).toBe(true);
-    const depthWhy = chainDepth(sidecar);
-    console.log(`idem-neg different why depth ${depth1} -> ${depthWhy}`);
-    expect(depthWhy).toBe(depth1 + 1);
-    // Same bytes+argv+why but a different pre-image descriptor (file vs revision)
-    // is a different correction: must nest even though the digest matches.
-    // The why is kept EXACTLY equal to the current top level, so the
-    // descriptor alone distinguishes this correction: removing the descriptor
-    // from the production identity would leave this plant green.
-    const preFile = path.join(job, "pre-copy.glb");
-    writeFileSync(preFile, fixture);
-    const rFile = correctSidecarByteLineage({
-      assetPath: path.join(job, "shipped.glb"),
-      provenancePath: sidecar,
-      preImage: { kind: "file", path: preFile },
-      expectedPreImageSha256: sha256(fixture),
-      derivationArgv: argv,
-      why: "a different audit rationale with identical bytes+argv",
-      workingDirectory: callDir,
-    });
-    expect(rFile.reproduced).toBe(true);
-    const depthFile = chainDepth(sidecar);
-    console.log(`idem-neg different descriptor depth ${depthWhy} -> ${depthFile}`);
-    expect(depthFile).toBe(depthWhy + 1);
-    const lineage = (JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>)[
-      "byteLineage"
-    ] as Record<string, unknown>;
-    expect(lineage["preImageFile"]).toBe(preFile);
+    const base = writeProveChild(job, "base.mjs", path.join(job, "b.marker"), false);
+    runOnce(job, sidecar, callDir, fixture, ["node", base, "{pre}", "{out}"]);
+    const file1 = readFileSync(sidecar, "utf8");
+    const runChanged = (name: string, fail: boolean) => {
+      const marker = path.join(job, `${name}.marker`);
+      const child = writeProveChild(job, `${name}.mjs`, marker, fail);
+      let message = "";
+      let reproduced = false;
+      try {
+        reproduced = correctSidecarByteLineage({
+          assetPath: shipped,
+          provenancePath: sidecar,
+          preImage: { kind: "revision", revision: "HEAD:package.json" },
+          expectedPreImageSha256: sha256(fixture),
+          derivationArgv: ["node", child, "{pre}", "{out}"],
+          why: `re-proof changed ${fail ? "failing" : "reproducing"} command`,
+          workingDirectory: callDir,
+        }).reproduced;
+      } catch (e) {
+        message = String(e);
+      }
+      return { marker, reproduced, message };
+    };
+    const ok = runChanged("repro", false);
+    expect(ok.reproduced).toBe(true);
+    expect(existsSync(ok.marker)).toBe(true);
+    expect(readFileSync(sidecar, "utf8")).toBe(file1);
+    const bad = runChanged("fail", true);
+    expect(bad.message).toContain("Command failed");
+    expect(existsSync(bad.marker)).toBe(true);
+    expect(readFileSync(sidecar, "utf8")).toBe(file1);
   });
 
   it("F3: a below-top match with altered shipped bytes refuses instead of reproducing", () => {

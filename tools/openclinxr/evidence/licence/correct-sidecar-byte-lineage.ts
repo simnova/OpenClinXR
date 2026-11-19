@@ -4,33 +4,17 @@ import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 /**
- * Correct a provenance sidecar's byte pin ONLY where the shipped bytes can be reproduced.
- *
- * The card's hard rule: "never by replacing a recorded hash solely to match unexplained bytes". A
- * hash rewritten to agree with whatever is on disk is not provenance, it is a note saying the file
- * exists. So this tool cannot write a hash it did not just derive: it checks out the pre-image
- * named by a commit, re-runs the derivation command, and compares the result with the shipped file.
- * A mismatch throws and nothing is written.
- *
- * The chest-anchor rewrites at 3d019031 and 91b12607 left eight of thirteen comparable
- * sidecars pinned to pre-stage bytes. The stage reports recorded geometry without output hashes.
- *
- * `byteLineage.recordedBefore` preserves the old hash and any prior lineage.
- * A matching top-level correction is skipped when its output hash matches the shipped bytes.
- *
- * Derivations use unique child directories for `{pre}`, `{out}`, and `{report}`.
+ * Correct a sidecar byte pin ONLY where the shipped bytes reproduce: check out
+ * the pre-image, re-run the derivation, compare with the shipped file. A
+ * mismatch throws and nothing is written. `recordedBefore` preserves the old
+ * hash and prior lineage; derivations use unique child dirs for {pre}/{out}.
  */
 
 export type PreImageSource =
   | { kind: "revision"; revision: string }
   | { kind: "file"; path: string };
 
-/**
- * ONE reader for both pre-image kinds (H1). Revision blobs come from `git show`
- * (immutable); file pre-images come from disk (mutable — hence the H5
- * expected-sha re-check inside the corrector, which re-reads via this same
- * function and refuses before any write on a mismatch).
- */
+/** ONE reader for both pre-image kinds (H1): revisions via `git show`, files via disk. */
 export function readPreImageBytes(source: PreImageSource): Buffer {
   if (source.kind === "revision") {
     return execFileSync("git", ["show", source.revision], { maxBuffer: 1024 * 1024 * 512 });
@@ -155,6 +139,16 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
     };
     return { reproduced: true, sha256: shippedDigest, bytes: shipped.byteLength, previous: topRb };
   }
+  // A re-proof of the recorded top transition (same pre-image digest to the
+  // same pin) under a changed identity still RUNS the derivation below and
+  // compares its output to the shipped bytes: a match reproduces with no
+  // sidecar write, a mismatch or command failure throws with nothing
+  // written. The changed argv runs here, so ["false"] or an altered command
+  // cannot report a reproduction.
+  const duplicateTransition =
+    record["outputSha256"] === shippedDigest &&
+    priorIsLineage &&
+    priorRecord["preImageSha256"] === preImageDigest;
   // No established correction: derive the pre-image and compare.
   const base = path.resolve(rawBase);
   mkdirSync(base, { recursive: true });
@@ -180,6 +174,13 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
     throw new Error(
       `correctSidecarByteLineage: refused — re-running the derivation on ${preImageLabel(input.preImage)} (${preImageFlag(input.preImage)}) produced ${rederivedDigest} (${rederived.byteLength} B) but ${input.assetPath} holds ${shippedDigest} (${shipped.byteLength} B). The shipped bytes are NOT explained by this derivation, so the recorded hash must not be rewritten to match them.`,
     );
+  }
+  if (duplicateTransition) {
+    const topRb = priorRecord["recordedBefore"] as {
+      outputSha256: unknown;
+      outputBytes: unknown;
+    };
+    return { reproduced: true, sha256: shippedDigest, bytes: shipped.byteLength, previous: topRb };
   }
 
   const previous = {
@@ -400,14 +401,7 @@ function validateInjectedCorrectionsTable(file: string, parsed: unknown[]): void
   });
 }
 
-/**
- * Fixture injection WITHOUT editing the real CORRECTIONS table: when
- * CORRECT_SIDECAR_CORRECTIONS_FILE names a file, main() runs the JSON array
- * it holds (same row shape as CORRECTIONS) instead of the production table.
- * Absent or blank: today's run-all table, unchanged. H3: the override is
- * honoured only under an explicit test gate (VITEST set, or NODE_ENV=test);
- * otherwise main() fails closed with exit 2 before any correction IO.
- */
+/** Fixture injection (H3): CORRECT_SIDECAR_CORRECTIONS_FILE replaces the table only under VITEST/NODE_ENV=test. */
 export function resolveCorrectionsTable(): readonly InjectedByteLineageCorrection[] {
   const file = process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"];
   if (file === undefined || file.trim() === "") return CORRECTIONS;
@@ -423,11 +417,7 @@ export function resolveCorrectionsTable(): readonly InjectedByteLineageCorrectio
   return parsed as InjectedByteLineageCorrection[];
 }
 
-/**
- * The loop main() runs, exported so tests can drive a fixture list directly.
- * With asset set, only the entry whose assetPath equals it runs; an unknown
- * value throws UnknownAssetError (main() maps it to exit 2 + stderr).
- */
+/** The loop main() runs (asset-filtered); unknown asset throws UnknownAssetError (exit 2). */
 export function runCorrectionsTable(
   corrections: readonly InjectedByteLineageCorrection[],
   workingDirectory: string,
@@ -440,8 +430,6 @@ export function runCorrectionsTable(
     if (selected.length === 0) throw new UnknownAssetError(missing ? "(missing)" : asset);
   }
   for (const correction of selected) {
-    // Revision blobs are immutable, so the gate-time read and the corrector's
-    // own re-read agree; the expected sha is pinned here and re-checked inside.
     const expectedPreImageSha256 = sha256(readPreImageBytes(correction.preImage));
     const result = correctSidecarByteLineage({ ...correction, expectedPreImageSha256, workingDirectory });
     process.stdout.write(
@@ -467,9 +455,7 @@ function main(): void {
     process.exitCode = 2;
     return;
   }
-  // H2: every --asset occurrence is parsed before any IO. Present with a
-  // missing value (trailing, or the next token is another flag) or given
-  // twice: exit 2 naming --asset, with no correction IO.
+  // H2: --asset is fully parsed before any IO; missing/doubled values exit 2 naming --asset.
   const assetIndexes: number[] = [];
   argv.forEach((token, index) => {
     if (token === "--asset") assetIndexes.push(index);
@@ -507,11 +493,8 @@ function main(): void {
 }
 
 if (process.argv[1]?.endsWith("correct-sidecar-byte-lineage.ts")) {
-  // H1 exit path (super-ceo-cap37): a refusal thrown during module
-  // evaluation under tsx becomes a rejected import promise and hangs node in
-  // WorkerThreadsTaskRunner::Shutdown. Catching it here keeps exit on the
-  // normal loop-drain path: refusal text on stderr, exit code 1. Usage and
-  // unknown-asset paths above already set exit code 2 via exitCode.
+  // Refusals thrown under tsx must exit via exitCode (H1): an uncaught throw
+  // becomes a rejected import promise and hangs node in task-runner shutdown.
   try {
     main();
   } catch (error) {

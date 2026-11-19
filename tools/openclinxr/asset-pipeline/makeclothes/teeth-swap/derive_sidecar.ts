@@ -175,7 +175,8 @@ export function deriveTeethSwapSidecar(argv = process.argv.slice(2)): void {
   // correctSidecarByteLineage keeps only the superseded sha/bytes; the prior byteLineage (for the ED gown,
   // the blender bake argv recorded-garment-provenance.ts authenticates) is kept verbatim below
   // (super-ceo-cap14 R7, 2026-11-10).
-  const priorByteLineage = (JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>)["byteLineage"];
+  const sidecarBefore = readFileSync(sidecar, "utf8");
+  const priorByteLineage = (JSON.parse(sidecarBefore) as Record<string, unknown>)["byteLineage"];
   const derivationArgv = steps.length > 0 ? chainedDerivationArgv(tool, absoluteScratch, steps) : [
     "mise",
     "exec",
@@ -253,8 +254,13 @@ export function deriveTeethSwapSidecar(argv = process.argv.slice(2)): void {
     throw new Error("derive_sidecar: report input path does not match --input");
   }
 
-  const document = JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>;
-  if (priorByteLineage !== undefined) {
+  const sidecarAfter = readFileSync(sidecar, "utf8");
+  const document = JSON.parse(sidecarAfter) as Record<string, unknown>;
+  // The corrector nests prior lineage itself when it adds a level and writes
+  // nothing when this run re-proves the recorded top transition: reattach
+  // only when the call moved the sidecar, else the unchanged top would land
+  // inside its own recordedBefore.
+  if (priorByteLineage !== undefined && sidecarAfter !== sidecarBefore) {
     const lineage = document["byteLineage"] as { recordedBefore: Record<string, unknown> };
     lineage.recordedBefore["byteLineage"] = priorByteLineage;
   }
