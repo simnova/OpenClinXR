@@ -1,13 +1,11 @@
 import { readdirSync } from "node:fs";
 import { dirname, join, resolve as pathResolve } from "node:path";
 import { fileURLToPath } from "node:url";
-import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import {
-  classifyGarmentMeshName,
-  isTrouserMeshName,
-  isUpperMeshName,
-} from "../lib/garment-mesh-class.js";
+  MAX_ORPHAN_EXTENT_MM,
+  measure,
+} from "../lib/orphan-sliver-measure.js";
 
 /**
  * Every MPFB actor's visible skin ships as 34–39 disconnected components. Twenty-two to twenty-four of
@@ -137,12 +135,6 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../..");
 const GENERATED = "apps/ui-xr/public/generated-humanoids";
 
-/** 1 px is ~1.53 mm in a full-body capture. 8 mm is ~5 px — below any reasonable "visible" bar. */
-const MAX_ORPHAN_EXTENT_MM = 8;
-
-/** A component this small in vertex count is an orphan, not a legitimate separate body part. */
-const ORPHAN_MAX_VERTS = 12;
-
 /** Ambient skin triangles: 19,698 / 19,348 / 19,558. 19,000 is ~2% below the lowest. */
 const MIN_SKIN_TRIS = 19_000;
 
@@ -152,127 +144,11 @@ const MAX_GARMENT_ORPHANS = 0;
 /** #341 round 17 and #351 both established this overlap is healthy at 13.4-19.6 mm. */
 const MIN_OVERLAP_MM = 8;
 
-type Row = {
-  file: string;
-  skinTris: number;
-  orphanSlivers: string[];
-  garmentOrphans: number;
-  overlapMm: number;
-};
-
-const io = new NodeIO();
-
-/** Connected components over position-merged vertices. */
-function componentVertexGroups(pos: number[][], idx: number[]): number[][] {
-  const key = new Map<string, number>();
-  const rep: number[] = [];
-  for (let i = 0; i < pos.length; i++) {
-    const k = pos[i]!.map((v) => v.toFixed(5)).join(",");
-    if (!key.has(k)) key.set(k, key.size);
-    rep[i] = key.get(k)!;
-  }
-  const parent = Array.from({ length: key.size }, (_, i) => i);
-  const find = (a: number): number => {
-    while (parent[a] !== a) {
-      parent[a] = parent[parent[a]!]!;
-      a = parent[a]!;
-    }
-    return a;
-  };
-  for (let t = 0; t < idx.length; t += 3) {
-    const a = find(rep[idx[t]!]!);
-    const b = find(rep[idx[t + 1]!]!);
-    if (a !== b) parent[a] = b;
-    const b2 = find(rep[idx[t + 1]!]!);
-    const c = find(rep[idx[t + 2]!]!);
-    if (b2 !== c) parent[b2] = c;
-  }
-  const members = new Map<number, number[]>();
-  for (let i = 0; i < pos.length; i++) {
-    const r = find(rep[i]!);
-    const list = members.get(r) ?? [];
-    if (list.length === 0) members.set(r, list);
-    list.push(i);
-  }
-  return [...members.values()];
-}
-
-async function measure(rel: string): Promise<Row> {
-  const doc = await io.read(join(REPO_ROOT, rel));
-  let skinTris = 0;
-  let garmentOrphans = 0;
-  const orphanSlivers: string[] = [];
-  let pantsTop = -Infinity;
-  let shirtBot = Infinity;
-
-  for (const mesh of doc.getRoot().listMeshes()) {
-    for (const prim of mesh.listPrimitives()) {
-      const mat = prim.getMaterial();
-      const a = prim.getAttribute("POSITION");
-      const ix = prim.getIndices();
-      if (!a || !ix) continue;
-      const meshName = mesh.getName() ?? "";
-      const materialName = mat?.getName() ?? "";
-      const isSkin =
-        classifyGarmentMeshName(meshName) === "body" ||
-        classifyGarmentMeshName(materialName) === "body";
-      const hidden = mat?.getAlphaMode() === "MASK" && mat.getBaseColorFactor()[3] < mat.getAlphaCutoff();
-      // #359 moved the scalp to its own primitive. Hidden MASK skin does not count: hiding
-      // exposed skin is the gutting (3) refuses (SIBLING-REDS review S1). alpha == cutoff is
-      // visible (glTF). NOT TESTED: baseColorTexture alpha hiding texels under MASK.
-      if (isSkin && !hidden) {
-        skinTris += ix.getCount() / 3;
-      }
-      if (hidden) continue;
-
-      const isPants = isTrouserMeshName(meshName);
-      // #199 declared the fisherman sweater as Kevin's upper slot. Its historical GLB
-      // carries the makeclothes_library_fisherman_sweater_* mesh name without class extras.
-      // The shared classifier recognizes that name alongside #180's scrub shirt.
-      const isShirt = isUpperMeshName(meshName);
-
-      const pos: number[][] = [];
-      for (let i = 0; i < a.getCount(); i++) pos.push(a.getElement(i, [0, 0, 0]) as number[]);
-      for (const v of pos) {
-        if (isPants && v[1]! > pantsTop) pantsTop = v[1]!;
-        if (isShirt && v[1]! < shirtBot) shirtBot = v[1]!;
-      }
-      if (!isSkin && !isPants && !isShirt) continue;
-
-      const idx: number[] = [];
-      for (let i = 0; i < ix.getCount(); i++) idx.push(ix.getScalar(i));
-
-      for (const group of componentVertexGroups(pos, idx)) {
-        const unique = new Set(group.map((i) => pos[i]!.map((x) => x.toFixed(5)).join(","))).size;
-        if (unique > ORPHAN_MAX_VERTS) continue;
-        let mnX = Infinity, mxX = -Infinity, mnY = Infinity, mxY = -Infinity, mnZ = Infinity, mxZ = -Infinity;
-        for (const i of group) {
-          const v = pos[i]!;
-          mnX = Math.min(mnX, v[0]!); mxX = Math.max(mxX, v[0]!);
-          mnY = Math.min(mnY, v[1]!); mxY = Math.max(mxY, v[1]!);
-          mnZ = Math.min(mnZ, v[2]!); mxZ = Math.max(mxZ, v[2]!);
-        }
-        const extentMm = Math.max(mxX - mnX, mxY - mnY, mxZ - mnZ) * 1000;
-        if (extentMm <= MAX_ORPHAN_EXTENT_MM) continue;
-        if (isSkin) orphanSlivers.push(`${extentMm.toFixed(0)}mm/${unique}v`);
-        else garmentOrphans++;
-      }
-    }
-  }
-  return {
-    file: rel.split("/").pop()!,
-    skinTris,
-    orphanSlivers,
-    garmentOrphans,
-    overlapMm: Number.isFinite(pantsTop) && Number.isFinite(shirtBot) ? (pantsTop - shirtBot) * 1000 : 0,
-  };
-}
-
 const files = readdirSync(join(REPO_ROOT, GENERATED))
   .filter((n: string) => n.startsWith("mpfb-") && n.endsWith(".glb") && !/candidate/i.test(n))
   .map((n: string) => `${GENERATED}/${n}`);
 
-const rows = await Promise.all(files.map(measure));
+const rows = await Promise.all(files.map((f) => measure(f, "merged")));
 
 /** An empty enumeration must FAIL, never pass vacuously (§7t). */
 function requireRows(): void {
