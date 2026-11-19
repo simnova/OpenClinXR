@@ -57,6 +57,7 @@ The held-out set is the 5 non-vacuous directions of a 15-direction list fixed be
 
 ## Consequences
 
+- The standalone S5 and S7 chain drivers were removed as superseded by `tools/openclinxr/evidence/skin-footprint-inpaint/scripts/kevin-collar-s9-chain.py` and the manifest chain replay in `run-chain.test.ts`. Their decisions are recorded in the S5 and S7 records in this MADR.
 - S9 SELECTED-126 stands; no reselection, no densify, no new tri list in S10.
 - Any future selection of 8:70 (or any `T_open`-outside tri) ships only with a C2' both-ties leak check GREEN.
 - The parity class (F3) never ships without the fill floor (F1); (b) stays a closed 2-px list until densified rays change the measurement.

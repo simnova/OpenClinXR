@@ -26,6 +26,7 @@ import {
   type GltfAnimation,
   type GltfBufferView,
   type GltfRoot,
+  readGlb,
 } from "./ship-superset";
 
 const TOOL = "tools/openclinxr/asset-pipeline/humanoid-chain/ship-superset.ts";
@@ -105,11 +106,24 @@ function addAccessor(gltf: GltfRoot, acc: GltfAccessor): number {
   return idx;
 }
 
-/** Fill BIN covering every bufferView end. */
+/** Fill BIN covering every bufferView end, using vertex zero for mesh indices. */
 function sizedBin(gltf: GltfRoot, fill: number): Buffer {
+  const views = gltf.bufferViews ?? [];
   let end = 0;
-  for (const v of gltf.bufferViews ?? []) end = Math.max(end, (v.byteOffset ?? 0) + (v.byteLength ?? 0));
-  return Buffer.alloc(Math.max(end, 1), fill);
+  for (const view of views) end = Math.max(end, (view.byteOffset ?? 0) + (view.byteLength ?? 0));
+  const bin = Buffer.alloc(Math.max(end, 1), fill);
+  for (const entry of gltf.meshes ?? []) {
+    for (const primitive of entry.primitives ?? []) {
+      if (primitive.indices === undefined) continue;
+      const accessor = gltf.accessors?.[primitive.indices];
+      if (accessor?.bufferView === undefined) continue;
+      const view = views[accessor.bufferView];
+      if (view === undefined) continue;
+      const start = view.byteOffset ?? 0;
+      bin.fill(0, start, start + (view.byteLength ?? 0));
+    }
+  }
+  return bin;
 }
 
 /** Standard indexed mesh: TRIANGLES by default, POSITION + indices accessors. */
@@ -294,7 +308,9 @@ describe("ship-superset loss classes", () => {
     expect(tri).toHaveLength(1);
     expect(tri[0]).toContain("mainTris=4");
     expect(tri[0]).toContain("candidateTris=2");
-    expect(runCli(main, cand).code).toBe(1);
+    const cli = runCli(main, cand);
+    expect(cli.code).toBe(2);
+    expect(cli.err).toContain(`ship-superset R3: mesh "${TEETH}" primitive 0 has unsupported mode 5`);
   });
 
   it("EXIT2 duplicate mesh name exits 2 naming the name", () => {
@@ -448,7 +464,7 @@ describe("ship-superset loss classes", () => {
     prim.targets = [{ POSITION: t0 }, { POSITION: t1 }];
     const losses = findLosses(main, cand, new Set(), {
       main: sizedBin(main, 0xa5),
-      cand: sizedBin(cand, 0xa5),
+      candidate: sizedBin(cand, 0xa5),
     });
     expect(losses.some((l) => l.includes("morph") && l.includes(TEETH))).toBe(true);
   });
@@ -461,22 +477,27 @@ describe("ship-superset loss classes", () => {
     const decoy = addAccessor(moved.cand, { count: 13881, componentType: 5123, type: "SCALAR" });
     const decoyView = (moved.cand.accessors ?? [])[decoy]?.bufferView;
     if (decoyView === undefined) throw new Error("fixture broken: missing decoy view");
+    const movedBin = sizedBin(moved.cand, 0xa5);
     maccs[0] = { ...first, bufferView: decoyView };
+    const indexLayoutLoss = `mesh structure mismatch: ${TEETH} primitive 0 indices`;
+    expect(findLosses(moved.main, moved.cand, new Set())).toEqual([expect.stringContaining(indexLayoutLoss)]);
     const movedLosses = findLosses(moved.main, moved.cand, new Set(), {
       main: sizedBin(moved.main, 0xa5),
-      cand: sizedBin(moved.cand, 0xa5),
+      candidate: movedBin,
     });
-    expect(movedLosses.some((l) => l.includes("structure mismatch") && l.includes(TEETH))).toBe(true);
+    const indexPayloadLoss = `mesh structure mismatch: ${TEETH} unsupported index layout: candidate`;
+    expect(movedLosses).toEqual([expect.stringContaining(indexPayloadLoss)]);
     const shifted = pair({});
     const saccs = shifted.cand.accessors ?? [];
     const sfirst = saccs[0];
     if (sfirst === undefined) throw new Error("fixture broken: missing indices accessor");
     saccs[0] = { ...sfirst, byteOffset: 4 };
+    expect(findLosses(shifted.main, shifted.cand, new Set())).toEqual([expect.stringContaining(indexLayoutLoss)]);
     const shiftedLosses = findLosses(shifted.main, shifted.cand, new Set(), {
       main: sizedBin(shifted.main, 0xa5),
-      cand: sizedBin(shifted.cand, 0xa5),
+      candidate: sizedBin(shifted.cand, 0xa5),
     });
-    expect(shiftedLosses.some((l) => l.includes("structure mismatch") && l.includes(TEETH))).toBe(true);
+    expect(shiftedLosses).toEqual([expect.stringContaining(indexPayloadLoss)]);
   });
 
   it("RED F3 keyframe byte change on a shared view behind a same-layout sampler is refused (sampler-index repoint alone: KCG-SUPERSET-RESIDUALS)", () => {
@@ -687,6 +708,42 @@ function multisetPair(
 }
 
 describe("ship-superset triangle multiset (R5)", () => {
+  it("RED F2 sparse-indexed hidden triangle reassigned to shirt is refused", () => {
+    const { main, mainBin } = multisetPair(
+      [{ tris: [[0, 0, 2]], material: 0 }, { tris: [[1, 2, 3]], material: 1 }],
+      undefined,
+      ["probe_hidden", "probe_skin", "probe_shirt"],
+    );
+    const source = main.meshes?.[0]?.primitives?.[0];
+    const index = source?.indices;
+    const accessor = index === undefined ? undefined : main.accessors?.[index];
+    const views = main.bufferViews;
+    if (accessor === undefined || views === undefined) throw new Error("missing sparse plant fixture data");
+
+    // Replace index 1 with vertex 1, yielding the hidden face [0, 1, 2].
+    const sparseIndices = views.length;
+    views.push(
+      { byteOffset: mainBin.length, byteLength: 1 },
+      { byteOffset: mainBin.length + 2, byteLength: 2 },
+    );
+    accessor.sparse = {
+      count: 1,
+      indices: { bufferView: sparseIndices, componentType: 5121 },
+      values: { bufferView: sparseIndices + 1 },
+    };
+    const bin = Buffer.concat([mainBin, Buffer.from([1, 0, 1, 0])]);
+    const candidate = structuredClone(main);
+    const moved = candidate.meshes?.[0]?.primitives?.[0];
+    if (moved === undefined) throw new Error("missing sparse plant candidate triangle");
+    moved.material = 2;
+
+    const losses = findLosses(main, candidate, new Set(), { main: bin, candidate: bin });
+    console.log(`F2 sparse-indexed hidden-to-shirt plant losses=${JSON.stringify(losses)}`);
+    expect(losses).toEqual([
+      expect.stringContaining(`${MULTISET_MESH} unsupported index layout: candidate sparse index accessor ${index}`),
+    ]);
+  });
+
   it("GREEN trim-and-append relayout passes with BINs, legacy-strict without", () => {
     const { main, cand, mainBin, candBin } = multisetPair([
       { tris: [[0, 1, 2]], material: 4 },
@@ -825,7 +882,7 @@ describe("ship-superset hidden->skin tightening (S10h2/B2)", () => {
   it("RED (ii) ambiguous skin source throws naming the mesh and both candidates", () => {
     // B1 (s10h3): main carries TWO distinct non-hidden materials (skin +
     // shirt), so the chain-stage derivation
-    // (unhide-neckline-opening.py:160-167) cannot name one skin.
+    // (skin_material_index in unhide-neckline-opening.py main) cannot name one skin.
     const MAIN_AMBIG = [
       { tris: [[0, 1, 2], [1, 2, 3]], material: HIDDEN },
       { tris: [[0, 2, 3]], material: SKIN },
@@ -958,5 +1015,204 @@ describe("ship-superset rehomed-primitive structure (S10h2/B3)", () => {
     expect(named[0]).toContain("primitive 2 targets 0:[] do not match rehomed source primitive 0");
     // eslint-disable-next-line no-console
     console.log(`Tests: B3 plant (b) RED GREEN: morph-deficient appended prim refused naming ${MULTISET_MESH} prim 2`);
+  });
+
+  it("R1: an appended morph accessor may be copied but its payload must match", () => {
+    const { main, cand, mainBin, candBin } = multisetPair(
+      [...keptHidden, ...keptSkin, { tris: [[0, 1, 2]], material: SKIN, ...FULL }],
+      MAIN_PRIMS,
+      NAMES,
+    );
+    const target = cand.meshes?.[0]?.primitives?.[2]?.targets?.[0];
+    const sourceIndex = target?.["POSITION"];
+    const source = sourceIndex === undefined ? undefined : cand.accessors?.[sourceIndex];
+    const view = source?.bufferView === undefined ? undefined : cand.bufferViews?.[source.bufferView];
+    if (target === undefined || source === undefined || view?.byteLength === undefined) {
+      throw new Error("missing morph target fixture");
+    }
+    const offset = view.byteOffset ?? 0;
+    target["POSITION"] = addAccessor(cand, source);
+    const bin = Buffer.concat([candBin, candBin.subarray(offset, offset + view.byteLength)]);
+    expect(findLosses(main, cand, new Set(), { main: mainBin, candidate: bin })).toEqual([]);
+    const before = bin.readFloatLE(candBin.length);
+    bin.writeFloatLE(before + 0.01, candBin.length);
+    console.log(`R1 morph payload: target POSITION x[0] ${before} -> ${bin.readFloatLE(candBin.length)}`);
+    expect(findLosses(main, cand, new Set(), { main: mainBin, candidate: bin })).toEqual([
+      expect.stringContaining(`R1 appended accessor mismatch: ${MULTISET_MESH} primitive 2 target 0 POSITION`),
+    ]);
+  });
+});
+
+describe("Kevin shipping gate review plants", () => {
+  const shippedPath = "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb";
+  const bodyName = "mpfb_peds_nurse_kevin_body";
+
+  function kevinPair() {
+    const dir = mkdtempSync(join(tmpdir(), "superset-kevin-review-"));
+    const mainPath = join(dir, "main.glb");
+    writeFileSync(mainPath, execFileSync("git", ["show", `85fd7a6b5:${shippedPath}`], {
+      maxBuffer: 64 * 1024 * 1024,
+    }));
+    const main = readGlb(mainPath);
+    const shipped = readGlb(shippedPath);
+    const mainBody = main.json.meshes?.find((entry) => entry.name === bodyName);
+    const body = shipped.json.meshes?.find((entry) => entry.name === bodyName);
+    const appendedIndex = mainBody?.primitives?.length;
+    const appended = appendedIndex === undefined ? undefined : body?.primitives?.[appendedIndex];
+    if (appendedIndex === undefined || appended === undefined) throw new Error("Kevin appended body primitive missing");
+    return { main, shipped, appendedIndex, appended };
+  }
+
+  function persistPlant(name: string, gltf: GltfRoot, bin: Buffer): void {
+    const dir = process.env["KEVIN_SUPERSET_PLANT_DIR"];
+    if (dir !== undefined) writeFileSync(join(dir, name), glbBytes(gltf, bin), { flag: "wx" });
+  }
+
+  function expectShippedGreen(main: ReturnType<typeof readGlb>): void {
+    const clean = readGlb(shippedPath);
+    expect(findLosses(main.json, clean.json, new Set(), { main: main.bin, candidate: clean.bin })).toEqual([]);
+    console.log("Unmodified shipped Kevin GLB: GREEN");
+  }
+
+  it("plant a (R1): shifted TEXCOORD_0 on an appended primitive is RED", () => {
+    const { main, shipped, appended, appendedIndex } = kevinPair();
+    const json = shipped.json as GltfRoot & { buffers?: Array<{ byteLength: number }> };
+    const uvIndex = appended.attributes?.["TEXCOORD_0"];
+    const uv = uvIndex === undefined ? undefined : json.accessors?.[uvIndex];
+    const view = uv?.bufferView === undefined ? undefined : json.bufferViews?.[uv.bufferView];
+    const buffer = json.buffers?.[0];
+    if (
+      uv === undefined || uv.componentType !== 5126 || uv.type !== "VEC2" || typeof uv.count !== "number" ||
+      uv.sparse !== undefined || view === undefined || json.accessors === undefined ||
+      json.bufferViews === undefined || appended.attributes === undefined || buffer === undefined
+    ) throw new Error("plant a requires a dense float VEC2 accessor");
+
+    const start = (view.byteOffset ?? 0) + (uv.byteOffset ?? 0);
+    const stride = view.byteStride ?? 8;
+    const shifted = Buffer.alloc(uv.count * 8);
+    for (let i = 0; i < uv.count; i += 1) {
+      const offset = start + i * stride;
+      shifted.writeFloatLE(shipped.bin.readFloatLE(offset) + 0.01, i * 8);
+      shipped.bin.copy(shifted, i * 8 + 4, offset + 4, offset + 8);
+    }
+    const copied = Buffer.from(shifted);
+    for (let i = 0; i < uv.count; i += 1) copied.writeFloatLE(shipped.bin.readFloatLE(start + i * stride), i * 8);
+    const newIndex = json.accessors.length;
+    json.accessors.push({ ...uv, bufferView: json.bufferViews.length, byteOffset: 0 });
+    json.bufferViews.push({ buffer: 0, byteOffset: shipped.bin.length, byteLength: shifted.length });
+    appended.attributes["TEXCOORD_0"] = newIndex;
+    const bin = Buffer.concat([shipped.bin, shifted]);
+    buffer.byteLength = bin.length;
+
+    expect(findLosses(main.json, json, new Set(), {
+      main: main.bin, candidate: Buffer.concat([shipped.bin, copied]),
+    })).toEqual([]);
+    console.log(`plant a: TEXCOORD_0 accessor ${uvIndex} -> ${newIndex}, u[0] ${shipped.bin.readFloatLE(start)} -> ${shifted.readFloatLE(0)}`);
+    persistPlant("plant-a-shifted-uv.glb", json, bin);
+    const losses = findLosses(main.json, json, new Set(), { main: main.bin, candidate: bin });
+    expect(losses).toContainEqual(
+      expect.stringContaining(`R1 appended accessor mismatch: ${bodyName} primitive ${appendedIndex} attribute TEXCOORD_0`),
+    );
+    console.log(losses[0]);
+    expectShippedGreen(main);
+  });
+
+  it("plant b (R3): reversing one moved face is RED", () => {
+    const { main, shipped, appended } = kevinPair();
+    const indices = appended.indices === undefined ? undefined : shipped.json.accessors?.[appended.indices];
+    const view = indices?.bufferView === undefined ? undefined : shipped.json.bufferViews?.[indices.bufferView];
+    if (indices === undefined || view === undefined || indices.sparse !== undefined) {
+      throw new Error("plant b requires dense indices");
+    }
+    const size = typeof indices.componentType === "number" ? CT_SIZE[indices.componentType] : undefined;
+    if (size === undefined) throw new Error("plant b requires a known index component type");
+    const stride = view.byteStride ?? size;
+    const start = (view.byteOffset ?? 0) + (indices.byteOffset ?? 0);
+    const bin = Buffer.from(shipped.bin);
+    const face = Buffer.concat([0, 1, 2].map((i) => bin.subarray(start + i * stride, start + i * stride + size)));
+    face.copy(bin, start, size, size * 2);
+    face.copy(bin, start + stride, size * 2);
+    face.copy(bin, start + 2 * stride, 0, size);
+    expect(findLosses(main.json, shipped.json, new Set(), { main: main.bin, candidate: bin })).toEqual([]);
+
+    face.copy(bin, start, 0, size);
+    face.copy(bin, start + 2 * stride, size, size * 2);
+    const reversed = Buffer.concat([0, 1, 2].map((i) => bin.subarray(start + i * stride, start + i * stride + size)));
+    console.log(`plant b: moved face index bytes ${face.toString("hex")} -> ${reversed.toString("hex")}`);
+    persistPlant("plant-b-reversed-face.glb", shipped.json, bin);
+    const losses = findLosses(main.json, shipped.json, new Set(), { main: main.bin, candidate: bin });
+    expect(losses).toContainEqual(expect.stringContaining(`${bodyName} triangle missing in candidate`));
+    console.log(losses[0]);
+    expectShippedGreen(main);
+  });
+
+  it.each([5, 6])("R3: BIN-backed mode %i is refused with a named error", (mode) => {
+    const { main, shipped, appended, appendedIndex } = kevinPair();
+    appended.mode = mode;
+    expect(() => findLosses(main.json, shipped.json, new Set(), { main: main.bin, candidate: shipped.bin })).toThrow(
+      `ship-superset R3: mesh "${bodyName}" primitive ${appendedIndex} has unsupported mode ${mode}`,
+    );
+  });
+
+  it("plant c (R6): an altered second slot with the skin name is RED", () => {
+    const { main, shipped, appended } = kevinPair();
+    const materials = shipped.json.materials;
+    const slot = appended.material;
+    const skin = slot === undefined ? undefined : materials?.[slot];
+    if (materials === undefined || skin?.name === undefined) throw new Error("plant c requires the named skin slot");
+    const alias = { ...skin, pbrMetallicRoughness: { baseColorFactor: [0, 1, 0, 1] } };
+    appended.material = materials.length;
+    materials.push(alias);
+    console.log(`plant c: appended material ${slot} -> ${appended.material}, source ${JSON.stringify(skin)}, alias ${JSON.stringify(alias)}`);
+    persistPlant("plant-c-skin-slot-alias.glb", shipped.json, shipped.bin);
+    expect(() => findLosses(main.json, shipped.json, new Set(), { main: main.bin, candidate: shipped.bin })).toThrow(
+      `ship-superset R6: skin-material identity failed for mesh "${bodyName}": candidate slots`,
+    );
+    expectShippedGreen(main);
+  });
+
+  const A = [0, 1, 2];
+  const B = [0, 2, 3];
+  const C = [1, 2, 3];
+  const HIDDEN = 0;
+  const SKIN = 1;
+  const HIDDEN_SECOND = 2;
+  const NAMES = ["probe_hidden", "probe_skin", "probe_hidden_second"];
+
+  it("plant d (R2): an exact skin match cannot also pay a hidden deficit", () => {
+    const { main, cand, mainBin, candBin } = multisetPair(
+      [{ tris: [C], material: HIDDEN }, { tris: [A], material: SKIN }],
+      [{ tris: [A], material: HIDDEN }, { tris: [A], material: SKIN }],
+      NAMES,
+    );
+    console.log("plant d: coincident face [0,1,2] counts under [hidden,skin] [1,1] -> [0,1], total triangles unchanged");
+    persistPlant("plant-d-double-use.glb", cand, candBin);
+    const losses = findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin });
+    expect(losses).toEqual([expect.stringMatching(/triangle missing in candidate: .*#mat0 mainCount=1 candidateCount=0/)]);
+    console.log(losses[0]);
+    expectShippedGreen(kevinPair().main);
+  });
+
+  it("R2: two hidden slots cannot spend the same surplus skin copy", () => {
+    const { main, cand, mainBin, candBin } = multisetPair(
+      [{ tris: [C], material: HIDDEN }, { tris: [B, A], material: SKIN }, { tris: [], material: HIDDEN_SECOND }],
+      [{ tris: [A], material: HIDDEN }, { tris: [B], material: SKIN }, { tris: [A], material: HIDDEN_SECOND }],
+      NAMES,
+    );
+    expect(findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin })).toEqual([
+      expect.stringMatching(/triangle missing in candidate: .*#mat2 mainCount=1 candidateCount=0/),
+    ]);
+  });
+
+  it("plant e (R2): one retained hidden copy plus one moved copy is GREEN", () => {
+    const { main, cand, mainBin, candBin } = multisetPair(
+      [{ tris: [A], material: HIDDEN }, { tris: [B], material: SKIN }, { tris: [A], material: SKIN }],
+      [{ tris: [A, A], material: HIDDEN }, { tris: [B], material: SKIN }],
+      NAMES,
+    );
+    console.log("plant e: coincident face [0,1,2] counts under [hidden,skin] [2,0] -> [1,1]");
+    persistPlant("plant-e-partial-move.glb", cand, candBin);
+    expect(findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin })).toEqual([]);
+    expectShippedGreen(kevinPair().main);
   });
 });

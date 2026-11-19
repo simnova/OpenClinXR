@@ -45,37 +45,13 @@
  * The reduced tri-only rule for declared decimation is unchanged:
  * decimated meshes skip structure/accessor-count comparison entirely.
  *
- * Index-layout relaxation (kevin-collar S4, tightened S10h2/B2): the
- * opening-unhide stage trims hidden-primitive index lists and appends
- * fresh skin primitives, so primitive counts and index-accessor layouts
- * legitimately change while every triangle (resolved POSITION bytes +
- * material index) survives. When both sides carry a BIN payload, per-mesh
- * geometry is therefore compared as a triangle MULTISET — each triangle
- * is its 3 resolved POSITION byte triples in order-normalized (sorted)
- * form plus its material index, and the candidate multiset must be a
- * SUPERSET of main's — instead of the primitive-count and index-accessor
- * layout/byte lines. One named exception: main keys on
- * `openclinxr_hidden_*` materials may reappear ONLY under the designated
- * skin material — the candidate material carrying the SAME NAME as main's
- * first non-hidden prim material of that mesh (named by how the file
- * identifies it; never an index literal) — and the summed candidate
- * count of those qualifying keys must cover main's count (multiplicity
- * enforced, not just presence). A hidden tri reassigned to any other
- * material (shirt, hair, ...) or held short of main's count is a loss.
- * Attribute key sets, modes, morph targets and all
- * animation/copyright/extras classes are unchanged (strict). Without a
- * BIN payload on either side the multiset cannot resolve, and the
- * legacy strict lines apply (layout-only unit-test mode).
- *
- * Rehomed-primitive rule (S10h2/B3): every candidate primitive holding a
- * rehomed tri (a POSITION triple that is hidden-material in main and
- * non-hidden in candidate) must carry the SAME attribute semantic set
- * and the SAME morph-target count/names as the main source primitive it
- * was rehomed from — including appended prims past main's primitive
- * count, which the pairwise structure check never reaches. A deficient
- * destination prim (dropped NORMAL, dropped morph target, dropped
- * skinning attribute, ...) is a loss naming the mesh, the destination
- * prim, the source prim and the differing set.
+ * Index-layout relaxation: when both sides have BIN payloads, compare
+ * TRIANGLES by a multiset of cyclic POSITION keys and material indices.
+ * An opening-unhide stage may trim hidden indices and append triangles on
+ * the writer's skin slot. Attribute and morph payloads on any appended
+ * primitive must match the source. Other modes and unsupported layouts are
+ * refused by the BIN triangle decoder. Without both BIN payloads the strict
+ * layout check applies.
  */
 
 import { createHash } from "node:crypto";
@@ -445,36 +421,26 @@ function compareRefBytes(
   return [];
 }
 
-/**
- * Triangle MULTISET for the index-layout relaxation (kevin-collar S4).
- * Each triangle is its 3 resolved POSITION byte triples in
- * order-normalized (sorted hex) form plus its material index
- * (`v0|v1|v2#mat3`). Returns null when any referenced byte cannot
- * resolve (missing BIN, bad range, unsupported component) so the caller
- * falls back to the legacy strict lines. Winding alternation in strips
- * and fans is irrelevant: vertex triples are sorted. Morph displacements
- * are NOT part of the key; morph targets stay under the strict morph
- * lines of comparePrimitiveStructure.
- */
-function readIndexList(accessor: GltfAccessor, views: GltfBufferView[], bin: Uint8Array): number[] | null {
+function readIndexList(accessor: GltfAccessor, views: GltfBufferView[], bin: Uint8Array): number[] | string {
   const count = accessor.count;
-  if (typeof count !== "number" || !Number.isInteger(count) || count < 0) return null;
+  if (typeof count !== "number" || !Number.isInteger(count) || count < 0) return "invalid count";
   const ct = accessor.componentType;
   const size = ct === 5121 ? 1 : ct === 5123 ? 2 : ct === 5125 ? 4 : ct === 5122 ? 2 : 0;
-  if (size === 0 || count === 0) return count === 0 ? [] : null;
-  if (accessor.sparse !== undefined) return null;
-  if (accessor.bufferView === undefined) return null;
+  if (count === 0) return [];
+  if (size === 0) return "unsupported component type";
+  if (accessor.sparse !== undefined) return "sparse";
+  if (accessor.bufferView === undefined) return "missing bufferView reference";
   const view = views[accessor.bufferView];
-  if (view === undefined) return null;
+  if (view === undefined) return "missing bufferView";
   const stride = view.byteStride ?? size;
-  if (!Number.isInteger(stride) || stride < size) return null;
+  if (!Number.isInteger(stride) || stride < size) return "invalid byte stride";
   const accOff = typeof accessor.byteOffset === "number" ? accessor.byteOffset : 0;
   const base = (view.byteOffset ?? 0) + accOff;
   const out: number[] = [];
   const dv = new DataView(bin.buffer, bin.byteOffset, bin.byteLength);
   for (let i = 0; i < count; i += 1) {
     const at = base + i * stride;
-    if (at + size > bin.length) return null;
+    if (at + size > bin.length) return "index bytes exceed BIN length";
     if (ct === 5121) out.push(dv.getUint8(at));
     else if (ct === 5123) out.push(dv.getUint16(at, true));
     else if (ct === 5125) out.push(dv.getUint32(at, true));
@@ -483,8 +449,8 @@ function readIndexList(accessor: GltfAccessor, views: GltfBufferView[], bin: Uin
   return out;
 }
 
-/** Dense per-vertex POSITION byte buffers with sparse patches applied. */
-function resolveVertexBytes(accessor: GltfAccessor, views: GltfBufferView[], bin: Uint8Array): Buffer[] | null {
+/** Dense accessor payload bytes with sparse patches applied. */
+function resolveAccessorPayload(accessor: GltfAccessor, views: GltfBufferView[], bin: Uint8Array): Buffer | null {
   const count = accessor.count;
   const elem = elementSize(accessor.componentType, accessor.type);
   if (typeof count !== "number" || !Number.isInteger(count) || count < 0 || elem <= 0) return null;
@@ -501,8 +467,9 @@ function resolveVertexBytes(accessor: GltfAccessor, views: GltfBufferView[], bin
     dense = Buffer.alloc(count * elem);
     for (let i = 0; i < count; i += 1) {
       const at = base + i * stride;
-      if (at + elem > bin.length) return null;
-      Buffer.from(bin.subarray(at, at + elem)).copy(dense, i * elem);
+      const bytes = viewBytes(bin, at, elem);
+      if (bytes === null) return null;
+      bytes.copy(dense, i * elem);
     }
   }
   const sparse = accessor.sparse;
@@ -528,162 +495,106 @@ function resolveVertexBytes(accessor: GltfAccessor, views: GltfBufferView[], bin
       Buffer.from(bin.subarray(vat, vat + elem)).copy(dense, vi * elem);
     }
   }
+  return dense;
+}
+
+function resolveVertexBytes(accessor: GltfAccessor, views: GltfBufferView[], bin: Uint8Array): Buffer[] | null {
+  const dense = resolveAccessorPayload(accessor, views, bin);
+  if (dense === null) return null;
+  const elem = elementSize(accessor.componentType, accessor.type);
   const out: Buffer[] = [];
-  for (let i = 0; i < count; i += 1) out.push(dense.subarray(i * elem, (i + 1) * elem));
+  for (let at = 0; at < dense.length; at += elem) out.push(dense.subarray(at, at + elem));
   return out;
 }
 
-/** Multiset of triangle keys for one mesh, or null when unresolvable. */
-function meshTriangleKeys(gltf: GltfRoot, name: string, bin: Uint8Array | undefined): Map<string, number> | null {
-  if (bin === undefined || bin.length === 0) return null;
-  const accessors = gltf.accessors ?? [];
-  const views = gltf.bufferViews ?? [];
-  const mesh = (gltf.meshes ?? []).find((m) => m.name === name) as GltfMesh | undefined;
-  if (mesh === undefined) return null;
+/** Multiset of material-keyed triangle positions for one mesh. */
+function meshTriangleKeys(prims: GltfPrimitive[], parts: string[][]): Map<string, number> {
   const keys = new Map<string, number>();
-  for (const rawPrim of mesh.primitives ?? []) {
-    const prim = rawPrim as GltfPrimitive;
-    const mode = prim.mode ?? 4;
-    if (mode !== 4 && mode !== 5 && mode !== 6) return null;
-    const matIdx = typeof prim.material === "number" ? prim.material : -1;
-    const posIdx = prim.attributes?.["POSITION"];
-    if (posIdx === undefined) return null;
-    const posAcc = accessors[posIdx];
-    if (posAcc === undefined) return null;
-    const verts = resolveVertexBytes(posAcc, views, bin);
-    if (verts === null) return null;
-    let order: number[];
-    if (prim.indices !== undefined) {
-      const idxAcc = accessors[prim.indices];
-      if (idxAcc === undefined) return null;
-      const list = readIndexList(idxAcc, views, bin);
-      if (list === null) return null;
-      if (list.some((v) => v < 0 || v >= verts.length)) return null;
-      order = list;
-    } else {
-      order = verts.map((_, i) => i);
-    }
-    const vAt = (i: number): Buffer => {
-      const v = verts[i];
-      if (v === undefined) throw new Error(`ship-superset: vertex ${i} out of range (n=${verts.length})`);
-      return v;
-    };
-    const oAt = (i: number): number => {
-      const o = order[i];
-      if (o === undefined) throw new Error(`ship-superset: order ${i} out of range (n=${order.length})`);
-      return o;
-    };
-    const push = (a: number, b: number, c: number): void => {
-      const triple = [vAt(a).toString("hex"), vAt(b).toString("hex"), vAt(c).toString("hex")].sort();
-      const key = `${triple.join("|")}#mat${matIdx}`;
+  prims.forEach((prim, i) => {
+    const material = prim.material ?? -1;
+    for (const pos of parts[i] ?? []) {
+      const key = `${pos}#mat${material}`;
       keys.set(key, (keys.get(key) ?? 0) + 1);
-    };
-    if (mode === 4) {
-      if (order.length % 3 !== 0) return null;
-      for (let i = 0; i < order.length; i += 3) push(oAt(i), oAt(i + 1), oAt(i + 2));
-    } else {
-      if (order.length < 3) continue;
-      for (let i = 2; i < order.length; i += 1) push(oAt(i - 2), oAt(i - 1), oAt(i));
     }
-  }
+  });
   return keys;
 }
 
-/**
- * Multiset superset check for one mesh present in both files. Returns
- * null when either side cannot resolve (caller falls back to legacy
- * strict lines); otherwise one loss line per missing main triangle,
- * naming the mesh and the triangle key.
- *
- * Admitted change class (kevin-collar S4 opening un-hide, tightened
- * S10h2/B2, single-skin S10h3/B1): a main key whose material name starts
- * with `openclinxr_hidden_` may reappear ONLY under the designated skin
- * material. The skin identity comes from the chain stage that assigns
- * un-hidden tris, not a name pattern: the stage derives the skin as the
- * material of the mesh's non-hidden prims — cf.
- * tools/openclinxr/asset-pipeline/makeclothes/unhide-neckline-opening.py:160-167
- * (skin_prims = non-hidden prims; skin_material_index = skin_prims[0]).
- * The gate requires EXACTLY ONE distinct non-hidden material on main's
- * mesh: zero (no skin to rehome to) or more than one (a second non-hidden
- * material — brows, teeth, a shirt on a merged mesh — would otherwise
- * pass as skin) is a thrown error naming the mesh and the candidates.
- * Meshes with no hidden main keys skip the skin rule (legacy exact-key
- * path covers them). The summed candidate count under THAT skin-named,
- * non-hidden material must cover main's count: a hidden tri reassigned
- * to any other material (shirt, hair, ...) or held short of main's count
- * is a loss, so the B2 counterweights (moved-tri-to-shirt,
- * moved-tri-to-hair, dropped duplicate of a multiplicity-2 key) all
- * fail naming the key. Every non-hidden main key still needs its exact
- * key (positions AND material) in the candidate. Strict-letter
- * material-keyed superset is unsatisfiable for ANY un-hide fix (the fix
- * deletes T#hidden keys by construction), so the gate admits exactly
- * this class and nothing else.
- */
+// Same material-name predicate as unhide-neckline-opening.py.
+function isHiddenMaterial(materials: Array<{ name?: string }>, index: number): boolean {
+  return (materials[index]?.name ?? "").includes("hidden");
+}
+
+/** Resolve the material index assigned by skin_material_index in unhide-neckline-opening.py main(). */
+function skinMaterialSlot(
+  name: string,
+  mainPrims: GltfPrimitive[],
+  mainMats: Array<{ name?: string }>,
+  candMats: Array<{ name?: string }>,
+): number {
+  const sourceSlots = new Set<number>();
+  for (const { material } of mainPrims) {
+    if (material !== undefined && mainMats[material] !== undefined && !isHiddenMaterial(mainMats, material)) {
+      sourceSlots.add(material);
+    }
+  }
+  const describeSlots = (mats: Array<{ name?: string }>, slots: Iterable<number>): string =>
+    [...slots].map((slot) => `${slot}:${mats[slot]?.name ?? "(unnamed)"}`).join(", ") || "(none)";
+  const [skinSlot] = sourceSlots;
+  if (sourceSlots.size !== 1 || skinSlot === undefined) {
+    throw new Error(
+      `ship-superset R6: skin-material identity failed for mesh ${JSON.stringify(name)}: source candidates [${describeSlots(mainMats, sourceSlots)}] (expected one non-hidden slot)`,
+    );
+  }
+
+  // The writer appends primitives with the original slot index. Reject a
+  // missing or ambiguous candidate counterpart, even if the alias is unused.
+  const skinName = mainMats[skinSlot]?.name ?? "";
+  const candidateSlots = candMats.flatMap((mat, index) => (mat.name ?? "") === skinName ? [index] : []);
+  if (candidateSlots.length !== 1 || candidateSlots[0] !== skinSlot) {
+    throw new Error(
+      `ship-superset R6: skin-material identity failed for mesh ${JSON.stringify(name)}: candidate slots [${describeSlots(candMats, candidateSlots)}] (expected only source slot ${skinSlot}:${skinName})`,
+    );
+  }
+  return skinSlot;
+}
+
+/** Require exact material-keyed copies, except for hidden-to-skin moves. */
 function compareTriangleMultiset(
   main: GltfRoot,
   candidate: GltfRoot,
   name: string,
-  bins: GlbBins,
-): string[] | null {
-  const mKeys = meshTriangleKeys(main, name, bins.main);
-  const cKeys = meshTriangleKeys(candidate, name, bins.candidate);
-  if (mKeys === null || cKeys === null) return null;
+  mainPrims: GltfPrimitive[],
+  candPrims: GltfPrimitive[],
+  mainParts: string[][],
+  candParts: string[][],
+): string[] {
+  const mKeys = meshTriangleKeys(mainPrims, mainParts);
+  const cKeys = meshTriangleKeys(candPrims, candParts);
   const mainMats = main.materials ?? [];
   const candMats = candidate.materials ?? [];
-  const isHidden = (mats: Array<{ name?: string }>, idx: number): boolean =>
-    (mats[idx]?.name ?? "").startsWith("openclinxr_hidden_");
   const matOfKey = (key: string): number => Number(key.slice(key.lastIndexOf("#mat") + 4));
   const posOfKey = (key: string): string => key.slice(0, key.lastIndexOf("#mat"));
-  // B1 (s10h3): the designated skin material is named, never indexed.
-  // The chain stage that assigns un-hidden tris derives it the same way:
-  // the material of the mesh's non-hidden prims — cf.
-  // tools/openclinxr/asset-pipeline/makeclothes/unhide-neckline-opening.py:160-167
-  // (skin_prims = non-hidden prims; skin_material_index = skin_prims[0]).
-  // Exactly one distinct non-hidden material per checked mesh: zero or
-  // more than one candidate is a thrown error naming the mesh and the
-  // candidates. Meshes with no hidden main keys skip the rule.
-  const mainHasHidden = [...mKeys.keys()].some((key) => isHidden(mainMats, matOfKey(key)));
-  let skinName = "";
-  if (mainHasHidden) {
-    const mainMeshForSkin = (main.meshes ?? []).find((m) => m.name === name) as GltfMesh | undefined;
-    const mainSkinNames = new Set<string>();
-    for (const rawPrim of mainMeshForSkin?.primitives ?? []) {
-      const mp = rawPrim as GltfPrimitive;
-      const mi = typeof mp.material === "number" ? mp.material : -1;
-      if (isHidden(mainMats, mi)) continue;
-      const nm = mainMats[mi]?.name;
-      mainSkinNames.add(typeof nm === "string" && nm !== "" ? nm : `#${mi}`);
-    }
-    if (mainSkinNames.size !== 1) {
-      const listed = [...mainSkinNames].sort().join(", ") || "(none)";
-      throw new Error(
-        `ship-superset: skin-material identity failed for mesh ${JSON.stringify(name)}: candidates [${listed}] (want exactly one non-hidden material; cf. tools/openclinxr/asset-pipeline/makeclothes/unhide-neckline-opening.py:160-167)`,
-      );
-    }
-    skinName = [...mainSkinNames][0] as string;
-  }
-  // Per-position summed candidate count under the designated skin-named
-  // non-hidden materials (multiplicity enforced: presence alone is not
-  // survival — the sum must cover main's count).
+  const mainHasHidden = [...mKeys.keys()].some((key) => isHiddenMaterial(mainMats, matOfKey(key)));
+  const skinSlot = mainHasHidden ? skinMaterialSlot(name, mainPrims, mainMats, candMats) : undefined;
   const candSkinQual = new Map<string, number>();
-  for (const [key, count] of cKeys.entries()) {
-    if (count <= 0) continue;
-    const cm = matOfKey(key);
-    if (isHidden(candMats, cm)) continue;
-    const cn = candMats[cm]?.name;
-    if (typeof cn !== "string" || cn !== skinName) continue;
-    const pos = posOfKey(key);
-    candSkinQual.set(pos, (candSkinQual.get(pos) ?? 0) + count);
+  for (const [key, count] of cKeys) {
+    if (matOfKey(key) !== skinSlot) continue;
+    // Reserve all exact skin matches before considering any hidden deficit.
+    const surplus = count - (mKeys.get(key) ?? 0);
+    if (surplus > 0) candSkinQual.set(posOfKey(key), surplus);
   }
   const lines: string[] = [];
   for (const [key, mCount] of [...mKeys.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
     const cCount = cKeys.get(key) ?? 0;
     if (cCount >= mCount) continue;
-    const mMat = matOfKey(key);
-    if (isHidden(mainMats, mMat)) {
-      // B2 tightened (B1 single-skin): survival requires THAT skin-named
-      // material AND a qualifying count covering main's count.
-      if ((candSkinQual.get(posOfKey(key)) ?? 0) >= mCount) continue;
+    if (isHiddenMaterial(mainMats, matOfKey(key))) {
+      const pos = posOfKey(key);
+      const available = candSkinQual.get(pos) ?? 0;
+      const deficit = mCount - cCount;
+      const moved = Math.min(deficit, available);
+      candSkinQual.set(pos, available - moved);
+      if (moved === deficit) continue;
     }
     lines.push(
       `mesh structure mismatch: ${name} triangle missing in candidate: ${key} mainCount=${mCount} candidateCount=${cCount}`,
@@ -692,60 +603,59 @@ function compareTriangleMultiset(
   return lines;
 }
 
-/** Per-primitive resolved triangle POSITION parts for one mesh (order-
- * normalized hex triples WITHOUT the material suffix), or null when any
- * referenced byte cannot resolve. Index i of the outer array is prim i. */
-function meshPrimTriPosParts(gltf: GltfRoot, name: string, bin: Uint8Array | undefined): string[][] | null {
-  if (bin === undefined || bin.length === 0) return null;
+/** Choose the smallest cyclic rotation without changing winding. */
+function cyclicTriangleKey(a: string, b: string, c: string): string {
+  const ab = `${a}|${b}|${c}`;
+  const bc = `${b}|${c}|${a}`;
+  const ca = `${c}|${a}|${b}`;
+  const first = ab < bc ? ab : bc;
+  return first < ca ? first : ca;
+}
+
+/** Resolve each primitive's TRIANGLES as cyclic POSITION keys or return a refusal reason. */
+function meshPrimTriPosParts(
+  gltf: GltfRoot,
+  prims: GltfPrimitive[],
+  name: string,
+  bin: Uint8Array,
+): string[][] | string {
   const accessors = gltf.accessors ?? [];
   const views = gltf.bufferViews ?? [];
-  const mesh = (gltf.meshes ?? []).find((m) => m.name === name) as GltfMesh | undefined;
-  if (mesh === undefined) return null;
-  const out: string[][] = [];
-  for (const rawPrim of mesh.primitives ?? []) {
-    const prim = rawPrim as GltfPrimitive;
+  // Check modes before returning any payload refusal.
+  prims.forEach((prim, i) => {
     const mode = prim.mode ?? 4;
-    if (mode !== 4 && mode !== 5 && mode !== 6) return null;
+    if (mode !== 4) {
+      throw new Error(`ship-superset R3: mesh ${JSON.stringify(name)} primitive ${i} has unsupported mode ${mode}; BIN triangle comparison requires TRIANGLES (4)`);
+    }
+  });
+  const out: string[][] = [];
+  for (const [primitiveIndex, prim] of prims.entries()) {
     const posIdx = prim.attributes?.["POSITION"];
-    if (posIdx === undefined) return null;
-    const posAcc = accessors[posIdx];
-    if (posAcc === undefined) return null;
-    const verts = resolveVertexBytes(posAcc, views, bin);
-    if (verts === null) return null;
+    const posAcc = posIdx === undefined ? undefined : accessors[posIdx];
+    if (posAcc === undefined) return `primitive ${primitiveIndex} missing POSITION accessor`;
+    const verts = resolveVertexBytes(posAcc, views, bin)?.map((v) => v.toString("hex"));
+    if (verts === undefined) return `unreadable POSITION accessor ${posIdx}`;
     let order: number[];
     if (prim.indices !== undefined) {
       const idxAcc = accessors[prim.indices];
-      if (idxAcc === undefined) return null;
+      if (idxAcc === undefined) return `missing index accessor ${prim.indices}`;
       const list = readIndexList(idxAcc, views, bin);
-      if (list === null) return null;
-      if (list.some((v) => v < 0 || v >= verts.length)) return null;
+      if (list === "sparse") return `sparse index accessor ${prim.indices}`;
+      if (typeof list === "string") return `index accessor ${prim.indices}: ${list}`;
       order = list;
     } else {
       order = verts.map((_, i) => i);
     }
+    if (order.length % 3 !== 0) return `primitive ${primitiveIndex} element count is not divisible by 3`;
     const parts: string[] = [];
-    const wAt = (i: number): Buffer => {
-      const v = verts[i];
-      if (v === undefined) throw new Error(`ship-superset: vertex ${i} out of range (n=${verts.length})`);
-      return v;
-    };
-    const qAt = (i: number): number => {
-      const o = order[i];
-      if (o === undefined) throw new Error(`ship-superset: order ${i} out of range (n=${order.length})`);
-      return o;
-    };
-    const push = (a: number, b: number, c: number): void => {
-      parts.push([wAt(a).toString("hex"), wAt(b).toString("hex"), wAt(c).toString("hex")].sort().join("|"));
-    };
-    if (mode === 4) {
-      if (order.length % 3 !== 0) return null;
-      for (let i = 0; i < order.length; i += 3) push(qAt(i), qAt(i + 1), qAt(i + 2));
-    } else {
-      if (order.length < 3) {
-        out.push(parts);
-        continue;
+    for (let i = 0; i < order.length; i += 3) {
+      const a = verts[order[i] ?? -1];
+      const b = verts[order[i + 1] ?? -1];
+      const c = verts[order[i + 2] ?? -1];
+      if (a === undefined || b === undefined || c === undefined) {
+        return `primitive ${primitiveIndex} index references a vertex outside POSITION accessor ${posIdx}`;
       }
-      for (let i = 2; i < order.length; i += 1) push(qAt(i - 2), qAt(i - 1), qAt(i));
+      parts.push(cyclicTriangleKey(a, b, c));
     }
     out.push(parts);
   }
@@ -761,68 +671,107 @@ function primMorphSig(prim: GltfPrimitive): string {
   return `${targets.length}:[${targets.map((t) => Object.keys(t ?? {}).sort().join("+")).join(";")}]`;
 }
 
-/**
- * Rehomed-primitive rule (S10h2/B3) for one mesh present in both files.
- * Every candidate primitive holding a rehomed tri — a POSITION triple
- * that is hidden-material in main and sits under a NON-hidden material
- * in that candidate prim — must carry the same attribute semantic set
- * and the same morph-target count/names as the main source primitive.
- * Covers appended prims past main's primitive count, which the pairwise
- * structure check never reaches. Returns [] when either side cannot
- * resolve (the caller then keeps only the legacy lines, as before).
- */
+function equalAccessorPayload(
+  source: GltfAccessor | undefined,
+  dest: GltfAccessor | undefined,
+  main: GltfRoot,
+  candidate: GltfRoot,
+  mainBin: Uint8Array,
+  candBin: Uint8Array,
+): boolean {
+  if (
+    source === undefined || dest === undefined ||
+    source.componentType !== dest.componentType || source.type !== dest.type ||
+    source.count !== dest.count || (source.normalized ?? false) !== (dest.normalized ?? false)
+  ) return false;
+
+  const sourceBytes = resolveAccessorPayload(source, main.bufferViews ?? [], mainBin);
+  const destBytes = resolveAccessorPayload(dest, candidate.bufferViews ?? [], candBin);
+  return sourceBytes !== null && destBytes !== null && sourceBytes.equals(destBytes);
+}
+
+/** Compare each appended triangle with an eligible source primitive's
+ * attribute and morph payloads. Original primitives keep the rehomed
+ * semantic check in addition to their pairwise layout and byte checks. */
 function compareRehomedPrimStructure(
   main: GltfRoot,
   candidate: GltfRoot,
   name: string,
-  bins: GlbBins,
+  mainPrims: GltfPrimitive[],
+  candPrims: GltfPrimitive[],
+  mainParts: string[][],
+  candParts: string[][],
+  mainBin: Uint8Array,
+  candBin: Uint8Array,
 ): string[] {
-  const mainPrims = ((main.meshes ?? []).find((m) => m.name === name) as GltfMesh | undefined)?.primitives ?? [];
-  const candPrims = ((candidate.meshes ?? []).find((m) => m.name === name) as GltfMesh | undefined)?.primitives ?? [];
-  const mainParts = meshPrimTriPosParts(main, name, bins.main);
-  const candParts = meshPrimTriPosParts(candidate, name, bins.candidate);
-  if (mainParts === null || candParts === null) return [];
   const mainMats = main.materials ?? [];
   const candMats = candidate.materials ?? [];
-  const isHidden = (mats: Array<{ name?: string }>, idx: number): boolean =>
-    (mats[idx]?.name ?? "").startsWith("openclinxr_hidden_");
-  // POSITION part -> main hidden source prim indices holding it.
-  const hiddenSources = new Map<string, number[]>();
-  mainPrims.forEach((rawPrim, si) => {
-    const mp = rawPrim as GltfPrimitive;
-    const mi = typeof mp.material === "number" ? mp.material : -1;
-    if (!isHidden(mainMats, mi)) return;
-    for (const pos of mainParts[si] ?? []) {
-      const arr = hiddenSources.get(pos);
-      if (arr === undefined) hiddenSources.set(pos, [si]);
-      else if (!arr.includes(si)) arr.push(si);
+  // POSITION part -> main primitive indices holding it.
+  const sourcesByPosition = new Map<string, Set<number>>();
+  for (const [si, parts] of mainParts.entries()) {
+    for (const pos of parts) {
+      const sources = sourcesByPosition.get(pos) ?? new Set<number>();
+      sources.add(si);
+      sourcesByPosition.set(pos, sources);
     }
-  });
-  if (hiddenSources.size === 0) return [];
+  }
   const lines: string[] = [];
-  candPrims.forEach((rawPrim, j) => {
-    const cp = rawPrim as GltfPrimitive;
-    const cm = typeof cp.material === "number" ? cp.material : -1;
-    if (isHidden(candMats, cm)) return;
-    const seen = new Map<number, number>();
-    for (const pos of candParts[j] ?? []) {
-      const srcs = hiddenSources.get(pos);
-      if (srcs === undefined) continue;
-      for (const s of srcs) seen.set(s, (seen.get(s) ?? 0) + 1);
-    }
-    for (const [s, n] of seen) {
-      const sp = mainPrims[s] as GltfPrimitive;
+  candPrims.forEach((cp, j) => {
+    const cm = cp.material ?? -1;
+    const appended = j >= mainPrims.length;
+    const destHidden = isHiddenMaterial(candMats, cm);
+    const checked = new Map<number, string[]>();
+    const compareSource = (s: number): string[] => {
+      const sp = mainPrims[s];
+      if (sp === undefined) return [];
+      const mismatches: string[] = [];
       if (primAttrSig(cp) !== primAttrSig(sp)) {
-        lines.push(
-          `mesh structure mismatch: ${name} primitive ${j} attributes [${primAttrSig(cp)}] do not match rehomed source primitive ${s} [${primAttrSig(sp)}] (${n} tris)`,
+        mismatches.push(
+          `mesh structure mismatch: ${name} primitive ${j} attributes [${primAttrSig(cp)}] do not match rehomed source primitive ${s} [${primAttrSig(sp)}]`,
         );
       }
       if (primMorphSig(cp) !== primMorphSig(sp)) {
-        lines.push(
-          `mesh morph mismatch: ${name} primitive ${j} targets ${primMorphSig(cp)} do not match rehomed source primitive ${s} ${primMorphSig(sp)} (${n} tris)`,
+        mismatches.push(
+          `mesh morph mismatch: ${name} primitive ${j} targets ${primMorphSig(cp)} do not match rehomed source primitive ${s} ${primMorphSig(sp)}`,
         );
       }
+      if (!appended || mismatches.length > 0) return mismatches;
+
+      const checkRefs = (label: string, src: Record<string, number>, dst: Record<string, number>): void => {
+        for (const [semantic, sourceIdx] of Object.entries(src)) {
+          const destIdx = dst[semantic];
+          if (!equalAccessorPayload(
+            main.accessors?.[sourceIdx], destIdx === undefined ? undefined : candidate.accessors?.[destIdx],
+            main, candidate, mainBin, candBin,
+          )) {
+            mismatches.push(`R1 appended accessor mismatch: ${name} primitive ${j} ${label} ${semantic} differs from source primitive ${s}`);
+          }
+        }
+      };
+      checkRefs("attribute", sp.attributes ?? {}, cp.attributes ?? {});
+      for (const [i, target] of (sp.targets ?? []).entries()) {
+        checkRefs(`target ${i}`, target, cp.targets?.[i] ?? {});
+      }
+      return mismatches;
+    };
+    const reported = new Set<string>();
+    for (const pos of candParts[j] ?? []) {
+      const possible = [...(sourcesByPosition.get(pos) ?? [])].filter((s) => {
+        const material = mainPrims[s]?.material ?? -1;
+        return (appended && material === cm) || (!destHidden && isHiddenMaterial(mainMats, material));
+      });
+      const mismatches = possible.map((s) => {
+        const result = checked.get(s) ?? compareSource(s);
+        checked.set(s, result);
+        return result;
+      });
+      if (appended && mismatches.some((result) => result.length === 0)) continue;
+      if (appended && possible.length === 0) {
+        reported.add(`R1 appended primitive has no matching source triangle: ${name} primitive ${j}`);
+      }
+      for (const result of mismatches) for (const line of result) reported.add(line);
     }
+    lines.push(...reported);
   });
   return lines;
 }
@@ -1147,18 +1096,26 @@ export function findLosses(
     if (!Object.hasOwn(candExtras, key)) losses.push(`asset.extras key missing in candidate: ${key}`);
   }
 
-  const mainHasBin = bins.main !== undefined && bins.main.length > 0;
-  const candHasBin = bins.candidate !== undefined && bins.candidate.length > 0;
+  const mainBin = bins.main;
+  const candBin = bins.candidate;
   for (const [name] of [...mainTris.entries()].sort(([a], [b]) => (a < b ? -1 : a > b ? 1 : 0))) {
     if (decimated.has(name) || !candTris.has(name)) continue;
-    if (mainHasBin && candHasBin) {
-      const multi = compareTriangleMultiset(main, candidate, name, bins);
-      if (multi !== null) {
-        losses.push(...multi);
-        losses.push(...comparePrimitiveStructure(main, candidate, name, bins, true));
-        losses.push(...compareRehomedPrimStructure(main, candidate, name, bins));
+    if (mainBin?.length && candBin?.length) {
+      const mainPrims = main.meshes?.find((mesh) => mesh.name === name)?.primitives ?? [];
+      const candPrims = candidate.meshes?.find((mesh) => mesh.name === name)?.primitives ?? [];
+      const mainParts = meshPrimTriPosParts(main, mainPrims, name, mainBin);
+      const candParts = meshPrimTriPosParts(candidate, candPrims, name, candBin);
+      if (typeof mainParts === "string" || typeof candParts === "string") {
+        const reason = typeof candParts === "string" ? `candidate ${candParts}` : `main ${mainParts}`;
+        losses.push(`mesh structure mismatch: ${name} unsupported index layout: ${reason}`);
         continue;
       }
+      losses.push(...compareTriangleMultiset(main, candidate, name, mainPrims, candPrims, mainParts, candParts));
+      losses.push(...comparePrimitiveStructure(main, candidate, name, bins, true));
+      losses.push(...compareRehomedPrimStructure(
+        main, candidate, name, mainPrims, candPrims, mainParts, candParts, mainBin, candBin,
+      ));
+      continue;
     }
     losses.push(...comparePrimitiveStructure(main, candidate, name, bins));
   }

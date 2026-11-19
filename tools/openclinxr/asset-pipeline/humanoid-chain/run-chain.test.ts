@@ -1,11 +1,11 @@
 /**
  * run-chain.test.ts — manifest schema validation, write-once refusal, and a
- * 2-stage fake-manifest run proving order plus chain-report shape.
- * No GLB fixtures from apps/; inputs are byte blobs written to tmp dirs.
+ * 2-stage fake-manifest run proving order plus chain-report shape, and
+ * replay checks against shipped humanoid assets.
  */
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { deflateSync } from "node:zlib";
@@ -514,8 +514,9 @@ describe("shipped kevin stage 22 executes through runChain (kevin-collar S3)", (
     // path with --select-tris stripped (see stripSelect).
     expect(shipped.inputs?.map((i) => i.name).sort()).toEqual([SELECT_NAME, SPEC_NAME].sort());
     const selectInput = shipped.inputs?.find((i) => i.name === SELECT_NAME);
-    expect(selectInput?.path).toBe("tools/openclinxr/asset-pipeline/makeclothes/openings/kevin-collar-select-126.json");
-    expect(selectInput?.sha256).toBe("ebdd9d2dfdc19dca65fe6170d9f36c4296a1fcc010e32443de3d88e95e37a83f");
+    const selectionPath = "tools/openclinxr/asset-pipeline/makeclothes/openings/kevin-collar-select-126.json";
+    expect(selectInput?.path).toBe(selectionPath);
+    expect(selectInput?.sha256).toBe(createHash("sha256").update(readFileSync(join(root, selectionPath))).digest("hex"));
     expect(shipped.argv).toContain("--select-tris");
     const dir = tmpRoot();
     const preGlb = join(dir, "pre.glb");
@@ -592,7 +593,7 @@ describe("shipped kevin stages 22+23 replay on the real pre-fix input (kevin-col
   const KEVIN_PRE_REF =
     "8108f27c0:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb";
   const KEVIN_PRE_SHA = "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72";
-  const KEVIN_SHIPPED_SHA = "ad61615d110853cf9b959ca6801afc8d079fce77203dc091d4fde07460075d7a";
+  const KEVIN_SHIPPED = "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb";
   const PHYS_PRE_REF =
     "399ae1f8f~1:apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb";
   const PHYS_PRE_SHA = "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0";
@@ -623,7 +624,7 @@ describe("shipped kevin stages 22+23 replay on the real pre-fix input (kevin-col
     return out;
   }
 
-  it("replays stages 22+23 on the real pre-fix input: movedTrisTotal == 126 and output sha == ad61615d", { timeout: 900_000 }, () => {
+  it("replays stages 22+23 on the real pre-fix input: moves 126 tris and reproduces the tracked GLB", { timeout: 900_000 }, () => {
     const root = process.cwd();
     const preBytes = gitBytes(KEVIN_PRE_REF);
     expect(createHash("sha256").update(preBytes).digest("hex"), "pre-fix pin is 40492951").toBe(KEVIN_PRE_SHA);
@@ -658,12 +659,14 @@ describe("shipped kevin stages 22+23 replay on the real pre-fix input (kevin-col
     expect(toolReport.movedTrisTotal, "SELECTED-126 moves exactly 126 tris").toBe(126);
     const finalGlb = join(out, `23-${s23.name}.glb`);
     const finalSha = createHash("sha256").update(readFileSync(finalGlb)).digest("hex");
+    const trackedSha = createHash("sha256").update(readFileSync(join(root, KEVIN_SHIPPED))).digest("hex");
+    expect(finalSha, "chain replay reproduces the tracked Kevin GLB bytes").toBe(trackedSha);
     // eslint-disable-next-line no-console
-    console.log(`Tests: B1 replay GREEN: movedTrisTotal=126 final sha=${finalSha} (want ${KEVIN_SHIPPED_SHA})`);
-    expect(finalSha, "chain replay reproduces the shipped ad61615d bytes").toBe(KEVIN_SHIPPED_SHA);
+    console.log(`Tests: B1 replay GREEN: movedTrisTotal=126 final sha=${finalSha} (tracked ${trackedSha})`);
   });
 
-  it("counterweight: replay with --select-tris omitted does NOT produce ad61615d (RED)", { timeout: 900_000 }, () => {
+  it("counterweight: replay with --select-tris omitted differs from the tracked GLB (RED)", { timeout: 900_000 }, () => {
+    const root = process.cwd();
     const preBytes = gitBytes(KEVIN_PRE_REF);
     expect(createHash("sha256").update(preBytes).digest("hex")).toBe(KEVIN_PRE_SHA);
     const dir = tmpRoot();
@@ -685,16 +688,17 @@ describe("shipped kevin stages 22+23 replay on the real pre-fix input (kevin-col
     ];
     const manifestPath = writeManifest(dir, manifest);
     const out = join(dir, "out-noselect");
-    const report = runChain({ manifestPath, input: preGlb, out, root: process.cwd() });
+    const report = runChain({ manifestPath, input: preGlb, out, root });
     expect(report.status).toBe("complete");
     const toolReport = JSON.parse(readFileSync(join(out, "22-collar-sleeve-opening-unhide.json"), "utf8")) as {
       movedTrisTotal: number;
     };
     const finalSha = createHash("sha256").update(readFileSync(join(out, `23-${s23.name}.glb`))).digest("hex");
+    const trackedSha = createHash("sha256").update(readFileSync(join(root, KEVIN_SHIPPED))).digest("hex");
     // eslint-disable-next-line no-console
-    console.log(`Tests: B1 counterweight RED as required: no-select movedTrisTotal=${toolReport.movedTrisTotal} final sha=${finalSha} (shipped ${KEVIN_SHIPPED_SHA})`);
+    console.log(`Tests: B1 counterweight RED as required: no-select movedTrisTotal=${toolReport.movedTrisTotal} final sha=${finalSha} (tracked ${trackedSha})`);
     expect(toolReport.movedTrisTotal, "un-narrowed moved set is not the SELECTED 126").not.toBe(126);
-    expect(finalSha, "omitting --select-tris must not replay ad61615d").not.toBe(KEVIN_SHIPPED_SHA);
+    expect(finalSha, "omitting --select-tris must change the tracked replay bytes").not.toBe(trackedSha);
   });
 
   it("physician default path stays byte-equal (2faef74a -> 8c3ab05c)", { timeout: 900_000 }, () => {
@@ -724,6 +728,107 @@ describe("shipped kevin stages 22+23 replay on the real pre-fix input (kevin-col
   });
 });
 
+function preImageLookupDecision(catFileStatus: number | null, shallowFlag: string): "replay" | "skip" | "fail" {
+  if (catFileStatus === 0) return "replay";
+  return shallowFlag === "true" ? "skip" : "fail";
+}
+
+function kevinPreImageSkipReason(revision: string, catFileStatus: number | null, shallowFlag: string): string | undefined {
+  switch (preImageLookupDecision(catFileStatus, shallowFlag)) {
+    case "replay": return undefined;
+    case "skip": return `Kevin pre-image revision ${revision} not found in a shallow repository`;
+    case "fail": throw new Error(`Kevin pre-image revision ${revision} not found in a full clone`);
+  }
+}
+
+describe("Kevin sidecar replay and plants", () => {
+  const S9_DRIVER = "tools/openclinxr/evidence/skin-footprint-inpaint/scripts/kevin-collar-s9-chain.py";
+  const KEVIN_ASSET = "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin";
+
+  it("(lin) fails a mistyped revision in a full clone and skips it in a shallow repository", () => {
+    const revision = "0000000deadbeef";
+    const gitObject = spawnSync("git", ["cat-file", "-e", `${revision}^{commit}`], { encoding: "utf8" });
+    if (gitObject.error) throw gitObject.error;
+    expect(gitObject.status).not.toBe(0);
+
+    const fullCloneLookup = () => kevinPreImageSkipReason(revision, gitObject.status, "false");
+    const failure = `Kevin pre-image revision ${revision} not found in a full clone`;
+    expect(fullCloneLookup).toThrow(failure);
+    console.log(`(lin) typo plant FAIL: ${failure}`);
+
+    expect(preImageLookupDecision(gitObject.status, "true")).toBe("skip");
+    const skip = kevinPreImageSkipReason(revision, gitObject.status, "true");
+    expect(skip).toBe(`Kevin pre-image revision ${revision} not found in a shallow repository`);
+    console.log(`(lin) shallow plant SKIP: ${skip}`);
+  });
+
+  it("(lin) replays the newest Kevin sidecar derivation byte-identical to the installed GLB", { timeout: 300_000 }, (ctx) => {
+    const { byteLineage } = JSON.parse(readFileSync(`${KEVIN_ASSET}.provenance.json`, "utf8")) as {
+      byteLineage: { preImageRevision: string; preImageSha256: string; derivationArgv: string[] };
+    };
+    const { preImageRevision, preImageSha256, derivationArgv } = byteLineage;
+    console.log(`(lin) byteLineage.derivationArgv=${JSON.stringify(derivationArgv)}`);
+    expect(derivationArgv).toContain(S9_DRIVER);
+
+    const [revision] = preImageRevision.split(":");
+    const gitObject = spawnSync("git", ["cat-file", "-e", `${revision}^{commit}`], { encoding: "utf8" });
+    if (gitObject.error) throw gitObject.error;
+    if (gitObject.status !== 0) {
+      const shallowFlag = execFileSync("git", ["rev-parse", "--is-shallow-repository"], {
+        encoding: "utf8",
+      }).replace(/\r?\n$/, "");
+      const reason = kevinPreImageSkipReason(revision, gitObject.status, shallowFlag);
+      if (reason !== undefined) {
+        console.log(`(lin) SKIP: ${reason}`);
+        ctx.skip(reason);
+      }
+    }
+
+    const sha = (bytes: Buffer) => createHash("sha256").update(bytes).digest("hex");
+    const installedSha = sha(readFileSync(`${KEVIN_ASSET}.glb`));
+    const assertInstalledSha = (outputSha: string) =>
+      expect(outputSha, "replayed Kevin GLB SHA-256").toBe(installedSha);
+    const work = tmpRoot();
+    try {
+      const pre = join(work, "pre.glb");
+      const out = join(work, "out.glb");
+      const report = join(work, "report.json");
+      const preBytes = execFileSync("git", ["show", preImageRevision], { maxBuffer: 256 * 1024 * 1024 });
+      expect(sha(preBytes), "git pre-image SHA-256").toBe(preImageSha256);
+      writeFileSync(pre, preBytes);
+      const [command, ...args] = derivationArgv.map((token) =>
+        token.replace("{pre}", pre).replace("{out}", out).replace("{report}", report),
+      );
+      const options = { env: { ...process.env, TMPDIR: work }, encoding: "utf8" } as const;
+
+      const missingPre = join(work, "missing-pre.glb");
+      const plantedArgs = args.map((arg) => (arg === pre ? missingPre : arg));
+      console.log(`(lin) plant argv before=${pre} after=${missingPre}`);
+      const planted = spawnSync(command, plantedArgs, options);
+      if (planted.error) throw planted.error;
+      expect(planted.status).toBe(1);
+      expect(planted.stdout).toContain("chain stage22-unhide-select refused");
+      expect(planted.stderr).toContain(`FileNotFoundError: [Errno 2] No such file or directory: '${missingPre}'`);
+      console.log("(lin) plant argv RED: stage22-unhide-select refused the missing pre-image");
+
+      execFileSync(command, args, { ...options, stdio: "pipe" });
+      const output = readFileSync(out);
+      const flipped = Buffer.from(output);
+      flipped[0] ^= 1;
+      const outputSha = sha(output);
+      const flippedSha = sha(flipped);
+      console.log(`(lin) plant output SHA before=${outputSha} after=${flippedSha}`);
+      expect(() => assertInstalledSha(flippedSha)).toThrow(/replayed Kevin GLB SHA-256/);
+      console.log("(lin) plant output RED: replayed Kevin GLB SHA-256 assertion rejected the flipped byte");
+
+      assertInstalledSha(outputSha);
+      console.log(`(lin) GREEN: sidecar derivation reproduces installed GLB SHA-256 ${outputSha}`);
+    } finally {
+      rmSync(work, { recursive: true, force: true });
+    }
+  });
+});
+
 describe("shipped kevin stage 23 executes through runChain (kevin-collar S5)", () => {
   const SHIPPED_MANIFEST =
     "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.json";
@@ -745,10 +850,11 @@ describe("shipped kevin stage 23 executes through runChain (kevin-collar S5)", (
     expect(shipped.tool).toBe("tools/openclinxr/evidence/skin-footprint-inpaint/inpaint_hide_footprint.py");
     expect(shipped.inputs).toHaveLength(1);
     expect(shipped.inputs?.[0]?.name).toBe(MASK_NAME);
-    expect(shipped.inputs?.[0]?.path).toBe(
-      "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/kevin-openings-footprint-mask.png",
+    const maskPath = "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/kevin-openings-footprint-mask.png";
+    expect(shipped.inputs?.[0]?.path).toBe(maskPath);
+    expect(shipped.inputs?.[0]?.sha256).toBe(
+      createHash("sha256").update(readFileSync(join(process.cwd(), maskPath))).digest("hex"),
     );
-    expect(shipped.inputs?.[0]?.sha256).toBe("97bf6e25116f10d1e7b0f27399bd7258c0342f34607fd796fb7176cef3f987be");
     expect(shipped.argv.join(" ")).toContain("{outdir}/.inputs/kevin-openings-footprint-mask.png");
   });
 

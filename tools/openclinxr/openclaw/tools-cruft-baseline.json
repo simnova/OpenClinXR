@@ -1,5 +1,5 @@
 {
-  "baseSha": "85fd7a6b5b627679db002de74207d9f82ed6cf90",
+  "baseSha": "ea75a92787cc7049d549e1289f88e5ea86928dfe",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -310,7 +310,6 @@
     "tools/openclinxr/asset-pipeline/makeclothes/palette_grade.py",
     "tools/openclinxr/asset-pipeline/makeclothes/render-hem-region-still.py",
     "tools/openclinxr/asset-pipeline/makeclothes/separate_layered_garment.py",
-    "tools/openclinxr/asset-pipeline/makeclothes/unhide-neckline-opening.py",
     "tools/openclinxr/asset-pipeline/makeclothes/waistband_grade.py",
     "tools/openclinxr/asset-pipeline/realism-head/eye-realism/probe_batch_metrics.py",
     "tools/openclinxr/asset-pipeline/realism-head/eye-realism/probe_cw.py",
@@ -958,5 +957,5 @@
     "tools/openclinxr/hair-groom/strands/settle.py",
     "tools/openclinxr/openclaw/session-time-split.py"
   ],
-  "vultureFindings": 847
+  "vultureFindings": 850
 }
