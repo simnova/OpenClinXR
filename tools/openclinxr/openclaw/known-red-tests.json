@@ -283,8 +283,8 @@
     },
     {
       "path": "tools/openclinxr/evidence/garment-surface-stale/no-orphan-skin-slivers.test.ts",
-      "reason": "ci-w1 classifier migration is green (skin/garment/overlap populations select correctly): 10 orphan skin components wider than 8mm, skin below 19000 tris on 10 actors, and 3 shirt/trouser overlaps at 0.0mm (gowns). Skin/garment geometry gap, not a name miss.",
-      "card": "ci-w1: clear orphan slivers without gutting skin; restore overlaps"
+      "reason": "Selectors fixed (SIBLING-REDS); assets still red: (1) slivers on 11/12 actors since 5a05ffe45; (3) 10/12 below the pre-decimation 19,000 visible-skin floor (f6b335392). Store gss-sibling-reds.",
+      "card": "tsk_3721038eabc4f1c4 (1); tsk_497447e516de797b (3)"
     },
     {
       "path": "tools/openclinxr/evidence/humanoid-bake/open-front-underlayer.test.ts",
@@ -308,8 +308,8 @@
     },
     {
       "path": "tools/openclinxr/evidence/garment-surface-stale/the-skin-normal-map-carries-surface-detail.test.ts",
-      "reason": "ci-w1 classifier migration is green (skin vs garment populations select correctly): skin normal maps on 2 actors are mostly the flat no-op value (mirror-smooth, noise-incoherent, unbound/scaled). Rebaking the maps is an asset fix.",
-      "card": "ci-w1: rebake skin normal maps with real surface detail"
+      "reason": "Aisha/child guards inverted (SIBLING-REDS); still red: Kevin (2) slope 4.49, (3) incoherence 1.01; Aisha (5) albedo sd 26.92 > 15.775 (b17bd7e92 embed). Store gss-sibling-reds.",
+      "card": "tsk_4473568094095942 Kevin; tsk_aca95ca68d9c068c, tsk_29680ffe282c9b37 clause 5"
     },
     {
       "path": "tools/openclinxr/evidence/rig-fit/the-waistband-is-as-smooth-as-the-hem.test.ts",

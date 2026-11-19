@@ -6,124 +6,49 @@ import { describe, expect, it } from "vitest";
 import { classifyGarmentMeshName } from "../lib/garment-mesh-class.js";
 
 /**
- * **Every MPFB actor ships a 1024² skin normal map, correctly bound, containing essentially nothing.**
- * This is not a missing-asset defect and not a wiring defect. The plumbing is right and there is no
- * signal travelling down it, which is why the skin grades as matte plastic.
+ * MPFB skin normal-map regression checks. Clauses (1)–(4) cover actors with an
+ * intentional skin normal map. Clause (5) covers all actors, and (6) checks
+ * actors whose maps were intentionally stripped.
  *
- * Measured 2026-08-14 on the shipped bytes, sampling every 4th texel and excluding empty atlas gutter:
+ * Historical measurements (2026-08-14, every fourth texel outside the atlas gutter).
+ * Each map was bound at 1024² and scale 1. The columns are sd(R), flat texels,
+ * and mean absolute difference between adjacent samples (adjacent-MAD).
  *
- *   actor    normalTexture   normalScale   sd(R)   flat texels   adjacent-MAD   roughness
- *   -------  --------------  -----------  ------  ------------  -------------  ---------
- *   aisha    BOUND 1024²          1        2.13      77.1%           1.44       0.78 flat
- *   kevin    BOUND 1024²          1        2.08      77.7%           1.38       0.78 flat
- *   child    BOUND 1024²          1        2.42      72.6%           1.67       0.78 flat
+ * Actor    Original               Dermal rebake (#369)
+ * Aisha    2.13 / 77.1% / 1.44    9.24 / 36.7% / 4.46
+ * Kevin    2.08 / 77.7% / 1.38    8.90 / 36.8% / 4.29
+ * Child    2.42 / 72.6% / 1.67   12.02 / 36.5% / 6.04
  *
- * "flat texels" = within ±2 of a perfectly flat tangent-space normal (128,128,255). Over seventy per
- * cent of every map is literally the no-op value; the rest deviates by about two levels out of 255.
+ * No in-tree map qualified as a reference before the rebake (SS9h). The bake
+ * replaced a missing MPFB_GEN_scale_factor input, restored the dermal Voronoi
+ * detail, and baked hidden atlas polygons with the skin material. The resulting
+ * maps supplied the known-good reference. Keep detail in the deterministic
+ * MPFB2/Blender bake (D1/D9).
  *
- * ## THE BAND IS DERIVED FROM GEOMETRY, NOT FROM THE OBSERVATION (SS9s)
+ * Clauses (1)–(3) measure detail. The binding and albedo counterweights
+ * catch texture deletion and painted-in shading (#227).
  *
- * A tangent-space normal map stores a unit vector, so a surface tilted by θ from the texel normal
- * deviates R and G from 128 by `127·sin(θ)`, and across a random azimuth the standard deviation is
- * about `127·sin(θ)/√2`:
- *
- *   slope  1.3°  ->  sd ≈  2.0     <- WHAT SHIPS TODAY. That is flat to within rounding.
- *   slope  5.0°  ->  sd ≈  7.8
- *   slope 10.0°  ->  sd ≈ 15.6
- *   slope 15.0°  ->  sd ≈ 23.2
- *
- * So `sd > 8` is not a number chosen to be just out of reach — it is the encoding's own answer to
- * "does this surface tilt by at least five degrees anywhere". Pores, wrinkles and blemishes are all
- * well above that. Today's maps fail it by 4×, and they fail it because they describe a mirror.
- *
- * ## THERE IS NO KNOWN-GOOD COLUMN IN THIS TREE, AND THAT IS ITSELF THE FINDING (SS9h)
- *
- * SS9h asks for a known-good beside the broken one. I looked: **the only three bound normal maps in the
- * shipped assets are these three, and all three are blank.** No garment, footwear or library asset
- * binds one at all. So there is no in-tree reference and the band above had to be derived externally,
- * which is exactly the case SS9h says to declare rather than paper over. If a later slice produces one
- * good map, it becomes the reference and this comment should be replaced with it.
- *
- * ## THE CHEAP FIXES THIS REFUSES
- *
- *   treatment                                        | (1) flat | (2) slope | (3) coherent | (4) bound | (5) albedo | result
- *   -------------------------------------------------|----------|-----------|--------------|-----------|------------|--------
- *   a) today                                         | **FAIL** | **FAIL**  |   **FAIL**   |   pass    |    pass    | REFUSED
- *   b) delete the blank map, it does nothing anyway  |   pass   |   pass    |     pass     | **FAIL**  |    pass    | REFUSED
- *   c) fill it with random noise to move the numbers |   pass   |   pass    |   **FAIL**   |   pass    |    pass    | REFUSED
- *   d) paint shading into the albedo instead         | **FAIL** | **FAIL**  |   **FAIL**   |   pass    |  **FAIL**  | REFUSED
- *   e) bake real surface detail into the normal map  |   pass   |   pass    |     pass     |   pass    |    pass    | ALL PASS
- *
- * **(c) is the one to watch and it is why clause (3) exists.** Clauses (1) and (2) are both satisfied
- * instantly by `rand()` — noise is not flat and has a large sd. But a baked surface is *spatially
- * coherent*: neighbouring texels describe neighbouring bits of skin, so the mean absolute difference
- * between adjacent samples is small compared with the global spread. White noise has
- * `adjacent-MAD ≈ 1.13·sd`; a coherent map is far below that. Today's ratio is **0.66–0.71**, which is
- * itself the signature of dither rather than detail — so (3) is a RED, not a counterweight.
- *
- * **(d) is why clause (5) exists.** Painting creases and shadows into the base colour looks better in
- * one lighting setup and wrong in every other, and it is the traditional way to fake this. Albedo
- * luminance sd is pinned per actor.
- *
- * ## FIXED (#369) — the bake now writes the enhanced_skin dermal detail
- *
- * Measured 2026-08-14 on the re-baked shipped bytes (same sampling as the table above):
- *
- *   actor    normalTexture   normalScale   sd(R)   flat texels   adjacent-MAD   roughness
- *   -------  --------------  -----------  ------  ------------  -------------  ---------
- *   aisha    BOUND 1024²          1        9.24      36.7%          4.46       0.78 flat
- *   kevin    BOUND 1024²          1        8.90      36.8%          4.29       0.78 flat
- *   child    BOUND 1024²          1       12.02      36.5%          6.04       0.78 flat
- *
- * The maps were blank because the enhanced_skin dermal channel's Voronoi scale chain was dead on
- * this install: its scale is driven by a `MPFB_GEN_scale_factor` mesh attribute that
- * `HumanService.create_human` never emits (measured 2026-08-14), so the shipped Math DIVIDE
- * safe-divided to 0 and the dermal contributed nothing — the shipped 1.3 deg of slope was the
- * aliased unevenness noise alone. `materialize_mpfb_humanoid_candidate.py` now repairs the dermal
- * scale input directly and sets the channel's own shipped knobs (Voronoi cells ~47 texels at 1024²,
- * ramp 0.0–0.5, bump strength 6.0) before the bake, and swaps the hide-mask/scalp polys to the skin
- * material for the bake so their (invisible) atlas area bakes the same detail instead of a flat
- * normal. All other bump channels stay at their shipped strengths. Roughness is still a uniform 0.78
- * — deliberately out of scope, per the issue.
- *
- * This map becomes the known-good reference the header above said did not exist.
- *
- * ## WHY THIS IS A DARK-FACTORY SLICE (D1/D9)
- *
- * Do NOT hand-author a normal map. MPFB2 and Blender can bake one; the binding, the `normalScale`, the
- * texture slot and the export path all already work. The step moving from absent to deterministic is a
- * bake, and once it exists every future actor gets it with no per-actor work.
- *
- * WHICH ARE REDS AND WHICH ARE NETS (#227): (1), (2) and (3) are REDS and fail on 3 of 3 actors today.
- * (4) and (5) are counterweights and pass today. They are independent of what the REDs measure: baking
- * detail into a normal map cannot unbind the texture and cannot change the albedo.
- *
- * NOT TESTED:
- *   - **That the skin then looks like skin.** This bounds the map's information content, not
- *     appearance. Only a graded capture settles that, and that grade is not the worker's.
- *   - **Roughness.** Every actor ships a uniform 0.78 with no roughness map. A perfect normal map under
- *     uniform roughness will still read partly synthetic. Deliberately out of scope — measured and
- *     recorded on #369, not asserted here.
- *   - **Whether MPFB2 can bake this on this install.** The generator's capability is unverified; a
- *     `reject_measured` close naming what was tried is an acceptable outcome.
- *   - **Anatomical correctness of the detail.** A coherent map of the wrong person's pores passes.
+ * NOT TESTED: visual appearance, anatomical accuracy, roughness (0.78 in both
+ * measurements), or the generator's ability to reproduce the bake on this install.
  */
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = pathResolve(HERE, "../../../..");
 const GENERATED = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids");
 
-const ACTORS = ["mpfb-ob-patient-aisha", "mpfb-peds-nurse-kevin", "mpfb-peds-patient-child"] as const;
+const ACTORS_WITH_NORMAL_MAP = ["mpfb-peds-nurse-kevin"] as const;
+const ACTORS_WITHOUT_NORMAL_MAP = ["mpfb-ob-patient-aisha", "mpfb-peds-patient-child"] as const;
+const ACTORS = [...ACTORS_WITH_NORMAL_MAP, ...ACTORS_WITHOUT_NORMAL_MAP];
 
-/** Within this of (128,128,255) a texel is the no-op value. */
+/** Quantization tolerance around the flat normal (128,128,255). */
 const FLAT_TOL = 2;
-/** Today 72.6-77.7%. A map that describes a surface cannot be mostly no-op. */
+/** Flat-texel ceiling for a map carrying surface detail (#369). */
 const MAX_FLAT_FRACTION = 0.40;
-/** 127·sin(5°)/√2 ≈ 7.8 — the encoding's own answer to "does this tilt at least five degrees". */
+/** At 5° of tilt, random azimuth gives sd(R) ≈ 127·sin(5°)/√2 ≈ 7.8 (SS9s). */
 const MIN_SD = 8;
-/** White noise sits at ≈1.13; a spatially coherent bake is well below. Today 0.66-0.71. */
+/** Coherence ceiling below the original maps' 0.66–0.71 ratio (#369). */
 const MAX_INCOHERENCE = 0.6;
-/** Albedo luminance sd measured 2026-08-14; +25% headroom before it reads as baked-in shading. */
+/** Albedo luminance sd measured 2026-08-14, with 25% headroom (#369). */
 const ALBEDO_SD_BASELINE: Record<string, number> = {
   "mpfb-ob-patient-aisha": 12.62,
   "mpfb-peds-nurse-kevin": 12.36,
@@ -287,6 +212,7 @@ async function measure(actor: string): Promise<SkinRow | null> {
 }
 
 const rows = (await Promise.all(ACTORS.map(measure))).filter((r): r is SkinRow => r !== null);
+const normalRows = rows.filter((r) => ACTORS_WITH_NORMAL_MAP.some((actor) => actor === r.actor));
 
 /**
  * An empty enumeration must FAIL, never pass vacuously (SS7t). Plain `it` on purpose: an `it.fails`
@@ -301,7 +227,7 @@ function requireMeasured(): void {
 describe("the skin normal map carries surface detail", () => {
   it("(1) RED: the map is not mostly the flat no-op value", () => {
     requireMeasured();
-    const blank = rows
+    const blank = normalRows
       .filter((r) => r.flatFraction > MAX_FLAT_FRACTION)
       .map(
         (r) =>
@@ -312,7 +238,7 @@ describe("the skin normal map carries surface detail", () => {
 
   it("(2) RED: the map encodes at least five degrees of surface slope", () => {
     requireMeasured();
-    const flat = rows
+    const flat = normalRows
       .filter((r) => r.sd < MIN_SD)
       .map(
         (r) =>
@@ -322,11 +248,9 @@ describe("the skin normal map carries surface detail", () => {
   });
 
   it("(3) RED: the map is spatially coherent, not dither", () => {
-    // Refuses (c): rand() satisfies (1) and (2) instantly. A baked surface has neighbouring texels
-    // describing neighbouring skin, so adjacent-MAD is small against the global spread; white noise
-    // sits at ≈1.13. Today's 0.66-0.71 is the signature of dither, which is why this is a RED.
+    // Spatial coherence rejects random noise that could pass (1) and (2).
     requireMeasured();
-    const noisy = rows
+    const noisy = normalRows
       .filter((r) => r.incoherence > MAX_INCOHERENCE)
       .map(
         (r) =>
@@ -336,17 +260,16 @@ describe("the skin normal map carries surface detail", () => {
   });
 
   it("(4) COUNTERWEIGHT: the normal texture stays bound and scaled", () => {
-    // Refuses (b): deleting a map that "does nothing anyway" makes every RED pass and removes the
-    // slot a real bake would fill. The binding already works — that is the point.
+    // Preserve the original binding and scale (#369).
     requireMeasured();
-    const unbound = rows
+    const unbound = normalRows
       .filter((r) => !r.bound || r.normalScale < 1)
       .map((r) => `${r.actor}: bound=${r.bound} normalScale=${r.normalScale} (need bound with scale >= 1)`);
     expect(unbound, "actors whose normal texture was unbound or scaled down").toEqual([]);
   });
 
   it("(5) COUNTERWEIGHT: shading was not baked into the albedo instead", () => {
-    // Refuses (d): painting creases into base colour looks right in one light and wrong in all others.
+    // Check albedo across both texture policies.
     requireMeasured();
     const painted = rows
       .filter((r) => r.albedoSd > (ALBEDO_SD_BASELINE[r.actor] ?? 0) * ALBEDO_SD_TOLERANCE)
@@ -355,5 +278,21 @@ describe("the skin normal map carries surface detail", () => {
           `${r.actor}: albedo luminance sd ${r.albedoSd.toFixed(2)} vs baseline ${ALBEDO_SD_BASELINE[r.actor]} (limit ×${ALBEDO_SD_TOLERANCE}) — detail was painted into base colour`,
       );
     expect(painted, "actors whose albedo gained baked-in shading").toEqual([]);
+  });
+
+  // Intentional JSON-only strips on 2026-10-10: 10768617f (aisha-normal-off-proof.mjs)
+  // and 281364d88 (child-normal-off-proof.mjs), both under ../factory-skin-publication/.
+  it.each(ACTORS_WITHOUT_NORMAL_MAP)("(6) GUARD: %s has no normalTexture", async (actor) => {
+    const doc = await io.read(join(GENERATED, `${actor}.glb`));
+    // Skin = material or mesh in the body class; hair normal maps are intentional (c613e86e8).
+    const isBody = (n: string | null) => classifyGarmentMeshName(n ?? "") === "body";
+    const boundMaterials = doc.getRoot().listMeshes().flatMap((mesh) =>
+      mesh.listPrimitives().map((p) => p.getMaterial())
+        .filter((m) => m?.getNormalTexture() && (isBody(mesh.getName()) || isBody(m.getName()))),
+    );
+    expect(
+      boundMaterials.map((material) => material?.getName()),
+      `normal map restored: move ${actor} back into the positive set; do not widen or delete this guard`,
+    ).toEqual([]);
   });
 });

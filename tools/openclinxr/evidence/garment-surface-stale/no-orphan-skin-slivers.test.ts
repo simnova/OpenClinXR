@@ -53,9 +53,8 @@ import {
  *
  * **Removing these quads is a legitimate fix and this contract does not forbid it** — they are skin
  * that a garment already covers, and hiding them is what the mask was for. What (2) and (3) refuse is
- * paying for it with something larger: fragmenting a garment, or hiding whole swathes of skin (an arm,
- * a shin) to make the sliver count zero. The 22 quads are ~0.3% of the skin's triangles, so a fix that
- * costs meaningfully more than that has taken something it should not have.
+ * paying for it with something larger: fragmenting a garment, or hiding or deleting whole swathes
+ * of skin (an arm, a shin) to make the sliver count zero. Only visible skin counts toward (3).
  *
  * WHICH ARE REDS AND WHICH ARE NETS (#227): (1) is the RED and fails 3/3. (2), (3) and (4) pass today
  * and are regression nets — (4) in particular guards the shirt/trouser overlap that #341 round 17 and
@@ -198,7 +197,7 @@ function componentVertexGroups(pos: number[][], idx: number[]): number[][] {
   return [...members.values()];
 }
 
-async function measure(rel: string): Promise<Row | null> {
+async function measure(rel: string): Promise<Row> {
   const doc = await io.read(join(REPO_ROOT, rel));
   let skinTris = 0;
   let garmentOrphans = 0;
@@ -209,25 +208,27 @@ async function measure(rel: string): Promise<Row | null> {
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
       const mat = prim.getMaterial();
-      if (mat?.getAlphaMode() === "MASK" && (mat?.getBaseColorFactor()?.[3] ?? 1) === 0) continue;
       const a = prim.getAttribute("POSITION");
       const ix = prim.getIndices();
       if (!a || !ix) continue;
       const meshName = mesh.getName() ?? "";
-      // #359 — the body surface is skin + scalp: the scalp hair region is a material
-      // reclassification of the crown (a separate primitive on the same body mesh), not
-      // gutted/hidden skin. Clause (3) refuses gutting the BODY to clear slivers, so the
-      // measured surface must include the scalp or the #359 port would trip it.
-      // Skin = the body class (mesh or material — scalp prims ride the body mesh).
-      // Shirt/pants = upper/trouser classes on the MESH (not the old combined-name
-      // literals: /cargo_pants/ missed refits like female_tight_jeans, and /scrub/
-      // counted scrub TROUSERS as shirt, dragging the overlap to trouser length).
+      const materialName = mat?.getName() ?? "";
       const isSkin =
-        classifyGarmentMeshName(meshName) === "body"
-        || classifyGarmentMeshName(mat?.getName() ?? "") === "body";
+        classifyGarmentMeshName(meshName) === "body" ||
+        classifyGarmentMeshName(materialName) === "body";
+      const hidden = mat?.getAlphaMode() === "MASK" && mat.getBaseColorFactor()[3] < mat.getAlphaCutoff();
+      // #359 moved the scalp to its own primitive. Hidden MASK skin does not count: hiding
+      // exposed skin is the gutting (3) refuses (SIBLING-REDS review S1). alpha == cutoff is
+      // visible (glTF). NOT TESTED: baseColorTexture alpha hiding texels under MASK.
+      if (isSkin && !hidden) {
+        skinTris += ix.getCount() / 3;
+      }
+      if (hidden) continue;
+
       const isPants = isTrouserMeshName(meshName);
-      // #180: the nurse's upper garment is now `makeclothes_library_scrub_shirt_*` —
-      // the overlap clause must keep measuring it.
+      // #199 declared the fisherman sweater as Kevin's upper slot. Its historical GLB
+      // carries the makeclothes_library_fisherman_sweater_* mesh name without class extras.
+      // The shared classifier recognizes that name alongside #180's scrub shirt.
       const isShirt = isUpperMeshName(meshName);
 
       const pos: number[][] = [];
@@ -240,7 +241,6 @@ async function measure(rel: string): Promise<Row | null> {
 
       const idx: number[] = [];
       for (let i = 0; i < ix.getCount(); i++) idx.push(ix.getScalar(i));
-      if (isSkin) skinTris += idx.length / 3;
 
       for (const group of componentVertexGroups(pos, idx)) {
         const unique = new Set(group.map((i) => pos[i]!.map((x) => x.toFixed(5)).join(","))).size;
@@ -259,7 +259,6 @@ async function measure(rel: string): Promise<Row | null> {
       }
     }
   }
-  if (skinTris === 0) return null;
   return {
     file: rel.split("/").pop()!,
     skinTris,
@@ -273,9 +272,7 @@ const files = readdirSync(join(REPO_ROOT, GENERATED))
   .filter((n: string) => n.startsWith("mpfb-") && n.endsWith(".glb") && !/candidate/i.test(n))
   .map((n: string) => `${GENERATED}/${n}`);
 
-const rows = (await Promise.all(files.map((f) => measure(f).catch(() => null)))).filter(
-  (r): r is Row => r !== null,
-);
+const rows = await Promise.all(files.map(measure));
 
 /** An empty enumeration must FAIL, never pass vacuously (§7t). */
 function requireRows(): void {
@@ -303,7 +300,7 @@ describe("no orphan skin slivers at the garment edges", () => {
   });
 
   it("(3) NET known-good: the skin is not gutted to clear the slivers", () => {
-    // The 22 quads are ~0.3% of the skin. Refuses hiding an arm or a shin to make (1) green.
+    // Visible skin only: hiding exposed skin behind a MASK and deleting it both reduce the count.
     requireRows();
     const gutted = rows
       .filter((r) => r.skinTris < MIN_SKIN_TRIS)
