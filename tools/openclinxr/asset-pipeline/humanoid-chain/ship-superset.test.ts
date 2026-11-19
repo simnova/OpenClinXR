@@ -590,3 +590,373 @@ describe("ship-superset loss classes", () => {
     ).toEqual([]);
   });
 });
+
+const MULTISET_MESH = "openclinxr_multiset_probe_mesh";
+
+/** Kevin-change-class fixture: 4 distinct POSITION verts shared by both
+ * sides, so triangle keys resolve from real BIN bytes; candidate
+ * repartitions the same triangles across fresh prims. Per-prim `attrs`
+ * (default ["POSITION"]) and `targets` (default 0) ride on the shared
+ * POSITION accessor, so attribute-set / morph-count gates can be planted
+ * without disturbing payload-byte equality. */
+function multisetPair(
+  candPrims: Array<{ tris: number[][]; material: number; attrs?: string[]; targets?: number }>,
+  mainPrims?: Array<{ tris: number[][]; material: number; attrs?: string[]; targets?: number }>,
+  materialNames?: string[],
+): {
+  main: GltfRoot;
+  cand: GltfRoot;
+  mainBin: Buffer;
+  candBin: Buffer;
+} {
+  const posData = Buffer.alloc(4 * 12);
+  const verts = [
+    [1, 0, 0],
+    [0, 1, 0],
+    [0, 0, 1],
+    [1, 1, 1],
+  ];
+  verts.forEach((v, i) => {
+    v.forEach((c, j) => {
+      posData.writeFloatLE(c, i * 12 + j * 4);
+    });
+  });
+  const mkGltf = (prims: Array<{ tris: number[][]; material: number; attrs?: string[]; targets?: number }>): { gltf: GltfRoot; bin: Buffer } => {
+    const gltf: GltfRoot = {
+      asset: { copyright: "Contains WojackOWL, Medical Scrubs Kit, CC-BY", extras: { kevinChain: 1 } },
+      accessors: [],
+      meshes: [],
+      animations: anims(ANIM_NAMES),
+    };
+    // Pin sampler I/O FIRST so later per-prim accessors never shift the
+    // sampler indices (both sides keep identical sampler layouts).
+    pinSamplers(gltf);
+    const accs = gltf.accessors as GltfAccessor[];
+    const views: GltfBufferView[] = [];
+    const parts: Buffer[] = [];
+    let off = 0;
+    const pushAcc = (idx: number, data: Buffer): void => {
+      const a = accs[idx] as GltfAccessor;
+      a.bufferView = views.length;
+      a.byteOffset = 0;
+      views.push({ byteOffset: off, byteLength: data.length });
+      parts.push(data);
+      off += data.length;
+    };
+    pushAcc(0, Buffer.alloc(9 * 2, 0));
+    pushAcc(1, Buffer.alloc(9 * 12, 0));
+    const posIdx = accs.length;
+    accs.push({ count: 4, componentType: 5126, type: "VEC3" });
+    pushAcc(posIdx, posData);
+    const primObjs = prims.map((p) => {
+      const flat = p.tris.flat();
+      const idxData = Buffer.alloc(flat.length * 2);
+      flat.forEach((v, i) => {
+        idxData.writeUInt16LE(v, i * 2);
+      });
+      const idx = accs.length;
+      accs.push({ count: flat.length, componentType: 5123, type: "SCALAR" });
+      pushAcc(idx, idxData);
+      const attributes: Record<string, number> = {};
+      for (const a of p.attrs ?? ["POSITION"]) attributes[a] = posIdx;
+      const prim: { indices: number; mode: number; material: number; attributes: Record<string, number>; targets?: Array<Record<string, number>> } = {
+        indices: idx, mode: 4, material: p.material, attributes,
+      };
+      const nTargets = p.targets ?? 0;
+      if (nTargets > 0) prim.targets = Array.from({ length: nTargets }, () => ({ POSITION: posIdx }));
+      return prim;
+    });
+    gltf.bufferViews = views;
+    gltf.meshes = [{ name: MULTISET_MESH, primitives: primObjs }];
+    if (materialNames !== undefined) gltf.materials = materialNames.map((name) => ({ name }));
+    return { gltf, bin: Buffer.concat(parts) };
+  };
+  const mainBuilt = mkGltf(
+    mainPrims ?? [
+      {
+        tris: [
+          [0, 1, 2],
+          [1, 2, 3],
+        ],
+        material: 4,
+      },
+    ],
+  );
+  const candBuilt = mkGltf(candPrims);
+  return { main: mainBuilt.gltf, cand: candBuilt.gltf, mainBin: mainBuilt.bin, candBin: candBuilt.bin };
+}
+
+describe("ship-superset triangle multiset (R5)", () => {
+  it("GREEN trim-and-append relayout passes with BINs, legacy-strict without", () => {
+    const { main, cand, mainBin, candBin } = multisetPair([
+      { tris: [[0, 1, 2]], material: 4 },
+      { tris: [[1, 2, 3]], material: 4 },
+    ]);
+    expect(findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin })).toEqual([]);
+    const legacy = findLosses(main, cand, new Set());
+    expect(legacy.some((l) => l.includes("primitive count mismatch") && l.includes(MULTISET_MESH))).toBe(true);
+    const cli = runCli(main, cand, [], { main: mainBin, cand: candBin });
+    expect(cli.code).toBe(0);
+    expect(cli.out).toContain("OK");
+  });
+
+  it("RED dropped triangle names the missing triangle (i)", () => {
+    const { main, cand, mainBin, candBin } = multisetPair([{ tris: [[0, 1, 2], [0, 1, 2]], material: 4 }]);
+    const losses = findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin });
+    const named = losses.filter((l) => l.includes("triangle missing in candidate") && l.includes(MULTISET_MESH));
+    expect(named).toHaveLength(1);
+    expect(named[0]).toContain("mainCount=1");
+    expect(named[0]).toContain("candidateCount=0");
+    expect(losses.some((l) => l.includes("mesh tri mismatch"))).toBe(false);
+    const cli = runCli(main, cand, [], { main: mainBin, cand: candBin });
+    expect(cli.code).toBe(1);
+    expect(cli.out).toContain("triangle missing in candidate");
+    expect(cli.out).toContain(MULTISET_MESH);
+  });
+
+  it("RED reassigned triangle material names the triangle (ii)", () => {
+    const { main, cand, mainBin, candBin } = multisetPair([
+      { tris: [[0, 1, 2]], material: 4 },
+      { tris: [[1, 2, 3]], material: 9 },
+    ]);
+    const losses = findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin });
+    const named = losses.filter((l) => l.includes("triangle missing in candidate") && l.includes(MULTISET_MESH));
+    expect(named).toHaveLength(1);
+    expect(named[0]).toContain("#mat4");
+    const cli = runCli(main, cand, [], { main: mainBin, cand: candBin });
+    expect(cli.code).toBe(1);
+    expect(cli.out).toContain("triangle missing in candidate");
+  });
+
+  it("GREEN real run rc=0: S5 candidate carries the 8108f27c0 pre-image (R5c)", () => {
+    const root = process.cwd();
+    const mainBytes = execFileSync(
+      "git",
+      ["-C", root, "show", "8108f27c0:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb"],
+      { maxBuffer: 512 * 1024 * 1024 },
+    );
+    expect(createHash("sha256").update(mainBytes).digest("hex"), "pre-image pin is 40492951").toBe(
+      "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
+    );
+    const dir = mkdtempSync(join(tmpdir(), "superset-r5c-"));
+    const mainPath = join(dir, "main.glb");
+    writeFileSync(mainPath, mainBytes as Buffer);
+    const candPath = join(root, "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb");
+    const out = execFileSync("pnpm", ["exec", "tsx", TOOL, "--main", mainPath, "--candidate", candPath], {
+      encoding: "utf8",
+      cwd: root,
+    });
+    expect(out).toContain("ship-superset OK");
+  });
+});
+
+describe("ship-superset hidden->skin tightening (S10h2/B2)", () => {
+  // Material slots: hidden moves admit ONLY the skin-named material.
+  const NAMES = ["openclinxr_hidden_probe", "probe_skin", "probe_shirt", "probe_hair"];
+  const HIDDEN = 0;
+  const SKIN = 1;
+  const SHIRT = 2;
+  const HAIR = 3;
+  // Main: hidden prim0 holds A=[0,1,2] (moved) and B=[1,2,3] (kept);
+  // skin prim1 holds C=[0,2,3] (untouched skin tri).
+  const MAIN_PRIMS = [
+    { tris: [[0, 1, 2], [1, 2, 3]], material: HIDDEN },
+    { tris: [[0, 2, 3]], material: SKIN },
+  ];
+  const keptHidden = [{ tris: [[1, 2, 3]], material: HIDDEN }];
+  const keptSkin = [{ tris: [[0, 2, 3]], material: SKIN }];
+
+  function b2Losses(freshMaterial: number, freshTris: number[][] = [[0, 1, 2]]): string[] {
+    const { main, cand, mainBin, candBin } = multisetPair(
+      [...keptHidden, ...keptSkin, { tris: freshTris, material: freshMaterial }],
+      MAIN_PRIMS,
+      NAMES,
+    );
+    return findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin });
+  }
+
+  it("GREEN hidden->skin move under the skin-named material passes", () => {
+    const losses = b2Losses(SKIN);
+    expect(losses, "exact skin-named rehome is the admitted class").toEqual([]);
+  });
+
+  it("RED (i) survived tri reassigned to the shirt material fails naming the key", () => {
+    // eslint-disable-next-line no-console
+    console.log(`B2 plant (i) shirt-reassign: before fresh material=probe_skin(${SKIN}) after fresh material=probe_shirt(${SHIRT})`);
+    const losses = b2Losses(SHIRT);
+    const named = losses.filter((l) => l.includes("triangle missing in candidate") && l.includes(MULTISET_MESH));
+    expect(named, "shirt reassignment must fail").not.toHaveLength(0);
+    expect(named[0]).toContain("#mat0");
+    // eslint-disable-next-line no-console
+    console.log(`Tests: B2 plant (i) RED GREEN: shirt-reassigned hidden tri refused naming ${MULTISET_MESH}`);
+  });
+
+  it("RED (ii) survived tri reassigned to the hair material fails naming the key", () => {
+    // eslint-disable-next-line no-console
+    console.log(`B2 plant (ii) hair-reassign: before fresh material=probe_skin(${SKIN}) after fresh material=probe_hair(${HAIR})`);
+    const losses = b2Losses(HAIR);
+    const named = losses.filter((l) => l.includes("triangle missing in candidate") && l.includes(MULTISET_MESH));
+    expect(named, "hair reassignment must fail").not.toHaveLength(0);
+    expect(named[0]).toContain("#mat0");
+    // eslint-disable-next-line no-console
+    console.log(`Tests: B2 plant (ii) RED GREEN: hair-reassigned hidden tri refused naming ${MULTISET_MESH}`);
+  });
+
+  it("RED (iii) one duplicate of a multiplicity-2 key dropped fails on the count", () => {
+    const mainMulti = [
+      { tris: [[0, 1, 2], [0, 1, 2], [1, 2, 3]], material: HIDDEN },
+      { tris: [[0, 2, 3]], material: SKIN },
+    ];
+    const { main, cand, mainBin, candBin } = multisetPair(
+      [...keptHidden, ...keptSkin, { tris: [[0, 1, 2]], material: SKIN }],
+      mainMulti,
+      NAMES,
+    );
+    // eslint-disable-next-line no-console
+    console.log("B2 plant (iii) multiplicity-drop: before qualifying skin count=2 after qualifying skin count=1 (mainCount=2)");
+    const losses = findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin });
+    const named = losses.filter((l) => l.includes("triangle missing in candidate") && l.includes(MULTISET_MESH));
+    expect(named, "short multiplicity must fail").not.toHaveLength(0);
+    expect(named[0]).toContain("mainCount=2");
+    // eslint-disable-next-line no-console
+    console.log(`Tests: B2 plant (iii) RED GREEN: multiplicity-2 key held once refused naming ${MULTISET_MESH}`);
+  });
+
+  it("RED (ii) ambiguous skin source throws naming the mesh and both candidates", () => {
+    // B1 (s10h3): main carries TWO distinct non-hidden materials (skin +
+    // shirt), so the chain-stage derivation
+    // (unhide-neckline-opening.py:160-167) cannot name one skin.
+    const MAIN_AMBIG = [
+      { tris: [[0, 1, 2], [1, 2, 3]], material: HIDDEN },
+      { tris: [[0, 2, 3]], material: SKIN },
+      { tris: [[0, 1, 3]], material: SHIRT },
+    ];
+    const { main, cand, mainBin, candBin } = multisetPair(
+      [
+        ...keptHidden,
+        ...keptSkin,
+        { tris: [[0, 1, 3]], material: SHIRT },
+        { tris: [[0, 1, 2]], material: SKIN },
+      ],
+      MAIN_AMBIG,
+      NAMES,
+    );
+    // eslint-disable-next-line no-console
+    console.log(
+      `B2 plant (ii) ambiguous-skin: before main non-hidden=[probe_skin(${SKIN}),probe_shirt(${SHIRT})] after findLosses throws`,
+    );
+    let message = "";
+    try {
+      findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin });
+    } catch (e) {
+      message = e instanceof Error ? e.message : String(e);
+    }
+    expect(message, "ambiguous skin source must throw").toMatch(/skin-material identity failed/);
+    expect(message, "error names the mesh").toContain(MULTISET_MESH);
+    expect(message, "error names the skin candidate").toContain("probe_skin");
+    expect(message, "error names the second candidate").toContain("probe_shirt");
+    // eslint-disable-next-line no-console
+    console.log(`Tests: B2 plant (ii) RED GREEN: ambiguous skin source threw naming ${MULTISET_MESH}`);
+  });
+
+  it("RED (ii-zero) main with hidden tris but no skin material throws naming the mesh", () => {
+    // B1 (s10h3): main has hidden tris yet zero non-hidden materials — the
+    // chain stage itself would refuse (no skin primitive to rehome to).
+    const MAIN_NOSKIN = [{ tris: [[0, 1, 2], [1, 2, 3]], material: HIDDEN }];
+    const { main, cand, mainBin, candBin } = multisetPair(
+      [...keptHidden, { tris: [[0, 1, 2]], material: SKIN }],
+      MAIN_NOSKIN,
+      NAMES,
+    );
+    // eslint-disable-next-line no-console
+    console.log("B2 plant (ii-zero) no-skin: before main non-hidden=[] after findLosses throws");
+    let message = "";
+    try {
+      findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin });
+    } catch (e) {
+      message = e instanceof Error ? e.message : String(e);
+    }
+    expect(message, "zero skin candidates must throw").toMatch(/skin-material identity failed/);
+    expect(message, "error names the mesh").toContain(MULTISET_MESH);
+    // eslint-disable-next-line no-console
+    console.log(`Tests: B2 plant (ii-zero) RED GREEN: zero-skin source threw naming ${MULTISET_MESH}`);
+  });
+
+  it("GREEN (iii) known-good: apps ad61615d carries the 8108f27c0 main (R5 tight rc=0)", () => {
+    const root = process.cwd();
+    const mainBytes = execFileSync(
+      "git",
+      ["-C", root, "show", "8108f27c0:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb"],
+      { maxBuffer: 512 * 1024 * 1024 },
+    );
+    const mainSha = createHash("sha256").update(mainBytes).digest("hex").slice(0, 16);
+    // eslint-disable-next-line no-console
+    console.log(`B2 plant (iii) known-good: before main=${mainSha} after candidate=apps/mpfb-peds-nurse-kevin.glb`);
+    const dir = mkdtempSync(join(tmpdir(), "superset-b2iii-"));
+    const mainPath = join(dir, "main.glb");
+    writeFileSync(mainPath, mainBytes as Buffer);
+    const candPath = join(root, "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb");
+    const out = execFileSync("pnpm", ["exec", "tsx", TOOL, "--main", mainPath, "--candidate", candPath], {
+      encoding: "utf8",
+      cwd: root,
+    });
+    expect(out).toContain("ship-superset OK");
+    expect(out).toContain("carries every loss class");
+    // eslint-disable-next-line no-console
+    console.log("Tests: B2 plant (iii) GREEN GREEN: known-good ad61615d passes the single-skin gate (R5 tight rc=0)");
+  });
+});
+
+describe("ship-superset rehomed-primitive structure (S10h2/B3)", () => {
+  const NAMES = ["openclinxr_hidden_probe", "probe_skin"];
+  const HIDDEN = 0;
+  const SKIN = 1;
+  const FULL = { attrs: ["POSITION", "NORMAL"], targets: 1 };
+  const MAIN_PRIMS = [
+    { tris: [[0, 1, 2], [1, 2, 3]], material: HIDDEN, ...FULL },
+    { tris: [[0, 2, 3]], material: SKIN, ...FULL },
+  ];
+  const keptHidden = [{ tris: [[1, 2, 3]], material: HIDDEN, ...FULL }];
+  const keptSkin = [{ tris: [[0, 2, 3]], material: SKIN, ...FULL }];
+
+  it("GREEN rehomed append with matching attrs+morphs passes", () => {
+    const { main, cand, mainBin, candBin } = multisetPair(
+      [...keptHidden, ...keptSkin, { tris: [[0, 1, 2]], material: SKIN, ...FULL }],
+      MAIN_PRIMS,
+      NAMES,
+    );
+    expect(findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin })).toEqual([]);
+  });
+
+  it("RED appended prim missing NORMAL fails naming the destination prim", () => {
+    // eslint-disable-next-line no-console
+    console.log("B3 plant (a) missing-NORMAL: before fresh attrs=[NORMAL,POSITION] after fresh attrs=[POSITION]");
+    const { main, cand, mainBin, candBin } = multisetPair(
+      [...keptHidden, ...keptSkin, { tris: [[0, 1, 2]], material: SKIN, attrs: ["POSITION"], targets: 1 }],
+      MAIN_PRIMS,
+      NAMES,
+    );
+    const losses = findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin });
+    const named = losses.filter((l) => l.includes("rehomed source primitive") && l.includes(MULTISET_MESH));
+    expect(named, "NORMAL-deficient destination prim must fail").not.toHaveLength(0);
+    expect(named[0]).toContain("primitive 2 attributes [POSITION] do not match rehomed source primitive 0");
+    // eslint-disable-next-line no-console
+    console.log(`Tests: B3 plant (a) RED GREEN: NORMAL-deficient appended prim refused naming ${MULTISET_MESH} prim 2`);
+  });
+
+  it("RED appended prim missing a morph target fails naming the destination prim", () => {
+    // eslint-disable-next-line no-console
+    console.log("B3 plant (b) missing-morph: before fresh targets=1:[POSITION] after fresh targets=0:[]");
+    const { main, cand, mainBin, candBin } = multisetPair(
+      [...keptHidden, ...keptSkin, { tris: [[0, 1, 2]], material: SKIN, attrs: ["POSITION", "NORMAL"], targets: 0 }],
+      MAIN_PRIMS,
+      NAMES,
+    );
+    const losses = findLosses(main, cand, new Set(), { main: mainBin, candidate: candBin });
+    const named = losses.filter((l) => l.includes("rehomed source primitive") && l.includes(MULTISET_MESH));
+    expect(named, "morph-deficient destination prim must fail").not.toHaveLength(0);
+    expect(named[0]).toContain("primitive 2 targets 0:[] do not match rehomed source primitive 0");
+    // eslint-disable-next-line no-console
+    console.log(`Tests: B3 plant (b) RED GREEN: morph-deficient appended prim refused naming ${MULTISET_MESH} prim 2`);
+  });
+});

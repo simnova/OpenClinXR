@@ -1,0 +1,18 @@
+{
+ "schemaVersion": "openclinxr.kevin-collar-s9-allowance-fixture.v1",
+ "glbSha256": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
+ "appsGlbSha256": "ad61615d110853cf9b959ca6801afc8d079fce77203dc091d4fde07460075d7a",
+ "mainGlbSha256": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
+ "source": "S9 C1 allowance: hidden fails allowed only on dropped-L hidden slots (main-first tri); at most 13 opening px",
+ "allowanceSlots": [
+  "1:459",
+  "1:460",
+  "1:461",
+  "1:537",
+  "1:572",
+  "4:17",
+  "7:14",
+  "7:15"
+ ],
+ "maxAllowedHidden": 13
+}

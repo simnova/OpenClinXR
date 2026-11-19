@@ -1,4 +1,12 @@
-import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import {
+  lineageLevels,
+  repoRoot,
+  validateT3LineageChain,
+} from "@openclinxr/factory-station-core/runner";
+import type {
+  ByteLineageLevel,
+  TeethSwapBlock,
+} from "@openclinxr/factory-station-core/runner";
 /**
  * HB-05 — the face-preserving rung keeps every face triangle.
  *
@@ -105,6 +113,22 @@ type FacePreservingReport = {
 const MOUTH_RE = { teeth: /teeth/i, tongue: /tongue/i };
 
 /**
+ * Mirror of the T3 combined-level exact-word rule (see isCombinedSwapPostLevel in
+ * the-shipped-teeth-carry-their-texture.test.ts; FU8 owns consolidating the two
+ * copies): the level carries the ordering ONLY when derivationArgv names the
+ * EXACT swap + tongue-forward tool invocations as whole words.
+ */
+const TRELLIS_SWAP_TOOL_INVOCATION = "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py";
+const TRELLIS_TONGUE_TOOL_INVOCATION = "tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts";
+function trellisIsCombinedSwapPostLevel(level: ByteLineageLevel): boolean {
+  const words = (level.derivationArgv ?? []).flatMap((a) => a.split(/[\s'"]+/).filter((w) => w.length > 0));
+  return (
+    words.some((w) => w === TRELLIS_SWAP_TOOL_INVOCATION) &&
+    words.some((w) => w === TRELLIS_TONGUE_TOOL_INVOCATION)
+  );
+}
+
+/**
  * Every reason a post-rung row does not bind live = rung + deltas to its sources. Empty = bound.
  * Pure over its inputs so the counterweight clause can feed it mutated rows.
  */
@@ -134,13 +158,29 @@ function postRungErrors(
     }
     if (createHash("sha256").update(bytes).digest("hex") !== st.sourceSha256) errors.push(`${row.body}: stage source sha does not match disk`);
     if (st.stage !== "mouth-swap") continue;
-    const block = (JSON.parse(bytes.toString("utf8")) as { teethSwapB1?: { output?: { sha256?: string }; preImageMouthTris?: { teeth: number; tongue: number } } }).teethSwapB1;
+    const sidecar = JSON.parse(bytes.toString("utf8")) as Record<string, unknown> & {
+      teethSwapB1?: { output?: { sha256?: string }; preImageMouthTris?: { teeth: number; tongue: number } };
+    };
+    const block = sidecar.teethSwapB1;
     const pre = block?.preImageMouthTris;
     if (!pre) {
       errors.push(`${row.body}: source has no teethSwapB1.preImageMouthTris`);
       continue;
     }
-    if (block?.output?.sha256 !== live.sha256) errors.push(`${row.body}: teethSwapB1.output.sha256 does not pin the live GLB`);
+    if (block?.output?.sha256 !== live.sha256) {
+      // Lineage-aware (kevin-collar s10h4 B2): the swap output must be an ANCESTOR
+      // of the live GLB through the recorded byteLineage chain — the SAME
+      // continuity rule validateT3 enforces (teeth-swap-lineage.ts, extracted from
+      // the-shipped-teeth-carry-their-texture.test.ts) — not equal to it.
+      // NOT a re-pin of teethSwapB1.output.sha256.
+      try {
+        validateT3LineageChain(row.body, live.sha256, sidecar, block ?? {}, trellisIsCombinedSwapPostLevel);
+      } catch (error) {
+        errors.push(
+          `${row.body}: teethSwapB1.output.sha256 does not pin the live GLB (${error instanceof Error ? error.message : String(error)})`,
+        );
+      }
+    }
     const mouthDelta = live.mouth.teeth + live.mouth.tongue - pre.teeth - pre.tongue;
     if (st.trisDelta !== mouthDelta) errors.push(`${row.body}: trisDelta ${st.trisDelta} != live mouth - preImageMouthTris ${mouthDelta}`);
     if (st.faceDelta !== mouthDelta) errors.push(`${row.body}: faceDelta ${st.faceDelta} != live mouth - preImageMouthTris ${mouthDelta}`);
@@ -262,6 +302,39 @@ describe("the face-preserving rung keeps every face triangle", () => {
     expect(mutate({ sourceSha256: "0".repeat(64) }).join("\n")).toMatch(/sha does not match disk/);
     expect(mutate({}, { faceBefore: row.faceBefore + 6928 }).join("\n")).toMatch(/rungFaceAfter .* != faceBefore/);
     expect(postRungErrors(row, { ...live, sha256: "f".repeat(64) }, readRepoFile).join("\n")).toMatch(/does not pin the live GLB/);
+  }, 60_000);
+
+  it("mouth-swap pin is lineage-aware: ancestor GREEN, no-path and broken-link RED (counterweight)", async () => {
+    const row = report.bodies.find((candidate) => candidate.body === "mpfb-peds-nurse-kevin.glb")!;
+    expect(row.postRungStages?.length, "kevin carries the mouth-swap stage").toBe(1);
+    const live = await liveStats(row.body);
+    const sidecar = JSON.parse(
+      readFileSync(path.join(HUMANOIDS, row.body.replace(/\.glb$/, ".provenance.json")), "utf8"),
+    ) as Record<string, unknown>;
+    const block = (sidecar as { teethSwapB1?: TeethSwapBlock }).teethSwapB1!;
+    expect(block?.output?.sha256, "setup: swap output no longer pins live directly").not.toBe(live.sha256);
+    // (iii) the real ad61615d lineage validates GREEN: the swap output pins the
+    // junction, every level is continuous, swap + #741 records nest.
+    validateT3LineageChain(row.body, live.sha256, sidecar, block, trellisIsCombinedSwapPostLevel);
+    console.info(`lineage-aware kevin: live=${live.sha256.slice(0, 12)} swap=${block.output?.sha256?.slice(0, 12)} GREEN`);
+    // (i) a live sha with no lineage path to the pinned output REDs.
+    expect(() =>
+      validateT3LineageChain(row.body, "f".repeat(64), sidecar, block, trellisIsCombinedSwapPostLevel),
+    ).toThrow(/does not pin this GLB/);
+    console.info(`lineage-aware kevin: no-path live=ffffffffffff RED`);
+    // (ii) a broken link in the middle of the chain REDs.
+    const broken = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown>;
+    lineageLevels(broken)[1]!.preImageSha256 = "0".repeat(64);
+    expect(() =>
+      validateT3LineageChain(
+        row.body,
+        live.sha256,
+        broken,
+        (broken as { teethSwapB1?: TeethSwapBlock }).teethSwapB1!,
+        trellisIsCombinedSwapPostLevel,
+      ),
+    ).toThrow(/preImageSha256/);
+    console.info(`lineage-aware kevin: broken-link RED`);
   }, 60_000);
 
   it("every row either promotes a decimated rung or records a measured reason", () => {

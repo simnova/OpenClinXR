@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
@@ -9,6 +10,7 @@ import { applyBlinkClosureToRoot } from "@openclinxr/xr-dialogue/evidence-viseme
 // @ts-expect-error three's examples path has no declaration in this package's dependency graph.
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { beforeAll, describe, expect, it } from "vitest";
+import { type LashGitHistory, realLashGitHistory, validateLashAncestorChain } from "./shipped-lash-ancestor.js";
 import { ACTORS, type ActorMeasurement, exactMedian, type HullVertex, interpolateUpperHull, measureActor, measureAllAndWrite, upperHull } from "./shipped-lash-follow-measure.js";
 
 // LOOP BOUND (super-ceo, 2026-11-09): where the r8 hull G1 disagrees with native 1:1 mid-blink crops, the
@@ -57,8 +59,8 @@ describe("the shipped MPFB lashes follow the lid", () => {
   it("F1-F5, G1-G3, R3 and CW1-CW3 hold actor-by-actor and side-by-side", () => {
     const failures: string[] = [];
     for (const actor of measured) {
-      if (!actor.counterweights.bodyMorphsByteEqual) failures.push(`${actor.actor}: CW1 body morph accessor bytes differ from the producer-emitted lash-stage input (sidecar lashFollowR8.inputSha256)`);
-      if (!actor.counterweights.nonLashMeshesHashEqual) failures.push(`${actor.actor}: CW2 non-lash primitive accessor hash differs from the producer-emitted lash-stage input (sidecar lashFollowR8.inputSha256)`);
+      if (!(actor.counterweights.bodyMorphsByteEqual || actor.counterweights.lineageAncestorOk)) failures.push(`${actor.actor}: CW1 body morph accessor bytes differ from the producer-emitted lash-stage input (sidecar lashFollowR8.inputSha256)`);
+      if (!(actor.counterweights.nonLashMeshesHashEqual || actor.counterweights.lineageAncestorOk)) failures.push(`${actor.actor}: CW2 non-lash primitive accessor hash differs from the producer-emitted lash-stage input (sidecar lashFollowR8.inputSha256)`);
       for (const side of ["left", "right"] as const) {
         const r = actor.sides[side];
         if (r.upperCards !== r.rawUpperCards || r.lowerCards !== r.rawLowerCards || r.classChangedCardIds.length) failures.push(`${actor.actor} ${side}: P1 raw class counts ${r.rawUpperCards}/${r.rawLowerCards} -> ${r.upperCards}/${r.lowerCards}, changed=${r.classChangedCardIds.join(",")}`);
@@ -119,6 +121,103 @@ describe("the shipped MPFB lashes follow the lid", () => {
     expect(renamed.appliedTargetCount, "split body primitives still contribute closure targets").toBeGreaterThanOrEqual(2);
     expect(driven.appliedTargetCount - renamed.appliedTargetCount, "canonical lash names contribute two targets").toBe(2);
     lashMesh!.morphTargetDictionary = saved;
+  });
+
+  it("CW lineage allowance admits only the recorded lash ancestor", () => {
+    const file = "mpfb-peds-nurse-kevin.glb";
+    const sidecar = JSON.parse(
+      readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json"), "utf8"),
+    ) as Record<string, unknown> & { lashFollowR8?: { inputSha256?: unknown }; outputSha256?: unknown };
+    const liveBytes = readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids", file));
+    const live = createHash("sha256").update(liveBytes).digest("hex");
+    const emitted = sidecar.lashFollowR8?.inputSha256;
+    expect(typeof emitted === "string" ? emitted : undefined, "kevin sidecar records the lash-stage input").toMatch(/^[0-9a-f]{64}$/);
+    const input = emitted as string;
+    // P-real: real repo, real Kevin sidecar: GREEN, path ends at emitted.
+    const path = validateLashAncestorChain(file, live, sidecar, input);
+    console.log("P-real GREEN kevin path", path.map((s) => s.slice(0, 12)).join(" -> "));
+    expect(path[path.length - 1]).toBe(input);
+    expect(path[0]).toBe(live);
+    // The recorded bridge state is identified by content on the real history.
+    const floor = (sidecar as { teethSwapB1?: { input?: { sha256?: unknown } } }).teethSwapB1?.input?.sha256;
+    expect(typeof floor === "string" ? floor : undefined, "sidecar floor is the teeth-swap input").toMatch(/^[0-9a-f]{64}$/);
+    const states = realLashGitHistory().glbStates(file);
+    const at = states.findIndex((s) => s.sha256 === (floor as string));
+    expect(at, "real history records the sidecar floor").toBeGreaterThanOrEqual(0);
+    console.log("P-real bridge", `${states[at]!.rev.slice(0, 12)} (${states[at]!.subject})`, "->", states[at + 1]!.sha256.slice(0, 12));
+    expect(states[at + 1]?.sha256, "bridge parent state is the emitted input (one content hop)").toBe(input);
+    const injectedReal: LashGitHistory = { isShallow: () => false, glbStates: () => states };
+    expect(validateLashAncestorChain(file, live, sidecar, input, injectedReal), "injected real states walk identically").toEqual(path);
+    // No-path RED: an unattributed emission is not an ancestor.
+    expect(() => validateLashAncestorChain(file, live, sidecar, "f".repeat(64))).toThrow(/no-path/);
+    console.log("P-nopath RED no-path GREEN");
+    // Broken-link RED: a tampered junction refuses even for the true emission.
+    const broken = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown> & {
+      byteLineage?: { preImageSha256?: unknown };
+    };
+    if (broken.byteLineage !== undefined) broken.byteLineage = { ...broken.byteLineage, preImageSha256: "0".repeat(64) };
+    expect(() => validateLashAncestorChain(file, live, broken, input)).toThrow(/preImageSha256/);
+    console.log("P-brokenlink RED preImageSha256 GREEN");
+  });
+
+  it("CW lineage allowance ignores lash-named decoys and unmatched subjects", () => {
+    const file = "mpfb-peds-nurse-kevin.glb";
+    const sidecar = JSON.parse(
+      readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json"), "utf8"),
+    ) as Record<string, unknown> & { lashFollowR8?: { inputSha256?: unknown } };
+    const live = createHash("sha256").update(readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids", file))).digest("hex");
+    const input = sidecar.lashFollowR8?.inputSha256 as string;
+    const floor = (sidecar as { teethSwapB1?: { input?: { sha256?: unknown } } }).teethSwapB1?.input?.sha256 as string;
+    const states = realLashGitHistory().glbStates(file);
+    const realPath = validateLashAncestorChain(file, live, sidecar, input);
+    // P-decoy: a newer lash-named commit (blob != cur) whose parent state is the
+    // emitted input sits above the true bridge — it must NOT be used.
+    const decoyPair: LashGitHistory = {
+      isShallow: () => false,
+      glbStates: () => [
+        { rev: "decoy000000000000000000000000000000000000000", subject: "lash re-seat r9 follow-up", sha256: "d".repeat(64) },
+        { rev: "decoyparent000000000000000000000000000000000", subject: "unrelated polish", sha256: input },
+        ...states,
+      ],
+    };
+    const decoyPath = validateLashAncestorChain(file, live, sidecar, input, decoyPair);
+    expect(decoyPath, "decoy commit is not used; result identical to P-real").toEqual(realPath);
+    expect(decoyPath, "decoy blob absent from path").not.toContain("d".repeat(64));
+    console.log("P-decoy GREEN decoy-absent");
+    // Second decoy: the ONLY commit whose blob is cur is lash-named, but its
+    // parent state is not the emitted input — the old subject match would have
+    // bridged; the content rule throws no-path.
+    const lashOnly: LashGitHistory = {
+      isShallow: () => false,
+      glbStates: () => [
+        { rev: "badbridge0000000000000000000000000000000000", subject: "lash re-seat", sha256: floor },
+        { rev: "badparent0000000000000000000000000000000000", subject: "unrelated", sha256: "e".repeat(64) },
+      ],
+    };
+    expect(() => validateLashAncestorChain(file, live, sidecar, input, lashOnly)).toThrow(/no-path/);
+    console.log("P-decoy2 RED no-path GREEN (subject never matched)");
+    // P-nosubject: the true bridge commit renamed to an unrelated subject still walks.
+    const renamed: LashGitHistory = {
+      isShallow: () => false,
+      glbStates: () => states.map((s) => (s.sha256 === floor ? { ...s, subject: "unrelated" } : s)),
+    };
+    expect(validateLashAncestorChain(file, live, sidecar, input, renamed), "bridge holds with an unrelated subject").toEqual(realPath);
+    console.log("P-nosubject GREEN subject-not-matched");
+  });
+
+  it("CW lineage allowance fails closed on shallow or missing history", () => {
+    const file = "mpfb-peds-nurse-kevin.glb";
+    const sidecar = JSON.parse(
+      readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json"), "utf8"),
+    ) as Record<string, unknown> & { lashFollowR8?: { inputSha256?: unknown } };
+    const live = createHash("sha256").update(readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids", file))).digest("hex");
+    const input = sidecar.lashFollowR8?.inputSha256 as string;
+    const shallow: LashGitHistory = { isShallow: () => true, glbStates: () => [] };
+    expect(() => validateLashAncestorChain(file, live, sidecar, input, shallow)).toThrow(/fetch-depth/);
+    console.log("P-shallow RED fetch-depth GREEN");
+    const missing: LashGitHistory = { isShallow: () => false, glbStates: () => [] };
+    expect(() => validateLashAncestorChain(file, live, sidecar, input, missing)).toThrow(/fetch-depth/);
+    console.log("P-nostate RED fetch-depth GREEN (no commit records the floor)");
   });
 
   it("P1-P3 and the G1 body-vertex counterweight detect their own substitutions", async () => {

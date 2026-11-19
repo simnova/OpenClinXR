@@ -42,7 +42,31 @@
     "entrypoint": "./runner",
     "names": [
       {
+        "name": "ByteLineageLevel",
+        "kind": "type"
+      },
+      {
+        "name": "lineageLevels",
+        "kind": "runtime"
+      },
+      {
+        "name": "NeckChainSidecar",
+        "kind": "type"
+      },
+      {
+        "name": "P2E_CHAIN_SCRIPT",
+        "kind": "runtime"
+      },
+      {
         "name": "repoRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "TeethSwapBlock",
+        "kind": "type"
+      },
+      {
+        "name": "validateT3LineageChain",
         "kind": "runtime"
       }
     ]

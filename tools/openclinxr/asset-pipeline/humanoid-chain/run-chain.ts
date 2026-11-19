@@ -448,8 +448,13 @@ export function runChain(opts: RunChainOptions): ChainReport {
       };
       const argv = resolveStageArgv(stage, vars);
       // Make report/work dirs the argv names before the tool runs.
+      // --out names a work DIRECTORY only in collectFrom stages (e.g. stage
+      // 04 --out {outdir}/.work-04); otherwise {out} is the tool's output
+      // FILE (e.g. stage 23 --out {out}) and pre-creating it as a directory
+      // breaks file-producing tools (kevin-collar S5: os.replace onto the
+      // mkdir'd dir raised IsADirectoryError).
       for (let i = 0; i < argv.length; i += 1) {
-        if ((argv[i] === "--outdir" || argv[i] === "--out") && i + 1 < argv.length) {
+        if ((argv[i] === "--outdir" || (argv[i] === "--out" && stage.collectFrom)) && i + 1 < argv.length) {
           mkdirSync(argv[i + 1] as string, { recursive: true });
         } else if (argv[i] === "--report" && i + 1 < argv.length) {
           mkdirSync(dirname(argv[i + 1] as string), { recursive: true });

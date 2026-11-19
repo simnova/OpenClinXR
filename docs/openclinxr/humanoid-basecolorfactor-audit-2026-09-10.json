@@ -2996,27 +2996,27 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
    "material": "openclinxr_fitted_hair_mhair02_mpfb_peds_nurse_kevin_mat",
    "baseColorFactor": [
-    0.18,
-    0.13,
-    0.1,
+    0.035,
+    0.028,
+    0.022,
     1
    ],
    "hasBaseColorTexture": false,
-   "kind": "MPFB fitted hair, nurse/default role (untextured)",
-   "decision": "resolved",
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:353 Measured [0.035, 0.028, 0.022, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:63.",
    "origin": {
     "file": "tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py",
-    "line": 353,
-    "literal": "return (0.18, 0.13, 0.10, 1.0)  # nurse / default — mid-dark brown"
+    "line": 63,
+    "literal": "\"black\": (0.035, 0.028, 0.022),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). MPFB fitted hair, nurse/default role (untextured). Set at tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:159. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/makeclothes/embed_library_hair.py:353",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "kind": "MPFB fitted hair, nurse/default role (untextured)",
+   "decision": "resolved",
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3036,7 +3036,7 @@
     "literal": "_GARMENT_COLOR_SCRUB = (0.05, 0.48, 0.52, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). scrub lower, locked scrub colour (untextured cover shell or pre-strip fit). Set at tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711. origin relocated 2026-10-30 to tools/openclinxr/asset-pipeline/anny/automate_blender.py:1794.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3052,7 +3052,7 @@
    },
    "path": "garment_shell_color scrub lock :1781-1785 -> garment_material_from_declared role_colour -> GARMENT_FACTOR_PATCH :1062-1068 -> patch_glb_base_color_factors :1073-1107",
    "reason": "No tint to resolve before bake: factor absent = glTF default white and the baseColorTexture carries the look. Lineage: HB-02 baked pre-bake factor (0.05, 0.48, 0.52, 1.0) from tools/openclinxr/asset-pipeline/anny/automate_blender.py:1711 into the texture (docs/openclinxr/humanoid-albedo-bake-2026-09-10.json); HB-05 face-preserving write normalized the explicit white default to absent (semantically identical). Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3069,7 +3069,7 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3091,7 +3091,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3113,7 +3113,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3135,7 +3135,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3157,7 +3157,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3179,7 +3179,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3201,7 +3201,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3223,7 +3223,7 @@
    "alphaMode": "MASK",
    "verdict": "REMOVE-at-bake: do not bake black; drop masked polys from the bake atlas (they render nothing)",
    "reason": "Hide-mask cover shell: alpha-0 Principled material (garment_ops.py:334-340) exported as alphaMode MASK cutoff 0.5; renders nothing. REMOVE-at-bake: drop masked polys from the bake atlas, do not bake black.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3240,27 +3240,27 @@
    "alphaMode": "OPAQUE",
    "note": "factor absent = glTF default [1,1,1]; texture carries the look",
    "reason": "Factor absent = glTF default white; the baseColorTexture carries the look. No tint to resolve before bake. Re-measured 2026-10-30: factor absent from live bytes (glTF default white); effective value unchanged.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
    "material": "openclinxr_fitted_eyebrow_mindfront_eyebrows_08_mpfb_peds_nurse_kevin_mat",
    "baseColorFactor": [
-    0.05,
-    0.03,
-    0.02,
+    0.035,
+    0.028,
+    0.022,
     1
    ],
    "hasBaseColorTexture": false,
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides. origin relocated 2026-10-30 to tools/openclinxr/evidence/hair-cap5/flow6.py:864. Measured [0.035, 0.028, 0.022, 1] on live bytes (untextured); origin first recorded 2026-10-30 at tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.json:239.",
+   "origin": {
+    "file": "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.json",
+    "line": 239,
+    "literal": "\"note\": \"Shipped/recorded post-export stage (kevin-colour 2026-11-18): resolves hair_color black to [0.035, 0.028, 0.022] and re-tints scalp + brow baseColorFactor only; BIN chunk byte-identical. Repl"
+   },
    "kind": "brow presence silhouette (untextured)",
    "decision": "resolved",
-   "origin": {
-    "file": "tools/openclinxr/evidence/hair-cap5/flow6.py",
-    "line": 864,
-    "literal": "se = sm.node_tree.nodes.new(\"ShaderNodeEmission\"); se.inputs[0].default_value = (0.05, 0.03, 0.02, 1.0); se.inputs[1].default_value = 1.0"
-   },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). brow presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3818. Re-measured 2026-10-30: no numeric literal for this triple remains in the tree; row says so, refusal clause decides. origin relocated 2026-10-30 to tools/openclinxr/evidence/hair-cap5/flow6.py:864.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3279,8 +3279,8 @@
     "line": 8073,
     "literal": "(0.02, 0.02, 0.02, 1.0),"
    },
-   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin relocated 2026-10-30 to tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7985.",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). lash presence silhouette (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:3886. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:7970 origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:8073",
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3300,7 +3300,7 @@
     "literal": "color = (0.92, 0.90, 0.86, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). teeth albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:708. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1213",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3320,7 +3320,7 @@
     "literal": "color = (0.85, 0.45, 0.45, 1.0)"
    },
    "reason": "Flat authored colour; the factor IS the albedo (no texture to multiply). tongue albedo (untextured). Set at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:710. origin confirmed 2026-10-30 at tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py:1215",
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3333,7 +3333,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-nurse-kevin.glb",
@@ -3346,7 +3346,7 @@
     "line": 0,
     "literal": "no numeric literal in tree"
    },
-   "bodyLastChanged": "b042f849ccf9b9a23c506affb44ff3151a469f0a 2026-11-10 Teeth: decimate the swapped teeth and re-derive their sidecars (tsk_27e0cec12cab410d)"
+   "bodyLastChanged": "8108f27c00e7a93ea7c71990d467f671979c29f6 2026-11-18 Ship Kevin's authored black hair colour on scalp and brows as replayable chain stage 21 (kevin-colour)"
   },
   {
    "body": "mpfb-peds-parent-aisha.glb",

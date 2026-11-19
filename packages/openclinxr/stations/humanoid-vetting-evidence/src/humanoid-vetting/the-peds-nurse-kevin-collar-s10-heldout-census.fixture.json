@@ -1,0 +1,171 @@
+{
+ "schemaVersion": "openclinxr.kevin-collar-s10-heldout-census-fixture.v1",
+ "glbSha256": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
+ "appsGlbSha256": "ad61615d110853cf9b959ca6801afc8d079fce77203dc091d4fde07460075d7a",
+ "mainGlbSha256": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
+ "source": "E/s10a/c3-heldout-list.json (15 dirs, pre-measurement fixed) + E/s10a/work/s10-c3b.json main census rows + heldOut order",
+ "list": {
+  "count": 15,
+  "entries": [
+   {
+    "label": "H-low-front",
+    "azDeg": 0,
+    "elDeg": -20,
+    "r": 1.2
+   },
+   {
+    "label": "H-high-back-tq",
+    "azDeg": 135,
+    "elDeg": 30,
+    "r": 1.2
+   },
+   {
+    "label": "H-side-right",
+    "azDeg": 90,
+    "elDeg": 0,
+    "r": 1.2
+   },
+   {
+    "label": "H-side-left",
+    "azDeg": -90,
+    "elDeg": 0,
+    "r": 1.2
+   },
+   {
+    "label": "H-mirrored-tq",
+    "azDeg": -45,
+    "elDeg": 0,
+    "r": 1.2
+   },
+   {
+    "label": "H-front-near",
+    "azDeg": 0,
+    "elDeg": 0,
+    "r": 0.6
+   },
+   {
+    "label": "E-front-low-30",
+    "azDeg": 0,
+    "elDeg": -30,
+    "r": 1.2
+   },
+   {
+    "label": "E-tq45-low-30",
+    "azDeg": 45,
+    "elDeg": -30,
+    "r": 1.2
+   },
+   {
+    "label": "E-back-low-30",
+    "azDeg": 180,
+    "elDeg": -30,
+    "r": 1.2
+   },
+   {
+    "label": "E-backtq135-level",
+    "azDeg": 135,
+    "elDeg": 0,
+    "r": 1.2
+   },
+   {
+    "label": "E-backtq225-level",
+    "azDeg": -135,
+    "elDeg": 0,
+    "r": 1.2
+   },
+   {
+    "label": "E-back-level",
+    "azDeg": 180,
+    "elDeg": 0,
+    "r": 1.2
+   },
+   {
+    "label": "E-sideR-up-10",
+    "azDeg": 90,
+    "elDeg": 10,
+    "r": 1.2
+   },
+   {
+    "label": "E-sideL-up-10",
+    "azDeg": -90,
+    "elDeg": 10,
+    "r": 1.2
+   },
+   {
+    "label": "E-front-high-18",
+    "azDeg": 0,
+    "elDeg": 18,
+    "r": 1.2
+   }
+  ]
+ },
+ "censusRows": [
+  {
+   "label": "H-low-front",
+   "site": 355
+  },
+  {
+   "label": "H-high-back-tq",
+   "site": 0
+  },
+  {
+   "label": "H-side-right",
+   "site": 0
+  },
+  {
+   "label": "H-side-left",
+   "site": 0
+  },
+  {
+   "label": "H-mirrored-tq",
+   "site": 83
+  },
+  {
+   "label": "H-front-near",
+   "site": 0
+  },
+  {
+   "label": "E-front-low-30",
+   "site": 376
+  },
+  {
+   "label": "E-tq45-low-30",
+   "site": 103
+  },
+  {
+   "label": "E-back-low-30",
+   "site": 0
+  },
+  {
+   "label": "E-backtq135-level",
+   "site": 0
+  },
+  {
+   "label": "E-backtq225-level",
+   "site": 0
+  },
+  {
+   "label": "E-back-level",
+   "site": 0
+  },
+  {
+   "label": "E-sideR-up-10",
+   "site": 0
+  },
+  {
+   "label": "E-sideL-up-10",
+   "site": 0
+  },
+  {
+   "label": "E-front-high-18",
+   "site": 4
+  }
+ ],
+ "heldOut": [
+  "H-low-front",
+  "H-mirrored-tq",
+  "E-front-low-30",
+  "E-tq45-low-30",
+  "E-front-high-18"
+ ]
+}

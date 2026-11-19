@@ -1,9 +1,9 @@
-import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { readFileSync, writeFileSync } from "node:fs";
 import { basename, join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
+import { resolveEmittedLashInput, validateLashAncestorChain } from "./shipped-lash-ancestor.js";
 import {
   add,
   aggregateMesh,
@@ -29,7 +29,6 @@ import {
 import {
   ACTORS,
   type ActorMeasurement,
-  BASELINE_REF,
   CLOSURE,
   type Distribution,
   type EnvelopeCard,
@@ -43,7 +42,6 @@ import {
   RED_QUADS,
   REPORT_PATH,
   type RegionTri,
-  ROOT,
   type Side,
   type SideMeasurement,
   type Tri,
@@ -54,6 +52,7 @@ import {
 
 export type { ActorMeasurement, HullVertex, Mutation, SideMeasurement };
 export { ACTORS, exactMedian, interpolateUpperHull, REPORT_PATH, upperHull };
+
 export async function measureActor(file: string, mutation: Mutation = "none"): Promise<ActorMeasurement> {
   const path = join(GLB_DIR, file);
   const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
@@ -67,23 +66,7 @@ export async function measureActor(file: string, mutation: Mutation = "none"): P
     effectiveBytes = mutated.bytes;
     mutationProof = mutated.proof;
   }
-  const baseBytes = execFileSync("git", ["show", `${BASELINE_REF}:apps/ui-xr/public/generated-humanoids/${file}`], { cwd: ROOT, maxBuffer: 64 * 1024 * 1024 });
-  // R3(a): the counterweight reference is the lash stage's OWN INPUT as the producer
-  // emitted it (sidecar lashFollowR8.inputSha256, written by repack_lash_follow.py at
-  // bake time). The history bytes above are accepted only when they hash to exactly
-  // that emission; a locator that resolves anywhere else fails closed. No hand-picked
-  // reference sha lives here.
-  const sidecar = JSON.parse(readFileSync(join(GLB_DIR, file.replace(/\.glb$/, ".provenance.json")), "utf8")) as {
-    lashFollowR8?: { inputSha256?: unknown };
-  };
-  const emitted = sidecar.lashFollowR8?.inputSha256;
-  if (typeof emitted !== "string" || !/^[0-9a-f]{64}$/.test(emitted)) {
-    throw new Error(`${file}: CW1 lash-stage input sha missing from the sidecar (lashFollowR8.inputSha256); refusing to compare against an unattributed baseline`);
-  }
-  const resolved = createHash("sha256").update(baseBytes).digest("hex");
-  if (resolved !== emitted) {
-    throw new Error(`${file}: CW1 history locator no longer resolves to the producer-emitted lash input (want ${emitted}, got ${resolved}); refusing a stale baseline`);
-  }
+  const { sidecar, emitted, baseBytes } = resolveEmittedLashInput(file);
   const base = await io.readBinary(new Uint8Array(baseBytes));
   const { body, lash } = matched(doc, file);
   const { lash: baseLash } = matched(base, file);
@@ -464,7 +447,18 @@ export async function measureActor(file: string, mutation: Mutation = "none"): P
         && r3NoNewPenetration,
     };
   }
-  return { actor: basename(file, ".glb"), inputSha256: createHash("sha256").update(effectiveBytes).digest("hex"), lashStageInputSha256: emitted, lashMesh: lashMesh.getName(), bodyMesh: bodyMesh.getName(), sides, counterweights: counterweights(doc, base, file), ...(mutationProof ? { mutationProof } : {}) };
+  const strict = counterweights(doc, base, file);
+  // R3(b): when strict equality REDs, the drift is allowed only when the
+  // producer-emitted lash-stage input is a recorded ancestor of the shipped
+  // bytes (recorded post-lash stages moved them). The walk throws fail-closed,
+  // so an unattributed drift stays RED here. The allowance is a shipped-level
+  // attribution, so intentional in-memory mutants never consult it.
+  let lineageAncestorOk = false;
+  if (mutation === "none" && (!strict.bodyMorphsByteEqual || !strict.nonLashMeshesHashEqual)) {
+    validateLashAncestorChain(file, createHash("sha256").update(shippedBytes).digest("hex"), sidecar, emitted);
+    lineageAncestorOk = true;
+  }
+  return { actor: basename(file, ".glb"), inputSha256: createHash("sha256").update(effectiveBytes).digest("hex"), lashStageInputSha256: emitted, lashMesh: lashMesh.getName(), bodyMesh: bodyMesh.getName(), sides, counterweights: { ...strict, lineageAncestorOk }, ...(mutationProof ? { mutationProof } : {}) };
 }
 
 export async function measureAllAndWrite(): Promise<ActorMeasurement[]> {
@@ -482,7 +476,7 @@ export async function measureAllAndWrite(): Promise<ActorMeasurement[]> {
       physicianExclusion: "mpfb-clinical-physician-adult L/R measured and reported but excluded from G1 tally (2 sides, 54 F4 cards) pending tsk_5427053465726368 because closure 1 folds the body lids into the socket",
       f4: ">4.55 mm is report-only: card remains at original position with zero closure delta; unreviewed flags fail acceptance",
       inside: "odd ray parity per connected eye shell; per-card origin/main at both weights is the baseline and patched counts must not increase",
-      counterweights: "sha256 over semantic/type/component/count-framed accessor bytes per primitive; every named body target semantic is compared to the producer-emitted lash-stage input (sidecar lashFollowR8.inputSha256), verified by sha before comparison; the physician neck split and the nurse chest split are allowed only as pinned index-buffer sets with exact sorted-index union",
+      counterweights: "sha256 over semantic/type/component/count-framed accessor bytes per primitive; every named body target semantic is compared to the producer-emitted lash-stage input (sidecar lashFollowR8.inputSha256), verified by sha before comparison; recorded post-lash byte movement is allowed only when the emitted input walks as an ancestor of the shipped bytes through the sidecar byteLineage plus recorded input/output blocks plus the lash derivation commit (lineageAncestorOk); the physician neck split and the nurse chest split are allowed only as pinned index-buffer sets with exact sorted-index union",
     },
     redQuads: RED_QUADS,
     g1Tally: { sidesCounted: 22, sidesTotal: 24, excludedActor: "mpfb-clinical-physician-adult", excludedF4CardCount: 54 },

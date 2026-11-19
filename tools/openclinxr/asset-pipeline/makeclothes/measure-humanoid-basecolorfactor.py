@@ -16,7 +16,10 @@ numeric triple in the same file, then in a bounded tree search
 literal, decides those rows). Every row cites the commit that last changed
 its body (bodyLastChanged from git log on the GLB).
 
-Usage: mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/measure-humanoid-basecolorfactor.py
+Usage: mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/measure-humanoid-basecolorfactor.py [--body <body.glb>]
+  Default (no flag) re-measures every shipped body. With --body, only that
+  body is re-measured from live bytes; every other row is carried through
+  byte-identical so the diff touches only the named body.
 """
 
 import json
@@ -186,9 +189,16 @@ def main():
         old_rows[(r["body"], r["material"])] = r
     index = build_triple_index()
     bodies = sorted(f for f in os.listdir(GENERATED) if f.endswith(".glb"))
+    only_body = sys.argv[sys.argv.index("--body") + 1] if "--body" in sys.argv else None
+    if only_body is not None and only_body not in bodies:
+        sys.exit(f"--body {only_body}: not a shipped body in {GENERATED}")
+    selected = set(bodies) if only_body is None else {only_body}
     rows = []
     stats = {"reused": 0, "relocated": 0, "searched": 0, "unresolved": 0, "nullfactor": 0}
     for body in bodies:
+        if body not in selected:
+            rows.extend(r for r in old["rows"] if r["body"] == body)
+            continue
         changed = last_changed(body)
         for m in live_materials(body):
             prev = old_rows.get((body, m["name"]))

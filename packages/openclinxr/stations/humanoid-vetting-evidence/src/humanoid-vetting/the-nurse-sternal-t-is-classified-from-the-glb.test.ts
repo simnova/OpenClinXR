@@ -32,6 +32,21 @@ const PEDS_GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-ped
 const ADULT_GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
 const REPORT = join(REPO_ROOT, "tools/openclinxr/evidence/humanoid-vetting/mpfb-nurse-sternal-t-classify.json");
 const CLOSEUP = join(REPO_ROOT, "docs/assets/speech-emotion-blink-closed-2026-09-18.png");
+const PEDS_PROVENANCE = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json");
+
+/** kevin-collar S3 structural read: kevin's expected bytes+sha are the sidecar's
+ * recorded output (the derivation the sidecar reproduces byte-identical),
+ * never a transcribed pin, so post-export stages stop churning this row. */
+function pedsExpected(): { bytes: number; sha256: string } {
+  const prov = JSON.parse(readFileSync(PEDS_PROVENANCE, "utf8")) as {
+    outputBytes?: number;
+    outputSha256?: string;
+  };
+  if (typeof prov.outputBytes !== "number" || typeof prov.outputSha256 !== "string" || !/^[0-9a-f]{64}$/.test(prov.outputSha256)) {
+    throw new Error("sternal-t: kevin sidecar carries no outputBytes/outputSha256");
+  }
+  return { bytes: prov.outputBytes, sha256: prov.outputSha256 };
+}
 
 type GlbJson = {
   materials?: { name?: string; alphaMode?: string; alphaCutoff?: number; doubleSided?: boolean; pbrMetallicRoughness?: { baseColorFactor?: number[]; baseColorTexture?: unknown } }[];
@@ -183,7 +198,9 @@ describe("the nurse sternal T is classified from the GLB", () => {
       // kevin-colour re-pinned 2026-11-18: actor_hair_colour_post_export_v1 (hair_color black ->
       // [0.035, 0.028, 0.022] on scalp + brow factors; BIN identical); values from stat/shasum of
       // the shipped GLB; was 20026072 B, sha 0e610fe7fda8….
-      [PEDS_GLB, "pedsKevin", 20026180, "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72"],
+      // kevin-collar S3: structural read (pedsExpected, sidecar outputBytes/outputSha256),
+      // no transcribed pin; supersedes the pinned 20026180 B / 40492951 row.
+      [PEDS_GLB, "pedsKevin", pedsExpected().bytes, pedsExpected().sha256],
       // RE-PINNED: deliberate churn 8e7a1d0c2 (CC-BY scrub extras) + 91aa4b5d3 + 9f2934536.
       // ci-w11b re-pinned 2026-10-30: ci-w11 D3 d0e2104d3 repaired midline breast keyframes
       // (rests already +-0.085; size holds at 8775848); was 4f0a8c1d….

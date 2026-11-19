@@ -2,7 +2,10 @@
   "entrypoints": {
     ".": [],
     "./runner": [
+      "ByteLineageLevel",
       "FactoryStationSchema",
+      "NeckChainSidecar",
+      "P2E_CHAIN_SCRIPT",
       "PRODUCTION_STATION_IDS",
       "ProductionStationId",
       "StandardFailureResult",
@@ -13,12 +16,16 @@
       "StationPlanResult",
       "StationPropertySchema",
       "StationRunner",
+      "TeethSwapBlock",
       "applyStationPayloadToCompileSpec",
+      "assertLineageContinuity",
       "factoryStationSchemas",
+      "lineageLevels",
       "planFromCatalog",
       "productionStationIds",
       "repoRoot",
-      "spawnBlenderProcess"
+      "spawnBlenderProcess",
+      "validateT3LineageChain"
     ],
     "./catalog": [
       "ProductionStationId",

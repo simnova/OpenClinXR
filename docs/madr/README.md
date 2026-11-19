@@ -35,3 +35,4 @@ A trial can inform production only when:
 - [0054 — Equipment three-lane factory (bank / thin parametric / modular kit)](0054-equipment-three-lane-factory.md)
 - [0055 — Equipment asset catalogue file-first SSOT (+ optional Mongo)](0055-equipment-asset-catalog-ssot.md)
 - [0064 — Retire the ambient-fail gate (pre-dispatch vacuous-plant refusal)](0064-ambient-fail-gate-retired.md)
+- [0065 — kevin-collar: drop the 8 leaking unhidden tris (L), keep index-only selection](0065-kevin-collar-drop-leaking-unhidden-tris.md)

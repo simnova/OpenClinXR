@@ -36,6 +36,14 @@
     "entrypoint": "./runner",
     "names": [
       {
+        "name": "assertLineageContinuity",
+        "kind": "runtime"
+      },
+      {
+        "name": "lineageLevels",
+        "kind": "runtime"
+      },
+      {
         "name": "repoRoot",
         "kind": "runtime"
       }

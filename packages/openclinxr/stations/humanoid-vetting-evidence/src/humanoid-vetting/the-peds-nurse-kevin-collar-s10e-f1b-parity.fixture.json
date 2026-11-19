@@ -1,0 +1,21 @@
+{
+ "schemaVersion": "openclinxr.kevin-collar-s10e-f1b-parity-fixture.v1",
+ "glbSha256": "ad61615d110853cf9b959ca6801afc8d079fce77203dc091d4fde07460075d7a",
+ "appsGlbSha256": "ad61615d110853cf9b959ca6801afc8d079fce77203dc091d4fde07460075d7a",
+ "mainGlbSha256": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
+ "source": "S10e F1b closed list (cap41 RULING 3): exclusion (b) matches EXACTLY these 2 px, each S5 tri 8:70",
+ "parityB": [
+  {
+   "dir": "H-low-front",
+   "x": 143,
+   "y": 60,
+   "s5tri": "8:70"
+  },
+  {
+   "dir": "E-front-low-30",
+   "x": 159,
+   "y": 136,
+   "s5tri": "8:70"
+  }
+ ]
+}

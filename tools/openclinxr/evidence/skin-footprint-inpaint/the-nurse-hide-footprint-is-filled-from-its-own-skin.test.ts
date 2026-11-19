@@ -35,6 +35,10 @@ const TOOL = join(HERE, "inpaint_hide_footprint.py");
 const FIXTURE_MASK = join(HERE, "fixtures", "pre-e9-footprint-mask.png");
 const FIXTURE_PROV = join(HERE, "fixtures", "pre-e9-footprint-mask.provenance.json");
 const NURSE_GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
+const KEVIN_PROV = join(
+  REPO_ROOT,
+  "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json",
+);
 const NURSE_PROV = join(
   REPO_ROOT,
   "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.provenance.json",
@@ -119,11 +123,20 @@ const IMAGE_SHAS: Record<number, string> = {
 // 63e79aa3 pins (afb88b28/a9d361b2, prims 9,10,11 appended).
 const ACCESSOR_HASH = "ef2c9cbcc7b473700bde085042543f3fe2bd97aa931fc189591bb5fe72b4a3cd"; // index accessors: hidden prim7 trimmed + 1 appended skin prim9 (moved==6).
 const JSONSHAPE_HASH = "80fd1eff251ba0ec77f9330e13b12a421d005a1506f623fe3b7e75116dc778cd"; // JSON shape changed by the trimmed prim7 + appended prim9 accessors/bufferViews.
-// (d) baselines: the 8 other STALE GLBs at c1da76fb4 (WT files, unmodified),
-// except mpfb-peds-nurse-kevin.glb re-derived 2026-11-18 by kevin-colour
-// actor_hair_colour_post_export_v1 (scalp + brow factors only, BIN identical).
-// Provenance: `git show c1da76fb4:<path> | sha256sum` per file (commit
-// c1da76fb45ea04b3875e4a748211b679b447355c); kevin value from shasum of the shipped GLB.
+// (d) baselines: the 7 other STALE GLBs at c1da76fb4 (WT files, unmodified).
+// mpfb-peds-nurse-kevin.glb is NOT pinned here: kevin-collar S3 reads its
+// expected sha structurally from its sidecar (kevinExpectedSha, outputSha256
+// of the reproduced derivation), so post-export stages stop churning this
+// table. Provenance for the 7: `git show c1da76fb4:<path> | sha256sum` per file
+// (commit c1da76fb45ea04b3875e4a748211b679b447355c).
+/** kevin-collar S3 structural read (see above): never a transcribed pin. */
+function kevinExpectedSha(): string {
+  const prov = JSON.parse(readFileSync(KEVIN_PROV, "utf8")) as { outputSha256?: string };
+  if (typeof prov.outputSha256 !== "string" || !/^[0-9a-f]{64}$/.test(prov.outputSha256)) {
+    throw new Error("footprint (d): kevin sidecar carries no outputSha256");
+  }
+  return prov.outputSha256;
+}
 const GLB_SHAS: Record<string, string> = {
   "mpfb-clinical-physician-adult.glb":
     "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
@@ -135,8 +148,6 @@ const GLB_SHAS: Record<string, string> = {
     "4707db8662d8de790370efaf3356b41780f5ee0b880470ef496d70b82f79a27e",
   "mpfb-gown-inspect.glb":
     "ba8f7ad538510baa9fdd328f1afbbda9eb243ba224c72fca324dd7c771451d91",
-  "mpfb-peds-nurse-kevin.glb":
-    "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
   "mpfb-peds-patient-child.glb":
     "1e90c396b7eeba779fa33be9ebfffef3a76f4b15c28b1f63b7e85656be4f980b",
   "mpfb-viseme-inspect.glb":
@@ -630,11 +641,13 @@ print(json.dumps({"extraKey": extra_key, "extraInSix": extra_key in ${JSON.strin
     expect(extra, "the 7th delta key is the probe tri").toEqual([info.extraKey]);
   }, 300_000);
 
-  it("(d) the 8 other STALE GLBs are untouched", () => {
+  it("(d) the 7 other STALE GLBs are untouched (kevin reads its sidecar)", () => {
     for (const [file, sha] of Object.entries(GLB_SHAS)) {
       const got = shaFile(join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids", file));
       expect(got).toBe(sha);
     }
+    const kevinGot = shaFile(join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids", "mpfb-peds-nurse-kevin.glb"));
+    expect(kevinGot, "kevin matches its sidecar-recorded derivation output").toBe(kevinExpectedSha());
   });
 
   it("A1.1 SEAM: crossing-boundary 4-neighbour |delta| p95 <= B_c per channel", () => {

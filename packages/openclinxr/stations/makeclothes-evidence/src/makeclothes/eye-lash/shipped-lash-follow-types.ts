@@ -164,7 +164,7 @@ export type ActorMeasurement = {
   lashMesh: string;
   bodyMesh: string;
   sides: Record<Side, SideMeasurement>;
-  counterweights: { bodyMorphsByteEqual: boolean; nonLashMeshesHashEqual: boolean };
+  counterweights: { bodyMorphsByteEqual: boolean; nonLashMeshesHashEqual: boolean; lineageAncestorOk: boolean };
   mutationProof?: {
     kind: Exclude<Mutation, "none">;
     beforeSha256: string;

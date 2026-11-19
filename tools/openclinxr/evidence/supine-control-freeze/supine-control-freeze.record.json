@@ -9,7 +9,7 @@
     "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": "1fd58873ddba9519d442396635bd2d91a08c8b4b63606b186ecc56a9c0f5cb8b",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": "ce10321833f92ccc5930fafbadfc8544c9b5ec715a33e71c96ebf5b4e5d6056e",
     "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
-    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72"
+    "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": "7c9545a7e9dd4e2c140d60d732a70e434f1db3145486af2f040a120c7f407f84"
   },
   "staged": {
     "posture": "supine",
@@ -17,9 +17,9 @@
     "clearanceAboveDeckMeters": 0.25
   },
   "producedFrom": {
-    "observedBy": "kevin-colour worker",
-    "observedAtIso": "2026-11-18T06:16:20.761Z",
-    "reason": "Kevin GLB re-derived by kevin-colour post-export stage actor_hair_colour_post_export_v1 (hair_color black -> scalp+brow baseColorFactor [0.035,0.028,0.022]; BIN chunk byte-identical, 20026072 -> 20026180 B); refresh the live control pin for the kevin row only, all other rows recomputed unchanged.",
+    "observedBy": "kevin-collar S5 worker",
+    "observedAtIso": "2026-11-18T11:30:00.000Z",
+    "reason": "Kevin GLB re-derived by kevin-collar S5 post-export chain collar_sleeve_opening_unhide_v1 (index-only, original UVs) + collar_sleeve_skin_footprint_inpaint_v1 (40492951 -> 7c9545a7, 20026180 -> 20185076 B, S4v3 level superseded and excised from the apps sidecar chain, preserved in E/s4b + RESULT-s4); refresh the live control pin for the kevin row only, all other rows recomputed unchanged.",
     "byteCountByPath": {
       "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb": 9221980,
       "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb": 9308164,
@@ -28,7 +28,7 @@
       "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb": 13327592,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb": 12477104,
       "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb": 12618432,
-      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 20026180
+      "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb": 20185076
     }
   }
 }

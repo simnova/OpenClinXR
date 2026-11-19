@@ -8,6 +8,7 @@ import { createHash } from "node:crypto";
 import { mkdtempSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { deflateSync } from "node:zlib";
 import { describe, expect, it } from "vitest";
 import {
   CHAIN_CLAIM_SCOPE,
@@ -107,17 +108,17 @@ describe("validateManifest", () => {
 });
 
 describe("shipped kevin manifest (read-only validation, no stage runs)", () => {
-  it("passes schema with 13 kept and 12 excluded stages", () => {
+  it("passes schema with 15 kept and 12 excluded stages", () => {
     const root = process.cwd();
     const raw = JSON.parse(
       readFileSync(join(root, "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.json"), "utf8"),
     );
     const manifest = validateManifest(raw);
-    expect(manifest.stages).toHaveLength(13);
+    expect(manifest.stages).toHaveLength(15);
     expect(manifest.excluded).toHaveLength(12);
     expect(manifest.stages.map((s) => s.id)).toEqual([
       "01", "03a", "04", "05", "08a", "08b",
-      "10a", "10b", "10c", "12", "13", "17", "21",
+      "10a", "10b", "10c", "12", "13", "17", "21", "22", "23",
     ]);
     for (const s of manifest.stages) {
       expect(existsSync(resolve(root, s.tool.split("#")[0] as string))).toBe(true);
@@ -159,12 +160,12 @@ describe("shipped kevin manifest (read-only validation, no stage runs)", () => {
       "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.no-stage10.json",
     ];
     const manifests = files.map((f) => validateManifest(JSON.parse(readFileSync(join(root, f), "utf8"))));
-    expect(manifests[0].stages).toHaveLength(13);
+    expect(manifests[0].stages).toHaveLength(15);
     expect(manifests[0].excluded).toHaveLength(12);
-    expect(manifests[1].stages).toHaveLength(10);
+    expect(manifests[1].stages).toHaveLength(12);
     expect(manifests[1].excluded).toHaveLength(15);
     expect(manifests[1].stages.map((s) => s.id)).toEqual([
-      "01", "03a", "04", "05", "08a", "08b", "12", "13", "17", "21",
+      "01", "03a", "04", "05", "08a", "08b", "12", "13", "17", "21", "22", "23",
     ]);
     for (const m of manifests) {
       const nine = m.excluded.find((e) => e.id === "09");
@@ -330,6 +331,688 @@ describe("shipped kevin stage 21 executes through runChain (kevin-colour h3 F1)"
     expect(caught).toBeInstanceOf(Error);
     expect((caught as Error).message).toMatch(/stage 21: input actor-phenotype\.v1\.json sha256/);
     expect((caught as Error).stack ?? "").toContain("run-chain");
+  });
+});
+
+describe("shipped kevin stage 22 executes through runChain (kevin-collar S3)", () => {
+  const SHIPPED_MANIFEST =
+    "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.json";
+  const STAGE_ID = "22";
+  const STAGE_NAME = "collar_sleeve_opening_unhide_v1";
+  const SPEC_NAME = "neckline-sleeves.openings.json";
+  const SELECT_NAME = "kevin-collar-select-126.json";
+
+  /** Shipped stage-22 argv minus the --select-tris pair: the small opening
+   * fixture below carries only 2 hidden tris (prim 0), so the real-kevin
+   * SELECTED-126 list (prims 1/4/7, faces outside the fixture moved set)
+   * would refuse; the openings-only path is what this fixture exercises. */
+  function stripSelect(argv: string[]): string[] {
+    const out: string[] = [];
+    for (let i = 0; i < argv.length; i += 1) {
+      if (argv[i] === "--select-tris") {
+        i += 1;
+        continue;
+      }
+      out.push(argv[i] as string);
+    }
+    return out;
+  }
+
+  function shippedStage22(): ChainStage {
+    const root = process.cwd();
+    const manifest = validateManifest(JSON.parse(readFileSync(join(root, SHIPPED_MANIFEST), "utf8")));
+    const stage = manifest.stages.find((s) => s.id === STAGE_ID);
+    expect(stage, `shipped manifest carries stage ${STAGE_ID}`).toBeDefined();
+    return stage as ChainStage;
+  }
+
+  /**
+   * Minimal opening fixture: a 2-triangle hidden prim on a test body where
+   * tri A sits above the shirt V-band floor with a clear +Z ray (moves to
+   * skin) and tri B sits below the floor (kept, so no trim-empties refusal).
+   * Front is +Z: the eyelash/teeth witnesses sit ahead of the neck skin.
+   */
+  function minimalOpeningGlb(): Buffer {
+    const f32 = (xs: number[]): Buffer => {
+      const b = Buffer.alloc(xs.length * 4);
+      xs.forEach((v, i) => {
+        b.writeFloatLE(v, i * 4);
+      });
+      return b;
+    };
+    const u32 = (xs: number[]): Buffer => {
+      const b = Buffer.alloc(xs.length * 4);
+      xs.forEach((v, i) => {
+        b.writeUInt32LE(v, i * 4);
+      });
+      return b;
+    };
+    const chunks: { bytes: Buffer; componentType: number; type: string; count: number }[] = [];
+    const push = (bytes: Buffer, componentType: number, type: string, count: number): number => {
+      chunks.push({ bytes, componentType, type, count });
+      return chunks.length - 1;
+    };
+    // Hidden prim: tri A above the band floor (moves), tri B below (kept).
+    const hiddenPos = push(
+      f32([0, 0.65, 0.4, 0.1, 0.65, 0.4, 0, 0.75, 0.4, 0, 0.2, 0.0, 0.1, 0.2, 0.0, 0, 0.3, 0.0]),
+      5126, "VEC3", 6,
+    );
+    const hiddenNrm = push(f32([0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1]), 5126, "VEC3", 6);
+    const hiddenIdx = push(u32([0, 1, 2, 3, 4, 5]), 5125, "SCALAR", 6);
+    // Skin prim: one tri inside the neck column band below the shirt top.
+    const skinPos = push(f32([0, 0.82, 0.05, 0.1, 0.82, 0.05, 0, 0.88, 0.05]), 5126, "VEC3", 3);
+    const skinIdx = push(u32([0, 1, 2]), 5125, "SCALAR", 3);
+    // Shirt: front panel z=0.3 (centre post at x=0 for the strip) + back z=0.1.
+    const shirtPos = push(
+      f32([
+        -0.3, 0.5, 0.3, 0.3, 0.5, 0.3, -0.3, 0.9, 0.3, 0.3, 0.9, 0.3, 0, 0.5, 0.3, 0, 0.9, 0.3,
+        -0.3, 0.5, 0.1, 0.3, 0.5, 0.1, -0.3, 0.9, 0.1, 0.3, 0.9, 0.1,
+      ]),
+      5126, "VEC3", 10,
+    );
+    const shirtIdx = push(u32([0, 4, 5, 0, 5, 2, 4, 1, 3, 4, 3, 5, 6, 7, 8, 7, 9, 8]), 5125, "SCALAR", 18);
+    // Facial witnesses ahead of the neck skin (+Z front).
+    const lashPos = push(f32([0, 1.3, 0.5, 0.05, 1.3, 0.5, 0, 1.35, 0.5]), 5126, "VEC3", 3);
+    const lashIdx = push(u32([0, 1, 2]), 5125, "SCALAR", 3);
+    const teethPos = push(f32([0, 1.25, 0.45, 0.05, 1.25, 0.45, 0, 1.3, 0.45]), 5126, "VEC3", 3);
+    const teethIdx = push(u32([0, 1, 2]), 5125, "SCALAR", 3);
+    const bufferViews: { buffer: number; byteOffset: number; byteLength: number }[] = [];
+    const accessors: {
+      bufferView: number; byteOffset: number; componentType: number; count: number; type: string;
+    }[] = [];
+    let byteOffset = 0;
+    const parts: Buffer[] = [];
+    for (const c of chunks) {
+      bufferViews.push({ buffer: 0, byteOffset, byteLength: c.bytes.length });
+      accessors.push({
+        bufferView: bufferViews.length - 1, byteOffset: 0, componentType: c.componentType, count: c.count, type: c.type,
+      });
+      parts.push(c.bytes);
+      byteOffset += c.bytes.length;
+    }
+    const doc = {
+      asset: { version: "2.0" },
+      materials: [{ name: "test_skin" }, { name: "openclinxr_hidden_upper_test_body_mesh" }, { name: "test_shirt" }],
+      bufferViews,
+      accessors,
+      buffers: [{ byteLength: byteOffset }],
+      meshes: [
+        {
+          name: "test_body",
+          primitives: [
+            { attributes: { POSITION: hiddenPos, NORMAL: hiddenNrm }, indices: hiddenIdx, material: 1 },
+            { attributes: { POSITION: skinPos }, indices: skinIdx, material: 0 },
+          ],
+        },
+        { name: "scrub_shirt", primitives: [{ attributes: { POSITION: shirtPos }, indices: shirtIdx, material: 2 }] },
+        { name: "eyelash", primitives: [{ attributes: { POSITION: lashPos }, indices: lashIdx, material: 0 }] },
+        {
+          name: "fitted_teeth_mpfb",
+          primitives: [{ attributes: { POSITION: teethPos }, indices: teethIdx, material: 0 }],
+        },
+      ],
+    };
+    const json = Buffer.from(JSON.stringify(doc), "utf8");
+    const padded = Buffer.concat([json, Buffer.alloc((4 - (json.length % 4)) % 4, 0x20)]);
+    const bin = Buffer.concat(parts);
+    const jc = Buffer.alloc(8);
+    jc.writeUInt32LE(padded.length, 0);
+    jc.writeUInt32LE(0x4e4f534a, 4);
+    const bc = Buffer.alloc(8);
+    bc.writeUInt32LE(bin.length, 0);
+    bc.writeUInt32LE(0x004e4942, 4);
+    const total = 12 + 8 + padded.length + 8 + bin.length;
+    const header = Buffer.alloc(12);
+    header.write("glTF", 0);
+    header.writeUInt32LE(2, 4);
+    header.writeUInt32LE(total, 8);
+    return Buffer.concat([header, jc, padded, bc, bin]);
+  }
+
+  function glbDoc(raw: Buffer): {
+    meshes: { name: string; primitives: { attributes: Record<string, number>; indices: number; material: number }[] }[];
+    accessors: { count: number; type: string }[];
+  } {
+    return JSON.parse(raw.subarray(20, 20 + raw.readUInt32LE(12)).toString("utf8")) as {
+      meshes: { name: string; primitives: { attributes: Record<string, number>; indices: number; material: number }[] }[];
+      accessors: { count: number; type: string }[];
+    };
+  }
+
+  function stage22Inputs(dir: string): { manifest: unknown[]; spec: string } {
+    const spec = JSON.stringify({
+      schemaVersion: "openclinxr.openings-spec.v1",
+      openings: ["neckline", "sleeves"],
+      edgeViews: ["front", "three_quarter"],
+    });
+    const specPath = join(dir, SPEC_NAME);
+    writeFileSync(specPath, spec);
+    const shipped = shippedStage22();
+    const manifest = [
+      {
+        id: STAGE_ID,
+        name: STAGE_NAME,
+        tool: shipped.tool,
+        kind: shipped.kind,
+        argv: stripSelect(shipped.argv),
+        inputs: [
+          { name: SPEC_NAME, path: specPath, sha256: createHash("sha256").update(spec).digest("hex") },
+        ],
+      },
+    ];
+    return { manifest, spec };
+  }
+
+  it("executes the stage-22-only manifest through runChain on a small GLB", { timeout: 120_000 }, () => {
+    const root = process.cwd();
+    const shipped = shippedStage22();
+    expect(shipped.kind).toBe("python");
+    expect(shipped.tool).toBe("tools/openclinxr/asset-pipeline/makeclothes/unhide-neckline-opening.py");
+    // B1: the shipped stage pins BOTH the openings spec and the
+    // SELECTED-126 list as hash-pinned .inputs (proven by the real-input
+    // replay below); the small fixture below exercises the openings-only
+    // path with --select-tris stripped (see stripSelect).
+    expect(shipped.inputs?.map((i) => i.name).sort()).toEqual([SELECT_NAME, SPEC_NAME].sort());
+    const selectInput = shipped.inputs?.find((i) => i.name === SELECT_NAME);
+    expect(selectInput?.path).toBe("tools/openclinxr/asset-pipeline/makeclothes/openings/kevin-collar-select-126.json");
+    expect(selectInput?.sha256).toBe("ebdd9d2dfdc19dca65fe6170d9f36c4296a1fcc010e32443de3d88e95e37a83f");
+    expect(shipped.argv).toContain("--select-tris");
+    const dir = tmpRoot();
+    const preGlb = join(dir, "pre.glb");
+    writeFileSync(preGlb, minimalOpeningGlb());
+    const { manifest } = stage22Inputs(dir);
+    const manifestPath = writeManifest(dir, manifest);
+    const out = join(dir, "out");
+    const report = runChain({ manifestPath, input: preGlb, out, root });
+    expect(report.status).toBe("complete");
+    expect(report.stages).toHaveLength(1);
+    const outGlbPath = join(out, `${STAGE_ID}-${STAGE_NAME}.glb`);
+    expect(existsSync(outGlbPath), "stage 22 output GLB written").toBe(true);
+    // Tri A (above the band floor) moved to a new skin prim; tri B kept.
+    const outDoc = glbDoc(readFileSync(outGlbPath));
+    const body = outDoc.meshes.find((m) => m.name === "test_body");
+    expect(body, "test body mesh survives").toBeDefined();
+    expect(body!.primitives).toHaveLength(3);
+    const hiddenPrim = body!.primitives[0];
+    expect(outDoc.accessors[hiddenPrim?.indices ?? -1]?.count, "hidden prim trimmed to tri B").toBe(3);
+    const fresh = body!.primitives[2];
+    expect(fresh?.material).toBe(0);
+    expect(outDoc.accessors[fresh?.indices ?? -1]?.count, "new skin prim carries tri A").toBe(3);
+    // The tool report at {outdir} records the neckline+sleeves openings.
+    const toolReport = JSON.parse(
+      readFileSync(join(out, "22-collar-sleeve-opening-unhide.json"), "utf8"),
+    ) as { movedTrisTotal: number; openings: string[]; primitives: { baseMovedTris: number; edgeMovedTris: number }[] };
+    expect(toolReport.movedTrisTotal).toBe(1);
+    expect(toolReport.openings).toEqual(["neckline", "sleeves"]);
+    expect(toolReport.primitives[0]?.baseMovedTris).toBe(1);
+    // The runner-recorded argv resolves the pinned spec through .inputs.
+    const outDir = resolve(out);
+    const onDisk = JSON.parse(readFileSync(join(out, "chain-report.json"), "utf8")) as {
+      stages: { argv: string[] }[];
+    };
+    expect(onDisk.stages[0]?.argv).toEqual([
+      "--in",
+      resolve(preGlb),
+      "--output",
+      join(outDir, `.tmp-${STAGE_ID}-${STAGE_NAME}.glb`),
+      "--report",
+      join(outDir, "22-collar-sleeve-opening-unhide.json"),
+      "--openings-spec",
+      join(outDir, ".inputs", SPEC_NAME),
+    ]);
+  });
+
+  it("counterweight: an altered spec hash fails through runChain materialization (RED)", { timeout: 60_000 }, () => {
+    const dir = tmpRoot();
+    const preGlb = join(dir, "pre.glb");
+    writeFileSync(preGlb, minimalOpeningGlb());
+    const { manifest } = stage22Inputs(dir);
+    const bad = JSON.parse(JSON.stringify(manifest)) as {
+      inputs: { name: string; path: string; sha256: string }[];
+    }[];
+    const spec = bad[0]?.inputs.find((i) => i.name === SPEC_NAME);
+    expect(spec, "openings spec input declared").toBeDefined();
+    spec!.sha256 = `${spec!.sha256.slice(0, 63)}${spec!.sha256.endsWith("0") ? "1" : "0"}`;
+    const manifestPath = writeManifest(dir, bad);
+    let caught: unknown;
+    try {
+      runChain({ manifestPath, input: preGlb, out: join(dir, "out-bad"), root: process.cwd() });
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(Error);
+    expect((caught as Error).message).toMatch(/stage 22: input neckline-sleeves\.openings\.json sha256/);
+    expect((caught as Error).stack ?? "").toContain("run-chain");
+  });
+});
+
+describe("shipped kevin stages 22+23 replay on the real pre-fix input (kevin-collar S9/B1)", () => {
+  const SHIPPED_MANIFEST =
+    "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.json";
+  const KEVIN_PRE_REF =
+    "8108f27c0:apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb";
+  const KEVIN_PRE_SHA = "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72";
+  const KEVIN_SHIPPED_SHA = "ad61615d110853cf9b959ca6801afc8d079fce77203dc091d4fde07460075d7a";
+  const PHYS_PRE_REF =
+    "399ae1f8f~1:apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb";
+  const PHYS_PRE_SHA = "2faef74ab1ed20a155f992c8e8f79f8229cedab7cf3dd511317d1e333b3860e0";
+  const PHYS_POST_SHA = "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f";
+
+  function shippedStage(id: string): ChainStage {
+    const root = process.cwd();
+    const manifest = validateManifest(JSON.parse(readFileSync(join(root, SHIPPED_MANIFEST), "utf8")));
+    const stage = manifest.stages.find((s) => s.id === id);
+    expect(stage, `shipped manifest carries stage ${id}`).toBeDefined();
+    return stage as ChainStage;
+  }
+
+  function gitBytes(ref: string): Buffer {
+    const raw = execFileSync("git", ["-C", process.cwd(), "show", ref], { maxBuffer: 512 * 1024 * 1024 });
+    return raw as Buffer;
+  }
+
+  function dropFlag(argv: string[], flag: string): string[] {
+    const out: string[] = [];
+    for (let i = 0; i < argv.length; i += 1) {
+      if (argv[i] === flag) {
+        i += 1;
+        continue;
+      }
+      out.push(argv[i] as string);
+    }
+    return out;
+  }
+
+  it("replays stages 22+23 on the real pre-fix input: movedTrisTotal == 126 and output sha == ad61615d", { timeout: 900_000 }, () => {
+    const root = process.cwd();
+    const preBytes = gitBytes(KEVIN_PRE_REF);
+    expect(createHash("sha256").update(preBytes).digest("hex"), "pre-fix pin is 40492951").toBe(KEVIN_PRE_SHA);
+    const dir = tmpRoot();
+    const preGlb = join(dir, "pre.glb");
+    writeFileSync(preGlb, preBytes);
+    const s22 = shippedStage("22");
+    const s23 = shippedStage("23");
+    // The manifest pins BOTH writers (kevin.json + no-stage10.json carry
+    // the identical stage-22 argv/inputs); assert the no-stage10 writer too.
+    const altRaw = JSON.parse(
+      readFileSync(join(root, "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.no-stage10.json"), "utf8"),
+    );
+    const altManifest = validateManifest(altRaw);
+    const alt22 = altManifest.stages.find((s) => s.id === "22");
+    expect(alt22, "no-stage10 manifest carries stage 22").toBeDefined();
+    expect(alt22!.argv).toEqual(s22.argv);
+    expect(alt22!.inputs).toEqual(s22.inputs);
+    const manifest = [
+      { id: s22.id, name: s22.name, tool: s22.tool, kind: s22.kind, argv: s22.argv, inputs: s22.inputs },
+      { id: s23.id, name: s23.name, tool: s23.tool, kind: s23.kind, argv: s23.argv, inputs: s23.inputs },
+    ];
+    const manifestPath = writeManifest(dir, manifest);
+    const out = join(dir, "out");
+    const report = runChain({ manifestPath, input: preGlb, out, root });
+    expect(report.status).toBe("complete");
+    expect(report.stages).toHaveLength(2);
+    const toolReport = JSON.parse(readFileSync(join(out, "22-collar-sleeve-opening-unhide.json"), "utf8")) as {
+      movedTrisTotal: number;
+      selectKeptTrisTotal?: number;
+    };
+    expect(toolReport.movedTrisTotal, "SELECTED-126 moves exactly 126 tris").toBe(126);
+    const finalGlb = join(out, `23-${s23.name}.glb`);
+    const finalSha = createHash("sha256").update(readFileSync(finalGlb)).digest("hex");
+    // eslint-disable-next-line no-console
+    console.log(`Tests: B1 replay GREEN: movedTrisTotal=126 final sha=${finalSha} (want ${KEVIN_SHIPPED_SHA})`);
+    expect(finalSha, "chain replay reproduces the shipped ad61615d bytes").toBe(KEVIN_SHIPPED_SHA);
+  });
+
+  it("counterweight: replay with --select-tris omitted does NOT produce ad61615d (RED)", { timeout: 900_000 }, () => {
+    const preBytes = gitBytes(KEVIN_PRE_REF);
+    expect(createHash("sha256").update(preBytes).digest("hex")).toBe(KEVIN_PRE_SHA);
+    const dir = tmpRoot();
+    const preGlb = join(dir, "pre.glb");
+    writeFileSync(preGlb, preBytes);
+    const s22 = shippedStage("22");
+    const s23 = shippedStage("23");
+    const s22NoSelect = {
+      id: s22.id,
+      name: s22.name,
+      tool: s22.tool,
+      kind: s22.kind,
+      argv: dropFlag(s22.argv, "--select-tris"),
+      inputs: (s22.inputs ?? []).filter((i) => i.name !== "kevin-collar-select-126.json"),
+    };
+    const manifest = [
+      s22NoSelect,
+      { id: s23.id, name: s23.name, tool: s23.tool, kind: s23.kind, argv: s23.argv, inputs: s23.inputs },
+    ];
+    const manifestPath = writeManifest(dir, manifest);
+    const out = join(dir, "out-noselect");
+    const report = runChain({ manifestPath, input: preGlb, out, root: process.cwd() });
+    expect(report.status).toBe("complete");
+    const toolReport = JSON.parse(readFileSync(join(out, "22-collar-sleeve-opening-unhide.json"), "utf8")) as {
+      movedTrisTotal: number;
+    };
+    const finalSha = createHash("sha256").update(readFileSync(join(out, `23-${s23.name}.glb`))).digest("hex");
+    // eslint-disable-next-line no-console
+    console.log(`Tests: B1 counterweight RED as required: no-select movedTrisTotal=${toolReport.movedTrisTotal} final sha=${finalSha} (shipped ${KEVIN_SHIPPED_SHA})`);
+    expect(toolReport.movedTrisTotal, "un-narrowed moved set is not the SELECTED 126").not.toBe(126);
+    expect(finalSha, "omitting --select-tris must not replay ad61615d").not.toBe(KEVIN_SHIPPED_SHA);
+  });
+
+  it("physician default path stays byte-equal (2faef74a -> 8c3ab05c)", { timeout: 900_000 }, () => {
+    const preBytes = gitBytes(PHYS_PRE_REF);
+    expect(createHash("sha256").update(preBytes).digest("hex"), "physician pre-image pin is 2faef74a").toBe(PHYS_PRE_SHA);
+    const dir = tmpRoot();
+    const preGlb = join(dir, "phys-pre.glb");
+    writeFileSync(preGlb, preBytes);
+    const s22 = shippedStage("22");
+    // Legacy default path: no --openings-spec and no --select-tris.
+    const legacy = {
+      id: s22.id,
+      name: s22.name,
+      tool: s22.tool,
+      kind: s22.kind,
+      argv: dropFlag(dropFlag(s22.argv, "--openings-spec"), "--select-tris"),
+      inputs: [],
+    };
+    const manifestPath = writeManifest(dir, [legacy]);
+    const out = join(dir, "out-phys");
+    const report = runChain({ manifestPath, input: preGlb, out, root: process.cwd() });
+    expect(report.status).toBe("complete");
+    const outSha = createHash("sha256").update(readFileSync(join(out, `22-${s22.name}.glb`))).digest("hex");
+    // eslint-disable-next-line no-console
+    console.log(`Tests: physician default path GREEN: 2faef74a -> ${outSha} (want ${PHYS_POST_SHA})`);
+    expect(outSha, "default path reproduces the physician 8c3ab05c bytes").toBe(PHYS_POST_SHA);
+  });
+});
+
+describe("shipped kevin stage 23 executes through runChain (kevin-collar S5)", () => {
+  const SHIPPED_MANIFEST =
+    "tools/openclinxr/asset-pipeline/humanoid-chain/manifests/mpfb-peds-nurse-kevin.json";
+  const STAGE_ID = "23";
+  const STAGE_NAME = "collar_sleeve_skin_footprint_inpaint_v1";
+  const MASK_NAME = "kevin-openings-footprint-mask.png";
+
+  function shippedStage23(): ChainStage {
+    const root = process.cwd();
+    const manifest = validateManifest(JSON.parse(readFileSync(join(root, SHIPPED_MANIFEST), "utf8")));
+    const stage = manifest.stages.find((s) => s.id === STAGE_ID);
+    expect(stage, `shipped manifest carries stage ${STAGE_ID}`).toBeDefined();
+    return stage as ChainStage;
+  }
+
+  it("carries the pinned footprint mask as a hash-pinned input", () => {
+    const shipped = shippedStage23();
+    expect(shipped.kind).toBe("python");
+    expect(shipped.tool).toBe("tools/openclinxr/evidence/skin-footprint-inpaint/inpaint_hide_footprint.py");
+    expect(shipped.inputs).toHaveLength(1);
+    expect(shipped.inputs?.[0]?.name).toBe(MASK_NAME);
+    expect(shipped.inputs?.[0]?.path).toBe(
+      "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/kevin-openings-footprint-mask.png",
+    );
+    expect(shipped.inputs?.[0]?.sha256).toBe("97bf6e25116f10d1e7b0f27399bd7258c0342f34607fd796fb7176cef3f987be");
+    expect(shipped.argv.join(" ")).toContain("{outdir}/.inputs/kevin-openings-footprint-mask.png");
+  });
+
+  it("counterweight: an altered mask hash fails through runChain materialization (RED)", { timeout: 60_000 }, () => {
+    const dir = tmpRoot();
+    const preGlb = join(dir, "pre.glb");
+    writeFileSync(preGlb, Buffer.from("GLB0", "utf8"));
+    const shipped = shippedStage23();
+    const manifest = [
+      {
+        id: STAGE_ID,
+        name: STAGE_NAME,
+        tool: shipped.tool,
+        kind: shipped.kind,
+        argv: shipped.argv,
+        inputs: [
+          {
+            name: MASK_NAME,
+            path: join(dir, MASK_NAME),
+            sha256: createHash("sha256").update("mask-bytes").digest("hex"),
+          },
+        ],
+      },
+    ];
+    writeFileSync(join(dir, MASK_NAME), "mask-bytes");
+    const bad = JSON.parse(JSON.stringify(manifest)) as {
+      inputs: { name: string; path: string; sha256: string }[];
+    }[];
+    const mask = bad[0]?.inputs.find((i) => i.name === MASK_NAME);
+    expect(mask, "footprint mask input declared").toBeDefined();
+    mask!.sha256 = `${mask!.sha256.slice(0, 63)}${mask!.sha256.endsWith("0") ? "1" : "0"}`;
+    const manifestPath = writeManifest(dir, bad);
+    let caught: unknown;
+    try {
+      runChain({ manifestPath, input: preGlb, out: join(dir, "out-bad"), root: process.cwd() });
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(Error);
+    expect((caught as Error).message).toMatch(/stage 23: input kevin-openings-footprint-mask\.png sha256/);
+    expect((caught as Error).stack ?? "").toContain("run-chain");
+  });
+
+  /**
+   * Minimal inpaint fixture: a 32x32 skin PNG (warm-grey island, black 4x4
+   * hole) embedded in a one-prim mpfb_test_body GLB, plus a 32x32 mask PNG
+   * covering exactly the hole. Proves the shipped stage-23 argv executes
+   * through runChain and fills the hole from the island's own texels
+   * (afterBlackFrac 1.0 -> 0.0, off-footprint bytes preserved by the tool's
+   * own offFootprintHash round-trip on the real asset in P4).
+   */
+  let CRC_TABLE_LOCAL: Uint32Array | null = null;
+  function crc32Local(bytes: Uint8Array): number {
+    if (!CRC_TABLE_LOCAL) {
+      const t = new Uint32Array(256);
+      for (let n = 0; n < 256; n += 1) {
+        let c = n;
+        for (let k = 0; k < 8; k += 1) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+        t[n] = c;
+      }
+      CRC_TABLE_LOCAL = t;
+    }
+    const t = CRC_TABLE_LOCAL;
+    let c = 0xffffffff;
+    for (let i = 0; i < bytes.length; i += 1) c = t[(c ^ bytes[i]!) & 0xff]! ^ (c >>> 8);
+    return (c ^ 0xffffffff) >>> 0;
+  }
+  function pngChunkLocal(type: string, data: Uint8Array): Uint8Array {
+    const out = new Uint8Array(12 + data.length);
+    const dv = new DataView(out.buffer);
+    dv.setUint32(0, data.length);
+    for (let i = 0; i < 4; i += 1) out[4 + i] = type.charCodeAt(i);
+    out.set(data, 8);
+    dv.setUint32(8 + data.length, crc32Local(out.subarray(4, 8 + data.length)));
+    return out;
+  }
+  function encodePngRgbLocal(w: number, h: number, rgb: Uint8Array): Buffer {
+    const ihdr = new Uint8Array(13);
+    const dv = new DataView(ihdr.buffer);
+    dv.setUint32(0, w);
+    dv.setUint32(4, h);
+    ihdr[8] = 8;
+    ihdr[9] = 2;
+    const raw = Buffer.alloc((w * 3 + 1) * h);
+    for (let y = 0; y < h; y += 1) {
+      raw[y * (w * 3 + 1)] = 0;
+      Buffer.from(rgb.subarray(y * w * 3, (y + 1) * w * 3)).copy(raw, y * (w * 3 + 1) + 1);
+    }
+    const idat = deflateSync(raw);
+    const sig = Uint8Array.from([137, 80, 78, 71, 13, 10, 26, 10]);
+    return Buffer.concat([sig, pngChunkLocal("IHDR", ihdr), pngChunkLocal("IDAT", new Uint8Array(idat)), pngChunkLocal("IEND", new Uint8Array(0))]);
+  }
+  function minimalInpaintGlb(skinPng: Buffer): Buffer {
+    const f32 = (xs: number[]): Buffer => {
+      const b = Buffer.alloc(xs.length * 4);
+      xs.forEach((v, i) => {
+        b.writeFloatLE(v, i * 4);
+      });
+      return b;
+    };
+    const u32 = (xs: number[]): Buffer => {
+      const b = Buffer.alloc(xs.length * 4);
+      xs.forEach((v, i) => {
+        b.writeUInt32LE(v, i * 4);
+      });
+      return b;
+    };
+    // Quad UVs covering texels x,y in [8,24) of the 32x32 skin image.
+    const pos = f32([0, 0, 0, 1, 0, 0, 1, 1, 0, 0, 1, 0]);
+    const uv = f32([8 / 32, 8 / 32, 24 / 32, 8 / 32, 24 / 32, 24 / 32, 8 / 32, 24 / 32]);
+    const idx = u32([0, 1, 2, 0, 2, 3]);
+    const chunks: { bytes: Buffer; componentType: number; type: string; count: number }[] = [];
+    const push = (bytes: Buffer, componentType: number, type: string, count: number): number => {
+      chunks.push({ bytes, componentType, type, count });
+      return chunks.length - 1;
+    };
+    const posA = push(pos, 5126, "VEC3", 4);
+    const uvA = push(uv, 5126, "VEC2", 4);
+    const idxA = push(idx, 5125, "SCALAR", 6);
+    const pngPadded = Buffer.concat([skinPng, Buffer.alloc((4 - (skinPng.length % 4)) % 4, 0)]);
+    const _imgA = push(pngPadded, 5121, "SCALAR", pngPadded.length);
+    const bufferViews: { buffer: number; byteOffset: number; byteLength: number }[] = [];
+    const accessors: { bufferView: number; byteOffset: number; componentType: number; count: number; type: string }[] = [];
+    let byteOffset = 0;
+    const parts: Buffer[] = [];
+    for (const c of chunks) {
+      bufferViews.push({ buffer: 0, byteOffset, byteLength: c.bytes.length });
+      accessors.push({
+        bufferView: bufferViews.length - 1, byteOffset: 0, componentType: c.componentType, count: c.count, type: c.type,
+      });
+      parts.push(c.bytes);
+      byteOffset += c.bytes.length;
+    }
+    const doc = {
+      asset: { version: "2.0" },
+      materials: [{ name: "mpfb_skin_test", pbrMetallicRoughness: { baseColorTexture: { index: 0 } } }],
+      textures: [{ source: 0 }],
+      images: [{ bufferView: 3, mimeType: "image/png", name: "mpfb-test.skin" }],
+      bufferViews,
+      accessors,
+      buffers: [{ byteLength: byteOffset }],
+      meshes: [
+        {
+          name: "mpfb_test_body",
+          primitives: [{ attributes: { POSITION: posA, TEXCOORD_0: uvA }, indices: idxA, material: 0 }],
+        },
+      ],
+    };
+    const json = Buffer.from(JSON.stringify(doc), "utf8");
+    const padded = Buffer.concat([json, Buffer.alloc((4 - (json.length % 4)) % 4, 0x20)]);
+    const bin = Buffer.concat(parts);
+    const jc = Buffer.alloc(8);
+    jc.writeUInt32LE(padded.length, 0);
+    jc.writeUInt32LE(0x4e4f534a, 4);
+    const bc = Buffer.alloc(8);
+    bc.writeUInt32LE(bin.length, 0);
+    bc.writeUInt32LE(0x004e4942, 4);
+    const total = 12 + 8 + padded.length + 8 + bin.length;
+    const header = Buffer.alloc(12);
+    header.write("glTF", 0);
+    header.writeUInt32LE(2, 4);
+    header.writeUInt32LE(total, 8);
+    return Buffer.concat([header, jc, padded, bc, bin]);
+  }
+
+  it("executes the stage-23-only manifest through runChain on a small GLB", { timeout: 120_000 }, () => {
+    const root = process.cwd();
+    const shipped = shippedStage23();
+    expect(shipped.kind).toBe("python");
+    expect(shipped.tool).toBe("tools/openclinxr/evidence/skin-footprint-inpaint/inpaint_hide_footprint.py");
+    const dir = tmpRoot();
+    // Skin image: warm grey island (texels [8,24)^2), black 4x4 hole at
+    // rows/cols 14..17, dark surround outside the island (untouched).
+    const W = 32;
+    const H = 32;
+    const rgb = new Uint8Array(W * H * 3);
+    for (let y = 0; y < H; y += 1) {
+      for (let x = 0; x < W; x += 1) {
+        const inIsland = x >= 8 && x < 24 && y >= 8 && y < 24;
+        const inHole = x >= 14 && x < 18 && y >= 14 && y < 18;
+        const v: [number, number, number] = !inIsland ? [10, 10, 10] : inHole ? [0, 0, 0] : [185, 155, 140];
+        rgb.set(v, (y * W + x) * 3);
+      }
+    }
+    const skinPng = encodePngRgbLocal(W, H, rgb);
+    const preGlb = join(dir, "pre.glb");
+    writeFileSync(preGlb, minimalInpaintGlb(skinPng));
+    // Mask: exactly the 4x4 hole, strictly inside the island.
+    const mrgb = new Uint8Array(W * H * 3);
+    for (let y = 0; y < H; y += 1) {
+      for (let x = 0; x < W; x += 1) {
+        const v: [number, number, number] = x >= 14 && x < 18 && y >= 14 && y < 18 ? [255, 255, 255] : [0, 0, 0];
+        mrgb.set(v, (y * W + x) * 3);
+      }
+    }
+    const maskPath = join(dir, MASK_NAME);
+    writeFileSync(maskPath, encodePngRgbLocal(W, H, mrgb));
+    const manifest = [
+      {
+        id: STAGE_ID,
+        name: STAGE_NAME,
+        tool: shipped.tool,
+        kind: shipped.kind,
+        argv: shipped.argv,
+        inputs: [
+          { name: MASK_NAME, path: maskPath, sha256: createHash("sha256").update(readFileSync(maskPath)).digest("hex") },
+        ],
+      },
+    ];
+    const manifestPath = writeManifest(dir, manifest);
+    const out = join(dir, "out");
+    const report = runChain({ manifestPath, input: preGlb, out, root });
+    expect(report.status).toBe("complete");
+    expect(report.stages).toHaveLength(1);
+    const outGlbPath = join(out, `${STAGE_ID}-${STAGE_NAME}.glb`);
+    expect(existsSync(outGlbPath), "stage 23 output GLB written").toBe(true);
+    const toolReport = JSON.parse(
+      readFileSync(join(out, "23-collar-sleeve-skin-footprint-inpaint.json"), "utf8"),
+    ) as { footprintTexels: number; beforeBlackFrac: number; afterBlackFrac: number; islandsTouched: number[]; islandCount: number };
+    expect(toolReport.footprintTexels).toBe(16);
+    expect(toolReport.beforeBlackFrac).toBe(1);
+    expect(toolReport.afterBlackFrac).toBe(0);
+    expect(toolReport.islandsTouched).toEqual([1]);
+    expect(toolReport.islandCount).toBe(1);
+    const outDir = resolve(out);
+    const onDisk = JSON.parse(readFileSync(join(out, "chain-report.json"), "utf8")) as {
+      stages: { argv: string[] }[];
+    };
+    expect(onDisk.stages[0]?.argv).toEqual([
+      "--in",
+      resolve(preGlb),
+      "--out",
+      join(outDir, `.tmp-${STAGE_ID}-${STAGE_NAME}.glb`),
+      "--footprint-mask",
+      join(outDir, ".inputs", MASK_NAME),
+      "--report",
+      join(outDir, "23-collar-sleeve-skin-footprint-inpaint.json"),
+    ]);
+  });
+
+  it("counterweight: a dropped mask input fails through runChain (RED)", { timeout: 120_000 }, () => {
+    const dir = tmpRoot();
+    const rgb = new Uint8Array(32 * 32 * 3).fill(128);
+    const preGlb = join(dir, "pre.glb");
+    writeFileSync(preGlb, minimalInpaintGlb(encodePngRgbLocal(32, 32, rgb)));
+    const shipped = shippedStage23();
+    const manifest = [
+      {
+        id: STAGE_ID,
+        name: STAGE_NAME,
+        tool: shipped.tool,
+        kind: shipped.kind,
+        argv: shipped.argv,
+        inputs: [],
+      },
+    ];
+    const manifestPath = writeManifest(dir, manifest);
+    let caught: unknown;
+    try {
+      runChain({ manifestPath, input: preGlb, out: join(dir, "out-bad"), root: process.cwd() });
+    } catch (e) {
+      caught = e;
+    }
+    expect(caught).toBeInstanceOf(Error);
   });
 });
 describe("runChain", () => {

@@ -1,0 +1,208 @@
+{
+  "schemaVersion": "openclinxr.kevin-collar-pre-fix.v1",
+  "glbSha256": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
+  "captureRun": "2026-11-18T10-24-10Z",
+  "captureSha256": {
+    "lit": "0d3decd27012a3878fae5726d1966ffb7b986e3f62683486f8fcb1806f888f5a",
+    "struct": "8a9056607ad34581e54255cbdbe0d71d3fec6fe23b4ba02d7be99c95e9d04de2"
+  },
+  "sites": {
+    "collar": {
+      "front": {
+        "box": [
+          1910,
+          1275,
+          2176,
+          1328
+        ],
+        "stride": 1,
+        "hiddenCount": 7807,
+        "hiddenSha256": "222806503ddb52965e22c6eb1b97ae83ddf5d22b5ccb17ced5f0d278c236ff5c"
+      },
+      "threeQuarter": {
+        "box": [
+          2066,
+          1283,
+          2269,
+          1328
+        ],
+        "stride": 1,
+        "hiddenCount": 4516,
+        "hiddenSha256": "bc2ed483f599787a0e304017023188f6ce28eedfb7d059e7ea66cc1518e52dbc"
+      }
+    },
+    "vneck": {
+      "front": {
+        "box": [
+          1911,
+          1313,
+          2170,
+          1456
+        ],
+        "stride": 1,
+        "hiddenCount": 19643,
+        "hiddenSha256": "c926d879aa2d5be24a06e54cbd88fca5723aed25e7691aa627ef827d5f7af0ab"
+      },
+      "threeQuarter": {
+        "box": [
+          2043,
+          1313,
+          2434,
+          1466
+        ],
+        "stride": 1,
+        "hiddenCount": 13802,
+        "hiddenSha256": "74b9376110b23b1b82f0f4c4da4dfca302b4c4f20648184f6d40108a2b939311"
+      }
+    },
+    "sleeve_left": {
+      "front": {
+        "box": [
+          1100,
+          1450,
+          1500,
+          1800
+        ],
+        "stride": 1,
+        "hiddenCount": 0
+      },
+      "threeQuarter": {
+        "box": [
+          1796,
+          1608,
+          1917,
+          1735
+        ],
+        "stride": 1,
+        "hiddenCount": 1826,
+        "hiddenSha256": "bb63239015acea215278e5d91e78da04b5a76beb36129dd40a7a773ff2f1c540"
+      }
+    },
+    "sleeve_right": {
+      "front": {
+        "box": [
+          2600,
+          1450,
+          3000,
+          1800
+        ],
+        "stride": 1,
+        "hiddenCount": 0
+      },
+      "threeQuarter": {
+        "box": [
+          2403,
+          1523,
+          2530,
+          1670
+        ],
+        "stride": 1,
+        "hiddenCount": 3721,
+        "hiddenSha256": "60c7754d3dec206181fa98298317c840bb4c5a9106886f22fa56ff4c783c522a"
+      }
+    }
+  },
+  "shirt": {
+    "box": [
+      1700,
+      1600,
+      2400,
+      2200
+    ],
+    "stride": 2,
+    "count": 59134,
+    "sha256": "7f1adebcc2ea55b2d020deb925e0fbba63807a58faa7cceba89e3f1e18cda51c"
+  },
+  "pants": {
+    "box": [
+      1650,
+      2300,
+      2450,
+      2900
+    ],
+    "stride": 2,
+    "count": 79056,
+    "sha256": "69e02baa8601d6afc1305ab372257bb48c3694f71febe60f0e7ed6a933ca2412"
+  },
+  "threeQuarter": {
+    "captureRun": "2026-11-18T10-24-10Z",
+    "captureSha256": {
+      "lit": "9ba0830bb4d7c5d69c8301e0146830b75d349a6e61dd4293e1b1be84c64f4dc9",
+      "struct": "3c6383ca141bec46004945049d991d7e16772467b4d52e8bcb5778e571ba59ca"
+    },
+    "shirt": {
+      "box": [
+        1750,
+        1600,
+        2350,
+        2200
+      ],
+      "stride": 2,
+      "count": 52864,
+      "sha256": "f4dad5bbd811fcbe0f7034d4c15fbf12dd60248ac594058163b3ace0d6defb0e"
+    },
+    "pants": {
+      "box": [
+        1650,
+        2300,
+        2450,
+        2950
+      ],
+      "stride": 2,
+      "count": 80039,
+      "sha256": "8c514c153edc76d69a222acbced495d158b50a3a67dc17062147c700c7dbf787"
+    }
+  },
+  "silhouette": {
+    "front": [
+      1124,
+      894,
+      2972,
+      3668
+    ],
+    "threeQuarter": [
+      1254,
+      912,
+      2618,
+      3692
+    ]
+  },
+  "silhouetteInstrument": "raycast hit-vs-miss through loadScene (the test instrument) on the pinned pre-fix GLB, edges inset 2px; capture-run silhouettes live in E/c1 (S1 grade), not here",
+  "skinBand": {
+    "kevin": {
+      "view": "front",
+      "box": [
+        1990,
+        1125,
+        2090,
+        1155
+      ],
+      "source": "texels at skin-material hits in this box on the pinned pre-fix GLB 40492951 (neck skin above the collar; verified 3000/3000 skin-mat hits at stride 1, 0 miss), sampled live by the test; band = per-channel Y/CbCr p2..p98 over those texels (three.js flipY=false mapping)"
+    },
+    "physician": {
+      "view": "front",
+      "box": [
+        2000,
+        1140,
+        2100,
+        1160
+      ],
+      "glb": "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+      "glbSha256": "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
+      "source": "texels at skin-material hits in this box on the shipped physician GLB 8c3ab05c (neck skin above its collar; verified 2000/2000 skin-mat hits at stride 1, 0 miss), sampled live by the test"
+    }
+  },
+  "hemBands": {
+    "derivation": "garment/skin classification boundary dilated 12px via the repo raycast instrument (loadScene + classifyNurseWaistHit + sortHitsBruteForceOrder) on the pinned pre-fix GLB 40492951; sleeve ROIs sleeveL [1740,1560,1980,1800] and sleeveR [2340,1470,2590,1730] classified stride-1; boundary = garment px with skin in 3x3; band = Chebyshev-12 dilation; recomputed live by s5-r-dump2.mts, coords in E/s5a/work/r-hembands.json.{sleeveL,sleeveR}.json",
+    "sleeveL": {
+      "bandPx": 2024,
+      "bbox": [1836, 1676, 1919, 1732],
+      "bandSha256": "3a59596b72fddc551fed51ae2af8410968ee40c662c3a6dbc3ea0dce7e442892"
+    },
+    "sleeveR": {
+      "bandPx": 4024,
+      "bbox": [2428, 1534, 2559, 1701],
+      "bandSha256": "d54ea588016e8ba2b1ffc6094b5e4d15c2afd75accc4e82c1b2f42d1e6ee8ff4"
+    }
+  }
+}

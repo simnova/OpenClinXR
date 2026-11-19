@@ -32,6 +32,9 @@ import {
   frameCameraForBounds,
 } from "../../../../apps/arena/model-vetting-studio/src/candidate-capture-geometry.js";
 
+/** Re-exported so sibling probes frame the camera exactly as this module does without a second path reach. */
+export { computeBaseMeshBounds, frameCameraForBounds };
+
 // mirrors FixedCameraView in apps/arena/model-vetting-studio/src/candidate-capture-views.ts (local copy keeps the archunit freeze at 449)
 type FixedCameraView = "front" | "side" | "three_quarter";
 

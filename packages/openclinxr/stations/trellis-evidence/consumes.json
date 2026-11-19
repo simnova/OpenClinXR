@@ -14,7 +14,23 @@
     "entrypoint": "./runner",
     "names": [
       {
+        "name": "ByteLineageLevel",
+        "kind": "type"
+      },
+      {
+        "name": "lineageLevels",
+        "kind": "runtime"
+      },
+      {
         "name": "repoRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "TeethSwapBlock",
+        "kind": "type"
+      },
+      {
+        "name": "validateT3LineageChain",
         "kind": "runtime"
       }
     ]

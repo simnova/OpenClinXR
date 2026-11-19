@@ -51,6 +51,23 @@ export {
 export {
   repoRoot,
 } from "./repo-root.js";
+/**
+ * Shared teeth-swap byte-lineage continuity rule (kevin-collar s10h4 B2): the
+ * junction rule validateT3 enforces, extracted so trellis-evidence enforces the
+ * SAME rule without importing from a .test.ts file. The exact-word tool-path
+ * helpers stay in the owning test (FU8 owns that surface).
+ */
+export type {
+  ByteLineageLevel,
+  NeckChainSidecar,
+  TeethSwapBlock,
+} from "./teeth-swap-lineage.js";
+export {
+  assertLineageContinuity,
+  lineageLevels,
+  P2E_CHAIN_SCRIPT,
+  validateT3LineageChain,
+} from "./teeth-swap-lineage.js";
 /** Blender run spawned through the local compute services gate. */
 export {
   spawnBlenderProcess,

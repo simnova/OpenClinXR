@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
-import { dirname, join, resolve as pathResolve } from "node:path";
+import { join } from "node:path";
 import { NodeIO, type Node as GLTFNode, type Primitive } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
@@ -67,6 +67,18 @@ process.chdir(repoRoot());
 const REPO_ROOT = repoRoot();
 const INSPECT = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-viseme-inspect.glb");
 const PROVENANCE = join(REPO_ROOT, "tools/openclinxr/evidence/viseme-apply-provenance.json");
+const KEVIN_PROVENANCE = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json");
+
+/** kevin-collar S3 structural read: kevin's expected bytes are the sidecar's
+ * recorded outputSha256 (the derivation the sidecar reproduces byte-identical),
+ * never a transcribed pin, so post-export stages stop churning this table. */
+function kevinExpectedSha(): string {
+  const prov = JSON.parse(readFileSync(KEVIN_PROVENANCE, "utf8")) as { outputSha256?: string };
+  if (typeof prov.outputSha256 !== "string" || !/^[0-9a-f]{64}$/.test(prov.outputSha256)) {
+    throw new Error("visemes (4): kevin sidecar carries no outputSha256");
+  }
+  return prov.outputSha256;
+}
 const MATERIALIZER = join(REPO_ROOT, "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py");
 
 /** Lip muscles, from #425's measured dominant-joint clustering. Not a guess. */
@@ -176,7 +188,9 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // kevin-colour re-pinned 2026-11-18: post-export stage actor_hair_colour_post_export_v1
   // resolves hair_color black to [0.035, 0.028, 0.022] on scalp + brow baseColorFactor only
   // (BIN chunk identical); 20026072 -> 20026180 B live; was 0e610fe7fda8….
-  "mpfb-peds-nurse-kevin": "4049295125a11dc398457701dfe3a55c8fd47d784dfeaed99e5e3e3ba3b92c72",
+  // kevin-collar S3: structural read (kevinExpectedSha, sidecar outputSha256),
+  // no transcribed pin; supersedes the pinned 40492951 value.
+  "mpfb-peds-nurse-kevin": kevinExpectedSha(),
   // #502 re-pinned 2026-08-21: the clinician footwear leopard "Shoe" texture was stripped to
   // the flat dark factor (gown-patient precedent); the viseme morph targets and every other
   // buffer are untouched.

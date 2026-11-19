@@ -225,10 +225,10 @@ PLAN = {
                  "1225b8f95) preserved in git history."),
     },
     "mpfb-peds-nurse-kevin.glb": {
-        "bytesAfter": 20026180,
+        "bytesAfter": 20179696,
         "triangleCountAfter": 102537,
         "faceAfter": 50595,
-        "note": ("Re-measured 2026-11-18 (kevin-colour): post-export stage actor_hair_colour_post_export_v1 resolves the case-authored hair_color black to linear [0.035, 0.028, 0.022] on the fitted scalp + style-08 brow baseColorFactor only; BIN chunk byte-identical, geometry/rig/animation untouched, tris/face/hand/joints hold (asserted by main()), 20026072 -> 20026180 B. Prior re-measure preserved below. Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4627 tris; tris and face drop by 2493 (105030 -> 102537, 53088 -> 50595), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 20026092 -> 20026072 B. Prior re-measure preserved below. "
+        "note": ("Re-measured 2026-11-18 (kevin-collar S9): post-export chain collar_sleeve_opening_unhide_v1 plus collar_sleeve_skin_footprint_inpaint_v1 on the shipped bytes; geometry and rig untouched, tris and face and joints hold (asserted by main()), 20026180 -> 20179696 B. Prior re-measure preserved below. Re-measured 2026-11-18 (kevin-colour): post-export stage actor_hair_colour_post_export_v1 resolves the case-authored hair_color black to linear [0.035, 0.028, 0.022] on the fitted scalp + style-08 brow baseColorFactor only; BIN chunk byte-identical, geometry/rig/animation untouched, tris/face/hand/joints hold (asserted by main()), 20026072 -> 20026180 B. Prior re-measure preserved below. Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4627 tris; tris and face drop by 2493 (105030 -> 102537, 53088 -> 50595), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth F3, tsk_27e0cec12cab410d): the aa upper-shell lateral mean goes -5.79 mm -> 0 (HEAD_MEAN x); 9256 B inside one teeth morph accessor and one accessor min change, tris/face/hand/joints hold (asserted by main()), 20026092 -> 20026072 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 16926856 -> 20026092 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 16526836 -> 16926856 B. Pre-repack bytes are those of 1c5027169 (last origin/main commit touching this GLB). Prior re-measure preserved below. "
                  "Re-measured 2026-11-05 (st-vitbody3 r2): skin-shade carrier adds actor-derived curvature/cavity plus face 0.15 / body 0.3 detail strengths (face re-picked 0.15 in the r4 sweep, 2026-11-06); bytes-only drift, geometry counts hold (asserted by main()), 16105284 -> 16526836 B. Prior re-measure preserved below. "
@@ -420,7 +420,7 @@ HB05_POST_RUNG = {
             "faceDelta": 4435,
             "note": ("fitted CC0 teeth/tongue swap, then decimate_teeth.mts ratio 0.65, error 0.005 (teeth 7120 -> 4627); delta = fitted mouth tris 5075 - preImageMouthTris 640"),
             "source": "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.provenance.json#teethSwapB1",
-            "sourceSha256": "2ef6c9b970fcbdd008596033efaab51de5a30aea265064c0d01acee79296cbf0",
+            "sourceSha256": "29bf855f0c16fe3e80c4dc0447224a2074617cb266a7e5b43eeb63dbb1b93e00",
         }],
     },
     "mpfb-viseme-inspect.glb": {

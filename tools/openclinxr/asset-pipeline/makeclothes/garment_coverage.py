@@ -940,6 +940,144 @@ NECKLINE_NECK_BAND_M = 0.10
 NECKLINE_SAMPLE_INSET = 0.05
 
 
+# kevin-collar S3 — grading-camera positions for the opening-edge pass.
+# Replica of frameCameraForBounds in
+# apps/arena/model-vetting-studio/src/candidate-capture-geometry.ts, evaluated
+# on the candidate file's own POSITION bounds: no body-specific constants.
+# Direction from a surface point toward these positions is invariant under
+# loadScene's uniform scale + translation (same argument as NECKLINE_TQ_AXIS),
+# hence usable in GLB space.
+EDGE_KNOWN_VIEWS = ("front", "side", "three_quarter")
+
+
+def grading_camera_positions(all_verts_list, views=("front", "three_quarter")):
+    """Camera positions of the grading instrument in GLB coordinates.
+
+    all_verts_list: every mesh POSITION array of the candidate file.
+    views: subset of EDGE_KNOWN_VIEWS. Returns {view: (3,) float array}.
+    Pure numpy, deterministic, body-independent.
+    """
+    for v in views:
+        if v not in EDGE_KNOWN_VIEWS:
+            raise ValueError(f"grading_camera_positions: unknown view {v!r}; want one of {EDGE_KNOWN_VIEWS}")
+    stacked = np.concatenate([np.asarray(v, dtype=float).reshape(-1, 3) for v in all_verts_list], axis=0)
+    lo = stacked.min(axis=0)
+    hi = stacked.max(axis=0)
+    center = (lo + hi) * 0.5
+    size = hi - lo
+    radius = float(max(size[0], size[1], size[2], 0.5))
+    distance = radius * 2.35
+    eye_height = max(float(size[1]) * 0.12, 0.25)
+    out = {}
+    if "front" in views:
+        out["front"] = np.array([center[0], center[1] + eye_height, center[2] + distance])
+    if "side" in views:
+        out["side"] = np.array([center[0] + distance, center[1] + eye_height, center[2]])
+    if "three_quarter" in views:
+        out["three_quarter"] = np.array(
+            [center[0] + distance * 0.72, center[1] + eye_height, center[2] + distance * 0.72]
+        )
+    return out
+
+
+def uncovered_edge_hidden_triangles(
+    hidden_verts,
+    hidden_faces,
+    base_uncovered,
+    floor_y,
+    shirt_verts,
+    shirt_faces,
+    visible_body_verts_faces,
+    cam_positions,
+    lab_coat_verts=None,
+    lab_coat_faces=None,
+    *,
+    origin_eps_m: float = NECKLINE_ORIGIN_EPS_M,
+    sample_inset: float = NECKLINE_SAMPLE_INSET,
+) -> dict:
+    """kevin-collar S3 — opening-edge triangles the fixed axes graze.
+
+    Candidates: in-band (centroid above floor_y, the SAME band the base
+    neckline pass uses, so foot/lower exclusion still follows from height)
+    triangles the base pass kept. A candidate is uncovered when ANY of the
+    7 sample points (3 inset vertices, 3 edge midpoints, centroid — the same
+    set as the base pass) has a clear ray toward ANY grading-camera position:
+    no occluder hit (shirt, lab coat when present, every visible body prim;
+    the hidden prim itself is never an occluder) closer than the camera.
+    Cameras sit outside the model, so a clear ray means the triangle shows
+    through a garment opening from a grading view.
+
+    Pure numpy, deterministic (no randomness; input-order stable).
+    """
+    hv = _as_np(hidden_verts)
+    hf = np.asarray(hidden_faces, dtype=np.int64).reshape(-1, 3)
+    base = np.asarray(base_uncovered, dtype=bool).reshape(-1)
+    if len(hf) == 0:
+        raise ValueError("uncovered_edge_hidden_triangles: no hidden faces")
+    if base.shape != (len(hf),):
+        raise ValueError("uncovered_edge_hidden_triangles: base_uncovered length mismatch")
+    if not cam_positions:
+        raise ValueError("uncovered_edge_hidden_triangles: no camera positions")
+
+    tri = hv[hf]  # (T,3,3)
+    centroids = tri.mean(axis=1)
+    in_band = centroids[:, 1] > float(floor_y)
+    candidate = in_band & ~base
+
+    v0, v1, v2 = tri[:, 0], tri[:, 1], tri[:, 2]
+    inset = float(sample_inset)
+    s0 = v0 + inset * (centroids - v0)
+    s1 = v1 + inset * (centroids - v1)
+    s2 = v2 + inset * (centroids - v2)
+    m01 = (v0 + v1) * 0.5
+    m12 = (v1 + v2) * 0.5
+    m20 = (v2 + v0) * 0.5
+    samples = np.stack([s0, s1, s2, m01, m12, m20, centroids], axis=1)  # (T,7,3)
+
+    occluder_blocks = [np.asarray(shirt_verts, dtype=float)[np.asarray(shirt_faces, dtype=np.int64).reshape(-1, 3)]]
+    if lab_coat_verts is not None and lab_coat_faces is not None:
+        occluder_blocks.append(
+            np.asarray(lab_coat_verts, dtype=float)[np.asarray(lab_coat_faces, dtype=np.int64).reshape(-1, 3)]
+        )
+    for body_verts, body_faces in visible_body_verts_faces:
+        occluder_blocks.append(
+            np.asarray(body_verts, dtype=float)[np.asarray(body_faces, dtype=np.int64).reshape(-1, 3)]
+        )
+    occluders = np.concatenate(occluder_blocks, axis=0) if len(occluder_blocks) > 1 else occluder_blocks[0]
+
+    edge = np.zeros(len(hf), dtype=bool)
+    per_view_clear = {}
+    flat = samples.reshape(-1, 3)
+    for name, campos in cam_positions.items():
+        campos = np.asarray(campos, dtype=float).reshape(3)
+        to_cam = campos[None, :] - flat
+        dist = np.linalg.norm(to_cam, axis=1)
+        dist = np.where(dist < 1e-9, 1e-9, dist)
+        dirs = to_cam / dist[:, None]
+        origins = flat + dirs * float(origin_eps_m)
+        max_t = float(dist.max())
+        hits = _ray_tri_hits(origins, dirs, occluders, max_t)
+        clear = (hits > dist).reshape(-1, 7).any(axis=1)
+        per_view_clear[str(name)] = int((candidate & clear).sum())
+        edge = edge | (candidate & clear)
+
+    return {
+        "uncovered": edge,
+        "uncoveredCount": int(edge.sum()),
+        "triangleCount": int(len(hf)),
+        "candidateCount": int(candidate.sum()),
+        "perViewClearCount": per_view_clear,
+        "samplePointsPerTri": 7,
+        "sampleInset": float(sample_inset),
+        "info": {
+            "floorYM": float(floor_y),
+            "originEpsM": float(origin_eps_m),
+            "occluderTriangles": int(len(occluders)),
+            "cameras": {str(k): [float(x) for x in np.asarray(v, dtype=float).reshape(3)] for k, v in cam_positions.items()},
+        },
+    }
+
+
 def uncovered_neckline_hidden_triangles(
     hidden_verts,
     hidden_faces,
@@ -1136,6 +1274,126 @@ def uncovered_neckline_hidden_triangles(
             "occluderTriangles": int(len(occluders)),
         },
     }
+
+
+# kevin-collar S6 — opening band filter (generalized; no body-specific input).
+#
+# The openings-spec moved set can reach far beyond the garment openings (the
+# edge pass moves kept in-band triangles with a clear ray to a grading
+# camera, wherever they sit). The band keeps the moved tris near a garment
+# opening boundary loop and drops the rest. Loops come from the moved set's
+# own boundary geometry; selection thresholds come from the garment's own
+# verts (shirt top = max shirt y, half-width = max |shirt x|); distances are
+# metres from tri centroid to the nearest loop segment. No camera input.
+OPENING_BAND_LATERAL_FRACTION = 2.0 / 3.0
+OPENING_BAND_TOP_MARGIN_M = 0.03
+
+
+def moved_set_boundary_loops(moved_verts, moved_faces) -> list:
+    """Boundary loops of the moved set (position-welded), each with its edge
+    list, welded points and centroid. Deterministic (input-order stable)."""
+    v = _as_np(moved_verts)
+    f = np.asarray(moved_faces, dtype=np.int64).reshape(-1, 3)
+    uw, inv = weld_by_position(v, f)
+    edge_count: dict[tuple[int, int], int] = {}
+    for tri in inv:
+        for a, b in ((tri[0], tri[1]), (tri[1], tri[2]), (tri[2], tri[0])):
+            e = (int(min(a, b)), int(max(a, b)))
+            edge_count[e] = edge_count.get(e, 0) + 1
+    bedges = [e for e, c in edge_count.items() if c == 1]
+    parent: dict[int, int] = {}
+
+    def find(a):
+        while parent.get(a, a) != a:
+            a = parent[a] = parent.get(parent[a], parent[a])
+        return a
+
+    def union(a, b):
+        ra, rb = find(a), find(b)
+        if ra != rb:
+            parent[ra] = rb
+
+    for a, b in bedges:
+        union(a, b)
+    comp: dict[int, list] = {}
+    for a, b in bedges:
+        comp.setdefault(find(a), []).append((a, b))
+    loops = []
+    for edges in comp.values():
+        vs = set()
+        for a, b in edges:
+            vs.add(a)
+            vs.add(b)
+        pts = uw[list(vs)]
+        loops.append({"edges": edges, "welded": uw, "points": pts, "centroid": pts.mean(axis=0)})
+    return loops
+
+
+def select_opening_loops(loops, *, shirt_top_m: float, shirt_half_width_m: float) -> dict:
+    """Pick the collar/V loop and the two sleeve-hem loops from the moved-set
+    boundary loops. Collar: longest loop central (|cx| < 2/3 half-width) near
+    the shirt top (cy > top - 3 cm). Sleeves: longest loops each side at or
+    beyond ±2/3 half-width (+x = sleeveR, -x = sleeveL by world x-sign).
+    Every threshold derives from the garment's own verts. Refuses loudly when
+    a category has no loop."""
+    lat = OPENING_BAND_LATERAL_FRACTION * float(shirt_half_width_m)
+    top = float(shirt_top_m) - OPENING_BAND_TOP_MARGIN_M
+    collar_cand = [l for l in loops if abs(float(l["centroid"][0])) < lat and float(l["centroid"][1]) > top]
+    sleeve_r_cand = [l for l in loops if float(l["centroid"][0]) >= lat]
+    sleeve_l_cand = [l for l in loops if float(l["centroid"][0]) <= -lat]
+    missing = []
+    if not collar_cand:
+        missing.append("collar")
+    if not sleeve_r_cand:
+        missing.append("sleeveR")
+    if not sleeve_l_cand:
+        missing.append("sleeveL")
+    if missing:
+        raise ValueError(
+            "select_opening_loops: no boundary loop for %s "
+            "(loops=%d lateral=%.4f top=%.4f)" % (",".join(missing), len(loops), lat, top)
+        )
+    collar_cand.sort(key=lambda l: -len(l["edges"]))
+    sleeve_r_cand.sort(key=lambda l: -len(l["edges"]))
+    sleeve_l_cand.sort(key=lambda l: -len(l["edges"]))
+    return {"collar": collar_cand[0], "sleeveR": sleeve_r_cand[0], "sleeveL": sleeve_l_cand[0]}
+
+
+def opening_loop_distances(moved_verts, moved_faces, loops: dict) -> np.ndarray:
+    """Per-tri centroid distance (metres) to the nearest opening-loop segment."""
+    v = _as_np(moved_verts)
+    f = np.asarray(moved_faces, dtype=np.int64).reshape(-1, 3)
+    centroids = v[f].mean(axis=1)
+    segs = []
+    for loop in loops.values():
+        uw = _as_np(loop["welded"])
+        for a, b in loop["edges"]:
+            segs.append((uw[int(a)], uw[int(b)]))
+    out = np.empty(len(f), dtype=float)
+    for i, c in enumerate(centroids):
+        best = float("inf")
+        for a, b in segs:
+            ab = b - a
+            denom = float(ab @ ab)
+            t = 0.0 if denom < 1e-18 else float(np.clip((c - a) @ ab / denom, 0.0, 1.0))
+            d = float(np.linalg.norm(c - (a + t * ab)))
+            if d < best:
+                best = d
+        out[i] = best
+    return out
+
+
+def hide_mesh_median_edge(prims_verts_faces) -> float:
+    """Median edge length (metres) over the given hidden prims' authored
+    POSITION/indices. The caller passes the hidden prims that contributed
+    moved tris."""
+    elens = []
+    for verts, faces in prims_verts_faces:
+        vv = _as_np(verts)
+        ff = np.asarray(faces, dtype=np.int64).reshape(-1, 3)
+        e = np.concatenate([vv[ff[:, 0]] - vv[ff[:, 1]], vv[ff[:, 1]] - vv[ff[:, 2]], vv[ff[:, 2]] - vv[ff[:, 0]]], axis=0)
+        elens.append(np.linalg.norm(e, axis=1))
+    return float(np.median(np.concatenate(elens)))
 
 
 def _poking_face_count(

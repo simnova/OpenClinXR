@@ -174,6 +174,61 @@
         }
       ],
       "note": "Shipped/recorded post-export stage (kevin-colour 2026-11-18): resolves hair_color black to [0.035, 0.028, 0.022] and re-tints scalp + brow baseColorFactor only; BIN chunk byte-identical. Replayable: the tool is python3 -I safe (sibling import via sys.path from __file__), and provenance/phenotype are hash-pinned inputs materialized to {outdir}/.inputs, so the resolved argv equals the recorded byteLineage argv modulo input staging (proven by the stage-21 execution test in run-chain.test.ts)."
+    },
+    {
+      "id": "22",
+      "name": "collar_sleeve_opening_unhide_v1",
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/unhide-neckline-opening.py",
+      "kind": "python",
+      "argv": [
+        "--in",
+        "{in}",
+        "--output",
+        "{out}",
+        "--report",
+        "{outdir}/22-collar-sleeve-opening-unhide.json",
+        "--openings-spec",
+        "{outdir}/.inputs/neckline-sleeves.openings.json",
+        "--select-tris",
+        "{outdir}/.inputs/kevin-collar-select-126.json"
+      ],
+      "inputs": [
+        {
+          "name": "neckline-sleeves.openings.json",
+          "path": "tools/openclinxr/asset-pipeline/makeclothes/openings/neckline-sleeves.json",
+          "sha256": "c00bcbf90b7269dde71bed62f1238d0f0bf070e41d2a7e929423eabd08af877d"
+        },
+        {
+          "name": "kevin-collar-select-126.json",
+          "path": "tools/openclinxr/asset-pipeline/makeclothes/openings/kevin-collar-select-126.json",
+          "sha256": "ebdd9d2dfdc19dca65fe6170d9f36c4296a1fcc010e32443de3d88e95e37a83f"
+        }
+      ],
+      "note": "Shipped post-export stage (kevin-collar S3 2026-11-18): moves the hide-mask triangles inside the scrub collar/V-neck opening and both sleeve hems back to skin on the shipped GLB bytes (post-stage-21 input). Generalizes the physician neckline un-hide: absent --openings-spec reproduces the physician 2faef74a->8c3ab05c bytes exactly; the pinned spec selects neckline+sleeves, adding the opening-edge pass (kept in-band triangles with a clear ray to a grading-camera position derived from the file's own bounds, no body-specific constants). Python3 -I safe; the spec is a hash-pinned input materialized to {outdir}/.inputs (proven by the stage-22 execution test in run-chain.test.ts)."
+    },
+    {
+      "id": "23",
+      "name": "collar_sleeve_skin_footprint_inpaint_v1",
+      "tool": "tools/openclinxr/evidence/skin-footprint-inpaint/inpaint_hide_footprint.py",
+      "kind": "python",
+      "argv": [
+        "--in",
+        "{in}",
+        "--out",
+        "{out}",
+        "--footprint-mask",
+        "{outdir}/.inputs/kevin-openings-footprint-mask.png",
+        "--report",
+        "{outdir}/23-collar-sleeve-skin-footprint-inpaint.json"
+      ],
+      "inputs": [
+        {
+          "name": "kevin-openings-footprint-mask.png",
+          "path": "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/kevin-openings-footprint-mask.png",
+          "sha256": "97bf6e25116f10d1e7b0f27399bd7258c0342f34607fd796fb7176cef3f987be"
+        }
+      ],
+      "note": "Shipped post-export stage (kevin-collar S5 2026-11-18): fills the hide-mask footprint of the skin baseColor from its own texels on the stage-22 output (Telea per-island inpaint, radius 3). Reuses the nurse hide-footprint tool unchanged (no new inpaint algorithm); the mask is the hide-mask raster (derive-fixture from pre 40492951, 220972 texels, 7 hidden prims / 2278 tris), which covers the moved set (M subset H, 36019 texels). M-only fill leaves 47% of M black (sources black H\\M padding); H fill clears M to min maxc 172. Python3 -I safe; mask hash-pinned to {outdir}/.inputs (proven by the stage-23 execution test in run-chain.test.ts)."
     }
   ],
   "excluded": [
