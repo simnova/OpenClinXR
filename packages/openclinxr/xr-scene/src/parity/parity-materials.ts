@@ -17,6 +17,8 @@ import {
   type Object3D,
 } from "three";
 
+export { applyBrowLash } from "./parity-hair-mask.js";
+
 export type PhysicalSwapReadback = {
   mesh: string;
   material: string;

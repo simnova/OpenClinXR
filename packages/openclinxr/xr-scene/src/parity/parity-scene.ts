@@ -25,6 +25,7 @@ import {
 import { GLTFExporter } from "three/addons/exporters/GLTFExporter.js";
 import type { CalibReadback } from "./parity-calib.js";
 import { installCalibSpheres } from "./parity-calib.js";
+import { applyParityEyeShade } from "./parity-eye-shade.js";
 import {
   applyBrowLash,
   applyHairRim,
@@ -33,8 +34,6 @@ import {
   type HairRimReadback,
   type MaskReadback,
 } from "./parity-hair-mask.js";
-import { applyParityEyeShade } from "./parity-eye-shade.js";
-import type { EyeShadeReadback } from "./parity-types.js";
 import { type HdriReadback, loadParityHdri } from "./parity-hdri.js";
 import {
   applyClothPhysical,
@@ -46,6 +45,7 @@ import { applyParityShadow } from "./parity-shadow.js";
 import { updateSssViewUniforms } from "./parity-sss-uniforms.js";
 import type {
   CameraOverride,
+  EyeShadeReadback,
   ParityReadback,
   ParityRigOverride,
   ParitySkinParams,
@@ -239,7 +239,7 @@ export function applyParityBeautyLevers(args: {
       root.updateMatrixWorld(true);
     }
     if (spec.parity.physical.browLash != null) {
-      browLashReadback = applyBrowLash(root, spec.parity.physical.browLash);
+      browLashReadback = applyBrowLash(root, spec.parity.physical.browLash, scene);
       root.updateMatrixWorld(true);
     }
     if (spec.parity.physical.hairRim != null) {

@@ -12,13 +12,14 @@ import {
   MeshBasicMaterial,
   MeshPhysicalMaterial,
   type Object3D,
+  type Scene,
 } from "three";
+import { eachMaterialSlot, round4 } from "./parity-materials.js";
 import {
   PARITY_MASK_TABLE,
-  parityMaskCategory,
   type ParityMaskCategory,
+  parityMaskCategory,
 } from "./parity-types.js";
-import { eachMaterialSlot, round4 } from "./parity-materials.js";
 
 const BROWLASH_RE =
   /openclinxr_fitted_eyebrow_mindfront_eyebrows_05_mpfb_ob_patient_aisha_v1_mat|openclinxr_fitted_eyelash_mindfront_eyelashes_01_mpfb_ob_patient_aisha_v1_mat/;
@@ -46,6 +47,7 @@ export type BrowLashReadback = {
 export function applyBrowLash(
   root: Object3D,
   params: { colorScale: number; envMapIntensity: number; roughness: number },
+  scene?: Pick<Scene, "environment" | "environmentRotation">,
 ): BrowLashReadback[] {
   const { colorScale, envMapIntensity, roughness } = params;
   for (const [name, v] of [
@@ -66,6 +68,10 @@ export function applyBrowLash(
         throw new Error(`parity browLash refuses Physical brow/lash material on ${mesh.name} — refusing`);
       }
       m.color.multiplyScalar(colorScale);
+      if (scene?.environment) {
+        m.envMap = scene.environment;
+        m.envMapRotation.copy(scene.environmentRotation);
+      }
       m.envMapIntensity = envMapIntensity;
       m.roughness = roughness;
       m.needsUpdate = true;
