@@ -50,7 +50,7 @@ export {
 /** Boot the isolated-subject lab from the #app element and URL spec (probe-only entry). */
 export {
   bootIsolatedSubjectLab,
-} from "./isolated-subject-lab.js";
+} from "./parity/parity-lab-entry.js";
 export {
   applyMaterialOverrides,
 } from "./isolated-subject-material-variants.js";

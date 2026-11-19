@@ -25,6 +25,10 @@ import type {
   IsolatedSubjectEvidence,
   IsolatedSubjectKind,
 } from "../isolated-subject-lab.js";
+/** Parity capture evidence: the lab evidence plus the live parity readback. */
+export type ParityCaptureEvidence = IsolatedSubjectEvidence & {
+  parity?: ParityReadback;
+};
 import type {
   MaterialOverrideApplied,
   SkinOverrideApplied,
@@ -153,7 +157,7 @@ export async function finalizeIsolatedSubjectCapture(args: {
     eyeShade: ParityReadback["physical"]["eyeShade"];
     skin: ParityReadback["physical"]["skin"];
   };
-}): Promise<IsolatedSubjectEvidence> {
+}): Promise<ParityCaptureEvidence> {
   const { pipeline, root, camera, renderer, scene, spec } = args;
   window.__openClinXrIsolatedRenderFrame = () => { pipeline.renderFrame(); };
 
@@ -183,7 +187,7 @@ export async function finalizeIsolatedSubjectCapture(args: {
   const parityWanted =
     args.masksMode || args.calibMode || spec.cameraOverride != null || args.readbacks.hdri != null || spec.parity != null;
   camera.updateMatrixWorld(true);
-  const evidence: IsolatedSubjectEvidence = {
+  const evidence: ParityCaptureEvidence = {
     source: "window.__openClinXrIsolatedSubjectEvidence",
     subjectId: spec.subjectId,
     subjectKind: spec.subjectKind,

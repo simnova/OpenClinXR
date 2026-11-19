@@ -24,6 +24,7 @@
     "src/capture-subject.test.ts",
     "src/deps-boundary.test.ts",
     "src/entrypoint.test.ts",
+    "src/parity-dispatch-contract.test.ts",
     "src/runtime-capture.test.ts",
     "src/server-lifecycle.test.ts"
   ],
