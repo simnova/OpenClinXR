@@ -61,5 +61,54 @@ The held-out set is the 5 non-vacuous directions of a 15-direction list fixed be
 - S9 SELECTED-126 stands; no reselection, no densify, no new tri list in S10.
 - Any future selection of 8:70 (or any `T_open`-outside tri) ships only with a C2' both-ties leak check GREEN.
 - The parity class (F3) never ships without the fill floor (F1); (b) stays a closed 2-px list until densified rays change the measurement.
-- Machine-local only (S10h2/B5: `it.runIf(existsSync(...))` on store GLBs, skipped on clean clones via `KEVIN_COLLAR_STORE_ROOT`): required-behavior + C1 NOT PADDING (CW132), C3 C1-RED (S3), C3 C2-RED (S4 soup), S9 C1 + C2' (S5), C3 store record (s9-c3.json), S10e (S5 + CW132), C4 (CW132 + CW125); C3' + S10d are `it.skip` superseded records.
 - No Quest readiness, clinical-validity, licensure, or scoring claims follow from this MADR.
+
+## CI verification after the test collapse (2026-11-19)
+
+C1, the garment and framing checks, C2′, and held-out F1b′ and F3 run with an empty store. The historical input is `kevin-collar-control.fixture.br`. Run `pnpm exec tsx <path-to-extract-kevin-collar-control-fixture.ts> INPUT.glb OUTPUT.fixture.br` from the repository root to regenerate it. The extractor keeps the triangles and occluders needed by the fixed and held-out collar and sleeve rays. It preserves source face ordinals, material slots and the Float32 values of retained vertex attributes. CI raycasts this geometry with the same opening predicate used for the shipped asset. The crop stores the sampled first-hit classes for the full-frame garment and silhouette checks. The pre-fix pixel-set checks verify the historical ray census. Pass the historical crop as the optional third argument to extract a candidate crop.
+
+The test and extractor use `kevin-collar-historical-framing.json` for the posed transform and fixed cameras. To regenerate that file, run `pnpm exec tsx <path-to-extract-kevin-collar-control-fixture.ts> --write-framing 40492951.glb OUTPUT.json` from the repository root. The held-out camera inputs come from `kevin-collar-heldout.fixture.br` in both paths.
+
+Each producer writes a sibling `.sha256.json` manifest for the decoded payload. Keep it beside the fixture when passing an alternate path. For a clean bootstrap, generate framing first, then the held-out input, then the historical crop.
+
+The fixture writer `write-kevin-collar-heldout-fixture.ts` accepts the historical GLB, the Kevin collar evidence directory, and a Brotli output path. It delta-encodes the pixel IDs in the JSON payload. It extracts S5 passing ray coordinates, their eligible exclusion owners, the S5 opening rim, and CW132 observations from the producing geometry and S9 evidence. The test raycasts the shipped asset and the historical reference on the five recorded grids, retaining the four carrying views and the report-only view. The exact two rule (b) coordinates and owners still gate. CW132 and CW125 also run live in C4 when both GLBs are available. C4 applies the opening predicate before testing an allowance, and attributes a hidden failure to the historical first hit at the same pixel.
+
+### Disposition of the original clauses
+
+Paths beginning with `E/` below refer to the original Kevin collar evidence directory under `store/st-teeth/kevin-collar`.
+
+| Former test title | Destination |
+| --- | --- |
+| `required-behavior` | The opening, garment and framing test reruns the historical sets and verifies the exact 50 hidden rays and both triangle owners. The whole-asset SHA refusal is gone because the live comparison now determines the result. |
+| `required-behavior keep-L counterweight must RED (needs store file ${S9_CW132})` | Historical only. `E/s10h1/` records two hidden rays on CW132. Live C4 tests the keep-L artifact for shirt leakage. |
+| `C1 NOT PADDING: every pre-fix hidden px is front-facing skin sampling a painted texel` | The C1 test retains the painted-skin predicate, edge and same-triangle carve-outs, and exact nine-ray allowance. |
+| `C1 keep-L counterweight must RED (needs store file ${S9_CW132})` | Historical stride-1 observation in `E/s10h1/`. The held-out fixture records CW132's C1 failures by direction. |
+| `C1 counterweights fail loudly (flip winding / black material / negated normals)` | The C1 substitutions run on known-good painted witnesses from the shipped control, with each failure attributed to the changed property. |
+| `C2 FACET: every moved tri covers >= 0.5 texel²; known-good distribution; physician passes` | The C2 test retains the live floor on moved Kevin and physician triangles and on historical visible Kevin skin. Distribution logs remain in `E/s10h14/collar-shipped.log`. |
+| `C3 C1 RED on S3 40396f18 (black padding)` | Historical only. `E/s3a/` and `E/s4a/` record the black-padding treatment and texel census that informed the live C1 threshold. |
+| `C3 C2 RED on S4 soup 6c69cf72 (one-texel tris)` | Historical only. `E/s4b/` records the one-texel soup and the rejection behind the live 0.5 texel² floor. |
+| `C1 OPENING: hidden-first site + allowance (dropped-L hidden slots only, <= 13)` | C1 OPENING raycasts all 13,028 historical rays in CI. The S5 rim comes from the S9 producing record in `E/s9a/work/s9-c1-fails.json`. |
+| `C2' SHIRT STAYS SHIRT: widened boxes at grade + product-near0.1 ties, S5 side by side` | The C2′ test raycasts the widened boxes and requires the scrub-shirt material on the front-facing first hit, including at the shoulder witness. `E/s10h2/work/s10h2-s9-c2p.json` preserves the S5 comparison, including its 36 three-quarter failures at the grade tie. |
+| `C3 HELD-OUT: S9 fixed-count rule VOID (inverted guard per cap41 S10-1 ruling, MADR 0065)` | The held-out guard checks the exact five directions and their live historical counts. The shipped-asset SHA refusal is replaced by geometry checks. |
+| `C3 store record: S9 s9-c3.json stands at 2/6 non-vacuous (machine-local, MADR 0065)` | Historical only. `E/s9a/work/s9-c3.json` measured 2/6 non-vacuous directions before the 15-direction blind census. |
+| `C3' HELD-OUT (fixed 15-list, 4 carrying dirs) + C3d keep-L counterweight` | Superseded by the F1b′ and F3 test. The old result is archived under `E/s10c/work/`. |
+| `S10d F1 fill floor + F3 parity class (cap41 RULING 2; supersedes RUL3/C3c)` | Superseded RULING 2 evidence under `E/s10d/work/`. RULING 3 added the exact rule (b) exception now verified in CI. |
+| `S10e F1b' fill floor + F3 parity class (cap41 RULING 3; supersedes RULING 2 F1(b))` | The store-free F1b′ and F3 test runs the live comparison and preserves both shirt ties. The producing comparison remains under `E/s10e/work/`. |
+| `C4 counterweights: keep-L RED, drop-one RED, S5-era substitutions RED` | Optional live C4 covers CW132 and CW125. The store-free C1 substitutions retain the winding, material, and normal controls. |
+
+### Directions removed from the live held-out set
+
+Each row had zero historical hidden-body first hits in the projected S9 opening bounds according to `the-peds-nurse-kevin-collar-s10-heldout-census.fixture.json`. Such a view has no opening pixels on which to measure an S5 fill floor. The original census retains all directions from blind list `2ee21d10`.
+
+| Direction | Geometry sampled | Opening pixels |
+| --- | --- | --- |
+| H-high-back-tq | High rear oblique | 0 |
+| H-side-right | Level right profile | 0 |
+| H-side-left | Level left profile | 0 |
+| H-front-near | Near level front | 0 |
+| E-back-low-30 | Low rear | 0 |
+| E-backtq135-level | Level rear-right oblique | 0 |
+| E-backtq225-level | Level rear-left oblique | 0 |
+| E-back-level | Level rear | 0 |
+| E-sideR-up-10 | Raised right profile | 0 |
+| E-sideL-up-10 | Raised left profile | 0 |

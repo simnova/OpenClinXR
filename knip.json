@@ -521,6 +521,12 @@
     "apps/ui-xr": {
       "ignoreDependencies": ["@openclinxr/xr-capacity"]
     },
+    "packages/openclinxr/stations/humanoid-vetting-evidence": {
+      "entry": [
+        "src/humanoid-vetting/extract-kevin-collar-control-fixture.ts",
+        "src/humanoid-vetting/write-kevin-collar-heldout-fixture.ts"
+      ]
+    },
     "packages/openclinxr/stations/makeclothes-evidence": {
       "ignoreDependencies": ["@openclinxr/station-mouth-verifier"]
     },

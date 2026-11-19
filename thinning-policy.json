@@ -106,41 +106,6 @@
       "reason": "Release with SHIP-SUPERSET-HARDEN tsk_39e8f73871d78e35 when the footprint provenance no longer needs the pin."
     },
     {
-      "id": "kevin-collar-evidence-offset",
-      "scope": [
-        "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-and-sleeves-show-no-skin-notch.test.ts",
-        "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s10h1-classify.fixture.json",
-        "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s10-heldout-census.fixture.json",
-        "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-and-sleeves-show-no-skin-notch.pre-fix.json",
-        "tools/openclinxr/evidence/humanoid-vetting/kevin-collar-skin-probe.ts",
-        "tools/openclinxr/evidence/humanoid-vetting/posed-scene.ts",
-        "packages/openclinxr/stations/humanoid-bake-evidence/consumes.json",
-        "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-applied-visemes-move-the-mouth.test.ts",
-        "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-nurse-sternal-t-is-classified-from-the-glb.test.ts",
-        "packages/openclinxr/stations/makeclothes-evidence/consumes.json",
-        "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/shipped-lash-follow-types.ts",
-        "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/the-shipped-lashes-follow-the-lid.test.ts",
-        "packages/openclinxr/stations/trellis-evidence/consumes.json",
-        "packages/openclinxr/stations/trellis-evidence/src/trellis/the-face-preserving-rung-keeps-every-face-triangle.test.ts",
-        "tools/openclinxr/evidence/humanoid-vetting/see-through-pixels.ts",
-        "tools/openclinxr/evidence/skin-footprint-inpaint/the-nurse-hide-footprint-is-filled-from-its-own-skin.test.ts",
-        "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.record.json",
-        "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s10e-f1b-parity.fixture.json",
-        "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s9-allowance.fixture.json",
-        "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/shipped-lash-ancestor.ts",
-        "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/kevin-openings-footprint-mask.png",
-        "tools/openclinxr/evidence/skin-footprint-inpaint/fixtures/kevin-openings-footprint-mask.provenance.json",
-        "tools/openclinxr/evidence/skin-footprint-inpaint/scripts/kevin-collar-s9-chain.py"
-      ],
-      "rule": "offset",
-      "approvedBy": "super-ceo-cap43",
-      "quote": "X3 rule offset, scope = exact counted bucket E paths after superseded driver removal. Release with TEST-COLLAPSE tsk_cb30b6b0d281cab4 + SHIP-SUPERSET-HARDEN tsk_39e8f73871d78e35.",
-      "date": "2026-11-19",
-      "expires": "2026-12-03",
-      "evidence": "/Volumes/files/openclinxr-assets/store/st-teeth/kevin-collar/s10h9/thinning-committed.log",
-      "reason": "Release with TEST-COLLAPSE tsk_cb30b6b0d281cab4 + SHIP-SUPERSET-HARDEN tsk_39e8f73871d78e35 when the evidence byte growth is paid down."
-    },
-    {
       "id": "kevin-collar-authority-registry-offset",
       "scope": [
         "docs/openclinxr/doc-authority-registry-2026-05-27.json",
