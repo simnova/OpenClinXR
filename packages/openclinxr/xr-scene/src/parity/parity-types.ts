@@ -111,6 +111,16 @@ export type ParityPhysical = {
    * OFF by default.
    */
   hairRim?: ParityHairRim;
+  /**
+   * Aisha-parity (P4a): sclera env-reflection suppression + lid occlusion.
+   * Runs the product sclera hook (applyEyeShading: sclera env attenuation
+   * EYE_SCLERA_ENV_ATTEN-style value, lid band EYE_LID_BAND_M-style value,
+   * darken EYE_LID_DARKEN-style value) on the parity globe material in the
+   * HDRI world. Runs AFTER the eyes lever so it hooks the final globe
+   * material. corneaFresnel defaults to true (follows scleraShade in the
+   * product hook); explicit false renders the legacy cornea. OFF by default.
+   */
+  eyeShade?: ParityEyeShade;
 };
 
 /** Eye-lever params: every field optional; absent = the landed P2 value. */
@@ -151,6 +161,28 @@ export type ParityBrowLash = {
 export type ParityHairRim = {
   factor: number;
   units: number;
+};
+
+/**
+ * Eye-shade lever params (P4a): every field required except corneaFresnel.
+ * scleraAtten in [0,1], lidBandM > 0 (metres, globe object space),
+ * lidDarken in [0,1]. Product defaults: 0.35 / 0.007 / 0.85.
+ */
+export type ParityEyeShade = {
+  scleraAtten: number;
+  lidBandM: number;
+  lidDarken: number;
+  corneaFresnel?: boolean;
+};
+
+/** Live readback for one parity eyeShade install (values + match record). */
+export type EyeShadeReadback = {
+  matched: string[];
+  margins: number;
+  scleraAtten: number;
+  lidBandM: number;
+  lidDarken: number;
+  corneaFresnel: boolean;
 };
 
 /**
@@ -265,6 +297,7 @@ export type ParityReadback = {
     cloth: PhysicalSwapReadback[] | null;
     browLash: BrowLashReadback[] | null;
     hairRim: HairRimReadback[] | null;
+    eyeShade: EyeShadeReadback | null;
     skin: Array<
       PhysicalSwapReadback & {
         skinShadeHookPresent: boolean;

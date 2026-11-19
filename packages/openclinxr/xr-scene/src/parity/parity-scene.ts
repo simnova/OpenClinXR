@@ -33,6 +33,8 @@ import {
   type HairRimReadback,
   type MaskReadback,
 } from "./parity-hair-mask.js";
+import { applyParityEyeShade } from "./parity-eye-shade.js";
+import type { EyeShadeReadback } from "./parity-types.js";
 import { type HdriReadback, loadParityHdri } from "./parity-hdri.js";
 import {
   applyClothPhysical,
@@ -182,6 +184,7 @@ export function applyParityBeautyLevers(args: {
   clothReadback: ReturnType<typeof applyClothPhysical> | null;
   browLashReadback: BrowLashReadback[] | null;
   hairRimReadback: HairRimReadback[] | null;
+  eyeShadeReadback: EyeShadeReadback | null;
   skinReadback: ReturnType<typeof applySkinPhysical> | null;
 } {
   const { scene, renderer, root, spec, masksMode, calibMode, parityBeauty, frameCentre, hdriReadback } = args;
@@ -190,9 +193,10 @@ export function applyParityBeautyLevers(args: {
   let clothReadback: ReturnType<typeof applyClothPhysical> | null = null;
   let browLashReadback: BrowLashReadback[] | null = null;
   let hairRimReadback: HairRimReadback[] | null = null;
+  let eyeShadeReadback: EyeShadeReadback | null = null;
   let skinReadback: ReturnType<typeof applySkinPhysical> | null = null;
   if (masksMode || !(spec.parity != null || spec.cameraOverride != null || hdriReadback != null)) {
-    return { shadowReadback, eyesReadback, clothReadback, browLashReadback, hairRimReadback, skinReadback };
+    return { shadowReadback, eyesReadback, clothReadback, browLashReadback, hairRimReadback, eyeShadeReadback, skinReadback };
   }
   renderer.outputColorSpace = SRGBColorSpace;
   if (spec.parity?.toneMapping) {
@@ -221,6 +225,10 @@ export function applyParityBeautyLevers(args: {
       root.updateMatrixWorld(true);
     } else if (spec.parity.physical.eyes != null && typeof spec.parity.physical.eyes === "object") {
       eyesReadback = applyEyePhysical(root, spec.parity.physical.eyes);
+      root.updateMatrixWorld(true);
+    }
+    if (spec.parity.physical.eyeShade != null) {
+      eyeShadeReadback = applyParityEyeShade(root, spec.parity.physical.eyeShade);
       root.updateMatrixWorld(true);
     }
     if (spec.parity.physical.cloth === true) {
@@ -272,7 +280,7 @@ export function applyParityBeautyLevers(args: {
       [parityCentre.x, parityCentre.y, parityCentre.z],
     );
   }
-  return { shadowReadback, eyesReadback, clothReadback, browLashReadback, hairRimReadback, skinReadback };
+  return { shadowReadback, eyesReadback, clothReadback, browLashReadback, hairRimReadback, eyeShadeReadback, skinReadback };
 }
 
 /**
@@ -387,6 +395,7 @@ export function buildParityReadback(args: {
   cloth: ParityReadback["physical"]["cloth"];
   browLash: ParityReadback["physical"]["browLash"];
   hairRim: ParityReadback["physical"]["hairRim"];
+  eyeShade: ParityReadback["physical"]["eyeShade"];
   skin: ParityReadback["physical"]["skin"];
   wallMs: number;
 }): ParityReadback {
@@ -422,6 +431,7 @@ export function buildParityReadback(args: {
       cloth: args.cloth,
       browLash: args.browLash,
       hairRim: args.hairRim,
+      eyeShade: args.eyeShade,
       skin: args.skin,
     },
     wallMs: args.wallMs,

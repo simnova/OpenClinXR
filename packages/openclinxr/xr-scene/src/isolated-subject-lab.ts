@@ -404,7 +404,7 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
 
   // Aisha-parity levers (each OFF by default; beauty + calib only, never masks).
   const parityBeauty = !masksMode && !calibMode;
-  const { shadowReadback, eyesReadback, clothReadback, browLashReadback, hairRimReadback, skinReadback } = applyParityBeautyLevers({
+  const { shadowReadback, eyesReadback, clothReadback, browLashReadback, hairRimReadback, eyeShadeReadback, skinReadback } = applyParityBeautyLevers({
     scene, renderer, root, spec, masksMode, calibMode, parityBeauty,
     frameCentre: frameBounds.getCenter(new Vector3()), hdriReadback,
   });
@@ -446,7 +446,7 @@ async function renderIsolatedSubject(mount: HTMLElement, spec: IsolatedSubjectSp
     masksMode, calibMode, wallT0,
     readbacks: {
       hdri: hdriReadback, shadow: shadowReadback, mask: maskReadback, calib: calibReadback,
-      eyes: eyesReadback, cloth: clothReadback, browLash: browLashReadback, hairRim: hairRimReadback, skin: skinReadback,
+      eyes: eyesReadback, cloth: clothReadback, browLash: browLashReadback, hairRim: hairRimReadback, eyeShade: eyeShadeReadback, skin: skinReadback,
     },
   });
 }

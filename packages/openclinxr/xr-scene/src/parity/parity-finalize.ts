@@ -150,6 +150,7 @@ export async function finalizeIsolatedSubjectCapture(args: {
     cloth: ParityReadback["physical"]["cloth"];
     browLash: ParityReadback["physical"]["browLash"];
     hairRim: ParityReadback["physical"]["hairRim"];
+    eyeShade: ParityReadback["physical"]["eyeShade"];
     skin: ParityReadback["physical"]["skin"];
   };
 }): Promise<IsolatedSubjectEvidence> {
@@ -230,6 +231,7 @@ export async function finalizeIsolatedSubjectCapture(args: {
             cloth: args.readbacks.cloth,
             browLash: args.readbacks.browLash,
             hairRim: args.readbacks.hairRim,
+            eyeShade: args.readbacks.eyeShade,
             skin: args.readbacks.skin,
             wallMs: Date.now() - args.wallT0,
           }),
