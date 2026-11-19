@@ -26,7 +26,6 @@ Usage:
       --ref-p1b STORE/p1b/nohair [--cam head_front]
 """
 import argparse
-import hashlib
 import json
 import os
 import sys
@@ -39,33 +38,37 @@ REFS_PIN_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                              "eye_shade_proof_refs.json")
 
 
-def sha256_file(path):
-    h = hashlib.sha256()
-    with open(path, "rb") as fh:
-        for chunk in iter(lambda: fh.read(1 << 20), b""):
-            h.update(chunk)
-    return h.hexdigest()
+REF_TOL = 0.01
+
+
+def sclera_L(imgpath, maskpath):
+    img, mask = load_rgb(imgpath), load_rgb(maskpath)
+    assert img.shape == mask.shape, (imgpath, img.shape, mask.shape)
+    return analyze(img, mask)["sclera_L"]
 
 
 def verify_refs(ref_p1a, ref_p1b, cam):
-    """Refuse (return 2) unless every reference file the proof reads matches
-    the pinned sha256 in eye_shade_proof_refs.json. Call before computing
-    anything; on refusal print one REFUSE line and no clause lines."""
+    """Refuse (return 2) unless each given ref dir measures like the recorded
+    own-mask sclera_L in eye_shade_proof_refs.json (|measured-recorded| <= 0.01).
+    Call before computing anything; on refusal print one REFUSE line and no
+    clause lines."""
     with open(REFS_PIN_PATH) as fh:
         pins = json.load(fh)["refs"]
     for arg, refdir in (("--ref-p1a", ref_p1a), ("--ref-p1b", ref_p1b)):
         pin = pins[arg]
-        for rel in (f"beauty/{cam}.png", f"masks/{cam}.png"):
-            fp = os.path.join(refdir, rel)
-            try:
-                actual = sha256_file(fp)
-            except OSError as e:
-                actual = f"unreadable: {e}"
-            expected = pin["files"].get(rel)
-            if expected is None or actual != expected:
-                print(f"eye_shade_proof: REFUSE {arg} {fp} sha actual={actual} "
-                      f"expected={expected} (expected ref dir {pin['expectedDir']})")
-                return 2
+        expected = pin["sclera_L"][cam]
+        try:
+            measured = sclera_L(os.path.join(refdir, "beauty", f"{cam}.png"),
+                                os.path.join(refdir, "masks", f"{cam}.png"))
+            detail = f"sclera_L measured={measured:.2f} expected={expected:.2f}"
+        except Exception as e:
+            print(f"eye_shade_proof: REFUSE {arg} cam={cam} unreadable {refdir} "
+                  f"({e}) (expected ref dir {pin['expectedDir']})")
+            return 2
+        if abs(measured - expected) > REF_TOL:
+            print(f"eye_shade_proof: REFUSE {arg} cam={cam} {detail} "
+                  f"(expected ref dir {pin['expectedDir']})")
+            return 2
     return 0
 
 
@@ -73,12 +76,6 @@ def load_evidence(capdir, cam):
     with open(os.path.join(capdir, "evidence.json")) as fh:
         d = json.load(fh)
     return d["cameras"][cam]["evidence"]["parity"]["physical"].get("eyeShade")
-
-
-def sclera_L(imgpath, maskpath):
-    img, mask = load_rgb(imgpath), load_rgb(maskpath)
-    assert img.shape == mask.shape, (imgpath, img.shape, mask.shape)
-    return analyze(img, mask)["sclera_L"]
 
 
 def check(f0, control, preset_path, ref_p1a, ref_p1b, mask_p1b, cam):

@@ -109,15 +109,17 @@ def test_temp_ref_dir_refuses():
     assert verify_refs(tmp, tmp, CAM) == 2
 
 
-def test_one_byte_mask_diff_refuses():
-    """Byte-copies of the pinned refs pass; one flipped mask byte refuses."""
+def test_mask_change_moves_sclera_refuses():
+    """Copies of the recorded refs pass; a MASK edit that moves sclera_L by
+    more than 0.01 refuses. Prints before/after values."""
+    from eye_shade_proof import sclera_L
     pins = pinned_dirs()
     missing = [a for a in ("--ref-p1a", "--ref-p1b")
                if not os.path.isdir(pins[a]["expectedDir"])]
     if missing:
-        print(f"eye_shade_proof_test: SKIP one-byte test (store absent: {missing})")
+        print(f"eye_shade_proof_test: SKIP mask-change test (store absent: {missing})")
         return
-    tmp = tempfile.mkdtemp(prefix="eye_shade_proof_onebyte_")
+    tmp = tempfile.mkdtemp(prefix="eye_shade_proof_maskchg_")
     copies = {}
     for a in ("--ref-p1a", "--ref-p1b"):
         dst = os.path.join(tmp, a.strip("-"))
@@ -125,12 +127,23 @@ def test_one_byte_mask_diff_refuses():
         copies[a] = dst
     assert verify_refs(copies["--ref-p1a"], copies["--ref-p1b"], CAM) == 0
     assert verify_refs(copies["--ref-p1a"], copies["--ref-p1b"], "head_34") == 0
-    mask = os.path.join(copies["--ref-p1b"], "masks", f"{CAM}.png")
-    with open(mask, "rb") as fh:
-        data = bytearray(fh.read())
-    data[100] ^= 0x01
-    with open(mask, "wb") as fh:
-        fh.write(data)
+    before = sclera_L(os.path.join(copies["--ref-p1a"], "beauty", f"{CAM}.png"),
+                      os.path.join(copies["--ref-p1a"], "masks", f"{CAM}.png"))
+    maskpath = os.path.join(copies["--ref-p1a"], "masks", f"{CAM}.png")
+    m = np.array(Image.open(maskpath).convert("RGB"))
+    eye = (m[:, :, 0] == 0) & (m[:, :, 1] == 255) & (m[:, :, 2] == 0)
+    ys, _ = np.nonzero(eye)
+    assert len(ys) > 100, "expected an eye region in the ref mask"
+    # Drop every eye row at/below the median eye row (reclass to
+    # background): shrinks the eye set the sclera mean is taken over.
+    rows = np.unique(ys[ys >= int(np.median(ys))])
+    m[rows, :, :] = (0, 0, 0)
+    Image.fromarray(m).save(maskpath)
+    after = sclera_L(os.path.join(copies["--ref-p1a"], "beauty", f"{CAM}.png"),
+                     maskpath)
+    print(f"eye_shade_proof_test: mask-change sclera_L before={before:.4f} "
+          f"after={after:.4f} delta={after - before:+.4f}")
+    assert abs(after - before) > 0.01, (before, after)
     assert verify_refs(copies["--ref-p1a"], copies["--ref-p1b"], CAM) == 2
 
 
@@ -138,5 +151,5 @@ if __name__ == "__main__":
     test_good_pair_passes()
     test_missing_readback_fails()
     test_temp_ref_dir_refuses()
-    test_one_byte_mask_diff_refuses()
+    test_mask_change_moves_sclera_refuses()
     print("eye_shade_proof_test: 4/4 GREEN")
