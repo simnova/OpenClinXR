@@ -100,7 +100,6 @@ const COPLANAR_DEG = 30;
 /** A join sharper than this MUST stay split -- this is what refuses threshold-free shade_smooth. */
 const SHARP_DEG = 60;
 
-/** Garment primitives only. The body, scalp and eyes are MPFB-native and already smooth (known-good). */
 /** Fitted wearables the flat-shade contract measures (upper/lower/footwear;
  * fitted hair excluded by class — see isWearableMeshName). One shared
  * classifier, not the /makeclothes_library/ rail gate that missed every legacy
@@ -118,15 +117,7 @@ const isBody = (n: string): boolean => classifyGarmentMeshName(n) === "body";
  * rim-top floor. The tris are unchanged (2628 — not a remesh) and 837 joins remain (not emptied), so
  * the counterweight's intent binds as before; the floor is now 0.95 x 837 = 795.
  *
- * #199 REBASED 2026-08-14 for kevin's upper + pants: the nurse's upper slot is now the CC0
- * `toigo_fisherman_sweater` (long sleeve, 4,164 tris) instead of the CC-BY scrub shirt (9,384 tris),
- * and the lower cover shell's top follows the upper garment's hem (`build_cover_shell` bounds the
- * band cut by the hem), so the pants' band re-cut at the sweater's lower hem: 2,628 -> 2,498 tris,
- * above-rim coplanar 837 -> 794. Same class as #378 — a legitimate geometry consequence of the
- * asset swap, not a remesh (the floor is now 0.95 x 794 = 754.3; the smoothing of the NEW garment
- * is pinned by its own measured row).
- *
- * #458 REBASED 2026-08-19 for kevin's upper + pants, superseding the #199 block above: #403
+ * #458 REBASED 2026-08-19 for kevin's upper + pants, superseding #199: #403
  * cleared `LONG_SLEEVE_UPPER_BY_REFERENCE["peds_nurse_kevin"]` to `None`, so the clinician branch
  * fits the WojackOWL CC-BY scrub shirt and the clinician lower path fits `Scrub_Pants` pre-strip
  * (materialize_mpfb_humanoid_candidate.py:3104-3106). The nurse ships the clinical kit; the
@@ -222,7 +213,7 @@ async function measureActor(actor: string): Promise<Prim[]> {
       const pos = prim.getAttribute("POSITION");
       const nor = prim.getAttribute("NORMAL");
       const idx = prim.getIndices();
-      if (!pos || !nor || !idx) continue;
+      if (!pos || !nor || !idx) throw new Error(`${actor} ${material}: primitive lacks POSITION, NORMAL or indices`);
 
       const P: number[][] = [];
       const N: number[][] = [];
@@ -334,7 +325,7 @@ function requireMeasured(): void {
     garments.length,
     `garment primitives measured across ${ACTORS.length} actors (bodies: ${bodies.length})`,
   ).toBe(Object.keys(BASELINE).length);
-  expect(bodies.length, "body primitives measured (the known-good column)").toBe(ACTORS.length);
+  expect(ACTORS.filter((a) => !bodies.some((p) => p.actor === a)), "actors with no body primitive measured (the known-good column)").toEqual([]);
 }
 
 describe("garments are flat-shaded and the body on the same asset is not", () => {
