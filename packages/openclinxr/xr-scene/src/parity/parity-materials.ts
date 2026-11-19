@@ -15,7 +15,6 @@ import {
   MeshPhysicalMaterial,
   MeshStandardMaterial,
   type Object3D,
-  type Texture,
 } from "three";
 
 export type PhysicalSwapReadback = {
@@ -110,7 +109,7 @@ export function applyEyePhysical(
     clearcoat?: number;
     clearcoatRoughness?: number;
   },
-  envMap?: Texture | null,
+  scene?: Pick<import("three").Scene, "environment" | "environmentRotation" | "environmentIntensity">,
 ): PhysicalSwapReadback[] {
   const eye = {
     roughness: params?.roughness,
@@ -142,8 +141,11 @@ export function applyEyePhysical(
       next.ior = 1.376;
       next.specularIntensity = eye.specularIntensity;
       if (eye.roughness !== undefined) next.roughness = eye.roughness;
-      if (eye.envMapIntensity !== undefined) next.envMapIntensity = eye.envMapIntensity;
-      if (envMap) next.envMap = envMap;
+      if (scene?.environment) {
+        next.envMap = scene.environment;
+        next.envMapRotation.copy(scene.environmentRotation);
+        next.envMapIntensity = eye.envMapIntensity ?? scene.environmentIntensity;
+      }
       next.needsUpdate = true;
       out.push({
         mesh: mesh.name,

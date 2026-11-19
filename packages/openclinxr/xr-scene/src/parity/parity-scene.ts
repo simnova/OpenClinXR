@@ -221,10 +221,10 @@ export function applyParityBeautyLevers(args: {
     : { x: frameCentre.x, y: frameCentre.y, z: frameCentre.z };
   if (spec.parity?.physical && parityBeauty) {
     if (spec.parity.physical.eyes === true) {
-      eyesReadback = applyEyePhysical(root, undefined, scene.environment);
+      eyesReadback = applyEyePhysical(root, undefined, scene);
       root.updateMatrixWorld(true);
     } else if (spec.parity.physical.eyes != null && typeof spec.parity.physical.eyes === "object") {
-      eyesReadback = applyEyePhysical(root, spec.parity.physical.eyes, scene.environment);
+      eyesReadback = applyEyePhysical(root, spec.parity.physical.eyes, scene);
       root.updateMatrixWorld(true);
     }
     if (spec.parity.physical.eyeShade != null) {
