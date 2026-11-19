@@ -8,7 +8,7 @@ import tempfile
 import traceback
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from compare import COLORS, erode2, main, region_masks  # noqa: E402
+from compare import COLORS, EYE_SUB, compare_cam, erode2, eye_sub_masks, main, region_masks  # noqa: E402
 
 import numpy as np  # noqa: E402
 from PIL import Image, ImageFilter  # noqa: E402
@@ -43,8 +43,13 @@ def test_self(tmp):
         for r in GRADED:
             reg = m["cameras"][cam]["regions"][r]
             assert reg["mean_dE"] < 1e-6, (cam, r, reg["mean_dE"])
+            assert reg["p95_dE"] < 1e-6, (cam, r, reg["p95_dE"])
             assert reg["ssim"] == 1, (cam, r, reg["ssim"])
             assert reg["detail_ratio"] == 1.0, (cam, r, reg["detail_ratio"])
+        for r in EYE_SUB:
+            reg = m["cameras"][cam]["regions"][r]
+            assert reg["mean_dE"] < 1e-6, (cam, r, reg["mean_dE"])
+            assert reg["p95_dE"] < 1e-6, (cam, r, reg["p95_dE"])
         assert m["cameras"][cam]["whole"]["ssim"] == 1, cam
     print("a ok: self mean dE 0, SSIM 1")
 
@@ -164,6 +169,72 @@ def test_no_oversnap(tmp):
           "(230,10,10)->skin (10,240,10)->eyes")
 
 
+P1B_NOHAIR = "/Volumes/files/openclinxr-assets/store/aisha-parity/p1b/nohair"
+P2L_CAMS = ["head_front", "head_34"]
+
+
+def test_eye_sub_self(tmp):
+    # (a) known-good: ref vs itself = 0 mean and 0 p95 on every sub-mask
+    from compare import load_rgb  # noqa: E402
+    for cam in P2L_CAMS:
+        rb = os.path.join(P1B_NOHAIR, "beauty", f"{cam}.png")
+        rm = os.path.join(P1B_NOHAIR, "masks", f"{cam}.png")
+        res, err = compare_cam(cam, rb, rm, rb)
+        assert err is None, (cam, err)
+        ref_u8 = load_rgb(rb)
+        sub, _ = eye_sub_masks(ref_u8, load_rgb(rm))
+        for name in EYE_SUB:
+            r = res["regions"][name]
+            assert r["n_pixels"] == int(sub[name].sum()), (cam, name)
+            assert r["mean_dE"] == 0, (cam, name, r["mean_dE"])
+            assert r["p95_dE"] == 0, (cam, name, r["p95_dE"])
+            assert r["n_L"] + r["n_R"] == r["n_pixels"], (cam, name)
+    print("h ok: ref-vs-self 0 mean+0 p95 on all eye sub-masks, per-eye counts add up")
+
+
+def test_eye_sub_disjoint(tmp):
+    # (b) the four sub-masks are pairwise disjoint and cover the aperture
+    from compare import load_rgb  # noqa: E402
+    for cam in P2L_CAMS:
+        ref_u8 = load_rgb(os.path.join(P1B_NOHAIR, "beauty", f"{cam}.png"))
+        mask_u8 = load_rgb(os.path.join(P1B_NOHAIR, "masks", f"{cam}.png"))
+        sub, _ = eye_sub_masks(ref_u8, mask_u8)
+        eye = region_masks(mask_u8)["eyes"]
+        names = list(EYE_SUB)
+        for i in range(len(names)):
+            for j in range(i + 1, len(names)):
+                assert int((sub[names[i]] & sub[names[j]]).sum()) == 0, (cam, names[i], names[j])
+        assert ((sub["iris"] | sub["sclera"] | sub["catchlights"]) == eye).all(), cam
+        assert int((sub["lid_ring"] & eye).sum()) == 0, cam
+    print("i ok: sub-masks disjoint, iris|sclera|catchlights == aperture, ring outside")
+
+
+def test_eye_sub_ring_only(tmp):
+    # (c) planted fixture: only ring pixels differ -> ring moves, eye interior stays 0
+    from compare import load_rgb  # noqa: E402
+    cam = "head_front"
+    rb = os.path.join(P1B_NOHAIR, "beauty", f"{cam}.png")
+    rm = os.path.join(P1B_NOHAIR, "masks", f"{cam}.png")
+    ref_u8 = load_rgb(rb)
+    sub, _ = eye_sub_masks(ref_u8, load_rgb(rm))
+    ring = sub["lid_ring"]
+    assert int(ring.sum()) > 1000, int(ring.sum())
+    planted = ref_u8.copy()
+    up = np.clip(planted[ring].astype(np.int32) + 60, 0, 255).astype(np.uint8)
+    planted[ring] = up
+    cp = os.path.join(tmp, "ring-only.png")
+    Image.fromarray(planted).save(cp)
+    res, err = compare_cam(cam, rb, rm, cp)
+    assert err is None, err
+    assert res["regions"]["lid_ring"]["mean_dE"] > 1, res["regions"]["lid_ring"]["mean_dE"]
+    for name in ("iris", "sclera", "catchlights"):
+        r = res["regions"][name]
+        assert r["mean_dE"] == 0, (name, r["mean_dE"])
+        assert r["p95_dE"] == 0, (name, r["p95_dE"])
+    print(f"j ok: ring-only plant moves lid_ring "
+          f"({res['regions']['lid_ring']['mean_dE']:.2f}) leaves iris/sclera/catchlights at 0")
+
+
 CASES = [
     ("a", test_self),
     ("b", test_bright),
@@ -172,6 +243,9 @@ CASES = [
     ("e", test_real_fixture),
     ("f", test_synthetic_checker),
     ("g", test_no_oversnap),
+    ("h", test_eye_sub_self),
+    ("i", test_eye_sub_disjoint),
+    ("j", test_eye_sub_ring_only),
 ]
 
 
@@ -191,4 +265,4 @@ if __name__ == "__main__":
     if failed:
         print(f"FAILURES: {','.join(failed)}")
         sys.exit(1)
-    print("ALL 7 PASS")
+    print("ALL 10 PASS")

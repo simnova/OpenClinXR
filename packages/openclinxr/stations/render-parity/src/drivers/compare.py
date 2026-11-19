@@ -23,6 +23,9 @@ COLORS = {
 }
 GRADED = ("skin", "eyes", "clothing")
 COUNT_ONLY = ("hair", "teeth")
+EYE_SUB = ("iris", "sclera", "catchlights", "lid_ring")
+EYE_RING_R = 15  # px: the ring p2j/ring-check.py used (binary_dilation iterations=15)
+IRIS_C_MIN = 12.0  # chroma floor; mirrors eye_detail.py SCLERA_C_MAX (sclera = C* < 12)
 DE_MAX = 20.0  # heatmap range dE 0..20
 BG_DE_TOL = 3.0  # silhouette background tolerance
 
@@ -57,6 +60,53 @@ def erode2(m):
     if not m.any():
         return m
     return binary_erosion(m, iterations=2)
+
+
+def dilateR(m, r=EYE_RING_R):
+    from scipy.ndimage import binary_dilation
+
+    if not m.any():
+        return m
+    return binary_dilation(m, iterations=r)
+
+
+def eye_sub_masks(ref_u8, mask_rgb):
+    """Four DISJOINT eye sub-masks from ref beauty + ref mask ONLY (never the candidate).
+
+    Rules (CIELAB D65 via skimage rgb2lab; L* = lab[...,0], C* = hypot(a*,b*)):
+      eye         = (ref mask class == (0,255,0))          # compare.COLORS['eyes']
+      p99         = numpy.percentile(L*[eye], 99)          # per cam, from ref eye pixels
+      catchlights = eye & (L* > p99)
+      iris        = eye & (C* >= 12) & (L* <= p99)         # chromatic iris tissue
+      sclera      = eye & ~(iris | catchlights)           # pupil stays here; excludes nothing else
+      lid_ring    = dilate(eye, R=15) & ~eye              # OUTSIDE the aperture; excludes nothing else
+    """
+    masks = region_masks(mask_rgb)
+    eye = masks["eyes"]
+    ref_lab = lab_of(ref_u8)
+    L = ref_lab[..., 0]
+    C = np.hypot(ref_lab[..., 1], ref_lab[..., 2])
+    p99 = float(np.percentile(L[eye], 99)) if eye.any() else 0.0
+    catchlights = eye & (L > p99)
+    iris = eye & (C >= IRIS_C_MIN) & (L <= p99)
+    sclera = eye & ~iris & ~catchlights
+    lid_ring = dilateR(eye) & ~eye
+    sub = {"iris": iris, "sclera": sclera,
+           "catchlights": catchlights, "lid_ring": lid_ring}
+    names = list(sub)
+    for i in range(len(names)):
+        for j in range(i + 1, len(names)):
+            a, b = sub[names[i]], sub[names[j]]
+            assert int((a & b).sum()) == 0, \
+                f"eye sub-masks overlap: {names[i]} & {names[j]}"
+    return sub, p99
+
+
+def eye_sides(eye):
+    h, w = eye.shape
+    ys, xs = np.mgrid[0:h, 0:w]
+    cx = float(xs[eye].mean()) if eye.any() else w / 2.0
+    return (xs < cx), (xs >= cx), cx
 
 
 def lab_of(u8):
@@ -179,6 +229,42 @@ def compare_cam(cam, ref_beauty_p, ref_mask_p, cand_p):
             "detail_ratio": 1.0 if rs <= 1e-12 and cs <= 1e-12
             else (float(cs / rs) if rs > 1e-12 else float("inf")),
         }
+    sub, eye_p99 = eye_sub_masks(ref_u8, mask_u8)
+    Lsel, Rsel, eye_cx = eye_sides(masks["eyes"])
+    for name in EYE_SUB:
+        m = sub[name]
+        n = int(m.sum())
+        if n == 0:
+            regions[name] = {"n_pixels": 0, "n_L": 0, "n_R": 0,
+                             "eye_p99_Lstar": eye_p99, "eye_cx": eye_cx}
+            continue
+        d = full_de[m]
+        rl = ref_lab[m].mean(axis=0)
+        cl = cand_lab[m].mean(axis=0)
+        diff = cl - rl
+        rs, cs = hp_std(Lr, m), hp_std(Lc, m)
+        regions[name] = {
+            "n_pixels": n,
+            "n_L": int((m & Lsel).sum()),
+            "n_R": int((m & Rsel).sum()),
+            "eye_p99_Lstar": eye_p99,
+            "eye_cx": eye_cx,
+            "mean_dE": float(d.mean()),
+            "p95_dE": float(np.percentile(d, 95)),
+            "ref_mean_Lab": [float(v) for v in rl],
+            "cand_mean_Lab": [float(v) for v in cl],
+            "dL": float(diff[0]),
+            "da": float(diff[1]),
+            "db": float(diff[2]),
+            "ssim": snap1(float(ssim_map[m].mean())),
+            "detail_ref_std": rs,
+            "detail_cand_std": cs,
+            "detail_ratio": 1.0 if rs <= 1e-12 and cs <= 1e-12
+            else (float(cs / rs) if rs > 1e-12 else float("inf")),
+        }
+    print(f"compare eye-sub {cam}: " + " ".join(
+        f"{n}={regions[n]['n_pixels']}(L{regions[n].get('n_L',0)}/R{regions[n].get('n_R',0)})"
+        for n in EYE_SUB))
     counts = {n: int(masks[n].sum()) for n in COUNT_ONLY}
 
     # silhouette IoU (registration hint only)
@@ -253,25 +339,34 @@ def main(argv=None):
     for cam, sheet in sheets.items():
         Image.fromarray(sheet).save(os.path.join(a.out, f"{cam}-sheet.png"))
 
-    hdr = "| cam | region | mean dE | dL | SSIM | detail |"
-    sep = "| --- | --- | --- | --- | --- | --- |"
+    hdr = "| cam | region | n | mean dE | p95 dE | dL | SSIM | detail |"
+    sep = "| --- | --- | --- | --- | --- | --- | --- | --- |"
     lines = [f"# parity {label}", "", hdr, sep]
     for cam in cams:
-        for name in GRADED:
+        for name in list(GRADED) + list(EYE_SUB):
             r = out["cameras"][cam]["regions"][name]
             if r.get("n_pixels", 0) == 0:
-                lines.append(f"| {cam} | {name} | EMPTY | - | - | - |")
+                lines.append(f"| {cam} | {name} | EMPTY | - | - | - | - | - |")
             else:
                 lines.append(
-                    f"| {cam} | {name} | {r['mean_dE']:.3f} | "
+                    f"| {cam} | {name} | {r['n_pixels']} | {r['mean_dE']:.3f} | "
+                    f"{r['p95_dE']:.3f} | "
                     f"{r['dL']:+.3f} | {r['ssim']:.4f} | "
                     f"{r['detail_ratio']:.3f} |"
                 )
         w = out["cameras"][cam]["whole"]
         lines.append(
-            f"| {cam} | whole | - | - | {w['ssim']:.4f} | "
+            f"| {cam} | whole | - | - | - | - | {w['ssim']:.4f} | "
             f"IoU {w['silhouette_iou']:.4f} |"
         )
+    lines += ["", "eye sub-mask counts per eye (ref-derived):"]
+    for cam in cams:
+        parts = []
+        for name in EYE_SUB:
+            r = out["cameras"][cam]["regions"][name]
+            parts.append(f"{name}={r.get('n_pixels', 0)}"
+                         f"(L{r.get('n_L', 0)}/R{r.get('n_R', 0)})")
+        lines.append(f"- {cam}: " + " ".join(parts))
     with open(os.path.join(a.out, "summary.md"), "w") as f:
         f.write("\n".join(lines) + "\n")
     print(f"compare: wrote {a.out} ({len(cams)} cams)")
