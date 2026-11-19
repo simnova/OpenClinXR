@@ -46,15 +46,15 @@ import { applyParityShadow } from "./parity-shadow.js";
 import { updateSssViewUniforms } from "./parity-sss-uniforms.js";
 import type {
   CameraOverride,
-  HdriRig,
   ParityReadback,
+  ParityRigOverride,
   ParitySkinParams,
   ParitySpecExtension,
 } from "./parity-types.js";
 
 /** The spec surface the parity scene assembly reads (a structural view of the lab spec). */
 export type ParitySceneSpec = ParitySpecExtension & {
-  rigOverride?: { hdri?: HdriRig } | null;
+  rigOverride?: ParityRigOverride | null;
   exportGlb?: boolean;
 };
 

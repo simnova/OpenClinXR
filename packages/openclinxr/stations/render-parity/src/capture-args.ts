@@ -21,6 +21,14 @@ function packageRootDir(): string {
 
 const PRESETS_DIR = path.join(packageRootDir(), "src/presets");
 
+/** Drivers dir (python scorers) resolved from the shipped package location. */
+export function driversDir(): string {
+  return path.join(packageRootDir(), "src/drivers");
+}
+
+/** URL of this entrypoint module (lets the pack test prove it imported the extract, not repo src). */
+export const captureArgsModuleUrl: string = import.meta.url;
+
 /** Resolve a CLI-relative path under the capture cwd (absolute paths pass through). */
 export function resolveUnderCwd(cwd: string, p: string): string {
   return path.isAbsolute(p) ? p : path.resolve(cwd, p);
@@ -115,17 +123,50 @@ export function parseCaptureArgs(argv: string[]): CaptureCli {
   return cli;
 }
 
+/** I7: refuse a preset whose physical.eyeShade carries non-finite or out-of-range values. */
+function validateEyeShade(levers: Record<string, unknown>, source: string): void {
+  const physical = levers["physical"];
+  if (physical === undefined || physical === null) return;
+  if (typeof physical !== "object") throw new Error(`preset ${source}: physical must be an object — refusing`);
+  const eye = (physical as Record<string, unknown>)["eyeShade"];
+  if (eye === undefined || eye === null) return;
+  if (typeof eye !== "object") throw new Error(`preset ${source}: physical.eyeShade must be an object — refusing`);
+  const rec = eye as Record<string, unknown>;
+  const num = (k: string): number => {
+    const v = rec[k];
+    if (typeof v !== "number" || !Number.isFinite(v)) {
+      throw new Error(`preset ${source}: physical.eyeShade.${k} must be a finite number — refusing`);
+    }
+    return v;
+  };
+  const atten = num("scleraAtten");
+  const band = num("lidBandM");
+  const darken = num("lidDarken");
+  if (atten < 0 || atten > 1) throw new Error(`preset ${source}: eyeShade.scleraAtten ${atten} outside 0..1 — refusing`);
+  if (!(band > 0)) throw new Error(`preset ${source}: eyeShade.lidBandM ${band} must be > 0 — refusing`);
+  if (darken < 0 || darken > 1) throw new Error(`preset ${source}: eyeShade.lidDarken ${darken} outside 0..1 — refusing`);
+}
+
 /** Resolve a lever spec to its preset name and parsed levers: inline JSON, a preset name, or a cwd-relative path. */
 export async function resolveLevers(spec: string, cwd: string = process.cwd()): Promise<{ name: string; levers: Record<string, unknown> }> {
   const inline = spec.trim().startsWith("{") ? spec : null;
-  if (inline) return { name: "inline", levers: JSON.parse(inline) as Record<string, unknown> };
+  if (inline) {
+    const levers = JSON.parse(inline) as Record<string, unknown>;
+    validateEyeShade(levers, "inline");
+    return { name: "inline", levers };
+  }
   const direct = path.isAbsolute(spec) ? spec : path.join(PRESETS_DIR, `${spec}.json`);
   try {
     const raw = await readFile(direct, "utf8");
-    return { name: path.basename(direct, ".json"), levers: JSON.parse(raw) as Record<string, unknown> };
-  } catch {
+    const levers = JSON.parse(raw) as Record<string, unknown>;
+    validateEyeShade(levers, path.basename(direct, ".json"));
+    return { name: path.basename(direct, ".json"), levers };
+  } catch (err) {
+    if (err instanceof Error && err.message.includes("eyeShade")) throw err;
     const raw = await readFile(resolveUnderCwd(cwd, spec), "utf8");
-    return { name: path.basename(spec, ".json"), levers: JSON.parse(raw) as Record<string, unknown> };
+    const levers = JSON.parse(raw) as Record<string, unknown>;
+    validateEyeShade(levers, path.basename(spec, ".json"));
+    return { name: path.basename(spec, ".json"), levers };
   }
 }
 

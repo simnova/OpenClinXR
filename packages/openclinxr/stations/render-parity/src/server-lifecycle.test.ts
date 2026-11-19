@@ -60,4 +60,23 @@ describe("server lifecycle: teardown errors surface", () => {
       spy.mockRestore();
     }
   });
+
+  it("I3: when the body and the stop both throw, the rejection carries both errors", async () => {
+    const { deps } = stubDeps(async () => {
+      throw new Error("E2");
+    });
+    const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+    try {
+      const err = await withPortlessServer(deps, { filter: "@openclinxr/ui-xr" }, async () => {
+        throw new Error("E1");
+      }).catch((e: unknown) => e);
+      expect(err).toBeInstanceOf(AggregateError);
+      const errors = (err as AggregateError).errors as unknown[];
+      expect(errors).toHaveLength(2);
+      expect(String(errors[0])).toContain("E1");
+      expect(String(errors[1])).toContain("E2");
+    } finally {
+      spy.mockRestore();
+    }
+  });
 });

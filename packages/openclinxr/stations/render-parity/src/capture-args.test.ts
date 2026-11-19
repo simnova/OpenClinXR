@@ -32,6 +32,32 @@ describe("render-parity capture args", () => {
     expect(levers["exposure"]).toBe(0.87);
   });
 
+  it("I7: refuses garbage eyeShade values (value error, before any globe search)", async () => {
+    const bad = (eyeShade: Record<string, unknown>) =>
+      JSON.stringify({ exposure: 0.87, physical: { eyeShade } });
+    await expect(
+      resolveLevers(bad({ scleraAtten: -1, lidBandM: 0.007, lidDarken: 0.85 })),
+    ).rejects.toThrow(/scleraAtten/);
+    await expect(
+      resolveLevers(bad({ scleraAtten: 0.35, lidBandM: 0, lidDarken: 0.85 })),
+    ).rejects.toThrow(/lidBandM/);
+    await expect(
+      resolveLevers(bad({ scleraAtten: 0.35, lidBandM: 0.007, lidDarken: 1.5 })),
+    ).rejects.toThrow(/lidDarken/);
+    // Non-finite serialises to null over the JSON boundary: still refused.
+    await expect(
+      resolveLevers(bad({ scleraAtten: Number.NaN, lidBandM: 0.007, lidDarken: 0.85 })),
+    ).rejects.toThrow(/scleraAtten/);
+  });
+
+  it("I7 counterweight: the p2h eyeShade presets load", async () => {
+    for (const preset of ["p2h-f0", "p2h-s1"]) {
+      const { name, levers } = await resolveLevers(preset);
+      expect(name).toBe(preset);
+      expect((levers["physical"] as Record<string, unknown>)["eyeShade"]).toBeDefined();
+    }
+  });
+
   it("resolves relative --calib-sweep and lever files under --cwd", async () => {
     const dir = await mkdtemp(path.join(tmpdir(), "parity-cwd-"));
     await writeFile(path.join(dir, "lever.json"), JSON.stringify({ exposure: 0.5 }));

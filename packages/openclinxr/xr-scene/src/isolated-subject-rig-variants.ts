@@ -170,17 +170,8 @@ export type ProductRigApplied = {
   };
 };
 
-import type { HdriRig } from "./parity/parity-types.js";
-
 /** Variant evaluator light-rig override. Positions are absolute unless relativeToHead. */
 export type RigOverride = {
-  /**
-   * Aisha-parity HDRI world (P1a): equirect -> PMREM scene.environment, the
-   * equirect itself as scene.background when background is true. Loading is
-   * async (see ./parity/parity-hdri.ts); when present the lab defaults are
-   * off and no other light is added unless a parity lever adds one.
-   */
-  hdri?: HdriRig;
   ambient?: { color: string; intensity: number };
   hemisphere?: { skyColor: string; groundColor: string; intensity: number };
   directionals?: Array<{

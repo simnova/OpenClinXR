@@ -88,6 +88,11 @@ export async function runRuntimeCapture(opts: CaptureCli, subject: SubjectSpec, 
   const headFront = loadCameras(camerasJson).find((c) => c.name === "head_front");
   if (!headFront) throw new Error("head_front camera missing from cameras.json — refusing");
 
+  // I4: resolve the sweep path under --cwd BEFORE any server/browser work, so
+  // the joined path is observable (parent dir created) before the first launch.
+  const sweepPath: string | null = cli.calibSweep ? resolveUnderCwd(cli.cwd, cli.calibSweep) : null;
+  if (sweepPath) await mkdir(path.dirname(sweepPath), { recursive: true });
+
   return withPortlessServer(
     deps,
     { filter: "@openclinxr/ui-xr", cwd: cli.cwd, readyTimeoutMs: 180_000 },
@@ -123,7 +128,7 @@ export async function runRuntimeCapture(opts: CaptureCli, subject: SubjectSpec, 
 
         if (cli.calibSweep) {
           const sweepTrials: Array<{ rotationYDeg: number; exposure: number; meanAbsDiff: number; png: string }> = [];
-          const sweepPath = resolveUnderCwd(cli.cwd, cli.calibSweep);
+          const sweep = sweepPath as string;
           const p1aCalib = path.join(
             path.dirname(path.resolve(cli.cwd, cli.cameras)),
             "calib",
@@ -131,9 +136,9 @@ export async function runRuntimeCapture(opts: CaptureCli, subject: SubjectSpec, 
           );
           const flushSweep = async (): Promise<void> => {
             const ranked = [...sweepTrials].sort((a, b) => a.meanAbsDiff - b.meanAbsDiff);
-            await mkdir(path.dirname(sweepPath), { recursive: true });
+            await mkdir(path.dirname(sweep), { recursive: true });
             await writeFile(
-              sweepPath,
+              sweep,
               `${JSON.stringify(
                 {
                   p1aCalib,
@@ -157,7 +162,7 @@ export async function runRuntimeCapture(opts: CaptureCli, subject: SubjectSpec, 
           };
           const rotations = [...cli.rotations];
           const runCalib = async (rotationYDeg: number, exposure: number, tag: string): Promise<number> => {
-            const pngPath = path.join(path.dirname(sweepPath), `sweep-${tag}.png`);
+            const pngPath = path.join(path.dirname(sweep), `sweep-${tag}.png`);
             try {
               const existing = decodePngFloat(pngPath);
               if (existing.w === headFront.resolution[0] && existing.h === headFront.resolution[1]) {
@@ -211,8 +216,8 @@ export async function runRuntimeCapture(opts: CaptureCli, subject: SubjectSpec, 
             gpuLaunch,
             partial: false,
           };
-          await mkdir(path.dirname(sweepPath), { recursive: true });
-          await writeFile(sweepPath, `${JSON.stringify(sweepOut, null, 2)}\n`);
+          await mkdir(path.dirname(sweep), { recursive: true });
+          await writeFile(sweep, `${JSON.stringify(sweepOut, null, 2)}\n`);
           return;
         }
 

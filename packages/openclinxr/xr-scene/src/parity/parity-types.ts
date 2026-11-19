@@ -8,7 +8,7 @@
 
 import type { CalibReadback, CalibSpheres } from "./parity-calib.js";
 import type { HdriReadback } from "./parity-hdri.js";
-import type {
+import type { RigOverride } from "../isolated-subject-rig-variants.js";import type {
   BrowLashReadback,
   HairRimReadback,
   MaskReadback,
@@ -40,6 +40,15 @@ export type HdriRig = {
   /** True: the equirect texture itself is scene.background (P1a shows the
    * HDRI behind the subject; film_transparent=False). */
   background: boolean;
+};
+
+/**
+ * Aisha-parity rig override: the pinned product RigOverride plus the
+ * parity-side HDRI world (the pinned module must stay byte-identical to
+ * origin/main for the cornea env-map sha gate, so the field lives here).
+ */
+export type ParityRigOverride = RigOverride & {
+  hdri?: HdriRig;
 };
 
 export type ParityAa = "msaa" | "smaa" | "ssaa";

@@ -70,7 +70,13 @@ export async function withPortlessServer<T>(
     await deps.stopPortlessDevServer(server.proc);
   } catch (stopError: unknown) {
     console.error(`[teardown] stopPortlessDevServer failed: ${String(stopError)}`);
-    throw bodyError !== null ? bodyError : stopError;
+    if (bodyError !== null) {
+      throw new AggregateError(
+        [bodyError, stopError],
+        `capture body and teardown both failed: ${String(bodyError)} / ${String(stopError)}`,
+      );
+    }
+    throw stopError;
   }
   if (bodyError !== null) throw bodyError;
   return result as T;

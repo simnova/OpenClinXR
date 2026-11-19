@@ -50,10 +50,9 @@ import { applyLabProductRig } from "./isolated-subject-product-rig.js";
 import {
   applyRigOverride,
   type ProductLightingRigFns,
-  type RigOverride,
 } from "./isolated-subject-rig-variants.js";
 import { parseIsolatedSubjectSpec } from "./isolated-subject-spec-params.js";
-import type { ParityReadback, ParitySpecExtension } from "./parity/parity-types.js";
+import type { ParityReadback, ParityRigOverride, ParitySpecExtension } from "./parity/parity-types.js";
 
 export type { ParityReadback };
 
@@ -140,7 +139,7 @@ export type IsolatedSubjectSpec = {
    */
   materialOverrides?: MaterialOverride[];
   /** Variant evaluator: override the light rig / tone mapping / environment. */
-  rigOverride?: RigOverride;
+  rigOverride?: ParityRigOverride;
   /** Product rig lighting: light the subject with the shipped room rig (apps/ui-xr bridge). */
   productEnvironmentId?: string;
   /** Tight portrait framing: fov 24 at head-centre height, head fills 78% of frame height. */

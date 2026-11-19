@@ -27,6 +27,9 @@
     "vitest": "catalog:"
   },
   "files": [
-    "dist"
+    "dist",
+    "src/presets",
+    "src/drivers/*.py",
+    "!src/drivers/*_test.py"
   ]
 }
