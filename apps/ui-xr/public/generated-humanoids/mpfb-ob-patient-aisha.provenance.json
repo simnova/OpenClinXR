@@ -102,70 +102,46 @@
  "albedoBakeNote": "2026-09-12 female covering lower + fp-r0.4 restore: ClothesService PANTS_FIT 4216 = 2108 x 2 (fit-time). Postopt iterate-optimize --face-preserving --face-preserving-ratio 0.4 then chest-anchor 0.085 m. Shipped 69093 tris / 13927908 B (jeans 1986). Fit-time faces x 2 lives in fitTimeLower; shipped shell-vs-fit is standoff spread. Previous raw pin cfdcd5a3c2828daa / 17002120. Report: female-covering-lower-acquisition-2026-09-12.md. 2026-09-14 tsk_2cdb306c4e7069af: targeted rebake through the producer-path station (bakeProducedHumanoidAlbedo on the shipped bytes, no re-fit): toigo t-shirt factor folded into its 2048x2048 texture and reset to white. Geometry, rig and animations unchanged; outputSha256/outputBytes re-recorded in the same change that moved the bytes.",
  "byteLineage": {
   "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-  "correctedAt": "2026-11-19T15:20:33.818Z",
+  "correctedAt": "2026-11-11T02:16:08.045Z",
   "recordedBefore": {
-   "outputSha256": "37e905ea9fa0d4f3664d95a1c34ab45219a77ed63a46b4976b0bb1a063443ce9",
-   "outputBytes": 22269564,
+   "outputSha256": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
+   "outputBytes": 19549552,
    "byteLineage": {
     "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-    "correctedAt": "2026-11-11T02:16:08.045Z",
+    "correctedAt": "2026-09-28T04:06:48.298Z",
     "recordedBefore": {
-     "outputSha256": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
-     "outputBytes": 19549552,
-     "byteLineage": {
-      "correctedBy": "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (SC-04)",
-      "correctedAt": "2026-09-28T04:06:48.298Z",
-      "recordedBefore": {
-       "outputSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
-       "outputBytes": 10069444
-      },
-      "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-      "preImageSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
-      "preImageBytes": 10069444,
-      "derivationArgv": [
-       "sh",
-       "-c",
-       "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0135 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
-       "x",
-       "{pre}",
-       "{out}"
-      ],
-      "reproduction": "byte-identical to the shipped file",
-      "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
-     }
+     "outputSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
+     "outputBytes": 10069444
     },
-    "preImageRevision": "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
-    "preImageSha256": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
-    "preImageBytes": 19549552,
+    "preImageRevision": "HEAD:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    "preImageSha256": "06ac92dcda85c230001a0fd04827507909d650c45b4733f4f450ebf72b198690",
+    "preImageBytes": 10069444,
     "derivationArgv": [
      "sh",
      "-c",
-     "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-ob-patient-aisha.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0031' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'",
+     "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0135 && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts \"$2\" --delta -0.004",
      "x",
      "{pre}",
-     "{out}",
-     "{report}"
+     "{out}"
     ],
     "reproduction": "byte-identical to the shipped file",
-    "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts, decimate_teeth.mts."
+    "why": "fix(#741): re-applied #739 teeth retreat (teeth-rest-clearance.ts --delta) plus tongue-back (tongue-forward-place.ts) where headroom required; deterministic stations, no hand edits."
    }
   },
-  "preImageRevision": "59980e7f6:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+  "preImageRevision": "ebe98e0a5:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
   "preImageSha256": "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
   "preImageBytes": 19549552,
   "derivationArgv": [
    "sh",
    "-c",
-   "printf '%s  %s\\n' \"$5\" \"$4\" | shasum -a 256 --check && mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py --input \"$1\" --scratch \"$4\" --output \"$2\" --report \"$3\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts \"$2\" --delta 0.0031 --in-place-bytes && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts \"$2\" --in-place --ratio 0.65 --error 0.005",
-   "aisha-teeth-lineage",
+   "mise exec -- python3 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py' --input \"$1\" --scratch '/Users/patrick/.grok/worktrees/station-teeth/.openclinxr/openclaw/ceo/st-teeth/swap1/scratch/mpfb-ob-patient-aisha.glb' --output \"$2\" --report \"$3\" && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts' \"$2\" '--delta' '0.0031' '--in-place-bytes' && pnpm exec tsx 'tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts' \"$2\" '--in-place' '--ratio' '0.65' '--error' '0.005'",
+   "x",
    "{pre}",
    "{out}",
-   "{report}",
-   "/Volumes/files/openclinxr-assets/store/st-teeth/swap1-scratch/mpfb-ob-patient-aisha.glb",
-   "67b2ee1f1d1c1045f63b2208d11654e507649a041b30916d5d5f617481a528ea"
+   "{report}"
   ],
   "reproduction": "byte-identical to the shipped file",
-  "why": "Replay the b042f849c teeth and tongue transplant, rest clearance, and tooth decimation from the 59980e7f6 Git pre-image using the hash-verified archived scratch GLB."
+  "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: teeth-rest-clearance.ts, decimate_teeth.mts."
  },
  "motionClips": [
   {
