@@ -12,21 +12,13 @@ import path from "node:path";
  * named by a commit, re-runs the derivation command, and compares the result with the shipped file.
  * A mismatch throws and nothing is written.
  *
- * WHAT IT WAS BUILT FOR, measured 2026-09-09. `separate_chest_anchor_joints.mjs` rewrote twelve
- * shipped MPFB rigs at 3d019031 and 91b12607 to move `breast.L`/`breast.R` off the midline. Its
- * per-actor reports under `tools/openclinxr/evidence/chest-anchor-joints/` record the operation and
- * its geometry but no output hash, so every sidecar it touched kept naming the pre-stage bytes.
- * Eight of thirteen comparable sidecars mismatched as a result — an unrecorded derivation step, not
- * unexplained bytes, and the difference is exactly what decides whether a hash may be corrected.
+ * The chest-anchor rewrites at 3d019031 and 91b12607 left eight of thirteen comparable
+ * sidecars pinned to pre-stage bytes. The stage reports recorded geometry without output hashes.
  *
- * IT RECORDS THE OLD VALUE. `byteLineage.recordedBefore` keeps the superseded hash, so a reader can
- * see what changed and a reviewer can repeat the reproduction. A prior `byteLineage` nests under
- * `recordedBefore.byteLineage`, so re-correcting never drops the earlier derivation; re-running
- * the identical correction replaces the level in place instead of nesting a duplicate.
+ * `byteLineage.recordedBefore` preserves the old hash and any prior lineage.
+ * A matching top-level correction is skipped when its output hash matches the shipped bytes.
  *
- * Each invocation allocates a unique child directory inside the given working directory
- * (`{asset}-<random>/`), and `{pre}`, `{out}`, and `{report}` placeholders all resolve inside
- * that child, so repeat calls for the same actor never clobber each other.
+ * Derivations use unique child directories for `{pre}`, `{out}`, and `{report}`.
  */
 
 export type PreImageSource =
@@ -93,15 +85,7 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
       `correctSidecarByteLineage: refused — ${preImageFlag(input.preImage)} bytes changed between gate and correction: expected ${input.expectedPreImageSha256} but read ${preImageDigest} from ${preImageLabel(input.preImage)}. Refusing before any write.`,
     );
   }
-  // Chain-aware idempotence (P2e-C, ported from the P2e-AB pattern): the
-  // sidecar may already record this exact correction BELOW the top (an
-  // earlier run nested a corrected level on top of a stale same-step level
-  // instead of replacing it). Re-running a below-top level's argv against
-  // its pre-image cannot reproduce the newer shipped bytes, so deriving
-  // first would throw instead of skipping — the chain is checked first and
-  // a match returns with no write and no re-derivation. A different
-  // source/file or a different why with identical bytes+argv is a different
-  // correction and nests.
+  // The pre-image descriptor and rationale distinguish corrections with identical bytes and argv.
   const record = JSON.parse(readFileSync(input.provenancePath, "utf8")) as Record<string, unknown>;
   const priorLineage = record["byteLineage"];
   const priorIsLineage =
@@ -243,20 +227,25 @@ export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory
   {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
-    preImage: { kind: "revision", revision: "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb" },
+    // 10768617f removed normalTexture in JSON (7becc30f -> 88070603) without a
+    // tracked writer. That lineage gap predates the Git pre-image for this replay.
+    preImage: { kind: "revision", revision: "59980e7f6:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb" },
     derivationArgv: [
-      "pnpm",
-      "exec",
-      "tsx",
-      "tools/openclinxr/evidence/licence/fp-rung-rederive.ts",
-      "--input",
+      "sh",
+      "-c",
+      "printf '%s  %s\\n' \"$5\" \"$4\" | shasum -a 256 --check && "
+      + "mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py "
+      + '--input "$1" --scratch "$4" --output "$2" --report "$3" && '
+      + 'pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts "$2" --delta 0.0031 --in-place-bytes && '
+      + 'pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts "$2" --in-place --ratio 0.65 --error 0.005',
+      "aisha-teeth-lineage",
       "{pre}",
-      "--out",
       "{out}",
-      "--face-preserving-ratio",
-      "0.4",
+      "{report}",
+      "/Volumes/files/openclinxr-assets/store/st-teeth/swap1-scratch/mpfb-ob-patient-aisha.glb",
+      "67b2ee1f1d1c1045f63b2208d11654e507649a041b30916d5d5f617481a528ea",
     ],
-    why: TIGHTJEANS_FP_RUNG_WHY,
+    why: "Replay the b042f849c teeth and tongue transplant, rest clearance, and tooth decimation from the 59980e7f6 Git pre-image using the hash-verified archived scratch GLB.",
   },
   {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
