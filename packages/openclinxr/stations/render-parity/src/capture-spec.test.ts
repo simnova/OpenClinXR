@@ -81,7 +81,7 @@ describe("I1: calibSpheres right vector is orthonormal on a non-axis camera", ()
         fixed[k][2] - reg[k][2],
       );
       // Card asked 1e-9; measured 1.0018e-7 on the real head_front (forward has
-      // ~1.4e-6 x-component, so not exactly axis-aligned). Bound 1e-6 still
+      // ~2.09e-6 x-component, so not exactly axis-aligned). Bound 1e-6 still
       // proves the fix changes nothing material that was already right.
       expect(d).toBeLessThanOrEqual(1e-6);
     }

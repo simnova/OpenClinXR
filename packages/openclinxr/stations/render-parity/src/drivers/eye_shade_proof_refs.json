@@ -1,0 +1,22 @@
+{
+  "refs": {
+    "--ref-p1a": {
+      "expectedDir": "/Volumes/files/openclinxr-assets/store/aisha-parity/p1a-nohair",
+      "files": {
+        "beauty/head_front.png": "0073bef02864b52110a62256fda3ea4a703c31ed8f1eb0b995e3298ecd4f81ce",
+        "masks/head_front.png": "c2dce4435bd668bc45a526817952778d3fed07113ddafd8a88db9343e30b5707",
+        "beauty/head_34.png": "dc4ce5e67bc91e3fadea9d516ae1415fe15b0b12a5ab93bf22866213362235ce",
+        "masks/head_34.png": "fa91be12eb4b7d10f6e4b64daae2e292aa92b22aa06ddf14af4c8c2bb5bd8353"
+      }
+    },
+    "--ref-p1b": {
+      "expectedDir": "/Volumes/files/openclinxr-assets/store/aisha-parity/p1b/nohair",
+      "files": {
+        "beauty/head_front.png": "5ced89ac9f47dfd086ad4e40aa45ec40c4209060546f28f33ab279c0edd885ac",
+        "masks/head_front.png": "397bbeb05a2418834aafe8e8e31d4f45c57cc44bbf85d1df92248628bb59921d",
+        "beauty/head_34.png": "ff9a4d72366081f1124aef178ebd4e735746ed7ae39b3c973d0cea5bad771621",
+        "masks/head_34.png": "28c11e53034a2cf9672d69ffa1773b2c06bcd4455ed58eeda2411a65f6fbb9df"
+      }
+    }
+  }
+}

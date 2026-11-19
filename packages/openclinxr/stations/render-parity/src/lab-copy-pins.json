@@ -1,0 +1,106 @@
+{
+  "pins": [
+    {
+      "kind": "copied",
+      "labStartText": " */",
+      "lineCount": 9,
+      "sha256": "0715962a06f4ed557c0d098a3f1ffcbae364bcce9867d650b9aa10ecdf05ea60"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "  PerspectiveCamera,",
+      "lineCount": 6,
+      "sha256": "0c839fc407bca6fed4a8a83b565ab720b225024c0a2759fdc4cb34cc68307363"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "const WIDTH_LEGACY = 1280;",
+      "lineCount": 6,
+      "sha256": "2481f7a0a601ca58db2a12223362db12febf54906fe7ee30161885155dbb775e"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "  mount.replaceChildren();",
+      "lineCount": 5,
+      "sha256": "241649d56fb034da720b062cf01ae5f4122d28d3af19475055de76674bb1ea9d"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "  // Product rig call order per apps/ui-xr/src/main.ts: ACES first, right after",
+      "lineCount": 16,
+      "sha256": "31402821bdc3229f39d9f3da76630bc3e185a14ebfd8fb4e2b537af16cbe8b3e"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "  renderer.setPixelRatio(1);",
+      "lineCount": 3,
+      "sha256": "d0bef2b141ddf7d4347089c0c793b995e85c3dc4374e08c0f03b53e954896b89"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "    scene.add(new AmbientLight(\"#dceee6\", 1.45));",
+      "lineCount": 13,
+      "sha256": "e92bdd5fd295cbbf27abb11c8ab60f532a94119af5d8abad142cc86ef68827ef"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "    const ground = new Mesh(",
+      "lineCount": 16,
+      "sha256": "0b4eba0327f51b47a4c03b47d1606b0eb8bfd707b1f90614ffc0b7db9de6dd62"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "  scene.add(root);",
+      "lineCount": 17,
+      "sha256": "689174fcfa41d90fb06905e4a91fc8e46d7a63eae72c1793b34e05996acaa0e4"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "",
+      "lineCount": 29,
+      "sha256": "91b6f2ee5936eae3e20cbc909a41439533146b777e7a2e36438bb2f8f3968e81"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "",
+      "lineCount": 7,
+      "sha256": "2d2954ab56033c723184e643d37720db01a5ac7ec047d449a0268e6eb7223a13"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "",
+      "lineCount": 20,
+      "sha256": "93c08e91621c8049342bacf7d05a375fff6b9c4ca94b393c39289c0a21162f63"
+    },
+    {
+      "kind": "copied",
+      "labStartText": "    const message = error instanceof Error ? error.message : String(error);",
+      "lineCount": 6,
+      "sha256": "3db6c124593514bbba0df12ea4f1f8f1945c8f5fbdaee8973fd1b6daa56c1d95"
+    },
+    {
+      "kind": "reimplemented",
+      "labStartText": "function measureCanvasCoverage(renderer: WebGLRenderer): number {",
+      "lineCount": 17,
+      "sha256": "96bd8e26a4255c8c47e8d76170ccf0c5fda47b339a2bbfc20c8a96707ec1f186",
+      "parityFunction": "measureParityCanvasCoverage",
+      "parityFile": "parity/parity-scene.ts"
+    },
+    {
+      "kind": "reimplemented",
+      "labStartText": "  let framesAdvanced = 0;",
+      "lineCount": 16,
+      "sha256": "3a93845162e3a6868910ec756e8344b117c00fc3b93d38e31dd5fb98a8aed1ca",
+      "parityFunction": "advanceCaptureFrames",
+      "parityFile": "parity/parity-scene.ts"
+    },
+    {
+      "kind": "reimplemented",
+      "labStartText": "  if (spec.exportGlb === true) {",
+      "lineCount": 28,
+      "sha256": "e9978035a4d2b0027cd58e58b74c22fee3320b2397fcfa31e62214a735005ff8",
+      "parityFunction": "exportCaptureGlbIfRequested",
+      "parityFile": "parity/parity-scene.ts"
+    }
+  ]
+}

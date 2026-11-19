@@ -26,6 +26,7 @@ Usage:
       --ref-p1b STORE/p1b/nohair [--cam head_front]
 """
 import argparse
+import hashlib
 import json
 import os
 import sys
@@ -33,6 +34,39 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from compare import load_rgb  # noqa: E402
 from eye_detail import analyze  # noqa: E402
+
+REFS_PIN_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                             "eye_shade_proof_refs.json")
+
+
+def sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def verify_refs(ref_p1a, ref_p1b, cam):
+    """Refuse (return 2) unless every reference file the proof reads matches
+    the pinned sha256 in eye_shade_proof_refs.json. Call before computing
+    anything; on refusal print one REFUSE line and no clause lines."""
+    with open(REFS_PIN_PATH) as fh:
+        pins = json.load(fh)["refs"]
+    for arg, refdir in (("--ref-p1a", ref_p1a), ("--ref-p1b", ref_p1b)):
+        pin = pins[arg]
+        for rel in (f"beauty/{cam}.png", f"masks/{cam}.png"):
+            fp = os.path.join(refdir, rel)
+            try:
+                actual = sha256_file(fp)
+            except OSError as e:
+                actual = f"unreadable: {e}"
+            expected = pin["files"].get(rel)
+            if expected is None or actual != expected:
+                print(f"eye_shade_proof: REFUSE {arg} {fp} sha actual={actual} "
+                      f"expected={expected} (expected ref dir {pin['expectedDir']})")
+                return 2
+    return 0
 
 
 def load_evidence(capdir, cam):
@@ -115,6 +149,9 @@ def main():
                    help="mask for f0/control images (default: <ref-p1b>/masks/<cam>.png)")
     a.add_argument("--cam", default="head_front")
     args = a.parse_args()
+    refused = verify_refs(args.ref_p1a, args.ref_p1b, args.cam)
+    if refused:
+        return refused
     mask = args.mask or os.path.join(args.ref_p1b, "masks", f"{args.cam}.png")
     results, ok = check(args.f0, args.control, args.preset,
                         args.ref_p1a, args.ref_p1b, mask, args.cam)

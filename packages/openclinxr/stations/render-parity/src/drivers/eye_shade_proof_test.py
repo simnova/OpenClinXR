@@ -9,6 +9,7 @@
 """
 import json
 import os
+import shutil
 import sys
 import tempfile
 
@@ -17,7 +18,7 @@ from PIL import Image
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from compare import COLORS  # noqa: E402
-from eye_shade_proof import check  # noqa: E402
+from eye_shade_proof import check, verify_refs  # noqa: E402
 
 CAM = "head_front"
 WANT = {"scleraAtten": 0.35, "lidBandM": 0.007, "lidDarken": 0.85}
@@ -93,7 +94,49 @@ def test_missing_readback_fails():
     assert "F:sclera-margin" in byname, results
 
 
+def pinned_dirs():
+    with open(os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                           "eye_shade_proof_refs.json")) as fh:
+        return json.load(fh)["refs"]
+
+
+def test_temp_ref_dir_refuses():
+    """A ref dir that is not the pinned one refuses (exit path 2)."""
+    tmp = tempfile.mkdtemp(prefix="eye_shade_proof_refuse_")
+    for sub in ("beauty", "masks"):
+        os.makedirs(os.path.join(tmp, sub))
+        write_png(os.path.join(tmp, sub, f"{CAM}.png"), grey(10))
+    assert verify_refs(tmp, tmp, CAM) == 2
+
+
+def test_one_byte_mask_diff_refuses():
+    """Byte-copies of the pinned refs pass; one flipped mask byte refuses."""
+    pins = pinned_dirs()
+    missing = [a for a in ("--ref-p1a", "--ref-p1b")
+               if not os.path.isdir(pins[a]["expectedDir"])]
+    if missing:
+        print(f"eye_shade_proof_test: SKIP one-byte test (store absent: {missing})")
+        return
+    tmp = tempfile.mkdtemp(prefix="eye_shade_proof_onebyte_")
+    copies = {}
+    for a in ("--ref-p1a", "--ref-p1b"):
+        dst = os.path.join(tmp, a.strip("-"))
+        shutil.copytree(pins[a]["expectedDir"], dst)
+        copies[a] = dst
+    assert verify_refs(copies["--ref-p1a"], copies["--ref-p1b"], CAM) == 0
+    assert verify_refs(copies["--ref-p1a"], copies["--ref-p1b"], "head_34") == 0
+    mask = os.path.join(copies["--ref-p1b"], "masks", f"{CAM}.png")
+    with open(mask, "rb") as fh:
+        data = bytearray(fh.read())
+    data[100] ^= 0x01
+    with open(mask, "wb") as fh:
+        fh.write(data)
+    assert verify_refs(copies["--ref-p1a"], copies["--ref-p1b"], CAM) == 2
+
+
 if __name__ == "__main__":
     test_good_pair_passes()
     test_missing_readback_fails()
-    print("eye_shade_proof_test: 2/2 GREEN")
+    test_temp_ref_dir_refuses()
+    test_one_byte_mask_diff_refuses()
+    print("eye_shade_proof_test: 4/4 GREEN")
