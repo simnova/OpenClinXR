@@ -158,7 +158,7 @@ export function applyEyePhysical(
           ior: 1.376,
           specularIntensity: eye.specularIntensity,
           ...(eye.roughness !== undefined ? { roughness: eye.roughness } : {}),
-          ...(eye.envMapIntensity !== undefined ? { envMapIntensity: eye.envMapIntensity } : {}),
+          ...(scene?.environment ? { envMapIntensity: next.envMapIntensity } : {}),
         },
       });
     },

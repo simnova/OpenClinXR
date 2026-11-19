@@ -14,7 +14,8 @@ function makeEyeScene() {
 
 it("material.envMap non-null -> material.envMapIntensity is the uniform", () => {
   const { scene, eye } = makeEyeScene();
-  applyEyePhysical(scene, { envMapIntensity: 0.25 }, scene);
+  const [readback] = applyEyePhysical(scene, { envMapIntensity: 0.25 }, scene);
+  expect(readback?.params.envMapIntensity).toBe(0.25);
   expect(eye.material.envMap).toBe(scene.environment);
   expect(eye.material.envMapIntensity).toBe(0.25);
   expect(eye.material.envMap).not.toBeNull();
@@ -23,7 +24,8 @@ it("material.envMap non-null -> material.envMapIntensity is the uniform", () => 
 it("keeps the eye material envMap null when the environment argument is omitted", () => {
   const { scene, eye } = makeEyeScene();
   eye.material.envMapIntensity = 0.6;
-  applyEyePhysical(scene, { envMapIntensity: 0.25 });
+  const [readback] = applyEyePhysical(scene, { envMapIntensity: 0.25 });
+  expect(readback?.params).not.toHaveProperty("envMapIntensity");
   expect(eye.material.envMap).toBeNull();
   expect(eye.material.envMapRotation.toArray().slice(0, 3)).toEqual([0, 0, 0]);
   expect(eye.material.envMapIntensity).toBe(0.6);

@@ -10,16 +10,9 @@ import {
   Mesh,
   MeshStandardMaterial,
 } from "three";
-// Arch: this gate test imports exactly one entrypoint-reachable module (the
-// runtime material-flag path it must exercise). Report JSON comes through
-// readFileSync (not a module import), so testInternalImports does not rise.
-// The two entrypoint reroutes that offset this +1 (compiled-room-runtime-mount
-// and learner-exam-form-boot through ./index.js) are recorded in
-// eye-shader/wiring-report.json.
-import {
-  applyMaterialOverrides,
-  type MaterialOverride,
-} from "../isolated-subject-material-variants.js";
+import { applyMaterialOverrides } from "../index.js";
+
+type MaterialOverride = NonNullable<Parameters<typeof applyMaterialOverrides>[1]>[number];
 
 const here = dirname(fileURLToPath(import.meta.url));
 const reportPath = join(here, "eye-shader-report.json");
