@@ -10,6 +10,7 @@
 import json
 import os
 import shutil
+import subprocess
 import sys
 import tempfile
 
@@ -109,27 +110,25 @@ def test_temp_ref_dir_refuses():
     assert verify_refs(tmp, tmp, CAM) == 2
 
 
-def test_mask_change_moves_sclera_refuses():
-    """Copies of the recorded refs pass; a MASK edit that moves sclera_L by
-    more than 0.01 refuses. Prints before/after values."""
-    from eye_shade_proof import sclera_L
+def copy_pinned_refs():
+    """Copy the pinned p1a/p1b ref dirs to temp. Returns (tmp, copies)."""
     pins = pinned_dirs()
-    missing = [a for a in ("--ref-p1a", "--ref-p1b")
-               if not os.path.isdir(pins[a]["expectedDir"])]
-    if missing:
-        print(f"eye_shade_proof_test: SKIP mask-change test (store absent: {missing})")
-        return
     tmp = tempfile.mkdtemp(prefix="eye_shade_proof_maskchg_")
     copies = {}
     for a in ("--ref-p1a", "--ref-p1b"):
         dst = os.path.join(tmp, a.strip("-"))
         shutil.copytree(pins[a]["expectedDir"], dst)
         copies[a] = dst
-    assert verify_refs(copies["--ref-p1a"], copies["--ref-p1b"], CAM) == 0
-    assert verify_refs(copies["--ref-p1a"], copies["--ref-p1b"], "head_34") == 0
-    before = sclera_L(os.path.join(copies["--ref-p1a"], "beauty", f"{CAM}.png"),
-                      os.path.join(copies["--ref-p1a"], "masks", f"{CAM}.png"))
-    maskpath = os.path.join(copies["--ref-p1a"], "masks", f"{CAM}.png")
+    return tmp, copies
+
+
+def alter_p1a_mask(p1a_copy):
+    """Shrink the eye region in the p1a mask copy so sclera_L moves > 0.01.
+    Returns (before, after)."""
+    from eye_shade_proof import sclera_L
+    before = sclera_L(os.path.join(p1a_copy, "beauty", f"{CAM}.png"),
+                      os.path.join(p1a_copy, "masks", f"{CAM}.png"))
+    maskpath = os.path.join(p1a_copy, "masks", f"{CAM}.png")
     m = np.array(Image.open(maskpath).convert("RGB"))
     eye = (m[:, :, 0] == 0) & (m[:, :, 1] == 255) & (m[:, :, 2] == 0)
     ys, _ = np.nonzero(eye)
@@ -139,12 +138,58 @@ def test_mask_change_moves_sclera_refuses():
     rows = np.unique(ys[ys >= int(np.median(ys))])
     m[rows, :, :] = (0, 0, 0)
     Image.fromarray(m).save(maskpath)
-    after = sclera_L(os.path.join(copies["--ref-p1a"], "beauty", f"{CAM}.png"),
+    after = sclera_L(os.path.join(p1a_copy, "beauty", f"{CAM}.png"),
                      maskpath)
+    return before, after
+
+
+def test_mask_change_moves_sclera_refuses():
+    """Copies of the recorded refs pass; a MASK edit that moves sclera_L by
+    more than 0.01 refuses. Prints before/after values."""
+    pins = pinned_dirs()
+    missing = [a for a in ("--ref-p1a", "--ref-p1b")
+               if not os.path.isdir(pins[a]["expectedDir"])]
+    if missing:
+        print(f"eye_shade_proof_test: SKIP mask-change test (store absent: {missing})")
+        return
+    tmp, copies = copy_pinned_refs()
+    assert verify_refs(copies["--ref-p1a"], copies["--ref-p1b"], CAM) == 0
+    assert verify_refs(copies["--ref-p1a"], copies["--ref-p1b"], "head_34") == 0
+    before, after = alter_p1a_mask(copies["--ref-p1a"])
     print(f"eye_shade_proof_test: mask-change sclera_L before={before:.4f} "
           f"after={after:.4f} delta={after - before:+.4f}")
     assert abs(after - before) > 0.01, (before, after)
     assert verify_refs(copies["--ref-p1a"], copies["--ref-p1b"], CAM) == 2
+
+
+def test_main_refuses_before_clauses():
+    """Run the real CLI (main) with an altered p1a mask: exit 2 and no
+    per-clause PASS/FAIL lines (the pre-computation refusal fires first)."""
+    pins = pinned_dirs()
+    missing = [a for a in ("--ref-p1a", "--ref-p1b")
+               if not os.path.isdir(pins[a]["expectedDir"])]
+    if missing:
+        print(f"eye_shade_proof_test: SKIP main-refusal test (store absent: {missing})")
+        return
+    _tmp, f0, control, preset, _refs, _mask = layout(dict(GOOD_RB), None)
+    _rtmp, copies = copy_pinned_refs()
+    before, after = alter_p1a_mask(copies["--ref-p1a"])
+    assert abs(after - before) > 0.01, (before, after)
+    proof = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                         "eye_shade_proof.py")
+    p = subprocess.run(
+        [sys.executable, "-I", proof,
+         "--f0", f0, "--control", control, "--preset", preset,
+         "--ref-p1a", copies["--ref-p1a"], "--ref-p1b", copies["--ref-p1b"],
+         "--cam", CAM],
+        capture_output=True, text=True)
+    out = (p.stdout or "") + "\n" + (p.stderr or "")
+    print(f"eye_shade_proof_test: main-refusal rc={p.returncode} "
+          f"before={before:.4f} after={after:.4f}")
+    assert p.returncode == 2, out
+    for line in out.splitlines():
+        assert not line.startswith("eye_shade_proof: PASS"), line
+        assert not line.startswith("eye_shade_proof: FAIL"), line
 
 
 if __name__ == "__main__":
@@ -152,4 +197,5 @@ if __name__ == "__main__":
     test_missing_readback_fails()
     test_temp_ref_dir_refuses()
     test_mask_change_moves_sclera_refuses()
-    print("eye_shade_proof_test: 4/4 GREEN")
+    test_main_refuses_before_clauses()
+    print("eye_shade_proof_test: 5/5 GREEN")
