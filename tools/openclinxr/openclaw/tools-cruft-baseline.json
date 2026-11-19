@@ -1,5 +1,5 @@
 {
-  "baseSha": "b74790d66b18f2bbf10460af2e744b8aaef70786",
+  "baseSha": "3d1f9a012030a82803e91a3ea1ae5adf7c6eec01",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -254,7 +254,6 @@
     "tools/openclinxr/evidence/xr-sync/c26-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c27-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c28-run.mjs",
-    "tools/openclinxr/evidence/xr-sync/c29-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c3-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c38-gaze-falsifier.mjs",
     "tools/openclinxr/evidence/xr-sync/c4-run.mjs",

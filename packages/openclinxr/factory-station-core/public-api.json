@@ -22,6 +22,7 @@
       "applyStationPayloadToCompileSpec",
       "assertLineageContinuity",
       "factoryStationSchemas",
+      "glbGeometryDigest",
       "lineageLevels",
       "planFromCatalog",
       "postExportLevelPreserves",

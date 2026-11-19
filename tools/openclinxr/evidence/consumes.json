@@ -363,6 +363,16 @@
     ]
   },
   {
+    "provider": "@openclinxr/factory-station-core",
+    "entrypoint": "./runner",
+    "names": [
+      {
+        "name": "glbGeometryDigest",
+        "kind": "runtime"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/factory-stations",
     "entrypoint": ".",
     "names": [

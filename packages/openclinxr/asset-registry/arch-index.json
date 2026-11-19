@@ -74,6 +74,7 @@
     "unstagedCastActors": "Cast actors the local encounter bundle does NOT stage."
   },
   "workspaceDependencies": [
+    "@openclinxr/factory-station-core",
     "@openclinxr/scenario-fixtures",
     "@openclinxr/shared-schemas"
   ],

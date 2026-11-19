@@ -34,6 +34,10 @@ export {
   PRODUCTION_STATION_IDS,
   productionStationIds,
 } from "./catalog-mod.js";
+/** Geometry-only sha256 of a GLB's mesh-primitive and skin-IBM accessor bytes. */
+export {
+  glbGeometryDigest,
+} from "./glb-geometry-digest.js";
 /** Workspace root (pnpm-workspace.yaml), found by walking up from this package. */
 export {
   repoRoot,

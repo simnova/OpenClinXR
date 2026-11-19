@@ -865,6 +865,9 @@ importers:
 
   packages/openclinxr/asset-registry:
     dependencies:
+      '@openclinxr/factory-station-core':
+        specifier: workspace:*
+        version: link:../factory-station-core
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../scenario-fixtures

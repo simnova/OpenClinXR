@@ -1,6 +1,8 @@
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync, statSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { glbGeometryDigest } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 
 /**
@@ -92,7 +94,7 @@ const PINNED_TRIANGLES: Readonly<Record<string, number>> = {
   spouse_anna_hayes_character: 33_623,
 };
 
-type Fingerprint = { bytes?: number; sha256?: string };
+type Fingerprint = { bytes?: number; sha256?: string; geometrySha256?: string };
 type Artifact = {
   generatedBy?: string;
   sources?: Record<string, string>;
@@ -102,10 +104,6 @@ type Artifact = {
 
 function artifact(): Artifact {
   return JSON.parse(readFileSync(ARTIFACT, "utf8")) as Artifact;
-}
-
-function sha256Of(path: string): string {
-  return createHash("sha256").update(readFileSync(path)).digest("hex");
 }
 
 // Independent raw-format GLB reader, defined inside this TEST only. It parses the binary glTF
@@ -164,7 +162,7 @@ function recountRawGlbTriangles(abs: string): number {
 }
 
 describe("the measured geometry artifact knows when it is stale (#707)", () => {
-  it("(1) every source carries a fingerprint that matches the bytes on disk now, and each declared current count equals the raw GLB recount", () => {
+  it("(1) every source carries a geometry fingerprint that matches the bytes on disk now, and each declared current count equals the raw GLB recount", () => {
     const doc = artifact();
     const sources = doc.sources ?? {};
     expect(Object.keys(sources).length, "no sources recorded").toBeGreaterThan(0);
@@ -175,10 +173,18 @@ describe("the measured geometry artifact knows when it is stale (#707)", () => {
         `${assetId}: the artifact names ${rel} and records nothing about its content. A rebake `
           + "changes the bytes and leaves the count, and every readiness verdict keeps citing it.",
       ).toBeTruthy();
+      expect(
+        typeof fp!.geometrySha256 === "string" && /^[0-9a-f]{64}$/.test(fp!.geometrySha256),
+        `${assetId}: the recorded geometry pin must be a full 64-hex digest, not a whole-file hash`,
+      ).toBe(true);
       const abs = join(REPO, rel);
       expect(existsSync(abs), `${assetId}: ${rel} must exist`).toBe(true);
-      expect(fp!.bytes, `${assetId}: recorded size must match ${rel}`).toBe(statSync(abs).size);
-      expect(fp!.sha256, `${assetId}: recorded hash must match ${rel}`).toBe(sha256Of(abs));
+      const bytes = readFileSync(abs);
+      expect(
+        fp!.geometrySha256,
+        `${assetId}: recorded geometry digest must match the GLB on disk; a material-only stage `
+          + "keeps it, a geometry change moves it",
+      ).toBe(glbGeometryDigest(new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength)));
       const declared = doc.triangles?.[assetId];
       expect(
         declared,
@@ -241,11 +247,11 @@ describe("the measured geometry artifact knows when it is stale (#707)", () => {
     expect(first, "no-key guard: a first fresh key must exist").toBeTruthy();
 
     const corrupted = JSON.parse(JSON.stringify(clean)) as Artifact;
-    corrupted.fingerprints![first] = { bytes: 1, sha256: "0".repeat(64) };
+    corrupted.fingerprints![first] = { geometrySha256: "0".repeat(64) };
     const after = mod.freshMeasuredTriangleCounts!(corrupted, REPO);
     expect(
       after[first],
-      `a wrong fingerprint for ${first} must omit its count; retaining the count means the API `
+      `a wrong geometry digest for ${first} must omit its count; retaining the count means the API `
         + "cannot see the defect it exists for",
     ).toBeUndefined();
     for (const key of freshKeys) {
@@ -255,6 +261,35 @@ describe("the measured geometry artifact knows when it is stale (#707)", () => {
         `${key}: all other fresh counts must be retained while ${first} is stale`,
       ).toBe(cleanFresh[key]);
     }
+
+    const legacyCorrupted = JSON.parse(JSON.stringify(clean)) as Artifact;
+    legacyCorrupted.fingerprints![first] = { bytes: 1, sha256: "0".repeat(64) };
+    const legacyAfter = mod.freshMeasuredTriangleCounts!(legacyCorrupted, REPO);
+    expect(
+      legacyAfter[first],
+      `a wrong legacy fingerprint for ${first} must still omit its count: legacy rows stay honored`,
+    ).toBeUndefined();
+
+    const firstRel = (clean.sources as Record<string, string>)[first];
+    if (typeof firstRel !== "string") throw new Error("first source must exist");
+    const firstBytes = readFileSync(join(REPO, firstRel));
+    const legacySizeOnly = JSON.parse(JSON.stringify(clean)) as Artifact;
+    legacySizeOnly.fingerprints![first] = {
+      bytes: firstBytes.length,
+      sha256: "0".repeat(64),
+    };
+    expect(
+      mod.freshMeasuredTriangleCounts!(legacySizeOnly, REPO)[first],
+      "a legacy row with correct bytes but a wrong sha256 must be stale: the SHA comparison is load-bearing",
+    ).toBeUndefined();
+    const legacyShaOnly = JSON.parse(JSON.stringify(clean)) as Artifact;
+    legacyShaOnly.fingerprints![first] = {
+      sha256: createHash("sha256").update(firstBytes).digest("hex"),
+    };
+    expect(
+      mod.freshMeasuredTriangleCounts!(legacyShaOnly, REPO),
+      "a legacy row with a correct sha256 and no bytes must stay fresh",
+    ).toEqual(cleanFresh);
   });
 
   it("(3) COUNTERWEIGHT: an empty artifact is not a passing artifact", () => {
@@ -280,6 +315,110 @@ describe("the measured geometry artifact knows when it is stale (#707)", () => {
           + "ABSENT CHECK. A slice that only regenerates refreshes today's numbers and leaves "
           + "tomorrow's rot.",
       ).toBe(count);
+    }
+  });
+
+  it("(5) a material-only copy stays FRESH while a 1-ULP copy goes stale on geometry alone", async () => {
+    const mod = (await import(
+      "@openclinxr/asset-registry/measured-station-geometry-freshness"
+    )) as { freshMeasuredTriangleCounts?: (doc: unknown, repoRoot: string) => Record<string, number> };
+    expect(typeof mod.freshMeasuredTriangleCounts).toBe("function");
+
+    const doc = artifact();
+    const assetId = "spouse_anna_hayes_character";
+    const rel = doc.sources?.[assetId];
+    expect(rel, "no-key guard: the spouse source must exist").toBeTruthy();
+    const orig = readFileSync(join(REPO, rel!));
+    const recorded = doc.fingerprints?.[assetId];
+    expect(recorded?.geometrySha256, `${assetId}: the committed artifact must carry a geometry pin`).toBeTruthy();
+    const count = doc.triangles?.[assetId];
+    expect(count, `${assetId}: the committed artifact must carry a count`).toBeTruthy();
+
+    const origView = new DataView(orig.buffer, orig.byteOffset, orig.byteLength);
+    const jsonLen = origView.getUint32(12, true);
+    const binLen = origView.getUint32(20 + jsonLen, true);
+    const binStart = 20 + jsonLen + 8;
+    const jsonDoc = JSON.parse(orig.subarray(20, 20 + jsonLen).toString("utf8")) as {
+      accessors?: Array<{ bufferView?: number; byteOffset?: number }>;
+      bufferViews?: Array<{ byteOffset?: number }>;
+      images?: unknown[];
+      materials?: Array<{ pbrMetallicRoughness?: { roughnessFactor?: number } }>;
+      meshes?: Array<{ primitives?: Array<{ attributes?: Record<string, number> }> }>;
+    };
+    const toU8 = (buf: Buffer): Uint8Array =>
+      new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength);
+    const rebuild = (mutate: (d: typeof jsonDoc) => void): Buffer => {
+      const d = JSON.parse(JSON.stringify(jsonDoc)) as typeof jsonDoc;
+      mutate(d);
+      let json = Buffer.from(JSON.stringify(d));
+      json = Buffer.concat([json, Buffer.alloc((4 - (json.length % 4)) % 4, 0x20)]);
+      const out = Buffer.alloc(12 + 8 + json.length + 8 + binLen);
+      orig.copy(out, 0, 0, 12);
+      out.writeUInt32LE(json.length, 12);
+      out.writeUInt32LE(0x4e4f534a, 16);
+      json.copy(out, 20);
+      out.writeUInt32LE(binLen, 20 + json.length);
+      out.writeUInt32LE(0x004e4942, 20 + json.length + 4);
+      orig.copy(out, 20 + json.length + 8, binStart, binStart + binLen);
+      out.writeUInt32LE(out.length, 8);
+      return out;
+    };
+
+    const matOnly = rebuild((d) => {
+      const target = d.materials?.find(
+        (m) => typeof m.pbrMetallicRoughness?.roughnessFactor === "number",
+      );
+      if (!target?.pbrMetallicRoughness) throw new Error("no material with roughnessFactor found");
+      const before = target.pbrMetallicRoughness.roughnessFactor;
+      target.pbrMetallicRoughness.roughnessFactor = before === 0.5 ? 0.6 : 0.5;
+    });
+    expect(
+      glbGeometryDigest(toU8(matOnly)),
+      "a material-only JSON edit must keep the geometry digest",
+    ).toBe(recorded!.geometrySha256);
+
+    const prim = jsonDoc.meshes?.flatMap((m) => m.primitives ?? []).find((p) => p.attributes?.["POSITION"] !== undefined);
+    if (!prim?.attributes) throw new Error("no POSITION primitive found");
+    const ai = prim.attributes["POSITION"]!;
+    const acc = jsonDoc.accessors?.[ai];
+    const bv = jsonDoc.bufferViews?.[acc?.bufferView ?? -1];
+    if (!acc || !bv) throw new Error("POSITION accessor metadata missing");
+    const off = binStart + (bv.byteOffset ?? 0) + (acc.byteOffset ?? 0);
+    const ulp = Buffer.from(orig);
+    ulp.writeUInt32LE((origView.getUint32(off, true) ^ 1) >>> 0, off);
+    expect(
+      glbGeometryDigest(toU8(ulp)),
+      "a 1-ULP vertex edit must move the geometry digest",
+    ).not.toBe(recorded!.geometrySha256);
+
+    const dir = mkdtempSync(join(tmpdir(), "geometry-pin-"));
+    try {
+      writeFileSync(join(dir, "mat-only.glb"), matOnly);
+      writeFileSync(join(dir, "ulp.glb"), ulp);
+      const fresh = (file: string): Record<string, number> =>
+        mod.freshMeasuredTriangleCounts!(
+          { sources: { [assetId]: file }, triangles: { [assetId]: count }, fingerprints: { [assetId]: recorded } },
+          dir,
+        );
+      expect(
+        fresh("mat-only.glb"),
+        "a material-only copy (new JSON bytes, identical geometry) must stay FRESH",
+      ).toEqual({ [assetId]: count });
+      expect(ulp.length, "the 1-ULP copy must agree on file length").toBe(orig.length);
+      expect(
+        recountRawGlbTriangles(join(dir, "ulp.glb")),
+        "the 1-ULP copy must agree on triangle recount",
+      ).toBe(recountRawGlbTriangles(join(REPO, rel!)));
+      expect(
+        (JSON.parse(ulp.subarray(20, 20 + new DataView(ulp.buffer, ulp.byteOffset, ulp.byteLength).getUint32(12, true)).toString("utf8")) as { images?: unknown[] }).images?.length ?? 0,
+        "the 1-ULP copy must agree on texture count",
+      ).toBe(jsonDoc.images?.length ?? 0);
+      expect(
+        fresh("ulp.glb"),
+        "a 1-ULP copy (length, triangles, and textures agreeing) must go stale on the geometry pin alone",
+      ).toEqual({});
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
     }
   });
 });

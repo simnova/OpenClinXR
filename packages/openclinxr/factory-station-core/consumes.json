@@ -29,6 +29,10 @@
         "via": "own-test"
       },
       {
+        "name": "glbGeometryDigest",
+        "kind": "runtime"
+      },
+      {
         "name": "PRODUCTION_STATION_IDS",
         "kind": "runtime",
         "via": "own-test"

@@ -1,8 +1,8 @@
 /**
  * Freshness gate for the committed measured-geometry artifact (#707).
  *
- * `measured-station-geometry.json` carries per-source fingerprints (bytes +
- * sha256) recorded when the generator measured the triangle counts. Nothing
+ * `measured-station-geometry.json` carries per-source fingerprints (geometrySha256, with
+ * legacy bytes + sha256 still honored when a row carries them) recorded when the generator measured the triangle counts. Nothing
  * re-derives them, so a rebake can change the GLB bytes and leave the numbers
  * while every readiness verdict keeps citing the stale counts (#699 -> #700 ->
  * #705 -> this card).
@@ -17,10 +17,12 @@
 import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
+import { glbGeometryDigest } from "@openclinxr/factory-station-core/runner";
 
 export type MeasuredGeometryFingerprint = {
   bytes?: number;
   sha256?: string;
+  geometrySha256?: string;
 };
 
 /**
@@ -41,7 +43,11 @@ export function findStaleMeasuredGeometry(doc: unknown, repoRoot: string): strin
       continue;
     }
     const fp = fingerprints[assetId];
-    if (!fp || typeof fp !== "object" || (fp.bytes === undefined && fp.sha256 === undefined)) {
+    if (
+      !fp ||
+      typeof fp !== "object" ||
+      (fp.bytes === undefined && fp.sha256 === undefined && fp.geometrySha256 === undefined)
+    ) {
       stale.push(assetId);
       continue;
     }
@@ -60,9 +66,28 @@ export function findStaleMeasuredGeometry(doc: unknown, repoRoot: string): strin
     }
     if (fp.sha256 !== undefined && fp.sha256 !== createHash("sha256").update(bytes).digest("hex")) {
       stale.push(assetId);
+      continue;
+    }
+    if (fp.geometrySha256 !== undefined && !geometryMatches(bytes, fp.geometrySha256)) {
+      stale.push(assetId);
     }
   }
   return stale;
+}
+
+/**
+ * Geometry-pin comparison: a material-only post-export stage (new images, edited material
+ * fields, zero vertex bytes changed) keeps the digest, so only a real geometry change —
+ * rebake, vertex edit, re-index — reports the assetId. Unparseable bytes fail closed.
+ */
+function geometryMatches(bytes: Buffer, geometrySha256: string): boolean {
+  let digest: string;
+  try {
+    digest = glbGeometryDigest(new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength));
+  } catch {
+    return false;
+  }
+  return digest === geometrySha256;
 }
 
 /**
