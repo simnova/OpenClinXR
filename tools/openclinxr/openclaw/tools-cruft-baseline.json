@@ -1,5 +1,5 @@
 {
-  "baseSha": "34d08080cded24887b57b4da5f8bf90caa3e86a5",
+  "baseSha": "85fd7a6b5b627679db002de74207d9f82ed6cf90",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -432,9 +432,7 @@
     "tools/openclinxr/evidence/hair-curtain1/flow.py",
     "tools/openclinxr/evidence/hair-curtain1/report.py",
     "tools/openclinxr/evidence/hair-curtain1/report_impl.py",
-    "tools/openclinxr/evidence/hair-curtain2/analyze.py",
     "tools/openclinxr/evidence/hair-curtain2/face_curtain.py",
-    "tools/openclinxr/evidence/hair-curtain3/analyze.py",
     "tools/openclinxr/evidence/hair-curtain3/ceilings.py",
     "tools/openclinxr/evidence/hair-curtain3/face_curtain.py",
     "tools/openclinxr/evidence/hair-curtain3/judge_cells.py",
@@ -442,7 +440,6 @@
     "tools/openclinxr/evidence/hair-curtain3/render_bare_masks.py",
     "tools/openclinxr/evidence/hair-curtain3/render_facets.py",
     "tools/openclinxr/evidence/hair-curtain3/validate_inside.py",
-    "tools/openclinxr/evidence/hair-curtain4/analyze.py",
     "tools/openclinxr/evidence/hair-curtain4/ceilings.py",
     "tools/openclinxr/evidence/hair-curtain4/judge_cells.py",
     "tools/openclinxr/evidence/hair-curtain4/make_cell.py",
@@ -477,7 +474,6 @@
     "tools/openclinxr/evidence/hair-groom1/export_guides.py",
     "tools/openclinxr/evidence/hair-groom1/make_sheet.py",
     "tools/openclinxr/evidence/hair-groom1/score_render.py",
-    "tools/openclinxr/evidence/hair-groom10diag/analyze.py",
     "tools/openclinxr/evidence/hair-groom10diag/compose.py",
     "tools/openclinxr/evidence/hair-groom10diag/diag_build.py",
     "tools/openclinxr/evidence/hair-groom10diag/render_diag.py",
@@ -962,5 +958,5 @@
     "tools/openclinxr/hair-groom/strands/settle.py",
     "tools/openclinxr/openclaw/session-time-split.py"
   ],
-  "vultureFindings": 845
+  "vultureFindings": 847
 }

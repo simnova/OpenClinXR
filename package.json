@@ -99,6 +99,7 @@
     "verify": "pnpm agent:verify && pnpm typecheck && pnpm test && pnpm test:integration && pnpm security:audit && pnpm security:audit-policy && pnpm security:licenses",
     "pages:sync-validate": "tsx tools/openclinxr/evidence/sync-github-pages-evidence-links.ts --check && pnpm pages:validate",
     "pages:validate": "tsx tools/openclinxr/evidence/check-github-pages-site.ts",
+    "parity:aisha-capture": "tsx tools/openclinxr/evidence/aisha-parity/runtime-capture.ts",
     "pages:sync-evidence-links": "tsx tools/openclinxr/evidence/sync-github-pages-evidence-links.ts",
     "arena:iwsdk:verify": "pnpm iwsdk:verify",
     "arena:iwsdk:dev": "pnpm --filter @openclinxr/ui-xr-iwsdk-spike dev",
