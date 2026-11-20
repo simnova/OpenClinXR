@@ -75,6 +75,10 @@ export function applyLipSealForClosedViseme(
       if (typeof index !== "number" || !Number.isInteger(index)) continue;
       if (index < 0 || index >= influences.length) continue;
       if (name.startsWith("viseme_") && name !== "viseme_sil") influences[index] = 0;
+      // Upper-lip raise (upper-incisor-show P2): the named drive writes
+      // mouth-elevation from w_aa, and the seal zeroes viseme_aa after it,
+      // so a sealed frame must also clear the raise — else the lip stays up.
+      if (name === "mouth-elevation") influences[index] = 0;
     }
     influences[sealIndex] = 1.0;
     const clamped = Math.min(1, Math.max(0, openness));

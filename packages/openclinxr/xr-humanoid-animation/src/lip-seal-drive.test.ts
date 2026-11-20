@@ -19,6 +19,7 @@ import {
   type HumanoidAnimationRuntimeContext,
   updateGeneratedHumanoidAnimations,
 } from "./index.js";
+import { applyLipSealForClosedViseme } from "./lip-seal-drive.js";
 
 function sealingSlot(actorId: string, visemeSequence: string[], dict: Record<string, number> = { "mouth-compression": 0 }, phonemeSequence: string[] = ["AA"]): { slot: GeneratedHumanoidAnimationSlot; face: Mesh } {
   const root = new Group();
@@ -127,5 +128,29 @@ describe("lip-seal drive", () => {
     const camera = new PerspectiveCamera();
     updateGeneratedHumanoidAnimations(ctx, 1 / 60, 1000, camera);
     expect(face.morphTargetInfluences?.[0] ?? 0).toBeCloseTo(0, 5);
+  });
+
+  it("(a) a sealed frame after an aa frame leaves mouth-elevation 0 and mouth-compression 1", () => {
+    const root = new Group();
+    const face = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    face.morphTargetDictionary = { "mouth-compression": 0, "mouth-elevation": 1, viseme_AA: 2, viseme_PP: 3 };
+    face.morphTargetInfluences = [0, 1, 1, 0];
+    root.add(face);
+    applyLipSealForClosedViseme(root, "PP", "viseme_PP");
+    const influences = face.morphTargetInfluences ?? [];
+    expect(influences[face.morphTargetDictionary["mouth-elevation"]!] ?? 1).toBe(0);
+    expect(influences[face.morphTargetDictionary["mouth-compression"]!] ?? 0).toBeGreaterThanOrEqual(0.9);
+  });
+
+  it("(b) an open frame leaves the drive's raise untouched", () => {
+    const root = new Group();
+    const face = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    face.morphTargetDictionary = { "mouth-compression": 0, "mouth-elevation": 1, viseme_AA: 2 };
+    face.morphTargetInfluences = [0, 0.7, 1];
+    root.add(face);
+    applyLipSealForClosedViseme(root, "aa", "viseme_aa");
+    const influences = face.morphTargetInfluences ?? [];
+    expect(influences[face.morphTargetDictionary["mouth-elevation"]!] ?? 0).toBe(0.7);
+    expect(influences[face.morphTargetDictionary["mouth-compression"]!] ?? 1).toBe(0);
   });
 });

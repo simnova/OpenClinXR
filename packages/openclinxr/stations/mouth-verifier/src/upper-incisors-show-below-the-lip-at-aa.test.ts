@@ -27,7 +27,7 @@ const GLBS: Record<string, string> = {
  */
 describe("upper incisors show below the lip at aa", () => {
   for (const asset of Object.keys(GLBS)) {
-    it.fails(`${asset}: aa central display > 0`, async () => {
+    it(`${asset}: aa central display > 0`, async () => {
       const scene = await loadHeadlessScene(GLBS[asset]!);
       applyNamedSpeechVisemes(
         { root: scene.root, activeSpeech: { phonemeSequence: ["AA"], startedAtMs: 0, durationMs: 1000 } },

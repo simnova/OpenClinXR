@@ -53,7 +53,7 @@ that imports it. Premises that were false and cost a full worker run each:
   pipeline in `packages/openclinxr/stations/mouth-executor`, run from the CLI wrapper
   `tools/openclinxr/asset-pipeline/makeclothes/seat-teeth-on-lip-rim.ts` through the
   pinned registry `run`), so the gap is near-constant by construction: 6.1-6.9 mm on all 124 fixed-capture frames. The rim seat drives to the 3.743 mm directed target, then per-vertex pullback clears the #739 face (560 central lower-front verts, iterated quadratic falloff, worst 5.876 mm) to the cap-median-minus-0.5 mm plane; honest rest gap 6.387 mm. Teeth stay behind the face median at rest and at the runtime cap weight.
-- Upper teeth are head-fixed: zero viseme deltas.
+- Upper teeth carry the fitted teeth viseme_aa morph: bind to aa the upper central incisor moves +4.0 mm z / -3.5 mm y head-local on Aisha, Kevin and the physician (store aisha-parity/teeth-visemes/upper-incisor-s0/measure.json).
 - Jaw timing: critically damped spring and lip follower at 240 Hz in xr-dialogue internals.
 - A GLB change goes through a committed producer only, with the receipt updated by that run in the same
   commit. Never hand-edit GLB bytes or stamp a hash read off disk.

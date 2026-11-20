@@ -660,6 +660,85 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
   });
 });
 
+describe("upper-lip raise (upper-incisor-show P2) — mouth-elevation follows viseme_aa", () => {
+  /** Two host meshes carrying mouth-elevation plus the viseme targets the drive needs. */
+  function raiseRoot() {
+    const names = ["viseme_sil", "viseme_aa", "viseme_E", "mouth-elevation"];
+    const make = (): {
+      name: string;
+      morphTargetDictionary: Record<string, number>;
+      morphTargetInfluences: number[];
+    } => ({
+      name: "Body",
+      morphTargetDictionary: Object.fromEntries(names.map((name, index) => [name, index])),
+      morphTargetInfluences: names.map(() => 0),
+    });
+    const first = make();
+    const second = make();
+    const root = {
+      userData: {} as Record<string, unknown>,
+      traverse(callback: (object: unknown) => void) {
+        callback(first);
+        callback(second);
+      },
+    };
+    return { first, second, root };
+  }
+
+  function elevationOf(mesh: { morphTargetDictionary: Record<string, number>; morphTargetInfluences: number[] }): number {
+    return mesh.morphTargetInfluences[mesh.morphTargetDictionary["mouth-elevation"]!] ?? NaN;
+  }
+
+  it("(c) held aa writes 1.0 on every host", () => {
+    const { first, second, root } = raiseRoot();
+    applyNamedSpeechVisemes(
+      {
+        root,
+        activeSpeech: { phonemeSequence: ["AA"], startedAtMs: 0, durationMs: 1000 },
+      },
+      500,
+    );
+    expect(elevationOf(first)).toBe(1);
+    expect(elevationOf(second)).toBe(1);
+  });
+
+  it("(d) silence after aa writes 0", () => {
+    const { first, second, root } = raiseRoot();
+    applyNamedSpeechVisemes(
+      {
+        root,
+        activeSpeech: { phonemeSequence: ["AA"], startedAtMs: 0, durationMs: 1000 },
+      },
+      500,
+    );
+    expect(elevationOf(first)).toBe(1);
+    applyNamedSpeechVisemes({ root });
+    expect(elevationOf(first)).toBe(0);
+    expect(elevationOf(second)).toBe(0);
+  });
+
+  it("(e) a root with no activeSpeech writes 0 — no raise without speech", () => {
+    const { first, second, root } = raiseRoot();
+    first.morphTargetInfluences[first.morphTargetDictionary["mouth-elevation"]!] = 0.8;
+    applyNamedSpeechVisemes({ root });
+    expect(elevationOf(first)).toBe(0);
+    expect(elevationOf(second)).toBe(0);
+  });
+
+  it("(f) a non-aa viseme (E held) writes 0", () => {
+    const { first, second, root } = raiseRoot();
+    applyNamedSpeechVisemes(
+      {
+        root,
+        activeSpeech: { phonemeSequence: ["E"], startedAtMs: 0, durationMs: 1000 },
+      },
+      500,
+    );
+    expect(elevationOf(first)).toBe(0);
+    expect(elevationOf(second)).toBe(0);
+  });
+});
+
 describe("#lipbones — O/U weights drive oris corner rounding", () => {
   function lipBones() {
     const names = ["oris04.L", "oris04.R", "oris01", "oris05"];

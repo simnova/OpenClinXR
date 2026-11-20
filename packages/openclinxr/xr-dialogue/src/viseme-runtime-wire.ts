@@ -29,6 +29,7 @@ import {
 import { applyPreparedJawDynamics } from "./prepared-jaw-dynamics.js";
 import { applyPreparedLipDynamics } from "./viseme-lip-dynamics.js";
 import { applyLipBoneRoundingToRoot } from "./lip-bone-rounding.js";
+import { applyUpperLipRaiseToRoot } from "./upper-lip-raise.js";
 export { JAW_TEETH_GAIN, LIP_VISEME_GAIN } from "./viseme-morph-apply.js";
 export {
   attachBakedCuesToSpeech,
@@ -310,6 +311,17 @@ function silenceNamedVisemes(slot: SpeechSlotLike, nowMs: number): NamedVisemeDr
   return applyDialogueVisemeTimelineToRoot(slot.root, { phonemeSequence: ["sil"], progress: 0, nowMs });
 }
 
+/**
+ * Upper-lip raise for the driven frame (upper-incisor-show P2): the raise
+ * reads w_aa off the same post-dynamics weights object the lip bones read,
+ * so every applyNamedSpeechVisemes return path — including silence, which
+ * clears the raise — routes through here.
+ */
+function withUpperLipRaise<T extends NamedVisemeDriveResult>(root: MorphRootLike, result: T): T {
+  applyUpperLipRaiseToRoot(root, result.weights);
+  return result;
+}
+
 function bakedCuesAdmissible(cues: readonly PhonemeCue[] | undefined): boolean {
   if (!cues?.length) return false;
   let end = Number.NEGATIVE_INFINITY;
@@ -331,18 +343,18 @@ function bakedCuesAdmissible(cues: readonly PhonemeCue[] | undefined): boolean {
  */
 export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = performance.now()): NamedVisemeDriveResult {
   const speech = slot.activeSpeech;
-  if (!speech?.phonemeSequence?.length) return silenceNamedVisemes(slot, nowMs);
+  if (!speech?.phonemeSequence?.length) return withUpperLipRaise(slot.root, silenceNamedVisemes(slot, nowMs));
   if (typeof slot.mediaPositionSeconds === "function") {
     let media: number | null | undefined;
-    try { media = slot.mediaPositionSeconds(); } catch { return silenceNamedVisemes(slot, nowMs); }
-    if (media == null || typeof media !== "number" || !Number.isFinite(media) || media < 0) return silenceNamedVisemes(slot, nowMs);
+    try { media = slot.mediaPositionSeconds(); } catch { return withUpperLipRaise(slot.root, silenceNamedVisemes(slot, nowMs)); }
+    if (media == null || typeof media !== "number" || !Number.isFinite(media) || media < 0) return withUpperLipRaise(slot.root, silenceNamedVisemes(slot, nowMs));
     const driveNowMs = media * 1000;
-    if (!bakedCuesAdmissible(speech.bakedCues)) return silenceNamedVisemes(slot, driveNowMs);
+    if (!bakedCuesAdmissible(speech.bakedCues)) return withUpperLipRaise(slot.root, silenceNamedVisemes(slot, driveNowMs));
     const cue = speech.bakedCues?.find((entry) => {
       const duration = typeof entry.durationSeconds === "number" && Number.isFinite(entry.durationSeconds) ? entry.durationSeconds : 0;
       return media >= entry.atSecond && media < entry.atSecond + duration;
     });
-    if (!cue) return silenceNamedVisemes(slot, driveNowMs);
+    if (!cue) return withUpperLipRaise(slot.root, silenceNamedVisemes(slot, driveNowMs));
     const result = applyDialogueVisemeTimelineToRoot(slot.root, {
       phonemeSequence: [cue.phoneme], progress: 0, nowMs: driveNowMs,
       bakedCues: [{ phoneme: cue.phoneme, atSecond: 0, ...(typeof cue.durationSeconds === "number" ? { durationSeconds: cue.durationSeconds } : {}) }],
@@ -350,7 +362,7 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
     const driven = applyPreparedJawDynamics(applyPreparedLipDynamics(result, slot.root, speech.bakedCues, media), slot.root, speech.bakedCues, media, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
     // Bones follow the dynamics-shaped weights (same envelope), not the pre-dynamics frame.
     applyLipBoneRoundingToRoot(slot.root, driven.weights);
-    return driven;
+    return withUpperLipRaise(slot.root, driven);
   }
   const progress = Math.min(1, Math.max(0, (nowMs - speech.startedAtMs) / Math.max(1, speech.durationMs)));
   const result = applyDialogueVisemeTimelineToRoot(slot.root, {
@@ -361,7 +373,7 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
   const endS = finalCue === undefined ? 0 : finalCue.atSecond + (finalCue.durationSeconds ?? 0);
   const wallDriven = applyPreparedJawDynamics(result, slot.root, speech.bakedCues, progress * endS, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
   applyLipBoneRoundingToRoot(slot.root, wallDriven.weights);
-  return wallDriven;
+  return withUpperLipRaise(slot.root, wallDriven);
 }
 
 /**
