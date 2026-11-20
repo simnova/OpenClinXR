@@ -97,7 +97,7 @@
     },
     {
       "label": "control",
-      "sha256": "4148864b18186c788c8a30f16f7fb7d924752f3c53fb4ede24d767278656e99c",
+      "sha256": "a9ffe0621f54557add1e612d4a6d8fd23879c96cd76aac3071f6a97d3f03dad4",
       "visemes": [
         "viseme_CH",
         "viseme_DD",
@@ -175,7 +175,7 @@
           "maxZ": 0.135609433054924
         }
       ],
-      "morphMeshCount": 2
+      "morphMeshCount": 3
     }
   ]
 }

@@ -76,10 +76,13 @@ export function realLashGitHistory(): LashGitHistory {
  * emitted input is an ANCESTOR of the live GLB through the recorded lineage
  * instead of re-pinning: sidecar top pins live, assertLineageContinuity holds
  * over every level (broken-link throws), then newest-to-oldest steps are each a
- * recorded derivation — the newest lineage level (own output is the top pin),
- * sidecar input/output blocks (teethSwapB1, actorHairColourPostExport), and at
- * most ONE content-addressed git hop: the commit X whose blob hashes to the
- * sidecar floor `cur` is accepted only when the previous GLB-touching commit's
+ * recorded derivation — the lineage levels in order (the newest level's own
+ * output is the top pin; each older level's output is the next-newer level's
+ * recordedBefore pin), sidecar input/output blocks (teethSwapB1,
+ * actorHairColourPostExport, taking precedence over a level step at the same
+ * sha and closing level traversal once taken), and at most ONE
+ * content-addressed git hop: the commit X whose blob hashes to the sidecar
+ * floor `cur` is accepted only when the previous GLB-touching commit's
  * blob (X^ state) hashes to the emitted input. The commit subject is printed in
  * the proof line but never matched — a lash-named subject is not evidence.
  * A second bridge attempt, a shallow clone, or a history with no commit
@@ -129,6 +132,23 @@ export function validateLashAncestorChain(
   const seen = new Set(path);
   let cur = newestPre;
   let gitBridged = false;
+  // Recorded intermediate derivations (route-A second post-lash level): every
+  // non-newest level L(i) re-derived out(i) = L(i-1).recordedBefore.outputSha256
+  // from pre(i) = L(i).preImageSha256, continuity-verified above, so the walk
+  // may follow them newest-to-oldest. Block steps (teethSwapB1, colour) take
+  // precedence over a level step at the same cur (they divert into the
+  // pre-sidecar bridge); once a block step is taken the walk stays out of
+  // recorded levels so it cannot descend past the bridge point, and the walk
+  // still ends in exactly one content-addressed git hop, fail-closed.
+  const levelSteps: Array<{ out: string; input: string; name: string }> = [];
+  levels.forEach((level, index) => {
+    const out = index === 0 ? liveSha256 : levels[index - 1]?.recordedBefore?.outputSha256;
+    const input = level.preImageSha256;
+    if (typeof out === "string" && HEX64.test(out) && typeof input === "string" && HEX64.test(input)) {
+      levelSteps.push({ out, input, name: `byteLineage L${index}` });
+    }
+  });
+  let blockTaken = false;
   for (let iter = 0; iter < 64; iter++) {
     if (cur === emittedInputSha256) return path;
     const step = blockSteps.find((s) => s.out === cur);
@@ -139,10 +159,24 @@ export function validateLashAncestorChain(
       cur = step.input;
       path.push(cur);
       seen.add(cur);
+      blockTaken = true;
       continue;
     }
-    // No sidecar block records the derivation that outputs cur: exactly ONE
-    // content-addressed git hop is allowed. The bridge commit X is identified
+    if (!blockTaken) {
+      const level = levelSteps.find((s) => s.out === cur);
+      if (level !== undefined) {
+        if (seen.has(level.input)) {
+          throw new Error(`${actorFile}: lash-ancestor no-path: recorded step ${level.name} cycles at ${level.input}`);
+        }
+        cur = level.input;
+        path.push(cur);
+        seen.add(cur);
+        continue;
+      }
+    }
+    // No sidecar block records the derivation that outputs cur, and no
+    // (pre-block) recorded level does either: exactly ONE content-addressed
+    // git hop is allowed. The bridge commit X is identified
     // by CONTENT — sha256(blob at X) == cur — and accepted only when the
     // previous GLB-touching commit's blob (X^ state) hashes to the emitted
     // input. The subject is printed, never matched.

@@ -12,6 +12,10 @@
  *   pin (the shipped GLB is the town square: rest geometry must not move).
  * - CW3 every accessor outside the fitted-teeth morph-target set is
  *   byte-identical to the pre-image, so the fix cannot smuggle other bytes.
+ *   Dense payloads are stride-walked (Aisha's body interleaves attributes at
+ *   stride 52); the S1 probe plants one byte in a strided non-teeth accessor
+ *   on an in-memory copy and shows the comparator flags exactly that index
+ *   (and passes the unmodified bytes).
  *
  * Only two numeric thresholds exist: TOL_MM 0.05 below, sourced from the
  * landed R1 TOL of the-tongue-channel-reads test ("R1 fresh-read"). G0 is an
@@ -78,7 +82,7 @@ type Primitive = {
 type Mesh = { name?: string; primitives?: Primitive[]; extras?: { targetNames?: string[] } };
 type Document = {
   accessors: Accessor[];
-  bufferViews: Array<{ byteOffset?: number; byteLength: number }>;
+  bufferViews: Array<{ byteOffset?: number; byteLength: number; byteStride?: number }>;
   meshes: Mesh[];
 };
 type ParsedGlb = { document: Document; binary: Buffer };
@@ -107,7 +111,11 @@ function parseGlbBytes(raw: Buffer, label: string): ParsedGlb {
   return { document, binary: raw.subarray(binHeader + 8, binHeader + 8 + binLength) };
 }
 
-/** BIN slice of a dense accessor payload, or null when it carries no bytes. */
+/** BIN bytes of a dense accessor payload, element by element at the view's
+ * byteStride (default = element size). Aisha's body interleaves attributes
+ * (POSITION stride 52), so a contiguous count*elemSize slice would compare
+ * the wrong bytes; stride-walking reads each element where it lives and
+ * skips inter-element padding deterministically on both sides. */
 function densePayload(glb: ParsedGlb, index: number, label: string): Buffer | null {
   const accessor = glb.document.accessors[index];
   if (!accessor || accessor.bufferView === undefined || accessor.sparse) return null;
@@ -116,8 +124,15 @@ function densePayload(glb: ParsedGlb, index: number, label: string): Buffer | nu
   if (size === undefined || count === undefined) throw new Error(`${label}: accessor ${index} unknown layout`);
   const view = glb.document.bufferViews[accessor.bufferView];
   if (!view) throw new Error(`${label}: accessor ${index} has no bufferView entry`);
-  const start = (view.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
-  return glb.binary.subarray(start, start + accessor.count * count * size);
+  const elem = count * size;
+  const stride = view.byteStride ?? elem;
+  if (stride < elem) throw new Error(`${label}: accessor ${index} stride ${stride} < element ${elem}`);
+  const base = (view.byteOffset ?? 0) + (accessor.byteOffset ?? 0);
+  const out = Buffer.alloc(accessor.count * elem);
+  for (let i = 0; i < accessor.count; i += 1) {
+    glb.binary.copy(out, i * elem, base + i * stride, base + i * stride + elem);
+  }
+  return out;
 }
 
 /** BIN slice of a sparse indices/values block. */
@@ -130,6 +145,64 @@ function sparseBlockBytes(glb: ParsedGlb, block: { bufferView: number; byteOffse
   return glb.binary.subarray(start, start + elements * size);
 }
 
+/** Indices of non-fitted-teeth-target accessors whose bytes differ between
+ * two GLBs (teeth-target set read off each document by mesh name, never by
+ * index). Appended (a-only) and removed (b-only) non-teeth indices count as
+ * differing. Pure over the two parsed GLBs; the caller asserts emptiness. */
+function nonTeethDiffs(a: ParsedGlb, b: ParsedGlb, aLabel: string, bLabel: string): number[] {
+  const skip = fittedTeethTargetAccessors(a.document);
+  const bSkip = fittedTeethTargetAccessors(b.document);
+  const differing: number[] = [];
+  for (let index = b.document.accessors.length; index < a.document.accessors.length; index += 1) {
+    if (!skip.has(index)) differing.push(index);
+  }
+  const shared = Math.min(a.document.accessors.length, b.document.accessors.length);
+  for (let index = 0; index < shared; index += 1) {
+    if (skip.has(index) || bSkip.has(index)) continue;
+    const aDense = densePayload(a, index, aLabel);
+    const bDense = densePayload(b, index, bLabel);
+    if (aDense && bDense) {
+      if (aDense.length !== bDense.length || !aDense.equals(bDense)) differing.push(index);
+      continue;
+    }
+    // Sparse or byte-less accessors (morph deltas ride sparse on this
+    // asset): parsed-JSON identity plus the sparse index/value BIN bytes.
+    const aAcc = a.document.accessors[index];
+    const bAcc = b.document.accessors[index];
+    if (!isDeepStrictEqual(aAcc, bAcc)) {
+      differing.push(index);
+      continue;
+    }
+    const aSparse = (aAcc as Accessor & { sparse?: { count: number; indices: { bufferView: number; byteOffset?: number; componentType: number }; values: { bufferView: number; byteOffset?: number } } }).sparse;
+    const bSparse = (bAcc as Accessor & { sparse?: { count: number; indices: { bufferView: number; byteOffset?: number; componentType: number }; values: { bufferView: number; byteOffset?: number } } }).sparse;
+    if (aSparse || bSparse) {
+      if (!aSparse || !bSparse) {
+        differing.push(index);
+        continue;
+      }
+      const comps = TYPE_COUNT[(aAcc as Accessor).type] ?? 3;
+      const aI = sparseBlockBytes(a, aSparse.indices, aSparse.count);
+      const bI = sparseBlockBytes(b, bSparse.indices, bSparse.count);
+      const aV = sparseBlockBytes(
+        a,
+        { ...aSparse.values, componentType: (aAcc as Accessor).componentType },
+        aSparse.count * comps,
+      );
+      const bV = sparseBlockBytes(
+        b,
+        { ...bSparse.values, componentType: (bAcc as Accessor).componentType },
+        bSparse.count * comps,
+      );
+      if (aI.length !== bI.length || !aI.equals(bI) || aV.length !== bV.length || !aV.equals(bV)) {
+        differing.push(index);
+      }
+    }
+  }
+  for (let index = shared; index < b.document.accessors.length; index += 1) {
+    if (!bSkip.has(index)) differing.push(index);
+  }
+  return differing;
+}
 /** Fitted-teeth morph-target accessor indices, by mesh name (never by index). */
 function fittedTeethTargetAccessors(document: Document): Set<number> {
   const out = new Set<number>();
@@ -186,62 +259,35 @@ describe("ob aisha fitted teeth carry the lip visemes", () => {
     }) as Buffer;
     const shipped = parseGlbBytes(shippedRaw, "shipped Aisha GLB");
     const pre = parseGlbBytes(preRaw, `pre-image ${PRE_IMAGE_REV}`);
-    const skip = fittedTeethTargetAccessors(shipped.document);
-    // Appended accessors (new indices) must all be fitted-teeth targets.
-    const appended = Array.from(
-      { length: shipped.document.accessors.length - pre.document.accessors.length },
-      (_, slot) => pre.document.accessors.length + slot,
-    );
-    const appendedOutside = appended.filter((index) => !skip.has(index));
-    expect(appendedOutside, `appended non-teeth-target accessors ${appendedOutside}`).toEqual([]);
-    const preSkip = fittedTeethTargetAccessors(pre.document);
-    const differing: number[] = [];
-    const shared = Math.min(shipped.document.accessors.length, pre.document.accessors.length);
-    for (let index = 0; index < shared; index += 1) {
-      if (skip.has(index) || preSkip.has(index)) continue;
-      const aDense = densePayload(shipped, index, "shipped");
-      const bDense = densePayload(pre, index, "pre-image");
-      if (aDense && bDense) {
-        if (aDense.length !== bDense.length || !aDense.equals(bDense)) differing.push(index);
-        continue;
-      }
-      // Sparse or byte-less accessors (morph deltas ride sparse on this
-      // asset): parsed-JSON identity plus the sparse index/value BIN bytes.
-      const aAcc = shipped.document.accessors[index];
-      const bAcc = pre.document.accessors[index];
-      if (!isDeepStrictEqual(aAcc, bAcc)) {
-        differing.push(index);
-        continue;
-      }
-      const aSparse = (aAcc as Accessor & { sparse?: { count: number; indices: { bufferView: number; byteOffset?: number; componentType: number }; values: { bufferView: number; byteOffset?: number } } }).sparse;
-      const bSparse = (bAcc as Accessor & { sparse?: { count: number; indices: { bufferView: number; byteOffset?: number; componentType: number }; values: { bufferView: number; byteOffset?: number } } }).sparse;
-      if (aSparse || bSparse) {
-        if (!aSparse || !bSparse) {
-          differing.push(index);
-          continue;
-        }
-        const comps = TYPE_COUNT[(aAcc as Accessor).type] ?? 3;
-        const aI = sparseBlockBytes(shipped, aSparse.indices, aSparse.count);
-        const bI = sparseBlockBytes(pre, bSparse.indices, bSparse.count);
-        const aV = sparseBlockBytes(
-          shipped,
-          { ...aSparse.values, componentType: (aAcc as Accessor).componentType },
-          aSparse.count * comps,
-        );
-        const bV = sparseBlockBytes(
-          pre,
-          { ...bSparse.values, componentType: (bAcc as Accessor).componentType },
-          bSparse.count * comps,
-        );
-        if (aI.length !== bI.length || !aI.equals(bI) || aV.length !== bV.length || !aV.equals(bV)) {
-          differing.push(index);
-        }
-      }
-    }
-    // Removed accessors (shipped shorter than pre-image) are findings too.
-    for (let index = shared; index < pre.document.accessors.length; index += 1) {
-      if (!preSkip.has(index)) differing.push(index);
-    }
+    const differing = nonTeethDiffs(shipped, pre, "shipped", "pre-image");
     expect(differing, `non-teeth-target accessors differing from pre-image: ${differing}`).toEqual([]);
+  }, 180_000);
+
+  it("S1 probe: the strided comparator flags a one-byte plant and passes clean bytes", () => {
+    const preRaw = execFileSync("git", ["show", `${PRE_IMAGE_REV}:${PRE_IMAGE_PATH}`], {
+      cwd: REPO_ROOT,
+      maxBuffer: 1024 * 1024 * 128,
+    }) as Buffer;
+    const pre = parseGlbBytes(preRaw, `pre-image ${PRE_IMAGE_REV}`);
+    const preSkip = fittedTeethTargetAccessors(pre.document);
+    const planted = pre.document.accessors.findIndex((cand, index) => {
+      if (preSkip.has(index) || cand.bufferView === undefined || cand.sparse) return false;
+      const size = COMPONENT_SIZE[cand.componentType];
+      const comps = TYPE_COUNT[cand.type];
+      if (size === undefined || comps === undefined) return false;
+      return (pre.document.bufferViews[cand.bufferView]?.byteStride ?? 0) > comps * size;
+    });
+    expect(planted, "a strided non-teeth dense accessor exists in the pre-image").toBeGreaterThanOrEqual(0);
+    const acc = pre.document.accessors[planted]!;
+    const view = pre.document.bufferViews[acc.bufferView!]!;
+    const stride = view.byteStride!;
+    const elemOff = (view.byteOffset ?? 0) + (acc.byteOffset ?? 0);
+    // eslint-disable-next-line no-console
+    console.log(`S1 probe: planting one byte in strided accessor ${planted} (stride ${stride})`);
+    const mutatedBin = Buffer.from(pre.binary);
+    mutatedBin[elemOff] = (mutatedBin[elemOff]! + 1) % 256;
+    const mutated: ParsedGlb = { document: pre.document, binary: mutatedBin };
+    expect(nonTeethDiffs(pre, mutated, "pre-image", "mutated")).toEqual([planted]);
+    expect(nonTeethDiffs(pre, pre, "pre-image", "pre-image")).toEqual([]);
   }, 180_000);
 });
