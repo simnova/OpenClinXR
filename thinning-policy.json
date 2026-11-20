@@ -155,6 +155,24 @@
       "expires": "2026-12-03",
       "evidence": "generator tools/openclinxr/evidence/humanoid-body-signature.ts output: +76 B records the new distinct Aisha body sha 91306cc1 (prim0 indices changed by SWEATER' tsk_4c6a7143f7dff5e0); /Volumes/files/openclinxr-assets/store/aisha-parity/aisha-sweater/commit6/thinning.log",
       "reason": "writer-owned measurement re-pin; dropping it would falsify the measurement"
+    },
+    {
+      "id": "aisha-teeth-visemes-provenance-walk-offset",
+      "scope": [
+        "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/the-shipped-lashes-follow-the-lid.test.ts",
+        "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/shipped-lash-ancestor.ts",
+        "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts",
+        "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/no-shipped-humanoid-carries-an-unbound-texture.test.ts",
+        "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-applied-visemes-move-the-mouth.test.ts",
+        "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-shipped-teeth-carry-their-texture.test.ts"
+      ],
+      "rule": "offset",
+      "approvedBy": "super-ceo-cap53",
+      "quote": "R2 thinning: exception entry APPROVED in thinning-policy.json exceptions[], written AFTER h3 so the bytes are final: card id, final E delta, per-file list, reason \"provenance walk verification + re-pin tests for stage 02\", precedent kevin-collar-authority-registry-offset.",
+      "date": "2026-11-20",
+      "expires": "2026-12-04",
+      "evidence": "/Volumes/files/openclinxr-assets/store/aisha-parity/teeth-visemes/route-a/thinning-before-exception.log",
+      "reason": "tsk_d3455707881d9c55: provenance walk verification + re-pin tests for stage 02. E delta +14426 B at bdaf307a1 vs origin/main 1e0de3b69: the-shipped-lashes-follow-the-lid.test.ts +7337, shipped-lash-ancestor.ts +5199, correct-sidecar-byte-lineage.ts +887, no-shipped-humanoid-carries-an-unbound-texture.test.ts +417, the-applied-visemes-move-the-mouth.test.ts +397, the-shipped-teeth-carry-their-texture.test.ts +189. Precedent kevin-collar-authority-registry-offset. Release when the E bucket next thins by >= 28852 B."
     }
   ]
 }
