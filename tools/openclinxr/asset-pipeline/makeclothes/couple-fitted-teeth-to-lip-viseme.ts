@@ -39,11 +39,11 @@
  */
 import { readFileSync, writeFileSync } from "node:fs";
 import { pathToFileURL } from "node:url";
-import { NodeIO, type Node as GltfNode } from "@gltf-transform/core";
-import { Bone, BufferAttribute, BufferGeometry, DoubleSide, Group, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Skeleton, SkinnedMesh, Vector2, Vector3 } from "three";
-import { applyJawOpenToRoot } from "@openclinxr/xr-dialogue/viseme-runtime";
+import { type Node as GltfNode, NodeIO } from "@gltf-transform/core";
 import { applyVisemeWeights } from "@openclinxr/xr-dialogue/viseme-morph";
+import { applyJawOpenToRoot } from "@openclinxr/xr-dialogue/viseme-runtime";
 import { jawOpenRadiansForPhoneme } from "@openclinxr/xr-dialogue/viseme-timeline";
+import { Bone, BufferAttribute, BufferGeometry, DoubleSide, Group, Matrix4, Mesh, MeshBasicMaterial, PerspectiveCamera, Raycaster, Skeleton, SkinnedMesh, Vector2, Vector3 } from "three";
 
 type MorphTargetLike = {
   morphTargetDictionary: Record<string, number>;
@@ -178,14 +178,34 @@ export type TeethSkin = {
 };
 
 /**
+ * Teeth skin for front-shell selection, or null when a joint name is missing
+ * (a -1 index would weight-filter every row to empty, so the old y-only rule
+ * applies instead). Joint naming rules are unchanged elsewhere.
+ */
+export function teethSkinOrNull(
+  joints: ArrayLike<number>,
+  weights: ArrayLike<number>,
+  jawIndex: number,
+  headIndex: number,
+): TeethSkin | null {
+  if (jawIndex < 0 || headIndex < 0) return null;
+  return { joints, weights, jawIndex, headIndex };
+}
+
+/**
  * Central crowns of one row. Membership is on the base POSITION accessor.
  * The shells follow the skin (tsk_09ebec711d102e62): when the teeth skin is
- * passed, the lower y-row keeps only jawSum >= JAW_WEIGHT_MIN and the upper
- * y-row only headSum >= JAW_WEIGHT_MIN before the z-band pick, so a
- * head-bound vertex cannot set the lower rowMaxZ. Without the skin the
- * selection is exactly the old y-only rule.
+ * passed, the lower y-row keeps only jawSum >= JAW_WEIGHT_MIN with headSum
+ * below it and the upper y-row only headSum >= JAW_WEIGHT_MIN with jawSum
+ * below it before the z-band pick, so a head-bound vertex cannot set the
+ * lower rowMaxZ and an exact 50/50 tie belongs to neither shell. Without
+ * the skin the selection is exactly the old y-only rule. The tie count is
+ * returned as ties.
  */
-export function frontShellIndices(positions: Float32Array, skin?: TeethSkin | null): { upper: number[]; lower: number[] } {
+export function frontShellIndices(
+  positions: Float32Array,
+  skin?: TeethSkin | null,
+): { upper: number[]; lower: number[]; ties: number } {
   const count = positions.length / 3;
   const ys: number[] = [];
   for (let vertex = 0; vertex < count; vertex += 1) ys.push(positions[vertex * 3 + 1] ?? 0);
@@ -197,12 +217,18 @@ export function frontShellIndices(positions: Float32Array, skin?: TeethSkin | nu
     if (y > mid + CLEAR_BAND_M) upperRow.push(vertex);
     else if (y < mid - CLEAR_BAND_M) lowerRow.push(vertex);
   }
+  let ties = 0;
   if (skin) {
+    const jawSum = (vertex: number): number => jawWeightSum(skin.joints, skin.weights, vertex, skin.jawIndex);
+    const headSum = (vertex: number): number => jawWeightSum(skin.joints, skin.weights, vertex, skin.headIndex);
+    for (const vertex of [...upperRow, ...lowerRow]) {
+      if (jawSum(vertex) >= JAW_WEIGHT_MIN && headSum(vertex) >= JAW_WEIGHT_MIN) ties += 1;
+    }
     upperRow = upperRow.filter(
-      (vertex) => jawWeightSum(skin.joints, skin.weights, vertex, skin.headIndex) >= JAW_WEIGHT_MIN,
+      (vertex) => headSum(vertex) >= JAW_WEIGHT_MIN && jawSum(vertex) < JAW_WEIGHT_MIN,
     );
     lowerRow = lowerRow.filter(
-      (vertex) => jawWeightSum(skin.joints, skin.weights, vertex, skin.jawIndex) >= JAW_WEIGHT_MIN,
+      (vertex) => jawSum(vertex) >= JAW_WEIGHT_MIN && headSum(vertex) < JAW_WEIGHT_MIN,
     );
   }
   const pick = (row: number[]): number[] => {
@@ -214,7 +240,7 @@ export function frontShellIndices(positions: Float32Array, skin?: TeethSkin | nu
         (positions[vertex * 3 + 2] ?? 0) >= maxZ - FRONT_SHELL_Z_BAND_M,
     );
   };
-  return { upper: pick(upperRow), lower: pick(lowerRow) };
+  return { upper: pick(upperRow), lower: pick(lowerRow), ties };
 }
 
 /**
@@ -746,12 +772,15 @@ export async function measureTeethVisemeGaps(glbPath: string): Promise<{
   const pose = buildPose(doc);
   const measureSkinJoints =
     doc.getRoot().listNodes().find((node) => node.getMesh()?.getName() === pose.teethSkinned.name)?.getSkin()?.listJoints() ?? [];
-  const shells = frontShellIndices(pose.teethPos, {
-    joints: pose.teethJoints,
-    weights: pose.teethWeights,
-    jawIndex: measureSkinJoints.findIndex((joint) => joint.getName() === "jaw"),
-    headIndex: measureSkinJoints.findIndex((joint) => joint.getName() === "head"),
-  });
+  const shells = frontShellIndices(
+    pose.teethPos,
+    teethSkinOrNull(
+      pose.teethJoints,
+      pose.teethWeights,
+      measureSkinJoints.findIndex((joint) => joint.getName() === "jaw"),
+      measureSkinJoints.findIndex((joint) => joint.getName() === "head"),
+    ),
+  );
   const bodyMorph = morphTarget(pose.bodySkinned);
   const teethInfluences = pose.teethSkinned.morphTargetInfluences;
   const teethDictionary = pose.teethSkinned.morphTargetDictionary;
@@ -1673,6 +1702,7 @@ export async function planTeethVisemeTargets(glbPath: string): Promise<{
     jawIndex,
     headIndex,
   });
+  console.log(`teeth front shells: upper=${shells.upper.length} lower=${shells.lower.length} ties=${shells.ties}`);
   const jawSet = new Set(jawWeighted);
   const headSet = new Set(headWeighted);
   if (shells.upper.length === 0 || shells.lower.length === 0) throw new Error("front shell is empty");
