@@ -87,9 +87,27 @@ export function realLashGitHistory(): LashGitHistory {
  * the proof line but never matched — a lash-named subject is not evidence.
  * A second bridge attempt, a shallow clone, or a history with no commit
  * recording `cur` all throw, so the caller fails closed and stays RED.
+ * Chosen h2-B1 verification: a recorded intermediate level is followed only
+ * when its preImageRevision resolves in git to its preImageSha256.
  *
  * Returns the walked sha path newest-first for the proof print.
  */
+function verifyRecordedLevelPreImage(actorFile: string, name: string, input: string, preImageRevision: unknown): void {
+  if (typeof preImageRevision !== "string" || preImageRevision.trim() === "") {
+    throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} names no git pre-image revision, so its claim to derive from ${input} is unverified`);
+  }
+  let digest: string;
+  try {
+    const bytes = execFileSync("git", ["show", preImageRevision], { cwd: ROOT, maxBuffer: 256 * 1024 * 1024 });
+    digest = createHash("sha256").update(bytes).digest("hex");
+  } catch {
+    throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} pre-image ${preImageRevision} does not resolve in git`);
+  }
+  if (digest !== input) {
+    throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} claims pre-image ${input} but git revision ${preImageRevision} hashes to ${digest}`);
+  }
+}
+
 export function validateLashAncestorChain(
   actorFile: string,
   liveSha256: string,
@@ -134,18 +152,22 @@ export function validateLashAncestorChain(
   let gitBridged = false;
   // Recorded intermediate derivations (route-A second post-lash level): every
   // non-newest level L(i) re-derived out(i) = L(i-1).recordedBefore.outputSha256
-  // from pre(i) = L(i).preImageSha256, continuity-verified above, so the walk
-  // may follow them newest-to-oldest. Block steps (teethSwapB1, colour) take
+  // from pre(i) = L(i).preImageSha256, continuity-verified above. The walk
+  // follows one newest-to-oldest ONLY when it is VERIFIED: its preImageRevision
+  // resolves in git to bytes hashing to pre(i). A recorded level that names
+  // the emitted input but whose git pre-image hashes elsewhere (Codex forgery:
+  // intermediate claims emitted as input and repeats it in recordedBefore) is
+  // refused here instead of walked. Block steps (teethSwapB1, colour) take
   // precedence over a level step at the same cur (they divert into the
   // pre-sidecar bridge); once a block step is taken the walk stays out of
   // recorded levels so it cannot descend past the bridge point, and the walk
   // still ends in exactly one content-addressed git hop, fail-closed.
-  const levelSteps: Array<{ out: string; input: string; name: string }> = [];
+  const levelSteps: Array<{ out: string; input: string; name: string; preImageRevision: unknown }> = [];
   levels.forEach((level, index) => {
     const out = index === 0 ? liveSha256 : levels[index - 1]?.recordedBefore?.outputSha256;
     const input = level.preImageSha256;
     if (typeof out === "string" && HEX64.test(out) && typeof input === "string" && HEX64.test(input)) {
-      levelSteps.push({ out, input, name: `byteLineage L${index}` });
+      levelSteps.push({ out, input, name: `byteLineage L${index}`, preImageRevision: level.preImageRevision });
     }
   });
   let blockTaken = false;
@@ -165,6 +187,7 @@ export function validateLashAncestorChain(
     if (!blockTaken) {
       const level = levelSteps.find((s) => s.out === cur);
       if (level !== undefined) {
+        verifyRecordedLevelPreImage(actorFile, level.name, level.input, level.preImageRevision);
         if (seen.has(level.input)) {
           throw new Error(`${actorFile}: lash-ancestor no-path: recorded step ${level.name} cycles at ${level.input}`);
         }

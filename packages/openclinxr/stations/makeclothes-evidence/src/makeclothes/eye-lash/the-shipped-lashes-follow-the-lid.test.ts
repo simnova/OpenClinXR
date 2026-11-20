@@ -205,6 +205,30 @@ describe("the shipped MPFB lashes follow the lid", () => {
     console.log("P-nosubject GREEN subject-not-matched");
   });
 
+  it("CW lineage allowance refuses a forged intermediate level that names the emitted input", () => {
+    const file = "mpfb-ob-patient-aisha.glb";
+    const sidecar = JSON.parse(
+      readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json"), "utf8"),
+    ) as Record<string, unknown> & { lashFollowR8?: { inputSha256?: unknown } };
+    const live = createHash("sha256").update(readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids", file))).digest("hex");
+    const input = sidecar.lashFollowR8?.inputSha256 as string;
+    // Honest r1->r2->r3 chain still walks to the emitted input.
+    const honest = validateLashAncestorChain(file, live, sidecar, input);
+    expect(honest[honest.length - 1]).toBe(input);
+    // Forgery: intermediate L1 claims the emitted input and repeats it in
+    // recordedBefore (self-consistent, so continuity passes) — the walk must
+    // refuse it because L1's git pre-image still hashes to the sweater bytes.
+    const forged = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown> & {
+      byteLineage?: { recordedBefore?: { byteLineage?: { preImageSha256?: unknown; recordedBefore?: { outputSha256?: unknown } } } };
+    };
+    const l1 = forged.byteLineage?.recordedBefore?.byteLineage;
+    expect(l1, "aisha sidecar carries an intermediate L1 to forge").toBeDefined();
+    l1!.preImageSha256 = input;
+    l1!.recordedBefore!.outputSha256 = input;
+    expect(() => validateLashAncestorChain(file, live, forged, input)).toThrow(/refused.*recorded step/);
+    console.log("P-forged RED refused GREEN (honest r1->r2->r3 still accepted)");
+  });
+
   it("CW lineage allowance fails closed on shallow or missing history", () => {
     const file = "mpfb-peds-nurse-kevin.glb";
     const sidecar = JSON.parse(
