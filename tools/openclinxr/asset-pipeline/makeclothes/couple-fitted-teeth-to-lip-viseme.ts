@@ -169,18 +169,41 @@ function median(values: number[]): number {
   return sorted.length % 2 === 0 ? ((sorted[mid - 1] ?? 0) + (sorted[mid] ?? 0)) / 2 : (sorted[mid] ?? 0);
 }
 
-/** Central crowns of one row. Membership is on the base POSITION accessor. */
-export function frontShellIndices(positions: Float32Array): { upper: number[]; lower: number[] } {
+/** Teeth skin for front-shell selection: rows are weight-filtered before the z-band pick. */
+export type TeethSkin = {
+  joints: ArrayLike<number>;
+  weights: ArrayLike<number>;
+  jawIndex: number;
+  headIndex: number;
+};
+
+/**
+ * Central crowns of one row. Membership is on the base POSITION accessor.
+ * The shells follow the skin (tsk_09ebec711d102e62): when the teeth skin is
+ * passed, the lower y-row keeps only jawSum >= JAW_WEIGHT_MIN and the upper
+ * y-row only headSum >= JAW_WEIGHT_MIN before the z-band pick, so a
+ * head-bound vertex cannot set the lower rowMaxZ. Without the skin the
+ * selection is exactly the old y-only rule.
+ */
+export function frontShellIndices(positions: Float32Array, skin?: TeethSkin | null): { upper: number[]; lower: number[] } {
   const count = positions.length / 3;
   const ys: number[] = [];
   for (let vertex = 0; vertex < count; vertex += 1) ys.push(positions[vertex * 3 + 1] ?? 0);
   const mid = median(ys);
-  const upperRow: number[] = [];
-  const lowerRow: number[] = [];
+  let upperRow: number[] = [];
+  let lowerRow: number[] = [];
   for (let vertex = 0; vertex < count; vertex += 1) {
     const y = ys[vertex] ?? 0;
     if (y > mid + CLEAR_BAND_M) upperRow.push(vertex);
     else if (y < mid - CLEAR_BAND_M) lowerRow.push(vertex);
+  }
+  if (skin) {
+    upperRow = upperRow.filter(
+      (vertex) => jawWeightSum(skin.joints, skin.weights, vertex, skin.headIndex) >= JAW_WEIGHT_MIN,
+    );
+    lowerRow = lowerRow.filter(
+      (vertex) => jawWeightSum(skin.joints, skin.weights, vertex, skin.jawIndex) >= JAW_WEIGHT_MIN,
+    );
   }
   const pick = (row: number[]): number[] => {
     let maxZ = -Infinity;
@@ -510,9 +533,10 @@ export function lowerLipInnerRim(
   weights: Float32Array,
   jointNodes: readonly GltfNode[],
   teethBase: Float32Array,
+  teethSkin?: TeethSkin | null,
 ): number[] {
   const landmark = lowerLipLandmark(bodyDeltaAa, joints, weights, jointNodes);
-  const shells = frontShellIndices(teethBase);
+  const shells = frontShellIndices(teethBase, teethSkin ?? null);
   const shell = [...shells.upper, ...shells.lower];
   let cx = 0;
   let cy = 0;
@@ -720,7 +744,14 @@ export async function measureTeethVisemeGaps(glbPath: string): Promise<{
 }> {
   const doc = await new NodeIO().read(glbPath);
   const pose = buildPose(doc);
-  const shells = frontShellIndices(pose.teethPos);
+  const measureSkinJoints =
+    doc.getRoot().listNodes().find((node) => node.getMesh()?.getName() === pose.teethSkinned.name)?.getSkin()?.listJoints() ?? [];
+  const shells = frontShellIndices(pose.teethPos, {
+    joints: pose.teethJoints,
+    weights: pose.teethWeights,
+    jawIndex: measureSkinJoints.findIndex((joint) => joint.getName() === "jaw"),
+    headIndex: measureSkinJoints.findIndex((joint) => joint.getName() === "head"),
+  });
   const bodyMorph = morphTarget(pose.bodySkinned);
   const teethInfluences = pose.teethSkinned.morphTargetInfluences;
   const teethDictionary = pose.teethSkinned.morphTargetDictionary;
@@ -1636,7 +1667,12 @@ export async function planTeethVisemeTargets(glbPath: string): Promise<{
     if (jawWeight >= JAW_WEIGHT_MIN) jawWeighted.push(vertex);
     else if (jawWeightSum(pose.teethJoints, pose.teethWeights, vertex, headIndex) >= JAW_WEIGHT_MIN) headWeighted.push(vertex);
   }
-  const shells = frontShellIndices(pose.teethPos);
+  const shells = frontShellIndices(pose.teethPos, {
+    joints: pose.teethJoints,
+    weights: pose.teethWeights,
+    jawIndex,
+    headIndex,
+  });
   const jawSet = new Set(jawWeighted);
   const headSet = new Set(headWeighted);
   if (shells.upper.length === 0 || shells.lower.length === 0) throw new Error("front shell is empty");
