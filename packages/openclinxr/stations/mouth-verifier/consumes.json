@@ -48,6 +48,26 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "AA_MECHANISM_POSES",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "AaMechanismPose",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "AaMechanismPoseRow",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "AaMechanismReport",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
         "name": "assertGroundTruthDyGate",
         "kind": "runtime",
         "via": "own-test"
@@ -63,13 +83,18 @@
         "via": "own-test"
       },
       {
-        "name": "probePremise",
+        "name": "HeadlessScene",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "jawAngleVsBindQuat",
         "kind": "runtime",
         "via": "own-test"
       },
       {
-        "name": "readEvaluatorTrack",
-        "kind": "runtime",
+        "name": "JointWeight",
+        "kind": "type",
         "via": "own-test"
       },
       {
@@ -83,12 +108,37 @@
         "via": "own-test"
       },
       {
+        "name": "measureTeethAaContribution",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "poseAndMeasureTongue",
         "kind": "runtime",
         "via": "own-test"
       },
       {
-        "name": "HeadlessScene",
+        "name": "probePremise",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "probeTongueAaMechanism",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "readEvaluatorTrack",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "TeethAaContribution",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "TeethAaContributionOpts",
         "kind": "type",
         "via": "own-test"
       },
@@ -99,6 +149,11 @@
       },
       {
         "name": "TonguePoseRow",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "Vec3Mm",
         "kind": "type",
         "via": "own-test"
       }

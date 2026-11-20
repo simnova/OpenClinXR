@@ -18,6 +18,21 @@ export {
   probeTongueRest,
 } from "./tongue-channel.js";
 export type { TonguePose, TonguePoseRow } from "./tongue-channel.js";
+export {
+  AA_MECHANISM_POSES,
+  jawAngleVsBindQuat,
+  measureTeethAaContribution,
+  probeTongueAaMechanism,
+} from "./tongue-aa-mechanism.js";
+export type {
+  AaMechanismPose,
+  AaMechanismPoseRow,
+  AaMechanismReport,
+  JointWeight,
+  TeethAaContribution,
+  TeethAaContributionOpts,
+  Vec3Mm,
+} from "./tongue-aa-mechanism.js";
 export { readEvaluatorTrack } from "./track.js";
 export type { EvaluatorTrack } from "./track.js";
 export type {
