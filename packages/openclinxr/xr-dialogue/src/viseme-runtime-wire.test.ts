@@ -15,6 +15,7 @@ import {
   mouthCuesToPhonemeCues,
   sampleLiveVisemeInfluencesFromRoot,
 } from "./viseme-runtime-wire.js";
+import { applyUpperLipRaiseToRoot, UPPER_LIP_RAISE_GAIN } from "./upper-lip-raise.js";
 
 /** Mirrors shipped peds_patient_child.glb: viseme_* not at index 0. */
 function meshLike() {
@@ -663,7 +664,7 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
 describe("upper-lip raise (upper-incisor-show P2) — mouth-elevation follows viseme_aa", () => {
   /** Two host meshes carrying mouth-elevation plus the viseme targets the drive needs. */
   function raiseRoot() {
-    const names = ["viseme_sil", "viseme_aa", "viseme_E", "mouth-elevation"];
+    const names = ["viseme_sil", "viseme_aa", "viseme_E", "viseme_FF", "mouth-elevation"];
     const make = (): {
       name: string;
       morphTargetDictionary: Record<string, number>;
@@ -736,6 +737,65 @@ describe("upper-lip raise (upper-incisor-show P2) — mouth-elevation follows vi
     );
     expect(elevationOf(first)).toBe(0);
     expect(elevationOf(second)).toBe(0);
+  });
+
+  it("(i) held aa at w_aa 0.25 writes 0.5 and the direct wire routes aa", () => {
+    expect(UPPER_LIP_RAISE_GAIN).toBe(2);
+    const direct = raiseRoot();
+    applyUpperLipRaiseToRoot(direct.root, { viseme_aa: 0.25 });
+    expect(elevationOf(direct.first)).toBe(0.5);
+    expect(elevationOf(direct.second)).toBe(0.5);
+    const wired = raiseRoot();
+    applyDialogueVisemeTimelineToRoot(wired.root, { phonemeSequence: ["AA"], progress: 0 });
+    expect(elevationOf(wired.first)).toBe(1);
+    expect(elevationOf(wired.second)).toBe(1);
+  });
+
+  it("(ii) a held-E frame on hosts seeded at 0.7 writes 0", () => {
+    const { first, second, root } = raiseRoot();
+    first.morphTargetInfluences[first.morphTargetDictionary["mouth-elevation"]!] = 0.7;
+    second.morphTargetInfluences[second.morphTargetDictionary["mouth-elevation"]!] = 0.7;
+    applyDialogueVisemeTimelineToRoot(root, { phonemeSequence: ["E"], progress: 0 });
+    expect(elevationOf(first)).toBe(0);
+    expect(elevationOf(second)).toBe(0);
+  });
+
+  it("(iv) applyDialogueVisemeTimelineToRoot sil after aa leaves 0", () => {
+    const { first, second, root } = raiseRoot();
+    applyNamedSpeechVisemes(
+      {
+        root,
+        activeSpeech: { phonemeSequence: ["AA"], startedAtMs: 0, durationMs: 1000 },
+      },
+      500,
+    );
+    expect(elevationOf(first)).toBe(1);
+    applyDialogueVisemeTimelineToRoot(root, { phonemeSequence: ["sil"], progress: 0 });
+    expect(elevationOf(first)).toBe(0);
+    expect(elevationOf(second)).toBe(0);
+  });
+
+  it("(v) a host without viseme_FF keeps its pre-set mouth-elevation value", () => {
+    const names = ["viseme_sil", "viseme_aa", "viseme_E", "mouth-elevation"];
+    const make = (): {
+      name: string;
+      morphTargetDictionary: Record<string, number>;
+      morphTargetInfluences: number[];
+    } => ({
+      name: "Body",
+      morphTargetDictionary: Object.fromEntries(names.map((name, index) => [name, index])),
+      morphTargetInfluences: names.map(() => 0),
+    });
+    const only = make();
+    const root = {
+      userData: {} as Record<string, unknown>,
+      traverse(callback: (object: unknown) => void) {
+        callback(only);
+      },
+    };
+    only.morphTargetInfluences[only.morphTargetDictionary["mouth-elevation"]!] = 0.7;
+    applyUpperLipRaiseToRoot(root, { viseme_aa: 1 });
+    expect(elevationOf(only)).toBe(0.7);
   });
 });
 

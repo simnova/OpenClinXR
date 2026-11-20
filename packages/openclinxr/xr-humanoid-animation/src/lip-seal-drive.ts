@@ -63,10 +63,16 @@ export function applyLipSealForClosedViseme(
     const dict = object.morphTargetDictionary;
     const influences = object.morphTargetInfluences;
     if (!dict || !influences) return;
+    const sealed = isSealedFrame(viseme, activeTargetName, new Set(Object.keys(dict)));
+    if (sealed) {
+      const elevIndex = dict["mouth-elevation"];
+      if (typeof elevIndex === "number" && Number.isInteger(elevIndex) && elevIndex >= 0 && elevIndex < influences.length) {
+        influences[elevIndex] = 0;
+      }
+    }
     const sealIndex = dict["mouth-compression"];
     if (typeof sealIndex !== "number" || !Number.isInteger(sealIndex)) return;
     if (sealIndex < 0 || sealIndex >= influences.length) return;
-    const sealed = isSealedFrame(viseme, activeTargetName, new Set(Object.keys(dict)));
     if (!sealed) {
       influences[sealIndex] = 0;
       return;

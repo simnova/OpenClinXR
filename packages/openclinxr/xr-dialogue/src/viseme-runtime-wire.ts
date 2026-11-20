@@ -221,6 +221,9 @@ export function applyDialogueVisemeTimelineToRoot(
   // Lip-bone rounding (#lipbones): O/U enveloped morph weights drive the
   // oris corner + midline bones; every other weight leaves the bind pose.
   applyLipBoneRoundingToRoot(root, weights);
+  // Upper-lip raise on the direct path too: sil frames carry w_aa 0, so a
+  // sil call after aa clears the raise even without the named-speech wrapper.
+  applyUpperLipRaiseToRoot(root, weights);
 
   const active = activeVisemeFromWeights(weights);
   const result: NamedVisemeDriveResult = {

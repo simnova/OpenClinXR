@@ -153,4 +153,15 @@ describe("lip-seal drive", () => {
     expect(influences[face.morphTargetDictionary["mouth-elevation"]!] ?? 0).toBe(0.7);
     expect(influences[face.morphTargetDictionary["mouth-compression"]!] ?? 1).toBe(0);
   });
+
+  it("(iii) an elevation-only host with no mouth-compression is zeroed on a sealed frame", () => {
+    const root = new Group();
+    const face = new Mesh(new BoxGeometry(), new MeshBasicMaterial());
+    face.morphTargetDictionary = { "mouth-elevation": 0, viseme_AA: 1 };
+    face.morphTargetInfluences = [1, 1];
+    root.add(face);
+    applyLipSealForClosedViseme(root, "PP", "viseme_PP");
+    const influences = face.morphTargetInfluences ?? [];
+    expect(influences[face.morphTargetDictionary["mouth-elevation"]!] ?? 1).toBe(0);
+  });
 });

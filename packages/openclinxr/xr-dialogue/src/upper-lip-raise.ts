@@ -15,7 +15,9 @@
  * same weights object applyLipBoneRoundingToRoot receives). aa ONLY: no
  * other viseme contributes. Written by name on EVERY mesh whose
  * morphTargetDictionary carries "mouth-elevation" (the browser load has 9
- * such meshes per actor, headless 1).
+ * such meshes per actor, headless 1). Hosts without a native "viseme_FF"
+ * are skipped: on FACS-only rigs the resolver maps viseme_FV onto
+ * mouth-elevation and the raise must not overwrite it.
  */
 
 export const UPPER_LIP_RAISE_GAIN = 2;
@@ -45,6 +47,7 @@ export function applyUpperLipRaiseToRoot(
     const dict = mesh?.morphTargetDictionary;
     const influences = mesh?.morphTargetInfluences;
     if (!dict || !influences) return;
+    if (!("viseme_FF" in dict)) return;
     const index = dict["mouth-elevation"];
     if (typeof index !== "number" || !Number.isInteger(index)) return;
     if (index < 0 || index >= influences.length) return;
