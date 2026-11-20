@@ -169,7 +169,7 @@ describe("front shells follow the skin", () => {
   // a mid-test throw cannot leave one behind (call-site try/finally stays).
   afterEach(() => {
     for (const entry of readdirSync(HERE)) {
-      if (entry.startsWith(".probe-tmp-")) rmSync(path.join(HERE, entry), { recursive: true, force: true });
+      if (entry.startsWith(`.probe-tmp-${process.pid}-`)) rmSync(path.join(HERE, entry), { recursive: true, force: true });
     }
   });
 
