@@ -17,6 +17,10 @@ export {
   poseAndMeasureTongue,
   probeTongueRest,
 } from "./tongue-channel.js";
+export {
+  measureUpperIncisorDisplay,
+} from "./upper-incisor-display.js";
+export type { UpperIncisorDisplay } from "./upper-incisor-display.js";
 export type { TonguePose, TonguePoseRow } from "./tongue-channel.js";
 export {
   AA_MECHANISM_POSES,
