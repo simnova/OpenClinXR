@@ -54,19 +54,20 @@
     "entrypoint": ".",
     "names": [
       {
-        "name": "applyHumanoidJointRotationsByAlias",
-        "kind": "runtime"
+        "name": "applyAndPlantSupineOnDeck",
+        "kind": "runtime",
+        "via": "own-test"
       },
       {
         "name": "applyGeneratedHumanoidClinicalIdlePosture",
         "kind": "runtime"
       },
       {
-        "name": "OwnedChain",
-        "kind": "type"
+        "name": "applyHumanoidJointRotationsByAlias",
+        "kind": "runtime"
       },
       {
-        "name": "applyAndPlantSupineOnDeck",
+        "name": "applySupinePose",
         "kind": "runtime",
         "via": "own-test"
       },
@@ -81,12 +82,16 @@
         "via": "own-test"
       },
       {
-        "name": "reapplySupineHeadToStoredPillow",
+        "name": "measureBackToDeckGap",
         "kind": "runtime",
         "via": "own-test"
       },
       {
-        "name": "applySupinePose",
+        "name": "OwnedChain",
+        "kind": "type"
+      },
+      {
+        "name": "reapplySupineHeadToStoredPillow",
         "kind": "runtime",
         "via": "own-test"
       },
@@ -107,6 +112,10 @@
     "entrypoint": ".",
     "names": [
       {
+        "name": "buildPatientStretcher",
+        "kind": "runtime"
+      },
+      {
         "name": "readStretcherBackSectionWorldDeg",
         "kind": "runtime"
       },
@@ -124,10 +133,6 @@
       },
       {
         "name": "STRETCHER_LENGTH_METERS",
-        "kind": "runtime"
-      },
-      {
-        "name": "buildPatientStretcher",
         "kind": "runtime"
       }
     ]

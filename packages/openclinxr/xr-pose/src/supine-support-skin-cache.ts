@@ -10,6 +10,9 @@ import type { SupineSupportPlane, SupineSupportRegion } from "./supine-support-c
 import {
   isMaterialRendered,
   sharedPositionEntryFor,
+  claimSharedSampleRow,
+  createCrossMeshRowSeen,
+  type CrossMeshRowSeen,
   type SharedAttributeCacheEntry,
   type SkinnedLike,
 } from "./supine-shared-position-rows.js";
@@ -304,8 +307,12 @@ function storeSupportRow(
 function aggregateSupportEntry(
   entry: SampleCacheEntry,
   gaps: Record<SupineSupportRegion, number[]>, minimum: Record<SupineSupportRegion, number>,
+  seen: CrossMeshRowSeen,
 ): void {
   for (let row = 0; row < entry.rows.length; row += 1) {
+    // Cross-mesh shared-row dedup (cap53 ruling (1)): same (POSITION, row)
+    // emitted by a sibling mesh earlier in this measure call is skipped here.
+    if (!claimSharedSampleRow(seen, entry.position, entry.rows[row]!.index)) continue;
     const region = entry.rows[row]!.region;
     const kind = entry.kind[row]!;
     if (kind === 1 || kind === 2) minimum[region] = Math.min(minimum[region]!, entry.gapValue[row]!);
@@ -317,6 +324,7 @@ export function accumulateSupportGapsFast(
   mesh: SkinnedLike, anatomicalBody: boolean, materials: ReadonlyArray<unknown>,
   planes: Readonly<Record<SupineSupportRegion, SupineSupportPlane>>,
   gaps: Record<SupineSupportRegion, number[]>, minimum: Record<SupineSupportRegion, number>,
+  seen: CrossMeshRowSeen = createCrossMeshRowSeen(),
 ): void {
   const entry = ensureSupportSampleEntry(mesh, anatomicalBody, materials);
   if (!entry || entry.rows.length === 0) return;
@@ -325,12 +333,16 @@ export function accumulateSupportGapsFast(
   const bindInverse = mesh.bindMatrixInverse;
   const matrixWorld = mesh.matrixWorld;
   if (!bones || !inverses || !bindInverse) {
+    // No-skeleton fallback (no boneInverses): compute each row's gap but do
+    // NOT claim here. aggregateSupportEntry below claims each row exactly once;
+    // claiming here too would drop every row on the fast path while the point
+    // path emits them all (private-attribute mesh, working getVertexPosition).
     for (let row = 0; row < entry.rows.length; row += 1) {
       mesh.getVertexPosition!(entry.rows[row]!.index, scratchBase);
       scratchOut.copy(scratchBase).applyMatrix4(matrixWorld);
       storeSupportRow(entry, planes, row, scratchOut);
     }
-    aggregateSupportEntry(entry, gaps, minimum);
+    aggregateSupportEntry(entry, gaps, minimum, seen);
     return;
   }
   const boneCount = bones.length;
@@ -371,7 +383,7 @@ export function accumulateSupportGapsFast(
   entry.bindMatrixInverseCopy.set(bindInverse.elements);
   entry.prevMatrixWorld.set(matrixWorld.elements);
   entry.lastPlanes = planes; entry.hasPrevious = true;
-  aggregateSupportEntry(entry, gaps, minimum);
+  aggregateSupportEntry(entry, gaps, minimum, seen);
 }
 
 export function selectContactGap(values: ReadonlyArray<number> | ArrayLike<number>): number | null {

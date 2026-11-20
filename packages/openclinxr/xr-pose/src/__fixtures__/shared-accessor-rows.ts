@@ -1,14 +1,14 @@
 /**
  * Illustrative in-memory SkinnedMesh pair fixtures for the shared-accessor
- * S1c guards + RED (fixture values are illustrative, not specification; not
- * GLB data). Each builder makes two SkinnedMeshes (A + optional hidden B)
- * whose geometries share ONE position BufferAttribute instance (mirroring
+ * guards + RED (fixture values are illustrative, not specification; not
+ * GLB data). Each builder makes SkinnedMeshes (A + optional hidden B) whose
+ * geometries share ONE position BufferAttribute instance (mirroring
  * three.js prim splitting). Hidden B uses the hidden-material convention the
- * runtime uses (mesh visible, material opacity 0 / alphaTest 0.5, e.g.
- * openclinxr_hidden_upper_* in S1 m-a5.log); visible=false is the repo-test
- * convention (supine-support-contact.test.ts:160).
- * Precedents: shared-attribute-index-union.test.ts:19-30 (carrier()),
- * supine-support-contact.test.ts:9-35 (rig()).
+ * runtime uses (mesh visible, opacity 0 / alphaTest 0.5,
+ * e.g. openclinxr_hidden_upper_* in S1 m-a5.log); visible=false is the repo-test
+ * convention (supine-support-contact.test.ts:160). Three.js only: this module
+ * never reaches xr-pose code, so importing it adds 0 testInternalImports.
+ * Precedent: shared-attribute-index-union.test.ts:19-30 (carrier()).
  */
 import {
   Bone,
@@ -19,7 +19,6 @@ import {
   Skeleton,
   SkinnedMesh,
   Uint16BufferAttribute,
-  Vector3,
 } from "three";
 
 export type RowXYZ = [number, number, number];
@@ -28,18 +27,6 @@ export function sharedPosition(rows: RowXYZ[]): Float32BufferAttribute {
   const flat: number[] = [];
   for (const row of rows) flat.push(row[0], row[1], row[2]);
   return new Float32BufferAttribute(flat, 3);
-}
-
-export function wardPlane(): { origin: Vector3; normal: Vector3 } {
-  return { origin: new Vector3(0, 0, 0), normal: new Vector3(0, 1, 0) };
-}
-
-export function allFlatPlanes(): Record<string, { origin: Vector3; normal: Vector3 }> {
-  const plane = (): { origin: Vector3; normal: Vector3 } => ({
-    origin: new Vector3(0, 0, 0),
-    normal: new Vector3(0, 1, 0),
-  });
-  return { pelvis: plane(), lumbar: plane(), thorax: plane(), heelL: plane(), heelR: plane(), occiput: plane() };
 }
 
 export function buildPair(options: {
@@ -53,6 +40,12 @@ export function buildPair(options: {
   boneAt?: Record<string, RowXYZ>;
   /** hidden-material convention for B (mesh stays visible, opacity 0). */
   hideB?: boolean;
+  /**
+   * Per-POSITION-row bone lane for skinning/region classification. Entry per
+   * row: index into boneNames driving that row (lane 0, weight 1). Defaults
+   * to bone 0 for every row (legacy single-region fixtures).
+   */
+  boneForRow?: number[];
 }): { root: Group; A: SkinnedMesh; B: SkinnedMesh | null; position: Float32BufferAttribute } {
   const position = options.position ?? sharedPosition(options.rows);
   const root = new Group();
@@ -73,7 +66,8 @@ export function buildPair(options: {
     const skinIndex: number[] = [];
     const skinWeight: number[] = [];
     for (let i = 0; i < count; i += 1) {
-      skinIndex.push(0, 0, 0, 0);
+      const lane = options.boneForRow?.[i] ?? 0;
+      skinIndex.push(lane, 0, 0, 0);
       skinWeight.push(1, 0, 0, 0);
     }
     geometry.setAttribute("skinIndex", new Uint16BufferAttribute(skinIndex, 4));

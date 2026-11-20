@@ -191,3 +191,32 @@ export function ownLimbRows(root: Object3D, mesh: LimbSkin): Set<number> | null 
   if (at < 0) return null;
   return new Set(resolution.perCarrier.get(carriers[at]!) ?? []);
 }
+
+/**
+ * First-emitter-wins dedup for cross-mesh shared rows (cap53 ruling (1)).
+ * Keyed by (POSITION BufferAttribute identity, row id): per-mesh row lists are
+ * already partitioned to each mesh's own index-referenced rows via the ONE
+ * resolveSharedAttributeRows contract above (sharedPositionEntryFor /
+ * ownLimbRows), but an overlap row referenced by two sibling indices is still
+ * emitted once per mesh at each append site. The first emitter of a row keeps
+ * it; later co-emitters skip it; order of the remaining samples is unchanged.
+ * Hidden-material siblings stay visited (F2): this claims nothing by itself,
+ * it only drops the second emission of the same shared row.
+ */
+export type CrossMeshRowSeen = Map<unknown, Set<number>>;
+
+export function createCrossMeshRowSeen(): CrossMeshRowSeen {
+  return new Map();
+}
+
+/** True (and records the claim) for the first emitter; false for repeats. */
+export function claimSharedSampleRow(seen: CrossMeshRowSeen, position: unknown, row: number): boolean {
+  let rows = seen.get(position);
+  if (!rows) {
+    rows = new Set<number>();
+    seen.set(position, rows);
+  }
+  if (rows.has(row)) return false;
+  rows.add(row);
+  return true;
+}

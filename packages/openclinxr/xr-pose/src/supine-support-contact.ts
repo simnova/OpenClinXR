@@ -17,6 +17,10 @@ import {
   type SampleRow,
   type SkinnedLike,
 } from "./supine-support-skin-cache.js";
+import {
+  claimSharedSampleRow,
+  createCrossMeshRowSeen,
+} from "./supine-shared-position-rows.js";
 
 export type SupineSupportRegion = "pelvis" | "lumbar" | "thorax" | "heelL" | "heelR" | "occiput";
 
@@ -157,6 +161,10 @@ function measureCore(
   humanoid.traverse((object) => {
     if ((object as SkinnedLike).isSkinnedMesh && /mpfb.*body|reference_body/iu.test(object.name)) hasAnatomicalBody = true;
   });
+  // Cross-mesh shared-row dedup (cap53 ruling (1)): one claim set per measure
+  // call, keyed by (POSITION attribute identity, row id). First emitter keeps
+  // the row; order of the remaining samples is unchanged.
+  const seen = createCrossMeshRowSeen();
   humanoid.traverse((object) => {
     const mesh = object as SkinnedLike;
     const anatomicalBody = /mpfb.*body|reference_body/iu.test(mesh.name);
@@ -167,13 +175,14 @@ function measureCore(
     const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
     if (!anatomicalBody && materials.every((material) => !isMaterialRendered(material))) return;
     if (!withPoints) {
-      accumulateSupportGapsFast(mesh, anatomicalBody, materials, planes, gaps, minimum);
+      accumulateSupportGapsFast(mesh, anatomicalBody, materials, planes, gaps, minimum, seen);
       return;
     }
     const rows: SampleRow[] = resolveSupportSampleRows(mesh, anatomicalBody, materials);
     for (const row of rows) {
       const index = row.index;
       const region = row.region;
+      if (!claimSharedSampleRow(seen, position, index)) continue;
       mesh.getVertexPosition(index, local);
       world.copy(local).applyMatrix4(mesh.matrixWorld);
       const plane = planes[region];

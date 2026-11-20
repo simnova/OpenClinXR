@@ -3,6 +3,8 @@ import { type Object3D, Quaternion, Vector3 } from "three";
 import { findSupineBone } from "./hob-extremity-flex.js";
 import {
   ownLimbRows,
+  claimSharedSampleRow,
+  createCrossMeshRowSeen,
 } from "./supine-shared-position-rows.js";
 import { type GarmentLane, measureGarmentLane } from "./supine-garment-lane.js";
 import { makeSupineSupportPlanes, type SupineSupportPlane } from "./supine-support-contact.js";
@@ -81,6 +83,10 @@ const limbIndexCache = new WeakMap<object, Map<string, { signature: unknown[]; b
 function limbPoints(root: Object3D, side: string, family: "hand" | "forearm"): Vector3[] {
   root.updateMatrixWorld(true);
   const result: Vector3[] = [];
+  // Cross-mesh shared-row dedup (cap53 ruling (1)): one claim set per call,
+  // keyed by (POSITION attribute identity, row id). First emitter keeps the
+  // row; order of the remaining samples is unchanged.
+  const seen = createCrossMeshRowSeen();
   root.traverse((object) => {
     const mesh = object as Skin;
     if (!mesh.isSkinnedMesh || !/mpfb.*body|reference_body/iu.test(mesh.name)) return;
@@ -133,6 +139,7 @@ function limbPoints(root: Object3D, side: string, family: "hand" | "forearm"): V
     }
     mesh.skeleton.update();
     for (const i of stored) {
+      if (!claimSharedSampleRow(seen, position, i)) continue;
       result.push(mesh.getVertexPosition(i, new Vector3()).applyMatrix4(mesh.matrixWorld));
     }
   });
@@ -213,6 +220,10 @@ export function applyContactAwareSupineArms(root: Object3D, bed: Object3D): Supi
     const wrist = findSupineBone(root, `hand${side}`);
     const handPoints = limbPoints(root, side, "hand");
     const empty = { total: 0, outside: 0, samples: 0, minGap: null, contactGap: null };
+    // Presence gate counts distinct shared rows now (cap53 dedup): a co-emitted
+    // duplicate added no surface information, so 4 distinct points admit the
+    // candidate where 4-distinct-plus-1-duplicate did before. Below 4 there is
+    // no meaningful contact patch.
     if (!shoulder || !elbow || !wrist || handPoints.length < 4) {
       rollbackSide(side);
       result.push({ side, unresolved: "missing real chain or anatomical hand surface", target: null, residualMetres: null, hand: empty, forearm: empty });

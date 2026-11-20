@@ -71,6 +71,7 @@
     "src/actor-floor-composition.test.ts",
     "src/clinical-idle-posture-crossfade.test.ts",
     "src/no-arm-clamp-in-the-pose-path.test.ts",
+    "src/shared-accessor-consumers-sample-referenced-rows.test.ts",
     "src/shared-attribute-index-union.test.ts",
     "src/supine-per-rail.test.ts",
     "src/supine-support-contact.test.ts",

@@ -182,7 +182,9 @@ export function measureSeatClearanceMeters(
                 : k === 2 ? skinIndex.getZ(i)
                   : (skinIndex.getW?.(i) ?? 0);
           const bone = skeleton.bones[boneIdx];
-          const inv = skeleton.boneInverses[boneIdx];
+          // A mesh may carry bones without inverses (support fallback fixture):
+          // skip the lane so the vertex falls back to the mesh matrix below.
+          const inv = skeleton.boneInverses?.[boneIdx];
           if (!bone?.matrixWorld?.elements || !inv?.elements) continue;
           const boneMat = mulMat4(bone.matrixWorld.elements, inv.elements);
           const p = mulMat4Point(boneMat, bound[0], bound[1], bound[2]);
