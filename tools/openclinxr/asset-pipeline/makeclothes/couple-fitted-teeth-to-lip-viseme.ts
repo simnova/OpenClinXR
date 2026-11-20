@@ -1702,7 +1702,7 @@ export async function planTeethVisemeTargets(glbPath: string): Promise<{
     jawIndex,
     headIndex,
   });
-  console.log(`teeth front shells: upper=${shells.upper.length} lower=${shells.lower.length} ties=${shells.ties}`);
+  process.stdout.write(`teeth front shells: upper=${shells.upper.length} lower=${shells.lower.length} ties=${shells.ties}\n`);
   const jawSet = new Set(jawWeighted);
   const headSet = new Set(headWeighted);
   if (shells.upper.length === 0 || shells.lower.length === 0) throw new Error("front shell is empty");
