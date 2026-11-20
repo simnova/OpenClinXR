@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { assertLineageContinuity, lineageLevels } from "@openclinxr/factory-station-core/runner";
-import { resolveCorrectionsTable } from "../../../../../../../tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.js";
+import { CORRECTIONS } from "../../../../../../../tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.js";
 import { BASELINE_REF, GLB_DIR, ROOT } from "./shipped-lash-follow-types.js";
 
 type LashChainSidecar = Record<string, unknown> & {
@@ -69,65 +69,28 @@ export function realLashGitHistory(): LashGitHistory {
 }
 
 /**
- * R3(b) lineage-aware CW allowance (kevin-collar s10h5 L2, s10h6 L1 content bridge).
- * The strict CW1/CW2
- * compares pin the producer-emitted lash-stage input bytes; recorded post-lash
- * byte stages (teeth swap, kevin-colour, S9 chest split) legitimately move those
- * bytes, so strict equality REDs on an attributed drift. This walk proves the
- * emitted input is an ANCESTOR of the live GLB through the recorded lineage
- * instead of re-pinning: sidecar top pins live, assertLineageContinuity holds
- * over every level (broken-link throws), then newest-to-oldest steps are each a
- * recorded derivation — the lineage levels in order (the newest level's own
- * output is the top pin; each older level's output is the next-newer level's
- * recordedBefore pin), sidecar input/output blocks (teethSwapB1,
- * actorHairColourPostExport, taking precedence over a level step at the same
- * sha and closing level traversal once taken), and at most ONE
- * content-addressed git hop: the commit X whose blob hashes to the sidecar
- * floor `cur` is accepted only when the previous GLB-touching commit's
- * blob (X^ state) hashes to the emitted input. The commit subject is printed in
- * the proof line but never matched — a lash-named subject is not evidence.
- * A second bridge attempt, a shallow clone, or a history with no commit
- * recording `cur` all throw, so the caller fails closed and stays RED.
- * Chosen h3-X1 verification (coordinator ruling R1, "pinned by the lineage
- * corrector's own record"): a recorded intermediate level is followed ONLY
- * when a row of the REVIEWED corrections table
- * (tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts, via
- * resolveCorrectionsTable so fixture injection still applies) names the same
- * assetPath AND the exact same preImage.revision, AND that revision is a
- * fixed commit (abbrev/full hex sha with an optional ^ suffix; never
- * HEAD/branch/floating), AND the git bytes at it hash to the level's
- * preImageSha256 (the h2 git-hash check, kept as the last gate). A sidecar
- * cannot extend the reviewed table, and the corrector re-derived every row
- * before writing the sidecar — so a forged intermediate (emitted input with
- * a coinciding git revision, e.g. one pointed at the lash baseline blob) is
- * refused here instead of walked.
- *
+ * R3(b) lineage-aware CW allowance: the emitted input is an ANCESTOR of live
+ * through recorded lineage. Newest-to-oldest steps are recorded derivations;
+ * sidecar blocks (teethSwapB1, colour) take precedence; the walk ends in one
+ * content-addressed git hop (bridge commit X whose blob is cur, accepted when
+ * X^ hashes to the emitted input). h5 rule: an intermediate level is
+ * followed ONLY when (assetPath, pre, out) equals a row of the imported
+ * CORRECTIONS constant. No git, no revisions, no env. Forged levels throw.
  * Returns the walked sha path newest-first for the proof print.
  */
-function verifyRecordedLevelPreImage(actorFile: string, name: string, input: string, preImageRevision: unknown): void {
-  if (typeof preImageRevision !== "string" || preImageRevision.trim() === "") {
-    throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} names no git pre-image revision, so its claim to derive from ${input} is unverified`);
-  }
+function verifyRecordedLevelTriple(
+  actorFile: string,
+  name: string,
+  pre: string,
+  out: string,
+  table: readonly { assetPath: string; preImageSha256: string; outputSha256: string }[],
+): void {
   const assetPath = `apps/ui-xr/public/generated-humanoids/${actorFile}`;
-  const pinned = resolveCorrectionsTable().some(
-    (row) => row.assetPath === assetPath && row.preImage.kind === "revision" && row.preImage.revision === preImageRevision,
+  const ok = table.some(
+    (row) => row.assetPath === assetPath && row.preImageSha256 === pre && row.outputSha256 === out,
   );
-  if (!pinned) {
-    throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} at ${preImageRevision} is not a reviewed correction for ${assetPath} (no CORRECTIONS row pins this pre-image), so its claim to derive from ${input} is unverified`);
-  }
-  const revPart = preImageRevision.split(":")[0] ?? "";
-  if (!/^[0-9a-f]{4,40}(\^)?$/.test(revPart)) {
-    throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} pre-image ${preImageRevision} is not a fixed commit, so its claim to derive from ${input} is unverified`);
-  }
-  let digest: string;
-  try {
-    const bytes = execFileSync("git", ["show", preImageRevision], { cwd: ROOT, maxBuffer: 256 * 1024 * 1024 });
-    digest = createHash("sha256").update(bytes).digest("hex");
-  } catch {
-    throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} pre-image ${preImageRevision} does not resolve in git`);
-  }
-  if (digest !== input) {
-    throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} claims pre-image ${input} but git revision ${preImageRevision} hashes to ${digest}`);
+  if (!ok) {
+    throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} (${pre.slice(0, 12)} -> ${out.slice(0, 12)}) is not a reviewed correction triple, so its claim to derive from ${pre} is unverified`);
   }
 }
 
@@ -137,6 +100,7 @@ export function validateLashAncestorChain(
   sidecar: Record<string, unknown>,
   emittedInputSha256: string,
   history?: LashGitHistory,
+  table: readonly { assetPath: string; preImageSha256: string; outputSha256: string }[] = CORRECTIONS,
 ): string[] {
   const chain = sidecar as LashChainSidecar;
   if (chain.outputSha256 !== liveSha256) {
@@ -173,27 +137,17 @@ export function validateLashAncestorChain(
   const seen = new Set(path);
   let cur = newestPre;
   let gitBridged = false;
-  // Recorded intermediate derivations (route-A second post-lash level): every
-  // non-newest level L(i) re-derived out(i) = L(i-1).recordedBefore.outputSha256
-  // from pre(i) = L(i).preImageSha256, continuity-verified above. The walk
-  // follows one newest-to-oldest ONLY when it is PINNED: a row of the reviewed
-  // CORRECTIONS table names the same asset AND the exact preImageRevision, the
-  // revision is a fixed commit, and its git bytes hash to pre(i) (see
-  // verifyRecordedLevelPreImage). A recorded level that names the emitted
-  // input but is not a reviewed correction (Codex forgeries: the h2 variant
-  // whose git pre-image hashes elsewhere, and the baseline-blob variant whose
-  // revision points at the real lash-stage input bytes) is refused here
-  // instead of walked. Block steps (teethSwapB1, colour) take
-  // precedence over a level step at the same cur (they divert into the
-  // pre-sidecar bridge); once a block step is taken the walk stays out of
-  // recorded levels so it cannot descend past the bridge point, and the walk
-  // still ends in exactly one content-addressed git hop, fail-closed.
-  const levelSteps: Array<{ out: string; input: string; name: string; preImageRevision: unknown }> = [];
+  // Recorded intermediate derivations: a non-newest level L(i) is followed
+  // ONLY when (assetPath, pre(i), out(i)) equals a row of the imported
+  // CORRECTIONS constant (fixture tables pass via the table parameter).
+  // Block steps take precedence at the same cur; once one is taken the walk
+  // stays out of recorded levels, and it still ends in one git hop.
+  const levelSteps: Array<{ out: string; input: string; name: string }> = [];
   levels.forEach((level, index) => {
     const out = index === 0 ? liveSha256 : levels[index - 1]?.recordedBefore?.outputSha256;
     const input = level.preImageSha256;
     if (typeof out === "string" && HEX64.test(out) && typeof input === "string" && HEX64.test(input)) {
-      levelSteps.push({ out, input, name: `byteLineage L${index}`, preImageRevision: level.preImageRevision });
+      levelSteps.push({ out, input, name: `byteLineage L${index}` });
     }
   });
   let blockTaken = false;
@@ -213,7 +167,7 @@ export function validateLashAncestorChain(
     if (!blockTaken) {
       const level = levelSteps.find((s) => s.out === cur);
       if (level !== undefined) {
-        verifyRecordedLevelPreImage(actorFile, level.name, level.input, level.preImageRevision);
+        verifyRecordedLevelTriple(actorFile, level.name, level.input, level.out, table);
         if (seen.has(level.input)) {
           throw new Error(`${actorFile}: lash-ancestor no-path: recorded step ${level.name} cycles at ${level.input}`);
         }

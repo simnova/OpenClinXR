@@ -219,7 +219,7 @@ describe("the shipped MPFB lashes follow the lid", () => {
     expect(honest[honest.length - 1]).toBe(input);
     // Forgery: intermediate L1 claims the emitted input and repeats it in
     // recordedBefore (self-consistent, so continuity passes) — the walk must
-    // refuse it because L1's git pre-image still hashes to the sweater bytes.
+    // refuse it because (asset, input, L1-output) is no reviewed triple.
     const forged = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown> & {
       byteLineage?: { recordedBefore?: { byteLineage?: { preImageSha256?: unknown; recordedBefore?: { outputSha256?: unknown } } } };
     };
@@ -242,9 +242,8 @@ describe("the shipped MPFB lashes follow the lid", () => {
     expect(validateLashAncestorChain(file, live, sidecar, input).at(-1)).toBe(input);
     // Codex variant: L1 claims the emitted input AND points its revision at the
     // pinned lash baseline blob, whose bytes genuinely hash to the emission —
-    // the h2 git-hash gate ACCEPTED this (len-3 path). The X1 pin gate refuses
-    // it: no CORRECTIONS row pins this pre-image for Aisha, so git is never
-    // even consulted.
+    // the triple check refuses it: no CORRECTIONS row pairs this asset, pre,
+    // and output, so the revision (never read) cannot save it.
     const forged = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown> & {
       byteLineage?: { recordedBefore?: { byteLineage?: { preImageSha256?: unknown; preImageRevision?: unknown; recordedBefore?: { outputSha256?: unknown } } } };
     };
@@ -276,23 +275,40 @@ describe("the shipped MPFB lashes follow the lid", () => {
     console.log("P-floating-ref RED not-a-reviewed-correction GREEN");
   });
 
-  it("CW lineage allowance refuses even a pinned floating revision (fixed-commit gate)", () => {
+  it("CW lineage allowance refuses a wrong-output level citing the 59980e7f6 row pre-image", () => {
     const file = "mpfb-ob-patient-aisha.glb";
     const sidecar = JSON.parse(
       readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json"), "utf8"),
     ) as Record<string, unknown> & { lashFollowR8?: { inputSha256?: unknown } };
     const live = createHash("sha256").update(readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids", file))).digest("hex");
     const input = sidecar.lashFollowR8?.inputSha256 as string;
-    // A fixture table that DOES pin the floating revision: the pin gate passes,
-    // so the fixed-commit gate must still refuse. Proves the second X1 check
-    // is load-bearing, not implied by the first.
-    const dir = mkdtempSync(join(tmpdir(), "openclinxr-h3-pin-"));
-    const floating = `HEAD:apps/ui-xr/public/generated-humanoids/${file}`;
-    writeFileSync(
-      join(dir, "corrections.json"),
-      JSON.stringify([{ assetPath: `apps/ui-xr/public/generated-humanoids/${file}`, provenancePath: `apps/ui-xr/public/generated-humanoids/${file.replace(/\.glb$/, ".provenance.json")}`, preImage: { kind: "revision", revision: floating }, derivationArgv: ["true"], why: "h3 fixture: a floating revision must never pin a level" }]),
-      "utf8",
-    );
+    expect(validateLashAncestorChain(file, live, sidecar, input).at(-1), "honest chain walks").toBe(input);
+    // The 59980e7f6 row re-derives 33626da9 -> 37e905ea. A level that cites
+    // the row's pre-image but a different output (here the honest L1 output
+    // 4148864b) is not that row's pair, so the triple check refuses it even
+    // though continuity is kept self-consistent.
+    const ROW_PRE = "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957";
+    const forged = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown> & {
+      byteLineage?: { recordedBefore?: { byteLineage?: { preImageSha256?: unknown; recordedBefore?: { outputSha256?: unknown } } } };
+    };
+    const l1 = forged.byteLineage?.recordedBefore?.byteLineage;
+    expect(l1, "aisha sidecar carries an intermediate L1 to forge").toBeDefined();
+    l1!.preImageSha256 = ROW_PRE;
+    l1!.recordedBefore!.outputSha256 = ROW_PRE;
+    expect(() => validateLashAncestorChain(file, live, forged, input)).toThrow(/not a reviewed correction triple/);
+    console.log("P-wrong-output RED not-a-reviewed-correction-triple GREEN");
+  });
+
+  it("CW lineage allowance refuses a level whose tag-shadowed revision names no row pair", () => {
+    const file = "mpfb-ob-patient-aisha.glb";
+    const sidecar = JSON.parse(
+      readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json"), "utf8"),
+    ) as Record<string, unknown> & { lashFollowR8?: { inputSha256?: unknown } };
+    const live = createHash("sha256").update(readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids", file))).digest("hex");
+    const input = sidecar.lashFollowR8?.inputSha256 as string;
+    // Tag-shadowed abbreviation of the honest a900aaf9a revision, but the
+    // (pre,out) pair names the emitted input, which no CORRECTIONS row pairs
+    // with the L1 output: the walk reads the triple, never the revision.
     const forged = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown> & {
       byteLineage?: { recordedBefore?: { byteLineage?: { preImageSha256?: unknown; preImageRevision?: unknown; recordedBefore?: { outputSha256?: unknown } } } };
     };
@@ -300,16 +316,87 @@ describe("the shipped MPFB lashes follow the lid", () => {
     expect(l1, "aisha sidecar carries an intermediate L1 to forge").toBeDefined();
     l1!.preImageSha256 = input;
     l1!.recordedBefore!.outputSha256 = input;
-    l1!.preImageRevision = floating;
-    const prior = process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"];
-    process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"] = join(dir, "corrections.json");
+    l1!.preImageRevision = `a900aaf9a:apps/ui-xr/public/generated-humanoids/${file}`;
+    expect(() => validateLashAncestorChain(file, live, forged, input)).toThrow(/not a reviewed correction triple/);
+    console.log("P-tag-shadow RED not-a-reviewed-correction-triple GREEN");
+  });
+
+  it("CW lineage allowance ignores a CORRECTIONS_FILE fixture and throws; the explicit table parameter admits it", () => {
+    const file = "mpfb-ob-patient-aisha.glb";
+    const sidecar = JSON.parse(
+      readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json"), "utf8"),
+    ) as Record<string, unknown> & { lashFollowR8?: { inputSha256?: unknown } };
+    const live = createHash("sha256").update(readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids", file))).digest("hex");
+    const input = sidecar.lashFollowR8?.inputSha256 as string;
+    // Forged pair: the emitted input to the honest L1 output. A fixture file
+    // holds exactly this pair as a row; with the gate env forced off-test
+    // (VITEST=false, NODE_ENV unset) the walk must still ignore the file.
+    const honestOut = ((sidecar["byteLineage"] as Record<string, unknown>)["recordedBefore"] as Record<string, unknown>)["outputSha256"] as string;
+    expect(honestOut, "honest L1 output is the L0 recordedBefore pin").toMatch(/^[0-9a-f]{64}$/);
+    const forgedPair = { assetPath: `apps/ui-xr/public/generated-humanoids/${file}`, preImageSha256: input, outputSha256: honestOut };
+    const dir = mkdtempSync(join(tmpdir(), "openclinxr-h5-fixture-"));
+    const fixtureFile = join(dir, "corrections.json");
+    writeFileSync(
+      fixtureFile,
+      JSON.stringify([{ ...forgedPair, provenancePath: `apps/ui-xr/public/generated-humanoids/${file.replace(/\.glb$/, ".provenance.json")}`, preImage: { kind: "revision", revision: "HEAD" }, derivationArgv: ["true"], why: "h5 fixture: env file must not extend the walk table" }]),
+      "utf8",
+    );
+    const forged = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown> & {
+      byteLineage?: { recordedBefore?: { byteLineage?: { preImageSha256?: unknown; recordedBefore?: { outputSha256?: unknown } } } };
+    };
+    const l1 = forged.byteLineage?.recordedBefore?.byteLineage;
+    expect(l1, "aisha sidecar carries an intermediate L1 to forge").toBeDefined();
+    l1!.preImageSha256 = input;
+    l1!.recordedBefore!.outputSha256 = input;
+    const priorFixture = process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"];
+    const priorVitest = process.env["VITEST"];
+    const priorNodeEnv = process.env["NODE_ENV"];
+    process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"] = fixtureFile;
+    process.env["VITEST"] = "false";
+    delete process.env["NODE_ENV"];
     try {
-      expect(() => validateLashAncestorChain(file, live, forged, input)).toThrow(/not a fixed commit/);
+      expect(() => validateLashAncestorChain(file, live, forged, input)).toThrow(/not a reviewed correction triple/);
+      console.log("P-env-fixture RED ignored-env GREEN");
     } finally {
-      if (prior === undefined) delete process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"];
-      else process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"] = prior;
+      if (priorFixture === undefined) delete process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"];
+      else process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"] = priorFixture;
+      if (priorVitest === undefined) delete process.env["VITEST"];
+      else process.env["VITEST"] = priorVitest;
+      if (priorNodeEnv === undefined) delete process.env["NODE_ENV"];
+      else process.env["NODE_ENV"] = priorNodeEnv;
     }
-    console.log("P-pinned-floating RED not-a-fixed-commit GREEN");
+    // The same pair passed explicitly as the table parameter IS followed.
+    const fixtureTable = [{ assetPath: forgedPair.assetPath, preImageSha256: forgedPair.preImageSha256, outputSha256: forgedPair.outputSha256 }];
+    const fixturePath = validateLashAncestorChain(file, live, forged, input, undefined, fixtureTable);
+    expect(fixturePath.at(-1), "explicit table admits the fixture pair").toBe(input);
+    console.log("P-env-fixture-explicit GREEN explicit-table-admits");
+  });
+
+  it("CW lineage allowance refuses a self-consistent sidecar citing a pair absent from the constant", () => {
+    const file = "mpfb-ob-patient-aisha.glb";
+    const sidecar = JSON.parse(
+      readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json"), "utf8"),
+    ) as Record<string, unknown> & { lashFollowR8?: { inputSha256?: unknown } };
+    const live = createHash("sha256").update(readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids", file))).digest("hex");
+    const input = sidecar.lashFollowR8?.inputSha256 as string;
+    // A fresh (pre,out) pair no CORRECTIONS row holds, with continuity and
+    // recordedBefore rewritten to agree with it: the walk still refuses,
+    // because the triple itself is unreviewed.
+    const X = "b".repeat(64);
+    const Y = "c".repeat(64);
+    const forged = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown> & {
+      byteLineage?: { preImageSha256?: unknown; recordedBefore?: { outputSha256?: unknown; byteLineage?: { preImageSha256?: unknown; recordedBefore?: { outputSha256?: unknown } } } };
+    };
+    const l0 = forged.byteLineage;
+    expect(l0, "aisha sidecar carries a newest level to forge").toBeDefined();
+    l0!.preImageSha256 = Y;
+    l0!.recordedBefore!.outputSha256 = Y;
+    const l1 = l0!.recordedBefore!.byteLineage;
+    expect(l1, "aisha sidecar carries an intermediate L1 to forge").toBeDefined();
+    l1!.preImageSha256 = X;
+    l1!.recordedBefore!.outputSha256 = X;
+    expect(() => validateLashAncestorChain(file, live, forged, input)).toThrow(/not a reviewed correction triple/);
+    console.log("P-self-consistent RED not-a-reviewed-correction-triple GREEN");
   });
 
   it("CW lineage allowance fails closed on shallow or missing history", () => {

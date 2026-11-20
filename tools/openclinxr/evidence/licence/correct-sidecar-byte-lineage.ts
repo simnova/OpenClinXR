@@ -44,6 +44,16 @@ export type ByteLineageCorrection = {
   derivationArgv: string[];
   why: string;
   workingDirectory: string;
+  /** Reviewed pre-image digest (h5 S1): re-derived once, stored as a literal. */
+  preImageSha256?: string;
+  /** Reviewed output digest (h5 S1): re-derived once, stored as a literal. */
+  outputSha256?: string;
+};
+
+/** Reviewed row: production CORRECTIONS entries carry both re-derived literals. */
+export type ReviewedByteLineageCorrection = Omit<ByteLineageCorrection, "workingDirectory" | "expectedPreImageSha256"> & {
+  preImageSha256: string;
+  outputSha256: string;
 };
 
 function sha256(bytes: Buffer): string {
@@ -51,7 +61,7 @@ function sha256(bytes: Buffer): string {
 }
 
 /** Run one row's derivation in a fresh call dir under workingDirectory; returns the re-derived digest. */
-function runRowDerivation(
+export function runRowDerivation(
   workingDirectory: string,
   assetPath: string,
   derivationArgv: string[],
@@ -102,6 +112,13 @@ function correctSidecarByteLineageImpl(input: ByteLineageCorrection, reuse?: { d
   if (preImageDigest !== input.expectedPreImageSha256) {
     throw new Error(
       `correctSidecarByteLineage: refused — ${preImageFlag(input.preImage)} bytes changed between gate and correction: expected ${input.expectedPreImageSha256} but read ${preImageDigest} from ${preImageLabel(input.preImage)}. Refusing before any write.`,
+    );
+  }
+  // h5 S2: the reviewed pre-image literal pins the derivation input. A caller
+  // that names a different pre-image (or a stale row) refuses before any write.
+  if (input.preImageSha256 !== undefined && preImageDigest !== input.preImageSha256) {
+    throw new Error(
+      `correctSidecarByteLineage: refused — pre-image ${preImageLabel(input.preImage)} hashes to ${preImageDigest} but the reviewed row pins ${input.preImageSha256}. Refusing before any write.`,
     );
   }
   // The pre-image descriptor and rationale distinguish corrections with identical bytes and argv.
@@ -168,6 +185,12 @@ function correctSidecarByteLineageImpl(input: ByteLineageCorrection, reuse?: { d
   // caller validating only that level against altered shipped bytes gets a
   // refusal instead of a successful reproduction result.
   if (chainMatched && matchedIsTop && record["outputSha256"] === shippedDigest) {
+    // h5 S2: even the skip path honors the reviewed output literal.
+    if (input.outputSha256 !== undefined && shippedDigest !== input.outputSha256) {
+      throw new Error(
+        `correctSidecarByteLineage: refused — shipped ${input.assetPath} holds ${shippedDigest} but the reviewed row pins output ${input.outputSha256}. Refusing before any write.`,
+      );
+    }
     const topRb = priorRecord["recordedBefore"] as {
       outputSha256: unknown;
       outputBytes: unknown;
@@ -193,6 +216,14 @@ function correctSidecarByteLineageImpl(input: ByteLineageCorrection, reuse?: { d
       input.derivationArgv,
       preImage,
     );
+
+  // h5 S2: the reviewed output literal pins the derivation result. A command
+  // that produces different bytes (or a stale row) refuses before any write.
+  if (input.outputSha256 !== undefined && rederivedDigest !== input.outputSha256) {
+    throw new Error(
+      `correctSidecarByteLineage: refused — re-running the derivation on ${preImageLabel(input.preImage)} produced ${rederivedDigest} but the reviewed row pins output ${input.outputSha256}. Refusing before any write.`,
+    );
+  }
 
   if (rederivedDigest !== shippedDigest) {
     throw new Error(
@@ -248,13 +279,15 @@ const TIGHTJEANS_FP_RUNG_WHY =
 
 /** p2e-c-prod: exported so the card's lin re-exec proof can run the nurse
  * corrections through this exact table (no duplicated argv/why text). */
-export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory" | "expectedPreImageSha256">[] = [
+export const CORRECTIONS: readonly ReviewedByteLineageCorrection[] = [
   {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
     // 10768617f removed normalTexture in JSON (7becc30f -> 88070603) without a
     // tracked writer. That lineage gap predates the Git pre-image for this replay.
     preImage: { kind: "revision", revision: "59980e7f6:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb" },
+    preImageSha256: "33626da946fc05b7cd964b999a734e59f3862cb5567eba6a211c139ec7587957",
+    outputSha256: "37e905ea9fa0d4f3664d95a1c34ab45219a77ed63a46b4976b0bb1a063443ce9",
     derivationArgv: [
       "sh",
       "-c",
@@ -276,6 +309,8 @@ export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
     preImage: { kind: "revision", revision: "a900aaf9a:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb" },
+    preImageSha256: "37e905ea9fa0d4f3664d95a1c34ab45219a77ed63a46b4976b0bb1a063443ce9",
+    outputSha256: "4148864b18186c788c8a30f16f7fb7d924752f3c53fb4ede24d767278656e99c",
     derivationArgv: [
       "sh",
       "-c",
@@ -291,6 +326,8 @@ export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
     preImage: { kind: "revision", revision: "50b9ddf6c:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb" },
+    preImageSha256: "4148864b18186c788c8a30f16f7fb7d924752f3c53fb4ede24d767278656e99c",
+    outputSha256: "a9ffe0621f54557add1e612d4a6d8fd23879c96cd76aac3071f6a97d3f03dad4",
     derivationArgv: [
       "sh",
       "-c",
@@ -305,6 +342,8 @@ export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
     preImage: { kind: "revision", revision: "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb" },
+    preImageSha256: "6cae49b961c7ae727bc60ebcff79a80ddb40b7b0922bf3bc1157e33771678daa",
+    outputSha256: "a668be32a5f6de035af071255962f43001812e278656cfe1affa2cf0202a4ae9",
     derivationArgv: [
       "pnpm",
       "exec",
@@ -323,6 +362,8 @@ export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.provenance.json",
     preImage: { kind: "revision", revision: "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb" },
+    preImageSha256: "029dbb504c6f655c7a2fc141948ff92dbd86190a306ee75ade8c50c39f8ab43f",
+    outputSha256: "59f590701ad182c4eca33e90a7ba25f0cb94b8698afd7fc2318436fc3c26e9a6",
     derivationArgv: [
       "node",
       "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
@@ -341,6 +382,8 @@ export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.provenance.json",
     preImage: { kind: "revision", revision: "91b12607^:apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb" },
+    preImageSha256: "14a4167a9b6d6aec9d01f367b91c806d1c8e18568a0ebe36e6405240697e7a0c",
+    outputSha256: "8f7ad8acda01542f829908ae0a7de266a80b6525f08b538532d904e0f0f27b93",
     derivationArgv: [
       "node",
       "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
@@ -365,6 +408,8 @@ export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory
     // from that temp output. The only external input is the c1da76fb4 git
     // revision below; mask + faces-from are tracked fixtures.
     preImage: { kind: "revision", revision: "c1da76fb4:apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb" },
+    preImageSha256: "8957543dfc9f0fcacafd942c432f12947dd00d8f370ba3c519f6cb8ff9b1be86",
+    outputSha256: "ce10321833f92ccc5930fafbadfc8544c9b5ec715a33e71c96ebf5b4e5d6056e",
     derivationArgv: [
       "mise",
       "exec",
@@ -481,7 +526,7 @@ export function resolveCorrectionsTable(): readonly InjectedByteLineageCorrectio
 
 /** The loop main() runs (asset-filtered); unknown asset throws UnknownAssetError (exit 2). */
 export function runCorrectionsTable(
-  corrections: readonly InjectedByteLineageCorrection[],
+  corrections: readonly (InjectedByteLineageCorrection & { preImageSha256?: string; outputSha256?: string })[],
   workingDirectory: string,
   asset: string | undefined,
 ): void {
@@ -493,7 +538,7 @@ export function runCorrectionsTable(
   }
   // Chain-aware (cap50 r5h1): rows sharing one asset form a lineage chain
   // r1..rN in table order. Single-row groups keep the exact old path.
-  const groups = new Map<string, InjectedByteLineageCorrection[]>();
+  const groups = new Map<string, (InjectedByteLineageCorrection & { preImageSha256?: string; outputSha256?: string })[]>();
   for (const correction of selected) {
     const group = groups.get(correction.assetPath);
     if (group === undefined) groups.set(correction.assetPath, [correction]);
@@ -501,7 +546,7 @@ export function runCorrectionsTable(
   }
   for (const [assetPath, group] of groups) {
     if (group.length === 1) {
-      const correction = group[0] as InjectedByteLineageCorrection;
+      const correction = group[0] as InjectedByteLineageCorrection & { preImageSha256?: string; outputSha256?: string };
       const expectedPreImageSha256 = sha256(readPreImageBytes(correction.preImage));
       const result = correctSidecarByteLineage({ ...correction, expectedPreImageSha256, workingDirectory });
       process.stdout.write(
@@ -523,15 +568,28 @@ export function runCorrectionsTable(
  */
 function runChainGroup(
   assetPath: string,
-  group: InjectedByteLineageCorrection[],
+  group: (InjectedByteLineageCorrection & { preImageSha256?: string; outputSha256?: string })[],
   workingDirectory: string,
 ): void {
   const expected: string[] = [];
   const outputs: { digest: string; bytes: number }[] = [];
   group.forEach((correction, index) => {
     const preImage = readPreImageBytes(correction.preImage);
-    expected.push(sha256(preImage));
+    const preDigest = sha256(preImage);
+    // h5 S2: chain rows honor the reviewed pre-image literal before deriving.
+    if (correction.preImageSha256 !== undefined && preDigest !== correction.preImageSha256) {
+      throw new Error(
+        `correctSidecarByteLineage: chain refused for ${assetPath} — row ${index + 1} pre-image hashes to ${preDigest} but the reviewed row pins ${correction.preImageSha256}. NOTHING written.`,
+      );
+    }
+    expected.push(preDigest);
     const output = runRowDerivation(workingDirectory, assetPath, correction.derivationArgv, preImage);
+    // h5 S2: chain rows honor the reviewed output literal before the junction.
+    if (correction.outputSha256 !== undefined && output.digest !== correction.outputSha256) {
+      throw new Error(
+        `correctSidecarByteLineage: chain refused for ${assetPath} — row ${index + 1} re-derived ${output.digest} but the reviewed row pins output ${correction.outputSha256}. NOTHING written.`,
+      );
+    }
     outputs.push(output);
     process.stdout.write(
       `${assetPath}: chain row ${index + 1}/${group.length} re-derived ${output.digest} (${output.bytes} B)\n`,
@@ -546,7 +604,7 @@ function runChainGroup(
       );
     }
   }
-  const last = group[group.length - 1] as InjectedByteLineageCorrection;
+  const last = group[group.length - 1] as InjectedByteLineageCorrection & { preImageSha256?: string; outputSha256?: string };
   // F1: the fresh final output must equal the shipped bytes BEFORE any write.
   // The old path discarded it, so the top-match skip reported reproduced for
   // wrong bytes whenever the sidecar already pinned the shipped digest.

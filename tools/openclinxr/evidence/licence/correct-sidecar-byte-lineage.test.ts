@@ -272,6 +272,60 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
     }
     expect(canonSnapshot()).toEqual(beforeCanon);
   });
+
+  it("h5 S2 refuses before any write when the pre-image digest != the reviewed preImageSha256", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-h5-pre-")));
+    process.env.OWN_JOB_TMP = job;
+    const fixture = gitShow("HEAD:package.json");
+    const shipped = path.join(job, "shipped.glb");
+    writeFileSync(shipped, fixture);
+    const sidecar = path.join(job, "own.provenance.json");
+    writeFileSync(sidecar, JSON.stringify({ outputSha256: "old", outputBytes: 1 }));
+    const sidecarBefore = readFileSync(sidecar, "utf8");
+    const child = makeChildScript(job);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    expect(() =>
+      correctSidecarByteLineage({
+        assetPath: shipped,
+        provenancePath: sidecar,
+        preImage: { kind: "revision", revision: "HEAD:package.json" },
+        expectedPreImageSha256: sha256(fixture),
+        preImageSha256: "0".repeat(64),
+        outputSha256: sha256(fixture),
+        derivationArgv: ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"],
+        why: "h5 pre-literal refusal test",
+        workingDirectory: callDir,
+      }),
+    ).toThrow(/reviewed row pins/);
+    expect(readFileSync(sidecar, "utf8"), "refused correction writes nothing").toBe(sidecarBefore);
+  });
+
+  it("h5 S2 refuses before any write when the re-derived digest != the reviewed outputSha256", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-h5-out-")));
+    process.env.OWN_JOB_TMP = job;
+    const fixture = gitShow("HEAD:package.json");
+    const shipped = path.join(job, "shipped.glb");
+    writeFileSync(shipped, fixture);
+    const sidecar = path.join(job, "own.provenance.json");
+    writeFileSync(sidecar, JSON.stringify({ outputSha256: "old", outputBytes: 1 }));
+    const sidecarBefore = readFileSync(sidecar, "utf8");
+    const child = makeChildScript(job);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    expect(() =>
+      correctSidecarByteLineage({
+        assetPath: shipped,
+        provenancePath: sidecar,
+        preImage: { kind: "revision", revision: "HEAD:package.json" },
+        expectedPreImageSha256: sha256(fixture),
+        preImageSha256: sha256(fixture),
+        outputSha256: "f".repeat(64),
+        derivationArgv: ["node", child, "--input", "{pre}", "--out", "{out}", "--report", "{report}"],
+        why: "h5 output-literal refusal test",
+        workingDirectory: callDir,
+      }),
+    ).toThrow(/reviewed row pins output/);
+    expect(readFileSync(sidecar, "utf8"), "refused correction writes nothing").toBe(sidecarBefore);
+  });
 });
 
 describe("correct-sidecar-byte-lineage nesting + idempotence (e9-r2lineage)", () => {
