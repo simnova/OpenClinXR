@@ -164,15 +164,16 @@
         "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts",
         "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/no-shipped-humanoid-carries-an-unbound-texture.test.ts",
         "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-applied-visemes-move-the-mouth.test.ts",
-        "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-shipped-teeth-carry-their-texture.test.ts"
+        "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-shipped-teeth-carry-their-texture.test.ts",
+        "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.test.ts"
       ],
       "rule": "offset",
       "approvedBy": "super-ceo-cap53",
       "quote": "R2 thinning: exception entry APPROVED in thinning-policy.json exceptions[], written AFTER h3 so the bytes are final: card id, final E delta, per-file list, reason \"provenance walk verification + re-pin tests for stage 02\", precedent kevin-collar-authority-registry-offset.",
       "date": "2026-11-20",
       "expires": "2026-12-04",
-      "evidence": "/Volumes/files/openclinxr-assets/store/aisha-parity/teeth-visemes/route-a/thinning-before-exception.log",
-      "reason": "tsk_d3455707881d9c55: provenance walk verification + re-pin tests for stage 02. E delta +14426 B at bdaf307a1 vs origin/main 1e0de3b69: the-shipped-lashes-follow-the-lid.test.ts +7337, shipped-lash-ancestor.ts +5199, correct-sidecar-byte-lineage.ts +887, no-shipped-humanoid-carries-an-unbound-texture.test.ts +417, the-applied-visemes-move-the-mouth.test.ts +397, the-shipped-teeth-carry-their-texture.test.ts +189. Precedent kevin-collar-authority-registry-offset. Release when the E bucket next thins by >= 28852 B."
+      "evidence": "/Volumes/files/openclinxr-assets/store/aisha-parity/teeth-visemes/route-a/thinning-d54d0655d.log",
+      "reason": "tsk_d3455707881d9c55: provenance walk verification + re-pin tests for stage 02. E delta +23668 B at d54d0655d vs origin/main 77b0a1b95: the-shipped-lashes-follow-the-lid.test.ts +13484, correct-sidecar-byte-lineage.ts +5004, correct-sidecar-byte-lineage.test.ts +2613, shipped-lash-ancestor.ts +1564, no-shipped-humanoid-carries-an-unbound-texture.test.ts +417, the-applied-visemes-move-the-mouth.test.ts +397, the-shipped-teeth-carry-their-texture.test.ts +189. Supersedes the h3 figure +14426 B (bdaf307a1): h5 shrank the walk by 3635 B and added reviewed row literals and tests (+12882 B). Scope extended to correct-sidecar-byte-lineage.test.ts by super-ceo-cap53 ruling (1) 2026-11-20. Precedent kevin-collar-authority-registry-offset. Release when the E bucket next thins by >= 47336 B."
     }
   ]
 }
