@@ -49,11 +49,13 @@ export type HeadlessMesh = {
   skeleton: Skeleton;
 };
 
-/** Headless scene: root group plus body/teeth meshes and head/jaw bones. */
+/** Headless scene: root group plus body/teeth/tongue meshes and head/jaw bones. */
 export type HeadlessScene = {
   root: Group;
   body: HeadlessMesh;
   teeth: HeadlessMesh;
+  /** Fitted tongue mesh (253 verts, 0 morphs on the MPFB chain); null when the asset has none. */
+  tongue: HeadlessMesh | null;
   headBone: Bone;
   jawBone: Bone;
 };
@@ -170,6 +172,15 @@ export async function loadHeadlessScene(glbPath: string): Promise<HeadlessScene>
 
   const body = attach(/_body$/i, "body");
   const teeth = attach(/fitted_teeth/i, "fitted teeth");
+  // Tongue channel (aisha-tongue-at-rest S0a): optional so assets without a
+  // fitted tongue still load. Same attach path (skinned primitive + skeleton
+  // over the shared skin) so jaw-pose skinning matches the browser.
+  let tongue: HeadlessMesh | null = null;
+  try {
+    tongue = attach(/fitted_tongue/i, "fitted tongue");
+  } catch {
+    tongue = null;
+  }
 
   // Position-only proxies for every other mesh so rest-pose traversals
   // (bounds, head focus) see the same vertex set the browser sees.
@@ -211,7 +222,7 @@ export async function loadHeadlessScene(glbPath: string): Promise<HeadlessScene>
   const jawBone = teeth.skeleton.bones[jawIndex];
   if (!(headBone instanceof Bone) || !(jawBone instanceof Bone)) throw new Error("head/jaw bones missing");
   root.updateMatrixWorld(true);
-  return { root, body, teeth, headBone, jawBone };
+  return { root, body, teeth, tongue, headBone, jawBone };
 }
 
 /** Head-focus camera: perspective camera plus the head box it frames. */

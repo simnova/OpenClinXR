@@ -14,12 +14,17 @@
       "NowGapPoint",
       "PositionSpace",
       "PremiseProbeRow",
+      "TonguePose",
+      "TonguePoseRow",
       "ToothSample",
       "assertGroundTruthDyGate",
       "evaluate",
       "headFocusCamera",
       "loadHeadlessScene",
+      "lowerArchIndices",
+      "poseAndMeasureTongue",
       "probePremise",
+      "probeTongueRest",
       "readEvaluatorTrack"
     ],
     "./evidence-mouth": [

@@ -32,6 +32,10 @@
         "kind": "runtime"
       },
       {
+        "name": "probeTongueRest",
+        "kind": "runtime"
+      },
+      {
         "name": "readEvaluatorTrack",
         "kind": "runtime"
       }

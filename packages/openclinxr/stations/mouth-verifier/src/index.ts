@@ -12,6 +12,12 @@ export { headFocusCamera, loadHeadlessScene } from "./headless-scene.js";
 export type { HeadFocusCamera, HeadlessMesh, HeadlessScene } from "./headless-scene.js";
 export { DY_GATE_RULE, assertGroundTruthDyGate } from "./gates.js";
 export { probePremise } from "./probe.js";
+export {
+  lowerArchIndices,
+  poseAndMeasureTongue,
+  probeTongueRest,
+} from "./tongue-channel.js";
+export type { TonguePose, TonguePoseRow } from "./tongue-channel.js";
 export { readEvaluatorTrack } from "./track.js";
 export type { EvaluatorTrack } from "./track.js";
 export type {

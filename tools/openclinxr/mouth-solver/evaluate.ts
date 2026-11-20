@@ -8,7 +8,7 @@
  */
 import { mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
-import { evaluate, probePremise, readEvaluatorTrack } from "@openclinxr/station-mouth-verifier";
+import { evaluate, probePremise, probeTongueRest, readEvaluatorTrack } from "@openclinxr/station-mouth-verifier";
 
 const DEFAULT_GLB = "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb";
 
@@ -23,6 +23,24 @@ function flag(name: string, fallback?: string): string {
 }
 
 async function main(): Promise<void> {
+  if (process.argv.includes("--tongue-probe")) {
+    const glbIndex = process.argv.indexOf("--glb");
+    const probeGlb = glbIndex >= 0 ? process.argv[glbIndex + 1] : undefined;
+    if (!probeGlb || probeGlb.startsWith("--")) {
+      console.error("usage: evaluate.ts --tongue-probe --glb <path> (no default actor)");
+      process.exit(1);
+    }
+    const { rows, wallMs } = await probeTongueRest(probeGlb);
+    console.log("pose tongueTipZ crownFrontZ tipMinusIncisorZ tongueVerts archVerts activeTarget jawRadians (mm, mm, mm, count, count, name, rad)");
+    for (const row of rows) {
+      console.log(
+        `${row.pose} ${row.tongueTipZMm} ${row.crownFrontZMm} ${row.tongueTipMinusIncisorZMm} ` +
+          `${row.tongueVerts} ${row.archVerts} ${row.activeTargetName ?? "none"} ${row.jawOpenRadians}`,
+      );
+    }
+    console.log(`wall clock: ${wallMs} ms`);
+    return;
+  }
   if (process.argv.includes("--probe")) {
     const probeGlb = flag("--glb", DEFAULT_GLB);
     const { rows, visemes, wallMs } = await probePremise(probeGlb);

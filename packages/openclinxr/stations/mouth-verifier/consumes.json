@@ -71,6 +71,36 @@
         "name": "readEvaluatorTrack",
         "kind": "runtime",
         "via": "own-test"
+      },
+      {
+        "name": "loadHeadlessScene",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "lowerArchIndices",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "poseAndMeasureTongue",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "HeadlessScene",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "TonguePose",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "TonguePoseRow",
+        "kind": "type",
+        "via": "own-test"
       }
     ]
   },
@@ -90,6 +120,10 @@
     "names": [
       {
         "name": "applyJawOpenToRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "applyNamedSpeechVisemes",
         "kind": "runtime"
       },
       {

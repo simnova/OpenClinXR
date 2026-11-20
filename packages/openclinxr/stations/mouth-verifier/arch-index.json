@@ -17,12 +17,17 @@
     "NowGapPoint",
     "PositionSpace",
     "PremiseProbeRow",
+    "TonguePose",
+    "TonguePoseRow",
     "ToothSample",
     "assertGroundTruthDyGate",
     "evaluate",
     "headFocusCamera",
     "loadHeadlessScene",
+    "lowerArchIndices",
+    "poseAndMeasureTongue",
     "probePremise",
+    "probeTongueRest",
     "readEvaluatorTrack"
   ],
   "exportSummaries": {
@@ -35,16 +40,21 @@
     "FrameRecord": "Per-frame evaluator record: measured geometry plus projection errors.",
     "HeadFocusCamera": "Head-focus camera: perspective camera plus the head box it frames.",
     "HeadlessMesh": "One skinned mesh rebuilt headlessly: base positions plus skinning tables.",
-    "HeadlessScene": "Headless scene: root group plus body/teeth meshes and head/jaw bones.",
+    "HeadlessScene": "Headless scene: root group plus body/teeth/tongue meshes and head/jaw bones.",
     "NowGapPoint": "One trailing-word gap point in the evaluator summary.",
     "PositionSpace": "Position spaces named on every position field.",
     "PremiseProbeRow": "One premise-probe row: static morph response at a viseme's runtime jaw angle.",
+    "TonguePose": "One pose label.",
+    "TonguePoseRow": "One posed tongue-against-incisors reading.",
     "ToothSample": "One ground-truth tooth centroid sample from the step3 capture.",
     "assertGroundTruthDyGate": "Assert the bias-aware dy ground-truth gate.",
     "evaluate": "Drive the loaded scene through the runtime's prepared-audio path and measure per-frame teeth/lip geometry.",
     "headFocusCamera": "The isolated-subject head-focus camera for this asset.",
     "loadHeadlessScene": "Load the parent GLB into a headless scene with body/teeth meshes and head/jaw bones.",
+    "lowerArchIndices": "Lower-arch vertex indices: teeth verts whose dominant skin joint is the jaw bone or a descendant of it (F2 fix: replaces the bind-y-cutoff rule, which admitted the head-weighted upper-incisor vertex 3878 over the jaw-weighted lower-incisor vertex 2386 on Aisha).",
+    "poseAndMeasureTongue": "Drive the scene to one pose through the runtime public drive and read the tongue channel.",
     "probePremise": "One-minute premise probe: static morph response per viseme at its runtime jaw angle.",
+    "probeTongueRest": "Probe all three poses on one GLB with a fresh scene per pose.",
     "readEvaluatorTrack": "Read and validate an evaluator track file."
   },
   "workspaceDependencies": [
@@ -53,6 +63,7 @@
     "@openclinxr/xr-scene"
   ],
   "tests": [
+    "src/the-tongue-channel-reads-rest-tongue-tip-against-the-incisors.test.ts",
     "src/verifier.test.ts"
   ],
   "commands": {
