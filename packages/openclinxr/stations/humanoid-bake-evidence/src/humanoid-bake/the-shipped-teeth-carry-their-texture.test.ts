@@ -1924,8 +1924,10 @@ describe("the shipped teeth carry their own CC0 texture", () => {
    * st-teeth/post/deltas.txt BEFORE teeth-rest-clearance.ts ran; they are never read from the
    * shipped bytes. Retreat rule: dz = -(|marginAtCap| + 0.5 mm) per actor (deltas.txt line N).
    * Kevin tongue -0.004 m = the #741 tongue-back value in mpfb-peds-parent-aisha.provenance.json
-   * byteLineage.derivationArgv. coupled = couple-fitted-teeth-to-lip-viseme.ts ran (ob trio:
-   * refused, lower front shell not jaw-weighted, ships retreated uncoupled).
+   * byteLineage.derivationArgv. coupled = couple-fitted-teeth-to-lip-viseme.ts ran (aisha route A
+   * 2026-11-20 tsk_d3455707881d9c55 coupled the ob trio's remaining uncoupled actor: the h2
+   * strict-majority front-shell rule now seats aisha's shells, so aisha ships coupled; inspect
+   * stays uncoupled).
    */
   const POST_STEPS: Record<string, { teethDz: number; tongueDz: number; coupled: boolean }> = {
     "mpfb-clinical-nurse-adult.glb": { teethDz: -0.0057, tongueDz: 0, coupled: true }, // deltas.txt line 1
@@ -1933,7 +1935,7 @@ describe("the shipped teeth carry their own CC0 texture", () => {
     "mpfb-gown-adult-patient.glb": { teethDz: -0.0023, tongueDz: 0, coupled: true }, // line 3
     "mpfb-gown-ed-robert-hayes.glb": { teethDz: -0.0023, tongueDz: 0, coupled: true }, // line 4
     "mpfb-gown-inspect.glb": { teethDz: -0.0031, tongueDz: 0, coupled: false }, // line 5
-    "mpfb-ob-patient-aisha.glb": { teethDz: -0.0031, tongueDz: 0, coupled: false }, // line 6
+    "mpfb-ob-patient-aisha.glb": { teethDz: -0.0031, tongueDz: 0, coupled: true }, // line 6; route A 2026-11-20: 7 coupled viseme targets ship
     "mpfb-peds-nurse-kevin.glb": { teethDz: -0.0102, tongueDz: -0.004, coupled: true }, // line 7; tongue #741
     "mpfb-peds-patient-child.glb": { teethDz: 0, tongueDz: 0, coupled: true }, // not in deltas.txt: rest cleared
     "mpfb-street-adult-male.glb": { teethDz: 0, tongueDz: 0, coupled: true }, // not in deltas.txt: rest cleared

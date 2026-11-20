@@ -288,6 +288,20 @@ export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory
     why: "AISHA-SWEATER-POKE-THROUGH (tsk_4c6a7143f7dff5e0): the pinned 20-face S2 shoulder union (repo selection tools/openclinxr/asset-pipeline/makeclothes/data/aisha-sweater-selection.json, sha256 12d3c9a2; union over 8 ClinicalIdleConversation times, held-out t=0.5 never selected; clearance < 5 mm = garment_coverage.HIDE_EPSILON_M) hidden by the registered rehide-aisha-shoulder-skin.py (python3 -I, patch-prim-in-place) on the 37e905ea pre-image; same stage as run-chain manifest mpfb-ob-patient-aisha.post-export.json stage 01.",
   },
   {
+    assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+    preImage: { kind: "revision", revision: "50b9ddf6c:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb" },
+    derivationArgv: [
+      "sh",
+      "-c",
+      "cp \"$1\" \"$2\" && pnpm exec tsx tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts \"$2\"",
+      "x",
+      "{pre}",
+      "{out}",
+    ],
+    why: "AISHA-FITTED-TEETH-VISEMES (tsk_d3455707881d9c55): the registered couple-fitted-teeth-to-lip-viseme.ts (coupler card tsk_09ebec711d102e62, in-place couple) adds the 7 opening lip-viseme POSITION targets to the fitted-teeth prim on the 4148864b pre-image; same stage as run-chain manifest mpfb-ob-patient-aisha.post-export.json stage 02.",
+  },
+  {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
     provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.provenance.json",
     preImage: { kind: "revision", revision: "2803b774^:apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb" },

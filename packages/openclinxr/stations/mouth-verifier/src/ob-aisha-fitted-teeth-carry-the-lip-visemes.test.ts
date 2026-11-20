@@ -151,12 +151,12 @@ function fittedTeethTargetNames(document: Document): string[] {
 }
 
 describe("ob aisha fitted teeth carry the lip visemes", () => {
-  it.fails("G0 fitted-teeth target names deep-equal the coupler ORDER", () => {
+  it("G0 fitted-teeth target names deep-equal the coupler ORDER", () => {
     const { document } = parseGlbBytes(readFileSync(AISHA_GLB), "shipped Aisha GLB");
     expect(fittedTeethTargetNames(document)).toEqual(COUPLER_ORDER);
   });
 
-  it.fails("G1 teeth viseme_aa contribution is below -0.05 mm", async () => {
+  it("G1 teeth viseme_aa contribution is below -0.05 mm", async () => {
     const contrib = await measureTeethAaContribution(AISHA_GLB);
     // eslint-disable-next-line no-console
     console.log(

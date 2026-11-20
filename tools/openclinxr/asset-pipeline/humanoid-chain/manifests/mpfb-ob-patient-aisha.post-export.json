@@ -28,6 +28,17 @@
       "note": "AISHA-SWEATER-POKE-THROUGH (tsk_4c6a7143f7dff5e0): hide the 20-face S2 shoulder union (SELECTION.json) back under the hide mask, patch-prim-in-place; E9 rehide-poking-skin.py precedent",
       "postExport": true,
       "tool": "tools/openclinxr/asset-pipeline/makeclothes/rehide-aisha-shoulder-skin.py"
+    },
+    {
+      "argv": [
+        "{out}"
+      ],
+      "id": "02",
+      "kind": "node",
+      "name": "couple-fitted-teeth-to-lip-viseme",
+      "note": "AISHA-FITTED-TEETH-VISEMES (tsk_d3455707881d9c55): couple the fitted-teeth prim to the 7 opening lip visemes (coupler card tsk_09ebec711d102e62); same in-place post-export pattern as stage 01",
+      "postExport": true,
+      "tool": "tools/openclinxr/asset-pipeline/makeclothes/couple-fitted-teeth-to-lip-viseme.ts"
     }
   ]
 }

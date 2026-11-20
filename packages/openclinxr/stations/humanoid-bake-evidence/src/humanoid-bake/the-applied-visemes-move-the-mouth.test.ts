@@ -1,9 +1,9 @@
-import { existsSync, readFileSync } from "node:fs";
 import { createHash } from "node:crypto";
+import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
-import { NodeIO, type Node as GLTFNode, type Primitive } from "@gltf-transform/core";
-import { describe, expect, it } from "vitest";
+import { type Node as GLTFNode, NodeIO, type Primitive } from "@gltf-transform/core";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { describe, expect, it } from "vitest";
 
 process.chdir(repoRoot());
 
@@ -149,7 +149,11 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // store aisha-sweater/corrector-run/diag/RESULT.md Q0 — all 47 morph targets, POSITION,
   // NORMAL, JOINTS_0, WEIGHTS_0 byte-identical 37e905ea -> 4148864b; only prim0 indices change
   // + appended prim8. 22271612 B live, sha measured by shasum -a 256; was 37e905ea9fa0d4f3664d95a1c34ab45219a77ed63a46b4976b0bb1a063443ce9.
-  "mpfb-ob-patient-aisha": "4148864b18186c788c8a30f16f7fb7d924752f3c53fb4ede24d767278656e99c",
+  // aisha-teeth-visemes route A re-pinned 2026-11-20 (tsk_d3455707881d9c55): stage 02
+  // couple-fitted-teeth-to-lip-viseme.ts adds the 7 opening lip-viseme POSITION targets to the
+  // fitted-teeth prim (changed 0, removed 0, added 7; CW3 byte-identity holds). 22650648 B live
+  // (+379036), sha measured by shasum -a 256; was 4148864b18186c788c8a30f16f7fb7d924752f3c53fb4ede24d767278656e99c.
+  "mpfb-ob-patient-aisha": "a9ffe0621f54557add1e612d4a6d8fd23879c96cd76aac3071f6a97d3f03dad4",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.

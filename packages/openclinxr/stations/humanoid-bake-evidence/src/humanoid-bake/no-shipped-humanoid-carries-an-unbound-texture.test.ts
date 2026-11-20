@@ -1,7 +1,6 @@
-import { readFileSync, statSync } from "node:fs";
-import { readdirSync } from "node:fs";
-import { describe, expect, it } from "vitest";
+import { readdirSync, readFileSync, statSync } from "node:fs";
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { describe, expect, it } from "vitest";
 
 process.chdir(repoRoot());
 
@@ -107,7 +106,12 @@ const PINNED = {
   // body prim (kept prim0 7060 -> 7040 + hidden prim 20, total tris verbatim; measured live
   // 2026-11-19, E/repins/f2-shape.log): fileBytes 22269564 -> 22271612 (+2048 B); textures,
   // boundTextures, boundBytes, meshes, materials, tris, joints, animations verbatim.
-  "mpfb-ob-patient-aisha.glb":  { fileBytes: 22271612, textures: 9, boundTextures: 9, boundBytes: 16120505, meshes: 10, materials: 19, tris: 77828, joints: 137, animations: 3 },
+  // aisha-teeth-visemes route A re-pinned 2026-11-20 (tsk_d3455707881d9c55): stage 02
+  // couple-fitted-teeth-to-lip-viseme.ts adds the 7 opening lip-viseme POSITION targets to the
+  // fitted-teeth prim (accessors only; images, boundBytes, meshes, materials, tris, joints,
+  // animations verbatim): fileBytes 22271612 -> 22650648 (+379036 B); textures,
+  // boundTextures, boundBytes, meshes, materials, tris, joints, animations verbatim.
+  "mpfb-ob-patient-aisha.glb":  { fileBytes: 22650648, textures: 9, boundTextures: 9, boundBytes: 16120505, meshes: 10, materials: 19, tris: 77828, joints: 137, animations: 3 },
   // ci-w11 re-pin 2026-10-30, measured pre-prune (post-afe8abced full-res hair + D2 grade).
   // Old #598: fileBytes 11456228, textures 5, boundTextures 5, boundBytes 4598965, tris 74732.
   // st-palette 2026-11-04: 3969ae031 re-encoded the toigo t-shirt texture (sRGB palette renorm,
