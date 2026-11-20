@@ -1,6 +1,9 @@
 /** Private MPFB supine hand contact: shared relaxed fingers and geometry-bounded arm staging. */
 import { type Object3D, Quaternion, Vector3 } from "three";
 import { findSupineBone } from "./hob-extremity-flex.js";
+import {
+  ownLimbRows,
+} from "./supine-shared-position-rows.js";
 import { type GarmentLane, measureGarmentLane } from "./supine-garment-lane.js";
 import { makeSupineSupportPlanes, type SupineSupportPlane } from "./supine-support-contact.js";
 import { correctGarmentAgainstSupport, type GarmentSupportPlane, isGarmentMesh, registerGarmentSupport } from "./ward-garment-support.js";
@@ -64,7 +67,10 @@ function applyRelaxedSupineHands(root: Object3D): { bones: number; missing: stri
 type Attribute = { count: number; getX: (i: number) => number; getY: (i: number) => number; getZ: (i: number) => number; getW: (i: number) => number };
 type Skin = Object3D & {
   isSkinnedMesh?: boolean;
-  geometry?: { attributes?: { position?: Attribute; skinIndex?: Attribute; skinWeight?: Attribute } };
+  geometry?: {
+    index?: { count: number; getX: (i: number) => number; version?: unknown } | null;
+    attributes?: { position?: Attribute; skinIndex?: Attribute; skinWeight?: Attribute };
+  };
   skeleton?: { bones: Object3D[]; update: () => void };
   getVertexPosition?: (index: number, target: Vector3) => Vector3;
 };
@@ -86,7 +92,9 @@ function limbPoints(root: Object3D, side: string, family: "hand" | "forearm"): V
     let entry = byMesh?.get(key);
     const skinIndexVersion = (skinIndex as unknown as { version?: unknown }).version;
     const skinWeightVersion = (skinWeight as unknown as { version?: unknown }).version;
-    const signature: unknown[] = [mesh.geometry, position, skinIndex, skinIndexVersion, skinWeight, skinWeightVersion, bones, bones.length];
+    const geometryIndex = mesh.geometry?.index;
+    const geometryIndexVersion = (geometryIndex as unknown as { version?: unknown } | undefined)?.version;
+    const signature: unknown[] = [mesh.geometry, geometryIndex, geometryIndexVersion, position, skinIndex, skinIndexVersion, skinWeight, skinWeightVersion, bones, bones.length];
     let hit = false;
     if (entry && entry.signature.length === signature.length && entry.boneNames.length === bones.length) {
       hit = true;
@@ -104,7 +112,9 @@ function limbPoints(root: Object3D, side: string, family: "hand" | "forearm"): V
       stored = entry.indices;
     } else {
       const collected: number[] = [];
+      const allowed = ownLimbRows(root, mesh);
       for (let i = 0; i < position.count; i += 1) {
+        if (allowed && !allowed.has(i)) continue;
         const weights = [skinWeight.getX(i), skinWeight.getY(i), skinWeight.getZ(i), skinWeight.getW(i)];
         const lane = weights.indexOf(Math.max(...weights));
         const indices = [skinIndex.getX(i), skinIndex.getY(i), skinIndex.getZ(i), skinIndex.getW(i)];

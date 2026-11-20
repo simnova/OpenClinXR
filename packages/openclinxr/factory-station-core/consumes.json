@@ -33,6 +33,11 @@
         "kind": "runtime"
       },
       {
+        "name": "POST_EXPORT_STAGE_REGISTRY",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
         "name": "PRODUCTION_STATION_IDS",
         "kind": "runtime",
         "via": "own-test"

@@ -20,6 +20,20 @@
     ]
   },
   {
+    "provider": "@openclinxr/xr-pose",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "resolveSharedAttributeRows",
+        "kind": "runtime"
+      },
+      {
+        "name": "SharedAttributeCarrier",
+        "kind": "type"
+      }
+    ]
+  },
+  {
     "provider": "@openclinxr/xr-scene",
     "entrypoint": ".",
     "names": [

@@ -11,6 +11,7 @@
   ],
   "tests": [
     "src/a-material-only-stage-repins-no-geometry-file.test.ts",
+    "src/aisha-sweater-stage-is-registered.test.ts",
     "src/the-station-schemas-conform-to-standard-schema.test.ts"
   ],
   "commands": {

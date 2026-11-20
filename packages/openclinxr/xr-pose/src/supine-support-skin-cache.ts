@@ -5,28 +5,17 @@
  * Re-skinning repeats the three.js (r184) SkinnedMesh.getVertexPosition floating-point
  * operations in the same order instead of regrouping them, so cached gaps are bit-identical.
  */
-import { type Material, Matrix4, Mesh, Vector3, type Object3D } from "three";
+import { Matrix4, Mesh, Vector3, type Object3D } from "three";
 import type { SupineSupportPlane, SupineSupportRegion } from "./supine-support-contact.js";
+import {
+  isMaterialRendered,
+  sharedPositionEntryFor,
+  type SharedAttributeCacheEntry,
+  type SkinnedLike,
+} from "./supine-shared-position-rows.js";
 
-export type SkinnedLike = Object3D & {
-  isSkinnedMesh?: boolean;
-  material?: Material | Material[];
-  geometry?: {
-    computeBoundingBox?: () => void; boundingBox?: { max: Vector3 }; index?: Attribute;
-    groups?: Array<{ start: number; count: number; materialIndex?: number }>;
-    attributes?: { position?: Attribute; normal?: Attribute; skinIndex?: Attribute; skinWeight?: Attribute };
-    morphAttributes?: { position?: unknown[] }; morphTargetsRelative?: unknown;
-  };
-  skeleton?: { bones: Object3D[]; boneInverses?: Matrix4[]; update?: () => void };
-  getVertexPosition?: (index: number, target: Vector3) => Vector3;
-  morphTargetInfluences?: number[]; bindMatrix?: Matrix4; bindMatrixInverse?: Matrix4;
-};
-
-type Attribute = {
-  count: number;
-  getX: (index: number) => number; getY: (index: number) => number;
-  getZ: (index: number) => number; getW?: (index: number) => number;
-};
+export { isMaterialRendered };
+export type { SkinnedLike };
 
 const PELVIS = /pelvis|hips/iu;
 const LUMBAR = /spine0?[2-5]|spine1$|spine$|abdomen|lumbar/iu;
@@ -56,11 +45,6 @@ function regionForVertex(mesh: SkinnedLike, index: number): SupineSupportRegion 
   return null;
 }
 
-export function isMaterialRendered(material: unknown): boolean {
-  const view = material as Material | undefined;
-  return !!view && !!view.visible && !(view.opacity <= view.alphaTest || (view.transparent && view.opacity <= 0));
-}
-
 export type SampleRow = { index: number; region: SupineSupportRegion; skipContact: boolean };
 
 type SampleCacheEntry = {
@@ -76,6 +60,7 @@ type SampleCacheEntry = {
   materialAlphaTest: unknown[]; materialTransparent: unknown[]; materialUuid: unknown[];
   morphInfluencesCopy: number[] | undefined; morphTargetsRelative: unknown; morphPositionRef: unknown;
   bindMatrixCopy: Float64Array; bindMatrixInverseCopy: Float64Array;
+  sharedSource: SharedAttributeCacheEntry | null;
   rows: SampleRow[];
   base: Float64Array; skinIdx: Int32Array; skinW: Float64Array;
   boneRowStart: Int32Array; boneRows: Int32Array; boneUsed: Uint8Array;
@@ -123,6 +108,12 @@ function ensureSupportSampleEntry(
   const skinWeightVersion = (skinWeightAttr as unknown as { version?: unknown } | undefined)?.version;
   const normalVersion = (normalAttr as unknown as { version?: unknown } | undefined)?.version;
   const indexVersion = (indexAttr as unknown as { version?: unknown } | undefined)?.version;
+  // A mesh that shares its POSITION set with a sibling (aisha's appended hide
+  // primitive reuses the body arrays) samples only its own index-referenced rows
+  // via the ONE helper contract. Singleton meshes resolve null and keep legacy.
+  const sharedSource = sharedPositionEntryFor(mesh);
+  const siblingIndex = sharedSource ? sharedSource.siblings.indexOf(mesh) : -1;
+  const ownRows = siblingIndex >= 0 ? sharedSource!.ownRows[siblingIndex] : undefined;
   const cached = sampleCache.get(mesh);
   if (cached
     && cached.anatomicalBody === anatomicalBody && cached.geometry === geometry
@@ -131,7 +122,8 @@ function ensureSupportSampleEntry(
     && cached.skinWeightAttr === skinWeightAttr && cached.skinWeightVersion === skinWeightVersion
     && cached.normalAttr === normalAttr && cached.normalVersion === normalVersion
     && cached.indexAttr === indexAttr && cached.indexVersion === indexVersion
-    && cached.bones === bones && cached.materialCount === materials.length) {
+    && cached.bones === bones && cached.materialCount === materials.length
+    && cached.sharedSource === sharedSource) {
     let signatureMatches = cached.boneNames.length === bones.length;
     if (signatureMatches) {
       for (let boneIndex = 0; boneIndex < bones.length; boneIndex += 1) {
@@ -188,6 +180,7 @@ function ensureSupportSampleEntry(
   const built: SampleRow[] = [];
   for (let index = 0; index < position.count; index += stride) {
     if (groups?.length && !visibleIndices.has(index)) continue;
+    if (ownRows && !ownRows.has(index)) continue;
     const region = regionForVertex(mesh, index);
     if (!region) continue;
     built.push({ index, region, skipContact: region === "occiput" && normalAttr !== undefined && normalAttr.getZ(index) >= 0 });
@@ -253,6 +246,7 @@ function ensureSupportSampleEntry(
     morphPositionRef: geometry?.morphAttributes?.position ?? null,
     bindMatrixCopy: Float64Array.from(bindMatrix.elements),
     bindMatrixInverseCopy: Float64Array.from((mesh.bindMatrixInverse as Matrix4).elements),
+    sharedSource,
     rows: built, base, skinIdx, skinW, boneRowStart, boneRows, boneUsed,
     current: new Float64Array(boneCount * 16), previous: new Float64Array(boneCount * 16),
     prevMatrixWorld: Float64Array.from(mesh.matrixWorld.elements),

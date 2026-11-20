@@ -21,6 +21,10 @@ export const POST_EXPORT_STAGE_REGISTRY: Readonly<Record<string, PostExportStage
     mutates: ["body-primitive-indices", "hidden-skin-indices"],
     preserves: ["vertex-attributes", "morph-targets"],
   },
+  "tools/openclinxr/asset-pipeline/makeclothes/rehide-aisha-shoulder-skin.py": {
+    mutates: ["body-primitive-indices", "hidden-skin-indices"],
+    preserves: ["vertex-attributes", "morph-targets"],
+  },
   "tools/openclinxr/asset-pipeline/makeclothes/sample-grade-poses.ts": {
     mutates: [],
     preserves: ["geometry", "rig", "animations", "images"],
@@ -143,7 +147,7 @@ function simpleShellCommands(shell: string): string[][] | undefined {
           const marker = shell.slice(index).match(/^<<[ \t]*(['"]?)([\w-]+)\1[ \t]*\n/);
           if (!marker) return false;
           const bodyStart = index + marker[0].length;
-          const close = new RegExp("^" + marker[2] + "$", "gm");
+          const close = new RegExp(`^${marker[2]}$`, "gm");
           close.lastIndex = bodyStart;
           const delimiter = close.exec(shell);
           if (!delimiter || scriptReferences(shell.slice(bodyStart, delimiter.index)).length) return false;

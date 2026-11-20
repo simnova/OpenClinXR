@@ -36,6 +36,12 @@ export {
   sanitiseBoneName,
 } from "./pose-bone-runtime.js";
 export {
+  resolveSharedAttributeRows,
+} from "./shared-attribute-index-union.js";
+export type {
+  SharedAttributeCarrier,
+} from "./shared-attribute-index-union.js";
+export {
   applyPosturePose,
   plantSeatedPelvisOnSeat,
 } from "./seated-pose.js";

@@ -29,6 +29,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - keep-current: 264
 - keep-evidence: 1974
 - keep-template: 17
+- superseded-record: 4
 
 ## Cleanup Actions
 
@@ -3077,6 +3078,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/hunyuan3d-mlx-2.0/ecg-cart.glb` - keep-current; keep; Hunyuan3D-MLX raw treatment; US-hosted deployment only.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/pixal3d/run1/ecg-cart.glb` - keep-current; keep; First Pixal3D raw treatment asset.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/raw/pixal3d/run2/ecg-cart.glb` - keep-current; keep; Pixal3D manifest replay asset used for reproducibility evidence.
+- `packages/openclinxr-verification/architecture-rules/src/checks/consumer-contracts-speed-report.json` - superseded-record; delete-tracked; One-off before/after speed measurement and the doneWhen exists: proof of Landed card tsk_b996c7320039aba1; no reader or writer; deleted by SWEATER' tsk_4c6a7143f7dff5e0 (super-ceo-cap51 2026-11-19); git show 2db1191c4:<path> still resolves it.
 - `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-acoustic-tile.jpg` - keep-current; keep; Ward-finish station input (S5): 4x4 acoustic-tile photo from the ward-finish lineage (row-30 provenance, 155,898 B); staged for the S6 ceiling-grid rebuild, unused by compose.py in S5.
 - `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face-normal.png` - keep-current; keep; Ward-finish station input: tangent-space normal map derived from the row-33 flattened tileable acoustic ceiling tile face albedo (Rec.709 heightfield, wraparound Sobel 3x3, strength 2.0); staged for the ceiling-wiring follow-up.
 - `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-tile-face-roughness.png` - keep-current; keep; Ward-finish station input: roughness map derived from the row-33 flattened tileable acoustic ceiling tile face albedo (inverted normalized 5x5 local luminance stddev); staged for the ceiling-wiring follow-up.
@@ -3099,6 +3101,8 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `tools/openclinxr/evidence/asset-store/approach-take-retrieval-20261026.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/asset-store/issue288-retrieval-20261027.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/blender/render_seated_clip_frames.py` - keep-current; keep; Hand-authored Blender producer for seated-clip frames, not generated output; tools/ is not a scan root.
+- `tools/openclinxr/evidence/citation-recovery-20261025/embedded-camera-metadata.json` - superseded-record; delete-tracked; One-off archivist receipt and the doneWhen exists: proof of Landed card tsk_9494c930dbdabcf7; no reader or writer; deleted by SWEATER' tsk_4c6a7143f7dff5e0 (super-ceo-cap51 2026-11-19); git show 2e1df6478:<path> still resolves it.
+- `tools/openclinxr/evidence/citation-recovery-20261025/published-artifact-aliases.json` - superseded-record; delete-tracked; One-off archivist receipt and the doneWhen exists: proof of Landed card tsk_1410d4797ba9a2ce; no reader or writer; deleted by SWEATER' tsk_4c6a7143f7dff5e0 (super-ceo-cap51 2026-11-19); git show 2e1df6478:<path> still resolves it.
 - `tools/openclinxr/evidence/clinical-touch/ed-input-trs-baseline.json` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-guide1-vs-target-open8-1to1.png` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
 - `tools/openclinxr/evidence/hair-muse4h/handoff-2026-10-23/part-open8-front.png` - keep-current; keep; Generated-looking artifact retained by conservative default after explicit stale/cache/template rules.
@@ -3899,6 +3903,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `docs/openclinxr/package-public-surface-reduction/admissions/xr-dialogue-consumer-split-v1.json` - keep-evidence; keep; Consumer-driven split of xr-dialogue exports by consumer class (./package-actor-turn, ./package-viseme, ./evidence-viseme new; JAW_TEETH_GAIN added to ./viseme-runtime); reviewedBy PENDING-INDEPENDENT-REVIEW.
 - `docs/openclinxr/package-public-surface-reduction/admissions/nurse-chest-stage-v1.json` - keep-evidence; keep; Nurse chest stage admission: admits isNurseChestStageSplit and the nurse-chest index-sha pins that the T3 teeth gate and the makeclothes lash gate import through ./nurse-chest-stage (Codex independent review accept).
 - `docs/openclinxr/package-public-surface-reduction/admissions/xr-sync-mn2-replay-v1.json` - keep-evidence; keep; xr-sync MN2 replay admission: admits ./conversation-replay (replayConversationTrace, createReplayCaptionBank) that the MN2 site evidence test imports to recompute client captions from a recorded trace (Codex independent review accept).
+- `docs/openclinxr/package-public-surface-reduction/admissions/aisha-sweater-consumer-fix-v1.json` - keep-evidence; keep; Aisha sweater consumer-fix admission: admits resolveSharedAttributeRows (+ type SharedAttributeCarrier) on the xr-pose root, the one index-union helper the supine solver and the two garment-surface meters import (super-ceo-cap50 GO 2026-11-19, pending operator ratification).
 - `docs/openclinxr/package-public-surface-reduction/approvals/psr-01b.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/approvals/psr-01c.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `docs/openclinxr/package-public-surface-reduction/approvals/psr-01d.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
@@ -5087,6 +5092,7 @@ These paths stay registered across regeneration even though no scannedRoot+gener
 - `packages/openclinxr/factory-stations/src/room_clinic_finish/textures/rejected/door-maple-rejected-attempt1.jpg` - keep-evidence; keep; Rejected Grok Imagine door-maple attempt 1 (mirrored cathedral arches); kept as evidence only, never processed or loaded (row-32 provenance).
 - `tools/openclinxr/evidence/room-ward-finish-chain/door-closeup-poses.json` - keep-evidence; keep; Door closeup pose input (lever inspection framing); the standard hand-placed-poses.json is untouched.
 - `tools/openclinxr/evidence/room-ward-finish-chain/hand-placed-poses.json` - keep-evidence; keep; Ward-finish-chain part 3 pose inputs: verbatim copy of the sibling wt/infinigen-room hand-placed poses (stage2-camera-fit), read-only source untouched.
+- `tools/openclinxr/evidence/xr-sync/c52-station-one-freeze.json` - superseded-record; delete-tracked; C52 station-one freeze attribution, the proof report of Landed card tsk_1b56a74f67a23cfc (proofs.set headSha 42c2c4e7d; last touched 04608a256); no reader or writer; deleted by SWEATER' tsk_4c6a7143f7dff5e0 (super-ceo-cap51 2026-11-19); git show 42c2c4e7d:<path> still resolves it.
 - `tools/openclinxr/mouth-solver/solved-teeth-gap.json` - keep-evidence; keep; Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it.
 - `tools/openclinxr/staging-solver/test-fixtures/provenance.json` - keep-evidence; keep; Current representative evidence for cleanup, runtime, garment, humanoid, or encounter-factory lanes.
 - `docs/openclinxr/asset-cagematch/image-to-3dlab-ecg-cart-2026-10-01/optimized/hunyuan3d-mlx-2.0/provenance.json` - keep-template; keep; Hunyuan optimized-asset derivation and territory provenance.

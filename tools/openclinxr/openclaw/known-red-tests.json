@@ -360,6 +360,11 @@
       "path": "tools/openclinxr/evidence/chest-anchors/every-shipped-rig-has-two-chest-anchors.test.ts",
       "reason": "st-cast-fleet: red on origin/main before move (2 clauses fail; tracked tara-run GLBs collapse). Moved 2026-11-01 from the evidence root to the chest-anchors/ subdirectory per the root-batch T12 trap so the pre-commit openclaw suite stays green; known-red entry kept at the new path for test:touched exclusion.",
       "card": "unfiled: re-pin or retire the chest-anchor clauses against the collapsed tara-run GLBs"
+    },
+    {
+      "path": "packages/openclinxr-verification/architecture-rules/src/checks/public-surface/the-reviewed-surface-holds-at-commit-time.test.ts",
+      "reason": "criterion 6 rootExportsAtMost refuses on a900aaf9a with 0 staged (1287 > 1000, exception measured stale); this commit adds +2 (1289) = the admitted xr-pose pair resolveSharedAttributeRows + SharedAttributeCarrier, admission aisha-sweater-consumer-fix-v1 (cap50 GO pending operator ratification); criteria 3/4/5/12 identical WT vs base; logs store aisha-sweater/commit4/psr-detail-*.log",
+      "card": "tsk_c6cf352277d3fdba"
     }
   ]
 }

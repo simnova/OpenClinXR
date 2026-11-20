@@ -145,7 +145,11 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // teeth swap re-pinned 2026-11-10 (tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace hm08,
   // byte-preserving post-swap retreat/couple; body and every non-mouth mesh value-equal; 22269564 B live;
   // was 33626da946fc….
-  "mpfb-ob-patient-aisha": "37e905ea9fa0d4f3664d95a1c34ab45219a77ed63a46b4976b0bb1a063443ce9",
+  // aisha-sweater r5h2 re-pinned 2026-11-19 (tsk_4c6a7143f7dff5e0), SHIPPED_UNTOUCHED: cites
+  // store aisha-sweater/corrector-run/diag/RESULT.md Q0 — all 47 morph targets, POSITION,
+  // NORMAL, JOINTS_0, WEIGHTS_0 byte-identical 37e905ea -> 4148864b; only prim0 indices change
+  // + appended prim8. 22271612 B live, sha measured by shasum -a 256; was 37e905ea9fa0d4f3664d95a1c34ab45219a77ed63a46b4976b0bb1a063443ce9.
+  "mpfb-ob-patient-aisha": "4148864b18186c788c8a30f16f7fb7d924752f3c53fb4ede24d767278656e99c",
   // #598 re-pinned 2026-08-23: same shoe swap; was 2182b8c6e6186071f45f273d69022bca31291c0cdcb7200f719eae946e5964b6.
   // #568 re-recorded 2026-08-26: #588 rebaked the parent's garments without re-pinning this
   // table (drift at HEAD, pre-existing); was d13e6ebcb2d63a613533fc156b69b7bcff468166e22800332c66c46420d154e1.

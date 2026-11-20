@@ -197,10 +197,10 @@ PLAN = {
     # (replace-garment-primitive.ts restores pre-HB-05 full-res prims + proven 60-deg
     # post-export smooth).
     "mpfb-ob-patient-aisha.glb": {
-        "bytesAfter": 22269564,
+        "bytesAfter": 22271612,
         "triangleCountAfter": 77828,
         "faceAfter": 57214,
-        "note": ("Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (80320 -> 77828, 59706 -> 57214), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 19549552 -> 22269564 B. Prior re-measure preserved below. "
+        "note": ("Re-measured 2026-11-19 (aisha sweater stage, tsk_4c6a7143f7dff5e0): hide 20 shoulder tris under the sweater in a new body prim (kept body prim0 7060 -> 7040 tris + hidden prim of the exact 20 selection faces; total tris/face/hand/joints hold, asserted by main()), 22269564 -> 22271612 B. Pre-sweater bytes are those of b042f849c (last origin/main commit touching this GLB). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth decimation, tsk_27e0cec12cab410d): decimate_teeth.mts ratio 0.65, error 0.005 rewrites the fitted teeth indices in place, teeth 7120 -> 4628 tris; tris and face drop by 2492 (80320 -> 77828, 59706 -> 57214), bytes/hand/joints hold (asserted by main()). Prior re-measure preserved below. Re-measured 2026-11-10 (teeth swap, tsk_27e0cec12cab410d): fitted CC0 teeth/tongue replace the hm08 mouth through the byte-preserving retreat/couple chain; tris and face (FACE_RE matches teeth|tongue) grow by the fitted mouth meshes, hand/joints hold (asserted by main()), 19549552 -> 22269564 B. Prior re-measure preserved below. "
                  "Re-measured 2026-11-09 (lash-follow r8, tsk_381fda384bdda8dc): repack adds the upper-lash closure morph targets, bytes-only drift, geometry counts hold (asserted by main()), 19149460 -> 19549552 B. Pre-repack bytes are those of 7fd92dd87 (last origin/main commit touching this GLB). Prior re-measure preserved below. "
                  "Re-measured 2026-11-06 (st-vitfamily r1 R4 fixed8): albedo-embed stage (post-export byte "
                  "stage, not a rebake; embed_skin_albedo rewrites only the skin material baseColor "
@@ -409,7 +409,7 @@ HB05_POST_RUNG = {
             "faceDelta": 4436,
             "note": ("fitted CC0 teeth/tongue swap, then decimate_teeth.mts ratio 0.65, error 0.005 (teeth 7120 -> 4628); delta = fitted mouth tris 5076 - preImageMouthTris 640"),
             "source": "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json#teethSwapB1",
-            "sourceSha256": "22088ed70e6c5868b42ec0153ed4dccf148489e336041e51738b5e23f168a9df",
+            "sourceSha256": "dad142aca663a8fbfe263d5ace7734b20bc5f3027d90f20a53431f077c71fddf",
         }],
     },
     "mpfb-peds-nurse-kevin.glb": {

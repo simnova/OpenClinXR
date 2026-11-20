@@ -2,6 +2,7 @@
   "entrypoints": {
     ".": [
       "OwnedChain",
+      "SharedAttributeCarrier",
       "animatedTranslationBoneNames",
       "applyAndPlantSupineOnDeck",
       "applyGeneratedHumanoidClinicalIdlePosture",
@@ -24,6 +25,7 @@
       "readSupineTorsoWorldDeg",
       "reapplySupineHeadToStoredPillow",
       "resolveEffectiveVerticalOffsetMeters",
+      "resolveSharedAttributeRows",
       "sanitiseBoneName",
       "seatedRoleClipIsPlayable",
       "settleSupineOntoBackSection",

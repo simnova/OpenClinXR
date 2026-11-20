@@ -50,7 +50,42 @@ function sha256(bytes: Buffer): string {
   return createHash("sha256").update(bytes).digest("hex");
 }
 
-export function correctSidecarByteLineage(input: ByteLineageCorrection): {
+/** Run one row's derivation in a fresh call dir under workingDirectory; returns the re-derived digest. */
+function runRowDerivation(
+  workingDirectory: string,
+  assetPath: string,
+  derivationArgv: string[],
+  preImage: Buffer,
+): { digest: string; bytes: number } {
+  const base = path.resolve(workingDirectory);
+  mkdirSync(base, { recursive: true });
+  const callDir = mkdtempSync(path.join(base, `${path.basename(assetPath, ".glb")}-`));
+  const preImagePath = path.join(callDir, `${path.basename(assetPath, ".glb")}-pre.glb`);
+  const rederivedPath = path.join(callDir, `${path.basename(assetPath, ".glb")}-rederived.glb`);
+  const ownedReportPath = path.join(callDir, `${path.basename(assetPath, ".glb")}-report.json`);
+
+  writeFileSync(preImagePath, preImage);
+
+  const argv = derivationArgv.map((token) =>
+    token.replace("{pre}", preImagePath).replace("{out}", rederivedPath).replace("{report}", ownedReportPath),
+  );
+  const executable = argv[0];
+  if (executable === undefined) {
+    throw new Error("correct-sidecar-byte-lineage: the derivation command is empty; there is nothing to run.");
+  }
+  execFileSync(executable, argv.slice(1), { stdio: "pipe" });
+
+  const rederived = readFileSync(rederivedPath);
+  return { digest: sha256(rederived), bytes: rederived.byteLength };
+}
+
+export function correctSidecarByteLineage(input: ByteLineageCorrection): ReturnType<typeof correctSidecarByteLineageImpl> {
+  return correctSidecarByteLineageImpl(input);
+}
+
+// reuse is module-private: only runChainGroup may skip the re-derive, after it has
+// compared the chain's final digest against the shipped bytes.
+function correctSidecarByteLineageImpl(input: ByteLineageCorrection, reuse?: { digest: string; bytes: number }): {
   reproduced: true;
   sha256: string;
   bytes: number;
@@ -149,30 +184,19 @@ export function correctSidecarByteLineage(input: ByteLineageCorrection): {
     record["outputSha256"] === shippedDigest &&
     priorIsLineage &&
     priorRecord["preImageSha256"] === preImageDigest;
-  // No established correction: derive the pre-image and compare.
-  const base = path.resolve(rawBase);
-  mkdirSync(base, { recursive: true });
-  const callDir = mkdtempSync(path.join(base, `${path.basename(input.assetPath, ".glb")}-`));
-  const preImagePath = path.join(callDir, `${path.basename(input.assetPath, ".glb")}-pre.glb`);
-  const rederivedPath = path.join(callDir, `${path.basename(input.assetPath, ".glb")}-rederived.glb`);
-  const ownedReportPath = path.join(callDir, `${path.basename(input.assetPath, ".glb")}-report.json`);
+  // No established correction: derive and compare, unless the caller passes
+  // the fresh output it already compared (chain final row runs once).
+  const { digest: rederivedDigest, bytes: rederivedBytes } = reuse ??
+    runRowDerivation(
+      rawBase,
+      input.assetPath,
+      input.derivationArgv,
+      preImage,
+    );
 
-  writeFileSync(preImagePath, preImage);
-
-  const argv = input.derivationArgv.map((token) =>
-    token.replace("{pre}", preImagePath).replace("{out}", rederivedPath).replace("{report}", ownedReportPath),
-  );
-  const executable = argv[0];
-  if (executable === undefined) {
-    throw new Error("correct-sidecar-byte-lineage: the derivation command is empty; there is nothing to run.");
-  }
-  execFileSync(executable, argv.slice(1), { stdio: "pipe" });
-
-  const rederived = readFileSync(rederivedPath);
-  const rederivedDigest = sha256(rederived);
   if (rederivedDigest !== shippedDigest) {
     throw new Error(
-      `correctSidecarByteLineage: refused — re-running the derivation on ${preImageLabel(input.preImage)} (${preImageFlag(input.preImage)}) produced ${rederivedDigest} (${rederived.byteLength} B) but ${input.assetPath} holds ${shippedDigest} (${shipped.byteLength} B). The shipped bytes are NOT explained by this derivation, so the recorded hash must not be rewritten to match them.`,
+      `correctSidecarByteLineage: refused — re-running the derivation on ${preImageLabel(input.preImage)} (${preImageFlag(input.preImage)}) produced ${rederivedDigest} (${rederivedBytes} B) but ${input.assetPath} holds ${shippedDigest} (${shipped.byteLength} B). The shipped bytes are NOT explained by this derivation, so the recorded hash must not be rewritten to match them.`,
     );
   }
   if (duplicateTransition) {
@@ -247,6 +271,21 @@ export const CORRECTIONS: readonly Omit<ByteLineageCorrection, "workingDirectory
       "67b2ee1f1d1c1045f63b2208d11654e507649a041b30916d5d5f617481a528ea",
     ],
     why: "Replay the b042f849c teeth and tongue transplant, rest clearance, and tooth decimation from the 59980e7f6 Git pre-image using the hash-verified archived scratch GLB.",
+  },
+  {
+    assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb",
+    provenancePath: "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json",
+    preImage: { kind: "revision", revision: "a900aaf9a:apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.glb" },
+    derivationArgv: [
+      "sh",
+      "-c",
+      "printf '%s  %s\\n' \"12d3c9a2301dd9362b20f7c531876b55cff854d26eefcad48de56a22ffb5eee3\" \"tools/openclinxr/asset-pipeline/makeclothes/data/aisha-sweater-selection.json\" | shasum -a 256 --check && mise exec -- python3 -I tools/openclinxr/asset-pipeline/makeclothes/rehide-aisha-shoulder-skin.py --in \"$1\" --out \"$2\" --select-faces \"tools/openclinxr/asset-pipeline/makeclothes/data/aisha-sweater-selection.json\" --patch-prim-in-place --report \"$3\"",
+      "x",
+      "{pre}",
+      "{out}",
+      "{report}",
+    ],
+    why: "AISHA-SWEATER-POKE-THROUGH (tsk_4c6a7143f7dff5e0): the pinned 20-face S2 shoulder union (repo selection tools/openclinxr/asset-pipeline/makeclothes/data/aisha-sweater-selection.json, sha256 12d3c9a2; union over 8 ClinicalIdleConversation times, held-out t=0.5 never selected; clearance < 5 mm = garment_coverage.HIDE_EPSILON_M) hidden by the registered rehide-aisha-shoulder-skin.py (python3 -I, patch-prim-in-place) on the 37e905ea pre-image; same stage as run-chain manifest mpfb-ob-patient-aisha.post-export.json stage 01.",
   },
   {
     assetPath: "apps/ui-xr/public/generated-humanoids/mpfb-peds-parent-aisha.glb",
@@ -359,7 +398,10 @@ export class CorrectionsFileGateError extends Error {
 
 /** H4: every fixture row is validated before any correction IO. The error names the file, row index, and field. */
 function validateInjectedCorrectionsTable(file: string, parsed: unknown[]): void {
-  const seen = new Set<string>();
+  // Chain rows share one assetPath (cap50 r5h1): one chain, one sidecar, so
+  // every row must name the same provenancePath, else the final row would
+  // silently choose the write target.
+  const provenanceByAsset = new Map<string, { provenancePath: string; index: number }>();
   parsed.forEach((row, index) => {
     const at = `${file} row ${index}`;
     const bad = (field: string, detail: string): Error =>
@@ -373,9 +415,6 @@ function validateInjectedCorrectionsTable(file: string, parsed: unknown[]): void
         throw bad(field, "(expected a non-empty string)");
       }
     }
-    const assetPath = record["assetPath"] as string;
-    if (seen.has(assetPath)) throw bad("assetPath", `(duplicate ${JSON.stringify(assetPath)})`);
-    seen.add(assetPath);
     const preImage = record["preImage"] as Record<string, unknown> | null;
     if (preImage === null || typeof preImage !== "object" || Array.isArray(preImage)) {
       throw bad("preImage", '(expected { kind: "revision", revision } or { kind: "file", path })');
@@ -398,6 +437,15 @@ function validateInjectedCorrectionsTable(file: string, parsed: unknown[]): void
     ) {
       throw bad("derivationArgv", "(expected a non-empty array of non-empty strings)");
     }
+    const assetPath = record["assetPath"] as string;
+    const provenancePath = record["provenancePath"] as string;
+    const seen = provenanceByAsset.get(assetPath);
+    if (seen !== undefined && seen.provenancePath !== provenancePath) {
+      throw new Error(
+        `correct-sidecar-byte-lineage: ${file} row ${index}: provenancePath ${JSON.stringify(provenancePath)} differs from row ${seen.index} ${JSON.stringify(seen.provenancePath)} for the same assetPath ${JSON.stringify(assetPath)}. Refusing before any correction IO.`,
+      );
+    }
+    provenanceByAsset.set(assetPath, { provenancePath, index });
   });
 }
 
@@ -429,13 +477,85 @@ export function runCorrectionsTable(
     selected = missing ? [] : corrections.filter((correction) => correction.assetPath === asset);
     if (selected.length === 0) throw new UnknownAssetError(missing ? "(missing)" : asset);
   }
+  // Chain-aware (cap50 r5h1): rows sharing one asset form a lineage chain
+  // r1..rN in table order. Single-row groups keep the exact old path.
+  const groups = new Map<string, InjectedByteLineageCorrection[]>();
   for (const correction of selected) {
-    const expectedPreImageSha256 = sha256(readPreImageBytes(correction.preImage));
-    const result = correctSidecarByteLineage({ ...correction, expectedPreImageSha256, workingDirectory });
+    const group = groups.get(correction.assetPath);
+    if (group === undefined) groups.set(correction.assetPath, [correction]);
+    else group.push(correction);
+  }
+  for (const [assetPath, group] of groups) {
+    if (group.length === 1) {
+      const correction = group[0] as InjectedByteLineageCorrection;
+      const expectedPreImageSha256 = sha256(readPreImageBytes(correction.preImage));
+      const result = correctSidecarByteLineage({ ...correction, expectedPreImageSha256, workingDirectory });
+      process.stdout.write(
+        `${correction.assetPath}: reproduced ${result.sha256} (${result.bytes} B), superseding ${String(result.previous.outputSha256)} (${String(result.previous.outputBytes)} B)\n`,
+      );
+      continue;
+    }
+    runChainGroup(assetPath, group, workingDirectory);
+  }
+}
+
+/**
+ * Chain correction (mirrors the sidecar junction rule assertLineageContinuity
+ * in packages/openclinxr/factory-station-core/src/teeth-swap-lineage.ts:58):
+ * every row RUNS; row i's re-derived output digest must equal row i+1's
+ * expectedPreImageSha256 (for i<N); only r_N is compared with the shipped
+ * bytes. A junction breach throws naming the rows and both digests, with
+ * NOTHING written (all derivations and checks precede the single write).
+ */
+function runChainGroup(
+  assetPath: string,
+  group: InjectedByteLineageCorrection[],
+  workingDirectory: string,
+): void {
+  const expected: string[] = [];
+  const outputs: { digest: string; bytes: number }[] = [];
+  group.forEach((correction, index) => {
+    const preImage = readPreImageBytes(correction.preImage);
+    expected.push(sha256(preImage));
+    const output = runRowDerivation(workingDirectory, assetPath, correction.derivationArgv, preImage);
+    outputs.push(output);
     process.stdout.write(
-      `${correction.assetPath}: reproduced ${result.sha256} (${result.bytes} B), superseding ${String(result.previous.outputSha256)} (${String(result.previous.outputBytes)} B)\n`,
+      `${assetPath}: chain row ${index + 1}/${group.length} re-derived ${output.digest} (${output.bytes} B)\n`,
+    );
+  });
+  for (let i = 0; i < group.length - 1; i += 1) {
+    const left = outputs[i] as { digest: string; bytes: number };
+    const right = expected[i + 1] as string;
+    if (left.digest !== right) {
+      throw new Error(
+        `correctSidecarByteLineage: chain refused for ${assetPath} — junction r${i + 1} -> r${i + 2}: row ${i + 1} re-derived ${left.digest} but row ${i + 2} expects pre-image ${right}. NOTHING written.`,
+      );
+    }
+  }
+  const last = group[group.length - 1] as InjectedByteLineageCorrection;
+  // F1: the fresh final output must equal the shipped bytes BEFORE any write.
+  // The old path discarded it, so the top-match skip reported reproduced for
+  // wrong bytes whenever the sidecar already pinned the shipped digest.
+  const shippedBytes = readFileSync(assetPath);
+  const shippedDigest = sha256(shippedBytes);
+  const final = outputs[outputs.length - 1] as { digest: string; bytes: number };
+  if (final.digest !== shippedDigest) {
+    throw new Error(
+      `correctSidecarByteLineage: chain refused for ${assetPath} — final row ${group.length} re-derived ${final.digest} (${final.bytes} B) but the shipped file holds ${shippedDigest} (${shippedBytes.byteLength} B). NOTHING written.`,
     );
   }
+  const result = correctSidecarByteLineageImpl(
+    {
+      ...last,
+      expectedPreImageSha256: expected[expected.length - 1] as string,
+      workingDirectory,
+    },
+    // Reuse the chain-phase output: the final command runs once per chain run.
+    final,
+  );
+  process.stdout.write(
+    `${assetPath}: reproduced ${result.sha256} (${result.bytes} B), superseding ${String(result.previous.outputSha256)} (${String(result.previous.outputBytes)} B)\n`,
+  );
 }
 
 function main(): void {

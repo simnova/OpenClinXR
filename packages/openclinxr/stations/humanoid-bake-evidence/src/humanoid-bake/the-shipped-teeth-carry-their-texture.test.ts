@@ -30,6 +30,14 @@ import {
   validateT3LineageChain,
 } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
+import {
+  AISHA_SWEATER_SELECTION_PATH,
+  AISHA_SWEATER_SELECTION_SHA256,
+  AISHA_SWEATER_TOOL_MARKER,
+  aishaSweaterSelectionFacesOrThrow,
+  aishaSweaterSelectionSplitWhyNot,
+  isAishaSweaterSelectionSplit,
+} from "./aisha-sweater-selection-split.js";
 
 process.chdir(repoRoot());
 
@@ -378,18 +386,6 @@ function rawPrimAttrSig(owner: Glb, prim: Primitive): string {
     JSON.stringify(entries.map(([semantic, accessorIndex]) => [semantic, accessorHash(owner, accessorIndex)])),
   );
 }
-function rawPrimTargetHash(owner: Glb, prim: Primitive): string {
-  const targets = prim.targets ?? [];
-  return sha256(
-    JSON.stringify(
-      targets.map((target) =>
-        Object.entries(target)
-          .sort(([a], [b]) => a.localeCompare(b))
-          .map(([semantic, accessorIndex]) => [semantic, accessorHash(owner, accessorIndex)]),
-      ),
-    ),
-  );
-}
 function rawPrimMaterial(owner: Glb, prim: Primitive): string {
   if (prim.material === undefined) return "";
   const material = owner.document.materials?.[prim.material] as { name?: string } | undefined;
@@ -509,6 +505,132 @@ function nurseChestRowOrThrow(
 const SWAP_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py";
 const TONGUE_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/tongue-forward-place.ts";
 const MAPS_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
+
+/**
+ * Aisha sweater-stage row exception (aisha-sweater r5 T2). The aisha body
+ * prim0.indices row passes iff the ONE shared predicate
+ * (isAishaSweaterSelectionSplit, imported from
+ * ./aisha-sweater-selection-split.js — the only definition of this rule)
+ * accepts the kept/hidden pair: the hidden prim carries exactly the 20-face S2
+ * selection read from the committed AISHA_SWEATER_SELECTION_PATH, the kept
+ * prim every other baseline face, both prims share the baseline prim's
+ * attribute/morph accessors with the kept prim keeping the baseline skin
+ * material and the hidden prim carrying the exact stage hide material, and the
+ * sidecar byteLineage chain carries a sweater rehide level newer than the
+ * teeth-swap level. Every other protected row is strict.
+ */
+const AISHA_ACTOR = "mpfb-ob-patient-aisha.glb";
+const AISHA_BODY_MESH = 4;
+const AISHA_BODY_PRIM0_SLOT = "primitive[0].indices";
+
+/** Pre-sweater aisha bytes (recorded pre-image descriptor): the selection split's union baseline. */
+const aishaSweaterBaselineCache = new Map<string, Glb>();
+function aishaSweaterBaselineGlb(sidecar: Record<string, unknown>): Glb {
+  const found = lineageLevels(sidecar).find((level) =>
+    (level.derivationArgv ?? []).join(" ").includes(AISHA_SWEATER_TOOL_MARKER),
+  );
+  if (!found) throw new Error("T3 Aisha sweater: sidecar byteLineage carries no sweater rehide level");
+  const rev = found.preImageRevision;
+  if (typeof rev !== "string" || !/^[0-9a-f]{7,40}:[^:]+$/.test(rev)) {
+    throw new Error(`T3 Aisha sweater: baseline locator must be a pinned short-sha:path descriptor, got ${rev}`);
+  }
+  const cached = aishaSweaterBaselineCache.get(rev);
+  if (cached) return cached;
+  const raw: Buffer = execFileSync("git", ["show", rev], {
+    cwd: repoRoot(),
+    maxBuffer: 64 * 1024 * 1024,
+  });
+  const baseline = parseGlbBytes(raw, rev);
+  aishaSweaterBaselineCache.set(rev, baseline);
+  return baseline;
+}
+
+function aishaSweaterRowOrThrow(
+  actor: string,
+  glb: Glb,
+  baseline: Glb,
+  sidecar: Record<string, unknown>,
+  rowAccessorIndex: number,
+): void {
+  // M1: the ONE shared predicate owns the selection-keyed split — no caller-local copy.
+  const mesh = glb.document.meshes[AISHA_BODY_MESH];
+  const prims = mesh?.primitives ?? [];
+  const basePrims = baseline.document.meshes[AISHA_BODY_MESH]?.primitives ?? [];
+  const extra = prims.length - basePrims.length;
+  if (extra !== 1) {
+    throw new Error(`T3 Aisha sweater: live body prims ${prims.length} != baseline ${basePrims.length} + 1`);
+  }
+  const kept = prims[0]!;
+  const hidden = prims[prims.length - 1]!;
+  if (kept.indices !== rowAccessorIndex || hidden.indices === undefined || kept.indices === undefined) {
+    throw new Error(
+      `T3 Aisha sweater: live prim0 indices accessor ${kept.indices} != row accessor ${rowAccessorIndex}`,
+    );
+  }
+  const triplesOf = (owner: Glb, index: number): [number, number, number][] => {
+    const flat = accessorValues(owner, index).map((values) => values[0]!);
+    if (flat.length % 3 !== 0) throw new Error(`T3 Aisha sweater: accessor ${index} has no whole triangles`);
+    const out: [number, number, number][] = [];
+    for (let i = 0; i < flat.length; i += 3) {
+      const t = [flat[i]!, flat[i + 1]!, flat[i + 2]!].sort((a, b) => a - b);
+      out.push([t[0]!, t[1]!, t[2]!]);
+    }
+    return out;
+  };
+  const basePrim = basePrims[0]!;
+  if (basePrim.indices === undefined) throw new Error("T3 Aisha sweater: baseline prim0 has no indices");
+  // F3: faces come from the committed selection file only after its bytes
+  // verify against the pinned sha; a swapped file refuses before any face
+  // is used.
+  const selectionPath = join(repoRoot(), AISHA_SWEATER_SELECTION_PATH);
+  const selectionText = readFileSync(selectionPath, "utf8");
+  const selectionFaces = aishaSweaterSelectionFacesOrThrow(
+    selectionText,
+    createHash("sha256").update(selectionText).digest("hex"),
+  );
+  const matName = (owner: Glb, index: number | undefined): string => {
+    if (index === undefined) return "";
+    const material = owner.document.materials?.[index] as Record<string, unknown> | undefined;
+    return typeof material?.["name"] === "string" ? (material["name"] as string) : `mat:${index}`;
+  };
+  const witness = {
+    baselineFaceTriples: triplesOf(baseline, basePrim.indices),
+    keptFaceTriples: triplesOf(glb, kept.indices),
+    hiddenFaceTriples: triplesOf(glb, hidden.indices),
+    selectionFaces: [...selectionFaces],
+    keptAttrAccessors: { ...(kept.attributes ?? {}) },
+    hiddenAttrAccessors: { ...(hidden.attributes ?? {}) },
+    baselineAttrAccessors: { ...(basePrim.attributes ?? {}) },
+    keptTargetAccessors: (kept.targets ?? []).map((target) => ({ ...target })),
+    hiddenTargetAccessors: (hidden.targets ?? []).map((target) => ({ ...target })),
+    baselineTargetAccessors: (basePrim.targets ?? []).map((target) => ({ ...target })),
+    keptMaterialIndex: kept.material ?? -1,
+    hiddenMaterialIndex: hidden.material ?? -1,
+    baselineMaterialIndex: basePrim.material ?? -1,
+    keptMaterial: matName(glb, kept.material),
+    hiddenMaterial: matName(glb, hidden.material),
+    baselineMaterial: matName(baseline, basePrim.material),
+    derivationArgvs: lineageLevels(sidecar).map((level) => level.derivationArgv),
+  };
+  if (!isAishaSweaterSelectionSplit(witness)) {
+    const reason = aishaSweaterSelectionSplitWhyNot(witness) ?? "unknown";
+    const chain = lineageLevels(sidecar)
+      .map((level) => (level.derivationArgv ?? []).join(" "))
+      .join(" <- ");
+    throw new Error(
+      `T3 Aisha sweater ${actor}: shared sweater-selection split rejected (${reason}; chain ${chain.slice(0, 160)})`,
+    );
+  }
+  const hiddenCount = witness.hiddenFaceTriples.length;
+  const keptCount = witness.keptFaceTriples.length;
+  console.log(
+    `T3 Aisha sweater ${actor}: accepted substitution (selection-keyed split, ` +
+      `${AISHA_SWEATER_SELECTION_PATH} sha256 prefix 12d3c9a2, ` +
+      `faces=${witness.selectionFaces.length} [${witness.selectionFaces.join(",")}], ` +
+      `hidden=${hiddenCount} kept=${keptCount} baseline=${witness.baselineFaceTriples.length}, ` +
+      `kept accessor ${rowAccessorIndex})`,
+  );
+}
 // Robert's Blender genesis is the one producer exempt from post-export registration.
 // Its --python operand must be the exact repo-relative path, as in hasConcreteLineage.
 const ROBERT_GENESIS_TOOL = "tools/openclinxr/evidence/blender/bake_mpfb_gown_inspect.py";
@@ -636,6 +758,14 @@ function validateT3(actor: string, glb: Glb, sidecar: Record<string, unknown>, l
       row.slot === NURSE_BODY_PRIM0_SLOT
     ) {
       nurseChestRowOrThrow(actor, glb, nurseBaselineGlb(sidecar), sidecar, row.accessorIndex);
+      continue;
+    }
+    if (
+      actor === AISHA_ACTOR &&
+      row.meshIndex === AISHA_BODY_MESH &&
+      row.slot === AISHA_BODY_PRIM0_SLOT
+    ) {
+      aishaSweaterRowOrThrow(actor, glb, aishaSweaterBaselineGlb(sidecar), sidecar, row.accessorIndex);
       continue;
     }
     throw new Error(`T3 protected ${row.meshIndex}:${row.slot} ${actual} != ${row.sha256}`);
@@ -1767,6 +1897,26 @@ describe("the shipped teeth carry their own CC0 texture", () => {
       isNurseChestSplitWithLineage({ ...witness, baselineSortedIndices: offByOne }),
       "union off by one must refuse the split",
     ).toBe(false);
+  });
+
+  it("F3 counterweight: a different valid 20-face selection refuses against the pinned sha", () => {
+    // The committed file is never edited: the alternate selection lives in a
+    // temp file. It stays a valid 20-face selection, so only the sha pin
+    // refuses it.
+    const committedText = readFileSync(join(repoRoot(), AISHA_SWEATER_SELECTION_PATH), "utf8");
+    const committed = JSON.parse(committedText) as { faces: number[] };
+    expect(committed.faces.length, "committed selection is 20 faces").toBe(20);
+    const altFaces = [...committed.faces];
+    altFaces[0] = (altFaces[0] as number) + 1;
+    const altText = JSON.stringify({ ...committed, faces: altFaces });
+    const altPath = join(mkdtempSync(join(tmpdir(), "sc04-f3cw-")), "alt-selection.json");
+    writeFileSync(altPath, altText);
+    const readBack = readFileSync(altPath, "utf8");
+    const altSha = createHash("sha256").update(readBack).digest("hex");
+    expect(altSha, "alternate selection differs from the pin").not.toBe(AISHA_SWEATER_SELECTION_SHA256);
+    expect(() => aishaSweaterSelectionFacesOrThrow(readBack, altSha)).toThrow(
+      new RegExp(`${altSha}.*${AISHA_SWEATER_SELECTION_SHA256}|${AISHA_SWEATER_SELECTION_SHA256}.*${altSha}`),
+    );
   });
 
   /**

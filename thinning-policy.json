@@ -129,6 +129,32 @@
       "expires": "2026-12-18",
       "evidence": "writer tools/openclinxr/evidence/station-skin-int/rederive_run_report.ts lines 140-145 (single-line compact JSON by design); card RUN-REPORT-MULTILINE tsk_f38a89b7e0c0f807 tracks the multi-line writer",
       "reason": "writer-owned one-line report; a sha re-pin rewrites the whole line"
+    },
+    {
+      "id": "aisha-sweater-corrector-argv-pin",
+      "scope": [
+        "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json"
+      ],
+      "rule": "pin",
+      "approvedBy": "super-ceo-cap51",
+      "quote": "X1 pin: add exception id aisha-sweater-corrector-argv-pin, rule pin, scope [apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json]",
+      "date": "2026-11-19",
+      "expires": "2026-12-03",
+      "evidence": "the CLI corrector tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts writes this argv line (r5h1 C4: sidecar must equal the driver output, so a hand rewrite breaks the sidecar==driver gate); /Volumes/files/openclinxr-assets/store/aisha-parity/aisha-sweater/commit6/thinning.log",
+      "reason": "writer-owned derivation argv; do not hand-rewrite the line"
+    },
+    {
+      "id": "aisha-sweater-issue-276-body-signature",
+      "scope": [
+        ".openclinxr/evidence/issue-276/pre-fix.json"
+      ],
+      "rule": "d-growth",
+      "approvedBy": "super-ceo-cap51",
+      "quote": "X2 d-growth: add exception id aisha-sweater-issue-276-body-signature, rule d-growth, scope [.openclinxr/evidence/issue-276/pre-fix.json]",
+      "date": "2026-11-19",
+      "expires": "2026-12-03",
+      "evidence": "generator tools/openclinxr/evidence/humanoid-body-signature.ts output: +76 B records the new distinct Aisha body sha 91306cc1 (prim0 indices changed by SWEATER' tsk_4c6a7143f7dff5e0); /Volumes/files/openclinxr-assets/store/aisha-parity/aisha-sweater/commit6/thinning.log",
+      "reason": "writer-owned measurement re-pin; dropping it would falsify the measurement"
     }
   ]
 }

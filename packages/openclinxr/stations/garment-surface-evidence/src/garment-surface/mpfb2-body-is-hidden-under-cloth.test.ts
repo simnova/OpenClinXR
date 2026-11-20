@@ -1,4 +1,5 @@
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { resolveSharedAttributeRows, type SharedAttributeCarrier } from "@openclinxr/xr-pose";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
@@ -127,34 +128,70 @@ async function shapeOf(id: string, rel: string): Promise<Shape> {
   );
   const out: Shape = { id, body: 0, hidden: 0, hiddenHand: 0, garment: 0 };
 
+  // One carrier per primitive, grouped by shared attribute set. A primitive that
+  // shares its arrays with another (aisha's appended hide prim reuses the body
+  // POSITION/JOINTS_0) may claim only its own index-referenced rows; singletons
+  // keep the legacy all-rows path (see resolveSharedAttributeRows).
+  const prims: Array<{
+    material: string;
+    joints: {
+      getElement(i: number, e: [number, number, number, number]): void;
+    } | null;
+    weights: {
+      getElement(i: number, e: [number, number, number, number]): void;
+    } | null;
+    carrier: SharedAttributeCarrier;
+  }> = [];
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
       const pos = prim.getAttribute("POSITION");
       if (!pos) continue;
-      const name = prim.getMaterial()?.getName() ?? "";
-      const n = pos.getCount();
+      const indexAccessor = prim.getIndices();
+      const indexArray = indexAccessor?.getArray() as ArrayLike<number> | undefined;
+      prims.push({
+        material: prim.getMaterial()?.getName() ?? "",
+        joints: prim.getAttribute("JOINTS_0") as {
+          getElement(i: number, e: [number, number, number, number]): void;
+        } | null,
+        weights: prim.getAttribute("WEIGHTS_0") as {
+          getElement(i: number, e: [number, number, number, number]): void;
+        } | null,
+        carrier: {
+          set: pos,
+          index: indexArray
+            ? { count: indexAccessor!.getCount(), getX: (i: number) => indexArray[i]! }
+            : null,
+          vertexCount: pos.getCount(),
+        },
+      });
+    }
+  }
+  const resolutions = resolveSharedAttributeRows(prims.map((entry) => entry.carrier));
+  for (const { material, joints, weights, carrier } of prims) {
+    const name = material;
+    const resolution = resolutions.get(carrier.set)!;
+    const rows = resolution.shared
+      ? [...resolution.perCarrier.get(carrier)!]
+      : Array.from({ length: carrier.vertexCount }, (_, i) => i);
 
-      if (HIDDEN_MATERIAL.test(name)) {
-        out.hidden += n;
-        const joints = prim.getAttribute("JOINTS_0");
-        const weights = prim.getAttribute("WEIGHTS_0");
-        if (joints && weights) {
-          const je: [number, number, number, number] = [0, 0, 0, 0];
-          const we: [number, number, number, number] = [0, 0, 0, 0];
-          for (let i = 0; i < joints.getCount(); i += 1) {
-            joints.getElement(i, je);
-            weights.getElement(i, we);
-            let dominant = -1;
-            let best = 0;
-            for (let k = 0; k < 4; k += 1) if (we[k]! > best) { best = we[k]!; dominant = je[k]!; }
-            if (dominant >= 0 && handJoints.has(dominant)) out.hiddenHand += 1;
-          }
+    if (HIDDEN_MATERIAL.test(name)) {
+      out.hidden += rows.length;
+      if (joints && weights) {
+        const je: [number, number, number, number] = [0, 0, 0, 0];
+        const we: [number, number, number, number] = [0, 0, 0, 0];
+        for (const i of rows) {
+          joints.getElement(i, je);
+          weights.getElement(i, we);
+          let dominant = -1;
+          let best = 0;
+          for (let k = 0; k < 4; k += 1) if (we[k]! > best) { best = we[k]!; dominant = je[k]!; }
+          if (dominant >= 0 && handJoints.has(dominant)) out.hiddenHand += 1;
         }
-      } else if (GARMENT_MATERIAL.test(name)) {
-        out.garment += n;
-      } else {
-        out.body += n;
       }
+    } else if (GARMENT_MATERIAL.test(name)) {
+      out.garment += rows.length;
+    } else {
+      out.body += rows.length;
     }
   }
   return out;

@@ -89,6 +89,16 @@
         "name": "applySupinePose",
         "kind": "runtime",
         "via": "own-test"
+      },
+      {
+        "name": "resolveSharedAttributeRows",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "SharedAttributeCarrier",
+        "kind": "type",
+        "via": "own-test"
       }
     ]
   },

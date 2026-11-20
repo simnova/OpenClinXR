@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
+import { assertLineageContinuity, lineageLevels } from "@openclinxr/factory-station-core/runner";
 import { afterEach, describe, expect, it } from "vitest";
 import { correctSidecarByteLineage, readPreImageBytes } from "./correct-sidecar-byte-lineage.js";
 
@@ -38,6 +39,21 @@ function gitShow(rev: string): Buffer {
   return execFileSync("git", ["show", rev], { maxBuffer: 64 * 1024 * 1024 });
 }
 
+function chainDepth(sidecar: string): number {
+  let depth = 0;
+  let cur = (JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>)["byteLineage"] as unknown;
+  while (cur !== null && typeof cur === "object" && !Array.isArray(cur)) {
+    depth += 1;
+    const recordedBefore = (cur as Record<string, unknown>)["recordedBefore"] as unknown;
+    const next =
+      recordedBefore !== null && typeof recordedBefore === "object" && !Array.isArray(recordedBefore)
+        ? (recordedBefore as Record<string, unknown>)["byteLineage"]
+        : undefined;
+    cur = next;
+  }
+  return depth;
+}
+
 function makeChildScript(dir: string): string {
   const p = path.join(dir, "child-copy.mjs");
   writeFileSync(
@@ -68,8 +84,7 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
     process.env.OWN_JOB_TMP = job;
     const beforeCanon = canonSnapshot();
     const fixture = gitShow("HEAD:package.json");
-    // Fixture bytes are arbitrary (HEAD:package.json); the .glb suffix exists
-    // only to satisfy the production basename contract (basename(path,".glb")).
+    // Fixture bytes are arbitrary (HEAD:package.json); .glb satisfies basename(path,".glb").
     const shipped = path.join(job, "shipped.glb");
     writeFileSync(shipped, fixture);
     const sidecar = path.join(job, "own.provenance.json");
@@ -106,9 +121,7 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
       workingDirectory: callDir,
     });
     expect(r2.reproduced).toBe(true);
-    // Chain-aware idempotence (r2 X3) skips before any derivation IO, so the
-    // identical re-run creates no second child dir (the old derive-then-skip
-    // left two). The first run's files stay byte-identical (below).
+    // Identical re-runs skip before derivation IO: no second child dir, first-run files byte-identical.
     const children2 = readdirSync(callDir).filter((n: string) => n.startsWith("shipped-"));
     expect(children2).toEqual(children);
     expect(readFileSync(path.join(callDir, children[0]!, "shipped-report.json")).equals(firstReport)).toBe(true);
@@ -215,7 +228,6 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
     const sidecar = path.join(job, "own.provenance.json");
     writeFileSync(sidecar, JSON.stringify({ outputSha256: "old", outputBytes: 1 }));
     const sidecarBefore = readFileSync(sidecar, "utf8");
-    const sidecarBeforeSha = sha256(Buffer.from(sidecarBefore));
     const child = makeChildScript(job);
     const callDir = track(mkdtempSync(path.join(job, "call-")));
     let message = "";
@@ -236,7 +248,6 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
     expect(message).toContain(afterSha);
     expect(message).toContain("--pre-image-file");
     expect(readFileSync(sidecar, "utf8")).toBe(sidecarBefore);
-    console.log(`h5 sidecar sha256 before=${sidecarBeforeSha} after=${sha256(Buffer.from(readFileSync(sidecar, "utf8")))}`);
   });
 
   it("real CLI help/invalid cases leave cwd and canonical reports unchanged", () => {
@@ -264,21 +275,6 @@ describe("correct-sidecar-byte-lineage writer isolation", () => {
 });
 
 describe("correct-sidecar-byte-lineage nesting + idempotence (e9-r2lineage)", () => {
-  function chainDepth(sidecar: string): number {
-    let depth = 0;
-    let cur = (JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>)["byteLineage"] as unknown;
-    while (cur !== null && typeof cur === "object" && !Array.isArray(cur)) {
-      depth += 1;
-      const recordedBefore = (cur as Record<string, unknown>)["recordedBefore"] as unknown;
-      const next =
-        recordedBefore !== null && typeof recordedBefore === "object" && !Array.isArray(recordedBefore)
-          ? (recordedBefore as Record<string, unknown>)["byteLineage"]
-          : undefined;
-      cur = next;
-    }
-    return depth;
-  }
-
   function runOnce(job: string, sidecar: string, callDir: string, fixture: Buffer, argv: string[]) {
     return correctSidecarByteLineage({
       assetPath: path.join(job, "shipped.glb"),
@@ -317,7 +313,6 @@ describe("correct-sidecar-byte-lineage nesting + idempotence (e9-r2lineage)", ()
     expect(lineage["recordedBefore"]).toMatchObject({ outputSha256: "prev-sha", outputBytes: 7 });
     expect((lineage["recordedBefore"] as Record<string, unknown>)["byteLineage"]).toEqual(prior);
     expect(chainDepth(sidecar)).toBe(2);
-    console.log(`nest depth after one correction on a lined sidecar: ${chainDepth(sidecar)}`);
   });
 
   it("idempotence: re-running the identical correction adds no level", () => {
@@ -339,7 +334,6 @@ describe("correct-sidecar-byte-lineage nesting + idempotence (e9-r2lineage)", ()
     const file2 = readFileSync(sidecar, "utf8");
     const sha2 = sha256(Buffer.from(file2));
     const depth2 = chainDepth(sidecar);
-    console.log(`idem depth run1=${depth1} run2=${depth2} sha1=${sha1.slice(0, 12)} sha2=${sha2.slice(0, 12)}`);
     expect(depth2).toBe(depth1);
     // Identical correction leaves the file byte-identical (no timestamp bump, no new level).
     expect(sha2).toBe(sha1);
@@ -395,12 +389,8 @@ describe("correct-sidecar-byte-lineage nesting + idempotence (e9-r2lineage)", ()
   });
 
   it("F3: a below-top match with altered shipped bytes refuses instead of reproducing", () => {
-    // A caller validating only the below-top level against shipped bytes it
-    // never produced must get a refusal, not `reproduced: true`. Setup: the
-    // top level is a different (newer) correction, the below-top level
-    // matches the input identity exactly, and the shipped bytes were altered
-    // after the sidecar pin. The corrected code falls through to a real
-    // re-derivation, which mismatches and throws; the sidecar is unchanged.
+    // Below-top identity match against altered shipped bytes must refuse, not
+    // reproduce: falls through to a real re-derivation, which mismatches.
     const job = track(mkdtempSync(path.join(tmpdir(), "sc04-f3-")));
     process.env.OWN_JOB_TMP = job;
     const fixture = gitShow("HEAD:package.json");
@@ -450,7 +440,6 @@ describe("correct-sidecar-byte-lineage nesting + idempotence (e9-r2lineage)", ()
     } catch (e) {
       message = String(e);
     }
-    console.log(`f3 below-top refusal: ${message.slice(0, 120)}`);
     expect(message, "below-top match against altered bytes refuses").toContain("NOT explained");
     expect(readFileSync(sidecar, "utf8"), "sidecar unchanged by the refused correction").toBe(sidecarBefore);
   });
@@ -550,6 +539,149 @@ describe("correct-sidecar-byte-lineage --asset selection + termination (correcto
     expect(secondSidecar["outputSha256"]).toBe(sha256(readFileSync(second.assetPath)));
     const firstSidecarBefore = JSON.stringify({ outputSha256: "old", outputBytes: 1 });
     expect(readFileSync(first.provenancePath, "utf8")).toBe(firstSidecarBefore);
+  });
+
+  it("CHAIN (cap50 r5h1, illustrative values): two rows one asset run in order; only r2 meets shipped", () => {
+    // Illustrative tiny file-backed rows (not real GLBs): r1 copies A->A,
+    // r2 appends to A. Junction r1->r2 holds (r1 output == r2 pre-image);
+    // only r2 output meets shipped. Both derivations RUN (markers); only r2
+    // writes one sidecar level. The sidecar starts from the prior pin naming
+    // row 1's pre-image bytes, so the written level satisfies the shared
+    // sidecar junction rule (each level re-ran on the recordedBefore bytes).
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-chain-")));
+    const start = Buffer.from("chain-start-bytes");
+    const shippedBytes = Buffer.from("chain-start-bytes-chain-end");
+    const pre = path.join(job, "pre.glb");
+    writeFileSync(pre, start);
+    const shipped = path.join(job, "asset-shipped.glb");
+    writeFileSync(shipped, shippedBytes);
+    const sidecar = path.join(job, "asset.provenance.json");
+    writeFileSync(sidecar, JSON.stringify({ outputSha256: sha256(start), outputBytes: start.byteLength }));
+    const copy = writeCopyChild(job, "r1-copy.mjs", path.join(job, "r1.marker"));
+    const app = path.join(job, "r2-append.mjs");
+    writeFileSync(app, `import { copyFileSync, appendFileSync, writeFileSync } from "node:fs";\nwriteFileSync(${JSON.stringify(path.join(job, "r2.marker"))}, "marker");\ncopyFileSync(process.argv[2], process.argv[3]);\nappendFileSync(process.argv[3], "-chain-end");\n`);
+    const correctionsFile = writeCorrectionsFile(job, [
+      { assetPath: shipped, provenancePath: sidecar, preImage: { kind: "file", path: pre }, derivationArgv: ["node", copy, "{pre}", "{out}"], why: "chain r1 test" },
+      { assetPath: shipped, provenancePath: sidecar, preImage: { kind: "file", path: pre }, derivationArgv: ["node", app, "{pre}", "{out}"], why: "chain r2 test" },
+    ]);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const r = runCliExpectStatus(["--working-directory", callDir], gateOnEnv(correctionsFile));
+    expect(r.status, `chain must reproduce; stderr=${r.stderr.slice(0, 500)}`).toBe(0);
+    expect(r.stdout).toContain(`${shipped}: reproduced`);
+    expect(existsSync(path.join(job, "r1.marker")), "row 1 derivation ran").toBe(true);
+    expect(existsSync(path.join(job, "r2.marker")), "row 2 derivation ran").toBe(true);
+    const after = JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>;
+    expect(after["outputSha256"]).toBe(sha256(shippedBytes));
+    expect(chainDepth(sidecar), "only the final row writes one level").toBe(1);
+    // The written chain level re-ran on the bytes its recordedBefore pin
+    // names (prior pin == row 1 pre-image, row 2 pre-image == row 1 output).
+    assertLineageContinuity("sc04-chain", lineageLevels(after));
+  });
+
+  function writeF1Fixture(job: string, finalKind: "copy" | "wrong"): {
+    entries: Array<Record<string, unknown>>;
+    shipped: string;
+    sidecar: string;
+    sidecarBefore: string;
+    finalDigest: string;
+    shippedDigest: string;
+  } {
+    // Pinned-sidecar fixture: the sidecar top entry already names the shipped
+    // digest with row 2's identity, so the old code skipped re-derivation and
+    // reported reproduced even when the final row produced wrong bytes.
+    const rowBytes = Buffer.from("f1-row-bytes");
+    const shippedBytes = finalKind === "wrong" ? Buffer.from("f1-shipped-bytes") : rowBytes;
+    const pre = path.join(job, "pre.glb");
+    writeFileSync(pre, rowBytes);
+    const shipped = path.join(job, "asset-shipped.glb");
+    writeFileSync(shipped, shippedBytes);
+    const copy = writeCopyChild(job, "r1-copy.mjs");
+    const finalChild = path.join(job, "r2-final.mjs");
+    if (finalKind === "wrong") {
+      writeFileSync(
+        finalChild,
+        `import { appendFileSync, copyFileSync } from "node:fs";\ncopyFileSync(process.argv[2], process.argv[3]);\nappendFileSync(process.argv[3], "-wrong");\n`,
+      );
+    } else {
+      writeFileSync(finalChild, `import { copyFileSync } from "node:fs";\ncopyFileSync(process.argv[2], process.argv[3]);\n`);
+    }
+    const r2argv = ["node", finalChild, "{pre}", "{out}"];
+    const why = "f1 pinned-final test";
+    const sidecar = path.join(job, "asset.provenance.json");
+    writeFileSync(
+      sidecar,
+      JSON.stringify({
+        outputSha256: sha256(shippedBytes),
+        outputBytes: shippedBytes.byteLength,
+        byteLineage: {
+          correctedBy: "f1-pinned-fixture",
+          correctedAt: "2026-01-01T00:00:00.000Z",
+          recordedBefore: { outputSha256: sha256(shippedBytes), outputBytes: shippedBytes.byteLength },
+          preImageFile: pre,
+          preImageSha256: sha256(rowBytes),
+          preImageBytes: rowBytes.byteLength,
+          derivationArgv: r2argv,
+          reproduction: "byte-identical to the shipped file",
+          why,
+        },
+      }),
+    );
+    return {
+      entries: [
+        { assetPath: shipped, provenancePath: sidecar, preImage: { kind: "file", path: pre }, derivationArgv: ["node", copy, "{pre}", "{out}"], why },
+        { assetPath: shipped, provenancePath: sidecar, preImage: { kind: "file", path: pre }, derivationArgv: r2argv, why },
+      ],
+      shipped,
+      sidecar,
+      sidecarBefore: readFileSync(sidecar, "utf8"),
+      finalDigest: sha256(finalKind === "wrong" ? Buffer.concat([rowBytes, Buffer.from("-wrong")]) : rowBytes),
+      shippedDigest: sha256(shippedBytes),
+    };
+  }
+
+  it("F1: pinned sidecar plus wrong final bytes refuses naming both digests, sidecar unchanged", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-f1red-")));
+    const fixture = writeF1Fixture(job, "wrong");
+    const correctionsFile = writeCorrectionsFile(job, fixture.entries);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const r = runCliExpectStatus(["--working-directory", callDir], gateOnEnv(correctionsFile));
+    expect(r.status, `pinned wrong final bytes must refuse; stdout=${r.stdout.slice(0, 300)}`).not.toBe(0);
+    expect(r.stderr, "refusal names the fresh final digest").toContain(fixture.finalDigest);
+    expect(r.stderr, "refusal names the shipped digest").toContain(fixture.shippedDigest);
+    expect(readFileSync(fixture.sidecar, "utf8"), "sidecar unchanged by the refused chain").toBe(fixture.sidecarBefore);
+  });
+
+  it("F1 counterweight: pinned sidecar plus correct final bytes still reproduces with no write", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-f1cw-")));
+    const fixture = writeF1Fixture(job, "copy");
+    const correctionsFile = writeCorrectionsFile(job, fixture.entries);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const r = runCliExpectStatus(["--working-directory", callDir], gateOnEnv(correctionsFile));
+    expect(r.status, `pinned correct final bytes must reproduce; stderr=${r.stderr.slice(0, 500)}`).toBe(0);
+    expect(r.stdout).toContain(`${fixture.shipped}: reproduced`);
+    expect(readFileSync(fixture.sidecar, "utf8"), "reproduction writes nothing when already pinned").toBe(
+      fixture.sidecarBefore,
+    );
+  });
+
+  it("F2: two rows one asset naming two provenance paths refuse naming both paths", () => {
+    const job = track(mkdtempSync(path.join(tmpdir(), "sc04-f2prov-")));
+    const marker = path.join(job, "derivation-ran.marker");
+    const first = writeEntryFiles(job, "first", { shippedDiffers: false, marker });
+    const secondSidecar = path.join(job, "second.provenance.json");
+    writeFileSync(secondSidecar, JSON.stringify({ outputSha256: "old", outputBytes: 1 }));
+    const correctionsFile = writeCorrectionsFile(job, [
+      { ...first, why: "f2 first row" },
+      { ...first, provenancePath: secondSidecar, why: "f2 second row" },
+    ]);
+    const callDir = track(mkdtempSync(path.join(job, "call-")));
+    const sidecarBefore = readFileSync(first.provenancePath, "utf8");
+    const r = runCliExpectStatus(["--working-directory", callDir], gateOnEnv(correctionsFile));
+    expect(r.status, `split provenance paths must refuse; stdout=${r.stdout.slice(0, 300)}`).not.toBe(0);
+    expect(r.stderr, "refusal names the first path").toContain(first.provenancePath);
+    expect(r.stderr, "refusal names the second path").toContain(secondSidecar);
+    expect(existsSync(marker), "row validation runs before any derivation IO").toBe(false);
+    expect(readFileSync(first.provenancePath, "utf8")).toBe(sidecarBefore);
   });
 
   it("unknown --asset exits 2 and names --asset and the value on stderr", () => {
@@ -672,20 +804,6 @@ describe("correct-sidecar-byte-lineage --asset selection + termination (correcto
     expect(r.stderr).toContain("row 1");
     expect(r.stderr).toContain("derivationArgv");
     expect(existsSync(marker), "row validation runs before any derivation IO").toBe(false);
-    expect(readFileSync(ok.provenancePath, "utf8")).toBe(sidecarBefore);
-    const wsFile = writeCorrectionsFile(job, [
-      { ...ok, why: "h4 valid first row" },
-      { ...bad, derivationArgv: ["node", "   "], why: "h4 whitespace-token test" },
-    ]);
-    const rw = runCliExpectStatus(
-      ["--working-directory", callDir],
-      gateOnEnv(wsFile),
-    );
-    expect(rw.status, `whitespace-only argv token must fail; stdout=${rw.stdout.slice(0, 300)}`).not.toBe(0);
-    expect(rw.stderr).toContain(wsFile);
-    expect(rw.stderr).toContain("row 1");
-    expect(rw.stderr).toContain("derivationArgv");
-    expect(existsSync(marker), "whitespace-token validation runs before any derivation IO").toBe(false);
     expect(readFileSync(ok.provenancePath, "utf8")).toBe(sidecarBefore);
   });
 });

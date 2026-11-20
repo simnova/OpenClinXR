@@ -62,7 +62,8 @@
     "ignore-local-cache": 2787,
     "keep-current": 266,
     "keep-template": 17,
-    "keep-compatibility-input": 24
+    "keep-compatibility-input": 24,
+    "superseded-record": 4
   },
   "entries": [
     {
@@ -12822,7 +12823,7 @@
     {
       "path": ".openclinxr/evidence/issue-343/pre-fix.json",
       "authority": "ignore-local-cache",
-      "tracked": true,
+      "tracked": false,
       "action": "ignore",
       "rationale": "Local runtime/cache artifact; should not be committed or used as durable evidence."
     },
@@ -26953,6 +26954,13 @@
       "rationale": "xr-sync MN2 replay admission: admits ./conversation-replay (replayConversationTrace, createReplayCaptionBank) that the MN2 site evidence test imports to recompute client captions from a recorded trace (Codex independent review accept)."
     },
     {
+      "path": "docs/openclinxr/package-public-surface-reduction/admissions/aisha-sweater-consumer-fix-v1.json",
+      "authority": "keep-evidence",
+      "tracked": true,
+      "action": "keep",
+      "rationale": "Aisha sweater consumer-fix admission: admits resolveSharedAttributeRows (+ type SharedAttributeCarrier) on the xr-pose root, the one index-union helper the supine solver and the two garment-surface meters import (super-ceo-cap50 GO 2026-11-19, pending operator ratification)."
+    },
+    {
       "path": "docs/openclinxr/package-public-surface-reduction/approvals/psr-01b.json",
       "authority": "keep-evidence",
       "tracked": true,
@@ -35304,6 +35312,13 @@
       "rationale": "Generated OpenClinXR evidence artifact; keep unless a later explicit stale pattern supersedes it."
     },
     {
+      "path": "packages/openclinxr-verification/architecture-rules/src/checks/consumer-contracts-speed-report.json",
+      "authority": "superseded-record",
+      "tracked": false,
+      "action": "delete-tracked",
+      "rationale": "One-off before/after speed measurement and the doneWhen exists: proof of Landed card tsk_b996c7320039aba1; no reader or writer; deleted by SWEATER' tsk_4c6a7143f7dff5e0 (super-ceo-cap51 2026-11-19); git show 2db1191c4:<path> still resolves it."
+    },
+    {
       "path": "packages/openclinxr/factory-stations/src/room_clinic_finish/textures/ceiling-acoustic-tile.jpg",
       "authority": "keep-current",
       "tracked": true,
@@ -35465,6 +35480,20 @@
       "rationale": "Hand-authored Blender producer for seated-clip frames, not generated output; tools/ is not a scan root."
     },
     {
+      "path": "tools/openclinxr/evidence/citation-recovery-20261025/embedded-camera-metadata.json",
+      "authority": "superseded-record",
+      "tracked": false,
+      "action": "delete-tracked",
+      "rationale": "One-off archivist receipt and the doneWhen exists: proof of Landed card tsk_9494c930dbdabcf7; no reader or writer; deleted by SWEATER' tsk_4c6a7143f7dff5e0 (super-ceo-cap51 2026-11-19); git show 2e1df6478:<path> still resolves it."
+    },
+    {
+      "path": "tools/openclinxr/evidence/citation-recovery-20261025/published-artifact-aliases.json",
+      "authority": "superseded-record",
+      "tracked": false,
+      "action": "delete-tracked",
+      "rationale": "One-off archivist receipt and the doneWhen exists: proof of Landed card tsk_1410d4797ba9a2ce; no reader or writer; deleted by SWEATER' tsk_4c6a7143f7dff5e0 (super-ceo-cap51 2026-11-19); git show 2e1df6478:<path> still resolves it."
+    },
+    {
       "path": "tools/openclinxr/evidence/clinical-touch/ed-input-trs-baseline.json",
       "authority": "keep-current",
       "tracked": true,
@@ -35547,6 +35576,13 @@
       "tracked": false,
       "action": "keep",
       "rationale": "Generated-looking artifact retained by conservative default after explicit stale/cache/template rules."
+    },
+    {
+      "path": "tools/openclinxr/evidence/xr-sync/c52-station-one-freeze.json",
+      "authority": "superseded-record",
+      "tracked": false,
+      "action": "delete-tracked",
+      "rationale": "C52 station-one freeze attribution, the proof report of Landed card tsk_1b56a74f67a23cfc (proofs.set headSha 42c2c4e7d; last touched 04608a256); no reader or writer; deleted by SWEATER' tsk_4c6a7143f7dff5e0 (super-ceo-cap51 2026-11-19); git show 42c2c4e7d:<path> still resolves it."
     },
     {
       "path": "tools/openclinxr/mouth-solver/solved-teeth-gap.json",

@@ -1,0 +1,32 @@
+{
+  "schema": "openclinxr.psr-admission.v1",
+  "id": "aisha-sweater-consumer-fix-v1",
+  "reviewedBy": "super-ceo-cap50 GO 2026-11-19, pending operator ratification (crit6 class)",
+  "baseRawInventoryHash": "e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026",
+  "admissionHash": "2b57a3949e9d3f28061660ad6874f262f574d6a98b51b63ba456059edd4d4333",
+  "packages": [
+    "packages/openclinxr/xr-pose"
+  ],
+  "rows": [
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "resolveSharedAttributeRows",
+      "kind": "runtime",
+      "disposition": "keep",
+      "owner": "aisha-sweater-r4 consumer fix (card vitruvian-resume)",
+      "rationale": "ONE contract for the consumer fix: union of index-referenced rows per shared attribute set. Bound by the solver rows module (supine-shared-position-rows.ts), the garment wrist meter, and the garment hidden-under-cloth meter.",
+      "reviewedBy": "super-ceo-cap50 GO 2026-11-19, pending operator ratification (crit6 class)"
+    },
+    {
+      "package": "packages/openclinxr/xr-pose",
+      "entrypoint": ".",
+      "symbol": "SharedAttributeCarrier",
+      "kind": "type",
+      "disposition": "keep",
+      "owner": "aisha-sweater-r4 consumer fix (card vitruvian-resume)",
+      "rationale": "Carrier row-claim input type for resolveSharedAttributeRows; bound by the solver rows module and both garment meters.",
+      "reviewedBy": "super-ceo-cap50 GO 2026-11-19, pending operator ratification (crit6 class)"
+    }
+  ]
+}

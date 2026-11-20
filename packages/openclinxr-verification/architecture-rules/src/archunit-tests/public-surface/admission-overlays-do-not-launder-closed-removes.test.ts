@@ -455,7 +455,8 @@ describe("admission overlays do not launder closed removes", () => {
     // 2026-11-13 super-ceo-cap26/cap27 ruling: admits 2 new adds (xr-sync-rr1-phase-wait-v1), no closed remove.
     // 2026-11-13 ceo/e9-r2b coordinator binding brief A1, pending operator ratification: admits 4 new keeps (nurse-chest-stage-v1), no closed remove.
     // 2026-11-14 website-wn2 WN2 (worker self-admission, operator ratification pending): admits 1 new keep (xr-sync-mn2-replay-v1), no closed remove.
-    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1", "xr-sync-rr1-phase-wait-v1", "nurse-chest-stage-v1", "xr-sync-mn2-replay-v1"\]/u);
+    // 2026-11-19 super-ceo-cap50 GO, pending operator ratification (crit6 class): admits 2 new keeps (aisha-sweater-consumer-fix-v1), no closed remove.
+    expect(applyMap).toMatch(/export const ADMISSION_GROUPS: readonly string\[\] = \["psr-01f", "aisha-sweater-consumer-fix-v1", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1", "xr-sync-rr1-phase-wait-v1", "nurse-chest-stage-v1", "xr-sync-mn2-replay-v1"\]/u);
     const resolveStart = applyMap.indexOf("export function resolveApplyId");
     const resolveBody = applyMap.slice(resolveStart);
     expect(resolveBody).not.toMatch(/ADMISSION_GROUPS/u);
@@ -475,7 +476,8 @@ describe("the independently reviewed seven-row production activation", () => {
     // 2026-11-13 super-ceo-cap26/cap27 ruling: admits 2 new adds (xr-sync-rr1-phase-wait-v1), no closed remove.
     // 2026-11-13 ceo/e9-r2b coordinator binding brief A1, pending operator ratification: admits 4 new keeps (nurse-chest-stage-v1), no closed remove.
     // 2026-11-14 website-wn2 WN2 (worker self-admission, operator ratification pending): admits 1 new keep (xr-sync-mn2-replay-v1), no closed remove.
-    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1", "xr-sync-rr1-phase-wait-v1", "nurse-chest-stage-v1", "xr-sync-mn2-replay-v1"]);
+    // 2026-11-19 super-ceo-cap50 GO, pending operator ratification (crit6 class): admits 2 new keeps (aisha-sweater-consumer-fix-v1), no closed remove.
+    expect(ADMISSION_GROUPS).toEqual(["psr-01f", "aisha-sweater-consumer-fix-v1", "rest-route-catalog-v1", "actor-audio-runtime-v1", "room-chain-wiring-v1", "teeth-viseme-consumers-v1", "startup-cast-v1", "viseme-motion-subpaths-v1", "xr-dialogue-consumer-split-v1", "staging-layout-view-v1", "live-voice-v1", "s1-stop-clip-runtime-v1", "stepping-turn-v1", "walk-symmetry-gate-v1", "fixed-clock-v1", "footstep-plan-v1", "stepping-turn-begin-v1", "turn-backward-footfalls-v1", "foot-base-v1", "skin-shade-loader-v1", "vitblink-eye-schedule-v1", "skin-triplanar-detail-v1", "patient-staging-v1", "last-station-break-rule-v1", "faculty-review-route-v1", "xr-sync-rr1-phase-wait-v1", "nurse-chest-stage-v1", "xr-sync-mn2-replay-v1"]);
     const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8"));
     expect(admission.rows).toHaveLength(7);
     expect(admission.admissionHash).toBe("6a4df1fedee5ad0fae42e026eaf6e77c2f1a4155c117a1e3e0c9679f74f90d11");
@@ -720,11 +722,28 @@ describe("the independently reviewed seven-row production activation", () => {
     expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
   });
 
+  // 2026-11-19 super-ceo-cap50 GO, pending operator ratification (crit6 class):
+  // the consumer fix publishes the ONE helper contract (function +
+  // carrier type) on the xr-pose root for the solver and both garment meters.
+  it("binds the aisha-sweater consumer-fix admission", () => {
+    const admission = JSON.parse(readFileSync(join(ROOT, ADMISSIONS_DIR, "aisha-sweater-consumer-fix-v1.json"), "utf8"));
+    expect(admission.id).toBe("aisha-sweater-consumer-fix-v1");
+    expect(admission.baseRawInventoryHash).toBe("e43ee9c249ee7469828c39a265b9b1fdffc614a71768b5bbe419e5380bb70026");
+    expect(admission.packages).toEqual(["packages/openclinxr/xr-pose"]);
+    expect(admission.rows.map((row: OverlayRow) => [row.entrypoint, row.symbol])).toEqual([
+      [".", "resolveSharedAttributeRows"],
+      [".", "SharedAttributeCarrier"],
+    ]);
+    expect(admission.admissionHash).toBe("2b57a3949e9d3f28061660ad6874f262f574d6a98b51b63ba456059edd4d4333");
+    expect(overlayAdmissionHash(admission.reviewedBy, admission.rows)).toBe(admission.admissionHash);
+    expect(admission.rows.every((row: OverlayRow) => row.owner !== admission.reviewedBy && row.reviewedBy === admission.reviewedBy)).toBe(true);
+  });
   function withActualEvidence(run: (root: string, admission: { reviewedBy: string; admissionHash: string; rows: OverlayRow[] }) => void): void {
     const admissionBody = readFileSync(join(ROOT, ADMISSIONS_DIR, "psr-01f.json"), "utf8");
     const files: Record<string, string> = {
       [RAW_INVENTORY_REL]: readFileSync(join(ROOT, RAW_INVENTORY_REL), "utf8"),
       [`${ADMISSIONS_DIR}/psr-01f.json`]: admissionBody,
+      [`${ADMISSIONS_DIR}/aisha-sweater-consumer-fix-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "aisha-sweater-consumer-fix-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/rest-route-catalog-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "rest-route-catalog-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/actor-audio-runtime-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "actor-audio-runtime-v1.json"), "utf8"),
       [`${ADMISSIONS_DIR}/room-chain-wiring-v1.json`]: readFileSync(join(ROOT, ADMISSIONS_DIR, "room-chain-wiring-v1.json"), "utf8"),

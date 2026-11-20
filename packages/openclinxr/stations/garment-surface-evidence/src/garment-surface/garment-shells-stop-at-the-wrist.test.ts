@@ -1,4 +1,5 @@
 import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { resolveSharedAttributeRows, type SharedAttributeCarrier } from "@openclinxr/xr-pose";
 import { NodeIO } from "@gltf-transform/core";
 import { describe, expect, it } from "vitest";
 
@@ -154,35 +155,67 @@ async function tallyHandVerts(id: string, rel: string): Promise<HandTally> {
   );
   const out: HandTally = { id, skin: 0, garment: 0, hidden: 0, other: 0 };
 
+  // One carrier per joint-carrying primitive, grouped by shared attribute set.
+  // A primitive that shares its arrays with another (aisha's appended hide prim
+  // reuses the body POSITION/JOINTS_0) may claim only its own index-referenced
+  // rows; singletons keep the legacy all-rows path (see resolveSharedAttributeRows).
+  const carriers: Array<{ bucket: Exclude<keyof HandTally, "id">; carrier: SharedAttributeCarrier }> = [];
+  const jointAccessors: Array<{ joints: unknown; weights: unknown }> = [];
   for (const mesh of doc.getRoot().listMeshes()) {
     for (const prim of mesh.listPrimitives()) {
       const joints = prim.getAttribute("JOINTS_0");
       const weights = prim.getAttribute("WEIGHTS_0");
       if (!joints || !weights) continue;
       const material = prim.getMaterial()?.getName() ?? "";
-      const bucket: keyof HandTally = GARMENT_MATERIAL.test(material)
+      const bucket: Exclude<keyof HandTally, "id"> = GARMENT_MATERIAL.test(material)
         ? "garment"
         : HIDDEN_MATERIAL.test(material)
           ? "hidden"
           : SKIN_MATERIAL.test(material)
             ? "skin"
             : "other";
-
-      const je: [number, number, number, number] = [0, 0, 0, 0];
-      const we: [number, number, number, number] = [0, 0, 0, 0];
-      for (let i = 0; i < joints.getCount(); i += 1) {
-        joints.getElement(i, je);
-        weights.getElement(i, we);
-        let dominant = -1;
-        let best = 0;
-        for (let k = 0; k < 4; k += 1) {
-          if (we[k]! > best) {
-            best = we[k]!;
-            dominant = je[k]!;
-          }
+      const pos = prim.getAttribute("POSITION");
+      const set = pos ?? joints;
+      const indexAccessor = prim.getIndices();
+      const indexArray = indexAccessor?.getArray() as ArrayLike<number> | undefined;
+      carriers.push({
+        bucket,
+        carrier: {
+          set,
+          index: indexArray
+            ? { count: indexAccessor!.getCount(), getX: (i: number) => indexArray[i]! }
+            : null,
+          vertexCount: set.getCount(),
+        },
+      });
+      jointAccessors.push({ joints, weights });
+    }
+  }
+  const resolutions = resolveSharedAttributeRows(carriers.map((entry) => entry.carrier));
+  const je: [number, number, number, number] = [0, 0, 0, 0];
+  const we: [number, number, number, number] = [0, 0, 0, 0];
+  for (let p = 0; p < carriers.length; p += 1) {
+    const { bucket, carrier } = carriers[p]!;
+    const resolution = resolutions.get(carrier.set)!;
+    const rows = resolution.shared
+      ? resolution.perCarrier.get(carrier)!
+      : Array.from({ length: carrier.vertexCount }, (_, i) => i);
+    const { joints, weights } = jointAccessors[p]! as {
+      joints: { getElement(i: number, e: [number, number, number, number]): void };
+      weights: { getElement(i: number, e: [number, number, number, number]): void };
+    };
+    for (const i of rows) {
+      joints.getElement(i, je);
+      weights.getElement(i, we);
+      let dominant = -1;
+      let best = 0;
+      for (let k = 0; k < 4; k += 1) {
+        if (we[k]! > best) {
+          best = we[k]!;
+          dominant = je[k]!;
         }
-        if (dominant >= 0 && handJoints.has(dominant)) out[bucket] += 1;
       }
+      if (dominant >= 0 && handJoints.has(dominant)) out[bucket] += 1;
     }
   }
   return out;

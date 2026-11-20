@@ -1835,6 +1835,9 @@ importers:
       '@openclinxr/scenario-fixtures':
         specifier: workspace:*
         version: link:../../scenario-fixtures
+      '@openclinxr/xr-pose':
+        specifier: workspace:*
+        version: link:../../xr-pose
       '@openclinxr/xr-scene':
         specifier: workspace:*
         version: link:../../xr-scene

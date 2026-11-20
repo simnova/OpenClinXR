@@ -1,7 +1,7 @@
 {
   "schemaVersion": "openclinxr.humanoid-body-signature-pre-fix.v1",
   "issue": 276,
-  "measuredAt": "2026-11-16T21:14:13.293Z",
+  "measuredAt": "2026-11-19T23:45:51.509Z",
   "scanRoot": "apps/ui-xr/public/generated-humanoids",
   "assets": [
     {
@@ -100,7 +100,7 @@
       "triangles": 10705,
       "vertices": 7006,
       "heightMeters": 1.6658903360366821,
-      "bodySha256": "433b4cd4f2c7ebf13385960f78646820ecf51dbbbeadc98b5851c879d1b577b5",
+      "bodySha256": "91306cc16569bf0ebba151f3bb871eac46c948f848fd2b43f74738ffa80c7458",
       "bodyClassKey": "7006|10705|1.67"
     },
     {
@@ -208,6 +208,7 @@
       "vertices": 7006,
       "heightMeters": 1.6658903360366821,
       "distinctSha256": [
+        "91306cc16569bf0ebba151f3bb871eac46c948f848fd2b43f74738ffa80c7458",
         "433b4cd4f2c7ebf13385960f78646820ecf51dbbbeadc98b5851c879d1b577b5"
       ],
       "assets": [
