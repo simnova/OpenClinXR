@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { assertLineageContinuity, lineageLevels } from "@openclinxr/factory-station-core/runner";
+import { resolveCorrectionsTable } from "../../../../../../../tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.js";
 import { BASELINE_REF, GLB_DIR, ROOT } from "./shipped-lash-follow-types.js";
 
 type LashChainSidecar = Record<string, unknown> & {
@@ -87,14 +88,36 @@ export function realLashGitHistory(): LashGitHistory {
  * the proof line but never matched — a lash-named subject is not evidence.
  * A second bridge attempt, a shallow clone, or a history with no commit
  * recording `cur` all throw, so the caller fails closed and stays RED.
- * Chosen h2-B1 verification: a recorded intermediate level is followed only
- * when its preImageRevision resolves in git to its preImageSha256.
+ * Chosen h3-X1 verification (coordinator ruling R1, "pinned by the lineage
+ * corrector's own record"): a recorded intermediate level is followed ONLY
+ * when a row of the REVIEWED corrections table
+ * (tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts, via
+ * resolveCorrectionsTable so fixture injection still applies) names the same
+ * assetPath AND the exact same preImage.revision, AND that revision is a
+ * fixed commit (abbrev/full hex sha with an optional ^ suffix; never
+ * HEAD/branch/floating), AND the git bytes at it hash to the level's
+ * preImageSha256 (the h2 git-hash check, kept as the last gate). A sidecar
+ * cannot extend the reviewed table, and the corrector re-derived every row
+ * before writing the sidecar — so a forged intermediate (emitted input with
+ * a coinciding git revision, e.g. one pointed at the lash baseline blob) is
+ * refused here instead of walked.
  *
  * Returns the walked sha path newest-first for the proof print.
  */
 function verifyRecordedLevelPreImage(actorFile: string, name: string, input: string, preImageRevision: unknown): void {
   if (typeof preImageRevision !== "string" || preImageRevision.trim() === "") {
     throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} names no git pre-image revision, so its claim to derive from ${input} is unverified`);
+  }
+  const assetPath = `apps/ui-xr/public/generated-humanoids/${actorFile}`;
+  const pinned = resolveCorrectionsTable().some(
+    (row) => row.assetPath === assetPath && row.preImage.kind === "revision" && row.preImage.revision === preImageRevision,
+  );
+  if (!pinned) {
+    throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} at ${preImageRevision} is not a reviewed correction for ${assetPath} (no CORRECTIONS row pins this pre-image), so its claim to derive from ${input} is unverified`);
+  }
+  const revPart = preImageRevision.split(":")[0] ?? "";
+  if (!/^[0-9a-f]{4,40}(\^)?$/.test(revPart)) {
+    throw new Error(`${actorFile}: lash-ancestor refused: recorded step ${name} pre-image ${preImageRevision} is not a fixed commit, so its claim to derive from ${input} is unverified`);
   }
   let digest: string;
   try {
@@ -153,11 +176,14 @@ export function validateLashAncestorChain(
   // Recorded intermediate derivations (route-A second post-lash level): every
   // non-newest level L(i) re-derived out(i) = L(i-1).recordedBefore.outputSha256
   // from pre(i) = L(i).preImageSha256, continuity-verified above. The walk
-  // follows one newest-to-oldest ONLY when it is VERIFIED: its preImageRevision
-  // resolves in git to bytes hashing to pre(i). A recorded level that names
-  // the emitted input but whose git pre-image hashes elsewhere (Codex forgery:
-  // intermediate claims emitted as input and repeats it in recordedBefore) is
-  // refused here instead of walked. Block steps (teethSwapB1, colour) take
+  // follows one newest-to-oldest ONLY when it is PINNED: a row of the reviewed
+  // CORRECTIONS table names the same asset AND the exact preImageRevision, the
+  // revision is a fixed commit, and its git bytes hash to pre(i) (see
+  // verifyRecordedLevelPreImage). A recorded level that names the emitted
+  // input but is not a reviewed correction (Codex forgeries: the h2 variant
+  // whose git pre-image hashes elsewhere, and the baseline-blob variant whose
+  // revision points at the real lash-stage input bytes) is refused here
+  // instead of walked. Block steps (teethSwapB1, colour) take
   // precedence over a level step at the same cur (they divert into the
   // pre-sidecar bridge); once a block step is taken the walk stays out of
   // recorded levels so it cannot descend past the bridge point, and the walk

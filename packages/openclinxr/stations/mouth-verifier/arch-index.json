@@ -85,6 +85,7 @@
     "@openclinxr/xr-scene"
   ],
   "tests": [
+    "src/ob-aisha-fitted-teeth-carry-the-lip-visemes.test.ts",
     "src/the-tongue-channel-names-why-the-tongue-leads-the-crown-at-open-visemes.test.ts",
     "src/the-tongue-channel-reads-rest-tongue-tip-against-the-incisors.test.ts",
     "src/verifier.test.ts"

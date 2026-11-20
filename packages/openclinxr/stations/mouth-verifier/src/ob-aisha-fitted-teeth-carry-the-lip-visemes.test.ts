@@ -10,15 +10,21 @@
  * - G1 the teeth viseme_aa morph contribution is below -0.05 mm.
  * - CW1 rest sil tongue-tip-minus-crown stays within 0.05 mm of the pre-fix
  *   pin (the shipped GLB is the town square: rest geometry must not move).
- * - CW3 every accessor outside the fitted-teeth morph-target set is
- *   byte-identical to the pre-image, so the fix cannot smuggle other bytes.
- *   Dense payloads are stride-walked (Aisha's body interleaves attributes at
- *   stride 52); sparse accessors compare the base payload (absent bufferView
- *   is an implicit-zero base) plus indices/values, and decoded-value metadata
- *   rides alongside the bytes. The S1 probe plants one byte at element 95 of
- *   a strided non-teeth accessor on an in-memory copy: a contiguous reader
- *   misses it while the comparator flags exactly that index (and passes the
- *   unmodified bytes).
+ * - CW3 every accessor not EXCLUSIVELY referenced by fitted-teeth morph targets
+ *   is byte-identical to the pre-image, so the fix cannot smuggle other
+ *   bytes. The skip covers only accessors referenced through teeth targets and
+ *   nowhere else (body attributes/indices, other prim targets, skins, and
+ *   animation samplers all count as other uses); a shared index is skipped
+ *   only when both documents reference it exclusively. Dense payloads are
+ *   stride-walked (Aisha's body interleaves attributes at stride 52); sparse
+ *   accessors compare the base payload (absent bufferView is an implicit-zero
+ *   base) plus indices/values, and decoded-value metadata rides alongside the
+ *   bytes. The S1 probe plants one byte at element 95 of a strided non-teeth
+ *   accessor on an in-memory copy: a contiguous reader misses it while the
+ *   comparator flags exactly that index (and passes the unmodified bytes).
+ *   The X3 probe aliases one teeth-target slot onto a changed body accessor
+ *   on an in-memory copy: the old either-side skip hid it (CW3 = []), while
+ *   the exclusive comparator flags exactly the aliased index.
  *
  * Only two numeric thresholds exist: TOL_MM 0.05 below, sourced from the
  * landed R1 TOL of the-tongue-channel-reads test ("R1 fresh-read"). G0 is an
@@ -158,19 +164,22 @@ function accessorMeta(accessor: Accessor): string {
 }
 
 /** Indices of non-fitted-teeth-target accessors whose bytes differ between
- * two GLBs (teeth-target set read off each document by mesh name, never by
- * index). Appended (a-only) and removed (b-only) non-teeth indices count as
- * differing. Pure over the two parsed GLBs; the caller asserts emptiness. */
+ * two GLBs (teeth-target exclusivity read off each document by mesh name,
+ * never by index). Appended (a-only) and removed (b-only) non-teeth indices
+ * count as differing. Pure over the two parsed GLBs; the caller asserts
+ * emptiness. A shared index is skipped only when BOTH documents reference it
+ * exclusively through fitted-teeth targets: if either side also uses it for
+ * body data, it is compared. */
 function nonTeethDiffs(a: ParsedGlb, b: ParsedGlb, aLabel: string, bLabel: string): number[] {
-  const skip = fittedTeethTargetAccessors(a.document);
-  const bSkip = fittedTeethTargetAccessors(b.document);
+  const skip = exclusiveTeethTargetAccessors(a.document);
+  const bSkip = exclusiveTeethTargetAccessors(b.document);
   const differing: number[] = [];
   for (let index = b.document.accessors.length; index < a.document.accessors.length; index += 1) {
     if (!skip.has(index)) differing.push(index);
   }
   const shared = Math.min(a.document.accessors.length, b.document.accessors.length);
   for (let index = 0; index < shared; index += 1) {
-    if (skip.has(index) || bSkip.has(index)) continue;
+    if (skip.has(index) && bSkip.has(index)) continue;
     const aAcc = a.document.accessors[index];
     const bAcc = b.document.accessors[index];
     const aDense = densePayload(a, index, aLabel);
@@ -236,6 +245,54 @@ function fittedTeethTargetAccessors(document: Document): Set<number> {
         for (const accessor of Object.values(target)) out.add(accessor);
       }
     }
+  }
+  return out;
+}
+
+/** Accessor indices referenced by anything BESIDES fitted-teeth morph targets:
+ *  mesh attributes/indices, non-teeth prim targets, skins, animation samplers.
+ *  A body accessor a new teeth target aliases stays in this set, so it can
+ *  never hide behind the teeth-target skip. */
+function nonTeethReferencingAccessors(document: Document): Set<number> {
+  const out = new Set<number>();
+  for (const mesh of document.meshes) {
+    const isTeeth = /fitted_teeth/i.test(mesh.name ?? "");
+    for (const prim of mesh.primitives ?? []) {
+      if (prim.indices !== undefined) out.add(prim.indices);
+      for (const accessor of Object.values(prim.attributes ?? {})) out.add(accessor);
+      if (!isTeeth) {
+        for (const target of prim.targets ?? []) {
+          for (const accessor of Object.values(target)) out.add(accessor);
+        }
+      }
+    }
+  }
+  const extended = document as Document & {
+    skins?: Array<{ inverseBindMatrices?: number }>;
+    animations?: Array<{ samplers?: Array<{ input: number; output: number }> }>;
+  };
+  for (const skin of extended.skins ?? []) {
+    if (skin.inverseBindMatrices !== undefined) out.add(skin.inverseBindMatrices);
+  }
+  for (const anim of extended.animations ?? []) {
+    for (const sampler of anim.samplers ?? []) {
+      out.add(sampler.input);
+      out.add(sampler.output);
+    }
+  }
+  return out;
+}
+
+/** Fitted-teeth morph-target accessor indices referenced EXCLUSIVELY through
+ *  those targets (never by body attributes, other prims, skins, or
+ *  animations). Codex CW3=[]: the old skip hid a changed body accessor behind
+ *  a new teeth-target reference; exclusivity closes it. */
+function exclusiveTeethTargetAccessors(document: Document): Set<number> {
+  const teeth = fittedTeethTargetAccessors(document);
+  const other = nonTeethReferencingAccessors(document);
+  const out = new Set<number>();
+  for (const index of teeth) {
+    if (!other.has(index)) out.add(index);
   }
   return out;
 }
@@ -316,5 +373,34 @@ describe("ob aisha fitted teeth carry the lip visemes", () => {
     expect(naive(mutated).equals(naive(pre)), "contiguous reader misses the late strided element").toBe(true);
     expect(nonTeethDiffs(pre, mutated, "pre-image", "mutated")).toEqual([planted]);
     expect(nonTeethDiffs(pre, pre, "pre-image", "pre-image")).toEqual([]);
+  }, 180_000);
+
+  it("X3 probe: a teeth target aliasing a changed body accessor does not hide it", () => {
+    const preRaw = execFileSync("git", ["show", `${PRE_IMAGE_REV}:${PRE_IMAGE_PATH}`], {
+      cwd: REPO_ROOT,
+      maxBuffer: 1024 * 1024 * 128,
+    }) as Buffer;
+    const pre = parseGlbBytes(preRaw, `pre-image ${PRE_IMAGE_REV}`);
+    const otherRefs = nonTeethReferencingAccessors(pre.document);
+    const aliasedIndex = pre.document.accessors.findIndex((cand, index) => {
+      if (cand.bufferView === undefined || cand.sparse) return false;
+      const size = COMPONENT_SIZE[cand.componentType];
+      const comps = TYPE_COUNT[cand.type];
+      if (size === undefined || comps === undefined) return false;
+      return otherRefs.has(index);
+    });
+    expect(aliasedIndex, "a dense body-referenced accessor exists in the pre-image").toBeGreaterThanOrEqual(0);
+    const acc = pre.document.accessors[aliasedIndex]!;
+    const view = pre.document.bufferViews[acc.bufferView!]!;
+    // eslint-disable-next-line no-console
+    console.log(`X3 probe: aliasing a teeth target onto changed body accessor ${aliasedIndex}`);
+    const aliasedDocument = JSON.parse(JSON.stringify(pre.document)) as Document;
+    const teethMesh = aliasedDocument.meshes.find((mesh) => /fitted_teeth/i.test(mesh.name ?? ""));
+    expect(teethMesh, "pre-image carries the fitted-teeth mesh to alias").toBeDefined();
+    teethMesh!.primitives![0]!.targets = [{ POSITION: aliasedIndex }];
+    const mutatedBin = Buffer.from(pre.binary);
+    mutatedBin[(view.byteOffset ?? 0) + (acc.byteOffset ?? 0)] = (mutatedBin[(view.byteOffset ?? 0) + (acc.byteOffset ?? 0)]! + 1) % 256;
+    const aliased: ParsedGlb = { document: aliasedDocument, binary: mutatedBin };
+    expect(nonTeethDiffs(aliased, pre, "aliased", "pre-image")).toEqual([aliasedIndex]);
   }, 180_000);
 });

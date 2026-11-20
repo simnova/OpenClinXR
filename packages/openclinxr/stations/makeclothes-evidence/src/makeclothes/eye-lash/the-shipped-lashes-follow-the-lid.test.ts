@@ -1,5 +1,6 @@
 import { createHash } from "node:crypto";
-import { readFileSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
 import { ALL_EXTENSIONS } from "@gltf-transform/extensions";
@@ -12,6 +13,7 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { beforeAll, describe, expect, it } from "vitest";
 import { type LashGitHistory, realLashGitHistory, validateLashAncestorChain } from "./shipped-lash-ancestor.js";
 import { ACTORS, type ActorMeasurement, exactMedian, type HullVertex, interpolateUpperHull, measureActor, measureAllAndWrite, upperHull } from "./shipped-lash-follow-measure.js";
+import { BASELINE_REF } from "./shipped-lash-follow-types.js";
 
 // LOOP BOUND (super-ceo, 2026-11-09): where the r8 hull G1 disagrees with native 1:1 mid-blink crops, the
 // crops decide and G1 is report-only for that side. Each entry names its crop verdict. A side not listed
@@ -227,6 +229,87 @@ describe("the shipped MPFB lashes follow the lid", () => {
     l1!.recordedBefore!.outputSha256 = input;
     expect(() => validateLashAncestorChain(file, live, forged, input)).toThrow(/refused.*recorded step/);
     console.log("P-forged RED refused GREEN (honest r1->r2->r3 still accepted)");
+  });
+
+  it("CW lineage allowance refuses a forged intermediate level pointed at the real baseline blob", () => {
+    const file = "mpfb-ob-patient-aisha.glb";
+    const sidecar = JSON.parse(
+      readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json"), "utf8"),
+    ) as Record<string, unknown> & { lashFollowR8?: { inputSha256?: unknown } };
+    const live = createHash("sha256").update(readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids", file))).digest("hex");
+    const input = sidecar.lashFollowR8?.inputSha256 as string;
+    // Honest r1->r2->r3 still walks: L1 (a900aaf9a) is a reviewed correction row.
+    expect(validateLashAncestorChain(file, live, sidecar, input).at(-1)).toBe(input);
+    // Codex variant: L1 claims the emitted input AND points its revision at the
+    // pinned lash baseline blob, whose bytes genuinely hash to the emission —
+    // the h2 git-hash gate ACCEPTED this (len-3 path). The X1 pin gate refuses
+    // it: no CORRECTIONS row pins this pre-image for Aisha, so git is never
+    // even consulted.
+    const forged = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown> & {
+      byteLineage?: { recordedBefore?: { byteLineage?: { preImageSha256?: unknown; preImageRevision?: unknown; recordedBefore?: { outputSha256?: unknown } } } };
+    };
+    const l1 = forged.byteLineage?.recordedBefore?.byteLineage;
+    expect(l1, "aisha sidecar carries an intermediate L1 to forge").toBeDefined();
+    l1!.preImageSha256 = input;
+    l1!.recordedBefore!.outputSha256 = input;
+    l1!.preImageRevision = `${BASELINE_REF}:apps/ui-xr/public/generated-humanoids/${file}`;
+    expect(() => validateLashAncestorChain(file, live, forged, input)).toThrow(/not a reviewed correction/);
+    console.log("P-codex-forged RED not-a-reviewed-correction GREEN");
+  });
+
+  it("CW lineage allowance refuses a floating-ref intermediate level", () => {
+    const file = "mpfb-ob-patient-aisha.glb";
+    const sidecar = JSON.parse(
+      readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json"), "utf8"),
+    ) as Record<string, unknown> & { lashFollowR8?: { inputSha256?: unknown } };
+    const live = createHash("sha256").update(readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids", file))).digest("hex");
+    const input = sidecar.lashFollowR8?.inputSha256 as string;
+    const forged = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown> & {
+      byteLineage?: { recordedBefore?: { byteLineage?: { preImageSha256?: unknown; preImageRevision?: unknown; recordedBefore?: { outputSha256?: unknown } } } };
+    };
+    const l1 = forged.byteLineage?.recordedBefore?.byteLineage;
+    expect(l1, "aisha sidecar carries an intermediate L1 to forge").toBeDefined();
+    l1!.preImageSha256 = input;
+    l1!.recordedBefore!.outputSha256 = input;
+    l1!.preImageRevision = `HEAD:apps/ui-xr/public/generated-humanoids/${file}`;
+    expect(() => validateLashAncestorChain(file, live, forged, input)).toThrow(/not a reviewed correction/);
+    console.log("P-floating-ref RED not-a-reviewed-correction GREEN");
+  });
+
+  it("CW lineage allowance refuses even a pinned floating revision (fixed-commit gate)", () => {
+    const file = "mpfb-ob-patient-aisha.glb";
+    const sidecar = JSON.parse(
+      readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids/mpfb-ob-patient-aisha.provenance.json"), "utf8"),
+    ) as Record<string, unknown> & { lashFollowR8?: { inputSha256?: unknown } };
+    const live = createHash("sha256").update(readFileSync(join(repoRoot(), "apps/ui-xr/public/generated-humanoids", file))).digest("hex");
+    const input = sidecar.lashFollowR8?.inputSha256 as string;
+    // A fixture table that DOES pin the floating revision: the pin gate passes,
+    // so the fixed-commit gate must still refuse. Proves the second X1 check
+    // is load-bearing, not implied by the first.
+    const dir = mkdtempSync(join(tmpdir(), "openclinxr-h3-pin-"));
+    const floating = `HEAD:apps/ui-xr/public/generated-humanoids/${file}`;
+    writeFileSync(
+      join(dir, "corrections.json"),
+      JSON.stringify([{ assetPath: `apps/ui-xr/public/generated-humanoids/${file}`, provenancePath: `apps/ui-xr/public/generated-humanoids/${file.replace(/\.glb$/, ".provenance.json")}`, preImage: { kind: "revision", revision: floating }, derivationArgv: ["true"], why: "h3 fixture: a floating revision must never pin a level" }]),
+      "utf8",
+    );
+    const forged = JSON.parse(JSON.stringify(sidecar)) as Record<string, unknown> & {
+      byteLineage?: { recordedBefore?: { byteLineage?: { preImageSha256?: unknown; preImageRevision?: unknown; recordedBefore?: { outputSha256?: unknown } } } };
+    };
+    const l1 = forged.byteLineage?.recordedBefore?.byteLineage;
+    expect(l1, "aisha sidecar carries an intermediate L1 to forge").toBeDefined();
+    l1!.preImageSha256 = input;
+    l1!.recordedBefore!.outputSha256 = input;
+    l1!.preImageRevision = floating;
+    const prior = process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"];
+    process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"] = join(dir, "corrections.json");
+    try {
+      expect(() => validateLashAncestorChain(file, live, forged, input)).toThrow(/not a fixed commit/);
+    } finally {
+      if (prior === undefined) delete process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"];
+      else process.env["CORRECT_SIDECAR_CORRECTIONS_FILE"] = prior;
+    }
+    console.log("P-pinned-floating RED not-a-fixed-commit GREEN");
   });
 
   it("CW lineage allowance fails closed on shallow or missing history", () => {
