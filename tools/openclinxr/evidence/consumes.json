@@ -367,7 +367,15 @@
     "entrypoint": "./runner",
     "names": [
       {
+        "name": "assertLineageContinuity",
+        "kind": "runtime"
+      },
+      {
         "name": "glbGeometryDigest",
+        "kind": "runtime"
+      },
+      {
+        "name": "lineageLevels",
         "kind": "runtime"
       }
     ]

@@ -543,11 +543,7 @@ describe("correct-sidecar-byte-lineage --asset selection + termination (correcto
 
   it("CHAIN (cap50 r5h1, illustrative values): two rows one asset run in order; only r2 meets shipped", () => {
     // Illustrative tiny file-backed rows (not real GLBs): r1 copies A->A,
-    // r2 appends to A. Junction r1->r2 holds (r1 output == r2 pre-image);
-    // only r2 output meets shipped. Both derivations RUN (markers); only r2
-    // writes one sidecar level. The sidecar starts from the prior pin naming
-    // row 1's pre-image bytes, so the written level satisfies the shared
-    // sidecar junction rule (each level re-ran on the recordedBefore bytes).
+    // r2 appends to A. Junction r1->r2 holds (r1 output == r2 pre-image).
     const job = track(mkdtempSync(path.join(tmpdir(), "sc04-chain-")));
     const start = Buffer.from("chain-start-bytes");
     const shippedBytes = Buffer.from("chain-start-bytes-chain-end");
@@ -573,8 +569,6 @@ describe("correct-sidecar-byte-lineage --asset selection + termination (correcto
     const after = JSON.parse(readFileSync(sidecar, "utf8")) as Record<string, unknown>;
     expect(after["outputSha256"]).toBe(sha256(shippedBytes));
     expect(chainDepth(sidecar), "only the final row writes one level").toBe(1);
-    // The written chain level re-ran on the bytes its recordedBefore pin
-    // names (prior pin == row 1 pre-image, row 2 pre-image == row 1 output).
     assertLineageContinuity("sc04-chain", lineageLevels(after));
   });
 
