@@ -1,5 +1,5 @@
 {
-  "baseSha": "3d1f9a012030a82803e91a3ea1ae5adf7c6eec01",
+  "baseSha": "6f6083be64e70a2676cc5b8d105a50f2001b67a9",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -159,7 +159,6 @@
     "tools/openclinxr/evidence/parent-fitted-teeth/isolated-viseme-measure.ts",
     "tools/openclinxr/evidence/parent-fitted-teeth/isolated-viseme-stills.ts",
     "tools/openclinxr/evidence/parent-fitted-teeth/live-grok-capture.ts",
-    "tools/openclinxr/evidence/parent-fitted-teeth/mouth-dynamics-compare.ts",
     "tools/openclinxr/evidence/parent-fitted-teeth/recapture-aa.ts",
     "tools/openclinxr/evidence/parent-fitted-teeth/recapture-visemes.ts",
     "tools/openclinxr/evidence/parent-fitted-teeth/speech-sync-capture.ts",

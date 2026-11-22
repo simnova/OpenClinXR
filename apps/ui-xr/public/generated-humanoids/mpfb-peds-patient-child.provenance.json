@@ -164,6 +164,7 @@
   "why": "The fitted CC0 teeth/tongue post-step was re-run from the named Git pre-image with the same scratch bake and reproduced the output byte-for-byte before this sidecar pin moved. Post-swap steps in the chain: couple-fitted-teeth-to-lip-viseme.ts, decimate_teeth.mts."
   }},
   "reproduction": "re-run derivationArgv with --output pointed at a scratch dir from the pre-image bytes reproduces the recorded outputSha256.",
+  "stageRecord": {"wiredMaterials": [{"materialName": "openclinxr_fitted_hair_toigo_curled_under_bob_with_bangs_mpfb_peds_patient_child_mat", "texturesAdded": [8, 9]}]},
   "why": "MAPS-TOIGO tsk_d26e6e1b855a15bb post-export hair-material-maps stage (tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py) added the fitted hair's authored maps + roughness 0.98039 to the shipped bytes; pre-image is the 30083bee8 shipped GLB; meshes byte-equal per FU7 A1 accessor equality; decisions recorded in docs/madr/0066-post-export-hair-material-maps-stage.md."
  },
  "garmentWeaveFold": {

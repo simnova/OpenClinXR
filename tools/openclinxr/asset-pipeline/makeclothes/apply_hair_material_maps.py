@@ -81,6 +81,77 @@ def hair_style_from_material(name: str) -> str | None:
     return match.group(0) if match else None
 
 
+def find_wired_hair_material(doc: dict) -> tuple[int, dict]:
+    """Shared lookup for the single fitted toigo hair material (write path + record mode)."""
+    mats = doc.get("materials", [])
+    hair_hits = [
+        (i, m)
+        for i, m in enumerate(mats)
+        if str(m.get("name", "")).startswith(HAIR_PREFIX) and "toigo_" in str(m.get("name", ""))
+    ]
+    if len(hair_hits) != 1:
+        raise RuntimeError(f"expected one toigo fitted hair material, found {len(hair_hits)}")
+    index, material = hair_hits[0]
+    if "mhair02" in str(material.get("name", "")):
+        raise RuntimeError("refusing mhair02 hair material (another card owns it)")
+    return index, material
+
+
+def wired_materials_record(doc: dict) -> dict:
+    """StageRecord wiredMaterials entry from a shipped GLB doc (same wiring apply_maps writes)."""
+    _, material = find_wired_hair_material(doc)
+    pbr = material.get("pbrMetallicRoughness", {})
+    base = pbr.get("baseColorTexture", {})
+    normal = material.get("normalTexture", {})
+    if not isinstance(base.get("index"), int) or not isinstance(normal.get("index"), int):
+        raise RuntimeError("STOP: fitted hair material carries no wired baseColor+normal textures")
+    return {"materialName": str(material.get("name", "")), "texturesAdded": [base["index"], normal["index"]]}
+
+
+_INTERPRETERS = frozenset({"python3", "python", "tsx", "node", "sh", "bash"})
+_TOOL_REF_RE = re.compile(
+    r"tools/[^\s'\"`\\$;&|()<>{}=,]+\.(?:py|ts|mts|mjs|js|cjs|sh)(?=$|[\s'\"`\\$;&|()<>{}=,])"
+)
+
+
+def _command_words(words: list[str]) -> list[str]:
+    """Mirror commandWords in post-export-stage-registry.ts (non-shell path)."""
+    start = 0
+    while start < len(words):
+        head = words[start]
+        if re.match(r"^[A-Za-z_]\w*=", words[start]) or head == "env":
+            start += 1
+        elif head == "mise" and words[start + 1:start + 3] == ["exec", "--"]:
+            start += 3
+        elif head == "pnpm" and words[start + 1:start + 2] == ["exec"]:
+            start += 2
+        else:
+            break
+    return words[start:]
+
+
+def hair_maps_invoked_tool(argv: object) -> str | None:
+    """Executed tool of a recorded derivationArgv, mirroring postExportLevelStages.
+
+    Same matching rule the TS registry uses for "invoked, registered" tools:
+    strip env assignments + mise/pnpm wrappers, then resolve the interpreter
+    operand (first non-flag word) or the bare head. Shell (`sh -c`) levels
+    return None (refused: no direct tool invocation). `correctedBy` is never
+    consulted.
+    """
+    if not isinstance(argv, list) or not argv or not all(isinstance(w, str) for w in argv):
+        return None
+    normalized = [re.sub(r"\\\r?\n", "", w) for w in argv]
+    direct = _command_words(normalized)
+    if len(direct) >= 2 and direct[0] == "sh" and direct[1] == "-c":
+        return None
+    head = direct[0] if direct else None
+    args = direct[1:]
+    if head in _INTERPRETERS:
+        return next((w for w in args if not w.startswith("-")), None)
+    return head
+
+
 def srgb_to_linear(channel: object) -> object:
     import numpy as np
 
@@ -158,17 +229,7 @@ def apply_maps(
     normal_name: str,
     roughness: float,
 ) -> tuple[dict, bytes, dict]:
-    mats = doc.get("materials", [])
-    hair_hits = [
-        (i, m)
-        for i, m in enumerate(mats)
-        if str(m.get("name", "")).startswith(HAIR_PREFIX) and "toigo_" in str(m.get("name", ""))
-    ]
-    if len(hair_hits) != 1:
-        raise RuntimeError(f"expected one toigo fitted hair material, found {len(hair_hits)}")
-    index, material = hair_hits[0]
-    if "mhair02" in str(material.get("name", "")):
-        raise RuntimeError("refusing mhair02 hair material (another card owns it)")
+    index, material = find_wired_hair_material(doc)
 
     parts: list[bytes] = [binary]
     new_views: list[dict] = []
@@ -247,6 +308,46 @@ def paths_alias(first: Path, second: Path) -> bool:
         return False
 
 
+def record_wired_materials_only(args: argparse.Namespace) -> None:
+    """Commit B replay: stamp wiredMaterials from the shipped GLB; no GLB write, no pre-image needed."""
+    if args.no_provenance:
+        raise RuntimeError("--record-wired-materials-only requires a sidecar")
+    provenance_path = args.provenance or args.glb.with_suffix("").with_suffix(".provenance.json")
+    if paths_alias(provenance_path, args.glb):
+        raise RuntimeError("sidecar cannot overwrite GLB bytes")
+    source_raw = args.glb.read_bytes()
+    input_sha = sha_bytes(source_raw)
+    doc, _ = parse_glb(source_raw)
+    entry = wired_materials_record(doc)
+    provenance = json.loads(provenance_path.read_text(encoding="utf-8"))
+    if provenance.get("outputSha256") != input_sha or provenance.get("outputBytes") != len(source_raw):
+        raise RuntimeError("sidecar does not pin the shipped GLB; refusing to record")
+    lineage = provenance.get("byteLineage")
+    if not isinstance(lineage, dict):
+        raise RuntimeError("STOP: sidecar carries no byteLineage to record on")
+    # Level selection is by recorded invocation only (mirrors the TS registry
+    # "invoked, registered" rule; correctedBy is never consulted): the top
+    # derivationArgv must execute exactly this tool and nothing else.
+    argv = lineage.get("derivationArgv")
+    if hair_maps_invoked_tool(argv) != TOOL:
+        raise RuntimeError("STOP: sidecar has no hair-material-maps level; refusing to invent one")
+    refs: list[str] = []
+    for word in argv:
+        refs.extend(m.group(0) for m in _TOOL_REF_RE.finditer(word))
+    if refs != [TOOL]:
+        raise RuntimeError("STOP: derivationArgv does not invoke exactly this stage; refusing to record")
+    stage_record = lineage.get("stageRecord")
+    if not isinstance(stage_record, dict):
+        stage_record = {}
+        lineage["stageRecord"] = stage_record
+    stage_record["wiredMaterials"] = [
+        {"materialName": entry["materialName"], "texturesAdded": entry["texturesAdded"]}
+    ]
+    provenance_path.write_text(json.dumps(provenance, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    print(json.dumps({"stage": STAGE, "tool": TOOL, "glb": str(args.glb),
+                      "glbSha256": input_sha, "wiredMaterials": stage_record["wiredMaterials"]}, indent=1))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--glb", type=Path, required=True)
@@ -256,7 +357,16 @@ def main() -> None:
     parser.add_argument("--phenotypes", type=Path, default=None)
     parser.add_argument("--hair-cache", type=Path, default=DEFAULT_HAIR_CACHE)
     parser.add_argument("--no-provenance", action="store_true")
+    parser.add_argument(
+        "--record-wired-materials-only",
+        action="store_true",
+        help="sidecar-only replay: stamp byteLineage.stageRecord.wiredMaterials from the shipped GLB; no GLB write.",
+    )
     args = parser.parse_args()
+
+    if args.record_wired_materials_only:
+        record_wired_materials_only(args)
+        return
 
     output = args.output or args.glb
     provenance_path = None if args.no_provenance else (

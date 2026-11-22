@@ -2,7 +2,8 @@ import { createHash } from "node:crypto";
 import { existsSync, readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { NodeIO } from "@gltf-transform/core";
-import { postExportLevelPreserves, repoRoot } from "@openclinxr/factory-station-core/runner";
+import { lineageLevels, postExportLevelPreserves, postExportLevelStages, repoRoot, validateT3LineageChain } from "@openclinxr/factory-station-core/runner";
+import type { TeethSwapBlock } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 import { hasValidProvenance, proceduralGownSourceHash } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts";
 import { edBakeLineage, isLegacyRecordedProceduralGown, RECORDED_GOWN_GENERATOR_TOOL } from "../../../../../../tools/openclinxr/asset-pipeline/makeclothes/recorded-garment-provenance.ts";
@@ -201,6 +202,93 @@ describe("the shipped MPFB garments record source-family provenance", () => {
     expect(top.preImageSha256).toBe(top.recordedBefore.outputSha256);
     top.derivationArgv[toolIndex] = "tools/openclinxr/asset-pipeline/makeclothes/unregistered_stage.py";
     expect(isLegacyRecordedProceduralGown(args)).toEqual({ ok: false, failed: "C5" });
+  });
+
+  it("P2 dual-reader: robert's unregistered post-export tool refuses in both teeth and garment readers with intact SHA links", async () => {
+    const actor = "mpfb-gown-ed-robert-hayes.glb";
+    const glbPath = join(DIR, actor);
+    const live = createHash("sha256").update(readFileSync(glbPath)).digest("hex");
+    const doc = await new NodeIO().read(glbPath);
+    const gown = doc.getRoot().listMeshes().find((mesh) => GOWN_MESH_RE.test(mesh.getName()))!;
+    const extras = { ...((gown.getExtras() as Record<string, unknown> | null) ?? {}) };
+    const load = () =>
+      JSON.parse(readFileSync(join(DIR, actor.replace(".glb", ".provenance.json")), "utf8")) as Record<string, unknown>;
+    const edArgsFor = (sidecar: Record<string, unknown>) => ({
+      meshName: gown.getName(),
+      extras,
+      sidecar,
+      sidecarAssetPath: sidecar["assetPath"] as string,
+      expectedAssetPath: `apps/ui-xr/public/generated-humanoids/${actor}`,
+      actualGlbSha256: live,
+      generatorFileExists: existsSync(join(REPO, GENERATOR_REL)),
+    });
+    // Teeth lineage dispatch mirrors validateT3 (humanoid-bake-evidence) for
+    // this actor through the runner's real entry points: a preserving
+    // post-export top peels once onto the swap junction and the blender-bake
+    // genesis pair accepts without a chain walk (MADR 0067 named exemption;
+    // per-accessor row pins stay covered by the teeth suite). An unregistered
+    // top cannot peel, so the full chain must validate — and refuses.
+    const mutates = (argv: unknown, domain: string): boolean =>
+      postExportLevelStages(argv)?.some((stage) => stage.mutates.includes(domain)) ?? false;
+    const teethAcceptsRobert = (sidecar: Record<string, unknown>): void => {
+      const block = sidecar["teethSwapB1"] as TeethSwapBlock;
+      const [top, prior] = lineageLevels(sidecar);
+      if (top !== undefined && postExportLevelPreserves(top.derivationArgv, "teeth-swap-evidence")) {
+        if (sidecar["outputSha256"] !== live) {
+          throw new Error(`T3 post-export peel ${actor}: sidecar top pin does not match live GLB`);
+        }
+        const recorded = top.recordedBefore;
+        const livePrime = top.preImageSha256;
+        if (recorded === undefined || typeof livePrime !== "string" || livePrime !== recorded.outputSha256) {
+          throw new Error(`T3 post-export peel ${actor}: junction breach before recorded bytes`);
+        }
+        if (postExportLevelPreserves(prior?.derivationArgv, "teeth-swap-evidence")) {
+          throw new Error(`T3 post-export peel ${actor}: stacked preserving levels, peel at most once`);
+        }
+        const peeled = { ...sidecar, outputSha256: recorded.outputSha256, byteLineage: recorded.byteLineage };
+        const levels = lineageLevels(peeled);
+        const oldest = levels[levels.length - 1]!;
+        const genesisArgv = oldest.derivationArgv ?? [];
+        const separator = genesisArgv.indexOf("--");
+        const blenderArgs = separator < 0 ? [] : genesisArgv.slice(0, separator);
+        const genesisPython = blenderArgs.indexOf("--python");
+        const isGenesis =
+          levels.length === 2 &&
+          genesisArgv[0] === "blender" &&
+          genesisPython >= 0 &&
+          genesisPython === blenderArgs.lastIndexOf("--python") &&
+          blenderArgs[genesisPython + 1] === GENERATOR_REL &&
+          mutates(levels[0]?.derivationArgv, "mouth-geometry") &&
+          oldest.recordedBefore === undefined &&
+          // sidecar apps/ui-xr/public/generated-humanoids/mpfb-gown-ed-robert-hayes.provenance.json
+          // JSON path byteLineage.recordedBefore.byteLineage.inputSha256 (genesis level has no recordedBefore)
+          oldest.inputSha256 === "27cbf4e5ed5a007ad497a3bafe2763ac72746583374ad1718d51573ba649aa66";
+        if (!isGenesis) validateT3LineageChain(actor, livePrime, peeled, block);
+        return;
+      }
+      validateT3LineageChain(actor, live, sidecar, block);
+    };
+    // Known-good positive: the unmodified shipped sidecar is accepted by both readers.
+    const good = load();
+    teethAcceptsRobert(good);
+    expect(isLegacyRecordedProceduralGown(edArgsFor(good))).toEqual({
+      ok: true,
+      legacyType: "LEGACY_RECORDED_PROCEDURAL",
+    });
+    // Plant: TOP tool path -> unregistered full tools/ path, sha links intact.
+    const planted = load();
+    const top = lineageLevels(planted)[0]!;
+    const before = (top.derivationArgv ?? []).join(" ");
+    expect(before, "setup: robert top level names the maps stage").toContain(MAPS_TOOL);
+    expect(top.preImageSha256, "setup: sha continuity intact").toBe(top.recordedBefore?.outputSha256);
+    top.derivationArgv![top.derivationArgv!.indexOf(MAPS_TOOL)] =
+      "tools/openclinxr/asset-pipeline/makeclothes/unregistered_stage.py";
+    const after = (top.derivationArgv ?? []).join(" ");
+    // eslint-disable-next-line no-console
+    console.info(`PLANT dual-reader unregistered top tool on ${actor}: before=[${before.slice(0, 80)}...] after=[${after.slice(0, 100)}...]`);
+    expect(after).toContain("unregistered_stage");
+    expect(() => teethAcceptsRobert(planted)).toThrow(/T3 chain .* preImageSha256 .* != recordedBefore\.outputSha256/);
+    expect(isLegacyRecordedProceduralGown(edArgsFor(planted))).toEqual({ ok: false, failed: "C5" });
   });
 
   it("(4) edBakeLineage P1: broken link at depth 2 refuses (C5)", () => {
