@@ -1,0 +1,549 @@
+{
+ "schema": "openclinxr.chain-record.v1",
+ "actor": "mpfb-street-adult-male",
+ "shippedSha256": "5acd5f16fc90f0116d8878587511a45e858e35ff549be60fe8d6eb3983b6abb8",
+ "shippedCommit": "b042f849ccf9b9a23c506affb44ff3151a469f0a",
+ "steps": [
+  {
+   "id": "S0",
+   "tool": "tools/openclinxr/evidence/blender/materialize_mpfb_humanoid_candidate.py",
+   "toolCommit": "1715322b01f20cac3dff5e877c27580de9303c37",
+   "argv": "blender --background --python <tool> -- --output <run>/mpfb-street-adult-male.glb --reference adult_male_street_casual --actor-role patient",
+   "inputs": [
+    {
+     "logicalName": "anny_reference_obj",
+     "sha256": "46a6ca8fa5521272e1093639828238202e997c67fc9549777b3e7aeac89eb705",
+     "casExt": ".obj"
+    },
+    {
+     "logicalName": "anny_reference_manifest",
+     "sha256": "c94ad063ba57cd1c24648c72be35ee8886f0452260036a6428d1bdca9e69aae1",
+     "casExt": ".json"
+    },
+    {
+     "logicalName": "viseme_viseme_aa",
+     "sha256": "8e0889de627ea651a2dbb2f42287599431571b816ea8b610b4d76d925ced323f",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_CH",
+     "sha256": "4ceb620a3b43a4742c7414234489a76a8e7f16e4e359b9d953c4469d768a9dd6",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_DD",
+     "sha256": "4c603e04938b429c5fc8e5905439076aa4decb22cb90b32dd88f6817f58e22fd",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_E",
+     "sha256": "e420f4a320d3aa89d8e7d0cb62207344c9c8c2120bbfb760902ce60f7bdebcb5",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_FF",
+     "sha256": "5ae0e3bddb3a7237b87db672efbe30813d582b75560878e6812b2db53cc19246",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_I",
+     "sha256": "1bde425e1ff8b294a38a120a4b1b011814e2b0b582c9f9262b700960b07c06ea",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_kk",
+     "sha256": "b9bacabbd4ee822c7ab337367408ad4b7fe220cecb29e37cf0c9abc57c07bc41",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_nn",
+     "sha256": "4c49aa3cc280dee27353361f2917e48ea8528b3a2cda5cf66603b1958ac6abd9",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_O",
+     "sha256": "1a42ced31204d96e83be1d0f9e6bc9490823bc2cd23293aad1c5f1742500c332",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_PP",
+     "sha256": "1e32c261d6133b08580c82d5af6fbff975a4ca3b9c9bca7569f7f65fe92e5c83",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_RR",
+     "sha256": "a4e6f2678574c5ab55d9f7e7251d6504e7cc68820a92d5b5a42c2db1f5ec6242",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_sil",
+     "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_SS",
+     "sha256": "6ca1d8a6d10d3fd70639f8b225a2e2fc272d5b188fbfdd6afccc0dfff4e3de09",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_TH",
+     "sha256": "6d2ad65d43f8a3ed83d76a0fb440641fc6a8d3078f3457a463486e47a38462a7",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "viseme_viseme_U",
+     "sha256": "06a6c07f7ccd3b2cff5ed97755bc8b0a8d6a688a69ccc0a7e486858cf33628eb",
+     "casExt": ".target"
+    },
+    {
+     "logicalName": "eye_mhclo",
+     "sha256": "998abd5c136bd95a1a94368580acb87ad0a8eac947faaee5e2609f26de05dad8",
+     "casExt": ".mhclo"
+    },
+    {
+     "logicalName": "eye_obj",
+     "sha256": "783fe1e6331162c876520b4c2bed7a8ca06354ca15497e8ebd68bb1b59f4d3de",
+     "casExt": ".obj"
+    },
+    {
+     "logicalName": "iris_mhmat_brown",
+     "sha256": "4abad93ce50541c08127721e77bce035640c9f16bed16cd0f5524b1cd5908465",
+     "casExt": ".mhmat"
+    },
+    {
+     "logicalName": "iris_texture_brown_eye",
+     "sha256": "4659691c7295ad6206c78b003e5fd0e5f91dcd53032fa914a229bb48cabe424b",
+     "casExt": ".png"
+    },
+    {
+     "logicalName": "hair_mhclo_mhair02",
+     "sha256": "67933350d1e006957decb905c58c4643f7aea911237077f9a269624607124b44",
+     "casExt": ".mhclo"
+    },
+    {
+     "logicalName": "hair_obj_mhair02",
+     "sha256": "d8aa9a81cd2d49134c76906a2a50efae578d36ff26883795993d326daa804725",
+     "casExt": ".obj"
+    },
+    {
+     "logicalName": "upper_obj",
+     "sha256": "22159cf14d1f6831f931b49625f8f7692910bac22499c43466c0b5a2159b4d03",
+     "casExt": ".obj"
+    },
+    {
+     "logicalName": "upper_mhclo",
+     "sha256": "c34bd03895c5ad9ec46965ef7d5f3e5e8c567630797ab312f8762c1d9fde8f71",
+     "casExt": ".mhclo"
+    },
+    {
+     "logicalName": "upper_mhmat",
+     "sha256": "44098003a7ed47cd4c613d04adcdccaae47fe0d2b380bf3c25f105a739814f94",
+     "casExt": ".mhmat"
+    },
+    {
+     "logicalName": "upper_texture_tshirt_basic",
+     "sha256": "c1992ad975e14aa2cef891ff9632d28283607b2de6160d72e350f059043a063b",
+     "casExt": ".png"
+    },
+    {
+     "logicalName": "lower_obj_cargo",
+     "sha256": "705467843e1136ca9bc91736efe9601a9cd7243abdeaa9752d69ea53f0974089",
+     "casExt": ".obj"
+    },
+    {
+     "logicalName": "lower_mhclo_cargo",
+     "sha256": "5bc0c7282a5a2694d55b6df2ed5642a382d89d0b77bd98703dac7e110e51fada",
+     "casExt": ".mhclo"
+    },
+    {
+     "logicalName": "shoe_obj_male_boots",
+     "sha256": "6901f0cef7c0ae8eeeaf476b1a77e2b93fa3fe66d111627911cc914c3633711a",
+     "casExt": ".obj"
+    },
+    {
+     "logicalName": "shoe_mhclo",
+     "sha256": "a22e7c3725a69ef5fc1267cad8622082e445b7d194d4cd0b253be6bc809d925f",
+     "casExt": ".mhclo"
+    },
+    {
+     "logicalName": "shoe_mhmat",
+     "sha256": "5190e2e5aeb3ec3ac2139f13279f02eeda8d20fcd294d616b67ccb16b9eeff26",
+     "casExt": ".mhmat"
+    },
+    {
+     "logicalName": "shoe_texture_boot",
+     "sha256": "43846dcf912b3f72bfff3e26aec04013f4bfcfb4238f5187f46358c262849116",
+     "casExt": ".png"
+    },
+    {
+     "logicalName": "mpfb_install_manifest",
+     "sha256": "b7e1d0732e67cc18955f91b91ff9049b9f0bc868f05eb074e4ea3cf38fa3ddd5",
+     "casExt": ".toml"
+    },
+    {
+     "logicalName": "mpfb_data_sss",
+     "sha256": "d433f15c7240c5b0c91c6fafa482d9c380504efd6ad4d1504b4d7da32d1eec42",
+     "casExt": ".png"
+    },
+    {
+     "logicalName": "mpfb_data_enhanced_skin",
+     "sha256": "23dd3471407d56e8dcec5328eab746bc77fb714c4922a94e7ac33bd4a24fb2d7",
+     "casExt": ".json"
+    },
+    {
+     "logicalName": "mpfb_data_procedural_eyes",
+     "sha256": "738a756159ca33f229586ff55a07c0e3535292f104d4b8c5f248f8fc36151577",
+     "casExt": ".json"
+    },
+    {
+     "logicalName": "mpfb_data_eye_settings",
+     "sha256": "6c640cfa358ff6f15deb67edd4dc429d7a68b89500e4a3bd208935e7a465ca03",
+     "casExt": ".json"
+    },
+    {
+     "logicalName": "materializer_script",
+     "sha256": "22e3958fbe7c050124acf20c524af86dbc0e4b76684484e5e409a26233221313",
+     "casExt": ".py"
+    },
+    {
+     "logicalName": "helper_garment_coverage",
+     "sha256": "ab82083e537a5f7d6976ff8741b7b53e619eadf0cb96a920553370ec9258bfe1",
+     "casExt": ".py"
+    },
+    {
+     "logicalName": "helper_body_param_stage",
+     "sha256": "6d123be9eb808ef6cddddd41b4cfff090aad4133b41b6a78ea5dd2014a87eac2",
+     "casExt": ".py"
+    },
+    {
+     "logicalName": "helper_embed_library_hair",
+     "sha256": "6c32c1238025a68fe1668fa0afe38da4ba4a89b98bafc10f0cc4fbe9391814ff",
+     "casExt": ".py"
+    },
+    {
+     "logicalName": "helper_automate_blender",
+     "sha256": "aab516898410c3901c5408c602361db31155ac654693835a6a65a32d643d8797",
+     "casExt": ".py"
+    }
+   ],
+   "expectedOutputSha256": "2a67433e3070f061c9a58268167f9b736bbd9ad4eefcc7a34a8f8d0da1ffa14f",
+   "producingCommit": "1715322b01f20cac3dff5e877c27580de9303c37",
+   "attributionNote": "S0 output content sha256 2a67433e... == provenance outputSha256; git blob 9e145d21. Cargo .mhmat recorded skip (flat cover shell)."
+  },
+  {
+   "id": "S1a-0",
+   "tool": "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
+   "toolCommit": "91b1260705506ebcc69bdeda3d1af9aecb18ae7d",
+   "argv": "--input <glb> --output <glb> --report <json> (half-span default 0.085; #0 fleet run)",
+   "inputs": [
+    {
+     "logicalName": "street_pre_chest_anchor",
+     "sha256": "f190c5b31acc999c58eff7e3eb1ce423183d52f8a9ff7b9f5c016b9ed7c1c92d",
+     "gitBlob": "f17400862fe5e06ecc2dca7933314a9f426cf80d:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "bd8b7f36d771cbc48f06110111b41770a327e7f74969d44f818082b33edc7ee2",
+   "producingCommit": "91b1260705506ebcc69bdeda3d1af9aecb18ae7d",
+   "attributionNote": "fleet #0 separation; output measured bd8b7f36..."
+  },
+  {
+   "id": "S1a-D3",
+   "tool": "tools/openclinxr/asset-pipeline/anny/separate_chest_anchor_joints.mjs",
+   "toolCommit": "8f20686c37830032679b822b965b92912e183a14",
+   "argv": "--input <glb> --output <glb> --report <json> (ci-w11 D3 re-run: rest 0 to +-0.085, midline keyframes moved)",
+   "inputs": [
+    {
+     "logicalName": "street_pre_reseparation",
+     "sha256": "17381f02742809b8ba1c76972f43bcb3c46a8ab9402fbf3fe618cce9b3551ec9",
+     "gitBlob": "85468f2f5b6f6e7e2535222a0f24030be7aceb78:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "8c0a773f50ab4cf08a188a44155a02cd1d4871fce22ee57b3f8ad6bb5f0d3bcc",
+   "producingCommit": "8f20686c37830032679b822b965b92912e183a14",
+   "attributionNote": "D3 input bytes == #741 output 17381f02 (parent-tree state); output 8c0a773f..."
+  },
+  {
+   "id": "S1b-1",
+   "tool": "tools/openclinxr/factory/bind-walk-clip-all.ts -> extract-library-clip.ts -> packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_stage.py -> graft-bound-clip.ts --publish",
+   "toolCommit": "7d71273e37b9b5689f759b95ca5cf87f5044f65a",
+   "argv": "bind-walk-clip-all.ts [--actor stem]; motion_bind_stage.py --actor <glb> --clip <walk-source> --map <mpfb2-default-no-toes.json> --source-map <mesh2motion-human-66.json> --source-orientation \"First person, Z up\" --output <bound> --report <json>; graft --target/--source/--clip/--output/--report + --remove-clip <old> on rebound",
+   "inputs": [
+    {
+     "logicalName": "street_prewalk",
+     "sha256": "2388ac04748a2b08ee70c9a9217f49ff95225cab9f69f7b9540958e3959d1cae",
+     "gitBlob": "91aa4b5d30ed2f0b2f30a2c228a8e7663ffeae0b:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    },
+    {
+     "logicalName": "walk_source_clip",
+     "sha256": "406eb0a8dc4ab366e623b79b6e3005a4951392e1bda78ae39c1099d31147733c",
+     "filePath": "/Users/patrick/.openclinxr-tools/mesh2motion-app/static/animations/human-base-animations.glb"
+    }
+   ],
+   "expectedOutputSha256": "d35dae2caeb98b63b6b3063c01776871a32c12a85ffb0d0ade95efb88e30f640",
+   "producingCommit": "7d71273e37b9b5689f759b95ca5cf87f5044f65a",
+   "attributionNote": "bind 2388ac04 @91aa4b5d3 (411ch/137joints grafted per sidecar); rebound d35dae2c @7d71273e3 (retiredMotionClips removal). Recorded retarget-then-graft path. | W3 split: S1b-1 rebind @7d71273e3 from S1b-0 output 2388ac04 (git blob 9df011cd)."
+  },
+  {
+   "id": "S1c",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/apply-waist-meet-glb.ts",
+   "toolCommit": "376151f4ebae3770f150d65a175a2f24a24b6df9",
+   "argv": "apply-waist-meet-glb.ts --in <glb> --out <glb> (literal paths unrecorded; bake-time variant measured 2026-09-12 NOT shipped)",
+   "inputs": [
+    {
+     "logicalName": "street_pre_waist",
+     "sha256": "17d29247a336238e685eb8aa284b8f8eceb5a51797c257f40d9025b0e8e771e6",
+     "gitBlob": "303dbdbbc4c4eee89b495a57097049c101a4cc39:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "252a214321eca8b56c07ecd00f98238387738a25e6e585cd25fd829a41cd23b0",
+   "producingCommit": "376151f4ebae3770f150d65a175a2f24a24b6df9",
+   "attributionNote": "G-b resolved: 17d29247 -> 252a2143 (15830960->15720228 B) exactly the provenance sourceNote pair; stage post_export_glb per waistMeet block 690128ecb."
+  },
+  {
+   "id": "S1d",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/garment-provenance-stamp.ts",
+   "toolCommit": "32e58c3ffbc7f1feea66589ffcd36af009426ec2",
+   "argv": "garment-provenance-stamp.ts <glb> (positional, in-place, geometry unchanged)",
+   "inputs": [
+    {
+     "logicalName": "street_pre_stamp",
+     "sha256": "252a214321eca8b56c07ecd00f98238387738a25e6e585cd25fd829a41cd23b0",
+     "gitBlob": "8e7a1d0c258fc995ef5c398e948b8179b1ed00e7:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "d441b703e72ec3f300a89e150fa0527084834c92183965e4b15fc7ecc85cca34",
+   "producingCommit": "32e58c3ffbc7f1feea66589ffcd36af009426ec2",
+   "attributionNote": "byte-level stamp; geometry unchanged by record."
+  },
+  {
+   "id": "S2",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/replace-garment-primitive.ts + apply-waist-meet-glb.ts",
+   "toolCommit": "c099c2de2d306fbe0e756e89d38110e39ff307ac",
+   "argv": "replace-garment-primitive.ts <glb> --from <bake> --mesh straight_leg_jeans; apply-waist-meet-glb.ts --in <glb> --out <glb>",
+   "inputs": [
+    {
+     "logicalName": "street_pre_jeans_swap",
+     "sha256": "8c0a773f50ab4cf08a188a44155a02cd1d4871fce22ee57b3f8ad6bb5f0d3bcc",
+     "gitBlob": "8f20686c37830032679b822b965b92912e183a14:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    },
+    {
+     "logicalName": "donor_rebake",
+     "sha256": "f178f2dcfc753287cff79b37f11f5a5d6a4c0b4d257bc37eb8a36ce9e79aca5e",
+     "filePath": "/Volumes/files/openclinxr-assets/store/mesh-defects-20261030/humanoids/street-rebake/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "8b852aea0264dd164e59db992d1f38d30d847331a0d47d2ba8c62d8d509e00c0",
+   "producingCommit": "c099c2de2d306fbe0e756e89d38110e39ff307ac",
+   "attributionNote": "output 8b852aea (16728844 B) == maskFit.inputSha256."
+  },
+  {
+   "id": "S3",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/trim-hide-mask-to-garment.ts",
+   "toolCommit": "1aa2c346d06c1804aca6b2dd3f4c49693ced9d5d",
+   "argv": "trim-hide-mask-to-garment.ts --in <glb> --out <glb> (inset 2mm/slack 1.5mm = tool defaults)",
+   "inputs": [
+    {
+     "logicalName": "street_pre_maskfit",
+     "sha256": "8b852aea0264dd164e59db992d1f38d30d847331a0d47d2ba8c62d8d509e00c0",
+     "gitBlob": "c099c2de2d306fbe0e756e89d38110e39ff307ac:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "eb90aa69b670d86fb13492ba0da620280de8670bd5a0610e9d83e787a8076178",
+   "producingCommit": "1aa2c346d06c1804aca6b2dd3f4c49693ced9d5d",
+   "attributionNote": "output eb90aa69 (16801952 B)."
+  },
+  {
+   "id": "S4",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/garment_topology_weld.py",
+   "toolCommit": "4716d0bfdb26863fd10b0d227848eca15f5a59ba",
+   "argv": "garment_topology_weld.py --input <glb> (IN PLACE) --angle 90",
+   "inputs": [
+    {
+     "logicalName": "street_pre_weld",
+     "sha256": "eb90aa69b670d86fb13492ba0da620280de8670bd5a0610e9d83e787a8076178",
+     "gitBlob": "1aa2c346d06c1804aca6b2dd3f4c49693ced9d5d:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "df54b2c6c02a39f64ece6e45a880fe570617cef62d00b112dac2430df82dccb0",
+   "producingCommit": "4716d0bfdb26863fd10b0d227848eca15f5a59ba",
+   "attributionNote": "output df54b2c6 (16801952 B, length unchanged) == stages[0].inputGlbSha."
+  },
+  {
+   "id": "S5",
+   "tool": "tools/openclinxr/asset-pipeline/skin/coherent-normal/rebake_actor_skin_normal.py + rebind_baked_skin_normal.py",
+   "toolCommit": "d5496bf5bf6fed6b8a7e6201927f1135f9256ecf",
+   "argv": "rebake: --actor-stem <stem> --out <png>; rebind: --src/--new-normal/--out/--expect-src-sha/--expect-png-sha/--skin-sub/--old-anchor/--prov-in/--prov-out/--recipe/--bake-report (all required); recipe dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1",
+   "inputs": [
+    {
+     "logicalName": "street_pre_skinF1",
+     "sha256": "df54b2c6c02a39f64ece6e45a880fe570617cef62d00b112dac2430df82dccb0",
+     "gitBlob": "4716d0bfdb26863fd10b0d227848eca15f5a59ba:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    },
+    {
+     "logicalName": "skin_bake_report",
+     "sha256": "UNRESOLVED:b0a2431b",
+     "note": "report file untracked, in producer worktree .openclinxr; not on this machine"
+    }
+   ],
+   "expectedOutputSha256": "5b30b91bfb27d4fa2e6c369fb691cadde35fb68391885772c227a862cac716c2",
+   "producingCommit": "d5496bf5bf6fed6b8a7e6201927f1135f9256ecf",
+   "attributionNote": "output 5b30b91b (16753616 B) == stages[0].outputGlbSha; sidecar out matches."
+  },
+  {
+   "id": "S6",
+   "tool": "tools/openclinxr/asset-pipeline/skin/coherent-normal/rebake_actor_skin_normal.py + rebind_baked_skin_normal.py",
+   "toolCommit": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c",
+   "argv": "same surface as S5; recipe dermal-F1-6tex-randomness0.85-strength0.8-ramp0-1-seed16.72",
+   "inputs": [
+    {
+     "logicalName": "street_pre_skinR7",
+     "sha256": "5b30b91bfb27d4fa2e6c369fb691cadde35fb68391885772c227a862cac716c2",
+     "gitBlob": "d5496bf5bf6fed6b8a7e6201927f1135f9256ecf:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "8a1dddfe7ea8f36073c7bd005241612aa048d3c3526f9df3dc9441b591297045",
+   "producingCommit": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c",
+   "attributionNote": "CORRECTED (G-c): true output 8a1dddfe @0ed4fcfc7 (16831992 B, sidecar out matches 8a1dddfe); stages[1] claim of 5b194cb4 is mis-attributed (lands one commit late @1c5027169)."
+  },
+  {
+   "id": "S6b",
+   "tool": "tools/openclinxr/asset-pipeline/skin/maps/repack_skin_shade.py",
+   "toolCommit": "1c502716946aa7e2016f2d54d7f36bb938705bbe",
+   "argv": "repack_skin_shade.py <glb> IN PLACE --reference adult_male_street_casual (skin-shade-actors.json row: face 0.15/body 0.3; curvature f070d4e3/cavity b1e3513e)",
+   "inputs": [
+    {
+     "logicalName": "street_pre_repack",
+     "sha256": "8a1dddfe7ea8f36073c7bd005241612aa048d3c3526f9df3dc9441b591297045",
+     "gitBlob": "0ed4fcfc781ea3b1723e63f378408ce59a60ed9c:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "5b194cb4c6198d22200078a471222a9d01bc29510788dec3796307ecaa964ab6",
+   "producingCommit": "1c502716946aa7e2016f2d54d7f36bb938705bbe",
+   "attributionNote": "output 5b194cb4 (+407112 B skin shade) == S-lash input; chain continuity holds."
+  },
+  {
+   "id": "S7",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py",
+   "toolCommit": "59980e7f6639c235de0ec645d119373cb101c501",
+   "argv": "repack_lash_follow.py --directory <dir> --actor mpfb-street-adult-male (defaults; --source-ref origin/main per message)",
+   "inputs": [
+    {
+     "logicalName": "street_pre_lash",
+     "sha256": "5b194cb4c6198d22200078a471222a9d01bc29510788dec3796307ecaa964ab6",
+     "gitBlob": "1c502716946aa7e2016f2d54d7f36bb938705bbe:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "50e490ebb9af28371026f93ead4b41a21d563d4751c02344a04dc07498698ca2",
+   "producingCommit": "59980e7f6639c235de0ec645d119373cb101c501",
+   "attributionNote": "CORRECTED (G-d): 50e490eb produced by S7 lash r8 @59980e7f6 from 5b194cb4 (commit GLB verified), NOT by #741 ops. Sidecar lashFollowR8.inputSha256 5b194cb4c6... authoritative."
+  },
+  {
+   "id": "S-retreat",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts + tongue-forward-place.ts",
+   "toolCommit": "9f2934536de8b011a894036e5dcd7212594804b1",
+   "argv": "sh -c cp pre out && teeth-rest-clearance.ts out --delta 0.0020 (+ tongue-back where headroom required)",
+   "inputs": [
+    {
+     "logicalName": "parent_tree_rebound_bytes",
+     "sha256": "d35dae2caeb98b63b6b3063c01776871a32c12a85ffb0d0ade95efb88e30f640",
+     "gitBlob": "603eaa2a7c4d8fe8d7c3369522f4ac9d87fed619:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "17381f02742809b8ba1c76972f43bcb3c46a8ab9402fbf3fe618cce9b3551ec9",
+   "producingCommit": "9f2934536de8b011a894036e5dcd7212594804b1",
+   "attributionNote": "CORRECTED (G-d): #741 @9f2934536 produced 17381f02 from parent-tree d35dae2c (Sep-25 rebound bytes) via --delta 0.0020 + tongue-back headroom. byteLineage.recordedBefore (d35dae2c->50e490eb) is mis-attributed (pre-jeans/weld/skin/lash input cannot yield Nov-9 bytes). SC-04 backfill artifact."
+  },
+  {
+   "id": "S9",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-rest-clearance.ts",
+   "toolCommit": "59980e7f6639c235de0ec645d119373cb101c501",
+   "argv": "teeth-rest-clearance.ts <glb> [--delta 0.0020] (retreat re-applied within tongue headroom per byteLineage.recordedBefore)",
+   "inputs": [
+    {
+     "logicalName": "street_lash_output",
+     "sha256": "50e490ebb9af28371026f93ead4b41a21d563d4751c02344a04dc07498698ca2",
+     "gitBlob": "59980e7f6639c235de0ec645d119373cb101c501:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "50e490ebb9af28371026f93ead4b41a21d563d4751c02344a04dc07498698ca2",
+   "producingCommit": "59980e7f6639c235de0ec645d119373cb101c501",
+   "attributionNote": "50e490eb as teethSwapB1.input (== lash output); retreat re-applied within headroom (covered by 59980e7f6 bytes)."
+  },
+  {
+   "id": "S10",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py",
+   "toolCommit": "0459e4ae2f9a2798166bcfd36cb206afcaa32a13",
+   "argv": "mise exec -- python3 swap_teeth.py --input $1 --scratch <station-teeth.../scratch/mpfb-street-adult-male.glb> --output $2 --report $3 (sh -c chain recorded in sidecar; --check-scratch per argparse)",
+   "inputs": [
+    {
+     "logicalName": "street_pre_swap",
+     "sha256": "50e490ebb9af28371026f93ead4b41a21d563d4751c02344a04dc07498698ca2",
+     "gitBlob": "ebe98e0a53112c7a2d2ed10b4def2f32e70e8fee:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    },
+    {
+     "logicalName": "swap_scratch",
+     "sha256": "4d3ec8100f213aa2466fbebeead431c3dcf970b1127d00ea3979564d4db46391",
+     "filePath": "/Volumes/files/openclinxr-assets/store/st-teeth/swap1-scratch/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "UNRESOLVED:d4534e7b",
+   "producingCommit": "0459e4ae2f9a2798166bcfd36cb206afcaa32a13",
+   "attributionNote": "swapOut d4534e7b never committed (producer-worktree intermediate per P0); full sha unresolvable on this machine. Swap report e8c5ebe4 likewise producer-worktree only (an output of this op, not an input downstream). GLB @0459e4ae2 = 031829e1 (post-couple)."
+  },
+  {
+   "id": "S11",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/couple-fitted-teeth-to-lip-viseme.ts",
+   "toolCommit": "0459e4ae2f9a2798166bcfd36cb206afcaa32a13",
+   "argv": "couple-fitted-teeth-to-lip-viseme.ts $2 (no-flag in-place per recorded sh -c chain and argparse)",
+   "inputs": [
+    {
+     "logicalName": "street_swap_out",
+     "sha256": "UNRESOLVED:d4534e7b",
+     "note": "swap intermediate, never committed; bytes not on this machine (see S10)"
+    }
+   ],
+   "expectedOutputSha256": "031829e1ee2267676a548fd3d68792b014f9816ba1519108e86a337898aceff6",
+   "producingCommit": "0459e4ae2f9a2798166bcfd36cb206afcaa32a13",
+   "attributionNote": "couple output 031829e1 @0459e4ae2 (GLB @commit verified); UNRECORDED in sidecar (P0B G-e)."
+  },
+  {
+   "id": "S12",
+   "tool": "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/decimate_teeth.mts",
+   "toolCommit": "b042f849ccf9b9a23c506affb44ff3151a469f0a",
+   "argv": "decimate_teeth.mts $2 --in-place --ratio 0.65 --error 0.005",
+   "inputs": [
+    {
+     "logicalName": "street_coupled",
+     "sha256": "031829e1ee2267676a548fd3d68792b014f9816ba1519108e86a337898aceff6",
+     "gitBlob": "0459e4ae2f9a2798166bcfd36cb206afcaa32a13:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    }
+   ],
+   "expectedOutputSha256": "5acd5f16fc90f0116d8878587511a45e858e35ff549be60fe8d6eb3983b6abb8",
+   "producingCommit": "b042f849ccf9b9a23c506affb44ff3151a469f0a",
+   "attributionNote": "final 5acd5f16 (20738460 B) == shipped @b042f849c verified."
+  },
+  {
+   "id": "S1b-0",
+   "tool": "tools/openclinxr/factory/bind-walk-clip-all.ts -> packages/openclinxr/factory-stations/src/motion_retarget/extract-library-clip.ts -> packages/openclinxr/factory-stations/src/motion_retarget/motion_bind_stage.py -> graft-bound-clip.ts",
+   "toolCommit": "91aa4b5d30ed2f0b2f30a2c228a8e7663ffeae0b",
+   "argv": "bind-walk-clip-all.ts [--actor mpfb-street-adult-male]; motion_bind_stage.py --actor <glb> --clip <walk-source> --map <mpfb2-default-no-toes.json> --source-map <mesh2motion-human-66.json> --source-orientation \"Third person, Z up\" --output <bound> --report <json>; graft --target/--source/--clip/--output/--report (no --remove-clip, initial bind)",
+   "inputs": [
+    {
+     "logicalName": "street_prewalk",
+     "sha256": "d441b703e72ec3f300a89e150fa0527084834c92183965e4b15fc7ecc85cca34",
+     "gitBlob": "3713862b5930940e669369e5d412e2388688bfd9:apps/ui-xr/public/generated-humanoids/mpfb-street-adult-male.glb"
+    },
+    {
+     "logicalName": "walk_source_clip",
+     "sha256": "406eb0a8dc4ab366e623b79b6e3005a4951392e1bda78ae39c1099d31147733c",
+     "filePath": "/Users/patrick/.openclinxr-tools/mesh2motion-app/static/animations/human-base-animations.glb"
+    }
+   ],
+   "expectedOutputSha256": "2388ac04748a2b08ee70c9a9217f49ff95225cab9f69f7b9540958e3959d1cae",
+   "producingCommit": "91aa4b5d30ed2f0b2f30a2c228a8e7663ffeae0b",
+   "attributionNote": "W3 split (cap54 X1): initial bind @91aa4b5d3 from pre-bind d441b703 (git blob 91fa766a) -> 2388ac04 (git blob 9df011cd45868c8301691b0c105980157e3f707516); Third person, Z up; no removeClips."
+  }
+ ],
+ "casDir": "/Volumes/files/openclinxr-assets/store/street-chain-inputs",
+ "casLayout": "casDir/<sha256><casExt>"
+}
