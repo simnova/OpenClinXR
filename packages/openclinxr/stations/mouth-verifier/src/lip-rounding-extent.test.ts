@@ -7,7 +7,7 @@
  */
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { LIP_ROUNDING_TABLE } from "@openclinxr/xr-dialogue/package-viseme";
+import { LIP_PURSE_TABLE, LIP_ROUNDING_TABLE } from "@openclinxr/xr-dialogue/package-viseme";
 import { beforeAll, describe, expect, it } from "vitest";
 import { loadHeadlessScene, type HeadlessScene } from "./headless-scene.js";
 import {
@@ -59,12 +59,16 @@ describe("lip rounding geometric gate", () => {
     }
   }, 120_000);
 
-  it("CW-OFF narrowPct O and U < 15 driver OFF, all 4", () => {
-    // source: same 15%; today 9.8-13.4 (rig-probe.json); proves the driver carries the narrowing. A BUILD that rounds the base morph amends this with the coordinator; never delete.
+  it("CW-DELTA narrowPct(on) - narrowPct(off) >= 5 pp O and U, all 4", () => {
+    // source: card tsk_48915702ffcadd1e (B1 raises driver OFF to 17.9-24.1, so the old < 15 OFF bar is replaced by the on-off delta; GATE >= 15 driver ON above stays in force).
     for (const asset of ASSETS) {
       const { scene, lateral } = setup(asset);
-      expect(narrowPct(scene, lateral, "O", "off"), `${asset} O narrowPct off`).toBeLessThan(15);
-      expect(narrowPct(scene, lateral, "U", "off"), `${asset} U narrowPct off`).toBeLessThan(15);
+      const onO = narrowPct(scene, lateral, "O", "on");
+      const offO = narrowPct(scene, lateral, "O", "off");
+      const onU = narrowPct(scene, lateral, "U", "on");
+      const offU = narrowPct(scene, lateral, "U", "off");
+      expect(onO - offO, `${asset} O delta on ${onO.toFixed(2)} off ${offO.toFixed(2)}`).toBeGreaterThanOrEqual(5);
+      expect(onU - offU, `${asset} U delta on ${onU.toFixed(2)} off ${offU.toFixed(2)}`).toBeGreaterThanOrEqual(5);
     }
   }, 120_000);
 
@@ -80,10 +84,13 @@ describe("lip rounding geometric gate", () => {
 
   it("CW-Z with a zeroed table, the GATE predicate is false on all 4", () => {
     const zeroed = LIP_ROUNDING_TABLE.map((row) => ({ ...row, fullMm: 0 }));
+    // source: HANDBACK-5 F2 — purse-undefined leaves production's own purse
+    // write in force, so a zeroed driver must zero the purse morphs too.
+    const zeroPurse = LIP_PURSE_TABLE.map((row) => ({ ...row, weight: 0 }));
     for (const asset of ASSETS) {
       const { scene, lateral } = setup(asset);
-      const o = narrowPct(scene, lateral, "O", "on", zeroed);
-      const u = narrowPct(scene, lateral, "U", "on", zeroed);
+      const o = narrowPct(scene, lateral, "O", "on", zeroed, zeroPurse);
+      const u = narrowPct(scene, lateral, "U", "on", zeroed, zeroPurse);
       expect(Number.isFinite(o) && Number.isFinite(u), `${asset} zeroed narrowPct finite`).toBe(true);
       const gate = roundingGatePasses(o, u);
       if (asset === "mpfb-peds-nurse-kevin") {

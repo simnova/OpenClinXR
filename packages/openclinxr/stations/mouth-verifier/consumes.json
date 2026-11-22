@@ -190,7 +190,19 @@
         "kind": "runtime"
       },
       {
+        "name": "LIP_PURSE_TABLE",
+        "kind": "runtime"
+      },
+      {
         "name": "LIP_ROUNDING_TABLE",
+        "kind": "runtime"
+      },
+      {
+        "name": "lipPurseWeights",
+        "kind": "runtime"
+      },
+      {
+        "name": "lipRoundingScales",
         "kind": "runtime"
       }
     ]

@@ -29,6 +29,7 @@ import {
 import { applyPreparedJawDynamics } from "./prepared-jaw-dynamics.js";
 import { applyPreparedLipDynamics } from "./viseme-lip-dynamics.js";
 import { applyLipBoneRoundingToRoot } from "./lip-bone-rounding.js";
+import { applyLipPurseToRoot } from "./lip-purse-rounding.js";
 import { applyUpperLipRaiseToRoot } from "./upper-lip-raise.js";
 export { JAW_TEETH_GAIN, LIP_VISEME_GAIN } from "./viseme-morph-apply.js";
 export {
@@ -283,6 +284,8 @@ export function applyGeneratedScalarVisemeToRoot(root: MorphRootLike, weight: nu
     const jawBonesTouched = applyJawOpenToRoot(root, scaledJaw);
     // AA never rounds; rescaled weights carry no O/U drive, restoring rest.
     applyLipBoneRoundingToRoot(root, scaled);
+    // Purse follows the same returned weights: AA/sil carry no O/U so this writes 0.
+    applyLipPurseToRoot(root, scaled);
     return {
       ...result,
       weights: scaled,
@@ -292,6 +295,9 @@ export function applyGeneratedScalarVisemeToRoot(root: MorphRootLike, weight: nu
       jawBonesTouched,
     };
   }
+  // Unscaled path (sil, or clamped 0 / >= 1): AA/sil carry no O/U, so this
+  // writes 0 and clears any stale purse from a previous named O/U frame.
+  applyLipPurseToRoot(root, result.weights);
   return result;
 }
 
@@ -311,7 +317,10 @@ export type SpeechSlotLike = {
 };
 
 function silenceNamedVisemes(slot: SpeechSlotLike, nowMs: number): NamedVisemeDriveResult {
-  return applyDialogueVisemeTimelineToRoot(slot.root, { phonemeSequence: ["sil"], progress: 0, nowMs });
+  const result = applyDialogueVisemeTimelineToRoot(slot.root, { phonemeSequence: ["sil"], progress: 0, nowMs });
+  // Silence clears the purse morphs: every table key on baked O/U meshes is written 0.
+  applyLipPurseToRoot(slot.root, result.weights);
+  return result;
 }
 
 /**
@@ -341,7 +350,7 @@ function bakedCuesAdmissible(cues: readonly PhonemeCue[] | undefined): boolean {
  * Thin speech-path entry: phoneme timeline from active dialogue → named morph weights.
  * When `activeSpeech.bakedCues` is present, the baked timeline drives instead of the
  * text-derived dwell model (#722). When speech ends, callers should apply silence via
- * applyDialogueVisemeTimelineToRoot({ sil }). Present mediaPositionSeconds uses absolute
+ * applyNamedSpeechVisemes({ root }) (which writes 0). Present mediaPositionSeconds uses absolute
  * baked intervals (gaps silence); invalid/null/NaN/infinity/negative/throw never wall-falls-back.
  */
 export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = performance.now()): NamedVisemeDriveResult {
@@ -365,6 +374,8 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
     const driven = applyPreparedJawDynamics(applyPreparedLipDynamics(result, slot.root, speech.bakedCues, media), slot.root, speech.bakedCues, media, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
     // Bones follow the dynamics-shaped weights (same envelope), not the pre-dynamics frame.
     applyLipBoneRoundingToRoot(slot.root, driven.weights);
+    // Purse follows the same post-dynamics weights, beside the bones.
+    applyLipPurseToRoot(slot.root, driven.weights);
     return withUpperLipRaise(slot.root, driven);
   }
   const progress = Math.min(1, Math.max(0, (nowMs - speech.startedAtMs) / Math.max(1, speech.durationMs)));
@@ -376,6 +387,7 @@ export function applyNamedSpeechVisemes(slot: SpeechSlotLike, nowMs: number = pe
   const endS = finalCue === undefined ? 0 : finalCue.atSecond + (finalCue.durationSeconds ?? 0);
   const wallDriven = applyPreparedJawDynamics(result, slot.root, speech.bakedCues, progress * endS, JAW_OPEN_TEETH_CLEAR_RADIANS, JAW_TEETH_GAIN, applyJawOpenToRoot);
   applyLipBoneRoundingToRoot(slot.root, wallDriven.weights);
+  applyLipPurseToRoot(slot.root, wallDriven.weights);
   return withUpperLipRaise(slot.root, wallDriven);
 }
 
