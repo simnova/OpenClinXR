@@ -178,11 +178,19 @@
         "kind": "runtime"
       },
       {
+        "name": "applyLipBoneRoundingToRoot",
+        "kind": "runtime"
+      },
+      {
         "name": "applyNamedSpeechVisemes",
         "kind": "runtime"
       },
       {
         "name": "jawOpenRadiansForPhoneme",
+        "kind": "runtime"
+      },
+      {
+        "name": "LIP_ROUNDING_TABLE",
         "kind": "runtime"
       }
     ]

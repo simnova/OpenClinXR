@@ -14,6 +14,7 @@ export {
   applyNamedSpeechVisemes,
   JAW_TEETH_GAIN,
 } from "./viseme-runtime-wire.js";
+export { applyLipBoneRoundingToRoot, LIP_ROUNDING_TABLE } from "./lip-bone-rounding.js";
 export {
   collectResolvedMorphTargets,
   MOUTH_OPEN_CAP,

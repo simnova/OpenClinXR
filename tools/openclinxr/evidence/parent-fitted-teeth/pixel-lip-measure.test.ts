@@ -545,16 +545,6 @@ describe("lip-rounding fixture crops (tsk_9a976f35c41a0f94)", () => {
       return measurePixelLipFront(embed(parts, 0), thresholdsFor(actor, 0));
     }
 
-    function fissureOf(actor: string, still: string): number {
-      const m = frontOf(actor, still);
-      const fissure = (m as PixelLipFront & { fissureWidthPx?: number })
-        .fissureWidthPx;
-      expect(fissure, "fissureWidthPx missing (S1 adds it)").toBeTypeOf(
-        "number",
-      );
-      return fissure!;
-    }
-
     function fullStill(rel: string): RgbImage {
       const bytes = readFileSync(path.join(REPORT_DIR, rel));
       const d = decodePng(
@@ -569,7 +559,7 @@ describe("lip-rounding fixture crops (tsk_9a976f35c41a0f94)", () => {
       expect(HAND_PAIRS).toEqual(manifest.handPairs);
     });
 
-    it.fails("RED1a physician front E/O/U is not band-wide", () => {
+    it.fails("RED1a KNOWN LIMIT: pixel instrument blind on dark skin (physician 726) - physician front E/O/U is not band-wide", () => {
       for (const still of ["E-on", "O-on", "U-on"]) {
         const m = frontOf("physician", still);
         // source: 726 :: blind value = FRONT_BAND.x1 - FRONT_BAND.x0 + 1 (pixel-lip-measure.ts FRONT_BAND); a definition, not a tolerance.
@@ -577,22 +567,22 @@ describe("lip-rounding fixture crops (tsk_9a976f35c41a0f94)", () => {
       }
     }, 60_000);
 
-    it.fails("RED1b MISSING-FIELD physician E fissure within 3% of the hand pair", () => {
-      // Existing-field sibling RED1a fails on the same defect (physician
-      // outerWidthPx 726, blind); this clause pins the S1-added field itself.
-      const f = fissureOf("physician", "E-on");
+    const FISSURE_CLOSED = "pixel fissure route closed (store s1/c1 FAIL); reinstate RED1b/RED2a (531/622 within 3%) from a8a8f1c85 on a new instrument card";
+
+    it("RED1b pixel fissure route closed: physician E carries no fissureWidthPx", () => {
+      // Pixel fissure route closed: any defined value fails, a correct 531 included.
+      const m = frontOf("physician", "E-on") as PixelLipFront & { fissureWidthPx?: number };
       // source: 3% :: cap54 ruling (card RED1/RED2). Hand noise is ±4 px on width (±2 px per tip) = 0.8% of 531 / 0.6% of 622, so 3% is ~4x the hand noise.
       // source: 531 :: physician hand pair, fissure tips L(243,519) R(774,502) located by eye on 6x crosshair crops of the physician E-on still (store lip-rounding/fixtures/commissure-hand-pairs.json, sha in manifest.handPairs); ±2 px per tip.
-      expect(Math.abs(f - 531)).toBeLessThanOrEqual(0.03 * 531);
+      expect(m.fissureWidthPx, FISSURE_CLOSED).toBeUndefined();
     }, 60_000);
 
-    it.fails("RED2a MISSING-FIELD Aisha E fissure within 3% of the hand pair", () => {
-      // Existing-field sibling RED2b fails on the same defect (Aisha outerY
-      // 464 vs 539.5); this clause pins the S1-added field itself.
-      const f = fissureOf("aisha", "E-on");
+    it("RED2a pixel fissure route closed: Aisha E carries no fissureWidthPx", () => {
+      // Pixel fissure route closed: any defined value fails, a correct 622 included.
+      const m = frontOf("aisha", "E-on") as PixelLipFront & { fissureWidthPx?: number };
       // source: 3% :: cap54 ruling (card RED1/RED2). Hand noise is ±4 px on width (±2 px per tip) = 0.8% of 531 / 0.6% of 622, so 3% is ~4x the hand noise.
       // source: 622 :: Aisha hand pair L(203,542) R(825,537), same method; cap54 spot-checked natively.
-      expect(Math.abs(f - 622)).toBeLessThanOrEqual(0.03 * 622);
+      expect(m.fissureWidthPx, FISSURE_CLOSED).toBeUndefined();
     }, 60_000);
 
     it.fails("RED2b Aisha E outer width at the commissure row", () => {
@@ -645,7 +635,7 @@ describe("lip-rounding fixture crops (tsk_9a976f35c41a0f94)", () => {
     }, 60_000);
 
     it("CW3b physician guard: skip state equals RED1a state", () => {
-      // Keeps the skip tied to exactly the RED1a condition.
+      // Ties the skip to all-three-blind (726), which is narrower than RED1a's failure condition.
       // source: 726 :: blind value = FRONT_BAND.x1 - FRONT_BAND.x0 + 1 (pixel-lip-measure.ts FRONT_BAND); a definition, not a tolerance.
       const allBlind = ["E-on", "O-on", "U-on"].every(
         (still) => frontOf("physician", still).outerWidthPx === 726,
@@ -655,9 +645,9 @@ describe("lip-rounding fixture crops (tsk_9a976f35c41a0f94)", () => {
 
     it("CW-OF physician E-on outer covers the fissure", () => {
       const m = frontOf("physician", "E-on");
-      // source: 531 :: physician hand pair (as RED1b). 0.97 :: the card's 3% hand-pair tolerance (cap54), applied one-sided.
+      // source: 531 hand pair; +4 = 2 px per side (cap55 cheapest-pass bar: outer must exceed the fissure). Aisha CW-OF unchanged.
       // NOTE: passes today only because the physician is blind (726); it bites once RED1a is green, and refuses a fix that narrows outer below the fissure (aperture-as-outer).
-      expect(m.outerWidthPx).toBeGreaterThanOrEqual(531 * 0.97);
+      expect(m.outerWidthPx).toBeGreaterThan(531 + 4);
     }, 60_000);
 
     it.fails("CW-OF Aisha E-on outer covers the fissure", () => {
