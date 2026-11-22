@@ -661,7 +661,7 @@ describe("viseme runtime wire (#63) — driver → applier → mesh", () => {  i
   });
 });
 
-describe("upper-lip raise (upper-incisor-show P2) — mouth-elevation follows viseme_aa", () => {
+describe("upper-lip raise (upper-incisor-show P2) — mouth-elevation follows the aa/E gain table", () => {
   /** Two host meshes carrying mouth-elevation plus the viseme targets the drive needs. */
   function raiseRoot() {
     const names = ["viseme_sil", "viseme_aa", "viseme_E", "viseme_FF", "mouth-elevation"];
@@ -726,7 +726,7 @@ describe("upper-lip raise (upper-incisor-show P2) — mouth-elevation follows vi
     expect(elevationOf(second)).toBe(0);
   });
 
-  it("(f) a non-aa viseme (E held) writes 0", () => {
+  it("(f) held E writes clamp(g_E * w_E) = 1 on every host; superseded 2026-11-22 tsk_87ff5eaa7e173e9f", () => {
     const { first, second, root } = raiseRoot();
     applyNamedSpeechVisemes(
       {
@@ -735,8 +735,8 @@ describe("upper-lip raise (upper-incisor-show P2) — mouth-elevation follows vi
       },
       500,
     );
-    expect(elevationOf(first)).toBe(0);
-    expect(elevationOf(second)).toBe(0);
+    expect(elevationOf(first)).toBe(1);
+    expect(elevationOf(second)).toBe(1);
   });
 
   it("(i) held aa at w_aa 0.25 writes 0.5 and the direct wire routes aa", () => {
@@ -751,13 +751,13 @@ describe("upper-lip raise (upper-incisor-show P2) — mouth-elevation follows vi
     expect(elevationOf(wired.second)).toBe(1);
   });
 
-  it("(ii) a held-E frame on hosts seeded at 0.7 writes 0", () => {
+  it("(ii) a held-E frame on hosts seeded at 0.7 writes 1 (g_E table), not the seed", () => {
     const { first, second, root } = raiseRoot();
     first.morphTargetInfluences[first.morphTargetDictionary["mouth-elevation"]!] = 0.7;
     second.morphTargetInfluences[second.morphTargetDictionary["mouth-elevation"]!] = 0.7;
     applyDialogueVisemeTimelineToRoot(root, { phonemeSequence: ["E"], progress: 0 });
-    expect(elevationOf(first)).toBe(0);
-    expect(elevationOf(second)).toBe(0);
+    expect(elevationOf(first)).toBe(1);
+    expect(elevationOf(second)).toBe(1);
   });
 
   it("(iv) applyDialogueVisemeTimelineToRoot sil after aa leaves 0", () => {
@@ -795,6 +795,111 @@ describe("upper-lip raise (upper-incisor-show P2) — mouth-elevation follows vi
     };
     only.morphTargetInfluences[only.morphTargetDictionary["mouth-elevation"]!] = 0.7;
     applyUpperLipRaiseToRoot(root, { viseme_aa: 1 });
+    expect(elevationOf(only)).toBe(0.7);
+  });
+
+  it("CW2 sil after held E writes 0 on both hosts", () => {
+    const { first, second, root } = raiseRoot();
+    applyNamedSpeechVisemes(
+      {
+        root,
+        activeSpeech: { phonemeSequence: ["E"], startedAtMs: 0, durationMs: 1000 },
+      },
+      500,
+    );
+    expect(elevationOf(first)).toBe(1);
+    applyNamedSpeechVisemes({ root });
+    expect(elevationOf(first)).toBe(0);
+    expect(elevationOf(second)).toBe(0);
+    applyNamedSpeechVisemes(
+      {
+        root,
+        activeSpeech: { phonemeSequence: ["E"], startedAtMs: 0, durationMs: 1000 },
+      },
+      500,
+    );
+    expect(elevationOf(first)).toBe(1);
+    applyDialogueVisemeTimelineToRoot(root, { phonemeSequence: ["sil"], progress: 0 });
+    expect(elevationOf(first)).toBe(0);
+    expect(elevationOf(second)).toBe(0);
+  });
+
+  it("CW6 cheapest pass refused: held PP/FF/sil/O/U/I write 0 on both hosts", () => {
+    const names = [
+      "viseme_sil",
+      "viseme_aa",
+      "viseme_E",
+      "viseme_FF",
+      "viseme_PP",
+      "viseme_O",
+      "viseme_U",
+      "viseme_I",
+      "mouth-elevation",
+    ];
+    const make = (): {
+      name: string;
+      morphTargetDictionary: Record<string, number>;
+      morphTargetInfluences: number[];
+    } => ({
+      name: "Body",
+      morphTargetDictionary: Object.fromEntries(names.map((name, index) => [name, index])),
+      morphTargetInfluences: names.map(() => 0),
+    });
+    const first = make();
+    const second = make();
+    const root = {
+      userData: {} as Record<string, unknown>,
+      traverse(callback: (object: unknown) => void) {
+        callback(first);
+        callback(second);
+      },
+    };
+    for (const phoneme of ["PP", "FF", "sil", "O", "U", "I"]) {
+      applyNamedSpeechVisemes(
+        {
+          root,
+          activeSpeech: { phonemeSequence: [phoneme], startedAtMs: 0, durationMs: 1000 },
+        },
+        500,
+      );
+      expect(elevationOf(first), `${phoneme} first host`).toBe(0);
+      expect(elevationOf(second), `${phoneme} second host`).toBe(0);
+    }
+  });
+
+  it("CW6b max not sum: aa 0.25 + E 0.4 writes 0.5", () => {
+    const { first, second, root } = raiseRoot();
+    applyUpperLipRaiseToRoot(root, { viseme_aa: 0.25, viseme_E: 0.4 });
+    expect(elevationOf(first)).toBe(0.5);
+    expect(elevationOf(second)).toBe(0.5);
+    // The E term must win when it is larger: the aa-only formula would write 0.2 here.
+    applyUpperLipRaiseToRoot(root, { viseme_aa: 0.1, viseme_E: 0.4 });
+    expect(elevationOf(first)).toBe(0.4);
+    // An override cannot add a viseme to the closed table.
+    applyUpperLipRaiseToRoot(root, { viseme_I: 1 }, { viseme_aa: 2, viseme_E: 1, viseme_I: 1 });
+    expect(elevationOf(first)).toBe(0);
+  });
+
+  it("CW7 FV rig: the (v) host keeps its pre-set value at held E", () => {
+    const names = ["viseme_sil", "viseme_aa", "viseme_E", "mouth-elevation"];
+    const make = (): {
+      name: string;
+      morphTargetDictionary: Record<string, number>;
+      morphTargetInfluences: number[];
+    } => ({
+      name: "Body",
+      morphTargetDictionary: Object.fromEntries(names.map((name, index) => [name, index])),
+      morphTargetInfluences: names.map(() => 0),
+    });
+    const only = make();
+    const root = {
+      userData: {} as Record<string, unknown>,
+      traverse(callback: (object: unknown) => void) {
+        callback(only);
+      },
+    };
+    only.morphTargetInfluences[only.morphTargetDictionary["mouth-elevation"]!] = 0.7;
+    applyUpperLipRaiseToRoot(root, { viseme_E: 1 });
     expect(elevationOf(only)).toBe(0.7);
   });
 });
