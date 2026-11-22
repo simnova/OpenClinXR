@@ -1,0 +1,1877 @@
+{
+ "schema": "openclinxr.lip-rounding-fixture.v1",
+ "card": "tsk_9a976f35c41a0f94",
+ "author": "aisha-parity [8c3414] 2026-11-22",
+ "captureTree": "d0a90c471",
+ "instrumentTree": "40986735b",
+ "encoding": "PNG rgb24 (source rgba; the instrument decodes rgb24, alpha dropped); ffmpeg crop, no scaling",
+ "embedding": "tests place each crop in a 1024x1024 frame at offset {x0,y0}; proofs ran with fill 0 and fill 255",
+ "regions": {
+  "band": {
+   "x0": 150,
+   "y0": 380,
+   "w": 726,
+   "h": 241
+  },
+  "silFront": {
+   "x0": 60,
+   "y0": 350,
+   "w": 901,
+   "h": 290
+  },
+  "sil34": {
+   "x0": 0,
+   "y0": 0,
+   "w": 111,
+   "h": 700
+  },
+  "strip34a": {
+   "x0": 120,
+   "y0": 120,
+   "w": 481,
+   "h": 61
+  },
+  "strip34b": {
+   "x0": 120,
+   "y0": 320,
+   "w": 481,
+   "h": 101
+  }
+ },
+ "handPairsSource": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/fixtures/commissure-hand-pairs.json",
+ "handPairs": {
+  "mpfb-peds-parent-aisha": {
+   "L": [
+    246,
+    501
+   ],
+   "R": [
+    777,
+    503
+   ],
+   "fissureWidthPx": 531,
+   "stillSha256": "df534ba5ff732a38d96dd8d8c257bfab6a7ec3c783be2b139c96e2c8d68be6e5"
+  },
+  "mpfb-peds-nurse-kevin": {
+   "L": [
+    249,
+    501
+   ],
+   "R": [
+    770,
+    512
+   ],
+   "fissureWidthPx": 521,
+   "stillSha256": "f5bc06e236cac289a61d93808589cd46429efd8cd14e800a4e9e880700b5657d"
+  },
+  "mpfb-ob-patient-aisha": {
+   "L": [
+    203,
+    542
+   ],
+   "R": [
+    825,
+    537
+   ],
+   "fissureWidthPx": 622,
+   "stillSha256": "ab32fb735892e51a73dbfe9551c753ec9b6a7e88ccbd8928f8b450a26e9de7a6"
+  },
+  "mpfb-clinical-physician-adult": {
+   "L": [
+    243,
+    519
+   ],
+   "R": [
+    774,
+    502
+   ],
+   "fissureWidthPx": 531,
+   "stillSha256": "f2a79a0575c8bae6fff43fa2ad811ce1ebe5c22bb175e3bb24a90633f23427d4"
+  }
+ },
+ "totalCropBytes": 1717864,
+ "crops": [
+  {
+   "file": "physician-front-sil-silFront.png",
+   "actor": "physician",
+   "asset": "mpfb-clinical-physician-adult",
+   "view": "front",
+   "still": "sil",
+   "region": "silFront",
+   "offset": {
+    "x0": 60,
+    "y0": 350,
+    "w": 901,
+    "h": 290
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-clinical-physician-adult/isolated-front/sil.png",
+   "sourceSha256": "aca3202bf168163791f7483d7bd9db1169c4b39dd59e6420780c7ec742953c5a",
+   "cropSha256": "c50737c2d5b983d8107c41d1b8892666942499cb65732d4a784a64b37f9d94ea",
+   "bytes": 103123,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "physician-34-sil-sil34.png",
+   "actor": "physician",
+   "asset": "mpfb-clinical-physician-adult",
+   "view": "34",
+   "still": "sil",
+   "region": "sil34",
+   "offset": {
+    "x0": 0,
+    "y0": 0,
+    "w": 111,
+    "h": 700
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-clinical-physician-adult/isolated-34/sil.png",
+   "sourceSha256": "fc102ed1fffcfa0831d7df94676d8488642d906d0795e0ff8c6f339151d66bbd",
+   "cropSha256": "a0802c80ccfd03c89933c8cf520ca682c08b9b8d51c21465c6d14b260781134f",
+   "bytes": 1600,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "physician-front-E-on-band.png",
+   "actor": "physician",
+   "asset": "mpfb-clinical-physician-adult",
+   "view": "front",
+   "still": "E-on",
+   "region": "band",
+   "offset": {
+    "x0": 150,
+    "y0": 380,
+    "w": 726,
+    "h": 241
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-clinical-physician-adult/isolated-front/E-on.png",
+   "sourceSha256": "f2a79a0575c8bae6fff43fa2ad811ce1ebe5c22bb175e3bb24a90633f23427d4",
+   "cropSha256": "23b59030dc019e4d731565866dca12cec53b308e31b235c3977a231b092825c0",
+   "bytes": 118451,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "physician-front-E-z-band.png",
+   "actor": "physician",
+   "asset": "mpfb-clinical-physician-adult",
+   "view": "front",
+   "still": "E-z",
+   "region": "band",
+   "offset": {
+    "x0": 150,
+    "y0": 380,
+    "w": 726,
+    "h": 241
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-clinical-physician-adult/isolated-front/E-z.png",
+   "sourceSha256": "96bb42ae541d87050237bb54fea071117583cb59cd9bff9e9643882cb05de86d",
+   "cropSha256": "a88eab21acc24717dcbcd5f3d5dd03ea31b8ead226810a94bffbd47e6015c862",
+   "bytes": 92722,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "physician-front-O-on-band.png",
+   "actor": "physician",
+   "asset": "mpfb-clinical-physician-adult",
+   "view": "front",
+   "still": "O-on",
+   "region": "band",
+   "offset": {
+    "x0": 150,
+    "y0": 380,
+    "w": 726,
+    "h": 241
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-clinical-physician-adult/isolated-front/O-on.png",
+   "sourceSha256": "83ce096157839074e4a7b1fec3287dd6909aaf2231f522346df707d142f41613",
+   "cropSha256": "4a6d91b4817b602b8c6cb79f1256698a5858afd84c3579cdcb46af2f4661d4fc",
+   "bytes": 96721,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "physician-front-U-on-band.png",
+   "actor": "physician",
+   "asset": "mpfb-clinical-physician-adult",
+   "view": "front",
+   "still": "U-on",
+   "region": "band",
+   "offset": {
+    "x0": 150,
+    "y0": 380,
+    "w": 726,
+    "h": 241
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-clinical-physician-adult/isolated-front/U-on.png",
+   "sourceSha256": "2715d486b7f7a445032e1ccddd1fb573f7fb11decc59426f1748d92de3a645cc",
+   "cropSha256": "1349d4cff959b524a628f18efe122839d744b866a39f123d7a7664f733f7aba6",
+   "bytes": 84647,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "physician-34-O-on-strip34a.png",
+   "actor": "physician",
+   "asset": "mpfb-clinical-physician-adult",
+   "view": "34",
+   "still": "O-on",
+   "region": "strip34a",
+   "offset": {
+    "x0": 120,
+    "y0": 120,
+    "w": 481,
+    "h": 61
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-clinical-physician-adult/isolated-34/O-on.png",
+   "sourceSha256": "f6a13eb3ccbc6eca16e9aa9db7e7effaabf3122c7aa0e2f3467c1dd80ec5bd5d",
+   "cropSha256": "b30eefe1dc185acfa1e47b9de25de6759752d284e4d8725cf46dd6eb7cb879c1",
+   "bytes": 11103,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "physician-34-O-on-strip34b.png",
+   "actor": "physician",
+   "asset": "mpfb-clinical-physician-adult",
+   "view": "34",
+   "still": "O-on",
+   "region": "strip34b",
+   "offset": {
+    "x0": 120,
+    "y0": 320,
+    "w": 481,
+    "h": 101
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-clinical-physician-adult/isolated-34/O-on.png",
+   "sourceSha256": "f6a13eb3ccbc6eca16e9aa9db7e7effaabf3122c7aa0e2f3467c1dd80ec5bd5d",
+   "cropSha256": "3afb677ebc21bbda5df6008f1cf8e861a1b26f05381e0ebfc98685a884c5c97d",
+   "bytes": 17825,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "physician-34-U-on-strip34a.png",
+   "actor": "physician",
+   "asset": "mpfb-clinical-physician-adult",
+   "view": "34",
+   "still": "U-on",
+   "region": "strip34a",
+   "offset": {
+    "x0": 120,
+    "y0": 120,
+    "w": 481,
+    "h": 61
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-clinical-physician-adult/isolated-34/U-on.png",
+   "sourceSha256": "1fb4ab65bf8169e8ba7d1e9f774a0c00eed87d11d3768d8321158be40a780aea",
+   "cropSha256": "c1bd14d03c49c08eaefc87606b60b8c0c33e8d9af0004a7e4d200b4600b12bf2",
+   "bytes": 11140,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "physician-34-U-on-strip34b.png",
+   "actor": "physician",
+   "asset": "mpfb-clinical-physician-adult",
+   "view": "34",
+   "still": "U-on",
+   "region": "strip34b",
+   "offset": {
+    "x0": 120,
+    "y0": 320,
+    "w": 481,
+    "h": 101
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-clinical-physician-adult/isolated-34/U-on.png",
+   "sourceSha256": "1fb4ab65bf8169e8ba7d1e9f774a0c00eed87d11d3768d8321158be40a780aea",
+   "cropSha256": "69cf12d01ca75696bd15dc73e9cac1f5f0869785126f120f5763efea14298d83",
+   "bytes": 18157,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "aisha-front-sil-silFront.png",
+   "actor": "aisha",
+   "asset": "mpfb-ob-patient-aisha",
+   "view": "front",
+   "still": "sil",
+   "region": "silFront",
+   "offset": {
+    "x0": 60,
+    "y0": 350,
+    "w": 901,
+    "h": 290
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-ob-patient-aisha/isolated-front/sil.png",
+   "sourceSha256": "d98970e3fa70ff3c4a11455096104e121f1d49c0fc7f56431ec9a7bff5a68356",
+   "cropSha256": "82977c240547f2d14f9bc1d73c2cdbd0026ed2cb89341ada063a9065f4f16c70",
+   "bytes": 171306,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "aisha-34-sil-sil34.png",
+   "actor": "aisha",
+   "asset": "mpfb-ob-patient-aisha",
+   "view": "34",
+   "still": "sil",
+   "region": "sil34",
+   "offset": {
+    "x0": 0,
+    "y0": 0,
+    "w": 111,
+    "h": 700
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-ob-patient-aisha/isolated-34/sil.png",
+   "sourceSha256": "56e0d6c0fabab65fb1debc1ec45d3ea4958ed84500de1b87a75ac3701f7a03af",
+   "cropSha256": "a0802c80ccfd03c89933c8cf520ca682c08b9b8d51c21465c6d14b260781134f",
+   "bytes": 1600,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "aisha-front-E-on-band.png",
+   "actor": "aisha",
+   "asset": "mpfb-ob-patient-aisha",
+   "view": "front",
+   "still": "E-on",
+   "region": "band",
+   "offset": {
+    "x0": 150,
+    "y0": 380,
+    "w": 726,
+    "h": 241
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-ob-patient-aisha/isolated-front/E-on.png",
+   "sourceSha256": "ab32fb735892e51a73dbfe9551c753ec9b6a7e88ccbd8928f8b450a26e9de7a6",
+   "cropSha256": "ecd924d5aa00379641b3f126215e650e78be7fd8c5fa4c4a4a2886c8bfc37874",
+   "bytes": 151517,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "aisha-front-E-z-band.png",
+   "actor": "aisha",
+   "asset": "mpfb-ob-patient-aisha",
+   "view": "front",
+   "still": "E-z",
+   "region": "band",
+   "offset": {
+    "x0": 150,
+    "y0": 380,
+    "w": 726,
+    "h": 241
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-ob-patient-aisha/isolated-front/E-z.png",
+   "sourceSha256": "dff1f29015b7f5baa561f0de6047c207a661561ba4b2e81dcefcb167d1dfb31c",
+   "cropSha256": "462c705a8bf27252c336920590f4ff3bf513cf6e64abf8cc1e23da09e4eb4eeb",
+   "bytes": 134063,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "kevin-front-sil-silFront.png",
+   "actor": "kevin",
+   "asset": "mpfb-peds-nurse-kevin",
+   "view": "front",
+   "still": "sil",
+   "region": "silFront",
+   "offset": {
+    "x0": 60,
+    "y0": 350,
+    "w": 901,
+    "h": 290
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-peds-nurse-kevin/isolated-front/sil.png",
+   "sourceSha256": "4efafcdbcbcd670dfb8b53ff3f7f51339409a12ebc7d1f837173b44a751cdb36",
+   "cropSha256": "1bbb458ad42bff1658d123c149d526e5ca6fc6b677844162804730ca03a41b71",
+   "bytes": 130979,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "kevin-34-sil-sil34.png",
+   "actor": "kevin",
+   "asset": "mpfb-peds-nurse-kevin",
+   "view": "34",
+   "still": "sil",
+   "region": "sil34",
+   "offset": {
+    "x0": 0,
+    "y0": 0,
+    "w": 111,
+    "h": 700
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-peds-nurse-kevin/isolated-34/sil.png",
+   "sourceSha256": "96e74574b44d2964f8b3a58fbdce76a210eedbf267febe1980c47bce748633b4",
+   "cropSha256": "a0802c80ccfd03c89933c8cf520ca682c08b9b8d51c21465c6d14b260781134f",
+   "bytes": 1600,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "kevin-front-O-on-band.png",
+   "actor": "kevin",
+   "asset": "mpfb-peds-nurse-kevin",
+   "view": "front",
+   "still": "O-on",
+   "region": "band",
+   "offset": {
+    "x0": 150,
+    "y0": 380,
+    "w": 726,
+    "h": 241
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-peds-nurse-kevin/isolated-front/O-on.png",
+   "sourceSha256": "143fb4c15670d6083b5bde0de7ea69be6d129c31c5c0ad38e4d183311f3e70d3",
+   "cropSha256": "a194744e7c9c9eeb073fc8c401a420fe362be9e943b1dd29a7b8c1c66f7d832c",
+   "bytes": 112713,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "kevin-front-U-on-band.png",
+   "actor": "kevin",
+   "asset": "mpfb-peds-nurse-kevin",
+   "view": "front",
+   "still": "U-on",
+   "region": "band",
+   "offset": {
+    "x0": 150,
+    "y0": 380,
+    "w": 726,
+    "h": 241
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-peds-nurse-kevin/isolated-front/U-on.png",
+   "sourceSha256": "f90435d9d32e93134c2a6bada500499a7735c9fb766628b931d0e11d2a30fcb9",
+   "cropSha256": "1b79dbfd79c16a62057b454f0e0cb24e18dcc9e34494839e4af972af6f350afc",
+   "bytes": 98221,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "kevin-34-O-on-strip34a.png",
+   "actor": "kevin",
+   "asset": "mpfb-peds-nurse-kevin",
+   "view": "34",
+   "still": "O-on",
+   "region": "strip34a",
+   "offset": {
+    "x0": 120,
+    "y0": 120,
+    "w": 481,
+    "h": 61
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-peds-nurse-kevin/isolated-34/O-on.png",
+   "sourceSha256": "89171af8985a19ba3b4736c8bf2b44fdc087ac08102e849eb9722bc0d7605487",
+   "cropSha256": "014556f2cfdb3b2bf0e94f01d0c856e801652ba2b0b38436591704be1c3cd283",
+   "bytes": 14388,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "kevin-34-O-on-strip34b.png",
+   "actor": "kevin",
+   "asset": "mpfb-peds-nurse-kevin",
+   "view": "34",
+   "still": "O-on",
+   "region": "strip34b",
+   "offset": {
+    "x0": 120,
+    "y0": 320,
+    "w": 481,
+    "h": 101
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-peds-nurse-kevin/isolated-34/O-on.png",
+   "sourceSha256": "89171af8985a19ba3b4736c8bf2b44fdc087ac08102e849eb9722bc0d7605487",
+   "cropSha256": "0fdb42d648b06149b69ba48b76dc861b836963ca10d786392e35f7cae02417a3",
+   "bytes": 24351,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "kevin-34-U-on-strip34a.png",
+   "actor": "kevin",
+   "asset": "mpfb-peds-nurse-kevin",
+   "view": "34",
+   "still": "U-on",
+   "region": "strip34a",
+   "offset": {
+    "x0": 120,
+    "y0": 120,
+    "w": 481,
+    "h": 61
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-peds-nurse-kevin/isolated-34/U-on.png",
+   "sourceSha256": "b4bac916a04ec68616b0c9d5087510b809ed2071599727f2dd9ac997d36b2e91",
+   "cropSha256": "915be063beaf80358c334e84f52cd3bf72b222de1964616fa2c89ae8ae8d507d",
+   "bytes": 14283,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "kevin-34-U-on-strip34b.png",
+   "actor": "kevin",
+   "asset": "mpfb-peds-nurse-kevin",
+   "view": "34",
+   "still": "U-on",
+   "region": "strip34b",
+   "offset": {
+    "x0": 120,
+    "y0": 320,
+    "w": 481,
+    "h": 101
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-peds-nurse-kevin/isolated-34/U-on.png",
+   "sourceSha256": "b4bac916a04ec68616b0c9d5087510b809ed2071599727f2dd9ac997d36b2e91",
+   "cropSha256": "3f2b1b74c7de99e29ca1b29ac1cdef18a0a7e508afde89c10676d3ca09f593b4",
+   "bytes": 24303,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "parent-front-sil-silFront.png",
+   "actor": "parent",
+   "asset": "mpfb-peds-parent-aisha",
+   "view": "front",
+   "still": "sil",
+   "region": "silFront",
+   "offset": {
+    "x0": 60,
+    "y0": 350,
+    "w": 901,
+    "h": 290
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-peds-parent-aisha/isolated-front/sil.png",
+   "sourceSha256": "a994f685fab35b0da67b98a88e02e0346f1f18107f2f4d7a352fac1d83c5a3ac",
+   "cropSha256": "a4187b8136b6791ce14b1ea4b38d18d924107b652834da68fd363ee6650b502a",
+   "bytes": 146422,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "parent-34-sil-sil34.png",
+   "actor": "parent",
+   "asset": "mpfb-peds-parent-aisha",
+   "view": "34",
+   "still": "sil",
+   "region": "sil34",
+   "offset": {
+    "x0": 0,
+    "y0": 0,
+    "w": 111,
+    "h": 700
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-peds-parent-aisha/isolated-34/sil.png",
+   "sourceSha256": "b3e0a7ee10d616a64ee26471164c3b2b93aae2f09c8e0607ab77c9c170d42e8e",
+   "cropSha256": "a0802c80ccfd03c89933c8cf520ca682c08b9b8d51c21465c6d14b260781134f",
+   "bytes": 1600,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  },
+  {
+   "file": "parent-front-E-on-band.png",
+   "actor": "parent",
+   "asset": "mpfb-peds-parent-aisha",
+   "view": "front",
+   "still": "E-on",
+   "region": "band",
+   "offset": {
+    "x0": 150,
+    "y0": 380,
+    "w": 726,
+    "h": 241
+   },
+   "sourceStill": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/stills/mpfb-peds-parent-aisha/isolated-front/E-on.png",
+   "sourceSha256": "df534ba5ff732a38d96dd8d8c257bfab6a7ec3c783be2b139c96e2c8d68be6e5",
+   "cropSha256": "606cd1eac2cf105245c7e9f844d0a70898906d8accd7a7e973ad5095f89caac6",
+   "bytes": 135029,
+   "captureTree": "d0a90c471",
+   "decodedEqualsSourceSlice": true
+  }
+ ],
+ "cropEqualsFull": [
+  {
+   "actor": "physician",
+   "call": "calibratePixelLipThresholds",
+   "crops": [
+    "physician-front-sil-silFront.png",
+    "physician-34-sil-sil34.png"
+   ],
+   "fill": 0,
+   "full": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 56,
+    "redT": 6,
+    "gumT": 18,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 48.426,
+      "g": 33.324,
+      "b": 25.6408
+     },
+     "skinR": {
+      "r": 67.4716,
+      "g": 45.3476,
+      "b": 36.194
+     },
+     "apertureMean": 42.63770833333328,
+     "apertureSd": 8.815210559539674,
+     "lipRedxsMedian": 8.51917670682731,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "embedded": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 56,
+    "redT": 6,
+    "gumT": 18,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 48.426,
+      "g": 33.324,
+      "b": 25.6408
+     },
+     "skinR": {
+      "r": 67.4716,
+      "g": 45.3476,
+      "b": 36.194
+     },
+     "apertureMean": 42.63770833333328,
+     "apertureSd": 8.815210559539674,
+     "lipRedxsMedian": 8.51917670682731,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "calibratePixelLipThresholds",
+   "crops": [
+    "physician-front-sil-silFront.png",
+    "physician-34-sil-sil34.png"
+   ],
+   "fill": 255,
+   "full": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 56,
+    "redT": 6,
+    "gumT": 18,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 48.426,
+      "g": 33.324,
+      "b": 25.6408
+     },
+     "skinR": {
+      "r": 67.4716,
+      "g": 45.3476,
+      "b": 36.194
+     },
+     "apertureMean": 42.63770833333328,
+     "apertureSd": 8.815210559539674,
+     "lipRedxsMedian": 8.51917670682731,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "embedded": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 56,
+    "redT": 6,
+    "gumT": 18,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 48.426,
+      "g": 33.324,
+      "b": 25.6408
+     },
+     "skinR": {
+      "r": 67.4716,
+      "g": 45.3476,
+      "b": 36.194
+     },
+     "apertureMean": 42.63770833333328,
+     "apertureSd": 8.815210559539674,
+     "lipRedxsMedian": 8.51917670682731,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipFront",
+   "still": "E-on",
+   "crops": [
+    "physician-front-E-on-band.png"
+   ],
+   "fill": 0,
+   "full": {
+    "outerWidthPx": 726,
+    "outerY": 380,
+    "apertureWidthPx": 726,
+    "apertureY": 380,
+    "apertureHeightPx": 97,
+    "hwRatio": 0.134
+   },
+   "embedded": {
+    "outerWidthPx": 726,
+    "outerY": 380,
+    "apertureWidthPx": 726,
+    "apertureY": 380,
+    "apertureHeightPx": 97,
+    "hwRatio": 0.134
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipFront",
+   "still": "E-on",
+   "crops": [
+    "physician-front-E-on-band.png"
+   ],
+   "fill": 255,
+   "full": {
+    "outerWidthPx": 726,
+    "outerY": 380,
+    "apertureWidthPx": 726,
+    "apertureY": 380,
+    "apertureHeightPx": 97,
+    "hwRatio": 0.134
+   },
+   "embedded": {
+    "outerWidthPx": 726,
+    "outerY": 380,
+    "apertureWidthPx": 726,
+    "apertureY": 380,
+    "apertureHeightPx": 97,
+    "hwRatio": 0.134
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipFront",
+   "still": "E-z",
+   "crops": [
+    "physician-front-E-z-band.png"
+   ],
+   "fill": 0,
+   "full": {
+    "outerWidthPx": 726,
+    "outerY": 427,
+    "apertureWidthPx": 726,
+    "apertureY": 427,
+    "apertureHeightPx": 204,
+    "hwRatio": 0.281
+   },
+   "embedded": {
+    "outerWidthPx": 726,
+    "outerY": 427,
+    "apertureWidthPx": 726,
+    "apertureY": 427,
+    "apertureHeightPx": 204,
+    "hwRatio": 0.281
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipFront",
+   "still": "E-z",
+   "crops": [
+    "physician-front-E-z-band.png"
+   ],
+   "fill": 255,
+   "full": {
+    "outerWidthPx": 726,
+    "outerY": 427,
+    "apertureWidthPx": 726,
+    "apertureY": 427,
+    "apertureHeightPx": 204,
+    "hwRatio": 0.281
+   },
+   "embedded": {
+    "outerWidthPx": 726,
+    "outerY": 427,
+    "apertureWidthPx": 726,
+    "apertureY": 427,
+    "apertureHeightPx": 204,
+    "hwRatio": 0.281
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipFront",
+   "still": "O-on",
+   "crops": [
+    "physician-front-O-on-band.png"
+   ],
+   "fill": 0,
+   "full": {
+    "outerWidthPx": 726,
+    "outerY": 443,
+    "apertureWidthPx": 726,
+    "apertureY": 444,
+    "apertureHeightPx": 204,
+    "hwRatio": 0.281
+   },
+   "embedded": {
+    "outerWidthPx": 726,
+    "outerY": 443,
+    "apertureWidthPx": 726,
+    "apertureY": 444,
+    "apertureHeightPx": 204,
+    "hwRatio": 0.281
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipFront",
+   "still": "O-on",
+   "crops": [
+    "physician-front-O-on-band.png"
+   ],
+   "fill": 255,
+   "full": {
+    "outerWidthPx": 726,
+    "outerY": 443,
+    "apertureWidthPx": 726,
+    "apertureY": 444,
+    "apertureHeightPx": 204,
+    "hwRatio": 0.281
+   },
+   "embedded": {
+    "outerWidthPx": 726,
+    "outerY": 443,
+    "apertureWidthPx": 726,
+    "apertureY": 444,
+    "apertureHeightPx": 204,
+    "hwRatio": 0.281
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipFront",
+   "still": "U-on",
+   "crops": [
+    "physician-front-U-on-band.png"
+   ],
+   "fill": 0,
+   "full": {
+    "outerWidthPx": 726,
+    "outerY": 446,
+    "apertureWidthPx": 726,
+    "apertureY": 448,
+    "apertureHeightPx": 152,
+    "hwRatio": 0.209
+   },
+   "embedded": {
+    "outerWidthPx": 726,
+    "outerY": 446,
+    "apertureWidthPx": 726,
+    "apertureY": 448,
+    "apertureHeightPx": 152,
+    "hwRatio": 0.209
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipFront",
+   "still": "U-on",
+   "crops": [
+    "physician-front-U-on-band.png"
+   ],
+   "fill": 255,
+   "full": {
+    "outerWidthPx": 726,
+    "outerY": 446,
+    "apertureWidthPx": 726,
+    "apertureY": 448,
+    "apertureHeightPx": 152,
+    "hwRatio": 0.209
+   },
+   "embedded": {
+    "outerWidthPx": 726,
+    "outerY": 446,
+    "apertureWidthPx": 726,
+    "apertureY": 448,
+    "apertureHeightPx": 152,
+    "hwRatio": 0.209
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePhiltrumBulge",
+   "still": "O-on",
+   "crops": [
+    "physician-34-O-on-strip34a.png",
+    "physician-34-O-on-strip34b.png"
+   ],
+   "fill": 0,
+   "full": {
+    "noseX": 191.9,
+    "philX": 185,
+    "bulgePx": 6.9
+   },
+   "embedded": {
+    "noseX": 191.9,
+    "philX": 185,
+    "bulgePx": 6.9
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePhiltrumBulge",
+   "still": "O-on",
+   "crops": [
+    "physician-34-O-on-strip34a.png",
+    "physician-34-O-on-strip34b.png"
+   ],
+   "fill": 255,
+   "full": {
+    "noseX": 191.9,
+    "philX": 185,
+    "bulgePx": 6.9
+   },
+   "embedded": {
+    "noseX": 191.9,
+    "philX": 185,
+    "bulgePx": 6.9
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipBandForward",
+   "still": "O-on",
+   "crops": [
+    "physician-34-O-on-strip34a.png",
+    "physician-34-O-on-strip34b.png"
+   ],
+   "fill": 0,
+   "full": {
+    "vermilionX": 187,
+    "vermilionY": 404,
+    "anchorX": 155,
+    "bandForwardPx": -32
+   },
+   "embedded": {
+    "vermilionX": 187,
+    "vermilionY": 404,
+    "anchorX": 155,
+    "bandForwardPx": -32
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipBandForward",
+   "still": "O-on",
+   "crops": [
+    "physician-34-O-on-strip34a.png",
+    "physician-34-O-on-strip34b.png"
+   ],
+   "fill": 255,
+   "full": {
+    "vermilionX": 187,
+    "vermilionY": 404,
+    "anchorX": 155,
+    "bandForwardPx": -32
+   },
+   "embedded": {
+    "vermilionX": 187,
+    "vermilionY": 404,
+    "anchorX": 155,
+    "bandForwardPx": -32
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePhiltrumBulge",
+   "still": "U-on",
+   "crops": [
+    "physician-34-U-on-strip34a.png",
+    "physician-34-U-on-strip34b.png"
+   ],
+   "fill": 0,
+   "full": {
+    "noseX": 195.2,
+    "philX": 185,
+    "bulgePx": 10.2
+   },
+   "embedded": {
+    "noseX": 195.2,
+    "philX": 185,
+    "bulgePx": 10.2
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePhiltrumBulge",
+   "still": "U-on",
+   "crops": [
+    "physician-34-U-on-strip34a.png",
+    "physician-34-U-on-strip34b.png"
+   ],
+   "fill": 255,
+   "full": {
+    "noseX": 195.2,
+    "philX": 185,
+    "bulgePx": 10.2
+   },
+   "embedded": {
+    "noseX": 195.2,
+    "philX": 185,
+    "bulgePx": 10.2
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipBandForward",
+   "still": "U-on",
+   "crops": [
+    "physician-34-U-on-strip34a.png",
+    "physician-34-U-on-strip34b.png"
+   ],
+   "fill": 0,
+   "full": {
+    "vermilionX": 186,
+    "vermilionY": 404,
+    "anchorX": 155,
+    "bandForwardPx": -31
+   },
+   "embedded": {
+    "vermilionX": 186,
+    "vermilionY": 404,
+    "anchorX": 155,
+    "bandForwardPx": -31
+   },
+   "identical": true
+  },
+  {
+   "actor": "physician",
+   "call": "measurePixelLipBandForward",
+   "still": "U-on",
+   "crops": [
+    "physician-34-U-on-strip34a.png",
+    "physician-34-U-on-strip34b.png"
+   ],
+   "fill": 255,
+   "full": {
+    "vermilionX": 186,
+    "vermilionY": 404,
+    "anchorX": 155,
+    "bandForwardPx": -31
+   },
+   "embedded": {
+    "vermilionX": 186,
+    "vermilionY": 404,
+    "anchorX": 155,
+    "bandForwardPx": -31
+   },
+   "identical": true
+  },
+  {
+   "actor": "aisha",
+   "call": "calibratePixelLipThresholds",
+   "crops": [
+    "aisha-front-sil-silFront.png",
+    "aisha-34-sil-sil34.png"
+   ],
+   "fill": 0,
+   "full": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 7,
+    "gumT": 20,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 121.4616,
+      "g": 100.7768,
+      "b": 80.416
+     },
+     "skinR": {
+      "r": 178.3568,
+      "g": 149.6424,
+      "b": 125.3108
+     },
+     "apertureMean": 125.70375,
+     "apertureSd": 4.09996176030546,
+     "lipRedxsMedian": 13.841741967871478,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "embedded": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 7,
+    "gumT": 20,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 121.4616,
+      "g": 100.7768,
+      "b": 80.416
+     },
+     "skinR": {
+      "r": 178.3568,
+      "g": 149.6424,
+      "b": 125.3108
+     },
+     "apertureMean": 125.70375,
+     "apertureSd": 4.09996176030546,
+     "lipRedxsMedian": 13.841741967871478,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "identical": true
+  },
+  {
+   "actor": "aisha",
+   "call": "calibratePixelLipThresholds",
+   "crops": [
+    "aisha-front-sil-silFront.png",
+    "aisha-34-sil-sil34.png"
+   ],
+   "fill": 255,
+   "full": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 7,
+    "gumT": 20,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 121.4616,
+      "g": 100.7768,
+      "b": 80.416
+     },
+     "skinR": {
+      "r": 178.3568,
+      "g": 149.6424,
+      "b": 125.3108
+     },
+     "apertureMean": 125.70375,
+     "apertureSd": 4.09996176030546,
+     "lipRedxsMedian": 13.841741967871478,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "embedded": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 7,
+    "gumT": 20,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 121.4616,
+      "g": 100.7768,
+      "b": 80.416
+     },
+     "skinR": {
+      "r": 178.3568,
+      "g": 149.6424,
+      "b": 125.3108
+     },
+     "apertureMean": 125.70375,
+     "apertureSd": 4.09996176030546,
+     "lipRedxsMedian": 13.841741967871478,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "identical": true
+  },
+  {
+   "actor": "aisha",
+   "call": "measurePixelLipFront",
+   "still": "E-on",
+   "crops": [
+    "aisha-front-E-on-band.png"
+   ],
+   "fill": 0,
+   "full": {
+    "outerWidthPx": 570,
+    "outerY": 464,
+    "apertureWidthPx": 386,
+    "apertureY": 473,
+    "apertureHeightPx": 70,
+    "hwRatio": 0.181
+   },
+   "embedded": {
+    "outerWidthPx": 570,
+    "outerY": 464,
+    "apertureWidthPx": 386,
+    "apertureY": 473,
+    "apertureHeightPx": 70,
+    "hwRatio": 0.181
+   },
+   "identical": true
+  },
+  {
+   "actor": "aisha",
+   "call": "measurePixelLipFront",
+   "still": "E-on",
+   "crops": [
+    "aisha-front-E-on-band.png"
+   ],
+   "fill": 255,
+   "full": {
+    "outerWidthPx": 570,
+    "outerY": 464,
+    "apertureWidthPx": 386,
+    "apertureY": 473,
+    "apertureHeightPx": 70,
+    "hwRatio": 0.181
+   },
+   "embedded": {
+    "outerWidthPx": 570,
+    "outerY": 464,
+    "apertureWidthPx": 386,
+    "apertureY": 473,
+    "apertureHeightPx": 70,
+    "hwRatio": 0.181
+   },
+   "identical": true
+  },
+  {
+   "actor": "aisha",
+   "call": "measurePixelLipFront",
+   "still": "E-z",
+   "crops": [
+    "aisha-front-E-z-band.png"
+   ],
+   "fill": 0,
+   "full": {
+    "outerWidthPx": 634,
+    "outerY": 538,
+    "apertureWidthPx": 385,
+    "apertureY": 549,
+    "apertureHeightPx": 81,
+    "hwRatio": 0.21
+   },
+   "embedded": {
+    "outerWidthPx": 634,
+    "outerY": 538,
+    "apertureWidthPx": 385,
+    "apertureY": 549,
+    "apertureHeightPx": 81,
+    "hwRatio": 0.21
+   },
+   "identical": true
+  },
+  {
+   "actor": "aisha",
+   "call": "measurePixelLipFront",
+   "still": "E-z",
+   "crops": [
+    "aisha-front-E-z-band.png"
+   ],
+   "fill": 255,
+   "full": {
+    "outerWidthPx": 634,
+    "outerY": 538,
+    "apertureWidthPx": 385,
+    "apertureY": 549,
+    "apertureHeightPx": 81,
+    "hwRatio": 0.21
+   },
+   "embedded": {
+    "outerWidthPx": 634,
+    "outerY": 538,
+    "apertureWidthPx": 385,
+    "apertureY": 549,
+    "apertureHeightPx": 81,
+    "hwRatio": 0.21
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "calibratePixelLipThresholds",
+   "crops": [
+    "kevin-front-sil-silFront.png",
+    "kevin-34-sil-sil34.png"
+   ],
+   "fill": 0,
+   "full": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 12,
+    "gumT": 30,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 121.312,
+      "g": 113.9208,
+      "b": 99.7664
+     },
+     "skinR": {
+      "r": 171.36,
+      "g": 153.9968,
+      "b": 138.5752
+     },
+     "apertureMean": 139.13666666666688,
+     "apertureSd": 11.886233233311826,
+     "lipRedxsMedian": 47.190988955823286,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "embedded": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 12,
+    "gumT": 30,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 121.312,
+      "g": 113.9208,
+      "b": 99.7664
+     },
+     "skinR": {
+      "r": 171.36,
+      "g": 153.9968,
+      "b": 138.5752
+     },
+     "apertureMean": 139.13666666666688,
+     "apertureSd": 11.886233233311826,
+     "lipRedxsMedian": 47.190988955823286,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "calibratePixelLipThresholds",
+   "crops": [
+    "kevin-front-sil-silFront.png",
+    "kevin-34-sil-sil34.png"
+   ],
+   "fill": 255,
+   "full": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 12,
+    "gumT": 30,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 121.312,
+      "g": 113.9208,
+      "b": 99.7664
+     },
+     "skinR": {
+      "r": 171.36,
+      "g": 153.9968,
+      "b": 138.5752
+     },
+     "apertureMean": 139.13666666666688,
+     "apertureSd": 11.886233233311826,
+     "lipRedxsMedian": 47.190988955823286,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "embedded": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 12,
+    "gumT": 30,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 121.312,
+      "g": 113.9208,
+      "b": 99.7664
+     },
+     "skinR": {
+      "r": 171.36,
+      "g": 153.9968,
+      "b": 138.5752
+     },
+     "apertureMean": 139.13666666666688,
+     "apertureSd": 11.886233233311826,
+     "lipRedxsMedian": 47.190988955823286,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePixelLipFront",
+   "still": "O-on",
+   "crops": [
+    "kevin-front-O-on-band.png"
+   ],
+   "fill": 0,
+   "full": {
+    "outerWidthPx": 475,
+    "outerY": 535,
+    "apertureWidthPx": 306,
+    "apertureY": 535,
+    "apertureHeightPx": 113,
+    "hwRatio": 0.369
+   },
+   "embedded": {
+    "outerWidthPx": 475,
+    "outerY": 535,
+    "apertureWidthPx": 306,
+    "apertureY": 535,
+    "apertureHeightPx": 113,
+    "hwRatio": 0.369
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePixelLipFront",
+   "still": "O-on",
+   "crops": [
+    "kevin-front-O-on-band.png"
+   ],
+   "fill": 255,
+   "full": {
+    "outerWidthPx": 475,
+    "outerY": 535,
+    "apertureWidthPx": 306,
+    "apertureY": 535,
+    "apertureHeightPx": 113,
+    "hwRatio": 0.369
+   },
+   "embedded": {
+    "outerWidthPx": 475,
+    "outerY": 535,
+    "apertureWidthPx": 306,
+    "apertureY": 535,
+    "apertureHeightPx": 113,
+    "hwRatio": 0.369
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePixelLipFront",
+   "still": "U-on",
+   "crops": [
+    "kevin-front-U-on-band.png"
+   ],
+   "fill": 0,
+   "full": {
+    "outerWidthPx": 500,
+    "outerY": 586,
+    "apertureWidthPx": 480,
+    "apertureY": 587,
+    "apertureHeightPx": 106,
+    "hwRatio": 0.221
+   },
+   "embedded": {
+    "outerWidthPx": 500,
+    "outerY": 586,
+    "apertureWidthPx": 480,
+    "apertureY": 587,
+    "apertureHeightPx": 106,
+    "hwRatio": 0.221
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePixelLipFront",
+   "still": "U-on",
+   "crops": [
+    "kevin-front-U-on-band.png"
+   ],
+   "fill": 255,
+   "full": {
+    "outerWidthPx": 500,
+    "outerY": 586,
+    "apertureWidthPx": 480,
+    "apertureY": 587,
+    "apertureHeightPx": 106,
+    "hwRatio": 0.221
+   },
+   "embedded": {
+    "outerWidthPx": 500,
+    "outerY": 586,
+    "apertureWidthPx": 480,
+    "apertureY": 587,
+    "apertureHeightPx": 106,
+    "hwRatio": 0.221
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePhiltrumBulge",
+   "still": "O-on",
+   "crops": [
+    "kevin-34-O-on-strip34a.png",
+    "kevin-34-O-on-strip34b.png"
+   ],
+   "fill": 0,
+   "full": {
+    "noseX": 177.7,
+    "philX": 183.2,
+    "bulgePx": -5.5
+   },
+   "embedded": {
+    "noseX": 177.7,
+    "philX": 183.2,
+    "bulgePx": -5.5
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePhiltrumBulge",
+   "still": "O-on",
+   "crops": [
+    "kevin-34-O-on-strip34a.png",
+    "kevin-34-O-on-strip34b.png"
+   ],
+   "fill": 255,
+   "full": {
+    "noseX": 177.7,
+    "philX": 183.2,
+    "bulgePx": -5.5
+   },
+   "embedded": {
+    "noseX": 177.7,
+    "philX": 183.2,
+    "bulgePx": -5.5
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePixelLipBandForward",
+   "still": "O-on",
+   "crops": [
+    "kevin-34-O-on-strip34a.png",
+    "kevin-34-O-on-strip34b.png"
+   ],
+   "fill": 0,
+   "full": {
+    "vermilionX": 184,
+    "vermilionY": 420,
+    "anchorX": 154,
+    "bandForwardPx": -30
+   },
+   "embedded": {
+    "vermilionX": 184,
+    "vermilionY": 420,
+    "anchorX": 154,
+    "bandForwardPx": -30
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePixelLipBandForward",
+   "still": "O-on",
+   "crops": [
+    "kevin-34-O-on-strip34a.png",
+    "kevin-34-O-on-strip34b.png"
+   ],
+   "fill": 255,
+   "full": {
+    "vermilionX": 184,
+    "vermilionY": 420,
+    "anchorX": 154,
+    "bandForwardPx": -30
+   },
+   "embedded": {
+    "vermilionX": 184,
+    "vermilionY": 420,
+    "anchorX": 154,
+    "bandForwardPx": -30
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePhiltrumBulge",
+   "still": "U-on",
+   "crops": [
+    "kevin-34-U-on-strip34a.png",
+    "kevin-34-U-on-strip34b.png"
+   ],
+   "fill": 0,
+   "full": {
+    "noseX": 177.7,
+    "philX": 183.2,
+    "bulgePx": -5.5
+   },
+   "embedded": {
+    "noseX": 177.7,
+    "philX": 183.2,
+    "bulgePx": -5.5
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePhiltrumBulge",
+   "still": "U-on",
+   "crops": [
+    "kevin-34-U-on-strip34a.png",
+    "kevin-34-U-on-strip34b.png"
+   ],
+   "fill": 255,
+   "full": {
+    "noseX": 177.7,
+    "philX": 183.2,
+    "bulgePx": -5.5
+   },
+   "embedded": {
+    "noseX": 177.7,
+    "philX": 183.2,
+    "bulgePx": -5.5
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePixelLipBandForward",
+   "still": "U-on",
+   "crops": [
+    "kevin-34-U-on-strip34a.png",
+    "kevin-34-U-on-strip34b.png"
+   ],
+   "fill": 0,
+   "full": {
+    "vermilionX": 182,
+    "vermilionY": 420,
+    "anchorX": 154,
+    "bandForwardPx": -28
+   },
+   "embedded": {
+    "vermilionX": 182,
+    "vermilionY": 420,
+    "anchorX": 154,
+    "bandForwardPx": -28
+   },
+   "identical": true
+  },
+  {
+   "actor": "kevin",
+   "call": "measurePixelLipBandForward",
+   "still": "U-on",
+   "crops": [
+    "kevin-34-U-on-strip34a.png",
+    "kevin-34-U-on-strip34b.png"
+   ],
+   "fill": 255,
+   "full": {
+    "vermilionX": 182,
+    "vermilionY": 420,
+    "anchorX": 154,
+    "bandForwardPx": -28
+   },
+   "embedded": {
+    "vermilionX": 182,
+    "vermilionY": 420,
+    "anchorX": 154,
+    "bandForwardPx": -28
+   },
+   "identical": true
+  },
+  {
+   "actor": "parent",
+   "call": "calibratePixelLipThresholds",
+   "crops": [
+    "parent-front-sil-silFront.png",
+    "parent-34-sil-sil34.png"
+   ],
+   "fill": 0,
+   "full": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 12,
+    "gumT": 30,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 140.4088,
+      "g": 109.0756,
+      "b": 82.812
+     },
+     "skinR": {
+      "r": 186.3896,
+      "g": 139.414,
+      "b": 106.3736
+     },
+     "apertureMean": 69.42374999999994,
+     "apertureSd": 17.968506558837095,
+     "lipRedxsMedian": 23.352208835341358,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "embedded": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 12,
+    "gumT": 30,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 140.4088,
+      "g": 109.0756,
+      "b": 82.812
+     },
+     "skinR": {
+      "r": 186.3896,
+      "g": 139.414,
+      "b": 106.3736
+     },
+     "apertureMean": 69.42374999999994,
+     "apertureSd": 17.968506558837095,
+     "lipRedxsMedian": 23.352208835341358,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "identical": true
+  },
+  {
+   "actor": "parent",
+   "call": "calibratePixelLipThresholds",
+   "crops": [
+    "parent-front-sil-silFront.png",
+    "parent-34-sil-sil34.png"
+   ],
+   "fill": 255,
+   "full": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 12,
+    "gumT": 30,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 140.4088,
+      "g": 109.0756,
+      "b": 82.812
+     },
+     "skinR": {
+      "r": 186.3896,
+      "g": 139.414,
+      "b": 106.3736
+     },
+     "apertureMean": 69.42374999999994,
+     "apertureSd": 17.968506558837095,
+     "lipRedxsMedian": 23.352208835341358,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "embedded": {
+    "schemaVersion": "openclinxr.pixel-lip-measure.v1",
+    "darkT": 60,
+    "redT": 12,
+    "gumT": 30,
+    "bgT34": 54,
+    "restStats": {
+     "skinL": {
+      "r": 140.4088,
+      "g": 109.0756,
+      "b": 82.812
+     },
+     "skinR": {
+      "r": 186.3896,
+      "g": 139.414,
+      "b": 106.3736
+     },
+     "apertureMean": 69.42374999999994,
+     "apertureSd": 17.968506558837095,
+     "lipRedxsMedian": 23.352208835341358,
+     "bg34Median": 28.666666666666668
+    }
+   },
+   "identical": true
+  },
+  {
+   "actor": "parent",
+   "call": "measurePixelLipFront",
+   "still": "E-on",
+   "crops": [
+    "parent-front-E-on-band.png"
+   ],
+   "fill": 0,
+   "full": {
+    "outerWidthPx": 491,
+    "outerY": 412,
+    "apertureWidthPx": 491,
+    "apertureY": 412,
+    "apertureHeightPx": 65,
+    "hwRatio": 0.132
+   },
+   "embedded": {
+    "outerWidthPx": 491,
+    "outerY": 412,
+    "apertureWidthPx": 491,
+    "apertureY": 412,
+    "apertureHeightPx": 65,
+    "hwRatio": 0.132
+   },
+   "identical": true
+  },
+  {
+   "actor": "parent",
+   "call": "measurePixelLipFront",
+   "still": "E-on",
+   "crops": [
+    "parent-front-E-on-band.png"
+   ],
+   "fill": 255,
+   "full": {
+    "outerWidthPx": 491,
+    "outerY": 412,
+    "apertureWidthPx": 491,
+    "apertureY": 412,
+    "apertureHeightPx": 65,
+    "hwRatio": 0.132
+   },
+   "embedded": {
+    "outerWidthPx": 491,
+    "outerY": 412,
+    "apertureWidthPx": 491,
+    "apertureY": 412,
+    "apertureHeightPx": 65,
+    "hwRatio": 0.132
+   },
+   "identical": true
+  }
+ ],
+ "instrumentBlob": "e4099a45f971843334654dddc2223c38e0f37887 (pixel-lip-measure.ts; identical at d0a90c471 and 40986735b)",
+ "recordedValues": "cropEqualsFull[].full = instrument output of pixel-lip-measure.ts at 40986735b on the full store stills: a regression pin, not ground truth. A change to calibratePixelLipThresholds or measurePixelLip*/measurePhiltrumBulge updates these entries (re-run storeFidelity.script) in the same commit and says so.",
+ "storeFidelity": {
+  "kind": "store-bound fidelity evidence (needs the store stills; not run by tests)",
+  "script": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/fixtures/cut-crops.mts",
+  "scriptSha256": "0e69f1162ec8fe61266c6a40d2f60612e3968881c5ec85c61fea2484feba24e4",
+  "log": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/logs/cut-crops-fidelity-40986735b.log",
+  "logSha256": "42ddcafe51006367d115f38c01edd634f687ce0b21294bffcd719de473a41764",
+  "output": "/Volumes/files/openclinxr-assets/store/aisha-parity/lip-rounding/fidelity-40986735b/manifest.json",
+  "outputSha256": "5c6320471686ab6f7b786383e5910339addd231a8299a0c8f819539b975d1679",
+  "result": "25 crops decode byte-identical to source slices; 42/42 calls identical at fill 0 and 255; re-run crops cmp-identical to the committed crops"
+ }
+}

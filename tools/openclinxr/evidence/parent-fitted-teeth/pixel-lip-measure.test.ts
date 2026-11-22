@@ -24,8 +24,10 @@ import {
   measurePixelLipFront,
   PHILTRUM_BULGE_THRESHOLD_PX,
   squeezeMouthBand,
+  type PixelLipThresholds,
   type RgbImage,
 } from "./pixel-lip-measure.ts";
+import { decodePng } from "../decode-png.ts";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const REPO = path.resolve(HERE, "../../../..");
@@ -319,4 +321,176 @@ describe("pixel-lip-measure evidence", () => {
       expect(report.bulge34[v]!.bulgePx, v).toBeLessThanOrEqual(4);
     }
   });
+});
+
+describe("lip-rounding fixture crops (tsk_9a976f35c41a0f94)", () => {
+  const FIX_DIR = path.join(HERE, "fixtures/lip-rounding");
+  type FixtureCrop = {
+    file: string;
+    offset: { x0: number; y0: number; w: number; h: number };
+    captureTree: string;
+    cropSha256: string;
+  };
+  type FixtureEntry = {
+    actor: string;
+    call: string;
+    still?: string;
+    crops: string[];
+    fill: number;
+    full: unknown;
+    embedded: unknown;
+  };
+  type FixtureManifest = {
+    schema: string;
+    crops: FixtureCrop[];
+    cropEqualsFull: FixtureEntry[];
+  };
+
+  function loadFixtureManifest(): FixtureManifest {
+    const raw = JSON.parse(
+      readFileSync(path.join(FIX_DIR, "manifest.json"), "utf8"),
+    ) as FixtureManifest;
+    expect(raw.schema).toBe("openclinxr.lip-rounding-fixture.v1");
+    return raw;
+  }
+
+  const manifest = loadFixtureManifest();
+  const cropByFile = new Map(manifest.crops.map((c) => [c.file, c]));
+  const decodedCache = new Map<
+    string,
+    { w: number; h: number; r: Uint8Array; g: Uint8Array; b: Uint8Array }
+  >();
+
+  function decodedCrop(file: string): {
+    rec: FixtureCrop;
+    w: number;
+    h: number;
+    r: Uint8Array;
+    g: Uint8Array;
+    b: Uint8Array;
+  } {
+    const rec = cropByFile.get(file);
+    expect(rec, `manifest has no crop ${file}`).toBeDefined();
+    let hit = decodedCache.get(file);
+    if (!hit) {
+      const bytes = readFileSync(path.join(FIX_DIR, file));
+      const dec = decodePng(
+        new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength),
+      );
+      expect(dec, `decodePng failed for ${file}`).not.toBeNull();
+      hit = { w: dec!.w, h: dec!.h, r: dec!.r, g: dec!.g, b: dec!.b };
+      decodedCache.set(file, hit);
+    }
+    return { rec: rec!, w: hit.w, h: hit.h, r: hit.r, g: hit.g, b: hit.b };
+  }
+
+  function toRgb(d: {
+    w: number;
+    h: number;
+    r: Uint8Array;
+    g: Uint8Array;
+    b: Uint8Array;
+  }): RgbImage {
+    const rgb = new Uint8Array(d.w * d.h * 3);
+    for (let p = 0; p < d.w * d.h; p += 1) {
+      rgb[p * 3] = d.r[p]!;
+      rgb[p * 3 + 1] = d.g[p]!;
+      rgb[p * 3 + 2] = d.b[p]!;
+    }
+    return { rgb, w: d.w, h: d.h };
+  }
+
+  function embed(
+    parts: { file: string; offset: { x0: number; y0: number; w: number; h: number } }[],
+    fill: number,
+  ): RgbImage {
+    const W = 1024;
+    const H = 1024;
+    const rgb = new Uint8Array(W * H * 3);
+    rgb.fill(fill);
+    for (const part of parts) {
+      const d = toRgb(decodedCrop(part.file));
+      expect(d.w, `width ${part.file}`).toBe(part.offset.w);
+      expect(d.h, `height ${part.file}`).toBe(part.offset.h);
+      for (let row = 0; row < d.h; row += 1) {
+        const dst = ((part.offset.y0 + row) * W + part.offset.x0) * 3;
+        rgb.set(d.rgb.subarray(row * d.w * 3, (row + 1) * d.w * 3), dst);
+      }
+    }
+    return { rgb, w: W, h: H };
+  }
+
+  function thresholdsFor(actor: string, fill: number): PixelLipThresholds {
+    const cal = manifest.cropEqualsFull.find(
+      (e) =>
+        e.actor === actor &&
+        e.call === "calibratePixelLipThresholds" &&
+        e.fill === fill,
+    );
+    expect(cal, `no calibrate entry for ${actor} fill ${fill}`).toBeDefined();
+    return cal!.full as PixelLipThresholds;
+  }
+
+  it("crop files match the manifest (sha, size, tree)", () => {
+    expect(manifest.crops.length).toBe(25);
+    expect(manifest.cropEqualsFull.length).toBe(42);
+    for (const c of manifest.crops) {
+      const file = path.join(FIX_DIR, c.file);
+      expect(existsSync(file), `missing crop ${c.file}`).toBe(true);
+      const bytes = readFileSync(file);
+      expect(
+        createHash("sha256").update(bytes).digest("hex"),
+        `sha ${c.file}`,
+      ).toBe(c.cropSha256);
+      const d = decodedCrop(c.file);
+      expect(d.w, `width ${c.file}`).toBe(c.offset.w);
+      expect(d.h, `height ${c.file}`).toBe(c.offset.h);
+      expect(c.captureTree).toBe("d0a90c471");
+    }
+  }, 60_000);
+
+  for (const entry of manifest.cropEqualsFull) {
+    it(`${entry.actor} ${entry.call} ${entry.still ?? "sil"} fill ${entry.fill}`, () => {
+      expect(entry.full).toEqual(entry.embedded);
+      const t = thresholdsFor(entry.actor, entry.fill);
+      const parts = entry.crops.map((f) => {
+        const rec = cropByFile.get(f);
+        expect(rec, `unknown crop ${f}`).toBeDefined();
+        return { file: f, offset: rec!.offset };
+      });
+      if (entry.call === "calibratePixelLipThresholds") {
+        expect(parts.length).toBe(2);
+        const front = embed([parts[0]!], entry.fill);
+        const t34 = embed([parts[1]!], entry.fill);
+        expect(calibratePixelLipThresholds(front, t34)).toEqual(entry.full);
+      } else if (entry.call === "measurePixelLipFront") {
+        expect(parts.length).toBe(1);
+        expect(measurePixelLipFront(embed(parts, entry.fill), t)).toEqual(
+          entry.full,
+        );
+      } else if (entry.call === "measurePhiltrumBulge") {
+        expect(measurePhiltrumBulge(embed(parts, entry.fill), t)).toEqual(
+          entry.full,
+        );
+      } else if (entry.call === "measurePixelLipBandForward") {
+        expect(measurePixelLipBandForward(embed(parts, entry.fill), t)).toEqual(
+          entry.full,
+        );
+      } else {
+        throw new Error(`unknown call ${entry.call}`);
+      }
+    }, 60_000);
+  }
+
+  it("counterweight: a blank frame cannot reproduce a front result", () => {
+    const fronts = manifest.cropEqualsFull.filter(
+      (e) => e.call === "measurePixelLipFront" && e.fill === 0,
+    );
+    expect(fronts.length).toBeGreaterThan(0);
+    const blank = embed([], 0);
+    for (const entry of fronts) {
+      const t = thresholdsFor(entry.actor, entry.fill);
+      expect(measurePixelLipFront(blank, t)).not.toEqual(entry.full);
+    }
+  }, 60_000);
 });
