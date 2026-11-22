@@ -24,6 +24,7 @@ import {
   measurePixelLipFront,
   PHILTRUM_BULGE_THRESHOLD_PX,
   squeezeMouthBand,
+  type PixelLipFront,
   type PixelLipThresholds,
   type RgbImage,
 } from "./pixel-lip-measure.ts";
@@ -344,6 +345,7 @@ describe("lip-rounding fixture crops (tsk_9a976f35c41a0f94)", () => {
     schema: string;
     crops: FixtureCrop[];
     cropEqualsFull: FixtureEntry[];
+    handPairs: unknown;
   };
 
   function loadFixtureManifest(): FixtureManifest {
@@ -493,4 +495,219 @@ describe("lip-rounding fixture crops (tsk_9a976f35c41a0f94)", () => {
       expect(measurePixelLipFront(blank, t)).not.toEqual(entry.full);
     }
   }, 60_000);
+
+  describe("lr-red planted RED + counterweights (tsk_9a976f35c41a0f94)", () => {
+    const HAND_PAIRS = {
+      "mpfb-peds-parent-aisha": {
+        L: [246, 501], // source: parent hand pair L(246,501) R(777,503) fissure 531, same eye-on-crosshair method as physician/Aisha
+        R: [777, 503],
+        fissureWidthPx: 531,
+        stillSha256:
+          "df534ba5ff732a38d96dd8d8c257bfab6a7ec3c783be2b139c96e2c8d68be6e5",
+      },
+      "mpfb-peds-nurse-kevin": {
+        L: [249, 501], // source: kevin hand pair L(249,501) R(770,512) fissure 521, same eye-on-crosshair method
+        R: [770, 512],
+        fissureWidthPx: 521,
+        stillSha256:
+          "f5bc06e236cac289a61d93808589cd46429efd8cd14e800a4e9e880700b5657d",
+      },
+      "mpfb-ob-patient-aisha": {
+        L: [203, 542], // source: 622 :: Aisha hand pair L(203,542) R(825,537), same method; cap54 spot-checked natively.
+        R: [825, 537],
+        fissureWidthPx: 622,
+        stillSha256:
+          "ab32fb735892e51a73dbfe9551c753ec9b6a7e88ccbd8928f8b450a26e9de7a6",
+      },
+      "mpfb-clinical-physician-adult": {
+        L: [243, 519], // source: 531 :: physician hand pair, fissure tips L(243,519) R(774,502) located by eye on 6x crosshair crops of the physician E-on still (store lip-rounding/fixtures/commissure-hand-pairs.json, sha in manifest.handPairs); ±2 px per tip.
+        R: [774, 502],
+        fissureWidthPx: 531,
+        stillSha256:
+          "f2a79a0575c8bae6fff43fa2ad811ce1ebe5c22bb175e3bb24a90633f23427d4",
+      },
+    };
+
+    function frontOf(actor: string, still: string) {
+      const entry = manifest.cropEqualsFull.find(
+        (e) =>
+          e.actor === actor &&
+          e.call === "measurePixelLipFront" &&
+          e.still === still &&
+          e.fill === 0,
+      );
+      expect(entry, `no fixture entry ${actor} ${still}`).toBeDefined();
+      const parts = entry!.crops.map((f) => {
+        const rec = cropByFile.get(f);
+        expect(rec, `unknown crop ${f}`).toBeDefined();
+        return { file: f, offset: rec!.offset };
+      });
+      return measurePixelLipFront(embed(parts, 0), thresholdsFor(actor, 0));
+    }
+
+    function fissureOf(actor: string, still: string): number {
+      const m = frontOf(actor, still);
+      const fissure = (m as PixelLipFront & { fissureWidthPx?: number })
+        .fissureWidthPx;
+      expect(fissure, "fissureWidthPx missing (S1 adds it)").toBeTypeOf(
+        "number",
+      );
+      return fissure!;
+    }
+
+    function fullStill(rel: string): RgbImage {
+      const bytes = readFileSync(path.join(REPORT_DIR, rel));
+      const d = decodePng(
+        new Uint8Array(bytes.buffer, bytes.byteOffset, bytes.byteLength),
+      );
+      expect(d, `decodePng failed for ${rel}`).not.toBeNull();
+      const hit = { w: d!.w, h: d!.h, r: d!.r, g: d!.g, b: d!.b };
+      return toRgb(hit);
+    }
+
+    it("hand pairs match the manifest", () => {
+      expect(HAND_PAIRS).toEqual(manifest.handPairs);
+    });
+
+    it.fails("RED1a physician front E/O/U is not band-wide", () => {
+      for (const still of ["E-on", "O-on", "U-on"]) {
+        const m = frontOf("physician", still);
+        // source: 726 :: blind value = FRONT_BAND.x1 - FRONT_BAND.x0 + 1 (pixel-lip-measure.ts FRONT_BAND); a definition, not a tolerance.
+        expect(m.outerWidthPx).toBeLessThan(726);
+      }
+    }, 60_000);
+
+    it.fails("RED1b MISSING-FIELD physician E fissure within 3% of the hand pair", () => {
+      // Existing-field sibling RED1a fails on the same defect (physician
+      // outerWidthPx 726, blind); this clause pins the S1-added field itself.
+      const f = fissureOf("physician", "E-on");
+      // source: 3% :: cap54 ruling (card RED1/RED2). Hand noise is ±4 px on width (±2 px per tip) = 0.8% of 531 / 0.6% of 622, so 3% is ~4x the hand noise.
+      // source: 531 :: physician hand pair, fissure tips L(243,519) R(774,502) located by eye on 6x crosshair crops of the physician E-on still (store lip-rounding/fixtures/commissure-hand-pairs.json, sha in manifest.handPairs); ±2 px per tip.
+      expect(Math.abs(f - 531)).toBeLessThanOrEqual(0.03 * 531);
+    }, 60_000);
+
+    it.fails("RED2a MISSING-FIELD Aisha E fissure within 3% of the hand pair", () => {
+      // Existing-field sibling RED2b fails on the same defect (Aisha outerY
+      // 464 vs 539.5); this clause pins the S1-added field itself.
+      const f = fissureOf("aisha", "E-on");
+      // source: 3% :: cap54 ruling (card RED1/RED2). Hand noise is ±4 px on width (±2 px per tip) = 0.8% of 531 / 0.6% of 622, so 3% is ~4x the hand noise.
+      // source: 622 :: Aisha hand pair L(203,542) R(825,537), same method; cap54 spot-checked natively.
+      expect(Math.abs(f - 622)).toBeLessThanOrEqual(0.03 * 622);
+    }, 60_000);
+
+    it.fails("RED2b Aisha E outer width at the commissure row", () => {
+      const m = frontOf("aisha", "E-on");
+      // source: 539.5 :: mean of the Aisha hand-pair tip y values (542 + 537) / 2.
+      // source: ±6 px :: cap54 ruling (card RED2). The Aisha tips differ by 5 px in y (542 vs 537), so ±6 px covers the fissure tilt plus ±2 px per tip.
+      // Today outerY = 464.
+      expect(Math.abs(m.outerY - 539.5)).toBeLessThanOrEqual(6);
+    }, 60_000);
+
+    it.fails("CW3b Aisha E-on vs E-z outer within 2%", () => {
+      const on = frontOf("aisha", "E-on");
+      const z = frontOf("aisha", "E-z");
+      const r = on.outerWidthPx / z.outerWidthPx;
+      // source: 2% :: card CW3b (cap54). S0 measured the headless E corner span at elevation 1 vs 0: 0.00% on all 4 rigs (store s0/), so any E-on vs E-z width difference is the instrument's row choice; 2% ≈ 12 px on ~600.
+      // Elevation must not move the E width; today 570/634.
+      expect(Math.abs(r - 1)).toBeLessThanOrEqual(0.02);
+    }, 60_000);
+
+    // Collection-time blind flag: true while the committed physician E-on crop
+    // measures band-wide. The skip below therefore ends by itself when S1
+    // makes the physician non-blind.
+    // source: 726 :: blind value = FRONT_BAND.x1 - FRONT_BAND.x0 + 1 (pixel-lip-measure.ts FRONT_BAND); a definition, not a tolerance.
+    const PHYSICIAN_BLIND = ((): boolean => {
+      const entry = manifest.cropEqualsFull.find(
+        (e) =>
+          e.actor === "physician" &&
+          e.call === "measurePixelLipFront" &&
+          e.still === "E-on" &&
+          e.fill === 0,
+      );
+      if (!entry) return false;
+      const parts = entry.crops.map((f) => {
+        const rec = cropByFile.get(f);
+        if (!rec) throw new Error(`unknown crop ${f}`);
+        return { file: f, offset: rec.offset };
+      });
+      return (
+        measurePixelLipFront(embed(parts, 0), thresholdsFor("physician", 0))
+          .outerWidthPx === 726
+      );
+    })();
+
+    it.skipIf(PHYSICIAN_BLIND)("CW3b physician E-on vs E-z within 2% (SKIPPED while blind: physician E-on outerWidthPx == 726, RED1a open)", () => {
+      const on = frontOf("physician", "E-on");
+      const z = frontOf("physician", "E-z");
+      const r = on.outerWidthPx / z.outerWidthPx;
+      // source: 2% :: card CW3b (cap54). S0 measured the headless E corner span at elevation 1 vs 0: 0.00% on all 4 rigs (store s0/), so any E-on vs E-z width difference is the instrument's row choice; 2% ≈ 12 px on ~600.
+      expect(Math.abs(r - 1)).toBeLessThanOrEqual(0.02);
+    }, 60_000);
+
+    it("CW3b physician guard: skip state equals RED1a state", () => {
+      // Keeps the skip tied to exactly the RED1a condition.
+      // source: 726 :: blind value = FRONT_BAND.x1 - FRONT_BAND.x0 + 1 (pixel-lip-measure.ts FRONT_BAND); a definition, not a tolerance.
+      const allBlind = ["E-on", "O-on", "U-on"].every(
+        (still) => frontOf("physician", still).outerWidthPx === 726,
+      );
+      expect(PHYSICIAN_BLIND).toBe(allBlind);
+    }, 60_000);
+
+    it("CW-OF physician E-on outer covers the fissure", () => {
+      const m = frontOf("physician", "E-on");
+      // source: 531 :: physician hand pair (as RED1b). 0.97 :: the card's 3% hand-pair tolerance (cap54), applied one-sided.
+      // NOTE: passes today only because the physician is blind (726); it bites once RED1a is green, and refuses a fix that narrows outer below the fissure (aperture-as-outer).
+      expect(m.outerWidthPx).toBeGreaterThanOrEqual(531 * 0.97);
+    }, 60_000);
+
+    it.fails("CW-OF Aisha E-on outer covers the fissure", () => {
+      const m = frontOf("aisha", "E-on");
+      // source: 622 :: Aisha hand pair (as RED2a). 0.97 :: card 3% (cap54), one-sided.
+      expect(m.outerWidthPx).toBeGreaterThanOrEqual(622 * 0.97);
+    }, 60_000);
+
+    it("CW3a squeeze 0.85 on a real crop", () => {
+      for (const [actor, still] of [
+        ["aisha", "E-z"],
+        ["parent", "E-on"],
+      ] as const) {
+        const entry = manifest.cropEqualsFull.find(
+          (e) =>
+            e.actor === actor &&
+            e.call === "measurePixelLipFront" &&
+            e.still === still &&
+            e.fill === 0,
+        );
+        expect(entry, `no fixture entry ${actor} ${still}`).toBeDefined();
+        const parts = entry!.crops.map((f) => {
+          const rec = cropByFile.get(f);
+          expect(rec, `unknown crop ${f}`).toBeDefined();
+          return { file: f, offset: rec!.offset };
+        });
+        const band = embed(parts, 0);
+        const t = thresholdsFor(actor, 0);
+        const base = measurePixelLipFront(band, t).outerWidthPx;
+        const sq = measurePixelLipFront(squeezeMouthBand(band, 0.85), t)
+          .outerWidthPx;
+        const r = sq / base;
+        // source: 0.85 ± 0.02 :: card CW3a; squeezeMouthBand factor 0.85 is the existing validation probe (pixel-lip-measure.json validation.scaleProbe); 0.02 = card.
+        expect(Math.abs(r - 0.85)).toBeLessThanOrEqual(0.02);
+      }
+    }, 60_000);
+
+    it("CW1 Oct stills keep O -31.1 / U -18.6 vs E", () => {
+      const t = calibratePixelLipThresholds(
+        fullStill("isolated-front/sil.png"),
+        fullStill("isolated-34/sil.png"),
+      );
+      const e = measurePixelLipFront(fullStill("isolated-front/E.png"), t);
+      const o = measurePixelLipFront(fullStill("isolated-front/O.png"), t);
+      const u = measurePixelLipFront(fullStill("isolated-front/U.png"), t);
+      const pctO = (o.outerWidthPx / e.outerWidthPx - 1) * 100;
+      const pctU = (u.outerWidthPx / e.outerWidthPx - 1) * 100;
+      // source: -31.1 / -18.6 ± 1.0 pp :: committed Oct values (docs/openclinxr/mouth-dynamics/viseme-eval/pixel-lip-measure.json, 5dabb3700). 1.0 pp: render repeat noise is 0 px (S0: the Oct GLB re-rendered today reproduces E569/O392/U463 to the pixel), so the allowance is one 5-px corner disagreement on 569 px = 0.9 pp.
+      expect(Math.abs(pctO - -31.1)).toBeLessThanOrEqual(1.0);
+      expect(Math.abs(pctU - -18.6)).toBeLessThanOrEqual(1.0);
+    }, 60_000);
+  });
 });
