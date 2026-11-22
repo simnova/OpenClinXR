@@ -86,6 +86,7 @@
     "src/encounter-actor-framing.test.ts",
     "src/eye-shader/the-eye-shader-runs-in-the-runtime.test.ts",
     "src/eye-shader/the-iris-parallax-matches-a-refraction-render.test.ts",
+    "src/eye-shader/the-sclera-lid-occlusion-follows-the-pick.test.ts",
     "src/infinigen-station-environment.test.ts",
     "src/interior-preview-camera-finish-decoration.test.ts",
     "src/interior-preview-camera-latch.test.ts",
