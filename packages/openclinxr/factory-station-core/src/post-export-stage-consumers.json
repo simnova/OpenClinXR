@@ -1,8 +1,8 @@
 {
   "schema": "openclinxr.post-export-stage-consumers.compact.v1",
   "full": {
-    "store": "post-export-stage-finalize/post-export-stage-consumers.full-1e06aa00.json",
-    "sha256": "1e06aa00501abfd23f3c945c5cc7f46892abcb97fb1dda77587506191494f4a9"
+    "store": "post-export-stage-finalize/post-export-stage-consumers.full-d91d3f5f.json",
+    "sha256": "d91d3f5fc05e21faeb1a791ec0297d7b109ac64c7b73eb68684a9420e3c029d1"
   },
   "baseSha": "c613e86e88d7fba085b25f7fc1d2d0fde22b0c8f",
   "rows": [
@@ -16,7 +16,8 @@
       "file": ".openclinxr/evidence/issue-276/pre-fix.json",
       "field": "bodySha256",
       "proposed_pin": "accessor-digest",
-      "reader": "no"
+      "reader": "no",
+      "reason": "material-blind body POSITION signature: humanoid-body-signature.ts canonSig, compared in humanoid-body-signature.test.ts"
     },
     {
       "file": ".openclinxr/evidence/mpfb-bake-question/component-census.json",
@@ -838,31 +839,36 @@
       "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-and-sleeves-show-no-skin-notch.test.ts",
       "field": "appsActual",
       "proposed_pin": "no-reader",
-      "reader": "no"
+      "reader": "no",
+      "reason": "no GLB comparator: the only sha is pixelHash(set) == record.sha256"
     },
     {
       "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s10-heldout-census.fixture.json",
       "field": "appsGlbSha256, glbSha256",
       "proposed_pin": "no-reader",
-      "reader": "no"
+      "reader": "no",
+      "reason": "no GLB comparator: appsGlbSha256 is never compared"
     },
     {
       "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s10e-f1b-parity.fixture.json",
       "field": "appsGlbSha256, glbSha256",
       "proposed_pin": "no-reader",
-      "reader": "no"
+      "reader": "no",
+      "reason": "no GLB comparator: appsGlbSha256 is never compared"
     },
     {
       "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s10h1-classify.fixture.json",
       "field": "appsGlbSha256, glbSha256",
       "proposed_pin": "no-reader",
-      "reader": "no"
+      "reader": "no",
+      "reason": "no GLB comparator: appsGlbSha256 is never compared"
     },
     {
       "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-s9-allowance.fixture.json",
       "field": "appsGlbSha256, glbSha256",
       "proposed_pin": "no-reader",
-      "reader": "no"
+      "reader": "no",
+      "reason": "no GLB comparator: appsGlbSha256 is never compared"
     },
     {
       "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-physician-collar-shows-no-skin-notch.pre-fix.json",
@@ -881,6 +887,12 @@
       "field": "refusalRows",
       "proposed_pin": "other",
       "reader": "yes"
+    },
+    {
+      "file": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/shipped-lash-ancestor.ts",
+      "field": "function, gitGlbSha",
+      "proposed_pin": "keep-sha",
+      "reader": "no"
     },
     {
       "file": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/shipped-lash-follow-neck-stage.ts",

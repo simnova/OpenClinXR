@@ -4,9 +4,11 @@ export interface PostExportStage {
   readonly preserves: readonly string[];
 }
 
-import { readFileSync } from "node:fs";
+import { readFileSync, realpathSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { pathToFileURL } from "node:url";
 import { glbGeometryDigest } from "./glb-geometry-digest.js";
+import { mintPostExportConsumers } from "./post-export-stage-mint.js";
 
 export const POST_EXPORT_STAGE_REGISTRY: Readonly<Record<string, PostExportStage | undefined>> = {
   "tools/openclinxr/asset-pipeline/makeclothes/apply_actor_hair_colour.py": {
@@ -262,6 +264,8 @@ export function resolvePinWriter(writer: unknown): { frozen: true } | PostExport
  * - {"pinWriter": "<writer>"} -> {"frozen": true} for the frozen-plan writer
  *   class, {"argv": [...], "glbProducing": false} for a CLOSED-allowlist
  *   writer, exits NON-ZERO naming the writer otherwise.
+ * - {"mint": {"edits": "<path>", ...}} -> inventory re-pins (see
+ *   mintPostExportConsumers; refusals r1-r4 exit 2, nothing written).
  * Single key only: both keys, extra keys, non-object input, or wrong element
  * types exit 2.
  *
@@ -269,10 +273,15 @@ export function resolvePinWriter(writer: unknown): { frozen: true } | PostExport
  * (never the union): hair maps + teeth swap does not claim geometry.
  */
 function registryCliMain(): void {
-  const raw = process.argv[2];
+  let flagRoot: string | undefined;
+  let raw: string | undefined = process.argv[2];
+  if (raw === "--test-registry") {
+    flagRoot = process.argv[3];
+    raw = process.argv[4];
+  }
   if (raw === undefined) {
     process.stderr.write(
-      "usage: tsx post-export-stage-registry.ts '<{\"argv\": [...]} | {\"digest\": [...]} | {\"pinWriter\": \"<writer>\"}>'\n",
+      "usage: tsx post-export-stage-registry.ts [--test-registry <root>] '<{\"argv\": [...]} | {\"digest\": [...]} | {\"pinWriter\": \"<writer>\"} | {\"mint\": {...}}>'\n",
     );
     process.exit(2);
   }
@@ -288,14 +297,14 @@ function registryCliMain(): void {
     process.exit(2);
   };
   if (typeof input !== "object" || input === null || Array.isArray(input)) {
-    malformed('want exactly one of {"argv": [...]}, {"digest": [...]}, or {"pinWriter": "<writer>"}');
+    malformed('want exactly one of {"argv": [...]}, {"digest": [...]}, {"pinWriter": "<writer>"}, or {"mint": {...}}');
   }
   const keys = Object.keys(input);
   if (
     keys.length !== 1 ||
-    (keys[0] !== "argv" && keys[0] !== "digest" && keys[0] !== "pinWriter")
+    (keys[0] !== "argv" && keys[0] !== "digest" && keys[0] !== "pinWriter" && keys[0] !== "mint")
   ) {
-    malformed('want exactly one of {"argv": [...]}, {"digest": [...]}, or {"pinWriter": "<writer>"}');
+    malformed('want exactly one of {"argv": [...]}, {"digest": [...]}, {"pinWriter": "<writer>"}, or {"mint": {...}}');
   }
   if (keys[0] === "argv") {
     const argv = (input as { argv: unknown }).argv;
@@ -329,6 +338,42 @@ function registryCliMain(): void {
       return;
     }
     process.stdout.write(`${JSON.stringify({ argv: [...resolved.argv], glbProducing: resolved.glbProducing })}\n`);
+    return;
+  }
+  if (keys[0] === "mint") {
+    const spec = (input as { mint: unknown }).mint as { edits?: unknown; compact?: unknown; storeRoot?: unknown; testRegistry?: unknown };
+    if (typeof spec !== "object" || spec === null || typeof spec.edits !== "string") malformed('mint wants {"edits": "<path>", "compact"?: "<path>", "storeRoot"?: "<path>", "testRegistry"?: "<path>"}');
+    for (const k of ["compact", "storeRoot", "testRegistry"] as const) if (spec[k] !== undefined && typeof spec[k] !== "string") malformed(`mint.${k} must be a string path`);
+    const editsPath: unknown = spec.edits;
+    const compactPath: unknown = spec.compact;
+    const storeRoot: unknown = spec.storeRoot;
+    const testRegistry: unknown = spec.testRegistry;
+    if (typeof editsPath !== "string") malformed("mint.edits must be a string path");
+    if ((compactPath !== undefined && typeof compactPath !== "string") || (storeRoot !== undefined && typeof storeRoot !== "string") || (testRegistry !== undefined && typeof testRegistry !== "string")) malformed("mint.compact/storeRoot/testRegistry must be string paths");
+    try {
+      const arg: { compactPath?: string; storeRoot?: string; editsPath: string; testRoot?: string } = { editsPath: editsPath as string };
+      if (flagRoot === undefined) {
+        if (compactPath !== undefined || storeRoot !== undefined || testRegistry !== undefined) malformed("mint compact/storeRoot/testRegistry overrides need --test-registry <root>");
+      } else {
+        let root = "";
+        try { root = realpathSync(flagRoot); } catch { root = ""; }
+        const cands = [tmpdir(), "/private/tmp"].map((t) => { try { return realpathSync(t); } catch { return ""; } });
+        if (root === "" || !cands.some((t) => t !== "" && (root === t || root.startsWith(`${t}/`)))) malformed(`--test-registry outside the tmp fixture root (${flagRoot})`);
+        if (testRegistry !== undefined) {
+          let tr = "";
+          try { tr = realpathSync(testRegistry as string); } catch { tr = ""; }
+          if (tr !== root) malformed("mint testRegistry must equal --test-registry <root>");
+        }
+        if (compactPath !== undefined) arg.compactPath = compactPath as string;
+        if (storeRoot !== undefined) arg.storeRoot = storeRoot as string;
+        arg.testRoot = root;
+      }
+      process.stdout.write(`${JSON.stringify({ mint: mintPostExportConsumers(arg) })}\n`);
+    } catch (error) {
+      const msg = (error as Error).message;
+      process.stderr.write(`${msg.startsWith("mint refused") ? msg : `refusing mint failure: ${msg}`}\n`);
+      process.exit(2);
+    }
     return;
   }
   const digest = (input as { digest: unknown }).digest;
