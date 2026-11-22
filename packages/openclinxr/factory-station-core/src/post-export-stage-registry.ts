@@ -4,6 +4,10 @@ export interface PostExportStage {
   readonly preserves: readonly string[];
 }
 
+import { readFileSync } from "node:fs";
+import { pathToFileURL } from "node:url";
+import { glbGeometryDigest } from "./glb-geometry-digest.js";
+
 export const POST_EXPORT_STAGE_REGISTRY: Readonly<Record<string, PostExportStage | undefined>> = {
   "tools/openclinxr/asset-pipeline/makeclothes/apply_actor_hair_colour.py": {
     mutates: ["materials"],
@@ -204,3 +208,80 @@ export function postExportLevelStages(argv: unknown): PostExportStage[] | undefi
 export function postExportLevelPreserves(argv: unknown, domain: string): boolean {
   return postExportLevelStages(argv)?.every((stage) => stage.preserves.includes(domain)) ?? false;
 }
+
+/**
+ * Shared invoked-tool rule CLI (single copy; R3.2 option A).
+ *
+ * apply_hair_material_maps.py record mode reaches this rule only through
+ * this entry, invoked as `pnpm exec tsx <this-file> '<json>'`. Guarded so
+ * importing the module runs nothing.
+ *
+ * Input must be exactly one mode:
+ * - {"argv": [...]} -> {"tool": "<invoked>", "stages": n}; exits NON-ZERO
+ *   when the level is unregistered or the input is malformed.
+ * - {"digest": ["<glb-path>", ...]} -> {"digests": ["<hex>", ...]} via
+ *   glbGeometryDigest; exits NON-ZERO on any read/digest failure.
+ * Both keys, extra keys, non-object input, or wrong element types exit 2.
+ *
+ * A multi-stage level reports the INTERSECTION of its stages' preserves
+ * (never the union): hair maps + teeth swap does not claim geometry.
+ */
+function registryCliMain(): void {
+  const raw = process.argv[2];
+  if (raw === undefined) {
+    process.stderr.write("usage: tsx post-export-stage-registry.ts '<{\"argv\": [...]} | {\"digest\": [...]}>'\n");
+    process.exit(2);
+  }
+  let input: unknown;
+  try {
+    input = JSON.parse(raw);
+  } catch {
+    process.stderr.write("refusing malformed registry CLI input: not JSON\n");
+    process.exit(2);
+  }
+  const malformed: (why: string) => never = (why) => {
+    process.stderr.write(`refusing malformed registry CLI input: ${why}\n`);
+    process.exit(2);
+  };
+  if (typeof input !== "object" || input === null || Array.isArray(input)) {
+    malformed('want exactly one of {"argv": [...]} or {"digest": [...]}');
+  }
+  const keys = Object.keys(input);
+  if (keys.length !== 1 || (keys[0] !== "argv" && keys[0] !== "digest")) {
+    malformed('want exactly one of {"argv": [...]} or {"digest": [...]}');
+  }
+  if (keys[0] === "argv") {
+    const argv = (input as { argv: unknown }).argv;
+    if (!Array.isArray(argv)) malformed("argv must be an array of strings");
+    const stages = postExportLevelStages(argv);
+    if (stages === undefined) {
+      process.stderr.write(`refusing unregistered post-export level: ${raw.slice(0, 300)}\n`);
+      process.exit(2);
+    }
+    // The credited tool names, resolved through the single rule above by
+    // object identity (no second copy of the operand logic).
+    const tools = Object.keys(POST_EXPORT_STAGE_REGISTRY).filter((key) =>
+      stages.includes(POST_EXPORT_STAGE_REGISTRY[key] as PostExportStage),
+    );
+    // INTERSECTION: a multi-stage level claims only what every stage preserves.
+    const [first = [], ...rest] = stages.map((stage) => [...stage.preserves]);
+    const preserves = rest.reduce((acc, cur) => acc.filter((domain) => cur.includes(domain)), first).sort();
+    process.stdout.write(`${JSON.stringify({ tool: tools.length === 1 ? tools[0] : tools, stages: stages.length, preserves })}\n`);
+    return;
+  }
+  const digest = (input as { digest: unknown }).digest;
+  if (!Array.isArray(digest)) malformed("digest must be an array of strings");
+  try {
+    const digests = (digest as unknown[]).map((p) => {
+      if (typeof p !== "string" || p.length === 0) throw new Error("digest paths must be non-empty strings");
+      return glbGeometryDigest(new Uint8Array(readFileSync(p)));
+    });
+    process.stdout.write(`${JSON.stringify({ digests })}\n`);
+    return;
+  } catch (error) {
+    process.stderr.write(`refusing registry digest failure: ${(error as Error).message}\n`);
+    process.exit(2);
+  }
+}
+
+if (process.argv[1] != null && import.meta.url === pathToFileURL(process.argv[1]).href) registryCliMain();

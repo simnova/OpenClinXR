@@ -1,5 +1,5 @@
 {
-  "baseSha": "6f6083be64e70a2676cc5b8d105a50f2001b67a9",
+  "baseSha": "d0a90c471137350cff4635bcdc060fe561000742",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -99,7 +99,6 @@
     "tools/openclinxr/evidence/hair-image/check-image-thick.mjs",
     "tools/openclinxr/evidence/hair-image/check-image-tone.mjs",
     "tools/openclinxr/evidence/hair-image/check-image.mjs",
-    "tools/openclinxr/evidence/hair-image/check-image4a.mjs",
     "tools/openclinxr/evidence/hair-interp-ref/check-interp.mjs",
     "tools/openclinxr/evidence/hair-judge/test_hair_judge.mjs",
     "tools/openclinxr/evidence/hair-lanes/check-lanes.mjs",

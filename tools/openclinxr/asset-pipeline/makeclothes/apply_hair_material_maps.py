@@ -34,13 +34,13 @@ import argparse
 import io
 import json
 import re
+import subprocess
 import sys
 from pathlib import Path
 
 _HERE = Path(__file__).resolve().parent
 if str(_HERE) not in sys.path:
     sys.path.insert(0, str(_HERE))
-
 from embed_library_hair import (  # noqa: E402
     authored_hair_color_rgba,
     recolour_to_token_chroma_linear,
@@ -56,6 +56,8 @@ from apply_actor_hair_colour import (  # noqa: E402
 
 STAGE = "actor_hair_material_maps_post_export_v1"
 TOOL = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py"
+REPO_ROOT = Path(__file__).resolve().parents[4]
+REGISTRY_TS = REPO_ROOT / "packages/openclinxr/factory-station-core/src/post-export-stage-registry.ts"
 HAIR_PREFIX = "openclinxr_fitted_hair_"
 ALPHA_MODE = "MASK"
 ALPHA_CUTOFF = 0.2
@@ -108,48 +110,33 @@ def wired_materials_record(doc: dict) -> dict:
     return {"materialName": str(material.get("name", "")), "texturesAdded": [base["index"], normal["index"]]}
 
 
-_INTERPRETERS = frozenset({"python3", "python", "tsx", "node", "sh", "bash"})
-_TOOL_REF_RE = re.compile(
-    r"tools/[^\s'\"`\\$;&|()<>{}=,]+\.(?:py|ts|mts|mjs|js|cjs|sh)(?=$|[\s'\"`\\$;&|()<>{}=,])"
-)
+def _invoked_tool_info(argv: object) -> dict:
+    """Executed tool of a recorded derivationArgv via the ONE shared rule.
 
-
-def _command_words(words: list[str]) -> list[str]:
-    """Mirror commandWords in post-export-stage-registry.ts (non-shell path)."""
-    start = 0
-    while start < len(words):
-        head = words[start]
-        if re.match(r"^[A-Za-z_]\w*=", words[start]) or head == "env":
-            start += 1
-        elif head == "mise" and words[start + 1:start + 3] == ["exec", "--"]:
-            start += 3
-        elif head == "pnpm" and words[start + 1:start + 2] == ["exec"]:
-            start += 2
-        else:
-            break
-    return words[start:]
-
-
-def hair_maps_invoked_tool(argv: object) -> str | None:
-    """Executed tool of a recorded derivationArgv, mirroring postExportLevelStages.
-
-    Same matching rule the TS registry uses for "invoked, registered" tools:
-    strip env assignments + mise/pnpm wrappers, then resolve the interpreter
-    operand (first non-flag word) or the bare head. Shell (`sh -c`) levels
-    return None (refused: no direct tool invocation). `correctedBy` is never
-    consulted.
+    Calls post-export-stage-registry.ts (option A CLI) and fails closed on a
+    non-zero exit, unparsable output, or a missing pnpm/tsx. There is no local
+    copy of the rule in this file.
     """
-    if not isinstance(argv, list) or not argv or not all(isinstance(w, str) for w in argv):
-        return None
-    normalized = [re.sub(r"\\\r?\n", "", w) for w in argv]
-    direct = _command_words(normalized)
-    if len(direct) >= 2 and direct[0] == "sh" and direct[1] == "-c":
-        return None
-    head = direct[0] if direct else None
-    args = direct[1:]
-    if head in _INTERPRETERS:
-        return next((w for w in args if not w.startswith("-")), None)
-    return head
+    try:
+        proc = subprocess.run(
+            ["pnpm", "exec", "tsx", str(REGISTRY_TS), json.dumps({"argv": argv})],
+            cwd=str(REPO_ROOT),
+            capture_output=True,
+            text=True,
+            timeout=120,
+        )
+    except (FileNotFoundError, OSError, subprocess.TimeoutExpired) as exc:
+        raise RuntimeError(f"STOP: shared invoked-tool rule unreachable ({exc}); refusing") from exc
+    if proc.returncode != 0:
+        detail = (proc.stderr or proc.stdout).strip().splitlines()
+        raise RuntimeError(f"STOP: shared invoked-tool rule CLI failed (exit {proc.returncode}: {detail[0] if detail else 'no detail'}); refusing")
+    try:
+        info = json.loads(proc.stdout)
+    except json.JSONDecodeError as exc:
+        raise RuntimeError(f"STOP: shared invoked-tool rule output unparsable ({exc}); refusing") from exc
+    if not isinstance(info, dict) or "tool" not in info:
+        raise RuntimeError("STOP: shared invoked-tool rule output missing tool; refusing")
+    return info
 
 
 def srgb_to_linear(channel: object) -> object:
@@ -325,17 +312,12 @@ def record_wired_materials_only(args: argparse.Namespace) -> None:
     lineage = provenance.get("byteLineage")
     if not isinstance(lineage, dict):
         raise RuntimeError("STOP: sidecar carries no byteLineage to record on")
-    # Level selection is by recorded invocation only (mirrors the TS registry
-    # "invoked, registered" rule; correctedBy is never consulted): the top
-    # derivationArgv must execute exactly this tool and nothing else.
+    # Level selection is by recorded invocation through the ONE shared rule
+    # (post-export-stage-registry.ts CLI; correctedBy is never consulted):
+    # the top derivationArgv must execute exactly this tool and nothing else.
     argv = lineage.get("derivationArgv")
-    if hair_maps_invoked_tool(argv) != TOOL:
+    if _invoked_tool_info(argv).get("tool") != TOOL:
         raise RuntimeError("STOP: sidecar has no hair-material-maps level; refusing to invent one")
-    refs: list[str] = []
-    for word in argv:
-        refs.extend(m.group(0) for m in _TOOL_REF_RE.finditer(word))
-    if refs != [TOOL]:
-        raise RuntimeError("STOP: derivationArgv does not invoke exactly this stage; refusing to record")
     stage_record = lineage.get("stageRecord")
     if not isinstance(stage_record, dict):
         stage_record = {}

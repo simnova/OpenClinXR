@@ -5,9 +5,9 @@
  */
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { delimiter, join, resolve } from "node:path";
 import { deflateSync } from "node:zlib";
 import { POST_EXPORT_STAGE_REGISTRY } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
@@ -1384,5 +1384,122 @@ describe("runChain", () => {
         root,
       }),
     ).toThrow(/sha256/);
+  });
+});
+
+describe("shared invoked-tool rule (C2a)", () => {
+  const REGISTRY_TS = "packages/openclinxr/factory-station-core/src/post-export-stage-registry.ts";
+  const MAPS_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
+  const MAPS_PY = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
+  const FAMILY = "mpfb-family-partner-adult";
+  const FAMILY_ASSET = `apps/ui-xr/public/generated-humanoids/${FAMILY}.glb`;
+  const FAMILY_SIDECAR = `apps/ui-xr/public/generated-humanoids/${FAMILY}.provenance.json`;
+  const HAIR_MAPS = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
+  const TEETH_SWAP = "tools/openclinxr/asset-pipeline/makeclothes/teeth-swap/swap_teeth.py";
+
+  const shaFile = (p: string): string => createHash("sha256").update(readFileSync(p)).digest("hex");
+
+  function registryCli(payload: unknown) {
+    return spawnSync("pnpm", ["exec", "tsx", REGISTRY_TS, JSON.stringify(payload)], { encoding: "utf8" });
+  }
+
+  it("A1 intersection: a hair-maps + teeth-swap level claims only what every stage preserves", { timeout: 180_000 }, () => {
+    const shell = `python3 ${HAIR_MAPS} --glb a --output b; python3 ${TEETH_SWAP} --glb a --output b`;
+    const r = registryCli({ argv: ["sh", "-c", shell] });
+    expect(r.status).toBe(0);
+    const info = JSON.parse(r.stdout) as { tool: unknown; stages: number; preserves: string[] };
+    expect(info.stages).toBe(2);
+    expect(info.preserves).toEqual(["procedural-gown-lineage"]);
+    expect(info.preserves).not.toContain("geometry");
+  });
+
+  it("A1 strict input: mixed-mode argv/digest refuses with exit 2", { timeout: 180_000 }, () => {
+    const r = registryCli({ argv: 42, digest: [] });
+    expect(r.status).toBe(2);
+    expect(r.stderr).toMatch(/malformed/);
+  });
+
+  it("A1 strict input: an extra key refuses with exit 2", { timeout: 180_000 }, () => {
+    const r = registryCli({
+      argv: ["mise", "exec", "--", "python3", MAPS_TOOL, "--glb", "x", "--output", "y"],
+      extra: true,
+    });
+    expect(r.status).toBe(2);
+    expect(r.stderr).toMatch(/malformed/);
+  });
+
+  it("F5 shared rule: CLI-only Python path, fail-closed cases name the CLI failure, positive control records", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "shared-rule-f5-"));
+    try {
+      // Direct CLI checks: unregistered refuses, registered resolves exactly.
+      const bogus = registryCli({ argv: ["python3", "tools/openclinxr/asset-pipeline/makeclothes/nope_not_registered.py"] });
+      expect(bogus.status).not.toBe(0);
+      const good = registryCli({ argv: ["mise", "exec", "--", "python3", MAPS_TOOL, "--glb", "x", "--output", "y"] });
+      expect(good.status).toBe(0);
+      expect((JSON.parse(good.stdout) as { tool: string }).tool).toBe(MAPS_TOOL);
+
+      // Valid inputs for every Python case below: shipped GLB + sidecar copy
+      // whose pins match (the positive control succeeds with the real CLI).
+      const shippedGlb = join(root, FAMILY_ASSET);
+      const freshCopy = (tag: string) => {
+        const p = join(dir, `${tag}.provenance.json`);
+        writeFileSync(p, readFileSync(join(root, FAMILY_SIDECAR)));
+        return p;
+      };
+      const recordMode = (sidecar: string, env?: NodeJS.ProcessEnv) =>
+        spawnSync(
+          "python3",
+          ["-I", join(root, MAPS_PY), "--glb", shippedGlb, "--provenance", sidecar, "--record-wired-materials-only"],
+          { encoding: "utf8", ...(env === undefined ? {} : { env }) },
+        );
+
+      // Positive control: real CLI -> record mode succeeds, wiredMaterials written.
+      const okSidecar = freshCopy("ok");
+      const ok = recordMode(okSidecar);
+      expect(ok.status).toBe(0);
+      const recorded = JSON.parse(readFileSync(okSidecar, "utf8")) as {
+        byteLineage: { stageRecord: { wiredMaterials: unknown[] } };
+      };
+      expect(recorded.byteLineage.stageRecord.wiredMaterials.length).toBeGreaterThan(0);
+      const printed = JSON.parse(ok.stdout) as { wiredMaterials: unknown };
+      expect(printed.wiredMaterials).toEqual(recorded.byteLineage.stageRecord.wiredMaterials);
+
+      // Fail-closed (i): CLI unreachable (fake pnpm exits 1) -> refusal names
+      // the CLI exit status, nothing written.
+      const bin = join(dir, "fakebin");
+      mkdirSync(bin);
+      const fakePnpm = join(bin, "pnpm");
+      writeFileSync(fakePnpm, "#!/bin/sh\nexit 1\n");
+      chmodSync(fakePnpm, 0o755);
+      const brokenEnv = { ...process.env, PATH: `${bin}${delimiter}${process.env["PATH"] ?? ""}` };
+      const failSidecar = freshCopy("fail-exit1");
+      const failBefore = shaFile(failSidecar);
+      const rec = recordMode(failSidecar, brokenEnv);
+      expect(rec.status).not.toBe(0);
+      expect(rec.stderr).toContain("exit 1");
+      expect(shaFile(failSidecar)).toBe(failBefore);
+
+      // Fail-closed (ii): CLI exits 0 with garbage stdout -> refusal names the
+      // unparsable output, nothing written.
+      writeFileSync(fakePnpm, "#!/bin/sh\necho 'not-json{{{ on purpose'\n");
+      const garbageSidecar = freshCopy("fail-garbage");
+      const garbageBefore = shaFile(garbageSidecar);
+      const gar = recordMode(garbageSidecar, brokenEnv);
+      expect(gar.status).not.toBe(0);
+      expect(gar.stderr).toMatch(/unparsable/);
+      expect(shaFile(garbageSidecar)).toBe(garbageBefore);
+
+      // (iii) no local copy of the rule remains under tools/.
+      // Built by concatenation so this test file itself carries neither
+      // literal (the F5 grep must read 0 hits under tools/).
+      const pat = `_${"command_words"}\\|_${"INTERPRETERS"}`;
+      const g = spawnSync("grep", ["-rn", pat, "tools/"], { encoding: "utf8" });
+      console.info(`F5 grep hits: ${g.stdout.trim().slice(0, 500)}`);
+      expect(g.status).not.toBe(0);
+      expect(g.stdout).toBe("");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
