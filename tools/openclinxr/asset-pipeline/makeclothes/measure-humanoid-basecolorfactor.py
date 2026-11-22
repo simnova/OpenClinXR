@@ -20,6 +20,8 @@ Usage: mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/measure-
   Default (no flag) re-measures every shipped body. With --body, only that
   body is re-measured from live bytes; every other row is carried through
   byte-identical so the diff touches only the named body.
+  --audit-out <path> writes the regenerated audit there (default: the tracked audit path;
+  finalize passes a fixture path under --test-registry so tests never touch the tracked file).
 """
 
 import json
@@ -243,6 +245,7 @@ def main():
     index = build_triple_index()
     bodies = sorted(f for f in os.listdir(GENERATED) if f.endswith(".glb"))
     only_body = sys.argv[sys.argv.index("--body") + 1] if "--body" in sys.argv else None
+    audit_out = sys.argv[sys.argv.index("--audit-out") + 1] if "--audit-out" in sys.argv else AUDIT_PATH
     if only_body is not None and only_body not in bodies:
         sys.exit(f"--body {only_body}: not a shipped body in {GENERATED}")
     selected = set(bodies) if only_body is None else {only_body}
@@ -397,7 +400,7 @@ def main():
     new_audit["hiddenVerdict"] = re.sub(r"\d+ openclinxr_hidden",
                                         f"{hidden} openclinxr_hidden", old.get("hiddenVerdict", ""))
     new_audit["rows"] = rows
-    with open(AUDIT_PATH, "w", encoding="utf-8") as f:
+    with open(audit_out, "w", encoding="utf-8") as f:
         json.dump(new_audit, f, indent=1, ensure_ascii=False)
         f.write("\n")
     print(f"bodies={len(bodies)} rows={len(rows)} " + " ".join(f"{k}={v}" for k, v in stats.items()))

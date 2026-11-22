@@ -34,3 +34,5 @@ Use one `POST_EXPORT_STAGE_REGISTRY` keyed by `toolPath`. Each entry declares wh
   F11 LOW: "CW2 and CW3 can pass on malformed fixtures";
   F12 LOW: "Clause 2 leaves combined legacy acceptance untested".
 - `post-export-stage-consumers.json` records the compact consumer inventory. Its header identifies and authenticates the full inventory in the asset store at `post-export-stage-finalize/post-export-stage-consumers.full-1e06aa00.json`.
+- Known limit: finalize runs on the factory machine only (store-bound).
+- Finalize h5: the frozen-plan exemption is exact repo-path identity (never basename); the pin-writer lookup is own-property, so `constructor` is refused, not crashed.

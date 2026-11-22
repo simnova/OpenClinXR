@@ -5,7 +5,7 @@
  */
 import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { chmodSync, copyFileSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { delimiter, join, resolve } from "node:path";
 import { deflateSync } from "node:zlib";
@@ -1502,4 +1502,861 @@ describe("shared invoked-tool rule (C2a)", () => {
       rmSync(dir, { recursive: true, force: true });
     }
   });
+});
+
+
+describe("finalize_post_export_stage (R3)", () => {
+  const FINALIZE = "tools/openclinxr/asset-pipeline/makeclothes/finalize_post_export_stage.py";
+  const MAPS_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py";
+  const FAMILY = "mpfb-family-partner-adult";
+  const FAMILY_ASSET = `apps/ui-xr/public/generated-humanoids/${FAMILY}.glb`;
+  const PRE_IMAGE_SHA = "1fd58873ddba9519d442396635bd2d91a08c8b4b63606b186ecc56a9c0f5cb8b";
+
+  const shaFile = (p: string): string => createHash("sha256").update(readFileSync(p)).digest("hex");
+
+  /** Antecedent pins for the staged provenance doc (real prefixes from the P1 sidecar). */
+  const ANTE = {
+    lash: "47134447a0a5e0fd9f6206e5f5ebe3e7e728b9db527646bd5d830cfbabe7f165",
+    vitruvian: "fb37db5e9ed7bd848dcf87b94ebdd53a150fbfccdbeb8be47fdf66825e1bcca8",
+    hairIn: "1768552e0e19521a4f2df65317d4681d5f56a237f07a5b3b446b963d5b653510",
+    hairOut: "b4195761f4389c34c0182d7a8bb99f07ded3d4dd31e69b82a4133c84caf83b95",
+    browOut: "35c88192412205c02cb29daf254c53fff69692fcbe0c00ef99e13e51c7517644",
+  };
+  const FREEZE_WRITER = "pnpm exec tsx tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts [caseId...]";
+  const REG_TS = "packages/openclinxr/factory-station-core/src/post-export-stage-registry.ts";
+
+  /** X1: stage a working registry copy under the fixture root (the flag never names the repo file). */
+  function stageRegistry(dir: string): string {
+    const root = process.cwd();
+    copyFileSync(join(root, "packages/openclinxr/factory-station-core/src/post-export-stage-registry.ts"), join(dir, "registry.ts"));
+    copyFileSync(join(root, "packages/openclinxr/factory-station-core/src/glb-geometry-digest.ts"), join(dir, "glb-geometry-digest.ts"));
+    return join(dir, "registry.ts");
+  }
+
+  /** Staged provenance doc with antecedent pins (fixture-local; never the store). */
+  function stageProv(dir: string): string {
+    const p = join(dir, "consumer-prov.json");
+    writeFileSync(
+      p,
+      JSON.stringify({
+        lashFollowR8: { inputSha256: ANTE.lash },
+        vitruvianDarkRemap: { inputGlbSha256: ANTE.vitruvian },
+        actorHairColourPostExport: { inputGlbSha256: ANTE.hairIn, outputBytes: 9182096, outputGlbSha256: ANTE.hairOut },
+        actorBrowTransplantPostExport: { inputGlbSha256: ANTE.hairOut, outputBytes: 9182096, outputGlbSha256: ANTE.browOut },
+      }),
+    );
+    return p;
+  }
+
+  /** X7: two-entry plan copy; writePlanCopy places each sha so the move test can re-credit the other entry. */
+  function writePlanCopy(p: string, shaA: string, shaB: string): void {
+    const entry = (id: string, sha: string) =>
+      `"${id}": {\n  "case": { "caseId": "${id}" },\n  "instances": [\n    { "contentId": "x", "assetPath": "apps/ui-xr/public/generated-humanoids/other.glb", "assetSha256": "${sha}" }\n  ]\n}`;
+    writeFileSync(p, `${entry("case_alpha_v1", shaA)},\n${entry("scene_closure_supine_bedside_v1", shaB)}\n`);
+  }
+
+  function stagePlanCopy(dir: string, pinnedSha: string): string {
+    const p = join(dir, "plan-copy.ts");
+    writePlanCopy(p, "a".repeat(64), pinnedSha);
+    return p;
+  }
+
+  /** Fixture rows over staged files: 4 antecedent prov rows + the D2 frozen-plan row. */
+  function fixtureRows(prov: string, plan: string): unknown[] {
+    return [
+      { file: prov, field_or_symbol: `(lashFollowR8.inputSha256)`, proposed_pin: "keep-sha", writer: "mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py" },
+      { file: prov, field_or_symbol: `(vitruvianDarkRemap.inputGlbSha256)`, proposed_pin: "keep-sha", writer: "mise exec -- python3 tools/openclinxr/asset-pipeline/skin/vitruvian_dark/vitruvian_dark_remap.py" },
+      { file: prov, field_or_symbol: `(actorHairColourPostExport.inputGlbSha256, outputBytes, outputGlbSha256)`, proposed_pin: "keep-sha", writer: "mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/apply_actor_hair_colour.py" },
+      { file: prov, field_or_symbol: `(actorBrowTransplantPostExport.inputGlbSha256, outputBytes, outputGlbSha256)`, proposed_pin: "keep-sha", writer: "mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/transplant_fitted_brow.py" },
+      // D2: frozen-plan row — pins the pre sha, writer class is the freeze tool.
+      { file: plan, field_or_symbol: `plan-copy.ts (assetSha256)`, proposed_pin: "keep-sha", writer: FREEZE_WRITER },
+    ];
+  }
+
+  /** Identical scratch pre/post pair (equal geometry, fresh basenames); sha matches the shipped GLB. */
+  function scratchPair(dir: string, tag: string): { pre: string; post: string; sha: string } {
+    const src = join(process.cwd(), FAMILY_ASSET);
+    const pre = join(dir, `${tag}-pre.glb`);
+    const post = join(dir, `${tag}-post.glb`);
+    copyFileSync(src, pre);
+    copyFileSync(src, post);
+    return { pre, post, sha: shaFile(post) };
+  }
+
+  /** Crafted sidecar: registered hair-maps level pinning sha (fast tests skip runChain). */
+  function craftSidecar(dir: string, name: string, pre: string, post: string, sha: string): string {
+    const p = join(dir, name);
+    writeFileSync(
+      p,
+      JSON.stringify({
+        outputSha256: sha,
+        byteLineage: {
+          derivationArgv: ["mise", "exec", "--", "python3", MAPS_TOOL, "--glb", pre, "--output", post, "--provenance", p],
+          outputSha256: sha,
+          preImageSha256: shaFile(pre),
+        },
+      }),
+    );
+    return p;
+  }
+
+  /** X6: sidecar copy with nothing the record writer stamps (probe log: E/h5-x6-probe.log). */
+  function bareSidecar(sidecar: string, dir: string, name: string): string {
+    const doc = JSON.parse(readFileSync(sidecar, "utf8")) as {
+      byteLineage?: { stageRecord?: Record<string, unknown> };
+      wiredMaterials?: unknown;
+    };
+    if (doc.byteLineage?.stageRecord) delete doc.byteLineage.stageRecord.wiredMaterials;
+    delete doc.wiredMaterials;
+    const p = join(dir, name);
+    writeFileSync(p, `${JSON.stringify(doc, null, 1)}\n`);
+    return p;
+  }
+
+  /** Formerly-listed production writer (R1: the production allowlist is empty, so any live row refuses). */
+  const VITRUVIAN_WRITER = "mise exec -- python3 tools/openclinxr/asset-pipeline/skin/vitruvian_dark/vitruvian_dark_remap.py";
+  /** X1: the test-only self-host re-pin entry carries the fixture flag (never emitted in production). */
+  const selfWriter = (reg: string) =>
+    `mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/finalize_post_export_stage.py --repin-one --test-registry ${reg}`;
+
+  /** Write a --consumers fixture table; returns its path. */
+  function writeConsumers(dir: string, rows: unknown[]): string {
+    const fixture = join(dir, "consumers.json");
+    writeFileSync(fixture, JSON.stringify({ consumers: rows }));
+    return fixture;
+  }
+
+  /** Real runChain stage-24 replay into a scratch dir (mirrors the P1 setup). */
+  function replayStage24(root: string, dir: string): { pre: string; post: string; sidecar: string } {
+    const input = join(dir, "pre.glb");
+    const preImage = execFileSync("git", ["-C", root, "show", `c613e86e8^:${FAMILY_ASSET}`], {
+      maxBuffer: 256 * 1024 * 1024,
+    });
+    expect(createHash("sha256").update(preImage).digest("hex")).toBe(PRE_IMAGE_SHA);
+    writeFileSync(input, preImage);
+    const manifestPath = join(root, `tools/openclinxr/asset-pipeline/humanoid-chain/manifests/${FAMILY}.post-export.json`);
+    const out = join(dir, "out");
+    const report = runChain({ root, manifestPath, input, out });
+    expect(report.status).toBe("complete");
+    return { pre: input, post: join(out, "24-hair-material-maps.glb"), sidecar: join(out, "24-hair-material-maps.provenance.json") };
+  }
+
+  function runFinalize(args: string[], env?: NodeJS.ProcessEnv) {
+    return spawnSync("python3", ["-I", join(process.cwd(), FINALIZE), ...args], {
+      encoding: "utf8",
+      ...(env === undefined ? {} : { env }),
+    });
+  }
+
+  /** sha256 of every file under dir (proves a refusal wrote nothing). */
+  function snapshotTree(dir: string): Map<string, string> {
+    const out = new Map<string, string>();
+    const walk = (d: string): void => {
+      for (const e of readdirSync(d, { withFileTypes: true })) {
+        const p = join(d, e.name);
+        if (e.isDirectory()) walk(p);
+        else if (e.isFile()) out.set(p, shaFile(p));
+      }
+    };
+    walk(dir);
+    return out;
+  }
+
+  it("F1 known-good: dry-run passes (a)(b), live EMPTY, skipped holds the 4 antecedent pins + the frozen plan", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-f1-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      const prov = stageProv(dir);
+      const planCopy = stagePlanCopy(dir, shaFile(pre));
+      const fixture = writeConsumers(dir, fixtureRows(prov, planCopy));
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).toBe(0);
+      const plan = JSON.parse(r.stdout) as {
+        checks: { a: { tool: string }; b: { equal: boolean } };
+        live: unknown[];
+        skipped: { pinned: string; field: string; file: string; reason: string; caseId?: string }[];
+      };
+      expect(plan.checks.a.tool).toBe(MAPS_TOOL);
+      expect(plan.checks.b.equal).toBe(true);
+      expect(plan.live).toEqual([]);
+      const pins = new Set(plan.skipped.map((s) => String(s.pinned).slice(0, 8)));
+      for (const want of ["fb37db5e", "1768552e", "b4195761", "47134447"]) {
+        expect(pins.has(want), `skipped holds antecedent pin ${want}`).toBe(true);
+      }
+      // D2: the frozen scene-plan row pins the pre-image sha and is skipped, never re-pinned.
+      const frozen = plan.skipped.filter((s) => s.file.endsWith("plan-copy.ts"));
+      expect(frozen.length).toBe(1);
+      expect(String(frozen[0]?.pinned).slice(0, 8)).toBe("1fd58873");
+      expect(frozen[0]?.reason).toBe("frozen-plan");
+      // X7 entry credit: the skip names the plan entry (case id + field), not a bare sha.
+      expect(frozen[0]?.caseId).toBe("scene_closure_supine_bedside_v1");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("F1b re-pin path: allowlisted writer runs verbatim, antecedent file stays byte-identical", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-f1b-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const preSha = shaFile(pre);
+      const postSha = shaFile(post);
+      expect(postSha).not.toBe(preSha);
+      const liveFile = join(dir, "consumer-live.json");
+      writeFileSync(liveFile, `${JSON.stringify({ pinned: preSha })}\n`);
+      const anteFile = join(dir, "consumer-ante.json");
+      writeFileSync(anteFile, `${JSON.stringify({ pinned: "0".repeat(64) })}\n`);
+      const anteBefore = shaFile(anteFile);
+      // X1: the row writer is the test-only self-host re-pin entry (verbatim template + fixture flag).
+      const reg = stageRegistry(dir);
+      const fixture = writeConsumers(dir, [
+        { file: liveFile, field: "pinned", proposed_pin: "keep-sha", writer: selfWriter(reg) },
+        { file: anteFile, field: "pinned", proposed_pin: "keep-sha", writer: selfWriter(reg) },
+      ]);
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).toBe(0);
+      const result = JSON.parse(r.stdout) as {
+        live: { file: string; writerArgv: string[] }[];
+        skipped: { file: string }[];
+      };
+      expect(JSON.parse(readFileSync(liveFile, "utf8")).pinned).toBe(postSha);
+      expect(shaFile(anteFile)).toBe(anteBefore);
+      expect(result.live.map((e) => e.file)).toContain(liveFile);
+      expect(result.skipped.map((e) => e.file)).toContain(anteFile);
+      expect(result.live.map((e) => e.writerArgv)).toContainEqual(selfWriter(reg).split(" "));
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("X1-AMEND-AUDIT: F1b write-mode run leaves the tracked audit JSON byte-identical and writes the measure output under the fixture root", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-x1audit-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      const liveFile = join(dir, "consumer-live.json");
+      writeFileSync(liveFile, `${JSON.stringify({ pinned: shaFile(pre) })}\n`);
+      const fixture = writeConsumers(dir, [
+        { file: liveFile, field: "pinned", proposed_pin: "keep-sha", writer: selfWriter(reg) },
+      ]);
+      const audit = join(root, "docs/openclinxr/humanoid-basecolorfactor-audit-2026-09-10.json");
+      const auditBefore = shaFile(audit);
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).toBe(0);
+      expect(shaFile(audit), "tracked audit JSON unchanged after fixture write-mode run").toBe(auditBefore);
+      const measureOut = join(dir, "humanoid-basecolorfactor-audit.json");
+      expect(existsSync(measureOut), "measure output exists under the fixture root").toBe(true);
+      expect(JSON.parse(readFileSync(measureOut, "utf8")).bodies, "measure output is an audit doc").toBeDefined();
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("D1 non-allowlisted writer: a live repack row refuses at preflight and writes nothing", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-d1-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      const liveFile = join(dir, "consumer-live.json");
+      writeFileSync(liveFile, `${JSON.stringify({ pinned: shaFile(pre) })}\n`);
+      const fixture = writeConsumers(dir, [
+        { file: liveFile, field: "pinned", proposed_pin: "keep-sha", writer: "mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py" },
+      ]);
+      const before = new Map<string, string>();
+      for (const f of [liveFile, fixture, sidecar, pre, post, reg]) before.set(f, shaFile(f));
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toContain("repack_lash_follow.py");
+      for (const f of [liveFile, fixture, sidecar, pre, post, reg]) {
+        expect(shaFile(f), `${f} unchanged after refusal`).toBe(before.get(f));
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("R1 empty production allowlist: a live formerly-listed writer refuses closed and writes nothing", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-r1-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      // X6: the snapshot sidecar carries nothing the record writer stamps, so a
+      // pre-refusal lineage write changes bytes (probe log: E/h5-x6-probe.log).
+      const bare = bareSidecar(sidecar, dir, "bare.provenance.json");
+      const liveFile = join(dir, "consumer-live.json");
+      writeFileSync(liveFile, `${JSON.stringify({ pinned: shaFile(pre) })}\n`);
+      const fixture = writeConsumers(dir, [
+        { file: liveFile, field: "pinned", proposed_pin: "keep-sha", writer: VITRUVIAN_WRITER },
+      ]);
+      const before = snapshotTree(dir);
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", bare, "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toContain(liveFile);
+      expect(r.stderr).toContain("pinned");
+      expect(r.stderr).toContain("vitruvian_dark_remap.py");
+      expect(r.stderr).toContain("re-run that stage");
+      const after = snapshotTree(dir);
+      expect([...after.keys()].sort()).toEqual([...before.keys()].sort());
+      for (const [p, sha] of before) {
+        expect(after.get(p), `${p} unchanged after refusal`).toBe(sha);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("X1 no env gate: VITEST_* set with no --test-registry leaves every seam refused; a repo-rooted registry refuses", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-x1-"));
+    try {
+      const { pre, post, sha } = scratchPair(dir, "x1");
+      const sidecar = craftSidecar(dir, "sc.provenance.json", pre, post, sha);
+      const env = { ...process.env, VITEST_POOL_ID: "1" };
+      // (i-a) --repin-one without the flag refuses even with the env key set.
+      const victim = join(dir, "victim.json");
+      writeFileSync(victim, `${JSON.stringify({ pinned: "0".repeat(64) })}\n`);
+      const victimBefore = shaFile(victim);
+      const repinEnv = {
+        ...env,
+        FINALIZE_REPIN_FILE: victim,
+        FINALIZE_REPIN_FIELDS: "pinned",
+        FINALIZE_REPIN_PRE_SHA: "0".repeat(64),
+        FINALIZE_REPIN_POST_SHA: "1".repeat(64),
+      };
+      const r1 = runFinalize(["--repin-one"], repinEnv);
+      expect(r1.status).not.toBe(0);
+      expect(r1.stderr).toMatch(/test-registry/);
+      expect(shaFile(victim)).toBe(victimBefore);
+      // (i-b) --consumers without the flag refuses in write mode with the env key set.
+      const consumer = join(dir, "c.json");
+      writeFileSync(consumer, `${JSON.stringify({ pinned: "0".repeat(64) })}\n`);
+      const fixture = writeConsumers(dir, [{ file: consumer, field: "pinned", proposed_pin: "keep-sha", writer: "hand" }]);
+      const consumerBefore = shaFile(consumer);
+      const r2 = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--consumers", fixture], env);
+      expect(r2.status).not.toBe(0);
+      expect(r2.stderr).toMatch(/test-registry/);
+      expect(shaFile(consumer)).toBe(consumerBefore);
+      // (ii) --test-registry naming a repo path refuses before anything runs.
+      const before = snapshotTree(dir);
+      const r3 = runFinalize(
+        ["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", join(root, REG_TS)],
+        env,
+      );
+      expect(r3.status).not.toBe(0);
+      expect(r3.stderr).toMatch(/fixture root/);
+      const after = snapshotTree(dir);
+      expect([...after.keys()].sort()).toEqual([...before.keys()].sort());
+      for (const [p, h] of before) {
+        expect(after.get(p), `${p} unchanged after refusal`).toBe(h);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("X1-AMEND fixture root: a tmp registry with a real-repo sidecar refuses and the sidecar stays byte-identical", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-x1amend-"));
+    try {
+      const reg = stageRegistry(dir);
+      const tiny = join(dir, "tiny.glb");
+      writeFileSync(tiny, Buffer.from("GLB0"));
+      const repoSidecar = join(root, `apps/ui-xr/public/generated-humanoids/${FAMILY}.provenance.json`);
+      const sidecarBefore = shaFile(repoSidecar);
+      const consumer = join(dir, "c.json");
+      writeFileSync(consumer, `${JSON.stringify({ pinned: "0".repeat(64) })}\n`);
+      const fixture = writeConsumers(dir, [{ file: consumer, field: "pinned", proposed_pin: "keep-sha", writer: "hand" }]);
+      const r = runFinalize(["--pre", tiny, "--post", tiny, "--sidecar", repoSidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/fixture root/);
+      expect(shaFile(repoSidecar)).toBe(sidecarBefore);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("H1 grouped rows: a live field beside a numeric or missing field is listed per field, never re-pinned", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-h1-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      const mixedFile = join(dir, "consumer-mixed.json");
+      writeFileSync(mixedFile, `${JSON.stringify({ pinned: shaFile(pre), count: 42 })}\n`);
+      const ghostFile = join(dir, "consumer-ghost.json");
+      writeFileSync(ghostFile, `${JSON.stringify({ pinned: shaFile(pre) })}\n`);
+      const fixture = writeConsumers(dir, [
+        { file: mixedFile, field: `${mixedFile} (pinned, count)`, proposed_pin: "keep-sha", writer: VITRUVIAN_WRITER },
+        { file: ghostFile, field: `${ghostFile} (pinned, ghost)`, proposed_pin: "keep-sha", writer: VITRUVIAN_WRITER },
+      ]);
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).toBe(0);
+      const plan = JSON.parse(r.stdout) as { live: unknown[]; skipped: { file: string; reason: string }[] };
+      expect(plan.live).toEqual([]);
+      expect(plan.skipped.length).toBe(2);
+      const byFile = new Map(plan.skipped.map((s) => [s.file, s.reason]));
+      expect(byFile.get(mixedFile)).toContain("count");
+      expect(byFile.get(ghostFile)).toContain("ghost");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("H2 store mode: a live pin in a non-sibling file reaches the live-row gate", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-h2-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      // X6: the snapshot sidecar carries nothing the record writer stamps, so a
+      // pre-refusal lineage write changes bytes (probe log: E/h5-x6-probe.log).
+      const bare = bareSidecar(sidecar, dir, "bare.provenance.json");
+      const sub = join(dir, "sub");
+      mkdirSync(sub);
+      const consumer = join(sub, "inspect-stills.json");
+      writeFileSync(consumer, `${JSON.stringify({ subjectGlbSha256: shaFile(pre) })}\n`);
+      const storeFile = join(dir, "inventory.json");
+      writeFileSync(
+        storeFile,
+        JSON.stringify({
+          consumers: [{ file: consumer, field: "subjectGlbSha256", proposed_pin: "keep-sha", writer: VITRUVIAN_WRITER }],
+        }),
+      );
+      const compactFile = join(dir, "compact.json");
+      writeFileSync(compactFile, JSON.stringify({ full: { store: "inventory.json", sha256: shaFile(storeFile) } }));
+      // X1/X2: the store override travels only under the fixture flag; the live
+      // pin in the non-sibling file still reaches the live-row gate by value.
+      const env = { ...process.env, FINALIZE_CONSUMERS_COMPACT: compactFile, FINALIZE_STORE_ROOT: dir };
+      const before = snapshotTree(dir);
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", bare, "--test-registry", reg], env);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toContain("subjectGlbSha256");
+      expect(r.stderr).toContain("vitruvian_dark_remap.py");
+      expect(r.stderr).toContain("re-run that stage");
+      const after = snapshotTree(dir);
+      expect([...after.keys()].sort()).toEqual([...before.keys()].sort());
+      for (const [p, sha] of before) {
+        expect(after.get(p), `${p} unchanged after refusal`).toBe(sha);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("H3 same-path body: a scratch post colliding with a shipped basename refuses", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-h3-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      const collision = join(dir, `${FAMILY}.glb`);
+      writeFileSync(collision, readFileSync(post));
+      const prov = stageProv(dir);
+      const planCopy = stagePlanCopy(dir, shaFile(pre));
+      const fixture = writeConsumers(dir, fixtureRows(prov, planCopy));
+      const r = runFinalize(["--pre", pre, "--post", collision, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/measure|shipped|same path/i);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("H4 digest gate: a trailing-newline digest refuses at (b)", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-h4-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const nlDigest = `${"a".repeat(64)}\n`;
+      const stub = join(dir, "stub-registry.ts");
+      writeFileSync(
+        stub,
+        [
+          "const input = JSON.parse(process.argv[2] as string);",
+          `if ("digest" in input) { console.log(JSON.stringify({ digests: ${JSON.stringify([nlDigest, nlDigest])} })); }`,
+          'else { console.log(JSON.stringify({ tool: "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py", stages: 1, preserves: ["geometry"] })); }',
+          "",
+        ].join("\n"),
+      );
+      const env = { ...process.env, FINALIZE_REGISTRY_TS: stub };
+      const fixture = join(dir, "consumers.json");
+      writeFileSync(fixture, JSON.stringify({ consumers: [] }));
+      // X1: the registry override travels ONLY as --test-registry; the env key is dead.
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", stub], env);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/geometry|digest/i);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("H5 frozen class: a lash repacker with the freeze path as an argument is NOT frozen", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-h5-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      const liveFile = join(dir, "consumer-live.json");
+      writeFileSync(liveFile, `${JSON.stringify({ pinned: shaFile(pre) })}\n`);
+      const sneaky = "mise exec -- python3 tools/openclinxr/asset-pipeline/makeclothes/eye-lash/repack_lash_follow.py tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts";
+      const fixture = writeConsumers(dir, [
+        { file: liveFile, field: "pinned", proposed_pin: "keep-sha", writer: sneaky },
+      ]);
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toContain("repack_lash_follow.py");
+      expect(r.stderr).toContain("re-run that stage");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("H6 production fixture gate (H6+X2): --consumers without --test-registry refuses in write mode and dry-run", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-h6-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const consumer = join(dir, "c.json");
+      writeFileSync(consumer, `${JSON.stringify({ pinned: "0".repeat(64) })}\n`);
+      const fixture = writeConsumers(dir, [{ file: consumer, field: "pinned", proposed_pin: "keep-sha", writer: "hand" }]);
+      const before = snapshotTree(dir);
+      // VITEST_* keys are present (runner-set) yet no seam opens without the flag.
+      const env = { ...process.env, VITEST_POOL_ID: "1" };
+      const w = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--consumers", fixture], env);
+      expect(w.status).not.toBe(0);
+      expect(w.stderr).toMatch(/test-registry/);
+      const d = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture], env);
+      expect(d.status).not.toBe(0);
+      expect(d.stderr).toMatch(/test-registry/);
+      const after = snapshotTree(dir);
+      expect([...after.keys()].sort()).toEqual([...before.keys()].sort());
+      for (const [p, sha] of before) {
+        expect(after.get(p), `${p} unchanged after refusal`).toBe(sha);
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("H7 repin parsing: --repin-one with --dry-run refuses and writes nothing", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-h7-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const preSha = shaFile(pre);
+      const victim = join(dir, "consumer.json");
+      writeFileSync(victim, `${JSON.stringify({ pinned: preSha })}\n`);
+      const env = {
+        ...process.env,
+        FINALIZE_REPIN_FILE: victim,
+        FINALIZE_REPIN_FIELDS: "pinned",
+        FINALIZE_REPIN_PRE_SHA: preSha,
+        FINALIZE_REPIN_POST_SHA: shaFile(post),
+      };
+      const before = shaFile(victim);
+      const r = runFinalize(["--repin-one", "--dry-run", "--pre", pre, "--post", post, "--sidecar", sidecar], env);
+      expect(r.status).not.toBe(0);
+      expect(shaFile(victim)).toBe(before);
+      expect(JSON.parse(readFileSync(victim, "utf8")).pinned).toBe(preSha);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("B1 inventory authentication: a tampered store sha refuses before any write", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-b1-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      const storeFile = join(dir, "inventory.json");
+      writeFileSync(storeFile, JSON.stringify({ consumers: [] }));
+      const compactFile = join(dir, "compact.json");
+      // X1/X2: the store override travels only under the fixture flag.
+      const env = { ...process.env, FINALIZE_CONSUMERS_COMPACT: compactFile, FINALIZE_STORE_ROOT: dir };
+      writeFileSync(compactFile, JSON.stringify({ full: { store: "inventory.json", sha256: "0".repeat(64) } }));
+      const bad = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--test-registry", reg], env);
+      expect(bad.status).not.toBe(0);
+      expect(bad.stderr).toMatch(/sha|mismatch|authenticated/i);
+      writeFileSync(compactFile, JSON.stringify({ full: { store: "inventory.json", sha256: shaFile(storeFile) } }));
+      const good = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--test-registry", reg], env);
+      expect(good.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("B2 grouped fields: a row with one live field and one antecedent field is skipped, not refused", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-b2-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      const mixedFile = join(dir, "consumer-mixed.json");
+      writeFileSync(mixedFile, `${JSON.stringify({ pinned: shaFile(pre), other: "0".repeat(64) })}\n`);
+      const fixture = writeConsumers(dir, [
+        { file: mixedFile, field: `${mixedFile} (pinned, other)`, proposed_pin: "keep-sha", writer: "hand" },
+      ]);
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).toBe(0);
+      const plan = JSON.parse(r.stdout) as { live: unknown[]; skipped: { file: string; reason: string }[] };
+      expect(plan.live).toEqual([]);
+      expect(plan.skipped.length).toBe(1);
+      expect(plan.skipped[0]?.reason).toContain("other");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("B3 body selection: a shipped basename with a non-matching sidecar sha refuses", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-b3-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      // Same bytes as the replay post, but under a shipped body name; the sidecar pins another sha.
+      const impostor = join(dir, `${FAMILY}.glb`);
+      writeFileSync(impostor, readFileSync(post));
+      const doc = JSON.parse(readFileSync(sidecar, "utf8")) as { byteLineage: { outputSha256: string } };
+      doc.byteLineage.outputSha256 = "f".repeat(64);
+      const badSidecar = join(dir, "bad.provenance.json");
+      writeFileSync(badSidecar, `${JSON.stringify(doc, null, 1)}\n`);
+      const ante = join(dir, "ante.json");
+      writeFileSync(ante, `${JSON.stringify({ pinned: "0".repeat(64) })}\n`);
+      const fixture = writeConsumers(dir, [{ file: ante, field: "pinned", proposed_pin: "keep-sha", writer: "hand" }]);
+      const r = runFinalize(["--pre", pre, "--post", impostor, "--sidecar", badSidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/body|outputSha256|match/i);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("B4 digest gate: a null-digest CLI response refuses at (b)", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-b4-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const stub = join(dir, "stub-registry.ts");
+      writeFileSync(
+        stub,
+        [
+          'const input = JSON.parse(process.argv[2] as string) as { digest?: unknown };',
+          'if ("digest" in input) { console.log(JSON.stringify({ digests: [null, null] })); }',
+          'else { console.log(JSON.stringify({ tool: "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py", stages: 1, preserves: ["geometry"] })); }',
+          "",
+        ].join("\n"),
+      );
+      const env = { ...process.env, FINALIZE_REGISTRY_TS: stub };
+      const fixture = join(dir, "consumers.json");
+      writeFileSync(fixture, JSON.stringify({ consumers: [] }));
+      // X1: the registry override travels ONLY as --test-registry; the env key is dead.
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", stub], env);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/geometry|digest/i);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("F2 counterweight: a 1-ULP vertex edit refuses at (b) and writes nothing", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-f2-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const raw = Buffer.from(readFileSync(post));
+      const jsonLen = raw.readUInt32LE(12);
+      const doc = JSON.parse(raw.subarray(20, 20 + jsonLen).toString("utf8")) as {
+        accessors: { bufferView?: number; byteOffset?: number }[];
+        bufferViews: { byteOffset?: number }[];
+      };
+      const acc = doc.accessors[1178];
+      if (!acc) throw new Error("accessor 1178 missing");
+      const bv = doc.bufferViews[acc.bufferView ?? -1];
+      if (!bv) throw new Error("bufferView for accessor 1178 missing");
+      const off = 20 + jsonLen + 8 + (bv.byteOffset ?? 0) + (acc.byteOffset ?? 0);
+      expect(raw.readUInt32LE(off)).toBe(0xbde76584);
+      process.stdout.write(`F2 1-ULP word before=0x${raw.readUInt32LE(off).toString(16)}\n`);
+      raw.writeUInt32LE(0xbde76583, off);
+      process.stdout.write(`F2 1-ULP word after=0x${raw.readUInt32LE(off).toString(16)}\n`);
+      const edited = join(dir, "edited.glb");
+      writeFileSync(edited, raw);
+      const editedSha = shaFile(edited);
+      const reg = stageRegistry(dir);
+      const fixture = join(dir, "consumers.json");
+      writeFileSync(fixture, JSON.stringify({ consumers: [] }));
+      const fixtureBefore = shaFile(fixture);
+      const sidecarBefore = shaFile(sidecar);
+      // The altered bytes are what finalize must reject: pass the EDITED post.
+      const r = runFinalize(["--pre", pre, "--post", edited, "--sidecar", sidecar, "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/geometry|digest/i);
+      expect(shaFile(edited)).toBe(editedSha);
+      expect(shaFile(sidecar)).toBe(sidecarBefore);
+      expect(shaFile(fixture)).toBe(fixtureBefore);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("F3 writerless: a planted LIVE writerless row refuses at (e) and writes nothing", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-f3-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const reg = stageRegistry(dir);
+      const preSha = shaFile(pre);
+      // MED: strip the field the record writer actually stamps (byteLineage.stageRecord.wiredMaterials),
+      // so any pre-refusal lineage write changes these bytes.
+      const doc = JSON.parse(readFileSync(sidecar, "utf8")) as { byteLineage: { stageRecord: Record<string, unknown> } };
+      delete doc.byteLineage.stageRecord.wiredMaterials;
+      const strippedSidecar = join(dir, "bare.provenance.json");
+      writeFileSync(strippedSidecar, `${JSON.stringify(doc, null, 1)}\n`);
+      const victim = join(dir, "consumer.json");
+      writeFileSync(victim, `${JSON.stringify({ pinned: preSha })}\n`);
+      const fixture = join(dir, "consumers.json");
+      writeFileSync(
+        fixture,
+        JSON.stringify({
+          consumers: [{ file: victim, field: "pinned", proposed_pin: "keep-sha", writer: "hand" }],
+        }),
+      );
+      const before = new Map<string, string>();
+      for (const f of [victim, fixture, strippedSidecar, pre, post, reg]) before.set(f, shaFile(f));
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", strippedSidecar, "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toMatch(/writer/i);
+      expect(r.stderr).toContain("consumer.json");
+      // X5: the refusal names the row's writer value verbatim, including "hand".
+      expect(r.stderr).toContain("hand");
+      for (const f of [victim, fixture, strippedSidecar, pre, post, reg]) {
+        expect(shaFile(f), `${f} unchanged after refusal`).toBe(before.get(f));
+      }
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("F4 unregistered tool: a sidecar naming an unregistered tools/ path refuses at (a)", { timeout: 180_000 }, () => {
+    const root = process.cwd();
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-f4-"));
+    try {
+      const { pre, post, sidecar } = replayStage24(root, dir);
+      const bogus = "tools/openclinxr/asset-pipeline/makeclothes/totally_bogus_stage.py";
+      const badSidecar = join(dir, "bad.provenance.json");
+      const doc = JSON.parse(readFileSync(sidecar, "utf8")) as { byteLineage: { derivationArgv: string[] } };
+      doc.byteLineage.derivationArgv = ["mise", "exec", "--", "python3", bogus, "--glb", pre, "--output", post];
+      writeFileSync(badSidecar, `${JSON.stringify(doc, null, 1)}\n`);
+      const badBefore = shaFile(badSidecar);
+      const reg = stageRegistry(dir);
+      const fixture = join(dir, "consumers.json");
+      writeFileSync(fixture, JSON.stringify({ consumers: [] }));
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", badSidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toContain(bogus);
+      expect(shaFile(badSidecar)).toBe(badBefore);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("X2 fixed inventory: a FINALIZE_CONSUMERS_COMPACT override without the flag is ignored for the real inventory", { timeout: 180_000 }, () => {
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-x2-"));
+    try {
+      const { pre, post, sha } = scratchPair(dir, "x2");
+      const sidecar = craftSidecar(dir, "sc.provenance.json", pre, post, sha);
+      // Env names an EMPTY store; without the flag production must ignore it.
+      const storeFile = join(dir, "inventory.json");
+      writeFileSync(storeFile, JSON.stringify({ consumers: [] }));
+      const compactFile = join(dir, "compact.json");
+      writeFileSync(compactFile, JSON.stringify({ full: { store: "inventory.json", sha256: shaFile(storeFile) } }));
+      const env = { ...process.env, VITEST_POOL_ID: "1", FINALIZE_CONSUMERS_COMPACT: compactFile, FINALIZE_STORE_ROOT: dir };
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run"], env);
+      expect(r.status).toBe(0);
+      const plan = JSON.parse(r.stdout) as { live: unknown[]; skipped: { file: string }[] };
+      expect(plan.live).toEqual([]);
+      expect(plan.skipped.length).toBeGreaterThan(0);
+      expect(plan.skipped.some((s) => s.file.endsWith("case-frozen-scene-plans.ts"))).toBe(true);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("X3 exact frozen identity: an unrelated path ending in freeze-case-scene-plan.ts is NOT frozen", { timeout: 180_000 }, () => {
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-x3-"));
+    try {
+      const { pre, post, sha } = scratchPair(dir, "x3");
+      const sidecar = craftSidecar(dir, "sc.provenance.json", pre, post, sha);
+      const reg = stageRegistry(dir);
+      const liveFile = join(dir, "consumer-live.json");
+      writeFileSync(liveFile, `${JSON.stringify({ pinned: shaFile(pre) })}\n`);
+      const sneaky = "pnpm exec tsx /other/freeze-case-scene-plan.ts";
+      const fixture = writeConsumers(dir, [{ file: liveFile, field: "pinned", proposed_pin: "keep-sha", writer: sneaky }]);
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).not.toBe(0);
+      expect(r.stderr).toContain("re-run that stage");
+      expect(r.stderr).toContain("freeze-case-scene-plan.ts");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("X4 sha-identity body: a scratch post sharing a shipped sha measures the shipped body, never skips", { timeout: 180_000 }, () => {
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-x4-"));
+    try {
+      const { pre, post, sha } = scratchPair(dir, "x4");
+      const sidecar = craftSidecar(dir, "sc.provenance.json", pre, post, sha);
+      const reg = stageRegistry(dir);
+      const ante = join(dir, "ante.json");
+      writeFileSync(ante, `${JSON.stringify({ pinned: "0".repeat(64) })}\n`);
+      const fixture = writeConsumers(dir, [{ file: ante, field: "pinned", proposed_pin: "keep-sha", writer: "hand" }]);
+      const r = runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg]);
+      expect(r.status).toBe(0);
+      const plan = JSON.parse(r.stdout) as { measure: { argv?: string[]; skipped?: string } };
+      expect(plan.measure.argv?.[plan.measure.argv.length - 1]).toBe(`${FAMILY}.glb`);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("X7 frozen credit: the skip names the plan entry (case id + field); moving the sha re-credits it", { timeout: 180_000 }, () => {
+    const dir = mkdtempSync(join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-x7-"));
+    try {
+      const { pre, post, sha } = scratchPair(dir, "x7");
+      const sidecar = craftSidecar(dir, "sc.provenance.json", pre, post, sha);
+      const reg = stageRegistry(dir);
+      const planCopy = stagePlanCopy(dir, sha);
+      const fixture = writeConsumers(dir, [{ file: planCopy, field: "plan-copy.ts (assetSha256)", proposed_pin: "keep-sha", writer: FREEZE_WRITER }]);
+      const args = ["--pre", pre, "--post", post, "--sidecar", sidecar, "--dry-run", "--consumers", fixture, "--test-registry", reg];
+      const first = runFinalize(args);
+      expect(first.status).toBe(0);
+      const f1 = (JSON.parse(first.stdout) as { skipped: { pinned: string; caseId: string; reason: string }[] }).skipped;
+      expect(f1.length).toBe(1);
+      expect(f1[0]?.reason).toBe("frozen-plan");
+      expect(String(f1[0]?.pinned).slice(0, 8)).toBe(sha.slice(0, 8));
+      expect(f1[0]?.caseId).toBe("scene_closure_supine_bedside_v1");
+      // Move the sha to the other entry: the credit must follow the entry, not the file.
+      writePlanCopy(planCopy, sha, "b".repeat(64));
+      const second = runFinalize(args);
+      expect(second.status).toBe(0);
+      const f2 = (JSON.parse(second.stdout) as { skipped: { pinned: string; caseId: string; reason: string }[] }).skipped;
+      expect(f2.length).toBe(1);
+      expect(f2[0]?.caseId).toBe("case_alpha_v1");
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+
+  it("X8 own-property lookup: pinWriter constructor refuses with exit 2, not a TypeError crash", { timeout: 180_000 }, () => {
+    const r = spawnSync("pnpm", ["exec", "tsx", REG_TS, JSON.stringify({ pinWriter: "constructor" })], { encoding: "utf8" });
+    expect(r.status).toBe(2);
+    expect(r.stderr).toMatch(/refusing|non-allowlisted/);
+  });
+
 });

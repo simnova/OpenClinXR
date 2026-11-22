@@ -209,6 +209,44 @@ export function postExportLevelPreserves(argv: unknown, domain: string): boolean
   return postExportLevelStages(argv)?.every((stage) => stage.preserves.includes(domain)) ?? false;
 }
 
+/** Production pin-writer allowlist (R1: EMPTY). finalize fails closed on every
+ * LIVE row; re-pins happen only through the test-only self-writer under the
+ * --test-registry gate, never through this table. */
+export interface PostExportPinWriter {
+  readonly argv: readonly string[];
+  readonly glbProducing: boolean;
+}
+
+export const POST_EXPORT_PIN_WRITERS: Readonly<Record<string, PostExportPinWriter | undefined>> = {};
+
+const FROZEN_PIN_WRITER_PATH = "tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts";
+
+/** X3: frozen-plan class rule — frozen only when the writer's INVOKED script
+ * (the token after the interpreter, per commandWords) IS exactly the repo
+ * path above. Path identity, never the basename: an unrelated path that merely
+ * ends in freeze-case-scene-plan.ts does not qualify, nor does the path
+ * appearing anywhere else in the string (e.g. as an argument to a
+ * lash repacker). */
+export function isFrozenPinWriter(writer: unknown): boolean {
+  if (typeof writer !== "string") return false;
+  const words = commandWords(writer.split(/\s+/).filter((word) => word.length > 0));
+  if (!words.length) return false;
+  const [head, ...args] = words;
+  const invoked =
+    head !== undefined && INTERPRETERS.has(head)
+      ? args.find((word) => !word.startsWith("-"))
+      : head;
+  return invoked === FROZEN_PIN_WRITER_PATH;
+}
+
+/** Resolve a keep-sha row writer: frozen class, the closed allowlist, else unresolvable. */
+export function resolvePinWriter(writer: unknown): { frozen: true } | PostExportPinWriter | undefined {
+  if (isFrozenPinWriter(writer)) return { frozen: true };
+  if (typeof writer !== "string") return undefined;
+  if (!Object.hasOwn(POST_EXPORT_PIN_WRITERS, writer)) return undefined;
+  return POST_EXPORT_PIN_WRITERS[writer];
+}
+
 /**
  * Shared invoked-tool rule CLI (single copy; R3.2 option A).
  *
@@ -221,7 +259,11 @@ export function postExportLevelPreserves(argv: unknown, domain: string): boolean
  *   when the level is unregistered or the input is malformed.
  * - {"digest": ["<glb-path>", ...]} -> {"digests": ["<hex>", ...]} via
  *   glbGeometryDigest; exits NON-ZERO on any read/digest failure.
- * Both keys, extra keys, non-object input, or wrong element types exit 2.
+ * - {"pinWriter": "<writer>"} -> {"frozen": true} for the frozen-plan writer
+ *   class, {"argv": [...], "glbProducing": false} for a CLOSED-allowlist
+ *   writer, exits NON-ZERO naming the writer otherwise.
+ * Single key only: both keys, extra keys, non-object input, or wrong element
+ * types exit 2.
  *
  * A multi-stage level reports the INTERSECTION of its stages' preserves
  * (never the union): hair maps + teeth swap does not claim geometry.
@@ -229,7 +271,9 @@ export function postExportLevelPreserves(argv: unknown, domain: string): boolean
 function registryCliMain(): void {
   const raw = process.argv[2];
   if (raw === undefined) {
-    process.stderr.write("usage: tsx post-export-stage-registry.ts '<{\"argv\": [...]} | {\"digest\": [...]}>'\n");
+    process.stderr.write(
+      "usage: tsx post-export-stage-registry.ts '<{\"argv\": [...]} | {\"digest\": [...]} | {\"pinWriter\": \"<writer>\"}>'\n",
+    );
     process.exit(2);
   }
   let input: unknown;
@@ -244,11 +288,14 @@ function registryCliMain(): void {
     process.exit(2);
   };
   if (typeof input !== "object" || input === null || Array.isArray(input)) {
-    malformed('want exactly one of {"argv": [...]} or {"digest": [...]}');
+    malformed('want exactly one of {"argv": [...]}, {"digest": [...]}, or {"pinWriter": "<writer>"}');
   }
   const keys = Object.keys(input);
-  if (keys.length !== 1 || (keys[0] !== "argv" && keys[0] !== "digest")) {
-    malformed('want exactly one of {"argv": [...]} or {"digest": [...]}');
+  if (
+    keys.length !== 1 ||
+    (keys[0] !== "argv" && keys[0] !== "digest" && keys[0] !== "pinWriter")
+  ) {
+    malformed('want exactly one of {"argv": [...]}, {"digest": [...]}, or {"pinWriter": "<writer>"}');
   }
   if (keys[0] === "argv") {
     const argv = (input as { argv: unknown }).argv;
@@ -267,6 +314,21 @@ function registryCliMain(): void {
     const [first = [], ...rest] = stages.map((stage) => [...stage.preserves]);
     const preserves = rest.reduce((acc, cur) => acc.filter((domain) => cur.includes(domain)), first).sort();
     process.stdout.write(`${JSON.stringify({ tool: tools.length === 1 ? tools[0] : tools, stages: stages.length, preserves })}\n`);
+    return;
+  }
+  if (keys[0] === "pinWriter") {
+    const writer = (input as { pinWriter: unknown }).pinWriter;
+    if (typeof writer !== "string" || writer.length === 0) malformed("pinWriter must be a non-empty string");
+    const resolved = resolvePinWriter(writer);
+    if (resolved === undefined) {
+      process.stderr.write(`refusing non-allowlisted pin writer: ${writer.slice(0, 300)}\n`);
+      process.exit(2);
+    }
+    if ("frozen" in resolved) {
+      process.stdout.write(`${JSON.stringify({ frozen: true })}\n`);
+      return;
+    }
+    process.stdout.write(`${JSON.stringify({ argv: [...resolved.argv], glbProducing: resolved.glbProducing })}\n`);
     return;
   }
   const digest = (input as { digest: unknown }).digest;
