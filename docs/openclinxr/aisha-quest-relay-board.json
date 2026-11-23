@@ -1,0 +1,63 @@
+{
+  "planPath": "docs/openclinxr/aisha-quest-relay-ladder.json",
+  "planCommit": "658c2245323069b53984304656db6a9ea7cb836d",
+  "boardProjectId": "prj_9b390b99b443a964",
+  "boardProject": "OpenClinXR",
+  "resume": "Read the immutable plan for evidence and gates. Query the listed card IDs for current state and dependencies. Record each run in the experiment ledger. This mapping records card identity only.",
+  "cards": {
+    "first-batch": {
+      "id": "tsk_b0e0b78913a8b6e5",
+      "title": "[Aisha relay R0/R1-A] Validate recorder and run flat Quest control",
+      "depIds": [],
+      "evidence": "tools/openclinxr/evidence/xr-relay-ladder/first-batch/report.json"
+    },
+    "immersive-boundary": {
+      "id": "tsk_c06b624811b03369",
+      "title": "[Aisha relay R1-B/C/D] Isolate the immersive admission stall",
+      "depIds": [
+        "tsk_b0e0b78913a8b6e5"
+      ],
+      "evidence": "tools/openclinxr/evidence/xr-relay-ladder/immersive-boundary/report.json"
+    },
+    "stall-mitigation": {
+      "id": "tsk_fa2bdb6f3c8c52e2",
+      "title": "[Aisha relay R2] Test a targeted live-stall mitigation",
+      "depIds": [
+        "tsk_c06b624811b03369"
+      ],
+      "evidence": "tools/openclinxr/evidence/xr-relay-ladder/stall-mitigation/report.json"
+    },
+    "native-cadence": {
+      "id": "tsk_43f79537cfc8a30a",
+      "title": "[Aisha relay R3] Qualify sustained fresh stereo cadence",
+      "depIds": [
+        "tsk_fa2bdb6f3c8c52e2"
+      ],
+      "evidence": "tools/openclinxr/evidence/xr-relay-ladder/native-cadence/report.json"
+    },
+    "pixels": {
+      "id": "tsk_94539399a5ef952e",
+      "title": "[Aisha relay R4] Separate door and lash shimmer from spatial aliasing",
+      "depIds": [],
+      "evidence": "tools/openclinxr/evidence/xr-relay-ladder/pixels/report.json"
+    },
+    "worn-acceptance": {
+      "id": "tsk_5ef89872b5f0bfc3",
+      "title": "[Aisha relay R5] Verify floor, stereo, tracking and realism while worn",
+      "depIds": [
+        "tsk_fa2bdb6f3c8c52e2",
+        "tsk_43f79537cfc8a30a",
+        "tsk_94539399a5ef952e"
+      ],
+      "evidence": "tools/openclinxr/evidence/xr-relay-ladder/worn-acceptance/report.json"
+    },
+    "conditional-alternatives": {
+      "id": "tsk_403b7b1c05b6fc32",
+      "title": "[Aisha relay R6] Reopen codec or transport only against a measured limit",
+      "depIds": [
+        "tsk_43f79537cfc8a30a"
+      ],
+      "evidence": "tools/openclinxr/evidence/xr-relay-ladder/conditional-alternatives/report.json"
+    }
+  }
+}
