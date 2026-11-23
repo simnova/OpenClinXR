@@ -17,9 +17,10 @@
  * actor and is expected green.
  */
 import { createHash } from "node:crypto";
-import { readdirSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { glbGeometryDigest, repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 import { measureTeethSeat } from "./teeth-seat-measure.js";
 
@@ -37,7 +38,7 @@ const SCHEMA = "openclinxr.teeth-seat-measure.v1";
 
 type MeasureRow = {
   actor: string;
-  glbSha256: string;
+  geometrySha256: string;
   m1SignedSide: number;
   m1f: number;
   teethVertexCount: number;
@@ -68,10 +69,6 @@ type NegativeControl = {
   verdict: "inside" | "outside";
 } | null;
 
-function sha256File(path: string): string {
-  return createHash("sha256").update(readFileSync(path)).digest("hex");
-}
-
 /** Known-good set: the 10 swapped actors (all shipped MPFB actors minus the pending physician swap and the bake-native peds-parent). */
 function kgActors(): string[] {
   const actors = readdirSync(DIR)
@@ -86,23 +83,26 @@ function round6mm(valueMm: number): number {
   return Math.round(valueMm * 1e6) / 1e6;
 }
 
+/** One actor file measured into its seat row (T1 and A1 P2 share this path). */
+function measureRowFor(actorPath: string, actor: string): MeasureRow {
+  const measured = measureTeethSeat(actorPath);
+  return {
+    actor,
+    geometrySha256: glbGeometryDigest(new Uint8Array(readFileSync(actorPath))),
+    m1SignedSide: measured.m1SignedSide,
+    m1f: measured.m1f,
+    teethVertexCount: measured.teethVertexCount,
+    orphanCount: measured.orphanCount,
+    skinTriangleCount: measured.skinTriangleCount,
+    m2ClearanceMm: round6mm(measured.m2ClearanceMm),
+    m2sMm: round6mm(measured.m2sMm),
+    m2SkinVertexId: measured.m2SkinVertexId,
+    m2SkinVertex: measured.m2SkinVertex,
+  } satisfies MeasureRow;
+}
+
 function measureRows(): { rows: MeasureRow[]; bounds: MeasureBounds } {
-  const rows = kgActors().map((actor) => {
-    const measured = measureTeethSeat(join(DIR, actor));
-    return {
-      actor,
-      glbSha256: sha256File(join(DIR, actor)),
-      m1SignedSide: measured.m1SignedSide,
-      m1f: measured.m1f,
-      teethVertexCount: measured.teethVertexCount,
-      orphanCount: measured.orphanCount,
-      skinTriangleCount: measured.skinTriangleCount,
-      m2ClearanceMm: round6mm(measured.m2ClearanceMm),
-      m2sMm: round6mm(measured.m2sMm),
-      m2SkinVertexId: measured.m2SkinVertexId,
-      m2SkinVertex: measured.m2SkinVertex,
-    } satisfies MeasureRow;
-  });
+  const rows = kgActors().map((actor) => measureRowFor(join(DIR, actor), actor));
   // m1fMax = max m1f over the 10 KG (expected 78: gown-inspect, ob-aisha, viseme-inspect).
   const m1fMax = Math.max(...rows.map((row) => row.m1f));
   const m1fMaxActors = rows.filter((row) => row.m1f === m1fMax).map((row) => row.actor);
@@ -190,19 +190,30 @@ function physicianRetreatDelta(): number {
   return delta;
 }
 
+/** T1 identity gate, shared with the A1 P2 counterweight: a row whose pin
+ * differs from the committed pin refuses (re-measure), whatever produced it. */
+function seatGateRefuses(row: MeasureRow, expected: MeasureRow): boolean {
+  return expected.geometrySha256 !== row.geometrySha256;
+}
+
+/** T1 refusal path (T1 and A1 P2 share it: disabling this branch breaks P2). */
+function refuseStaleSeatRows(rows: MeasureRow[], committedRows: MeasureRow[]): void {
+  for (const row of rows) {
+    const expected = committedRows.find((candidate) => candidate.actor === row.actor)!;
+    expect(expected, `seat json has no row for ${row.actor}`).toBeDefined();
+    if (seatGateRefuses(row, expected)) {
+      throw new Error(`re-measure: ${row.actor} GLB geometry changed`);
+    }
+  }
+}
+
 describe("the physician teeth seat in its mouth", () => {
   it("T1: the 10 known-good seat rows and bounds equal the committed measure json", () => {
     if (process.env["OPENCLINXR_WRITE_SEAT_MEASURE"] === "1") writeMeasureJson();
     const { rows, bounds } = measureRows();
     const committed = readMeasureJson();
     expect(committed.rows.map((row) => row.actor)).toEqual(rows.map((row) => row.actor));
-    for (const row of rows) {
-      const expected = committed.rows.find((candidate) => candidate.actor === row.actor)!;
-      expect(expected, `seat json has no row for ${row.actor}`).toBeDefined();
-      if (expected.glbSha256 !== row.glbSha256) {
-        throw new Error(`re-measure: ${row.actor} GLB changed`);
-      }
-    }
+    refuseStaleSeatRows(rows, committed.rows);
     expect({ rows, bounds }).toEqual({ rows: committed.rows, bounds: committed.bounds });
   }, 600_000);
 
@@ -303,4 +314,114 @@ describe("the physician teeth seat in its mouth", () => {
       throw new Error(`nurse +5mm probe m2s=${shifted.m2sMm}mm is not below unshifted m2s=${base.m2sMm}mm`);
     }
   }, 300_000);
+});
+
+describe("A1 seat-geometry pin (C3a: a material-only stage re-pins no geometry file)", () => {
+  const NURSE_GLB = join(DIR, NURSE);
+
+  function committedNursePin(): string {
+    const doc = JSON.parse(readFileSync(MEASURE_JSON, "utf8")) as { rows: { actor: string; geometrySha256: string }[] };
+    const row = doc.rows.find((r) => r.actor === NURSE)!;
+    expect(row, "seat json has no nurse row").toBeDefined();
+    return row.geometrySha256;
+  }
+
+  /** Material-only variant: one parsed baseColorFactor component +0.05; JSON chunk lengths repaired. */
+  function withMaterialOnlyTweak(shipped: Uint8Array): { bytes: Uint8Array; before: number; after: number } {
+    const buf = Buffer.from(shipped);
+    const jsonLen = buf.readUInt32LE(12);
+    const text = buf.subarray(20, 20 + jsonLen).toString("utf8");
+    const arrM = /"baseColorFactor":\[([^\]]*)\]/.exec(text);
+    if (!arrM) throw new Error("A1 P1 setup: baseColorFactor array missing from JSON text");
+    const tok = /-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(arrM[1]!)!;
+    const before = Number(tok[0]);
+    const after = Math.min(1, before + 0.05);
+    const absIdx = arrM.index + arrM[0].indexOf(arrM[1]!) + tok.index;
+    let next = text.slice(0, absIdx) + String(after) + text.slice(absIdx + tok[0].length);
+    next += " ".repeat((4 - (Buffer.byteLength(next, "utf8") % 4)) % 4);
+    const nextBytes = Buffer.from(next, "utf8");
+    const binStart = 20 + jsonLen;
+    const out = Buffer.alloc(20 + nextBytes.length + (buf.length - binStart));
+    buf.subarray(0, 8).copy(out, 0);
+    out.writeUInt32LE(nextBytes.length, 12);
+    buf.subarray(16, 20).copy(out, 16);
+    nextBytes.copy(out, 20);
+    buf.subarray(binStart).copy(out, 20 + nextBytes.length);
+    out.writeUInt32LE(out.length, 8);
+    return { bytes: new Uint8Array(out.buffer, out.byteOffset, out.byteLength), before, after };
+  }
+
+  /** 1-ULP edit of the first float of the first float-POSITION accessor (in-memory copy). */
+  function withOneUlpPositionEdit(shipped: Uint8Array): { bytes: Uint8Array; beforeHex: string; afterHex: string } {
+    const buf = Buffer.from(shipped);
+    const jsonLen = buf.readUInt32LE(12);
+    const doc = JSON.parse(buf.subarray(20, 20 + jsonLen).toString("utf8")) as {
+      meshes?: { primitives?: { attributes?: Record<string, number> }[] }[];
+      accessors?: { bufferView?: number; byteOffset?: number; componentType?: number }[];
+      bufferViews?: { byteOffset?: number }[];
+    };
+    let at = -1;
+    for (const mesh of doc.meshes ?? []) {
+      for (const prim of mesh.primitives ?? []) {
+        const ai = prim.attributes?.["POSITION"];
+        const acc = ai === undefined ? undefined : doc.accessors?.[ai];
+        const bv = acc?.bufferView === undefined ? undefined : doc.bufferViews?.[acc.bufferView];
+        if (acc !== undefined && bv !== undefined && acc.componentType === 5126) {
+          at = 20 + jsonLen + 8 + (bv.byteOffset ?? 0) + (acc.byteOffset ?? 0);
+          break;
+        }
+      }
+      if (at >= 0) break;
+    }
+    if (at < 0) throw new Error("A1 P2 setup: no float POSITION accessor");
+    const beforeHex = buf.subarray(at, at + 4).toString("hex");
+    buf.writeUInt32LE(buf.readUInt32LE(at) + 1, at);
+    const afterHex = buf.subarray(at, at + 4).toString("hex");
+    if (afterHex === beforeHex) throw new Error("A1 P2 setup: ULP edit did not change bytes");
+    return { bytes: new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength), beforeHex, afterHex };
+  }
+
+  it("A1 P1 material-blind: a material-only copy keeps the nurse seat-geometry pin", () => {
+    const shipped = new Uint8Array(readFileSync(NURSE_GLB));
+    const liveSha = createHash("sha256").update(shipped).digest("hex");
+    const tweak = withMaterialOnlyTweak(shipped);
+    const copySha = createHash("sha256").update(tweak.bytes).digest("hex");
+    console.log("A1 P1", { before: tweak.before, after: tweak.after, liveSha, copySha });
+    expect(tweak.after, "material tweak must change the parsed component").not.toBe(tweak.before);
+    expect(copySha, "material-only copy must differ in whole bytes from the live GLB").not.toBe(liveSha);
+    // The parsed material JSON of the mutant carries the new component value (not just the regex token).
+    const mutantBuf = Buffer.from(tweak.bytes);
+    const mutatedDoc = JSON.parse(mutantBuf.subarray(20, 20 + mutantBuf.readUInt32LE(12)).toString("utf8")) as {
+      materials?: { pbrMetallicRoughness?: { baseColorFactor?: number[] } }[];
+    };
+    const parsedFactors = (mutatedDoc.materials ?? []).flatMap((m) => m.pbrMetallicRoughness?.baseColorFactor ?? []);
+    expect(parsedFactors, "mutated GLB parses a material factor carrying the tweak").toContain(tweak.after);
+    expect(glbGeometryDigest(tweak.bytes), "material-only copy must keep the live geometry digest").toBe(
+      glbGeometryDigest(shipped),
+    );
+    expect(glbGeometryDigest(tweak.bytes), "tweaked copy must match the committed pin").toBe(committedNursePin());
+  }, 30_000);
+
+  it("A1 P2 counterweight: a 1-ULP POSITION edit refuses as stale", () => {
+    const shipped = new Uint8Array(readFileSync(NURSE_GLB));
+    const edit = withOneUlpPositionEdit(shipped);
+    console.log("A1 P2", { beforeHex: edit.beforeHex, afterHex: edit.afterHex });
+    expect(edit.afterHex, "ULP edit must change accessor bytes").not.toBe(edit.beforeHex);
+    // The mutant GLB goes through T1's own row-reading + refusal path: a
+    // loosened T1 gate breaks this refusal instead of passing silently.
+    const dir = mkdtempSync(join(tmpdir(), "h11-a1-p2-"));
+    try {
+      const mutant = join(dir, NURSE);
+      writeFileSync(mutant, edit.bytes);
+      const committed = JSON.parse(readFileSync(MEASURE_JSON, "utf8")) as { rows: MeasureRow[] };
+      expect(() => refuseStaleSeatRows([measureRowFor(mutant, NURSE)], committed.rows)).toThrow(/re-measure/);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  }, 300_000);
+
+  it("A1 P3 known-good: the shipped nurse passes the new pin", () => {
+    const shipped = new Uint8Array(readFileSync(NURSE_GLB));
+    expect(glbGeometryDigest(shipped)).toBe(committedNursePin());
+  }, 30_000);
 });

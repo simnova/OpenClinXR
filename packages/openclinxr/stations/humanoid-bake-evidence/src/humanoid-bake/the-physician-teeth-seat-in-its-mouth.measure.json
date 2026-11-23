@@ -1,12 +1,12 @@
 {
   "schema": "openclinxr.teeth-seat-measure.v1",
   "card": "tsk_2a74bbdb3f03cb3e",
-  "measuredAt": "2026-11-20T12:15:14.482Z",
+  "measuredAt": "2026-11-23T01:14:59.923Z",
   "tool": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/teeth-seat-measure.ts",
   "rows": [
     {
       "actor": "mpfb-clinical-nurse-adult.glb",
-      "glbSha256": "ce10321833f92ccc5930fafbadfc8544c9b5ec715a33e71c96ebf5b4e5d6056e",
+      "geometrySha256": "1b1d0279aba867c8817a15188ae021634e6e0630adc8f2c11165e6bbcb33ae76",
       "m1SignedSide": 3114,
       "m1f": 30,
       "teethVertexCount": 3114,
@@ -23,7 +23,7 @@
     },
     {
       "actor": "mpfb-family-partner-adult.glb",
-      "glbSha256": "9f7e3c13abe278e35f9b7f53a1dc9069a36db8a3cca1a5d34ad4048e3de52be0",
+      "geometrySha256": "a142f610f4a1395db3ca06c3bd06475f7c24dd53a60479d7d896f76e9f3d9234",
       "m1SignedSide": 3110,
       "m1f": 12,
       "teethVertexCount": 3110,
@@ -40,7 +40,7 @@
     },
     {
       "actor": "mpfb-gown-adult-patient.glb",
-      "glbSha256": "107d7ec951744032298b5e4fafd1d14b33f4860538fe1480968db02678014864",
+      "geometrySha256": "5c828999ead9dadcfd0127108f522a9bb5fd3d730626ff1125e200c59fa38b86",
       "m1SignedSide": 3112,
       "m1f": 6,
       "teethVertexCount": 3113,
@@ -57,7 +57,7 @@
     },
     {
       "actor": "mpfb-gown-ed-robert-hayes.glb",
-      "glbSha256": "d0c15d7166cda923d209f74bf2f488e6b5907ee6c6f70d3411f1742f30b8861b",
+      "geometrySha256": "8003ecdba248ba0cc6afac9ecd76aa588fbc66ecba1902937c914f5f142e9a96",
       "m1SignedSide": 3112,
       "m1f": 7,
       "teethVertexCount": 3113,
@@ -74,7 +74,7 @@
     },
     {
       "actor": "mpfb-gown-inspect.glb",
-      "glbSha256": "ba8f7ad538510baa9fdd328f1afbbda9eb243ba224c72fca324dd7c771451d91",
+      "geometrySha256": "6a0fb67c8d58f775e11c9bc9a9c5fa3301bbda295e7961971f9813f220c4756f",
       "m1SignedSide": 3109,
       "m1f": 78,
       "teethVertexCount": 3115,
@@ -91,7 +91,7 @@
     },
     {
       "actor": "mpfb-ob-patient-aisha.glb",
-      "glbSha256": "a9ffe0621f54557add1e612d4a6d8fd23879c96cd76aac3071f6a97d3f03dad4",
+      "geometrySha256": "3a39ea36e9f6005d637c6560979b3f9349eeaa7867c9724a42ffb643238f6fa1",
       "m1SignedSide": 3109,
       "m1f": 78,
       "teethVertexCount": 3115,
@@ -108,7 +108,7 @@
     },
     {
       "actor": "mpfb-peds-nurse-kevin.glb",
-      "glbSha256": "ad61615d110853cf9b959ca6801afc8d079fce77203dc091d4fde07460075d7a",
+      "geometrySha256": "83c9d99113b2bc8c34ab769bef70ed0d62d932270656c1e774a39c095472b424",
       "m1SignedSide": 3110,
       "m1f": 17,
       "teethVertexCount": 3114,
@@ -125,7 +125,7 @@
     },
     {
       "actor": "mpfb-peds-patient-child.glb",
-      "glbSha256": "82bd15663737ea871e62df917db5c36e16ff447bd88ad3b973e0b15d548e12ce",
+      "geometrySha256": "c970aea5bea156a22c0f1d07a3621c7a523b4b3a455191631797033589bbbc19",
       "m1SignedSide": 3109,
       "m1f": 18,
       "teethVertexCount": 3109,
@@ -142,7 +142,7 @@
     },
     {
       "actor": "mpfb-street-adult-male.glb",
-      "glbSha256": "5acd5f16fc90f0116d8878587511a45e858e35ff549be60fe8d6eb3983b6abb8",
+      "geometrySha256": "67149e2112ace40e2cdbbd90d565f30ecf9f87acf6241e3b3a98acdba9adc367",
       "m1SignedSide": 3107,
       "m1f": 6,
       "teethVertexCount": 3109,
@@ -159,7 +159,7 @@
     },
     {
       "actor": "mpfb-viseme-inspect.glb",
-      "glbSha256": "b517b416dca5f0921d4be8224560ed07bdab9e7cc2e4009d9b0b654e3007ece0",
+      "geometrySha256": "53270101a80976397921b22699644745b646c2871feaa6574dfab47f75f775b8",
       "m1SignedSide": 3109,
       "m1f": 78,
       "teethVertexCount": 3115,

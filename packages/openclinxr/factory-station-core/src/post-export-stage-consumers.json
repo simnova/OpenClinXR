@@ -1,8 +1,8 @@
 {
   "schema": "openclinxr.post-export-stage-consumers.compact.v1",
   "full": {
-    "store": "post-export-stage-finalize/post-export-stage-consumers.full-faaf7e82.json",
-    "sha256": "faaf7e8283d37dbb6734e3d7d1edb3dc5024be6fab6d8e123e244e8aaf5f9e9b"
+    "store": "post-export-stage-finalize/post-export-stage-consumers.full-9b715204.json",
+    "sha256": "9b715204e2d4bfcb6ab457c274eef70a9aad5d35c4118eafe89bf85e3f0e1758"
   },
   "baseSha": "c613e86e88d7fba085b25f7fc1d2d0fde22b0c8f",
   "rows": [
@@ -688,14 +688,16 @@
     {
       "file": "packages/openclinxr/factory-stations/src/motion_retarget/physician-walk-contact-phases.json",
       "field": "sha256",
-      "proposed_pin": "accessor-digest",
-      "reader": "no"
+      "proposed_pin": "keep-sha",
+      "reader": "no",
+      "reason": "reader pins the physician walk clip / whole GLB bytes (createHash over live GLB); not geometry-only"
     },
     {
       "file": "packages/openclinxr/factory-stations/src/motion_retarget/walk-contact-phases.test.ts",
       "field": "PHYSICIAN_GLB",
-      "proposed_pin": "accessor-digest",
-      "reader": "no"
+      "proposed_pin": "keep-sha",
+      "reader": "no",
+      "reason": "reader pins the physician walk clip / whole GLB bytes (createHash over live GLB); not geometry-only"
     },
     {
       "file": "packages/openclinxr/stations/face-realism-evidence/src/derive-refuses-a-non-body-skin-and-aisha-replays-for-real.test.ts",
@@ -786,13 +788,15 @@
       "file": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-physician-teeth-seat-in-its-mouth.measure.json",
       "field": "glbSha256",
       "proposed_pin": "accessor-digest",
-      "reader": "no"
+      "reader": "no",
+      "reason": "seat identity is geometry: glbGeometryDigest compared in T1; a material-only post-export stage keeps the digest while whole bytes churn"
     },
     {
       "file": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-physician-teeth-seat-in-its-mouth.test.ts",
       "field": "glbSha256",
       "proposed_pin": "accessor-digest",
-      "reader": "no"
+      "reader": "no",
+      "reason": "seat identity is geometry: glbGeometryDigest compared in T1; a material-only post-export stage keeps the digest while whole bytes churn"
     },
     {
       "file": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-shipped-teeth-carry-their-texture.test.ts",
@@ -828,7 +832,8 @@
       "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-nurse-sternal-t-is-classified-from-the-glb.test.ts",
       "field": "(file)",
       "proposed_pin": "accessor-digest",
-      "reader": "no"
+      "reader": "no",
+      "reason": "sternal-T identity is geometry: glbGeometryDigest compared to the writer-pinned subjects geometrySha256; hide-mask/grey-factor/PNG-census asserts unchanged"
     },
     {
       "file": "packages/openclinxr/stations/humanoid-vetting-evidence/src/humanoid-vetting/the-peds-nurse-kevin-collar-and-sleeves-show-no-skin-notch.pre-fix.json",
@@ -1319,8 +1324,9 @@
     {
       "file": "tools/openclinxr/evidence/gown-shard-mechanism-measure.ts",
       "field": "GLB_SHA256",
-      "proposed_pin": "accessor-digest",
-      "reader": "no"
+      "proposed_pin": "keep-sha",
+      "reader": "no",
+      "reason": "reader compares whole GLB bytes (separate bytes binding); not geometry-only"
     },
     {
       "file": "tools/openclinxr/evidence/gown-shell-clearance-measurement.json",
@@ -1368,7 +1374,8 @@
       "file": "tools/openclinxr/evidence/humanoid-vetting/mpfb-nurse-sternal-t-classify.json",
       "field": "sha256",
       "proposed_pin": "accessor-digest",
-      "reader": "no"
+      "reader": "no",
+      "reason": "reader (sternal-T test) compares glbGeometryDigest to subjects geometrySha256 written by pin-sternal-t-geometry.ts; old sha256/bytes kept as history"
     },
     {
       "file": "tools/openclinxr/evidence/isolated-foot-grounder/capture.ts",

@@ -110,7 +110,8 @@
      617
     ],
     "tris": 8322
-   }
+   },
+   "geometrySha256": "1b1d0279aba867c8817a15188ae021634e6e0630adc8f2c11165e6bbcb33ae76"
   },
   "pedsKevin": {
    "bytes": 20179696,
@@ -131,7 +132,9 @@
      ]
     },
     "tris": 5771
-   }
+   },
+   "geometrySha256": "83c9d99113b2bc8c34ab769bef70ed0d62d932270656c1e774a39c095472b424"
   }
- }
+ },
+ "geometryPinWriter": "tools/openclinxr/evidence/humanoid-vetting/pin-sternal-t-geometry.ts"
 }

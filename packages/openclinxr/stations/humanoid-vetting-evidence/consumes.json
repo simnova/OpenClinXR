@@ -26,6 +26,10 @@
       {
         "name": "repoRoot",
         "kind": "runtime"
+      },
+      {
+        "name": "glbGeometryDigest",
+        "kind": "runtime"
       }
     ]
   },
