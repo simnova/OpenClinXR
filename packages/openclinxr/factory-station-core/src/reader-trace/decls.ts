@@ -16,6 +16,82 @@ export interface FileTables { named: Map<string, ImportTarget>; ns: Map<string, 
 export interface Graph { texts: Map<string, string>; realOf: Map<string, string>; edges: Map<string, Map<string, string>>; tables: Map<string, FileTables> }
 export interface State { checker: ts.TypeChecker; files: Map<string, ts.SourceFile>; realOf: Map<string, string>; edges: Map<string, Map<string, string>>; tables: Map<string, FileTables>; paramTaint: Map<FnLike, Map<string, number>>; retMemo: Map<FnLike, number>; active: Set<ts.Node>; busy: Set<ts.Node> }
 export type CalleeKind = { kind: "fs-read" } | { kind: "sink" } | { kind: "assert-equal" } | { kind: "fn"; node: FnLike } | { kind: "other" };
+export interface AssignSrc { src: ts.Expression; key: string | undefined }
+/** Assignment hits in textual order, one walk per file (WeakMap). Powers
+ *  findAssign (first hit, F7) and assignSources (same-symbol, B1). */
+type Hit = { src: ts.Expression; key: string | undefined; lhs: ts.Identifier };
+const assignCache = new WeakMap<ts.SourceFile, Map<string, Hit[]>>();
+function fileAssigns(sf: ts.SourceFile): Map<string, Hit[]> {
+  const hit = assignCache.get(sf);
+  if (hit !== undefined) return hit;
+  const m = new Map<string, Hit[]>();
+  const push = (name: string, h: Hit): void => {
+    const a = m.get(name);
+    if (a !== undefined) a.push(h);
+    else m.set(name, [h]);
+  };
+  const visit = (node: ts.Node): void => {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+      let left: ts.Expression = node.left;
+      while (ts.isParenthesizedExpression(left)) left = left.expression;
+      const right = ts.isExpression(node.right) ? node.right : undefined;
+      if (right !== undefined) {
+        if (ts.isIdentifier(left)) push(left.text, { src: right, key: undefined, lhs: left });
+        else if (ts.isObjectLiteralExpression(left)) for (const p of left.properties) {
+          if (ts.isPropertyAssignment(p) && ts.isIdentifier(p.initializer)) {
+            const k = ts.isIdentifier(p.name) || ts.isStringLiteralLike(p.name) ? p.name.text : undefined;
+            if (k !== undefined) push(p.initializer.text, { src: right, key: k, lhs: p.initializer });
+          } else if (ts.isShorthandPropertyAssignment(p)) push(p.name.text, { src: right, key: p.name.text, lhs: p.name });
+        }
+      }
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sf);
+  assignCache.set(sf, m);
+  return m;
+}
+/** Reaching assignment for `name` in one file: `name = src` or
+ *  `({ key: name } = src)` (assignment destructuring, F7). */
+export function findAssign(name: string, sf: ts.SourceFile): AssignSrc | undefined {
+  const h = fileAssigns(sf).get(name)?.[0];
+  return h === undefined ? undefined : { src: h.src, key: h.key };
+}
+/** B1: same-symbol assignments preceding the use (shadow-safe; an
+ *  initializer never blocks lookup). */
+export function assignSources(id: ts.Identifier, s: State): AssignSrc[] {
+  const sf = id.getSourceFile();
+  const usePos = id.getStart(sf);
+  let sym: ts.Symbol | undefined;
+  try {
+    sym = s.checker.getSymbolAtLocation(id);
+  } catch {
+    sym = undefined;
+  }
+  const out: AssignSrc[] = [];
+  for (const h of fileAssigns(sf).get(id.text) ?? []) {
+    if (h.src.getStart(sf) >= usePos) continue;
+    let same = sym === undefined;
+    if (!same) {
+      try {
+        same = s.checker.getSymbolAtLocation(h.lhs) === sym;
+      } catch {
+        same = false;
+      }
+    }
+    if (same) out.push({ src: h.src, key: h.key });
+  }
+  return out;
+}
+/** Declaration-destructured target: `const { key: name } = src` or `const [.., name] = src`. */
+export function destructDeclTarget(decl: ts.BindingElement): { src: ts.Expression; key: string | undefined } | undefined {
+  const pat = decl.parent;
+  if (pat === undefined || (!ts.isArrayBindingPattern(pat) && !ts.isObjectBindingPattern(pat))) return undefined;
+  const gp = pat.parent;
+  if (gp === undefined || !ts.isVariableDeclaration(gp) || gp.initializer === undefined || !ts.isExpression(gp.initializer)) return undefined;
+  const key = decl.propertyName !== undefined && ts.isIdentifier(decl.propertyName) ? decl.propertyName.text : ts.isIdentifier(decl.name) ? decl.name.text : undefined;
+  return { src: gp.initializer, key };
+}
 export function isFnNode(t: ts.Node | undefined): t is FnLike {
   return t !== undefined && (ts.isFunctionDeclaration(t) || ts.isFunctionExpression(t) || ts.isArrowFunction(t) || ts.isMethodDeclaration(t));
 }

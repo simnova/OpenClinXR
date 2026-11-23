@@ -1,0 +1,6 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const record = { outputSha256: JSON.parse(readFileSync("proof/receipt.json", "utf8")).outputSha256 };
+const live = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+if (live !== record.outputSha256) throw new Error("moved");

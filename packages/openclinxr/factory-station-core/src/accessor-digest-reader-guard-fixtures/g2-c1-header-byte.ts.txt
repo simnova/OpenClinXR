@@ -1,0 +1,4 @@
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const EXPECT_FIRST = JSON.parse(readFileSync("proof/g2-c1-sidecar.json", "utf8")).firstByte;
+if (readFileSync(GLB)[0] !== EXPECT_FIRST) throw new Error("header moved");

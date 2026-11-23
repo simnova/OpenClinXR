@@ -38,6 +38,20 @@ const CASES: Array<[string, string, string, boolean, string]> = [
   ["r13-container-paths.ts.txt", "r13-container-paths.ts", "glbSha256", true, REASON_PIN],
   ["r14-imported-check.ts.txt", "r14-imported-check.ts", "glbSha256", true, REASON_PIN],
   ["r15-mjs-reader.mjs.txt", "r15-mjs-reader.mjs", "outputSha256", true, REASON_LANGUAGE],
+  ["g2-r1-resolve-tmp-abs.ts.txt", "g2-r1.ts", "glbSha256", true, REASON_PIN],
+  ["g2-r2-unrelated-write.ts.txt", "g2-r2.ts", "glbSha256", true, REASON_PIN],
+  ["g2-r3-gitshow-elsewhere.ts.txt", "g2-r3.ts", "glbSha256", true, REASON_PIN],
+  ["g2-r7-uint8-view.ts.txt", "g2-r7.ts", "glbSha256", true, REASON_PIN],
+  ["g2-c1-header-byte.ts.txt", "g2-c1.ts", "glbSha256", false, "clean"],
+  ["g2-c2-uncalled-update.ts.txt", "g2-c2.ts", "glbSha256", false, "clean"],
+  ["g2-c3-tmp-self-read.ts.txt", "g2-c3.ts", "glbSha256", false, "clean"],
+  ["a1-f6-basename-diff.ts.txt", "a1.ts", "glbSha256", true, REASON_PIN],
+  ["a2-f6-cross-test-write.ts.txt", "a2.ts", "glbSha256", true, REASON_PIN],
+  ["a3-f9-shadowed-call.ts.txt", "a3.ts", "glbSha256", true, REASON_PIN],
+  ["a4-f7-self-assign.ts.txt", "a4.ts", "glbSha256", false, "clean"],
+  ["b1-f7-shadowed-assign.ts.txt", "proof/b1-sidecar.json", "outputSha256", true, REASON_PIN],
+  ["b2-f7-record-literal.ts.txt", "proof/receipt.json", "outputSha256", true, REASON_PIN],
+  ["b3-f9-dead-branch.ts.txt", "b3.ts", "glbSha256", false, "clean"],
   ["c1-log-only.ts.txt", "c1-log-only.ts", "sha256", false, "clean"],
   ["c2-accessor-slices.ts.txt", "c2-accessor-slices.ts", "geometrySha256", false, "clean"],
   ["c3-tmp-copy.ts.txt", "c3-tmp-copy.ts", "glbSha256", false, "clean"],
@@ -113,6 +127,24 @@ describe("post-export-stage accessor-digest reader guard", () => {
     expect(v.parsed).toBe(true);
     expect(v.mislabelled, `F4 :: ${v.detail}`).toBe(true);
     expect(v.reason, `F4 :: ${v.detail}`).toBe(REASON_PIN);
+  });
+  it("G2-R4 flags an assignment-destructured sidecar pin", () => {
+    const v = assessReader("proof/g2-r4-sidecar.json", "outputSha256", join(FIX, "g2-r4-assign-destructure.ts.txt"), fs);
+    expect(v.parsed).toBe(true);
+    expect(v.mislabelled, `G2-R4 :: ${v.detail}`).toBe(true);
+    expect(v.reason, `G2-R4 :: ${v.detail}`).toBe(REASON_SIDECAR);
+  });
+  it("G2-R5 flags a nested parsed sidecar field", () => {
+    const v = assessReader("proof/g2-r5-sidecar.json", "outputSha256", join(FIX, "g2-r5-nested-subject.ts.txt"), fs);
+    expect(v.parsed).toBe(true);
+    expect(v.mislabelled, `G2-R5 :: ${v.detail}`).toBe(true);
+    expect(v.reason, `G2-R5 :: ${v.detail}`).toBe(REASON_SIDECAR);
+  });
+  it("G2-R6 flags a sidecar pin returned from a relatively imported helper", () => {
+    const v = assessReader("proof/g2-r6-sidecar.json", "outputSha256", join(FIX, "g2-r6-helper-return.ts.txt"), fs);
+    expect(v.parsed).toBe(true);
+    expect(v.mislabelled, `G2-R6 :: ${v.detail}`).toBe(true);
+    expect(v.reason, `G2-R6 :: ${v.detail}`).toBe(REASON_PIN);
   });
   it("M11 R11 flags every aliased compare", () => {
     const cs = assessReaderCompares("r11-aliased-apis.ts", "glbSha256", join(FIX, "r11-aliased-apis.ts.txt"), fs);

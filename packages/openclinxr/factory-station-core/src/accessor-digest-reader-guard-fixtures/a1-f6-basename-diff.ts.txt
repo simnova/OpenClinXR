@@ -1,0 +1,8 @@
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+const PIN = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+const fixture = Buffer.from("fixture");
+writeFileSync(join("/tmp", "live.glb"), fixture);
+const live = createHash("sha256").update(readFileSync(join("/repo", "live.glb"))).digest("hex");
+if (live !== PIN) throw new Error("moved");

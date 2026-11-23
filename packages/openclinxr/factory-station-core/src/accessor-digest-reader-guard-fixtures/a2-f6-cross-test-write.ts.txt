@@ -1,0 +1,11 @@
+import { createHash } from "node:crypto";
+import { readFileSync, writeFileSync } from "node:fs";
+import { expect, test } from "vitest";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const PIN = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+const fixture = Buffer.from("fixture");
+test("setup", () => writeFileSync(GLB, fixture));
+test("pin", () => {
+  const live = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+  expect(live).toBe(PIN);
+});

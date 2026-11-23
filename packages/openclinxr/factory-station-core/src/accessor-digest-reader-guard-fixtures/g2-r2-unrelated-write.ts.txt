@@ -1,0 +1,11 @@
+import { createHash } from "node:crypto";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+const PIN = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+const dir = mkdtempSync(join(tmpdir(), "g2r2-"));
+const other = join(dir, "other.glb");
+writeFileSync(other, Buffer.from("other"));
+const livePath = join(dir, "live.glb");
+const live = createHash("sha256").update(readFileSync(livePath)).digest("hex");
+if (live !== PIN) throw new Error("moved");

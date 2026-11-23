@@ -1,0 +1,5 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+export function sidecarPin(): string {
+  return JSON.parse(readFileSync("proof/g2-r6-sidecar.json", "utf8")).outputSha256;
+}

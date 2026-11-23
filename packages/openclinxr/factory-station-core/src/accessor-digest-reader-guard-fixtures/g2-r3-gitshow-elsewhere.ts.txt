@@ -1,0 +1,12 @@
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const PIN = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
+function gitShow(rev: string): Buffer {
+  return execFileSync("git", ["show", rev]);
+}
+const frozen = gitShow("abc123:ship/mpfb-test.glb");
+console.log("frozen", frozen.length);
+const live = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+if (live !== PIN) throw new Error("moved");

@@ -1,6 +1,6 @@
 import * as ts from "typescript";
-import { declOf, type FileTables, type FnLike, type Graph, identCallee, isFnNode, isFsReadCall, LIVE, STORED, type State } from "./decls.js";
-import { constString, pathTaintOf, T } from "./taint.js";
+import { assignSources, declOf, type FileTables, type FnLike, findAssign, type Graph, identCallee, isFnNode, isFsReadCall, LIVE, STORED, type State } from "./decls.js";
+import { constString, findProp, pathTaintOf, T } from "./taint.js";
 
 /** Post-export-stage accessor-digest reader trace (G1).
  * A row is MISLABELLED iff a comparison pairs a LIVE whole-GLB value
@@ -251,9 +251,14 @@ function storedViaSidecar(node: ts.Expression, s: State, seen: Set<string>): boo
     const key = `${node.getSourceFile().fileName}#${node.text}`;
     if (seen.has(key)) return false;
     const d = declOf(node, s);
-    if (d === undefined || !ts.isVariableDeclaration(d) || d.initializer === undefined || !ts.isExpression(d.initializer)) return false;
+    if (d !== undefined && ts.isVariableDeclaration(d) && d.initializer !== undefined && ts.isExpression(d.initializer)) {
+      seen.add(key);
+      return storedViaSidecar(d.initializer, s, seen);
+    }
+    const hit = findAssign(node.text, node.getSourceFile());
+    if (hit === undefined) return false;
     seen.add(key);
-    return storedViaSidecar(d.initializer, s, seen);
+    return storedViaSidecar(hit.src, s, seen);
   }
   if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node) || ts.isNonNullExpression(node) || ts.isParenthesizedExpression(node)) return storedViaSidecar(node.expression, s, seen);
   return ts.isCallExpression(node) && ts.isPropertyAccessExpression(node.expression) && node.expression.name.text === "parse" && ts.isIdentifier(node.expression.expression) && node.expression.expression.text === "JSON";
@@ -287,6 +292,20 @@ function checkPair(a: ts.Expression, b: ts.Expression, node: ts.Node, sf: ts.Sou
  *  comparison's STORED side must derive from a real read of that file. The
  *  binding is the read path, never a text or comment mention of the basename.
  *  Non-.json rows (reader/test files pinning inline) keep the literal rule. */
+/** F7: a helper returning the sidecar pin binds the row through its returns,
+ *  including relatively imported helpers. Cycle-safe via the walk seen set. */
+function fnBound(fn: FnLike, s: State, walk: (n: ts.Expression) => boolean): boolean {
+  if (fn.body === undefined) return false;
+  if (!ts.isBlock(fn.body)) return ts.isExpression(fn.body) && walk(fn.body);
+  let hit = false;
+  const gather = (node: ts.Node): void => {
+    if (hit || ts.isFunctionDeclaration(node) || ts.isArrowFunction(node) || ts.isFunctionExpression(node)) return;
+    if (ts.isReturnStatement(node) && node.expression !== undefined && ts.isExpression(node.expression)) hit = walk(node.expression);
+    if (!hit) ts.forEachChild(node, gather);
+  };
+  ts.forEachChild(fn.body, gather);
+  return hit;
+}
 function storedBoundToRow(node: ts.Expression, rowFile: string, s: State): boolean {
   const seen = new Set<string>();
   const walk = (n: ts.Expression): boolean => {
@@ -298,9 +317,24 @@ function storedBoundToRow(node: ts.Expression, rowFile: string, s: State): boole
     if (ts.isParenthesizedExpression(n) || ts.isAsExpression(n) || ts.isSatisfiesExpression(n) || ts.isNonNullExpression(n) || ts.isAwaitExpression(n)) return walk(n.expression);
     if (ts.isIdentifier(n)) {
       const d = declOf(n, s);
-      return d !== undefined && ts.isVariableDeclaration(d) && d.initializer !== undefined && ts.isExpression(d.initializer) ? walk(d.initializer) : false;
+      if (d !== undefined && ts.isVariableDeclaration(d) && d.initializer !== undefined && ts.isExpression(d.initializer) && walk(d.initializer)) return true;
+      for (const a of assignSources(n, s)) if (walk(a.src)) return true; // B1
+      const hit = findAssign(n.text, n.getSourceFile());
+      if (hit !== undefined) return walk(hit.src);
+      return false;
     }
-    if (ts.isPropertyAccessExpression(n) || ts.isElementAccessExpression(n)) return walk(n.expression);
+    if (ts.isPropertyAccessExpression(n) || ts.isElementAccessExpression(n)) {
+      // B2: follow the selected property into the sidecar read.
+      const propKey = ts.isPropertyAccessExpression(n) ? n.name.text : (ts.isStringLiteralLike(n.argumentExpression) ? n.argumentExpression.text : undefined);
+      if (propKey !== undefined && ts.isIdentifier(n.expression)) {
+        const d = declOf(n.expression, s);
+        if (d !== undefined && ts.isVariableDeclaration(d) && d.initializer !== undefined && ts.isExpression(d.initializer) && ts.isObjectLiteralExpression(d.initializer)) {
+          const p = findProp(d.initializer, propKey);
+          if (p !== undefined) return walk(p.initializer);
+        }
+      }
+      return walk(n.expression);
+    }
     if (ts.isCallExpression(n)) {
       if (isFsReadCall(n, s)) {
         const p = n.arguments[0];
@@ -310,6 +344,16 @@ function storedBoundToRow(node: ts.Expression, rowFile: string, s: State): boole
         const row = rowFile.startsWith("./") ? rowFile.slice(2) : rowFile;
         const norm = lit !== undefined && lit.startsWith("./") ? lit.slice(2) : lit;
         if (norm !== undefined && (norm === row || norm.endsWith(`/${row}`))) return true;
+      }
+      if (ts.isIdentifier(n.expression)) {
+        const k = identCallee(n.expression.text, n.expression, s);
+        if (k.kind === "fn") {
+          const fkey = `fn#${n.getSourceFile().fileName}#${n.getStart()}`;
+          if (!seen.has(fkey)) {
+            seen.add(fkey);
+            if (fnBound(k.node, s, walk)) return true;
+          }
+        }
       }
       return n.arguments.some((a) => ts.isExpression(a) && walk(a));
     }

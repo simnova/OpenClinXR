@@ -1,0 +1,9 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const PIN = "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd";
+const h = createHash("sha256");
+if (false) h.update(readFileSync(GLB));
+if (0) h.update(readFileSync(GLB));
+const d = h.digest("hex");
+if (d !== PIN) throw new Error("moved");

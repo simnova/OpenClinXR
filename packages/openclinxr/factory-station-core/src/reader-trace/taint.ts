@@ -1,5 +1,5 @@
 import * as ts from "typescript";
-import { declOf, type FnLike, HEX64, identCallee, isFnNode, isFsReadCall, LIVE, PATH, PIN_FIELDS, resolveImportDecl, STORED, type State, TMP } from "./decls.js";
+import { assignSources, declOf, destructDeclTarget, findAssign, type FnLike, HEX64, identCallee, isFnNode, isFsReadCall, LIVE, PATH, PIN_FIELDS, resolveImportDecl, STORED, type State, TMP } from "./decls.js";
 
 export function findProp(obj: ts.ObjectLiteralExpression, name: string): ts.PropertyAssignment | undefined {
   for (const p of obj.properties) {
@@ -15,30 +15,37 @@ function resolveInit(expr: ts.Expression, s: State): ts.Expression | undefined {
   const decl = declOf(expr, s);
   return decl !== undefined && ts.isVariableDeclaration(decl) ? asExpr(decl.initializer) : undefined;
 }
-function childTmp(node: ts.Expression, s: State, seen: Set<string>): boolean {
+/* F6: tmp exclusion is origin-precise, not a path-construction proxy.
+ * A read is TMP-exempt only when the same file writes or copies to the
+ * exact constString path before the read. resolve(tmpdir(), "/repo/x.glb")
+ * is not tmp; an unrelated write or gitShow() exempts nothing. */
+const WRITE0 = new Set(["writeFileSync", "writeFile", "appendFileSync", "appendFile"]);
+const WRITE1 = new Set(["copyFileSync", "copyFile", "cpSync", "cp"]);
+function tmpWriteExempt(readArg: ts.Expression, anchor: ts.Node, s: State): boolean {
+  const want = constString(readArg, s, new Set());
+  if (want === undefined) return false;
+  const sf = anchor.getSourceFile();
+  const pos = anchor.getStart(sf);
+  // A2: a write exempts only in the read's own body (same test).
+  const scope = enclosingFn(anchor);
   let found = false;
-  ts.forEachChild(node, function visit(child: ts.Node): void {
-    if (!found && ts.isExpression(child) && isTmp(child, s, seen)) found = true;
-  });
+  const visit = (node: ts.Node, root: ts.Node | undefined): void => {
+    if (found || (node !== root && isFnNode(node))) return;
+    if (ts.isCallExpression(node) && node.getStart(sf) < pos) {
+      const cal = node.expression;
+      const nm = ts.isIdentifier(cal) ? cal.text : ts.isPropertyAccessExpression(cal) ? cal.name.text : undefined;
+      const idx = nm !== undefined && WRITE0.has(nm) ? 0 : nm !== undefined && WRITE1.has(nm) ? 1 : -1;
+      const dest = idx >= 0 ? node.arguments[idx] : undefined;
+      if (dest !== undefined && ts.isExpression(dest) && constString(dest, s, new Set()) === want) found = true;
+    }
+    ts.forEachChild(node, (c) => visit(c, root));
+  };
+  if (scope !== undefined) visit(scope, scope);
+  else for (const stmt of sf.statements) {
+    if (stmt.getStart(sf) >= pos) break;
+    visit(stmt, undefined);
+  }
   return found;
-}
-function isTmp(node: ts.Expression, s: State, seen: Set<string>): boolean {
-  if (ts.isCallExpression(node)) {
-    const cal = node.expression;
-    const name = ts.isIdentifier(cal) ? cal.text : ts.isPropertyAccessExpression(cal) ? cal.name.text : undefined;
-    if (name === "tmpdir" || name === "mkdtempSync" || name === "mkdtemp") return true;
-    return node.arguments.some((a) => ts.isExpression(a) && isTmp(a, s, seen));
-  }
-  if (ts.isIdentifier(node)) {
-    const key = `${node.getSourceFile().fileName}#${node.text}`;
-    if (seen.has(key)) return false;
-    const init = resolveInit(node, s);
-    if (init === undefined) return false;
-    seen.add(key);
-    return isTmp(init, s, seen);
-  }
-  if (ts.isPropertyAccessExpression(node) || ts.isElementAccessExpression(node) || ts.isNonNullExpression(node)) return isTmp(node.expression, s, seen);
-  return childTmp(node, s, seen);
 }
 /** Constant path strings: literals, concatenation, templates, join/resolve tails, array/record entries. */
 export function constString(node: ts.Expression, s: State, seen: Set<string>): string | undefined {
@@ -86,8 +93,18 @@ export function constString(node: ts.Expression, s: State, seen: Set<string>): s
     const cal = node.expression;
     const name = ts.isIdentifier(cal) ? cal.text : ts.isPropertyAccessExpression(cal) ? cal.name.text : undefined;
     if ((name === "join" || name === "resolve") && node.arguments.length > 0) {
-      const last = node.arguments[node.arguments.length - 1];
-      if (last !== undefined && ts.isExpression(last)) return constString(last, s, seen);
+      // All-constant segments join exactly (/tmp/x vs /repo/x differ, A1);
+      // a non-constant root (tmpdir()) falls back to the tail (G2-C3).
+      const parts: string[] = [];
+      for (const a of node.arguments) {
+        const part = ts.isExpression(a) ? constString(a, s, seen) : undefined;
+        if (part === undefined) {
+          const last = node.arguments[node.arguments.length - 1];
+          return last !== undefined && ts.isExpression(last) ? constString(last, s, seen) : undefined;
+        }
+        parts.push(part);
+      }
+      return parts.slice(1).reduce((o, p) => o + (o.endsWith("/") ? p.replace(/^\/+/, "") : "/" + p.replace(/^\/+/, "")), parts[0] ?? "");
     }
   }
   return undefined;
@@ -108,9 +125,9 @@ function containerString(node: ts.ElementAccessExpression | ts.PropertyAccessExp
   const src = ts.isArrayLiteralExpression(base) ? (/^\d+$/.test(key) ? base.elements[Number(key)] : undefined) : ts.isObjectLiteralExpression(base) ? findProp(base, key)?.initializer : undefined;
   return src !== undefined && ts.isExpression(src) && !ts.isSpreadElement(src) ? constString(src, s, seen) : undefined;
 }
-export function pathTaintOf(arg: ts.Expression | undefined, s: State): number {
+export function pathTaintOf(arg: ts.Expression | undefined, s: State, anchor?: ts.Node): number {
   if (arg === undefined || !ts.isExpression(arg)) return 0;
-  if (isTmp(arg, s, new Set())) return TMP;
+  if (anchor !== undefined && tmpWriteExempt(arg, anchor, s)) return TMP;
   const lit = constString(arg, s, new Set());
   if (lit !== undefined) return lit.endsWith(".glb") ? PATH : STORED;
   if (ts.isIdentifier(arg)) {
@@ -118,6 +135,55 @@ export function pathTaintOf(arg: ts.Expression | undefined, s: State): number {
     if (d !== undefined && ts.isParameter(d) && isFnNode(d.parent)) return s.paramTaint.get(d.parent)?.get(arg.text) ?? 0;
   }
   return 0;
+}
+/** F9: hash updates count only on reachable paths. Uncalled-function
+ *  updates never taint digest(). Reachable = called from top level,
+ *  transitively through called functions. */
+function enclosingFn(n: ts.Node): FnLike | undefined {
+  let cur: ts.Node | undefined = n.parent;
+  while (cur !== undefined) {
+    if (isFnNode(cur)) return cur;
+    cur = cur.parent;
+  }
+  return undefined;
+}
+function reachableFns(s: State): Set<FnLike> {
+  // A3: reachability is "any reachable call site", not the last one seen.
+  const callers = new Map<FnLike, Set<FnLike | undefined>>();
+  for (const sf of s.files.values()) {
+    const visit = (node: ts.Node): void => {
+      if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
+        const k = identCallee(node.expression.text, node.expression, s);
+        if (k.kind === "fn") {
+          const set = callers.get(k.node) ?? new Set<FnLike | undefined>();
+          set.add(enclosingFn(node));
+          callers.set(k.node, set);
+        }
+      }
+      ts.forEachChild(node, visit);
+    };
+    visit(sf);
+  }
+  const reach = new Set<FnLike>();
+  let changed = true;
+  for (let g = 0; g < 12 && changed; g++) {
+    changed = false;
+    for (const [fn, set] of callers) {
+      if (reach.has(fn)) continue;
+      for (const c of set) {
+        if (c === undefined || reach.has(c)) {
+          reach.add(fn);
+          changed = true;
+          break;
+        }
+      }
+    }
+  }
+  return reach;
+}
+/** B3: literal-false only (`false`, numeric `0`); no constant folding. */
+function isFalseLit(e: ts.Expression): boolean {
+  return e.kind === ts.SyntaxKind.FalseKeyword || (ts.isNumericLiteral(e) && Number(e.text) === 0);
 }
 /** Taint through createHash().update(x).digest() chains, following hasher variables across the file. */
 function digestTaint(node: ts.CallExpression, s: State): number {
@@ -147,14 +213,23 @@ function digestTaint(node: ts.CallExpression, s: State): number {
     for (const r of roots) {
       const d = declOf(r, s);
       rooted = rooted || (d !== undefined && ts.isVariableDeclaration(d) && d.initializer !== undefined && ts.isCallExpression(d.initializer) && ts.isIdentifier(d.initializer.expression) && d.initializer.expression.text === "createHash");
-      const visit = (n: ts.Node): void => {
+      const reach = reachableFns(s);
+      const visit = (n: ts.Node, depth: number): void => {
+        if (depth > 40) return;
+        if (isFnNode(n) && !reach.has(n)) return;
+        // B3: updates in `if (false)` / `if (0)` are unreachable; an else
+        // branch still counts.
+        if (ts.isIfStatement(n) && isFalseLit(n.expression)) {
+          if (n.elseStatement !== undefined) visit(n.elseStatement, depth + 1);
+          return;
+        }
         if (ts.isCallExpression(n) && ts.isPropertyAccessExpression(n.expression) && n.expression.name.text === "update" && ts.isIdentifier(n.expression.expression) && n.expression.expression.text === r.text) {
           const a = n.arguments[0];
           if (a !== undefined && ts.isExpression(a)) t |= T(a, s);
         }
-        ts.forEachChild(n, visit);
+        ts.forEachChild(n, (c) => visit(c, depth + 1));
       };
-      visit(r.getSourceFile());
+      visit(r.getSourceFile(), 0);
     }
     return rooted ? t : 0;
   } finally {
@@ -180,6 +255,30 @@ export function returnTaint(fn: FnLike, s: State): number {
     s.active.delete(fn);
   }
   s.retMemo.set(fn, t);
+  return t;
+}
+/** F8 precision: a shared hash helper called with both live and frozen bytes
+ *  must not pollute the frozen callsite. Evaluate the return with this
+ *  callsite's arg taints instead of the fixpoint-ORed params. */
+export function callReturnTaint(fn: FnLike, args: readonly ts.Expression[], s: State): number {
+  if (s.active.has(fn)) return s.retMemo.get(fn) ?? 0;
+  const savedParams = s.paramTaint.get(fn);
+  const savedMemo = s.retMemo.get(fn);
+  const m = new Map<string, number>();
+  if (savedParams !== undefined) for (const [k, v] of savedParams) m.set(k, v);
+  for (let i = 0; i < fn.parameters.length && i < args.length; i++) {
+    const p = fn.parameters[i];
+    const a = args[i];
+    if (p === undefined || a === undefined || !ts.isIdentifier(p.name) || !ts.isExpression(a)) continue;
+    m.set(p.name.text, T(a, s) | pathTaintOf(a, s));
+  }
+  s.paramTaint.set(fn, m);
+  s.retMemo.delete(fn);
+  const t = returnTaint(fn, s);
+  s.retMemo.delete(fn);
+  if (savedMemo !== undefined) s.retMemo.set(fn, savedMemo);
+  if (savedParams !== undefined) s.paramTaint.set(fn, savedParams);
+  else s.paramTaint.delete(fn);
   return t;
 }
 /** for-of / Object.entries loop bindings over constant containers. */
@@ -217,8 +316,7 @@ function forOfTaint(name: string, cur: ts.ForOfStatement, s: State): number | un
   }
   return T(ex, s);
 }
-function scopedT(guard: ts.Node, expr: ts.Expression, s: State): number {
-  // A self-referential initializer re-enters its own guard (F3:
+function scopedT(guard: ts.Node, expr: ts.Expression, s: State): number {  // A self-referential initializer re-enters its own guard (F3:
   // var paths = { glb: paths ? paths.glb : ... }): return a verdict, no throw.
   if (s.active.has(guard)) return 0;
   s.active.add(guard);
@@ -226,6 +324,17 @@ function scopedT(guard: ts.Node, expr: ts.Expression, s: State): number {
     return T(expr, s);
   } finally {
     s.active.delete(guard);
+  }
+}
+/** A4: assignment following is cycle-safe (an assignment already on the
+ *  stack yields 0). */
+function assignT(src: ts.Expression, s: State): number {
+  if (s.active.has(src)) return 0;
+  s.active.add(src);
+  try {
+    return T(src, s);
+  } finally {
+    s.active.delete(src);
   }
 }
 function Tid(id: ts.Identifier, s: State): number {
@@ -236,12 +345,37 @@ function Tid(id: ts.Identifier, s: State): number {
   if (decl === undefined) {
     const t = s.tables.get(id.getSourceFile().fileName);
     const named = t?.named.get(id.text) ?? t?.req.get(id.text);
-    return named !== undefined && !named.mod.startsWith(".") ? STORED : 0;
+    if (named !== undefined && !named.mod.startsWith(".")) return STORED;
+    const hit = findAssign(id.text, id.getSourceFile());
+    if (hit !== undefined) {
+      if (hit.key === undefined) return assignT(hit.src, s);
+      return (assignT(hit.src, s) & STORED) !== 0 && PIN_FIELDS.has(hit.key) ? STORED : 0;
+    }
+    return 0;
   }
   if (ts.isParameter(decl)) return isFnNode(decl.parent) ? (s.paramTaint.get(decl.parent)?.get(id.text) ?? 0) : 0;
+  if (ts.isBindingElement(decl)) {
+    const tgt = destructDeclTarget(decl);
+    if (tgt === undefined) return 0;
+    if (tgt.key === undefined) return T(tgt.src, s);
+    if (PIN_FIELDS.has(tgt.key)) return (T(tgt.src, s) & STORED) !== 0 ? STORED : 0;
+    return 0;
+  }
   if (ts.isVariableDeclaration(decl)) {
-    if (decl.initializer === undefined || !ts.isExpression(decl.initializer) || s.active.has(decl)) return 0;
-    return scopedT(decl, decl.initializer, s);
+    // B1: the initializer never blocks same-symbol assignment lookup.
+    let t = decl.initializer !== undefined && ts.isExpression(decl.initializer) && !s.active.has(decl) ? scopedT(decl, decl.initializer, s) : 0;
+    if (t === 0) {
+      for (const a of assignSources(id, s)) {
+        const at = assignT(a.src, s);
+        t |= a.key === undefined ? at : (at & STORED) !== 0 && PIN_FIELDS.has(a.key) ? STORED : 0;
+        if (t !== 0) break;
+      }
+    }
+    if (t !== 0) return t;
+    const hit = decl.initializer === undefined ? findAssign(id.text, id.getSourceFile()) : undefined;
+    if (hit === undefined) return 0;
+    if (hit.key === undefined) return assignT(hit.src, s);
+    return (assignT(hit.src, s) & STORED) !== 0 && PIN_FIELDS.has(hit.key) ? STORED : 0;
   }
   if (ts.isImportSpecifier(decl)) return importTaint(id, decl, s);
   return 0;
@@ -261,12 +395,12 @@ function Tcall(node: ts.CallExpression, s: State): number {
     const kind = identCallee(cal.text, cal, s);
     if (kind.kind === "fs-read" || kind.kind === "sink") {
       const a = node.arguments[0];
-      const pt = pathTaintOf(a, s);
+      const pt = pathTaintOf(a, s, node);
       if (pt === PATH) return LIVE;
       if (kind.kind === "fs-read") return pt;
       return pt !== 0 ? pt : a !== undefined && ts.isExpression(a) ? T(a, s) : 0;
     }
-    if (kind.kind === "fn") return returnTaint(kind.node, s);
+    if (kind.kind === "fn") return callReturnTaint(kind.node, node.arguments.filter((a): a is ts.Expression => ts.isExpression(a)), s);
     return 0;
   }
   if (ts.isPropertyAccessExpression(cal)) {
@@ -274,9 +408,13 @@ function Tcall(node: ts.CallExpression, s: State): number {
     if (m === "digest" || m === "update") return digestTaint(node, s);
     if (isFsReadCall(node, s)) {
       const a = node.arguments[0];
-      const pt = pathTaintOf(a, s);
+      const pt = pathTaintOf(a, s, node);
       if (pt === PATH) return LIVE;
       return pt;
+    }
+    if (m === "from" && ts.isIdentifier(cal.expression) && cal.expression.text === "Buffer") {
+      const a = node.arguments[0];
+      return a !== undefined && ts.isExpression(a) ? T(a, s) : 0;
     }
     if (m === "parse" && ts.isIdentifier(cal.expression) && cal.expression.text === "JSON") {
       const a = node.arguments[0];
@@ -312,6 +450,7 @@ export function T(node: ts.Expression, s: State): number {
       const b = T(node.expression, s);
       return (b & STORED) !== 0 ? STORED : 0;
     }
+    if ((T(node.expression, s) & STORED) !== 0) return STORED;
     const base = resolveInit(node.expression, s);
     if (base !== undefined && ts.isObjectLiteralExpression(base)) {
       const p = findProp(base, node.name.text);
@@ -333,6 +472,14 @@ export function T(node: ts.Expression, s: State): number {
       const p = findProp(base, arg.text);
       if (p !== undefined) return scopedT(p, p.initializer, s);
       return 0;
+    }
+    return 0;
+  }
+  if (ts.isNewExpression(node)) {
+    const cal = node.expression;
+    if (ts.isIdentifier(cal) && (cal.text === "Uint8Array" || cal.text === "Buffer")) {
+      const a = node.arguments?.[0];
+      return a !== undefined && ts.isExpression(a) ? T(a, s) : 0;
     }
     return 0;
   }

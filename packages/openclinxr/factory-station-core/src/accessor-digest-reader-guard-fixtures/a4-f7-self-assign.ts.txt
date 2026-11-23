@@ -1,0 +1,7 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+let want: string;
+want = want + "";
+const live = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+if (live !== want) throw new Error("moved");
