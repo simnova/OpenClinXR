@@ -107,6 +107,7 @@ def self_argv(flag: object) -> list:
 
 
 _pin_cache: dict = {}
+_trusted_cache: dict = {}
 
 
 def resolve_writer(writer: str, registry: Path) -> tuple:
@@ -114,6 +115,72 @@ def resolve_writer(writer: str, registry: Path) -> tuple:
     if writer not in _pin_cache:
         _pin_cache[writer] = call_cli({"pinWriter": writer}, registry)
     return _pin_cache[writer]
+
+
+def resolve_writer_trusted(writer: str) -> tuple:
+    """Resolve a row writer through the TRUSTED repo registry only (never the
+    --test-registry copy); (info, '') or (None, detail). Cached. A fixture
+    registry says which writer string is allowlisted for the fixture; the
+    executable template always comes from here."""
+    if writer not in _trusted_cache:
+        _trusted_cache[writer] = call_cli({"pinWriter": writer}, REGISTRY_TS)
+    return _trusted_cache[writer]
+
+
+_SCRIPT_EXTS = (".ts", ".py", ".js", ".mjs")
+
+
+def exe_prefix(argv: object) -> list | None:
+    """Leading program + script tokens (argv[0] through the script path,
+    inclusive); None when no token names a script. Exact token lists, never
+    identifiers or substrings."""
+    if not isinstance(argv, list):
+        return None
+    for i, tok in enumerate(argv):
+        if isinstance(tok, str) and tok.endswith(_SCRIPT_EXTS):
+            return list(argv[: i + 1])
+    return None
+
+
+def fixture_contained(candidate: object, fixture_dir: str) -> bool:
+    """Both the kernel view (realpath) and the writers' lexical view
+    (normpath, the way path.join(dirname(target)) builds the atomic-publish
+    temp) of candidate sit under fixture_dir. Either view escaping refuses."""
+    if not isinstance(candidate, str) or not candidate:
+        return False
+    for view in (os.path.realpath(candidate), os.path.realpath(os.path.normpath(candidate))):
+        if view != fixture_dir and not view.startswith(fixture_dir + os.sep):
+            return False
+    return True
+
+
+def writer_outside_root(writer_argv: list, skip: int, fixture_dir: str, dest_slot: int | None = None) -> str | None:
+    """First writer path escaping fixture_dir, else None. Absolute and
+    ..-bearing argv tokens must sit under fixture_dir in both views; plain
+    relative keys resolve the way the writers join them under --root, so they
+    must too. The derived destination (the {file} slot) and its
+    atomic-publish temp dir (lexical dirname: join normalizes `..` away from
+    symlinks) must also sit under fixture_dir. Refuse before any exec."""
+    for tok in writer_argv[skip:]:
+        if not isinstance(tok, str) or not tok:
+            continue
+        if os.path.isabs(tok):
+            base = tok
+        elif ".." in tok.split(os.sep):
+            base = os.path.join(str(REPO_ROOT), tok)
+        else:
+            base = os.path.join(fixture_dir, tok)
+        if not fixture_contained(base, fixture_dir):
+            return tok
+    if dest_slot is not None and 0 <= dest_slot < len(writer_argv):
+        dest = writer_argv[dest_slot]
+        if isinstance(dest, str) and dest:
+            whole = dest if os.path.isabs(dest) else os.path.join(fixture_dir, dest)
+            if not fixture_contained(whole, fixture_dir):
+                return dest
+            if not fixture_contained(os.path.dirname(whole), fixture_dir):
+                return dest
+    return None
 
 
 def row_fields(field: object) -> list:
@@ -417,10 +484,11 @@ def main() -> None:
     if args.consumers is not None and not args.consumers.exists():
         refuse("e", f"--consumers missing: {args.consumers}")
 
-    # X1-AMEND: in fixture mode the inventory-facing paths resolve under the same root.
+    # X1-AMEND: in fixture mode the inventory-facing paths resolve under the
+    # staged registry's own dir (not just the shared tmp root).
     if root:
         for what, path in (("pre", args.pre), ("post", args.post), ("sidecar", args.sidecar)):
-            if fixture_root(path) != root:
+            if not fixture_contained(os.fspath(path), fixture_dir):
                 refuse("a", f"{what} outside the fixture root ({path}); refusing")
 
     pre_sha = sha_file(args.pre)
@@ -528,6 +596,24 @@ def main() -> None:
             refuse("e", f"live keep-sha row writer produces GLBs ({file_str} :: {base['field']}: {writer}); refusing")
         is_self = bool(root) and writer == " ".join(self_argv(args.test_registry))
         argv_template = cli_info.get("argv")
+        trusted_prefix: list | None = None
+        if root and not is_self:
+            # Seam: the fixture registry allowlists the writer string, but the
+            # executable template (program + script) resolves ONLY from the
+            # trusted repo registry. Refuse before any exec unless the fixture
+            # template's program + script equal the trusted one exactly.
+            trusted_info, trusted_err = resolve_writer_trusted(writer)
+            if trusted_info is None:
+                refuse("e", f"live keep-sha row writer is not a trusted production pin writer "
+                            f"({file_str} :: {base['field']}: {writer}); refusing")
+            if trusted_info.get("glbProducing"):
+                refuse("e", f"live keep-sha row writer produces GLBs ({file_str} :: {base['field']}: {writer}); refusing")
+            trusted_prefix = exe_prefix(trusted_info.get("argv"))
+            fixture_prefix = exe_prefix(argv_template)
+            if trusted_prefix is None or fixture_prefix is None or fixture_prefix != trusted_prefix:
+                refuse("e", f"writer program differs from the trusted template for its writer string "
+                            f"({file_str} :: {base['field']}: {writer}); refusing")
+            argv_template = trusted_info.get("argv")
         if not is_self:
             allows_maps = isinstance(argv_template, list) and any(isinstance(t, str) and "{asset_key}" in t for t in argv_template)
             ok_full = {"outputSha256", "outputBytes"} | ({"assetSha256ByPath", "producedFrom.byteCountByPath"} if allows_maps else set())
@@ -554,6 +640,14 @@ def main() -> None:
             if os.path.realpath(str(writer_argv[slot])) != want:
                 refuse("e", f"writer target escapes the validated row file ({file_str}); refusing")
             writer_argv[slot] = str(fpath)  # H1: the checked path as written, never the resolved referent
+        if root and not is_self and trusted_prefix is not None:
+            # Seam: every path-valued argv resolves under the fixture dir
+            # (registry.parent) in both the kernel and lexical views, as does
+            # the writer's derived destination and its atomic-publish temp
+            # dir. Refuse before any exec; nothing has been written.
+            outside = writer_outside_root(writer_argv, len(trusted_prefix), fixture_dir, slot)
+            if outside is not None:
+                refuse("e", f"writer argv path outside the fixture root ({file_str} :: {base['field']}: {outside}); refusing")
         live.append({
             **base, "pinned": pre_sha, "fieldNames": names, "assetKey": pre_key,
             "assetRoot": mapping["root"],
