@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { type Node as GLTFNode, NodeIO, type Primitive } from "@gltf-transform/core";
-import { repoRoot } from "@openclinxr/factory-station-core/runner";
+import { glbGeometryDigest, repoRoot } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 
 process.chdir(repoRoot());
@@ -221,7 +221,7 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // (HEAD_MEAN x); 9256 B inside one accessor; 12355972 B live (E9 chest rehide); was f6573124437c….
   // p2e-c-prod re-pinned 2026-11-16: P2e-C inpaint (skin-footprint Telea fill) + 6-tri V-neck un-hide
   // (prim7 {2,3,4,5,6,53} -> new skin prim9); 12477104 B live; was 8957543dfc9f….
-  "mpfb-clinical-nurse-adult": "ce10321833f92ccc5930fafbadfc8544c9b5ec715a33e71c96ebf5b4e5d6056e",
+  // nurse row lives at NURSE_GEOMETRY_SHA256 below (C3a): the re-pin history above stays whole-sha archaeology.
   // #504 re-pinned 2026-08-21: the physician's coat was pushed out 15 mm (wardrobe layer
   // separation); the viseme morph targets and every other buffer are untouched.
   // #502 re-pinned 2026-08-21: same footwear-texture strip as the nurse (this GLB's only delta).
@@ -247,6 +247,20 @@ const SHIPPED_UNTOUCHED: Record<string, string> = {
   // (unhide-neckline-opening.py, body index-only re-map, no position/skin/morph change):
   // 12618432 B live (was 12596836 B pre-neck).
   "mpfb-clinical-physician-adult": "8c3ab05cf2da84c5af223bc16219bc6ac14c2701acc3e50eb674b9a4e26c878f",
+}
+
+/**
+ * Nurse identity is geometry, not bytes (C3a): the re-pin comments above are
+ * historical whole-file re-pins — the history includes a garment topology weld, a
+ * teeth swap, and triangle reassignment, all geometry-touching. Clause (4) compares
+ * glbGeometryDigest, so a material-only post-export stage keeps this digest and
+ * re-pins no geometry file; a rebake that moves a vertex still refuses.
+ */
+const NURSE_GEOMETRY_SHA256 = "1b1d0279aba867c8817a15188ae021634e6e0630adc8f2c11165e6bbcb33ae76";
+
+/** Geometry-pin comparison for the nurse row: material-blind, rebake-sensitive. */
+function nurseGeometryPinMatches(bytes: Uint8Array): boolean {
+  return glbGeometryDigest(bytes) === NURSE_GEOMETRY_SHA256;
 }
 
 type Prov = {
@@ -335,6 +349,13 @@ describe("the applied visemes move the mouth, not just the target list", () => {
   it("(4) NET: shipped actors are untouched, and the provenance is stated", () => {
     // Refuses (d): rebaking the cast to obtain one capability. Also pins the licence posture so the
     // bake cannot happen without the assumption being written down.
+    // Nurse identity is geometry (C3a): a material-only post-export stage keeps this digest.
+    const nurseAbs = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
+    expect(existsSync(nurseAbs), "nurse must still ship").toBe(true);
+    expect(
+      nurseGeometryPinMatches(new Uint8Array(readFileSync(nurseAbs))),
+      "nurse was REBAKED — this slice bakes a NEW inspect asset, it does not touch the cast",
+    ).toBe(true);
     for (const [a, sha] of Object.entries(SHIPPED_UNTOUCHED)) {
       const abs = join(REPO_ROOT, `apps/ui-xr/public/generated-humanoids/${a}.glb`);
       expect(existsSync(abs), `${a} must still ship`).toBe(true);
@@ -351,4 +372,109 @@ describe("the applied visemes move the mouth, not just the target list", () => {
     });
     expect(readFileSync(MATERIALIZER, "utf8"), "the materializer must call the service (D1)").toMatch(/load_targets/);
   });
+});
+
+describe("A5 nurse geometry pin (C3a: a material-only stage re-pins no geometry file)", () => {
+  const NURSE_GLB = join(REPO_ROOT, "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb");
+
+  /** Material-only variant: one parsed baseColorFactor component +0.05 (clamped); JSON chunk lengths repaired. */
+  function withMaterialOnlyTweak(shipped: Uint8Array): {
+    bytes: Uint8Array;
+    material: string;
+    component: number;
+    before: number[];
+    after: number[];
+  } {
+    const buf = Buffer.from(shipped);
+    const jsonLen = buf.readUInt32LE(12);
+    const jsonText = buf.subarray(20, 20 + jsonLen).toString("utf8");
+    const doc = JSON.parse(jsonText) as {
+      materials?: { name?: string; pbrMetallicRoughness?: { baseColorFactor?: number[] } }[];
+    };
+    const idx = (doc.materials ?? []).findIndex((mm) => Array.isArray(mm.pbrMetallicRoughness?.baseColorFactor));
+    if (idx < 0) throw new Error("A5 P1 setup: no baseColorFactor material");
+    const mat = doc.materials![idx]!;
+    const before = [...mat.pbrMetallicRoughness!.baseColorFactor!];
+    const component = 0;
+    const bumped = Math.min(1, (before[component] ?? 0) + 0.05);
+    const after = [...before];
+    after[component] = bumped;
+    const arrM = /"baseColorFactor":\[([^\]]*)\]/.exec(jsonText);
+    if (!arrM) throw new Error("A5 P1 setup: baseColorFactor array missing from JSON text");
+    const numM = /-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(arrM[1]!);
+    if (!numM) throw new Error("A5 P1 setup: no numeric token in baseColorFactor");
+    const tok = numM[0];
+    const absIdx = arrM.index + arrM[0].indexOf(arrM[1]!) + numM.index;
+    let next = jsonText.slice(0, absIdx) + String(bumped) + jsonText.slice(absIdx + tok.length);
+    next += " ".repeat((4 - (Buffer.byteLength(next, "utf8") % 4)) % 4);
+    const nextBytes = Buffer.from(next, "utf8");
+    const binStart = 20 + jsonLen;
+    const out = Buffer.alloc(20 + nextBytes.length + (buf.length - binStart));
+    buf.subarray(0, 8).copy(out, 0);
+    out.writeUInt32LE(nextBytes.length, 12);
+    buf.subarray(16, 20).copy(out, 16);
+    nextBytes.copy(out, 20);
+    buf.subarray(binStart).copy(out, 20 + nextBytes.length);
+    out.writeUInt32LE(out.length, 8);
+    return { bytes: new Uint8Array(out.buffer, out.byteOffset, out.byteLength), material: String(mat.name), component, before, after };
+  }
+
+  /** 1-ULP edit of the first float of the first float-POSITION accessor (in-memory copy). */
+  function withOneUlpPositionEdit(shipped: Uint8Array): { bytes: Uint8Array; beforeHex: string; afterHex: string } {
+    const buf = Buffer.from(shipped);
+    const jsonLen = buf.readUInt32LE(12);
+    const doc = JSON.parse(buf.subarray(20, 20 + jsonLen).toString("utf8")) as {
+      meshes?: { primitives?: { attributes?: Record<string, number> }[] }[];
+      accessors?: { bufferView?: number; byteOffset?: number; componentType?: number }[];
+      bufferViews?: { byteOffset?: number }[];
+    };
+    let at = -1;
+    for (const mesh of doc.meshes ?? []) {
+      for (const prim of mesh.primitives ?? []) {
+        const ai = prim.attributes?.["POSITION"];
+        const acc = ai === undefined ? undefined : doc.accessors?.[ai];
+        const bv = acc?.bufferView === undefined ? undefined : doc.bufferViews?.[acc.bufferView];
+        if (acc !== undefined && bv !== undefined && acc.componentType === 5126) {
+          at = 20 + jsonLen + 8 + (bv.byteOffset ?? 0) + (acc.byteOffset ?? 0);
+          break;
+        }
+      }
+      if (at >= 0) break;
+    }
+    if (at < 0) throw new Error("A5 P2 setup: no float POSITION accessor");
+    const beforeHex = buf.subarray(at, at + 4).toString("hex");
+    buf.writeUInt32LE(buf.readUInt32LE(at) + 1, at);
+    const afterHex = buf.subarray(at, at + 4).toString("hex");
+    if (afterHex === beforeHex) throw new Error("A5 P2 setup: ULP edit did not change bytes");
+    return { bytes: new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength), beforeHex, afterHex };
+  }
+
+  it("A5 P1 material-blind: a material-only copy keeps the nurse geometry pin", () => {
+    const shipped = new Uint8Array(readFileSync(NURSE_GLB));
+    const liveSha = createHash("sha256").update(shipped).digest("hex");
+    const liveDigest = glbGeometryDigest(shipped);
+    const tweak = withMaterialOnlyTweak(shipped);
+    const copySha = createHash("sha256").update(tweak.bytes).digest("hex");
+    console.log("A5 P1", { material: tweak.material, component: tweak.component, before: tweak.before[tweak.component], after: tweak.after[tweak.component], liveSha, copySha });
+    // One parsed color component really changed (no float64-rounding no-op):
+    expect(tweak.after[tweak.component], "material tweak must change the parsed component").not.toBe(tweak.before[tweak.component]);
+    // Today's whole-sha reader refuses this copy (the RED premise), against the LIVE input:
+    expect(copySha, "material-only copy must differ in whole bytes from the live GLB").not.toBe(liveSha);
+    // The converted reader accepts it: geometry untouched.
+    expect(glbGeometryDigest(tweak.bytes), "material-only copy must keep the live geometry digest").toBe(liveDigest);
+    expect(nurseGeometryPinMatches(tweak.bytes)).toBe(true);
+  }, 30_000);
+
+  it("A5 P2 counterweight: a 1-ULP POSITION edit refuses as stale", () => {
+    const shipped = new Uint8Array(readFileSync(NURSE_GLB));
+    const edit = withOneUlpPositionEdit(shipped);
+    console.log("A5 P2", { beforeHex: edit.beforeHex, afterHex: edit.afterHex });
+    expect(edit.afterHex, "ULP edit must change accessor bytes").not.toBe(edit.beforeHex);
+    expect(nurseGeometryPinMatches(edit.bytes), "1-ULP POSITION edit must refuse").toBe(false);
+  }, 30_000);
+
+  it("A5 P3 known-good: the shipped nurse passes the new pin", () => {
+    const shipped = new Uint8Array(readFileSync(NURSE_GLB));
+    expect(nurseGeometryPinMatches(shipped)).toBe(true);
+  }, 30_000);
 });

@@ -1,8 +1,8 @@
 {
   "schema": "openclinxr.post-export-stage-consumers.compact.v1",
   "full": {
-    "store": "post-export-stage-finalize/post-export-stage-consumers.full-d91d3f5f.json",
-    "sha256": "d91d3f5fc05e21faeb1a791ec0297d7b109ac64c7b73eb68684a9420e3c029d1"
+    "store": "post-export-stage-finalize/post-export-stage-consumers.full-faaf7e82.json",
+    "sha256": "faaf7e8283d37dbb6734e3d7d1edb3dc5024be6fab6d8e123e244e8aaf5f9e9b"
   },
   "baseSha": "c613e86e88d7fba085b25f7fc1d2d0fde22b0c8f",
   "rows": [
@@ -772,8 +772,9 @@
     {
       "file": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-applied-visemes-move-the-mouth.test.ts",
       "field": "(file)",
-      "proposed_pin": "keep-sha",
-      "reader": "yes"
+      "proposed_pin": "accessor-digest",
+      "reader": "yes",
+      "reason": "nurse live identity is geometry: glbGeometryDigest compared in clause (4); a material-only post-export stage keeps the digest while whole bytes churn"
     },
     {
       "file": "packages/openclinxr/stations/humanoid-bake-evidence/src/humanoid-bake/the-flagged-bake-emits-the-hm08-mouth.reproduction.json",
@@ -909,8 +910,9 @@
     {
       "file": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/the-nurse-chest-split-guards.test.ts",
       "field": "(file)",
-      "proposed_pin": "keep-sha",
-      "reader": "yes"
+      "proposed_pin": "accessor-digest",
+      "reader": "yes",
+      "reason": "split-nurse shipped identity is geometry: glbGeometryDigest compared at every plant setup; G1 baseline/plant checks still use whole-file hashes"
     },
     {
       "file": "packages/openclinxr/stations/makeclothes-evidence/src/makeclothes/eye-lash/the-shipped-lashes-follow-the-lid.test.ts",

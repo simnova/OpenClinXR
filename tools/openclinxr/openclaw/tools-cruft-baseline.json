@@ -1,5 +1,5 @@
 {
-  "baseSha": "d0a90c471137350cff4635bcdc060fe561000742",
+  "baseSha": "852eb3432e5690861357bd904beb08d0e13b1f88",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -251,7 +251,6 @@
     "tools/openclinxr/evidence/xr-sync/c25-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c26-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c27-run.mjs",
-    "tools/openclinxr/evidence/xr-sync/c28-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c3-run.mjs",
     "tools/openclinxr/evidence/xr-sync/c38-gaze-falsifier.mjs",
     "tools/openclinxr/evidence/xr-sync/c4-run.mjs",
@@ -944,5 +943,5 @@
     "tools/openclinxr/hair-groom/strands/settle.py",
     "tools/openclinxr/openclaw/session-time-split.py"
   ],
-  "vultureFindings": 850
+  "vultureFindings": 853
 }

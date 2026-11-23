@@ -40,6 +40,10 @@
         "kind": "runtime"
       },
       {
+        "name": "glbGeometryDigest",
+        "kind": "runtime"
+      },
+      {
         "name": "lineageLevels",
         "kind": "runtime"
       },
@@ -48,7 +52,19 @@
         "kind": "runtime"
       },
       {
+        "name": "postExportLevelStages",
+        "kind": "runtime"
+      },
+      {
         "name": "repoRoot",
+        "kind": "runtime"
+      },
+      {
+        "name": "TeethSwapBlock",
+        "kind": "type"
+      },
+      {
+        "name": "validateT3LineageChain",
         "kind": "runtime"
       }
     ]

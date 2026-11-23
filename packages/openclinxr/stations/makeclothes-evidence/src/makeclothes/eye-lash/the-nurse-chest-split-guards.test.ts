@@ -8,6 +8,7 @@ import {
   NURSE_CHEST_STAGE_INDICES_SHA256,
   NURSE_CHEST_STAGE_KEPT_INDICES_SHA256,
 } from "@openclinxr/asset-registry/nurse-chest-stage";
+import { glbGeometryDigest } from "@openclinxr/factory-station-core/runner";
 import { describe, expect, it } from "vitest";
 import {
   counterweights,
@@ -29,7 +30,16 @@ import {
 
 const NURSE = "mpfb-clinical-nurse-adult.glb";
 const EMITTED = "6c908f97c3048adad699edde7f67c7465e33402895cfa2e53cbe92d08af0f20b";
-const SHIPPED_SPLIT = "ce10321833f92ccc5930fafbadfc8544c9b5ec715a33e71c96ebf5b4e5d6056e";
+const SHIPPED_SPLIT_GEOMETRY_SHA256 = "1b1d0279aba867c8817a15188ae021634e6e0630adc8f2c11165e6bbcb33ae76";
+
+/**
+ * Split-nurse live identity is geometry, not bytes (C3a): the guards read indices,
+ * morphs and hide-material bindings, never whole bytes, so a material-only
+ * post-export stage keeps this digest while the file hash churns.
+ */
+function splitGeometryPinMatches(bytes: Uint8Array): boolean {
+  return glbGeometryDigest(bytes) === SHIPPED_SPLIT_GEOMETRY_SHA256;
+}
 
 function sha256(bytes: Uint8Array): string {
   return createHash("sha256").update(bytes).digest("hex");
@@ -68,7 +78,7 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     expect(baseSha, "plant baseline is the emitted lash-input bytes").toBe(emitted);
     const shippedBytes = new Uint8Array(readFileSync(join(GLB_DIR, NURSE)));
     const shippedSha = sha256(shippedBytes);
-    expect(shippedSha, "plant starts from the shipped split nurse").toBe(SHIPPED_SPLIT);
+    expect(splitGeometryPinMatches(shippedBytes), "plant starts from the shipped split nurse").toBe(true);
 
     const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const base = await io.readBinary(new Uint8Array(inputBytes));
@@ -119,7 +129,7 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     const inputBytes = loadInputBytes();
     expect(sha256(inputBytes), "union plant baseline is the emitted lash input").toBe(EMITTED);
     const shippedBytes = new Uint8Array(readFileSync(join(GLB_DIR, NURSE)));
-    expect(sha256(shippedBytes), "union plant live side is the shipped split nurse").toBe(SHIPPED_SPLIT);
+    expect(splitGeometryPinMatches(shippedBytes), "union plant live side is the shipped split nurse").toBe(true);
     const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const base = await io.readBinary(new Uint8Array(inputBytes));
     const shipped = await io.readBinary(new Uint8Array(shippedBytes));
@@ -174,7 +184,7 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     const inputBytes = loadInputBytes();
     expect(sha256(inputBytes), "repoint plant baseline is the emitted lash input").toBe(EMITTED);
     const shippedBytes = new Uint8Array(readFileSync(join(GLB_DIR, NURSE)));
-    expect(sha256(shippedBytes), "repoint plant live side is the shipped split nurse").toBe(SHIPPED_SPLIT);
+    expect(splitGeometryPinMatches(shippedBytes), "repoint plant live side is the shipped split nurse").toBe(true);
     const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const base = await io.readBinary(new Uint8Array(inputBytes));
     const shipped = await io.readBinary(new Uint8Array(shippedBytes));
@@ -231,7 +241,7 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     const inputBytes = loadInputBytes();
     expect(sha256(inputBytes), "material plant baseline is the emitted lash input").toBe(EMITTED);
     const shippedBytes = new Uint8Array(readFileSync(join(GLB_DIR, NURSE)));
-    expect(sha256(shippedBytes), "material plant live side is the shipped split nurse").toBe(SHIPPED_SPLIT);
+    expect(splitGeometryPinMatches(shippedBytes), "material plant live side is the shipped split nurse").toBe(true);
     const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const base = await io.readBinary(new Uint8Array(inputBytes));
     const shipped = await io.readBinary(new Uint8Array(shippedBytes));
@@ -275,7 +285,7 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     const inputBytes = loadInputBytes();
     expect(sha256(inputBytes), "rotation plant baseline is the emitted lash input").toBe(EMITTED);
     const shippedBytes = new Uint8Array(readFileSync(join(GLB_DIR, NURSE)));
-    expect(sha256(shippedBytes), "rotation plant live side is the shipped split nurse").toBe(SHIPPED_SPLIT);
+    expect(splitGeometryPinMatches(shippedBytes), "rotation plant live side is the shipped split nurse").toBe(true);
     const io = new NodeIO().registerExtensions(ALL_EXTENSIONS);
     const base = await io.readBinary(new Uint8Array(inputBytes));
     const shipped = await io.readBinary(new Uint8Array(shippedBytes));
@@ -333,5 +343,110 @@ describe("nurse chest-split guards (R3a allowance)", () => {
     expect(cw.bodyMorphsByteEqual, "control passes CW1").toBe(true);
     expect(cw.nonLashMeshesHashEqual, "control passes CW2").toBe(true);
     console.log("G1 control wallMs", Date.now() - t0);
+  }, 30_000);
+});
+
+describe("A6 split-nurse geometry pin (C3a: a material-only stage re-pins no geometry file)", () => {
+  const SPLIT_GLB = join(GLB_DIR, NURSE);
+
+  /** Material-only variant: one parsed baseColorFactor component +0.05 (clamped); JSON chunk lengths repaired. */
+  function withMaterialOnlyTweak(shipped: Uint8Array): {
+    bytes: Uint8Array;
+    material: string;
+    component: number;
+    before: number[];
+    after: number[];
+  } {
+    const buf = Buffer.from(shipped);
+    const jsonLen = buf.readUInt32LE(12);
+    const jsonText = buf.subarray(20, 20 + jsonLen).toString("utf8");
+    const doc = JSON.parse(jsonText) as {
+      materials?: { name?: string; pbrMetallicRoughness?: { baseColorFactor?: number[] } }[];
+    };
+    const idx = (doc.materials ?? []).findIndex((mm) => Array.isArray(mm.pbrMetallicRoughness?.baseColorFactor));
+    if (idx < 0) throw new Error("A6 P1 setup: no baseColorFactor material");
+    const mat = doc.materials![idx]!;
+    const before = [...mat.pbrMetallicRoughness!.baseColorFactor!];
+    const component = 0;
+    const bumped = Math.min(1, (before[component] ?? 0) + 0.05);
+    const after = [...before];
+    after[component] = bumped;
+    const arrM = /"baseColorFactor":\[([^\]]*)\]/.exec(jsonText);
+    if (!arrM) throw new Error("A6 P1 setup: baseColorFactor array missing from JSON text");
+    const numM = /-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(arrM[1]!);
+    if (!numM) throw new Error("A6 P1 setup: no numeric token in baseColorFactor");
+    const tok = numM[0];
+    const absIdx = arrM.index + arrM[0].indexOf(arrM[1]!) + numM.index;
+    let next = jsonText.slice(0, absIdx) + String(bumped) + jsonText.slice(absIdx + tok.length);
+    next += " ".repeat((4 - (Buffer.byteLength(next, "utf8") % 4)) % 4);
+    const nextBytes = Buffer.from(next, "utf8");
+    const binStart = 20 + jsonLen;
+    const out = Buffer.alloc(20 + nextBytes.length + (buf.length - binStart));
+    buf.subarray(0, 8).copy(out, 0);
+    out.writeUInt32LE(nextBytes.length, 12);
+    buf.subarray(16, 20).copy(out, 16);
+    nextBytes.copy(out, 20);
+    buf.subarray(binStart).copy(out, 20 + nextBytes.length);
+    out.writeUInt32LE(out.length, 8);
+    return { bytes: new Uint8Array(out.buffer, out.byteOffset, out.byteLength), material: String(mat.name), component, before, after };
+  }
+
+  /** 1-ULP edit of the first float of the first float-POSITION accessor (in-memory copy). */
+  function withOneUlpPositionEdit(shipped: Uint8Array): { bytes: Uint8Array; beforeHex: string; afterHex: string } {
+    const buf = Buffer.from(shipped);
+    const jsonLen = buf.readUInt32LE(12);
+    const doc = JSON.parse(buf.subarray(20, 20 + jsonLen).toString("utf8")) as {
+      meshes?: { primitives?: { attributes?: Record<string, number> }[] }[];
+      accessors?: { bufferView?: number; byteOffset?: number; componentType?: number }[];
+      bufferViews?: { byteOffset?: number }[];
+    };
+    let at = -1;
+    for (const mesh of doc.meshes ?? []) {
+      for (const prim of mesh.primitives ?? []) {
+        const ai = prim.attributes?.["POSITION"];
+        const acc = ai === undefined ? undefined : doc.accessors?.[ai];
+        const bv = acc?.bufferView === undefined ? undefined : doc.bufferViews?.[acc.bufferView];
+        if (acc !== undefined && bv !== undefined && acc.componentType === 5126) {
+          at = 20 + jsonLen + 8 + (bv.byteOffset ?? 0) + (acc.byteOffset ?? 0);
+          break;
+        }
+      }
+      if (at >= 0) break;
+    }
+    if (at < 0) throw new Error("A6 P2 setup: no float POSITION accessor");
+    const beforeHex = buf.subarray(at, at + 4).toString("hex");
+    buf.writeUInt32LE(buf.readUInt32LE(at) + 1, at);
+    const afterHex = buf.subarray(at, at + 4).toString("hex");
+    if (afterHex === beforeHex) throw new Error("A6 P2 setup: ULP edit did not change bytes");
+    return { bytes: new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength), beforeHex, afterHex };
+  }
+
+  it("A6 P1 material-blind: a material-only copy keeps the split geometry pin", () => {
+    const shipped = new Uint8Array(readFileSync(SPLIT_GLB));
+    const liveSha = createHash("sha256").update(shipped).digest("hex");
+    const liveDigest = glbGeometryDigest(shipped);
+    const tweak = withMaterialOnlyTweak(shipped);
+    const copySha = createHash("sha256").update(tweak.bytes).digest("hex");
+    console.log("A6 P1", { material: tweak.material, component: tweak.component, before: tweak.before[tweak.component], after: tweak.after[tweak.component], liveSha, copySha });
+    // One parsed color component really changed (no float64-rounding no-op):
+    expect(tweak.after[tweak.component], "material tweak must change the parsed component").not.toBe(tweak.before[tweak.component]);
+    // Today's whole-sha reader refuses this copy (the RED premise), against the LIVE input:
+    expect(copySha, "material-only copy must differ in whole bytes from the live GLB").not.toBe(liveSha);
+    // The converted reader accepts it: geometry untouched.
+    expect(glbGeometryDigest(tweak.bytes), "material-only copy must keep the live geometry digest").toBe(liveDigest);
+    expect(splitGeometryPinMatches(tweak.bytes)).toBe(true);
+  }, 30_000);
+
+  it("A6 P2 counterweight: a 1-ULP POSITION edit refuses as stale", () => {
+    const shipped = new Uint8Array(readFileSync(SPLIT_GLB));
+    const edit = withOneUlpPositionEdit(shipped);
+    console.log("A6 P2", { beforeHex: edit.beforeHex, afterHex: edit.afterHex });
+    expect(edit.afterHex, "ULP edit must change accessor bytes").not.toBe(edit.beforeHex);
+    expect(splitGeometryPinMatches(edit.bytes), "1-ULP POSITION edit must refuse").toBe(false);
+  }, 30_000);
+
+  it("A6 P3 known-good: the shipped split nurse passes the new pin", () => {
+    const shipped = new Uint8Array(readFileSync(SPLIT_GLB));
+    expect(splitGeometryPinMatches(shipped)).toBe(true);
   }, 30_000);
 });

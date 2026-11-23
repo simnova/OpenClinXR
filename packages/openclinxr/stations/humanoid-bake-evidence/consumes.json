@@ -76,6 +76,10 @@
       {
         "name": "validateT3LineageChain",
         "kind": "runtime"
+      },
+      {
+        "name": "glbGeometryDigest",
+        "kind": "runtime"
       }
     ]
   },
