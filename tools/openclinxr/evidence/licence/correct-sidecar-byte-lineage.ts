@@ -1,7 +1,22 @@
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { closeSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, renameSync, rmSync, writeFileSync } from "node:fs";
 import path from "node:path";
+
+/** Publish text atomically: O_EXCL temp in the same dir + rename, temp unlinked on any failure (F4/N2). */
+function writeFileAtomic(target: string, text: string): void {
+  const tmp = path.join(path.dirname(target), `.${path.basename(target)}.repin-${process.pid}-${Date.now()}.tmp`);
+  const fd = openSync(tmp, "wx", 0o644);
+  try {
+    writeFileSync(fd, text, "utf8");
+    closeSync(fd);
+  } catch (e) {
+    try { closeSync(fd); } catch { /* close itself failed; unlink below */ }
+    rmSync(tmp, { force: true });
+    throw e;
+  }
+  try { renameSync(tmp, target); } catch (e) { rmSync(tmp, { force: true }); throw e; }
+}
 
 /**
  * Correct a sidecar byte pin ONLY where the shipped bytes reproduce: check out
@@ -630,8 +645,106 @@ function runChainGroup(
   );
 }
 
+const HEX64_RE = /^[0-9a-f]{64}$/;
+
+/**
+ * Re-pin a sidecar's whole-file pin to the --post bytes (FINALIZE-2 C2b writer (a)).
+ *
+ * Refuses (throws, nothing written) unless the sidecar's current outputSha256
+ * equals --pre-sha (antecedent guard: the row must pin the pre-stage bytes).
+ * Reads the --post file bytes NOW and writes outputSha256 = sha256(post bytes)
+ * and outputBytes = post byte length. Every other parsed field is verified
+ * deep-equal before/after. Never writes the --post GLB (a same-path --post is
+ * refused outright).
+ */
+export function repinSidecarBytePin(input: { sidecarPath: string; preSha: string; postPath: string }): {
+  sha256: string;
+  bytes: number;
+} {
+  if (!HEX64_RE.test(input.preSha)) {
+    throw new Error(
+      "correct-sidecar-byte-lineage --repin: --pre-sha must be a 64-hex sha256; refusing before any write.",
+    );
+  }
+  if (path.resolve(input.sidecarPath) === path.resolve(input.postPath)) {
+    throw new Error(
+      "correct-sidecar-byte-lineage --repin: --sidecar and --post resolve to the same file; refusing before any write.",
+    );
+  }
+  let st: ReturnType<typeof lstatSync>;
+  try { st = lstatSync(input.sidecarPath); } catch { throw new Error("correct-sidecar-byte-lineage --repin: cannot lstat sidecar; refusing before any write."); }
+  if (st.isSymbolicLink() || st.nlink > 1) throw new Error("correct-sidecar-byte-lineage --repin: sidecar is a symlink or hard-linked; refusing before any write.");
+  const raw = readFileSync(input.sidecarPath, "utf8");
+  assertLosslessNumbers(raw);
+  const record = JSON.parse(raw) as Record<string, unknown>;
+  if (record["outputSha256"] !== input.preSha) {
+    throw new Error(
+      `correct-sidecar-byte-lineage --repin: refusing — sidecar outputSha256 ${JSON.stringify(record["outputSha256"])} does not equal --pre-sha ${input.preSha}. Re-run that stage. Refusing before any write.`,
+    );
+  }
+  const postBytes = readFileSync(input.postPath);
+  const digest = sha256(postBytes);
+  const { outputSha256: _pin, outputBytes: _bytes, ...restBefore } = record;
+  const next: Record<string, unknown> = { ...restBefore, outputSha256: digest, outputBytes: postBytes.byteLength };
+  const { outputSha256: _pinAfter, outputBytes: _bytesAfter, ...restAfter } = next;
+  if (JSON.stringify(restAfter) !== JSON.stringify(restBefore)) {
+    throw new Error(
+      "correct-sidecar-byte-lineage --repin: refusing — a non-pin field changed; refusing before any write.",
+    );
+  }
+  writeFileAtomic(input.sidecarPath, `${JSON.stringify(next, null, 1)}\n`);
+  return { sha256: digest, bytes: postBytes.byteLength };
+}
+
+/** Refuse non-finite or precision-losing numeric tokens (F8/S-R5): scan the raw
+ * text outside string literals; fraction/exponent tokens must parse finite,
+ * integer tokens must fit Number.isSafeInteger (parsed values alone cannot
+ * show the loss: 9007199254740993 already reads back as 9007199254740992). */
+function assertLosslessNumbers(raw: string): void {
+  const toks = raw.replace(/"(?:\\.|[^"\\])*"/g, "").match(/-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/g) ?? [];
+  for (const t of toks) {
+    if (/[.eE]/.test(t)) {
+      const n = Number(t);
+      if (!Number.isFinite(n)) throw new Error(`correct-sidecar-byte-lineage --repin: refusing — non-finite numeric token ${t}; refusing before any write.`);
+      if (n === 0 && !/^-?0*(\.0*)?([eE][+-]?\d+)?$/.test(t)) throw new Error(`correct-sidecar-byte-lineage --repin: refusing — lossy numeric token ${t} (underflows to 0); refusing before any write.`);
+      if (Number.isInteger(n) && !Number.isSafeInteger(n)) throw new Error(`correct-sidecar-byte-lineage --repin: refusing — integer ${t} outside Number.isSafeInteger; refusing before any write.`);
+    } else {
+      const d = (t[0] === "-" ? t.slice(1) : t).replace(/^0+/, "") || "0";
+      if (d.length > 16 || (d.length === 16 && d > "9007199254740991")) throw new Error(`correct-sidecar-byte-lineage --repin: refusing — integer ${t} outside Number.isSafeInteger; refusing before any write.`);
+    }
+  }
+}
+
 function main(): void {
   const argv = process.argv.slice(2);
+  for (const tok of argv) {
+    if (/^--(repin|working-directory|asset|sidecar|pre-sha|post|help)=/.test(tok)) {
+      process.stderr.write(`correct-sidecar-byte-lineage refuses ${JSON.stringify(tok)} (space form only, no equals form).\n`);
+      process.exitCode = 2;
+      return;
+    }
+  }
+  if (argv.includes("--repin")) {
+    const seen = new Map<string, string>();
+    const rest = argv.filter((t) => t !== "--repin");
+    let bad: string | undefined;
+    for (let i = 0; i < rest.length && bad === undefined; i++) {
+      const tok = rest[i] as string;
+      if (!tok.startsWith("--") || tok.includes("=") || !["--sidecar", "--pre-sha", "--post"].includes(tok) || seen.has(tok)) bad = tok;
+      else { const v = rest[i + 1]; if (v === undefined || v.startsWith("--") || v.trim() === "") bad = tok; else { seen.set(tok, v); i++; } }
+    }
+    const sidecar = seen.get("--sidecar");
+    const preSha = seen.get("--pre-sha");
+    const post = seen.get("--post");
+    if (bad !== undefined || sidecar === undefined || preSha === undefined || post === undefined) {
+      process.stderr.write(`correct-sidecar-byte-lineage --repin refuses ${bad === undefined ? "missing --sidecar <json> --pre-sha <64hex> --post <glb>" : JSON.stringify(bad)} (space form only, no unknown flags).\n`);
+      process.exitCode = 2;
+      return;
+    }
+    const result = repinSidecarBytePin({ sidecarPath: sidecar, preSha, postPath: post });
+    process.stdout.write(`${JSON.stringify({ repinned: sidecar, ...result })}\n`);
+    return;
+  }
   if (argv.includes("--help")) {
     process.stdout.write(
       "usage: correct-sidecar-byte-lineage.ts --working-directory <dir> [--asset <assetPath>]\n",

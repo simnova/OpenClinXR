@@ -211,15 +211,33 @@ export function postExportLevelPreserves(argv: unknown, domain: string): boolean
   return postExportLevelStages(argv)?.every((stage) => stage.preserves.includes(domain)) ?? false;
 }
 
-/** Production pin-writer allowlist (R1: EMPTY). finalize fails closed on every
- * LIVE row; re-pins happen only through the test-only self-writer under the
- * --test-registry gate, never through this table. */
+/** Production pin-writer allowlist (FINALIZE-2 C2b: the material-only
+ * re-pin writer). finalize fails closed on every LIVE row whose writer is not
+ * listed here; listed writers run through their argv templates with
+ * row-context placeholders filled, never through env. */
 export interface PostExportPinWriter {
   readonly argv: readonly string[];
   readonly glbProducing: boolean;
 }
 
-export const POST_EXPORT_PIN_WRITERS: Readonly<Record<string, PostExportPinWriter | undefined>> = {};
+export const POST_EXPORT_PIN_WRITERS: Readonly<Record<string, PostExportPinWriter | undefined>> = {
+  "pnpm exec tsx tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (actor entry and recorded derivationArgv)": {
+    argv: [
+      "pnpm",
+      "exec",
+      "tsx",
+      "tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts",
+      "--repin",
+      "--sidecar",
+      "{file}",
+      "--pre-sha",
+      "{pre_sha}",
+      "--post",
+      "{post}",
+    ],
+    glbProducing: false,
+  },
+};
 
 const FROZEN_PIN_WRITER_PATH = "tools/openclinxr/evidence/scene-closure/proofs/sc-06/freeze-case-scene-plan.ts";
 

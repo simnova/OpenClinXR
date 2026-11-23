@@ -5,13 +5,17 @@ Order: (a) the post level's tool is registered (shared rule:
 post-export-stage-registry.ts CLI, THE single copy of the invoked-tool rule);
 (b) geometry equality glbGeometryDigest(pre)==glbGeometryDigest(post) when the
 registry says the stage preserves geometry; (e-precheck) every keep-sha row is
-classified BEFORE anything is written (frozen-plan rows skip; live rows FAIL
-CLOSED on the empty production pin-writer allowlist, naming file/field/writer
-with "re-run that stage"); (c) lineage record through the stage's own record
+classified BEFORE anything is written (frozen-plan rows skip; live rows with a
+writerless or non-allowlisted writer FAIL
+CLOSED, naming file/field/writer with "re-run that stage"); (e) re-pin every live row through its allowlisted
+writer argv template with row-context placeholders filled ({file}, {pre_sha},
+{post_sha}, {post}, {root}, {asset_key}), asserting every pinned field pins
+--post sha (sha equality, stage byte size, or map membership); (c) lineage
+record through the stage's own record
 writer (hair maps: --record-wired-materials-only), never a hand JSON edit;
 (d) measure-humanoid-basecolorfactor.py --body for the shipped body chosen by
-sha identity against the shipped GLB set; (e) re-pin every live row through
-its verbatim writer argv, asserting every pinned field == --post sha.
+sha identity against the shipped GLB set. (e) runs BEFORE (c)/(d) so the
+record writer and the measure observe post-stage pins.
 --dry-run prints the ordered plan and writes nothing; refusals exit non-zero
 naming the cause. Test seams open ONLY under --test-registry <path> (fixture
 mode): the path must resolve under the tmp fixture root, and every path
@@ -26,6 +30,7 @@ import hashlib
 import json
 import os
 import re
+import stat
 import subprocess
 import sys
 import tempfile
@@ -137,6 +142,77 @@ def field_value(doc: object, name: str) -> object:
             return None
         node = node[part]
     return node
+
+
+_SHA_FIELDS = {"outputSha256"}
+_SIZE_FIELDS = {"outputBytes"}
+_SHA_MAP_FIELDS = {"assetSha256ByPath"}
+_SIZE_MAP_FIELDS = {"byteCountByPath"}
+_MAP_FIELDS = _SHA_MAP_FIELDS | _SIZE_MAP_FIELDS
+
+
+def _leaf(name: object) -> str:
+    return str(name).split(".")[-1]
+
+
+def pin_matches(name: object, value: object, sha: str, size: int, asset_key: str | None = None) -> bool:
+    """Pinned field pins the staged artifact, dispatched by FIELD NAME (F1/F2):
+    sha/size/map kinds match only their kind under the resolved key; unknown names
+    keep the legacy value-typed match (test-seam rows like "pinned")."""
+    leaf = _leaf(name)
+    if leaf in _SHA_FIELDS:
+        return isinstance(value, str) and value == sha
+    if leaf in _SIZE_FIELDS:
+        return isinstance(value, int) and not isinstance(value, bool) and value == size
+    if leaf in _SHA_MAP_FIELDS:
+        return isinstance(value, dict) and asset_key is not None and value.get(asset_key) == sha
+    if leaf in _SIZE_MAP_FIELDS:
+        if not isinstance(value, dict) or asset_key is None:
+            return False
+        v = value.get(asset_key)
+        return isinstance(v, int) and not isinstance(v, bool) and v == size
+    if value == sha:
+        return True
+    if isinstance(value, int) and not isinstance(value, bool) and value == size:
+        return True
+    if isinstance(value, dict):
+        return (sha in value.values()) or any(
+            isinstance(v, int) and not isinstance(v, bool) and v == size for v in value.values()
+        )
+    return False
+
+
+def live_asset_keys(fpath: str, names: list, sha: str) -> list:
+    """Keys of assetSha256ByPath dicts holding sha. Empty = none pin it; >1 = ambiguous."""
+    try:
+        doc = json.loads(Path(fpath).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return []
+    keys: list = []
+    for name in names:
+        if _leaf(name) not in _SHA_MAP_FIELDS:
+            continue
+        value = field_value(doc, name)
+        if isinstance(value, dict):
+            for key, val in value.items():
+                if isinstance(val, str) and val == sha and key not in keys:
+                    keys.append(key)
+    return keys
+
+
+_TOKEN_RE = re.compile(r"\{(file|pre_sha|post_sha|post|root|asset_key)\}")
+
+
+def substitute_argv(template: object, mapping: dict) -> list:
+    """Fill row-context placeholders in an allowlisted writer argv template.
+    Single pass over the ORIGINAL token text (F3): inserted values are never
+    rescanned, so a fixture named {pre_sha}.json stays literal."""
+    out = []
+    for tok in list(template) if isinstance(template, list) else []:
+        if isinstance(tok, str):
+            tok = _TOKEN_RE.sub(lambda m: str(mapping.get(m.group(1), m.group(0))), tok)
+        out.append(tok)
+    return out
 
 
 def frozen_pinned(file_abs: Path, field: object, pre_sha: str | None = None) -> tuple:
@@ -251,6 +327,25 @@ def select_body_path(sidecar: dict, pre_abs: Path, post_abs: Path) -> Path | Non
     return None
 
 
+def publish_text_atomic(target: Path, text: str) -> None:
+    """Exclusive-create temp in the destination dir + rename; temp unlinked on any failure (F4/N2)."""
+    try:
+        st = os.lstat(target)
+    except OSError as exc:
+        refuse("e", f"cannot lstat write target ({target}: {exc}); refusing")
+    if stat.S_ISLNK(st.st_mode) or st.st_nlink > 1:
+        refuse("e", f"write target is a symlink or hard-linked ({target}); refusing")
+    fd, tmp = tempfile.mkstemp(dir=str(target.parent), prefix=".repin-", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(text)
+        os.replace(tmp, target)
+    except BaseException:
+        try: os.unlink(tmp)
+        except OSError: pass
+        raise
+
+
 def repin_one(root: str) -> None:
     """Fixture re-pin entry (X1: only under --test-registry; the file must sit under the same root)."""
     try:
@@ -281,7 +376,7 @@ def repin_one(root: str) -> None:
             flipped += 1
     if flipped == 0:
         refuse("e", f"--repin-one found no {pre[:8]}... pin in {path}; refusing")
-    path.write_text(json.dumps(doc, indent=1) + "\n", encoding="utf-8")
+    publish_text_atomic(path, json.dumps(doc, indent=1) + "\n")
     print(json.dumps({"repinned": str(path), "fields": flipped}))
 
 
@@ -302,6 +397,9 @@ def main() -> None:
     # Canonicalize: a symlinked tmp prefix (/var -> /private/var) makes
     # `pnpm exec tsx <registry>` exit 0 silently; realpath keeps it working.
     registry = Path(os.path.realpath(args.test_registry)) if args.test_registry else REGISTRY_TS
+    # Fixture dir (staged registry copy + assets): {root} substitutes here while
+    # `root` above stays the shared tmp root for the eligibility gate.
+    fixture_dir = str(registry.parent) if args.test_registry else None
 
     # X1: --repin-one never runs with --dry-run and never without the flag.
     if args.repin_one:
@@ -327,6 +425,8 @@ def main() -> None:
 
     pre_sha = sha_file(args.pre)
     post_sha = sha_file(args.post)
+    pre_size = args.pre.stat().st_size
+    post_size = args.post.stat().st_size
     try:
         sidecar = json.loads(args.sidecar.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
@@ -398,8 +498,16 @@ def main() -> None:
             skipped.append({**base, "pinned": None, "reason": "no pinned field to check"})
             continue
         vals = [(n, field_value(doc, n)) for n in names]
+        malformed = [n for n, v in vals if _leaf(n) in _SIZE_FIELDS and v is not None and (isinstance(v, bool) or not isinstance(v, int))]
+        if malformed:
+            refuse("e", f"row carries a malformed size pin ({file_str} :: {','.join(malformed)} holds no int byte count); refusing")
         first_val = vals[0][1] if vals else None
-        non_live = [(n, v) for n, v in vals if v != pre_sha]
+        has_map = any(_leaf(n) in _MAP_FIELDS for n in names)
+        pre_keys = live_asset_keys(str(fpath), names, pre_sha) if has_map else []
+        if has_map and len(pre_keys) > 1:
+            refuse("e", f"live keep-sha row pins --pre sha under {len(pre_keys)} keys ({file_str} :: {base['field']}); refusing (ambiguous staged asset)")
+        pre_key = pre_keys[0] if len(pre_keys) == 1 else None
+        non_live = [(n, v) for n, v in vals if not pin_matches(n, v, pre_sha, pre_size, pre_key)]
         if non_live:
             detail = ", ".join(
                 f"{n}={v[:8]}..." if isinstance(v, str)
@@ -408,25 +516,59 @@ def main() -> None:
             )
             skipped.append({**base, "pinned": first_val, "reason": f"not all fields pin --pre sha ({detail})"})
             continue
+        if root is None and not non_live and all(pin_matches(n, v, post_sha, post_size, pre_key) for n, v in vals):
+            skipped.append({**base, "pinned": first_val, "reason": "already pins --post bytes; nothing to re-pin"})
+            continue
         if not str(writer).strip() or str(writer).strip().lower() in WRITERLESS:
-            refuse("e", f"live keep-sha row without a production writer "
-                        f"({file_str} :: {base['field']} writer={writer}); re-run that stage to re-pin them; refusing")
+            refuse("e", f"live keep-sha row without a production writer ({file_str} :: {base['field']} writer={writer}); re-run that stage")
         if cli_info is None:
             refuse("e", f"live keep-sha row has no production pin writer "
                         f"({file_str} :: {base['field']}: {writer}); re-run that stage to re-pin it; refusing")
         if cli_info.get("glbProducing"):
             refuse("e", f"live keep-sha row writer produces GLBs ({file_str} :: {base['field']}: {writer}); refusing")
+        is_self = bool(root) and writer == " ".join(self_argv(args.test_registry))
+        if not is_self:
+            bad = [n for n in names if _leaf(n) not in {"outputSha256", "outputBytes"}]
+            if bad:
+                refuse("e", f"live keep-sha row pins unsupported fields for its writer ({file_str} :: {base['field']}: {writer} lacks {','.join(bad)}); leaving un-pinned; refusing")
+        argv_template = cli_info.get("argv")
+        mapping = {"file": fpath, "pre_sha": pre_sha, "post_sha": post_sha,
+                   "post": str(post_abs), "root": fixture_dir if fixture_dir else str(REPO_ROOT)}
+        if any(isinstance(t, str) and "{asset_key}" in t for t in (argv_template if isinstance(argv_template, list) else [])):
+            if len(pre_keys) != 1:
+                refuse("e", f"live keep-sha row writer needs {{asset_key}} but no single field pins --pre sha "
+                            f"({file_str} :: {base['field']}: {writer}); refusing")
+            mapping["asset_key"] = pre_keys[0]
+        try:
+            st = os.lstat(str(fpath))
+            if stat.S_ISLNK(st.st_mode) or st.st_nlink > 1:
+                refuse("e", f"row file is a symlink or hard-linked ({file_str}); refusing")
+        except OSError as exc:
+            refuse("e", f"cannot lstat row file ({file_str}: {exc}); refusing")
+        writer_argv = substitute_argv(argv_template, mapping)
+        slot = argv_template.index("{file}") if isinstance(argv_template, list) and "{file}" in argv_template else None
+        if slot is not None:
+            want = os.path.realpath(str(fpath))
+            if os.path.realpath(str(writer_argv[slot])) != want:
+                refuse("e", f"writer target escapes the validated row file ({file_str}); refusing")
+            writer_argv[slot] = str(fpath)  # H1: the checked path as written, never the resolved referent
         live.append({
-            **base, "pinned": pre_sha, "fieldNames": names,
-            "writerArgv": cli_info.get("argv"),
+            **base, "pinned": pre_sha, "fieldNames": names, "assetKey": pre_key,
+            "writerArgv": writer_argv,
             "fpath": str(fpath),
         })
 
     # (c) + (d) planned argv (run below unless --dry-run).
     if tool != MAPS_TOOL:
         refuse("c", f"no record writer registered for {tool}; refusing")
+    try:
+        side_st = os.lstat(str(args.sidecar))
+        if stat.S_ISLNK(side_st.st_mode) or side_st.st_nlink > 1:
+            refuse("c", f"sidecar is a symlink or hard-linked ({args.sidecar}); refusing")
+    except OSError as exc:
+        refuse("c", f"cannot lstat sidecar ({args.sidecar}: {exc}); refusing")
     record_argv = ["mise", "exec", "--", "python3", "-I", str(MAPS_PY),
-                   "--glb", str(post_abs), "--provenance", str(args.sidecar.resolve()),
+                   "--glb", str(post_abs), "--provenance", str(args.sidecar),
                    "--record-wired-materials-only"]
     body = select_body_path(sidecar, args.pre.resolve(), post_abs)
     if body is None:
@@ -449,18 +591,8 @@ def main() -> None:
         }, indent=1))
         return
 
-    # (c) lineage record through the stage's own writer.
-    proc = subprocess.run(record_argv, cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=600)
-    if proc.returncode != 0:
-        refuse("c", f"record writer failed ({(proc.stderr or proc.stdout).strip().splitlines()[:1]}); refusing")
-    # (d) basecolor measure for each touched shipped body.
-    measure_ran = False
-    if "argv" in measure:
-        proc = subprocess.run(measure["argv"], cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=600)
-        if proc.returncode != 0:
-            refuse("d", f"basecolor measure failed ({(proc.stderr or proc.stdout).strip().splitlines()[:1]}); refusing")
-        measure_ran = True
-    # (e) re-pin live rows through their verbatim writer argv.
+    # (e) re-pin live rows through their substituted writer argv, BEFORE (c)/(d),
+    # so the record writer and the measure observe post-stage pins.
     for entry in live:
         env = {**os.environ,
                "FINALIZE_REPIN_FILE": entry["fpath"],
@@ -474,10 +606,24 @@ def main() -> None:
             after = json.loads(Path(entry["fpath"]).read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError) as exc:
             refuse("e", f"writer left {entry['file']} :: {entry['field']} unreadable ({exc}); refusing")
-        unpinned = [n for n in entry["fieldNames"] if field_value(after, n) != post_sha]
+        key = entry.get("assetKey")  # F2: the prevalidated target key, resolved once before the write
+        unpinned = [n for n in entry["fieldNames"] if not pin_matches(n, field_value(after, n), post_sha, post_size, key)]
+        if any(_leaf(n) in _MAP_FIELDS for n in entry["fieldNames"]) and (key is None or unpinned):
+            unpinned = list(entry["fieldNames"])
         if unpinned:
             refuse("e", f"writer left {entry['file']} :: {entry['field']} un-pinned ({', '.join(unpinned)}); refusing")
         entry["exit"] = 0
+    # (c) lineage record through the stage's own writer.
+    proc = subprocess.run(record_argv, cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=600)
+    if proc.returncode != 0:
+        refuse("c", f"record writer failed ({(proc.stderr or proc.stdout).strip().splitlines()[:1]}); refusing")
+    # (d) basecolor measure for each touched shipped body.
+    measure_ran = False
+    if "argv" in measure:
+        proc = subprocess.run(measure["argv"], cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=600)
+        if proc.returncode != 0:
+            refuse("d", f"basecolor measure failed ({(proc.stderr or proc.stdout).strip().splitlines()[:1]}); refusing")
+        measure_ran = True
     print(json.dumps({
         "dryRun": False, "pre": str(args.pre), "post": str(args.post), "sidecar": str(args.sidecar),
         "checks": {"a": checks_a, "b": checks_b},

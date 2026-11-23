@@ -33,6 +33,7 @@ from __future__ import annotations
 import argparse
 import io
 import json
+import os, stat, tempfile
 import re
 import subprocess
 import sys
@@ -325,7 +326,21 @@ def record_wired_materials_only(args: argparse.Namespace) -> None:
     stage_record["wiredMaterials"] = [
         {"materialName": entry["materialName"], "texturesAdded": entry["texturesAdded"]}
     ]
-    provenance_path.write_text(json.dumps(provenance, indent=1, ensure_ascii=False) + "\n", encoding="utf-8")
+    try:
+        st = os.lstat(provenance_path)
+    except OSError as exc:
+        raise RuntimeError(f"cannot lstat sidecar ({exc}); refusing")
+    if stat.S_ISLNK(st.st_mode) or st.st_nlink > 1:
+        raise RuntimeError("sidecar is a symlink or hard-linked; refusing")
+    fd, tmp = tempfile.mkstemp(dir=str(provenance_path.parent), prefix=".repin-", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "w", encoding="utf-8") as fh:
+            fh.write(json.dumps(provenance, indent=1, ensure_ascii=False) + "\n")
+        os.replace(tmp, provenance_path)
+    except BaseException:
+        try: os.unlink(tmp)
+        except OSError: pass
+        raise
     print(json.dumps({"stage": STAGE, "tool": TOOL, "glb": str(args.glb),
                       "glbSha256": input_sha, "wiredMaterials": stage_record["wiredMaterials"]}, indent=1))
 

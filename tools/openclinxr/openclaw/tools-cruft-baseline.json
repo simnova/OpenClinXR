@@ -1,5 +1,5 @@
 {
-  "baseSha": "1a631a86d34fb19cd5c7bab0fae3ecbcef619c3b",
+  "baseSha": "74905b01f1f6959391cf46e5d8c2fadbc0b11df5",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -212,7 +212,6 @@
     "tools/openclinxr/evidence/slide-phase/arms-meter.ts",
     "tools/openclinxr/evidence/slide-phase/foot-base-divergence.ts",
     "tools/openclinxr/evidence/slide-phase/foot-base-stride-measure.ts",
-    "tools/openclinxr/evidence/slide-phase/standing-pitch-measure.ts",
     "tools/openclinxr/evidence/slide-phase/step-asymmetry.ts",
     "tools/openclinxr/evidence/speaking-actor-head-local-probe.ts",
     "tools/openclinxr/evidence/speaking-parent-still-pair-probe.ts",
@@ -814,7 +813,6 @@
     "tools/openclinxr/evidence/humanoid-vetting/swap-texture-glb.py",
     "tools/openclinxr/evidence/issue-290-print-table.py",
     "tools/openclinxr/evidence/issue-341-fix-simulate.py",
-    "tools/openclinxr/evidence/issue-341-mask-boundary-probe.py",
     "tools/openclinxr/evidence/quest-capacity/audio-frame-tags/native-operator/verify_host.py",
     "tools/openclinxr/evidence/realism-head/eyes/geometric-eye-g1-gate.py",
     "tools/openclinxr/evidence/realism-head/eyes/geometric-eye-g2-gate.py",
@@ -853,7 +851,6 @@
     "tools/openclinxr/evidence/shipped-blink-closure/scratch/m2-normals.py",
     "tools/openclinxr/evidence/shipped-blink-closure/scratch/m2-raster.py",
     "tools/openclinxr/evidence/station-skin-int/repin_case_pins.py",
-    "tools/openclinxr/evidence/trellis_sampler_sweep.py",
     "tools/openclinxr/factory/equipment-lane/measure-deck-glb.py",
     "tools/openclinxr/factory/equipment-lane/normalize-equipment-glb.py",
     "tools/openclinxr/factory/kimodo-loop/kimodo_approach_take_station.py",
