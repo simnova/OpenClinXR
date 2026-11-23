@@ -1,0 +1,8 @@
+// @rowfile c2-accessor-slices.ts
+// @field geometrySha256
+import { readFileSync } from "node:fs";
+import { glbGeometryDigest } from "@openclinxr/factory-station-core/runner";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const PIN = "5555555555555555555555555555555555555555555555555555555555555555";
+const liveDigest = glbGeometryDigest(new Uint8Array(readFileSync(GLB)));
+if (liveDigest !== PIN) throw new Error("geometry moved");

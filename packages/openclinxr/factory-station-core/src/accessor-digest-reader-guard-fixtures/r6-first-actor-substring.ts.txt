@@ -1,0 +1,8 @@
+// @rowfile r6-first-actor.ts
+// @field glbSha256
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/first-actor.glb";
+const PIN = "2222222222222222222222222222222222222222222222222222222222222222";
+const liveSha = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+if (liveSha !== PIN) throw new Error("moved");

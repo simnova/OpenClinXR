@@ -1,0 +1,10 @@
+// @rowfile c4-frozen-history.ts
+// @field sha256
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+const PIN = "6666666666666666666666666666666666666666666666666666666666666666";
+function gitShow(rev: string): Buffer {
+  return execFileSync("git", ["show", rev]);
+}
+const frozenSha = createHash("sha256").update(gitShow("abc123:ship/mpfb-test.glb")).digest("hex");
+if (frozenSha !== PIN) throw new Error("history moved");

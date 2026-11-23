@@ -1,0 +1,11 @@
+// @rowfile r7-split-statements.ts
+// @field outputSha256
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const PIN = "3333333333333333333333333333333333333333333333333333333333333333";
+const bytes = readFileSync(GLB);
+const hasher = createHash("sha256");
+hasher.update(bytes);
+const liveSha = hasher.digest("hex");
+if (liveSha !== PIN) throw new Error("moved");

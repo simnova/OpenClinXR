@@ -1,0 +1,13 @@
+// @rowfile r5-frozen-plus-live.ts
+// @field glbSha256
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+function gitShow(rev: string): Buffer {
+  return execFileSync("git", ["show", rev]);
+}
+const frozen = gitShow("abc123:ship/mpfb-test.glb");
+console.log("frozen", createHash("sha256").update(frozen).digest("hex"));
+const liveSha = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+if (liveSha !== "1111111111111111111111111111111111111111111111111111111111111111") throw new Error("moved");

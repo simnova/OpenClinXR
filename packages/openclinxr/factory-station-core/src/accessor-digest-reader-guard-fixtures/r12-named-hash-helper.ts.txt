@@ -1,0 +1,4 @@
+import { sha256File } from "./r12-sha256-helper.js";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const PIN = "1212121212121212121212121212121212121212121212121212121212121212";
+if (sha256File(GLB) !== PIN) throw new Error("moved");

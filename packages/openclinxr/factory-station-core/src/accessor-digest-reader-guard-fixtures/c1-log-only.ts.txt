@@ -1,0 +1,9 @@
+// @rowfile c1-log-only.ts
+// @field sha256
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const liveSha = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+console.log("live", liveSha);
+const record = { sha256: "abc" };
+if (record.sha256 !== "abc") throw new Error("unrelated");

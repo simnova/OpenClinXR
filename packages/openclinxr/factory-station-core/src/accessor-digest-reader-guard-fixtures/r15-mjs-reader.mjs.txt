@@ -1,0 +1,7 @@
+import { createHash } from "node:crypto";
+import { strictEqual as same } from "node:assert";
+import { readFile as slurp } from "node:fs/promises";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const PIN = "1515151515151515151515151515151515151515151515151515151515151515";
+const liveSha = createHash("sha256").update(await slurp(GLB)).digest("hex");
+same(liveSha, PIN);

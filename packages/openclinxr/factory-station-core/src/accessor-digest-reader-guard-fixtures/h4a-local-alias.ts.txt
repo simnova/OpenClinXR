@@ -1,0 +1,6 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const read = readFileSync;
+const PIN = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+const live = createHash("sha256").update(read("a.glb")).digest("hex");
+if (live !== PIN) throw new Error("moved");

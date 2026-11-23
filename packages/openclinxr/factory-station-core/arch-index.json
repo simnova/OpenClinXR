@@ -2,9 +2,35 @@
   "package": "factory-station-core",
   "name": "@openclinxr/factory-station-core",
   "entrypoint": "packages/openclinxr/factory-station-core/src/index.ts",
-  "purpose": "Root entrypoint publishes no symbols.",
-  "exports": [],
-  "exportSummaries": {},
+  "purpose": "Accessor-digest reader trace: binding-traced MISLABELLED analysis for post-export-stage accessor-digest rows.",
+  "exports": [
+    "REASON_BYTES",
+    "REASON_EMPTY_MAP",
+    "REASON_LANGUAGE",
+    "REASON_PIN",
+    "REASON_SIDECAR",
+    "ReaderCompare",
+    "ReaderTraceFS",
+    "ReaderVerdict",
+    "assessDataRow",
+    "assessReader",
+    "assessReaderCompares",
+    "mapProblem"
+  ],
+  "exportSummaries": {
+    "REASON_BYTES": "Whole live bytes compared to a stored buffer.",
+    "REASON_EMPTY_MAP": "Data row maps to no readers.",
+    "REASON_LANGUAGE": "Reader is not TypeScript.",
+    "REASON_PIN": "Whole live-GLB value compared to a stored pin.",
+    "REASON_SIDECAR": "Live GLB hash compared to a sidecar pin.",
+    "ReaderCompare": "One LIVE whole-GLB value compared to a STORED pin, with its source line.",
+    "ReaderTraceFS": "Post-export-stage accessor-digest reader trace (G1).",
+    "ReaderVerdict": "MISLABELLED verdict for one accessor-digest row against one reader file.",
+    "assessDataRow": "MISLABELLED verdict for a data row's reader mapping ([] and unmapped fail closed).",
+    "assessReader": "MISLABELLED verdict for a row file plus field against one reader file.",
+    "assessReaderCompares": "Every flagged comparison for a row file plus field against one reader file.",
+    "mapProblem": "Names the data basename when a DATA_READERS-mapped reader never mentions it."
+  },
   "workspaceDependencies": [
     "@openclinxr/compute-services-spec",
     "@openclinxr/service-local-compute"
@@ -12,6 +38,7 @@
   "tests": [
     "src/a-material-only-stage-repins-no-geometry-file.test.ts",
     "src/aisha-sweater-stage-is-registered.test.ts",
+    "src/post-export-stage-accessor-digest-reader-guard.test.ts",
     "src/post-export-stage-mint.test.ts",
     "src/the-station-schemas-conform-to-standard-schema.test.ts"
   ],

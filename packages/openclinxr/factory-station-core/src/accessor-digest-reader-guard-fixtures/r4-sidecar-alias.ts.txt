@@ -1,0 +1,9 @@
+// @rowfile r4-sidecar-alias.ts
+// @field outputSha256
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const sidecar = JSON.parse(readFileSync("/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.provenance.json", "utf8"));
+const liveSha = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+const want = sidecar.outputSha256;
+if (liveSha !== want) throw new Error("no-path");

@@ -1,0 +1,7 @@
+# @rowfile r2-hash-reader.py
+# @field outputSha256
+# @reader tools/pipeline/hash_reader.py
+import hashlib
+live = open("/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb", "rb").read()
+pin = "1111111111111111111111111111111111111111111111111111111111111111"
+assert hashlib.sha256(live).hexdigest() == pin, "refusing a different mesh"

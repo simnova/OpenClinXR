@@ -1,0 +1,4 @@
+import { readFileSync } from "node:fs";
+import { expectPinned } from "./r10-pin-helper.js";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+expectPinned(readFileSync(GLB));

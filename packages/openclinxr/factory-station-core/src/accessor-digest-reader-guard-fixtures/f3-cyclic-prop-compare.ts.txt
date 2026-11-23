@@ -1,0 +1,6 @@
+// @rowfile f3-cyclic-prop.ts
+// @field glbSha256
+// F3: direct compare of a cyclic property. Must return a verdict, no throw.
+const PIN = "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd";
+var paths = { glb: paths ? paths.glb : "a.glb" };
+if (paths.glb === PIN) console.log("pinned");

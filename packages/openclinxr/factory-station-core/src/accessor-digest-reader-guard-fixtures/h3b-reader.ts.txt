@@ -1,0 +1,4 @@
+import { digest } from "./h3b-barrel.js";
+const PIN = "3434343434343434343434343434343434343434343434343434343434343434";
+const live = digest("a.glb");
+if (live !== PIN) throw new Error("moved");

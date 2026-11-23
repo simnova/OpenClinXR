@@ -1,0 +1,11 @@
+// @rowfile proof/receipt.json
+// @field sha256
+// F2: the read names a DIFFERENT file that happens to share the basename.
+// Must NOT bind to the mapped row: verdict clean for this row.
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "a.glb";
+function wholeGlbHash(): string {
+  return createHash("sha256").update(readFileSync(GLB)).digest("hex");
+}
+if (wholeGlbHash() !== readFileSync("other/receipt.json", "utf8")) throw new Error("moved");

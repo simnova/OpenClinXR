@@ -1,0 +1,10 @@
+// @rowfile f4-shared-init.ts
+// @field glbSha256
+// F4: a shared initializer reached twice is a diamond, not a cycle.
+// The path resolves to dir/dir/a.glb, so this MUST be MISLABELLED.
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const PIN = "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee";
+const leaf = { p: "dir/" }, shared = { p: leaf.p };
+const live = createHash("sha256").update(readFileSync(shared.p + shared.p + "a.glb")).digest("hex");
+if (live !== PIN) throw new Error("moved");

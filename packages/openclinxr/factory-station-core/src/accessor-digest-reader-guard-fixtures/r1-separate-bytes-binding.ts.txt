@@ -1,0 +1,9 @@
+// @rowfile r1-gown-shard.ts
+// @field glbSha256
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb";
+const PIN = "029dbb504c6f655c7a2fc141948ff92dbd86190a306ee75ade8c50c39f8ab43f";
+const bytes = readFileSync(GLB);
+const hash = createHash("sha256").update(bytes).digest("hex");
+if (hash !== PIN) throw new Error("refusing to measure a different mesh");

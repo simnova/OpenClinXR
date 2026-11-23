@@ -21,6 +21,62 @@
   },
   {
     "provider": "@openclinxr/factory-station-core",
+    "entrypoint": ".",
+    "names": [
+      {
+        "name": "assessDataRow",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "assessReader",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "assessReaderCompares",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "mapProblem",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "ReaderTraceFS",
+        "kind": "type",
+        "via": "own-test"
+      },
+      {
+        "name": "REASON_BYTES",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "REASON_EMPTY_MAP",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "REASON_LANGUAGE",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "REASON_PIN",
+        "kind": "runtime",
+        "via": "own-test"
+      },
+      {
+        "name": "REASON_SIDECAR",
+        "kind": "runtime",
+        "via": "own-test"
+      }
+    ]
+  },
+  {
+    "provider": "@openclinxr/factory-station-core",
     "entrypoint": "./runner",
     "names": [
       {

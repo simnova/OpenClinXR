@@ -1,0 +1,8 @@
+// @rowfile r3-whole-bytes.ts
+// @field outputBytes
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const EXPECTED = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.expected.bin";
+const liveBytes = readFileSync(GLB);
+const stored = readFileSync(EXPECTED);
+if (!liveBytes.equals(stored)) throw new Error("bytes moved");

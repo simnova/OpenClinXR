@@ -1,0 +1,7 @@
+// H1: names receipt.json only in this comment; the pin below is unrelated
+// to that row (it guards other.glb, not the receipt digest).
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const PIN = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa";
+const live = createHash("sha256").update(readFileSync("other.glb")).digest("hex");
+if (live !== PIN) throw new Error("moved");

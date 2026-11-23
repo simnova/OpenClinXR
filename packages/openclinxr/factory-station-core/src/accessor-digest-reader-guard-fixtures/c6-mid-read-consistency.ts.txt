@@ -1,0 +1,6 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const first = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+const second = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+if (first !== second) throw new Error("mid-read change");

@@ -1,0 +1,13 @@
+// @rowfile c3-tmp-copy.ts
+// @field glbSha256
+import { createHash } from "node:crypto";
+import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join } from "node:path";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const dir = mkdtempSync(join(tmpdir(), "c3-"));
+const copy = join(dir, "work.glb");
+writeFileSync(copy, readFileSync(GLB));
+const copySha = createHash("sha256").update(readFileSync(copy)).digest("hex");
+const liveSha = createHash("sha256").update(readFileSync(GLB)).digest("hex");
+if (copySha !== liveSha) throw new Error("copy mismatch");

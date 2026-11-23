@@ -1,0 +1,6 @@
+// C5: a DATA_READERS entry pointing at a reader that does not name the
+// data file. The test pairs this reader with a data path whose basename
+// appears nowhere in this text, so mapProblem must fire.
+import { readFileSync } from "node:fs";
+const doc = JSON.parse(readFileSync("docs/provenance/other-file.json", "utf8"));
+console.log(doc.rows.length);

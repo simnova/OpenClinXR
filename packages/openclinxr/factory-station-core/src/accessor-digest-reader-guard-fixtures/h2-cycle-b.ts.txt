@@ -1,0 +1,4 @@
+import { marker } from "./h2-cycle-a.js";
+export function helper(): string {
+  return marker;
+}

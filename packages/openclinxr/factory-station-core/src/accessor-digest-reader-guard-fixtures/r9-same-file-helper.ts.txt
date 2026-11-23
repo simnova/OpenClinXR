@@ -1,0 +1,11 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const PIN = "9999999999999999999999999999999999999999999999999999999999999999";
+function sha(bytes: Buffer): string {
+  return createHash("sha256").update(bytes).digest("hex");
+}
+function expectPinned(bytes: Buffer): void {
+  expect(sha(bytes)).toBe(PIN);
+}
+expectPinned(readFileSync(GLB));

@@ -1,0 +1,12 @@
+// @rowfile proof/receipt.json
+// @field sha256
+// F1: property access and its receiver share a start offset. The STORED side
+// derives from a real read of the mapped row, so this MUST be MISLABELLED.
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "a.glb";
+function wholeGlbHash(): string {
+  return createHash("sha256").update(readFileSync(GLB)).digest("hex");
+}
+const sidecar = JSON.parse(readFileSync("proof/receipt.json", "utf8")).sha256;
+if (wholeGlbHash() !== sidecar) throw new Error("moved");

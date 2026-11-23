@@ -1,0 +1,6 @@
+// @rowfile r8-cross-module.ts
+// @field glbSha256
+import { wholeLiveHash } from "./r8-live-hash-helper.js";
+const PIN = "4444444444444444444444444444444444444444444444444444444444444444";
+const liveSha = wholeLiveHash();
+if (liveSha !== PIN) throw new Error("moved");

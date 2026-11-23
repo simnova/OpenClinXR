@@ -1,0 +1,9 @@
+import { helper } from "./h2-cycle-b.js";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+export const marker = "m";
+var paths = { glb: paths?.glb };
+paths.glb = "a.glb";
+const PIN = "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb";
+const live = createHash("sha256").update(readFileSync(paths.glb)).digest("hex");
+if (live !== PIN) throw new Error("moved " + helper());

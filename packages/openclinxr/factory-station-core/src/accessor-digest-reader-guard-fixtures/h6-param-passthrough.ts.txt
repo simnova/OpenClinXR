@@ -1,0 +1,11 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+const PIN = "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc";
+function wholeGlbHash(): string {
+  return createHash("sha256").update(readFileSync(GLB)).digest("hex");
+}
+function check(live: string): void {
+  if (live !== PIN) throw new Error("moved");
+}
+check(wholeGlbHash());

@@ -1,0 +1,14 @@
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLBS = ["/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb"];
+const BY_NAME = { live: "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb" };
+const SUFFIX = "/repo/apps/ui-xr/public/generated-humanoids/asset.g" + "lb";
+const PINS: Record<string, string> = { first: "1313131313131313131313131313131313131313131313131313131313131313" };
+for (const [name, pin] of Object.entries(PINS)) {
+  const a = createHash("sha256").update(readFileSync(GLBS[0])).digest("hex");
+  if (a !== pin) throw new Error("moved " + name);
+  const b = createHash("sha256").update(readFileSync(BY_NAME.live)).digest("hex");
+  if (b !== pin) throw new Error("moved " + name);
+  const c = createHash("sha256").update(readFileSync(SUFFIX)).digest("hex");
+  if (c !== pin) throw new Error("moved " + name);
+}

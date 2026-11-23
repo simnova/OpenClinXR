@@ -1,0 +1,7 @@
+// @helper (sibling module for r8-cross-module-helper; not a case)
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+const GLB = "/repo/apps/ui-xr/public/generated-humanoids/mpfb-test.glb";
+export function wholeLiveHash(): string {
+  return createHash("sha256").update(readFileSync(GLB)).digest("hex");
+}
