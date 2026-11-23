@@ -1,6 +1,6 @@
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { copyFileSync, linkSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
+import { copyFileSync, linkSync, mkdirSync, mkdtempSync, readFileSync, realpathSync, rmSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -10,6 +10,8 @@ const MAPS_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_materi
 const NURSE_GLB = "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb";
 const WRITER_SIDECAR =
   "pnpm exec tsx tools/openclinxr/evidence/licence/correct-sidecar-byte-lineage.ts (actor entry and recorded derivationArgv)";
+const WRITER_SUPINE =
+  "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts#produceSupineControlFreeze with fresh observation";
 
 const sha256 = (b: Buffer): string => createHash("sha256").update(b).digest("hex");
 const shaFile = (p: string): string => sha256(readFileSync(p));
@@ -173,6 +175,77 @@ assert m.substitute_argv(["--sidecar","{file}"],{"file":"/tmp/fx/{pre_sha}.json"
       for (const [f, sha] of glbBefore) expect(shaFile(f), `${f} unchanged`).toBe(sha);
       const result = JSON.parse(r.stdout) as { live: { file: string }[] };
       expect(result.live.map((e) => e.file)).toContain(sidecar);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
+  });
+  it("supine writer: one LIVE row re-pins the staged asset, sibling rows stay byte-identical", { timeout: 180_000 }, () => {
+    const dir = mkdtempSync(path.join(process.env["OPENCLINXR_JOB_TMP"] ?? tmpdir(), "finalize-writers-b-"));
+    try {
+      const reg = stageRegistry(dir);
+      const { pre, post, preSha, postSha } = nursePair(dir, "b", reg);
+      const keys = [
+        "apps/ui-xr/public/xr-assets/environment/infinigen-inpatient-ward.glb",
+        "apps/ui-xr/public/generated-humanoids/mpfb-family-partner-adult.glb",
+        "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb",
+        "apps/ui-xr/public/generated-humanoids/mpfb-clinical-physician-adult.glb",
+        "apps/ui-xr/public/generated-humanoids/mpfb-peds-nurse-kevin.glb",
+        "apps/ui-xr/public/xr-assets/environment/infinigen-stepdown.glb",
+        "apps/ui-xr/public/xr-assets/environment/infinigen-surgical-ward.glb",
+        "apps/ui-xr/public/generated-humanoids/mpfb-gown-adult-patient.glb",
+      ];
+      const nurseKey = "apps/ui-xr/public/generated-humanoids/mpfb-clinical-nurse-adult.glb";
+      for (const key of keys) {
+        const ap = path.join(dir, key);
+        mkdirSync(path.dirname(ap), { recursive: true });
+        if (key === nurseKey) copyFileSync(pre, ap);
+        else writeFileSync(ap, Buffer.from(`frozen-control:${key}`));
+      }
+      const digests: Record<string, string> = {};
+      const counts: Record<string, number> = {};
+      for (const key of keys) {
+        digests[key] = shaFile(path.join(dir, key));
+        counts[key] = readFileSync(path.join(dir, key)).byteLength;
+      }
+      expect(digests[nurseKey]).toBe(preSha);
+      const recordPath = path.join(dir, "supine-control-freeze.record.json");
+      writeFileSync(recordPath, JSON.stringify({
+        schemaVersion: "openclinxr.supine-control-freeze.v1",
+        scenarioId: "ward_delirium_med_rec_v1",
+        assetSha256ByPath: digests,
+        staged: { posture: "supine", supportSurfaceCount: 1, clearanceAboveDeckMeters: 0.25 },
+        producedFrom: { observedBy: "fixture-baseline", observedAtIso: "2020-01-01T00:00:00.000Z", reason: "fixture baseline", byteCountByPath: counts },
+      }, null, 2));
+      copyFileSync(post, path.join(dir, nurseKey));
+      const glbBefore = new Map([[pre, preSha], [post, postSha]]);
+      const sidecar = craftSidecar(dir, "b.provenance.json", postSha, pre, post);
+      const fixture = writeConsumers(dir, [{
+        file: recordPath,
+        field_or_symbol: "(assetSha256ByPath, producedFrom.byteCountByPath)",
+        proposed_pin: "keep-sha",
+        writer: WRITER_SUPINE,
+      }]);
+      const recordBefore = readFileSync(recordPath, "utf8");
+      const sibBefore = recordBefore.split("\n").filter((l) => l.includes("mpfb-peds-nurse-kevin.glb"));
+      expect(sibBefore.length).toBe(2);
+      expect(runFinalize(["--pre", pre, "--post", post, "--sidecar", sidecar, "--consumers", fixture, "--test-registry", reg]).status).toBe(0);
+      const rawAfter = readFileSync(recordPath, "utf8");
+      expect(rawAfter.split("\n").filter((l) => l.includes("mpfb-peds-nurse-kevin.glb"))).toEqual(sibBefore);
+      const after = JSON.parse(rawAfter) as {
+        assetSha256ByPath: Record<string, string>;
+        producedFrom: { observedAtIso: string; byteCountByPath: Record<string, number> };
+      };
+      expect(after.assetSha256ByPath[nurseKey]).toBe(postSha);
+      expect(after.producedFrom.byteCountByPath[nurseKey]).toBe(readFileSync(post).byteLength);
+      expect(after.producedFrom.observedAtIso > "2020-01-01T00:00:00.000Z").toBe(true);
+      const before = JSON.parse(recordBefore) as typeof after;
+      for (const key of keys) {
+        if (key === nurseKey) continue;
+        expect(after.assetSha256ByPath[key]).toBe(before.assetSha256ByPath[key]);
+        expect(after.producedFrom.byteCountByPath[key]).toBe(before.producedFrom.byteCountByPath[key]);
+      }
+      for (const [f, sha] of glbBefore) expect(shaFile(f), `${f} unchanged`).toBe(sha);
+      expect(shaFile(path.join(dir, nurseKey)), "live canonical nurse GLB byte-identical").toBe(postSha);
     } finally {
       rmSync(dir, { recursive: true, force: true });
     }

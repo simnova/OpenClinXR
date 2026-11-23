@@ -527,11 +527,13 @@ def main() -> None:
         if cli_info.get("glbProducing"):
             refuse("e", f"live keep-sha row writer produces GLBs ({file_str} :: {base['field']}: {writer}); refusing")
         is_self = bool(root) and writer == " ".join(self_argv(args.test_registry))
+        argv_template = cli_info.get("argv")
         if not is_self:
-            bad = [n for n in names if _leaf(n) not in {"outputSha256", "outputBytes"}]
+            allows_maps = isinstance(argv_template, list) and any(isinstance(t, str) and "{asset_key}" in t for t in argv_template)
+            ok_full = {"outputSha256", "outputBytes"} | ({"assetSha256ByPath", "producedFrom.byteCountByPath"} if allows_maps else set())
+            bad = [n for n in names if n not in ok_full]
             if bad:
                 refuse("e", f"live keep-sha row pins unsupported fields for its writer ({file_str} :: {base['field']}: {writer} lacks {','.join(bad)}); leaving un-pinned; refusing")
-        argv_template = cli_info.get("argv")
         mapping = {"file": fpath, "pre_sha": pre_sha, "post_sha": post_sha,
                    "post": str(post_abs), "root": fixture_dir if fixture_dir else str(REPO_ROOT)}
         if any(isinstance(t, str) and "{asset_key}" in t for t in (argv_template if isinstance(argv_template, list) else [])):
@@ -554,6 +556,7 @@ def main() -> None:
             writer_argv[slot] = str(fpath)  # H1: the checked path as written, never the resolved referent
         live.append({
             **base, "pinned": pre_sha, "fieldNames": names, "assetKey": pre_key,
+            "assetRoot": mapping["root"],
             "writerArgv": writer_argv,
             "fpath": str(fpath),
         })
@@ -594,6 +597,16 @@ def main() -> None:
     # (e) re-pin live rows through their substituted writer argv, BEFORE (c)/(d),
     # so the record writer and the measure observe post-stage pins.
     for entry in live:
+        # F2: the resolved asset must already hold the expected post-stage bytes;
+        # otherwise the writer would publish a stale observation before we refuse.
+        if entry.get("assetKey") is not None:
+            canon = Path(str(entry.get("assetRoot") or "")) / str(entry.get("assetKey"))
+            try:
+                have = canon.read_bytes()
+            except OSError as exc:
+                refuse("e", f"resolved asset unreadable ({canon}: {exc}); refusing before any write")
+            if hashlib.sha256(have).hexdigest() != post_sha or len(have) != post_size:
+                refuse("e", f"resolved asset does not hold post-stage bytes ({canon}); refusing before any write")
         env = {**os.environ,
                "FINALIZE_REPIN_FILE": entry["fpath"],
                "FINALIZE_REPIN_FIELDS": ",".join(entry["fieldNames"]),

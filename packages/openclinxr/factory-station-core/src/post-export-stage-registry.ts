@@ -211,8 +211,8 @@ export function postExportLevelPreserves(argv: unknown, domain: string): boolean
   return postExportLevelStages(argv)?.every((stage) => stage.preserves.includes(domain)) ?? false;
 }
 
-/** Production pin-writer allowlist (FINALIZE-2 C2b: the material-only
- * re-pin writer). finalize fails closed on every LIVE row whose writer is not
+/** Production pin-writer allowlist (FINALIZE-2 C2b: the two material-only
+ * re-pin writers). finalize fails closed on every LIVE row whose writer is not
  * listed here; listed writers run through their argv templates with
  * row-context placeholders filled, never through env. */
 export interface PostExportPinWriter {
@@ -234,6 +234,24 @@ export const POST_EXPORT_PIN_WRITERS: Readonly<Record<string, PostExportPinWrite
       "{pre_sha}",
       "--post",
       "{post}",
+    ],
+    glbProducing: false,
+  },
+  "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts#produceSupineControlFreeze with fresh observation": {
+    argv: [
+      "pnpm",
+      "exec",
+      "tsx",
+      "tools/openclinxr/evidence/supine-control-freeze/supine-control-freeze.ts",
+      "--repin",
+      "--record",
+      "{file}",
+      "--asset",
+      "{asset_key}",
+      "--observed-by",
+      "finalize_post_export_stage.py re-pin",
+      "--root",
+      "{root}",
     ],
     glbProducing: false,
   },
