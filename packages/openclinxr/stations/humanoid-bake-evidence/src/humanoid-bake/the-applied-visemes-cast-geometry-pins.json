@@ -1,0 +1,9 @@
+{
+  "geometryPinWriter": "tools/openclinxr/evidence/humanoid-vetting/pin-visemes-cast-geometry.ts",
+  "pins": {
+    "mpfb-ob-patient-aisha": "3a39ea36e9f6005d637c6560979b3f9349eeaa7867c9724a42ffb643238f6fa1",
+    "mpfb-peds-parent-aisha": "a515226e4f44713e54906cbd56cdb2690eaa74baefb74de1d03eb7257514c35a",
+    "mpfb-clinical-physician-adult": "75ab7455993e162198984e930449deb6a2354109413e3b90cb03377396783f8e",
+    "mpfb-peds-nurse-kevin": "83c9d99113b2bc8c34ab769bef70ed0d62d932270656c1e774a39c095472b424"
+  }
+}

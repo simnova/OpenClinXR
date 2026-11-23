@@ -1,5 +1,7 @@
+import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { type Node as GLTFNode, NodeIO, type Primitive } from "@gltf-transform/core";
 import { glbGeometryDigest, repoRoot } from "@openclinxr/factory-station-core/runner";
@@ -268,6 +270,15 @@ type Prov = {
   appliedBeforeStrip?: boolean; loadTargetsFlags?: Record<string, boolean>;
   shippedActorSha256?: Record<string, string>;
 };
+
+/** Geometry pins minted from the live tree by pin-visemes-cast-geometry.ts (never transcribed). */
+const CAST_GEOMETRY_PINS = JSON.parse(
+  readFileSync(new URL("./the-applied-visemes-cast-geometry-pins.json", import.meta.url), "utf8"),
+) as { pins?: Record<string, string> };
+function castGeometryMatches(a: string, bytes: Uint8Array): boolean {
+  const pin = CAST_GEOMETRY_PINS.pins?.[a];
+  return typeof pin === "string" && glbGeometryDigest(bytes) === pin;
+}
 const prov = (): Prov => {
   expect(existsSync(PROVENANCE), `${PROVENANCE} — E6.3 writes it`).toBe(true);
   return JSON.parse(readFileSync(PROVENANCE, "utf8")) as Prov;
@@ -356,10 +367,11 @@ describe("the applied visemes move the mouth, not just the target list", () => {
       nurseGeometryPinMatches(new Uint8Array(readFileSync(nurseAbs))),
       "nurse was REBAKED — this slice bakes a NEW inspect asset, it does not touch the cast",
     ).toBe(true);
-    for (const [a, sha] of Object.entries(SHIPPED_UNTOUCHED)) {
+    for (const a of Object.keys(SHIPPED_UNTOUCHED)) {
       const abs = join(REPO_ROOT, `apps/ui-xr/public/generated-humanoids/${a}.glb`);
       expect(existsSync(abs), `${a} must still ship`).toBe(true);
-      expect(createHash("sha256").update(readFileSync(abs)).digest("hex"), `${a} was REBAKED — this slice bakes a NEW inspect asset, it does not touch the cast`).toBe(sha);
+      const bytes = new Uint8Array(readFileSync(abs));
+      expect(castGeometryMatches(a, bytes), `${a} geometry changed — this slice bakes a NEW inspect asset, it does not touch the cast`).toBe(true);
     }
     if (!existsSync(PROVENANCE)) throw new Error("missing artifact");
     const p = prov();
@@ -477,4 +489,131 @@ describe("A5 nurse geometry pin (C3a: a material-only stage re-pins no geometry 
     const shipped = new Uint8Array(readFileSync(NURSE_GLB));
     expect(nurseGeometryPinMatches(shipped)).toBe(true);
   }, 30_000);
+});
+
+describe("visemes-cast geometry pins (V1-V3)", () => {
+  const CAST_ACTOR = "mpfb-ob-patient-aisha";
+  const castAbs = (a: string): string => join(REPO_ROOT, `apps/ui-xr/public/generated-humanoids/${a}.glb`);
+
+  /** Split a GLB into a mutable buffer plus its JSON text for byte-level mutants. */
+  function splitGlb(bytes: Uint8Array): { buf: Buffer; jsonLen: number; jsonText: string } {
+    const buf = Buffer.from(bytes);
+    const jsonLen = buf.readUInt32LE(12);
+    return { buf, jsonLen, jsonText: buf.subarray(20, 20 + jsonLen).toString("utf8") };
+  }
+
+  /** Re-chunk a GLB after JSON-text surgery (lengths repaired, 4-byte pad). */
+  function rechunk(buf: Buffer, jsonLen: number, next: string): Uint8Array {
+    const padded = next + " ".repeat((4 - (Buffer.byteLength(next, "utf8") % 4)) % 4);
+    const nextBytes = Buffer.from(padded, "utf8");
+    const binStart = 20 + jsonLen;
+    const out = Buffer.alloc(20 + nextBytes.length + (buf.length - binStart));
+    buf.subarray(0, 8).copy(out, 0);
+    out.writeUInt32LE(nextBytes.length, 12);
+    buf.subarray(16, 20).copy(out, 16);
+    nextBytes.copy(out, 20);
+    buf.subarray(binStart).copy(out, 20 + nextBytes.length);
+    out.writeUInt32LE(out.length, 8);
+    return new Uint8Array(out.buffer, out.byteOffset, out.byteLength);
+  }
+
+  /** Material-only mutant: one baseColorFactor component +0.05; geometry bytes verbatim. */
+  function withCastMaterialOnlyTweak(shipped: Uint8Array): { bytes: Uint8Array; before: number[]; after: number[] } {
+    const { buf, jsonLen, jsonText } = splitGlb(shipped);
+    const doc = JSON.parse(jsonText) as { materials?: { pbrMetallicRoughness?: { baseColorFactor?: number[] } }[] };
+    const mat = (doc.materials ?? []).find((m) => Array.isArray(m.pbrMetallicRoughness?.baseColorFactor));
+    if (!mat) throw new Error("V1 setup: no baseColorFactor material");
+    const before = [...mat.pbrMetallicRoughness!.baseColorFactor!];
+    const after = [...before];
+    after[0] = Math.min(1, (after[0] ?? 0) + 0.05);
+    const arrM = /"baseColorFactor":\[([^\]]*)\]/.exec(jsonText);
+    const numM = arrM && /-?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?/.exec(arrM[1]!);
+    if (!arrM || !numM) throw new Error("V1 setup: baseColorFactor token missing");
+    const at = arrM.index + arrM[0].indexOf(arrM[1]!) + numM.index;
+    const next = jsonText.slice(0, at) + String(after[0]) + jsonText.slice(at + numM[0].length);
+    return { bytes: rechunk(buf, jsonLen, next), before, after };
+  }
+
+  /** Geometry mutant: +1 ULP on the first float of the first float-POSITION accessor. */
+  function withCastOneVertexPositionEdit(shipped: Uint8Array): { bytes: Uint8Array; beforeHex: string; afterHex: string } {
+    const { buf, jsonLen, jsonText } = splitGlb(shipped);
+    const doc = JSON.parse(jsonText) as {
+      meshes?: { primitives?: { attributes?: Record<string, number> }[] }[];
+      accessors?: { bufferView?: number; byteOffset?: number; componentType?: number }[];
+      bufferViews?: { byteOffset?: number }[];
+    };
+    const at = ((): number => {
+      for (const mesh of doc.meshes ?? []) {
+        for (const prim of mesh.primitives ?? []) {
+          const ai = prim.attributes?.["POSITION"];
+          const acc = ai === undefined ? undefined : doc.accessors?.[ai];
+          const bv = acc?.bufferView === undefined ? undefined : doc.bufferViews?.[acc.bufferView];
+          if (acc && bv && acc.componentType === 5126) {
+            return 20 + jsonLen + 8 + (bv.byteOffset ?? 0) + (acc.byteOffset ?? 0);
+          }
+        }
+      }
+      return -1;
+    })();
+    if (at < 0) throw new Error("V2 setup: no float POSITION accessor");
+    const beforeHex = buf.subarray(at, at + 4).toString("hex");
+    buf.writeUInt32LE(buf.readUInt32LE(at) + 1, at);
+    const afterHex = buf.subarray(at, at + 4).toString("hex");
+    if (afterHex === beforeHex) throw new Error("V2 setup: ULP edit did not change bytes");
+    return { bytes: new Uint8Array(buf.buffer, buf.byteOffset, buf.byteLength), beforeHex, afterHex };
+  }
+
+  it("V1 material-blind: a material-only mutant of a listed GLB keeps the geometry pin", () => {
+    const shipped = new Uint8Array(readFileSync(castAbs(CAST_ACTOR)));
+    const liveSha = createHash("sha256").update(shipped).digest("hex");
+    const tweak = withCastMaterialOnlyTweak(shipped);
+    console.log("V1", { actor: CAST_ACTOR, before: tweak.before, after: tweak.after });
+    expect(tweak.after[0], "material tweak must change the parsed component").not.toBe(tweak.before[0]);
+    expect(castGeometryMatches(CAST_ACTOR, shipped), "live baseline passes the loop validator").toBe(true);
+    expect(createHash("sha256").update(tweak.bytes).digest("hex"), "old whole-sha reader refuses the mutant").not.toBe(liveSha);
+    expect(castGeometryMatches(CAST_ACTOR, tweak.bytes), "material-only copy must keep the geometry pin").toBe(true);
+  }, 30_000);
+
+  it("V1k kevin material-blind: mutant keeps pin, fails old whole-sha", () => {
+    const shipped = new Uint8Array(readFileSync(castAbs("mpfb-peds-nurse-kevin")));
+    const liveSha = createHash("sha256").update(shipped).digest("hex");
+    const t = withCastMaterialOnlyTweak(shipped);
+    console.log("V1k", { before: t.before, after: t.after });
+    expect(castGeometryMatches("mpfb-peds-nurse-kevin", shipped), "live kevin passes the loop validator").toBe(true);
+    expect(createHash("sha256").update(t.bytes).digest("hex")).not.toBe(liveSha);
+    expect(castGeometryMatches("mpfb-peds-nurse-kevin", t.bytes)).toBe(true);
+  }, 30_000);
+
+  it("V2 counterweight: a one-vertex POSITION mutant refuses as stale", () => {
+    const shipped = new Uint8Array(readFileSync(castAbs(CAST_ACTOR)));
+    const edit = withCastOneVertexPositionEdit(shipped);
+    console.log("V2", { actor: CAST_ACTOR, beforeHex: edit.beforeHex, afterHex: edit.afterHex });
+    expect(edit.afterHex, "ULP edit must change accessor bytes").not.toBe(edit.beforeHex);
+    expect(castGeometryMatches(CAST_ACTOR, shipped), "live baseline passes the loop validator").toBe(true);
+    expect(castGeometryMatches(CAST_ACTOR, edit.bytes), "1-vertex POSITION edit must refuse").toBe(false);
+  }, 30_000);
+
+  it("V3 writer: the geometry writer refuses an asset path outside SHIPPED_UNTOUCHED", () => {
+    const dir = mkdtempSync(join(tmpdir(), "vc-v3-"));
+    const record = join(dir, "pins.json");
+    const sentinel = JSON.stringify({ sentinel: true });
+    writeFileSync(record, sentinel);
+    const writer = join(REPO_ROOT, "tools/openclinxr/evidence/humanoid-vetting/pin-visemes-cast-geometry.ts");
+    let status = -1;
+    let stderr = "";
+    try {
+      execFileSync("pnpm", ["exec", "tsx", writer, "--record", record, "--glb", join(dir, "mpfb-not-a-shipped-actor.glb")], {
+        cwd: REPO_ROOT,
+        timeout: 120_000,
+      });
+    } catch (e) {
+      const err = e as { status?: number; stderr?: Buffer | string };
+      status = err.status ?? -1;
+      stderr = String(err.stderr ?? e);
+    }
+    console.log("V3", { status, stderr: stderr.slice(0, 200) });
+    expect(status, "writer must exit 2 on a non-listed asset path").toBe(2);
+    expect(stderr, "writer must print usage").toMatch(/usage/i);
+    expect(readFileSync(record, "utf8"), "refused mint must write nothing").toBe(sentinel);
+  }, 180_000);
 });

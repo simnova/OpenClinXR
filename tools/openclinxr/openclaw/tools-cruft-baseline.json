@@ -1,5 +1,5 @@
 {
-  "baseSha": "9afcbc4f31e06b1055448a9349bc1a076cab9c1b",
+  "baseSha": "1a631a86d34fb19cd5c7bab0fae3ecbcef619c3b",
   "unreferencedTs": [
     "tools/openclinxr/asset-licence-ledger-generator.ts",
     "tools/openclinxr/asset-pipeline/anny/optimize_glb_lash_lod.mjs",
@@ -121,7 +121,6 @@
     "tools/openclinxr/evidence/hm08-calibration-anchor.ts",
     "tools/openclinxr/evidence/humanoid-motion/clip-channel-deviation.ts",
     "tools/openclinxr/evidence/humanoid-source-closeup-comparator.mjs",
-    "tools/openclinxr/evidence/humanoid-vetting/iris-closed-lid-crop-capture.ts",
     "tools/openclinxr/evidence/infinigen-indoors-cagematch-probe.ts",
     "tools/openclinxr/evidence/issue-188-footwear-grade.ts",
     "tools/openclinxr/evidence/issue-247-actor-floor-probe.ts",
