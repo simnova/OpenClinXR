@@ -1,0 +1,263 @@
+{
+  "id": "aisha-quest-relay-ladder-v1",
+  "status": "Reviewed, with first batch specified; reviewed ladder experiments pending.",
+  "tracking": {
+    "boardProjectId": "prj_9b390b99b443a964",
+    "rule": "This file owns stage scope, exit conditions and measured facts. BothyBoard owns execution status, dependencies and evidence acceptance. Append each attempted arm to the experiment ledger and attach exact evidence to its card. A trigger result, an invalid arm and a quiet arm have distinct verdicts.",
+    "historicalLedgerId": "aisha-open-issues-grok-ladder-1",
+    "sourceCheckpoint": "665487d6e",
+    "viewerCheckpoint": "e61186004",
+    "evidenceNote": "Evidence paths below are relative to the existing local experiment evidence root for slice xr-relay-source-bridge-20261120. Ledger IDs and measurements are retained here; raw captures and agent transcripts live with the local evidence."
+  },
+  "consultation": {
+    "model": "Grok 4.7",
+    "turns": [
+      {
+        "turn": 1,
+        "purpose": "Inventory and challenge evidence",
+        "answerSha256": "fe50b9e27dbc3b5c8ecdbcf20c66216b2396e00cd0fbd0289d2015d98a75e66f"
+      },
+      {
+        "turn": 2,
+        "purpose": "Isolate the admission boundary",
+        "answerSha256": "3f97f8df1ac735a7669ab7fa02a6eeae426ea4888bc8c5fd102912333fb0f0b9"
+      },
+      {
+        "turn": 3,
+        "purpose": "Design cadence, pixel and worn acceptance",
+        "answerSha256": "8486ab24916393ed999704764913883ba215954e548a6463c9885e5caf48e759"
+      },
+      {
+        "turn": 4,
+        "purpose": "Attack the first batch and exit criteria",
+        "answerSha256": "824ac6a93a81eec117cfcf8d3e5f936771e73c555b1ca0a3be07e4f4f8f3b5e1"
+      }
+    ]
+  },
+  "baseline": {
+    "source": "Aisha room-v2",
+    "route": "Mac / VideoToolbox / USB ADB reverse / Quest Browser",
+    "stream": "4K SBS HEVC Main8, coded120, native120, 24 Mbps",
+    "demoPolicy": "Keep existing defaults; native120 and temporal modes stay experimental."
+  },
+  "issues": [
+    {
+      "id": "I1",
+      "area": "Rare live admission stall",
+      "status": "blocking",
+      "diagnosis": "First large relay packet-to-admission ACK delay was 391.2 ms on delta 11989 while Mac input-to-coded dispatch took 16.3 ms. Relay interval peaked at 460.9 ms; the later keyframe and stale pose do not identify the cause.",
+      "addressed": "Exact PTS joins and separate host/viewer clock evidence. Flat physical USB max 31 ms and USB plus WebCodecs max 67.3 ms, both exact conservation. Two sockets over the same USB route gave no material tail benefit.",
+      "open": "Disentangle browser message dispatch, JS/ACK enqueue, ACK return, decoded-surface ownership and live credits/pose coupling under immersive load.",
+      "evidence": [
+        "aisha-native-temporal-stall-2/exact-stall-trace.json",
+        "aisha-native-temporal-stall-2/usb-only-result.json",
+        "aisha-native-temporal-stall-2/usb-decode-result.json"
+      ]
+    },
+    {
+      "id": "I2",
+      "area": "Fresh stereo cadence and real display",
+      "status": "open",
+      "diagnosis": "4K coded120 and native120 average about 100–103 fresh pairs/s and 112–114 submits/s live. Native120 improves fresh delivery by about 30% over native90, while missing cadence and worst-window age qualification.",
+      "addressed": "Measured exact lifetime and PTS. Cached cadence shaping tightened enqueue spacing and sometimes reached 117 fresh pairs/s. Historical ready-with-late RAF evidence prevents assuming decoder throughput alone determines this cap.",
+      "open": "Sustain cadence and pose age under the full live workload. Display refresh and motion-to-photon require their own measurements.",
+      "ledger": [
+        "aisha-native-sustained-rate-abba-2",
+        "wgpu-nativevt-timer-confirm-1",
+        "wgpu-nativevt-clock-2"
+      ]
+    },
+    {
+      "id": "I3",
+      "area": "Codec-induced keyframe shimmer and ghosting",
+      "status": "experimental",
+      "diagnosis": "Frozen raw images are stable while decoded luma changes near IDRs. Guarded 50% blend reduces worst frozen steps 49% door and 47% lashes. 58 moving regions per treatment were exact baseline; headset optical quality remains unknown.",
+      "addressed": "Sparse history reduced native copies 12,008 to 478 with 48–51 blend-enabled sources per run. Native ABBA decoded and closed 58,257 frames with zero drops; fresh ratio 0.894 and worst-window age increase 24.23 ms missed the gates.",
+      "open": "Prove actual native pixel improvement and realistic moving lashes, head motion, stereo consistency and ghosting. The isolated long stall is correlated with one treatment, cause unknown.",
+      "evidence": [
+        "aisha-quest-temporal-filter-1/result.json",
+        "aisha-native-temporal-join-1/result.json"
+      ]
+    },
+    {
+      "id": "I4",
+      "area": "Spatial edging at door trim and lashes",
+      "status": "partially resolved",
+      "diagnosis": "Coplanar door geometry was one contributor. Raw geometry/alpha aliasing is separate from encoded pulses.",
+      "addressed": "Reveal moved 0.5 mm, and door trim holes fell 93/92 to 7/14 on matched headset decode. 4× MSAA softened raw edges and added about 21 ms worst-window pose age.",
+      "open": "Find lower-cost alpha/edge stabilization in the affected assets and qualify visible results. Broad MSAA held.",
+      "evidence": [
+        "aisha-alias-ladder-1/result.json",
+        "aisha-live-frame-comparison-1/result.json"
+      ]
+    },
+    {
+      "id": "I5",
+      "area": "Tracked realism and worn acceptance",
+      "status": "open",
+      "diagnosis": "Older floor alignment reproducibly tilted; revised local-floor calculation and angular reprojection were demonstrated. Pose age is a queue-submit proxy.",
+      "addressed": "Exact eye, source-frame and capture-pose joins, prior worn motion trace replay, stationary physical floor proof, native hand marker and scripted speech code paths.",
+      "open": "Verify both-eye alignment, translation and head-turn comfort, real floor and controller/hand motion, speech timing and visible quality in the current placed room; optical latency if claimed.",
+      "ledger": [
+        "aisha-quest-room-revision-1",
+        "aisha-native-sustained-q24-room-v2-proof-1"
+      ]
+    },
+    {
+      "id": "I6",
+      "area": "Sustained harness reliability and terminal evidence",
+      "status": "partially resolved",
+      "diagnosis": "An early run was rejected on viewer identity. One later XR session ended early. Broad ownership/handoff checks and pre-existing documentation drift remain distinct from runtime performance.",
+      "addressed": "Pinned allowlists; one bounded retry; verified owned cleanup and exact failure reason on loopback relay. Local code and ledger commits preserved.",
+      "open": "Exercise typed runtime receipt on the full physical path; retain invalid attempts, exposure and device state. Native proof needs reliable terminal telemetry without active CDP evaluation.",
+      "evidence": [
+        "aisha-native-temporal-join-1/recovery.json",
+        "aisha-native-temporal-join-1/relay-stop-wire-proof-1/proof.json"
+      ]
+    },
+    {
+      "id": "I7",
+      "area": "4K source headroom and quality envelope",
+      "status": "conditional",
+      "diagnosis": "24 Mbps is the highest tested sustained quality tier of the optional 4K120 route. Dense/high-motion workload extremes and larger quality tiers remain unqualified.",
+      "addressed": "Hardware Mac encode and earlier live Quest Qualcomm decoder verified in scoped runs. Flat joined decoder backend was not verified in that run. Short rate windows harmed image quality, CQF was ineffective or exceeded the packet ceiling, GOP240 missed worst pulse and budget, and disabling speed preference cut capacity.",
+      "open": "Only reopen rates or source/codec swaps if a representative measurement establishes headroom or a visible quality limit worth the trade.",
+      "evidence": [
+        "aisha-relay-qualified-profile-v1.json",
+        "aisha-codec-rate-window-1/result.json"
+      ]
+    },
+    {
+      "id": "I8",
+      "area": "Alternative architectures and promotion",
+      "status": "parked",
+      "diagnosis": "QUIC HEVC90 on Wi-Fi can pass isolated transport/decode. Native MV-HEVC speed preference reached about 88 unique pairs/s on synthetic prepared same-pixel input. Neither qualifies this live 4K120 workload.",
+      "addressed": "Compared relay approaches, shared-copy mechanism, transport arms, native codec/decoder hints and upload variants. No viable measured win on current limiter. No exact CloudXR feature/parity assumption.",
+      "open": "Reopen only with a measured transport or stereo/codec limit and paired quality-preserving evidence. Formal merge, release and headset readiness are separate from the local experimental checkpoint.",
+      "ledger": [
+        "quic-hevc-tail-1",
+        "native-mv-hevc-speed-priority-screen-1",
+        "native-vt-copy-shared-1",
+        "aisha-temporal-checkpoint-commits-1"
+      ]
+    }
+  ],
+  "firstBatch": {
+    "stageIds": [
+      "R0",
+      "R1-A"
+    ],
+    "targetArchive": "Use one pinned workload with original within-clip HEVC dependency order and original pacing. Prefer a continuous 120 s capture if available. A repeated short archive must preserve IDR-started cycles, label cycle/index, use monotonic decode timestamps, hold one declared decoder lifecycle, and disclose the repeated workload.",
+    "fixed": {
+      "decode": "Real WebCodecs, close every exact frame immediately",
+      "nativeXR": false,
+      "renderer": false,
+      "route": "Single shared ADB reverse WebSocket, existing trusted origin",
+      "scoredPoseTraffic": false,
+      "syntheticFaultInjectionOnDevice": false
+    },
+    "recorder": {
+      "inputs": [
+        "generation",
+        "coded index",
+        "PTS",
+        "type",
+        "payload length"
+      ],
+      "sameClockSegments": [
+        "Mac local relay packet→ACK",
+        "Quest WebSocket handler→parse end→decode admission→ACK enqueue",
+        "Quest decoder output→frame close",
+        "Mac credit occupancy and pose forwarding in eligible live arms"
+      ],
+      "optionalResiduals": "One-way split requires bounded estimator uncertainty. Keep round-trip and cross-clock residuals labeled.",
+      "storage": "One fixed-size ring per observed clock, one trigger snapshot, normal compact terminal digest. Retain device visibility/session-end reason and exact owned cleanup."
+    },
+    "classification": {
+      "TRIGGER_CAPTURED": "First exact local packet→ACK >=250 ms, snapshot once, stop arm, verify cleanup and causal alignment before selecting next rung.",
+      "NOT_REPRODUCED": "120 seconds scored exposure, no trigger, complete identity and cleanup. Allows B if observer passes.",
+      "INVALID": "Observer overhead, broken session or identity, incomplete terminal receipt or cleanup. Repair proved cause before any bounded retry."
+    },
+    "budget": {
+      "diagnosticExposureSecondsPerArm": 120,
+      "packetToAckTriggerMs": 250,
+      "recorderFlatObserverMaxThroughputRegressionPercentProposed": 3,
+      "nativeObserverMaxThroughputRegressionPercentProposed": 3,
+      "nativeObserverWorstMatchedWindowMeanPoseAgeIncreaseMs": 3,
+      "unexplainedRetries": 0
+    },
+    "nextEligible": "B only after flat conservation, valid overhead controls and a quiet A. No automatic additional hardware arms in first batch."
+  },
+  "stages": [
+    {
+      "id": "R0",
+      "issues": [
+        "I1",
+        "I6"
+      ],
+      "action": "Build one fixed-size packet/pose recorder and verify typed terminal reasons, no ad-hoc CDP during immersion. Use exact AU/PTS/lifetime identity. Compare recorder off vs on on same fixture to bound overhead before promotion measurements.",
+      "gate": "Exact records, typed terminal reason and cleanup. Flat throughput regression <=3% proposed with ACK-tail effect recorded and bounded before proceeding. Native observer check additionally bounds pose-to-submit age (+3 ms worst matched window); no flat pose/submit claim. Exercise control classification in offline/loopback proof."
+    },
+    {
+      "id": "R1",
+      "issues": [
+        "I1",
+        "I6"
+      ],
+      "action": "Hold exact archived 4K bytes/PTS order and pacing. A flat real decode/immediate close. B native tracked minimal layer and immediate close. C current latest-surface ownership, import and stereo draw. Split retain from draw on C trigger. Keep diagnostic pose replay tagged and off the scored ACK socket in A–C, observe live pose locally in B/C. D restores live producer, native tracking feedback and credits only if A–C are quiet; split D if triggered. Hold temporal, codec and bitrate fixed.",
+      "gate": "One first packet-to-ACK >=250 ms captures ring, ends diagnostic and restores owned resources. 120 s exposure cap per arm; zero events returns NOT_REPRODUCED, never reliability pass. R0 verifies linked local clocks and counters. Compare on preserved original phase, support exact byte/key identity. Interruption is invalid, not performance."
+    },
+    {
+      "id": "R2",
+      "issues": [
+        "I1",
+        "I2",
+        "I6"
+      ],
+      "action": "Only change the implicated stage: same-clock event-loop/ACK path, decoded-surface release, send/receive credit or delayed pose feedback. Reuse bounded latest-source ownership. If admission pause unrecoverable, design explicit coordinated next-IDR resync with new epoch, never arbitrary dropping/retransmit of dependent HEVC deltas. Before any integration show same trigger/benefit against control, then confirm live using sustained matched blocks.",
+      "gate": "Valid matched baseline/candidate; preserve exact decoder conservation except separately labeled resync test; >=97% fresh and paired submit against stronger matched controls, <=+3 ms worst-window mean pose age, <=5% control fresh drift. Report tail event count, exposure, max/p95/p99 and staleness; no claim rare tail eliminated on quiet arms."
+    },
+    {
+      "id": "R3",
+      "issues": [
+        "I2",
+        "I7"
+      ],
+      "action": "If sustained video pace, track exact output-ready vs XR callback patterns. Try receive pacing/phase only if excess bunched arrivals precede no-ready/repeat intervals. Reuse cached MessageChannel evidence as a lead. If original RAF is late despite ready frame, hold codec and prioritize native scheduler/runtime boundary and native90 baseline. Check dense Mac source headroom only if fresh supply evidence points upstream.",
+      "gate": "Stable absolute candidate window criterion >=114 fresh pairs/s and >=114 native submits/s for experimental 120 path with the existing age gate, plus report paired counts, repeats, thermal state and runtime rate. Do not infer displayed FPS from submits."
+    },
+    {
+      "id": "R4",
+      "issues": [
+        "I3",
+        "I4"
+      ],
+      "action": "Parallel cheap pixels lane: raw vs matched Quest crop from each eye at exact PTS/capture pose. Separate asset-specific spatial edge/coverage from true IDR luma jumps and temporal ghosting. Screen local alpha edge changes and baseline/sparse filter with fixed holds, scripted lash motion at still head, yaw and translation, and both eyes. Samples outside timing campaigns; validate dynamic coverage and motion bypass.",
+      "gate": "Proposed screen >=25% worst measured static IDR luma-step reduction on both target features; check divergence, halos, detail and ghost/fringe movement against matched controls. Both-eye exact sample joins, unchanged bypass pixels; actual covered filtered pixels. No native adoption until R2 live gates and R5 worn acceptance pass."
+    },
+    {
+      "id": "R5",
+      "issues": [
+        "I5",
+        "I6"
+      ],
+      "action": "Finish with a bounded wearer A/B on the admitted default/opt-in candidate. Verify floor pose and stereo, comfortable yaw/translation, hand/controller presentation, cue/voice and lip alignment, phantom edges and shimmer. Optical rate or motion-to-photon claims require timestamped camera or photodiode instrumentation with its own error budget.",
+      "gate": "Evidence from current build and actual worn headset; record per-case checks. Device stationary/emulated runs remain supporting only. Formal integration/release checks separate."
+    },
+    {
+      "id": "R6",
+      "issues": [
+        "I7",
+        "I8"
+      ],
+      "action": "Park broad codec/bitrate/transport sweeps. Reopen one alternative only when exact instrumentation ties a bottleneck to its mechanism and expected win exceeds noise. Separate Wi-Fi QUIC or MV-HEVC with actual compatible browser/quality/sustained proof if reopened.",
+      "gate": "Quantified problem and matched source, geometry, bitrate/quality, tail and resource comparison. No default move solely by compatibility, API hint, average encode rate or CloudXR analogy."
+    }
+  ],
+  "decisions": [
+    "Diagnostic event and complete timing arm are different verdicts. An owned >=250 ms trigger is a retained valid symptom when trace, identity and cleanup pass. It ends the arm and excludes it from performance promotion.",
+    "Keep optional diagnostic pose traffic off the timed WebSocket in all three archive arms. Observe true native pose locally in B/C. Restore live pose and pacing together in D, and split that composite if it trips.",
+    "Use the observable off/on overhead gate for the flat recorder. Native fresh and pose-age gates are evaluated only where native output exists, with native recorder overhead checked before using those outcomes to score.",
+    "Repository hook/doc drift belongs in merge readiness. A run invalidates on actual provenance, timing, viewer, or teardown faults. Do not attribute a failed Git hook to device performance."
+  ]
+}
