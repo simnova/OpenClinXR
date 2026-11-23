@@ -1530,6 +1530,10 @@ describe("finalize_post_export_stage (R3)", () => {
     const root = process.cwd();
     copyFileSync(join(root, "packages/openclinxr/factory-station-core/src/post-export-stage-registry.ts"), join(dir, "registry.ts"));
     copyFileSync(join(root, "packages/openclinxr/factory-station-core/src/glb-geometry-digest.ts"), join(dir, "glb-geometry-digest.ts"));
+    copyFileSync(join(root, "packages/openclinxr/factory-station-core/src/post-export-stage-mint.ts"), join(dir, "post-export-stage-mint.ts"));
+    for (const m of readFileSync(join(dir, "registry.ts"), "utf8").matchAll(/from "\.\/([^"]+)\.js"/g)) {
+      if (!existsSync(join(dir, `${m[1]}.ts`))) throw new Error(`stageRegistry: staged registry imports ./${m[1]}.js but ${m[1]}.ts was not staged`);
+    }
     return join(dir, "registry.ts");
   }
 
