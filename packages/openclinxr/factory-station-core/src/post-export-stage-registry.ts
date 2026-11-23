@@ -2,12 +2,14 @@
 export interface PostExportStage {
   readonly mutates: readonly string[];
   readonly preserves: readonly string[];
+  /** Declared rig joint NAMES (data): the (b) gate excludes exactly these. */
+  readonly rigJoints?: readonly string[];
 }
 
 import { readFileSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { pathToFileURL } from "node:url";
-import { glbGeometryDigest } from "./glb-geometry-digest.js";
+import { glbGeometryDigest, glbGeometryDigestExcludingJoints } from "./glb-geometry-digest.js";
 import { mintPostExportConsumers } from "./post-export-stage-mint.js";
 
 export const POST_EXPORT_STAGE_REGISTRY: Readonly<Record<string, PostExportStage | undefined>> = {
@@ -358,7 +360,9 @@ function registryCliMain(): void {
     // INTERSECTION: a multi-stage level claims only what every stage preserves.
     const [first = [], ...rest] = stages.map((stage) => [...stage.preserves]);
     const preserves = rest.reduce((acc, cur) => acc.filter((domain) => cur.includes(domain)), first).sort();
-    process.stdout.write(`${JSON.stringify({ tool: tools.length === 1 ? tools[0] : tools, stages: stages.length, preserves })}\n`);
+    const solo = tools.length === 1 ? POST_EXPORT_STAGE_REGISTRY[tools[0] as string] : undefined;
+    const rig = solo?.rigJoints === undefined ? {} : { rigJoints: [...solo.rigJoints] };
+    process.stdout.write(`${JSON.stringify({ tool: tools.length === 1 ? tools[0] : tools, stages: stages.length, preserves, ...rig })}\n`);
     return;
   }
   if (keys[0] === "pinWriter") {
@@ -412,12 +416,20 @@ function registryCliMain(): void {
     }
     return;
   }
-  const digest = (input as { digest: unknown }).digest;
-  if (!Array.isArray(digest)) malformed("digest must be an array of strings");
+  const spec = (input as { digest: unknown }).digest;
+  const files: unknown = Array.isArray(spec) ? spec : (spec as { files?: unknown } | null)?.files;
+  const wired = Array.isArray(spec) ? undefined : (spec as { rigJoints?: unknown } | null)?.rigJoints;
+  if (!Array.isArray(files)) malformed("digest must be an array of strings");
+  let rig: readonly string[] | undefined;
+  if (wired !== undefined) {
+    if (!Array.isArray(wired) || wired.length === 0 || wired.some((j) => typeof j !== "string" || j.length === 0)) malformed("rigJoints must be a non-empty array of names");
+    rig = wired as readonly string[];
+  }
   try {
-    const digests = (digest as unknown[]).map((p) => {
+    const digests = (files as unknown[]).map((p) => {
       if (typeof p !== "string" || p.length === 0) throw new Error("digest paths must be non-empty strings");
-      return glbGeometryDigest(new Uint8Array(readFileSync(p)));
+      const bytes = new Uint8Array(readFileSync(p));
+      return rig === undefined ? glbGeometryDigest(bytes) : glbGeometryDigestExcludingJoints(bytes, rig);
     });
     process.stdout.write(`${JSON.stringify({ digests })}\n`);
     return;

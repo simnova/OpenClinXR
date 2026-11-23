@@ -44,6 +44,7 @@ COMPACT_DEFAULT = REPO_ROOT / "packages/openclinxr/factory-station-core/src/post
 STORE_ROOT_DEFAULT = Path("/Volumes/files/openclinxr-assets/store")
 REAL_STORE = os.path.realpath(STORE_ROOT_DEFAULT)
 MAPS_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/apply_hair_material_maps.py"
+RIG_RECORD_WRITER = "tools/openclinxr/asset-pipeline/makeclothes/record-rig-stage.ts"
 SELF_TOOL = "tools/openclinxr/asset-pipeline/makeclothes/finalize_post_export_stage.py"
 MAPS_PY = REPO_ROOT / MAPS_TOOL
 MEASURE_PY = HERE / "measure-humanoid-basecolorfactor.py"
@@ -456,6 +457,7 @@ def main() -> None:
     parser.add_argument("--consumers", type=Path, default=None)
     parser.add_argument("--repin-one", action="store_true")
     parser.add_argument("--test-registry", type=Path, default=None)
+    parser.add_argument("--stage-argv-json", default=None)
     args = parser.parse_args()
 
     root = fixture_root(args.test_registry) if args.test_registry else None
@@ -501,9 +503,19 @@ def main() -> None:
         refuse("a", f"sidecar unreadable ({args.sidecar}: {exc}); refusing")
 
     lineage = sidecar.get("byteLineage") if isinstance(sidecar, dict) else None
-    argv = lineage.get("derivationArgv") if isinstance(lineage, dict) else None
-    if not isinstance(argv, list) or not argv:
-        refuse("a", "sidecar carries no derivationArgv level; refusing")
+    if args.stage_argv_json is not None:
+        # Rig stage: the sidecar starts WITHOUT the rig level; the caller hands
+        # the finalized stage argv (tool + argv) for (a) resolution and (c) record.
+        try:
+            argv = json.loads(args.stage_argv_json)
+        except json.JSONDecodeError:
+            refuse("a", "unparsable --stage-argv-json; refusing")
+        if not isinstance(argv, list) or not argv or any(not isinstance(t, str) or not t for t in argv):
+            refuse("a", "--stage-argv-json must be a non-empty string array; refusing")
+    else:
+        argv = lineage.get("derivationArgv") if isinstance(lineage, dict) else None
+        if not isinstance(argv, list) or not argv:
+            refuse("a", "sidecar carries no derivationArgv level; refusing")
 
     # (a) the post level's tool is registered (shared rule).
     info, err = call_cli({"argv": argv}, registry)
@@ -514,10 +526,15 @@ def main() -> None:
         refuse("a", f"level does not resolve to exactly one registered tool ({tool}); refusing")
     checks_a = {"tool": tool, "stages": info.get("stages"), "registered": True}
 
-    # (b) geometry equality when the registry says the stage preserves it.
+    # (b) geometry equality when the registry says the stage preserves it. A rig
+    # stage declares joint NAMES (data); the shared digest then drops exactly those.
     if "geometry" not in info.get("preserves", []):
         refuse("b", f"stage {tool} does not preserve geometry; refusing to finalize")
-    digest_info, err = call_cli({"digest": [str(args.pre), str(args.post)]}, registry)
+    rig_joints = info.get("rigJoints")
+    if not (isinstance(rig_joints, list) and rig_joints and all(isinstance(j, str) and j for j in rig_joints)):
+        rig_joints = None
+    payload: dict = {"digest": {"files": [str(args.pre), str(args.post)], "rigJoints": rig_joints}} if rig_joints is not None else {"digest": [str(args.pre), str(args.post)]}
+    digest_info, err = call_cli(payload, registry)
     if digest_info is None:
         refuse("b", f"{err}; refusing")
     digests = digest_info.get("digests", [])
@@ -656,7 +673,9 @@ def main() -> None:
         })
 
     # (c) + (d) planned argv (run below unless --dry-run).
-    if tool != MAPS_TOOL:
+    if rig_joints is not None and tool == MAPS_TOOL:
+        refuse("c", f"registry entry for {tool} declares rigJoints but {tool} is not a rig stage; refusing")
+    if tool != MAPS_TOOL and rig_joints is None:
         refuse("c", f"no record writer registered for {tool}; refusing")
     try:
         side_st = os.lstat(str(args.sidecar))
@@ -664,9 +683,14 @@ def main() -> None:
             refuse("c", f"sidecar is a symlink or hard-linked ({args.sidecar}); refusing")
     except OSError as exc:
         refuse("c", f"cannot lstat sidecar ({args.sidecar}: {exc}); refusing")
-    record_argv = ["mise", "exec", "--", "python3", "-I", str(MAPS_PY),
-                   "--glb", str(post_abs), "--provenance", str(args.sidecar),
-                   "--record-wired-materials-only"]
+    if tool == MAPS_TOOL:
+        record_argv = ["mise", "exec", "--", "python3", "-I", str(MAPS_PY),
+                       "--glb", str(post_abs), "--provenance", str(args.sidecar),
+                       "--record-wired-materials-only"]
+    else:
+        record_argv = ["pnpm", "exec", "tsx", str(REPO_ROOT / RIG_RECORD_WRITER),
+                       "--sidecar", str(args.sidecar), "--post", str(post_abs),
+                       "--tool", tool, "--argv-json", json.dumps(argv)]
     body = select_body_path(sidecar, args.pre.resolve(), post_abs)
     if body is None:
         measure = {"skipped": f"{post_abs.name} is not a shipped body; nothing to measure"}
