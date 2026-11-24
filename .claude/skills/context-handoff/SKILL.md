@@ -44,3 +44,16 @@ Store rule, verbatim:
 2. Verify every mechanical fact with git before acting (branch, HEAD, dirty
    count, commits ahead of origin/main) — the file is a snapshot, not truth.
 3. Do Next action.
+
+## Headless lane driver
+
+`pnpm openclaw:lane-driver -- <lane> <worktree>` advances an `AUTOCONTINUE: on` lane without the
+desktop app: one `claude -p` process per item, prompted with the standard resume line for the
+handoff's `START AT item <id>`. Each run does one item, commits it, moves START AT, and ends with
+`DONE:`, `WAITING:` or `BLOCKED:`. The driver continues while START AT advances and stops on
+`BLOCKED:`, on `WAITING:` with START AT unmoved, on START AT unmoved for 2 runs, on a timeout, or on
+a `LANE HALTED` / `AUTOCONTINUE: off` / standalone `pause` or `stop` line. Renders must run in the
+foreground: the run's process group is killed at exit. It refuses a handoff touched within
+`--min-idle-min` (default 15) so it does not race a live session. Per-run cost, tokens and final
+line go to `<worktree>/.openclinxr/lane-driver/<lane>.jsonl`. Flags: `--max-iterations` (10),
+`--timeout-min` (60), `--model`, `--max-budget-usd`, `--allow <tool pattern>`.
