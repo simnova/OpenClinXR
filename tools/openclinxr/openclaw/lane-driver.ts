@@ -47,18 +47,13 @@ export const BASE_ALLOWED = [
   "Grep",
   "TodoWrite",
   "Skill",
-  "Bash(git status:*)",
-  "Bash(git diff:*)",
-  "Bash(git log:*)",
-  "Bash(git show:*)",
-  "Bash(git rev-parse:*)",
-  "Bash(git branch:*)",
-  "Bash(git worktree list:*)",
-  "Bash(git add:*)",
-  "Bash(git commit:*)",
-  "Bash(git restore:*)",
-  "Bash(git checkout:*)",
-  "Bash(git ls-files:*)",
+  // All of git: lanes use `git -C <path> ...` and compound commands; DISALLOWED (deny wins) removes the unsafe parts.
+  "Bash(git:*)",
+  "Bash(cd:*)",
+  "Bash(test:*)",
+  "Bash(diff:*)",
+  "Bash(sort:*)",
+  "Bash(jq:*)",
   "Bash(pnpm:*)",
   "Bash(node:*)",
   "Bash(npx tsx:*)",
@@ -80,6 +75,8 @@ export const BASE_ALLOWED = [
   "Bash(stat:*)",
   "Bash(date:*)",
   "Bash(echo:*)",
+  "Bash(printf:*)",
+  "Bash(touch:*)",
   "Bash(sips:*)",
   "Bash(magick:*)",
   "Bash(ffmpeg:*)",
@@ -87,9 +84,13 @@ export const BASE_ALLOWED = [
 
 export const DISALLOWED = [
   "Bash(git push:*)",
+  "Bash(git *push*)",
   "Bash(git stash:*)",
+  "Bash(git *stash*)",
   "Bash(git reset --hard:*)",
+  "Bash(git *reset --hard*)",
   "Bash(git config:*)",
+  "Bash(git -C * config:*)",
   "Bash(*--no-verify*)",
   "Bash(*OPENCLAW_SKIP_HOOKS*)",
   "Bash(*core.hooksPath*)",
@@ -225,6 +226,7 @@ type ClaudeJson = {
   num_turns?: number;
   session_id?: string;
   usage?: Record<string, number>;
+  permission_denials?: { tool_name?: string; tool_input?: Record<string, unknown> }[];
 };
 
 type RunResult = { json: ClaudeJson | null; code: number | null; timedOut: boolean; stderr: string; ms: number };
@@ -401,6 +403,11 @@ async function main(o: Options): Promise<number> {
       start_after: startAtItem(after),
       final_line: final,
       decision,
+      // Tool calls dontAsk refused; a lane that BLOCKs on permissions shows the missing pattern here.
+      permission_denials: (r.json?.permission_denials ?? []).map((d) => ({
+        tool: d.tool_name ?? "?",
+        input: String(d.tool_input?.command ?? d.tool_input?.file_path ?? JSON.stringify(d.tool_input ?? {})).slice(0, 300),
+      })),
       stderr_tail: r.json === null ? r.stderr : undefined,
     };
     appendFileSync(logPath, `${JSON.stringify(entry)}\n`);
